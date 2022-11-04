@@ -31,7 +31,7 @@ const IdentifierContainer = styled.div`
   align-items: center;
   width: auto;
   span {
-    color: ${baseTheme.colors.grey[400]};
+    color: ${baseTheme.colors.grey[600]};
     font-size: 15px;
     line-height: 1;
     font-family: ${headingFont};

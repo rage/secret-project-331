@@ -137,7 +137,6 @@ const ParagraphBlock: React.FC<
         min-width: 1px;
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
-        opacity: 0.85;
         font-size: ${mobileFontSizeMapper(fontSize)};
         line-height: 160%;
         text-align: ${align ?? "left"};

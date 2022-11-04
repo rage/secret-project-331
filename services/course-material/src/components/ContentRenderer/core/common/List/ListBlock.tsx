@@ -40,7 +40,6 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     ${gradient && `background: ${colorMapper(gradient)};`}
     ${backgroundColor && `padding: 1.25em 2.375em !important;`}
     padding-inline-start: 2.5rem !important;
-    opacity: 0.9;
     overflow-wrap: break-word;
 
     ${respondToOrLarger.md} {

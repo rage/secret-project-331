@@ -1,7 +1,7 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { groupBy, orderBy } from "lodash"
+import { groupBy } from "lodash"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 

@@ -1,7 +1,7 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { groupBy, sortBy } from "lodash"
+import { groupBy, orderBy } from "lodash"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -135,14 +135,11 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
     questions = peer_review_questions
   }
 
-  const sortedData = sortBy(
-    result,
-    // eslint-disable-next-line i18next/no-literal-string
-    "created_at",
-  )
+  // eslint-disable-next-line i18next/no-literal-string
+  const ordered = orderBy(result, (item) => item.created_at, "desc")
 
   const groupByPeerReviewSubmissionId = groupBy(
-    sortedData,
+    ordered,
     (review) => review.peer_review_submission_id,
   )
 

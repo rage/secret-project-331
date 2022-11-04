@@ -135,8 +135,10 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
     questions = peer_review_questions
   }
 
+  const ordered = result.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+
   const groupByPeerReviewSubmissionId = groupBy(
-    result,
+    ordered,
     (review) => review.peer_review_submission_id,
   )
 

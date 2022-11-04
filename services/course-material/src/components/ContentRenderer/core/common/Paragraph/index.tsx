@@ -75,7 +75,7 @@ const ParagraphBlock: React.FC<
             color: ${textColor};
             background-color: ${backgroundColor};
             ${fontFamily && `font-family: ${fontFamily};`}
-            font-size: ${fontSize};
+            font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;
             border-style: dotted;
@@ -116,7 +116,7 @@ const ParagraphBlock: React.FC<
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
-            font-size: ${fontSize};
+            font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
           `}
         >

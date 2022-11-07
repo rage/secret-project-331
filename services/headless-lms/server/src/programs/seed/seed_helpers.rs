@@ -97,9 +97,6 @@ pub fn create_best_exercise(
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
-    needs_peer_review: bool,
-    use_course_default_peer_review_config: bool,
-    course_id: Uuid,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -135,9 +132,6 @@ pub fn create_best_exercise(
             )],
         )],
         block_id,
-        needs_peer_review,
-        use_course_default_peer_review_config,
-        course_id,
     );
     (
         exercise_block,
@@ -153,9 +147,6 @@ pub fn example_exercise_flexible(
     exercise_name: String,
     exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
     client_id: Uuid,
-    needs_peer_review: bool,
-    use_course_default_peer_review_config: bool,
-    course_id: Uuid,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -211,30 +202,6 @@ pub fn example_exercise_flexible(
         )
         .collect();
 
-    let mut prc = None;
-    let mut prq = None;
-    if needs_peer_review && !use_course_default_peer_review_config {
-        let prc_id = Uuid::new_v4();
-        prc = Some(CmsPeerReviewConfig {
-            id: prc_id,
-            course_id,
-            exercise_id: Some(exercise_id),
-            peer_reviews_to_give: 2,
-            peer_reviews_to_receive: 1,
-            accepting_threshold: 3.0,
-            accepting_strategy:
-                peer_review_configs::PeerReviewAcceptingStrategy::ManualReviewEverything,
-        });
-        prq = Some(vec![CmsPeerReviewQuestion {
-            id: Uuid::new_v4(),
-            peer_review_config_id: prc_id,
-            order_number: 0,
-            question: "Was the answer good".to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Essay,
-            answer_required: true,
-        }]);
-    }
-
     let exercise = CmsPageExercise {
         id: exercise_id,
         name: exercise_name,
@@ -243,10 +210,10 @@ pub fn example_exercise_flexible(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
-        needs_peer_review,
-        use_course_default_peer_review_config,
-        peer_review_config: prc,
-        peer_review_questions: prq,
+        needs_peer_review: false,
+        use_course_default_peer_review_config: false,
+        peer_review_config: None,
+        peer_review_questions: None,
     };
     (block, exercise, slides, tasks)
 }
@@ -448,9 +415,6 @@ pub async fn create_exam(
             Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
             Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
             Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
-            false,
-            true,
-            course_id,
         );
     pages::insert_page(
         conn,
@@ -489,17 +453,18 @@ pub async fn create_exam(
 pub async fn create_best_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
-    exercise_id: Option<Uuid>,
+    exercise_id: Uuid,
 ) -> Result<()> {
     let prc_id =
-        peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, exercise_id).await?;
+        peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
+            .await?;
     let prc = peer_review_configs::upsert_with_id(
         conn,
         PKeyPolicy::Fixed(prc_id),
         &CmsPeerReviewConfig {
             id: prc_id,
             course_id,
-            exercise_id,
+            exercise_id: Some(exercise_id),
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
             accepting_threshold: 3.0,
@@ -520,6 +485,14 @@ pub async fn create_best_peer_review(
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
             answer_required: true,
         },
+    )
+    .await?;
+
+    exercises::set_exercise_to_use_exercise_specific_peer_review_config(
+        conn,
+        exercise_id,
+        true,
+        false,
     )
     .await?;
     Ok(())

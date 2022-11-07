@@ -1,6 +1,6 @@
 use crate::programs::seed::seed_helpers::{
-    create_best_exercise, create_page, example_exercise_flexible, paragraph, quizzes_exercise,
-    submit_and_grade,
+    create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
+    paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
@@ -332,9 +332,6 @@ pub async fn seed_sample_course(
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
-        true,
-        true,
-        course_id,
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -358,6 +355,8 @@ pub async fn seed_sample_course(
         },
     )
     .await?;
+
+    create_best_peer_review(&mut conn, course_id, exercise_1_id).await?;
 
     let exercise_2_id = Uuid::new_v5(&course_id, b"36e7f0c2-e663-4382-a503-081866cfe7d0");
     let exercise_2_slide_1_id = Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8");
@@ -398,9 +397,6 @@ pub async fn seed_sample_course(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
-        false,
-        true,
-        course_id,
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
         exercise_3_id,
@@ -411,9 +407,6 @@ pub async fn seed_sample_course(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
-        false,
-        true,
-        course_id,
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
         exercise_4_id,
@@ -424,9 +417,6 @@ pub async fn seed_sample_course(
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
-        false,
-        true,
-        course_id,
     );
 
     let page2_id = create_page(
@@ -1130,9 +1120,6 @@ pub async fn seed_sample_course(
                 ],
             )],
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
-            false,
-            true,
-            course_id,
         );
     create_page(
         &mut conn,
@@ -1176,9 +1163,6 @@ pub async fn seed_sample_course(
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
-        false,
-        true,
-        course_id,
     );
     create_page(
         &mut conn,

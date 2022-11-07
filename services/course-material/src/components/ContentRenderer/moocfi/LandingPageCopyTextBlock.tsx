@@ -3,6 +3,7 @@ import React from "react"
 
 import { BlockRendererProps } from ".."
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
+import Centered from "../../../shared-module/components/Centering/Centered"
 import { baseTheme } from "../../../shared-module/styles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
@@ -12,7 +13,6 @@ const Wrapper = styled.div`
   margin: 0.5rem auto;
   padding-bottom: 20px;
   position: relative;
-  max-width: 1075px;
 
   h2 {
     font-weight: 700 !important;
@@ -79,13 +79,15 @@ const LandingPageCopyTextBlock: React.FC<React.PropsWithChildren<BlockRendererPr
 ) => {
   return (
     <BreakFromCentered sidebar={false}>
-      <Wrapper>
-        <div className="line top"></div>
-        <div className="line bottom"></div>
-        <div className="line right"></div>
-        <div className="line left"></div>
-        <InnerBlocks parentBlockProps={props} />
-      </Wrapper>
+      <Centered variant="default">
+        <Wrapper>
+          <div className="line top"></div>
+          <div className="line bottom"></div>
+          <div className="line right"></div>
+          <div className="line left"></div>
+          <InnerBlocks parentBlockProps={props} />
+        </Wrapper>
+      </Centered>
     </BreakFromCentered>
   )
 }

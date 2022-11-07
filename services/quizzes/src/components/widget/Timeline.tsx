@@ -16,6 +16,7 @@ const TimelineWrapper = styled.section`
     box-sizing: border-box;
   }
 
+  flex: 1;
   position: relative;
   width: 100%;
   max-width: 1140px;

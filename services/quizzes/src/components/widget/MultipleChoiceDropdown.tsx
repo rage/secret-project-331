@@ -38,6 +38,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
     <div
       className={css`
         display: flex;
+        flex: 1;
         flex-direction: column;
         justify-content: space-between;
         ${respondToOrLarger.sm} {

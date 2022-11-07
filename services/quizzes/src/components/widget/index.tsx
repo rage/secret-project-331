@@ -4,6 +4,9 @@ import { v4 } from "uuid"
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
+import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
+import { COLUMN } from "../../util/constants"
+import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
@@ -66,6 +69,7 @@ type Action = {
 }
 
 export interface QuizItemComponentProps {
+  quizDirection: FlexDirection
   quizItem: PublicQuizItem
   quizItemAnswerState: QuizItemAnswer | null
   user_information: UserInformation
@@ -134,8 +138,10 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
 
   useSendQuizAnswerOnChange(port, state)
 
+  const direction = sanitizeFlexDirection(state.quiz.direction, COLUMN)
+
   return (
-    <>
+    <FlexWrapper wideScreenDirection={direction}>
       {state.quiz.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((quizItem) => {
@@ -145,6 +151,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
           return (
             <Component
               key={quizItem.id}
+              quizDirection={direction}
               quizItem={quizItem}
               quizItemAnswerState={quizItemAnswerState}
               user_information={user_information}
@@ -160,7 +167,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
             />
           )
         })}
-    </>
+    </FlexWrapper>
   )
 }
 

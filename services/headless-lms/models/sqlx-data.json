@@ -1116,6 +1116,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -1129,6 +1134,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -4074,6 +4080,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -4087,6 +4098,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -4791,6 +4803,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -4804,6 +4821,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -5410,6 +5428,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -5423,6 +5446,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -5774,6 +5798,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -5787,6 +5816,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -9116,6 +9146,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -9129,6 +9164,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -17789,6 +17825,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -17802,6 +17843,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,
@@ -18983,6 +19025,11 @@
           "name": "completion_registration_link_override",
           "ordinal": 13,
           "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
@@ -18996,6 +19043,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true,

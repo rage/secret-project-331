@@ -17,6 +17,7 @@ pub struct CourseModule {
     pub automatic_completion: bool,
     pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     pub automatic_completion_number_of_points_treshold: Option<i32>,
+    pub automatic_completion_exam_points_treshold: Option<i32>,
     /// If set, use this link rather than the default one when registering course completions.
     pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<i32>,
@@ -37,6 +38,7 @@ impl CourseModule {
             automatic_completion: false,
             automatic_completion_number_of_exercises_attempted_treshold: None,
             automatic_completion_number_of_points_treshold: None,
+            automatic_completion_exam_points_treshold: None,
             completion_registration_link_override: None,
             ects_credits: None,
         }

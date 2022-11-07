@@ -557,6 +557,7 @@ fn models() {
         automatic_completion: false,
         automatic_completion_number_of_exercises_attempted_treshold: None,
         automatic_completion_number_of_points_treshold: None,
+        automatic_completion_exam_points_treshold: None,
         ects_credits: None,
         completion_registration_link_override: None,
     });

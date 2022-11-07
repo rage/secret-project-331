@@ -6,7 +6,10 @@ import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../shared-module/styles"
+import { sanitizeFlexDirection } from "../shared-module/utils/css-sanitization"
+import { COLUMN } from "../util/constants"
 
+import FlexWrapper from "./FlexWrapper"
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
 import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
 import EssayFeedback from "./SubmissionComponents/Essay"
@@ -107,8 +110,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   const { t } = useTranslation()
   const quizScoreState: QuizScoreState = getQuizScoreState(feedback_json)
 
+  const direction = sanitizeFlexDirection(publicAlternatives.direction, COLUMN)
+
   return (
-    <>
+    <FlexWrapper wideScreenDirection={direction}>
       {publicAlternatives.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((item) => {
@@ -131,10 +136,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           return (
             <div
               className={css`
-                margin-bottom: 1.5rem;
-                :last-of-type {
-                  margin-bottom: 0;
-                }
+                flex: 1;
               `}
               key={item.id}
             >
@@ -143,6 +145,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                   <Component
                     key={item.id}
                     public_quiz_item={item}
+                    quiz_direction={direction}
                     quiz_item_feedback={itemFeedback}
                     quiz_item_model_solution={itemModelSolution}
                     user_quiz_item_answer={quizItemAnswer}
@@ -185,7 +188,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
             </div>
           )
         })}
-    </>
+    </FlexWrapper>
   )
 }
 

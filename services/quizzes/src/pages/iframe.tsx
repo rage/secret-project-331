@@ -16,6 +16,7 @@ import {
 } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import { COLUMN } from "../util/constants"
 import { migrateQuiz } from "../util/migrate"
 
 import { ItemAnswerFeedback } from "./api/grade"
@@ -128,6 +129,7 @@ const emptyQuiz: Quiz = {
   courseId: v4(),
   createdAt: new Date(),
   deadline: new Date(),
+  direction: COLUMN,
   excludedFromScore: true,
   grantPointsPolicy: DEFAULT_GRANT_POINTS_POLICY,
   items: [],

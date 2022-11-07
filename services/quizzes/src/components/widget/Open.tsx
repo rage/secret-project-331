@@ -1,20 +1,22 @@
-import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
+import CloseEndedQuestionWrapper from "../Shared/CloseEndedQuestionWrapper"
 
 import { QuizItemComponentProps } from "."
 
 const Open: React.FC<QuizItemComponentProps> = ({
+  quizDirection,
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {
   const { t } = useTranslation()
+  const fieldId = useId()
   const [showFormatError, setShowFormatError] = useState(false)
 
   const handleChange = (newValue: string) => {
@@ -36,16 +38,12 @@ const Open: React.FC<QuizItemComponentProps> = ({
     showFormatError && quizItemAnswerState?.textData && !quizItemAnswerState?.valid
 
   return (
-    <div
-      className={css`
-        display: flex;
-        flex-direction: column;
-      `}
-    >
+    <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
       <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
         <TextField
+          id={fieldId}
           aria-label={t("answer")}
           label={t("answer")}
           type="text"
@@ -53,18 +51,14 @@ const Open: React.FC<QuizItemComponentProps> = ({
           onChange={(e) => handleChange(e)}
           onFocus={() => setShowFormatError(true)}
           onBlur={() => setShowFormatError(false)}
+          error={
+            formatErrorVisible
+              ? t("error-answer-does-not-match-the-specified-answer-format")
+              : undefined
+          }
         />
       </div>
-      <div
-        className={css`
-          min-height: 1.5rem;
-        `}
-      >
-        {formatErrorVisible ? (
-          <>{t("error-answer-does-not-match-the-specified-answer-format")}</>
-        ) : null}
-      </div>
-    </div>
+    </CloseEndedQuestionWrapper>
   )
 }
 

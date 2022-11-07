@@ -5,6 +5,7 @@ export interface Quiz {
   section: number
   points: number
   deadline: Date | null
+  direction: "column" | "row" | null
   open: Date | null
   excludedFromScore: boolean
   createdAt: Date
@@ -28,6 +29,7 @@ export interface NormalizedQuiz {
   section: number
   points: number
   deadline: Date | null
+  direction: "column" | "row" | null
   open: Date | null
   excludedFromScore: boolean
   createdAt: string
@@ -51,6 +53,7 @@ export interface QuizVariables {
   newItemType: string
   newItems: string[]
   deadline: Date | null
+  direction: "column" | "row" | null
   validDeadline: boolean
   newQuiz: boolean
 }
@@ -61,6 +64,7 @@ export interface PublicQuiz {
   part: number
   section: number
   deadline: Date | null
+  direction: "column" | "row" | null
   open: Date | null
   tries: number
   triesLimited: boolean

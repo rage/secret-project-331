@@ -2,6 +2,7 @@ import produce from "immer"
 import { createReducer } from "typesafe-actions"
 
 import { action, Quiz, QuizVariables } from "../../../../types/types"
+import { COLUMN } from "../../../util/constants"
 import {
   createdDuplicateItem,
   createdNewItem,
@@ -18,6 +19,8 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
       const init = { ...action.payload.nestedQuiz }
       const deadline =
         action.payload.normalizedQuiz.quizzes[action.payload.normalizedQuiz.result].deadline
+      const direction =
+        action.payload.normalizedQuiz.quizzes[action.payload.normalizedQuiz.result].direction
 
       draftState[action.payload.normalizedQuiz.result] = {
         initialState: init,
@@ -25,6 +28,7 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         newItemType: "",
         newItems: [],
         deadline: deadline,
+        direction,
         validDeadline: true,
         newQuiz: false,
       }
@@ -43,6 +47,7 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         createdAt: new Date(),
         updatedAt: new Date(),
         deadline: null,
+        direction: COLUMN,
         excludedFromScore: false,
         grantPointsPolicy: "grant_whenever_possible",
         items: [],
@@ -62,6 +67,7 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
         newItems: [],
         newQuiz: true,
         deadline: null,
+        direction: COLUMN,
         validDeadline: true,
       }
     })

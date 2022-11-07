@@ -36,6 +36,7 @@ const MultipleChoiceClickable: React.FunctionComponent<
     <div
       className={css`
         display: flex;
+        flex: 1;
         flex-direction: column;
         ${respondToOrLarger.md} {
           flex-direction: row;

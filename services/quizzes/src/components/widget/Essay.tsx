@@ -21,6 +21,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
     <div
       className={css`
         display: flex;
+        flex: 1;
         flex-direction: column;
       `}
     >

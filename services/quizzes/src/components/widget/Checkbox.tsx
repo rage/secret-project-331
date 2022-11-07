@@ -22,6 +22,7 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
     <div
       className={css`
         display: flex;
+        flex: 1;
         flex-direction: row;
         flex-wrap: wrap;
         border: 3px solid #bec3c7;

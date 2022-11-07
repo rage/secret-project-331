@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -52,18 +51,12 @@ const Open: React.FC<QuizItemComponentProps> = ({
           onChange={(e) => handleChange(e)}
           onFocus={() => setShowFormatError(true)}
           onBlur={() => setShowFormatError(false)}
+          error={
+            formatErrorVisible
+              ? t("error-answer-does-not-match-the-specified-answer-format")
+              : undefined
+          }
         />
-      </div>
-      <div
-        className={css`
-          min-height: 1.5rem;
-        `}
-      >
-        {formatErrorVisible ? (
-          <span id={`${fieldId}_error`}>
-            {t("error-answer-does-not-match-the-specified-answer-format")}
-          </span>
-        ) : null}
       </div>
     </CloseEndedQuestionWrapper>
   )

@@ -2247,6 +2247,46 @@
 <span id="2247">2247</span>
 <span id="2248">2248</span>
 <span id="2249">2249</span>
+<span id="2250">2250</span>
+<span id="2251">2251</span>
+<span id="2252">2252</span>
+<span id="2253">2253</span>
+<span id="2254">2254</span>
+<span id="2255">2255</span>
+<span id="2256">2256</span>
+<span id="2257">2257</span>
+<span id="2258">2258</span>
+<span id="2259">2259</span>
+<span id="2260">2260</span>
+<span id="2261">2261</span>
+<span id="2262">2262</span>
+<span id="2263">2263</span>
+<span id="2264">2264</span>
+<span id="2265">2265</span>
+<span id="2266">2266</span>
+<span id="2267">2267</span>
+<span id="2268">2268</span>
+<span id="2269">2269</span>
+<span id="2270">2270</span>
+<span id="2271">2271</span>
+<span id="2272">2272</span>
+<span id="2273">2273</span>
+<span id="2274">2274</span>
+<span id="2275">2275</span>
+<span id="2276">2276</span>
+<span id="2277">2277</span>
+<span id="2278">2278</span>
+<span id="2279">2279</span>
+<span id="2280">2280</span>
+<span id="2281">2281</span>
+<span id="2282">2282</span>
+<span id="2283">2283</span>
+<span id="2284">2284</span>
+<span id="2285">2285</span>
+<span id="2286">2286</span>
+<span id="2287">2287</span>
+<span id="2288">2288</span>
+<span id="2289">2289</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::programs::seed::seed_helpers::{
     create_best_exercise, create_page, example_exercise_flexible, paragraph, quizzes_exercise,
     submit_and_grade,
@@ -2852,9 +2892,9 @@
                 <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;f1f0520e-3037-409c-b52d-163ad0bc5c59&quot;</span>,
                 <span class="string">&quot;options&quot;</span>: [{
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;86a2d838-04aa-4b1c-8115-2c15ed19e7b3&quot;</span>,
-                    <span class="string">&quot;body&quot;</span>: <span class="string">&quot;The right answer&quot;</span>,
+                    <span class="string">&quot;body&quot;</span>: null,
                     <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                    <span class="string">&quot;title&quot;</span>: null,
+                    <span class="string">&quot;title&quot;</span>: <span class="string">&quot;The right answer&quot;</span>,
                     <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;f8cff916-da28-40ab-9e8b-f523e661ddb6&quot;</span>,
                     <span class="string">&quot;correct&quot;</span>:<span class="bool-val">true</span>,
                     <span class="string">&quot;messageAfterSubmissionWhenSelected&quot;</span>: <span class="string">&quot;You chose wisely...&quot;</span>,
@@ -2862,9 +2902,9 @@
                 },
                 {
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;fef8cd36-04ab-48f2-861c-51769ccad52f&quot;</span>,
-                    <span class="string">&quot;body&quot;</span>: <span class="string">&quot;The Wright answer&quot;</span>,
+                    <span class="string">&quot;body&quot;</span>: null,
                     <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                    <span class="string">&quot;title&quot;</span>: null,
+                    <span class="string">&quot;title&quot;</span>: <span class="string">&quot;The Wright answer&quot;</span>,
                     <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;f8cff916-da28-40ab-9e8b-f523e661ddb6&quot;</span>,
                     <span class="string">&quot;correct&quot;</span>:<span class="bool-val">false</span>,
                     <span class="string">&quot;messageAfterSubmissionWhenSelected&quot;</span>: <span class="string">&quot;You chose poorly...&quot;</span>,
@@ -3127,6 +3167,23 @@
         <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
     );
 
+    <span class="kw">let </span>(
+        quizzes_exercise_block_8,
+        quizzes_exercise_8,
+        quizzes_exercise_slide_8,
+        quizzes_exercise_task_8,
+    ) = quizzes_exercise(
+        <span class="string">&quot;Vector exercise&quot;</span>.to_string(),
+        Uuid::new_v5(<span class="kw-2">&amp;</span>course.id, <span class="string">b&quot;80373dc3-ceba-45b4-a114-161d60228c0c&quot;</span>),
+        Uuid::new_v5(<span class="kw-2">&amp;</span>course.id, <span class="string">b&quot;08f0da90-9080-4cdd-adc7-66173cd5b833&quot;</span>),
+        Uuid::new_v5(<span class="kw-2">&amp;</span>course.id, <span class="string">b&quot;ea24c875-1a3c-403e-8272-b1249a475c89&quot;</span>),
+        Uuid::new_v5(<span class="kw-2">&amp;</span>course.id, <span class="string">b&quot;38ed716f-5d4f-4ddd-9f5a-700ef124b934&quot;</span>),
+        Uuid::new_v5(<span class="kw-2">&amp;</span>course.id, <span class="string">b&quot;0c271345-6934-4489-8164-2cc4dc8974bb&quot;</span>),
+        <span class="bool-val">false</span>,
+        serde_json::from_str(<span class="macro">include_str!</span>(<span class="string">&quot;../../assets/vector-exercise.json&quot;</span>))<span class="question-mark">?</span>,
+        <span class="prelude-val">None</span>,
+    );
+
     <span class="kw">let </span>page_3 = create_page(
         <span class="kw-2">&amp;mut </span>conn,
         course.id,
@@ -3283,6 +3340,29 @@
                     Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;cbb87878-5af1-4c01-b343-97bf668b8034&quot;</span>)
                 ),
                 quizzes_exercise_block_6
+            ]),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    create_page(
+        <span class="kw-2">&amp;mut </span>conn,
+        course.id,
+        admin,
+        <span class="prelude-val">Some</span>(chapter_1.id),
+        CmsPageUpdate {
+            url_path: <span class="string">&quot;/chapter-1/vector&quot;</span>.to_string(),
+            title: <span class="string">&quot;Vector&quot;</span>.to_string(),
+            chapter_id: <span class="prelude-val">Some</span>(chapter_1.id),
+            exercises: <span class="macro">vec!</span>[quizzes_exercise_8],
+            exercise_slides: <span class="macro">vec!</span>[quizzes_exercise_slide_8],
+            exercise_tasks: <span class="macro">vec!</span>[quizzes_exercise_task_8],
+            content: <span class="macro">serde_json::json!</span>([
+                paragraph(
+                    <span class="string">&quot;This page has a vector exercise composed of three close-ended questions.&quot;</span>,
+                    Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;53f68082-c417-4d38-99ad-40b6a30b2da4&quot;</span>)
+                ),
+                quizzes_exercise_block_8
             ]),
         },
     )

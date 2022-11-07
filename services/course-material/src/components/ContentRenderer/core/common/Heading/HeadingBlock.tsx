@@ -8,7 +8,7 @@ import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttribu
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../../shared-module/utils/constants"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
-import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
@@ -39,6 +39,7 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
         line-height: ${level === 1 ? 1.1 : 1.2};
         margin-bottom: 1rem;
         margin-top: ${marginTopHeadingMapper(level)};
+        font-weight: 600;
         ${textAlign && `text-align: ${textAlign};`}
         ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
       ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}

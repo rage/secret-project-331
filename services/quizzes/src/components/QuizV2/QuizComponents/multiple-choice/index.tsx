@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -7,9 +8,10 @@ import Accordion from "../../../../shared-module/components/Accordion"
 import Button from "../../../../shared-module/components/Button"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import RadioButton from "../../../../shared-module/components/InputFields/RadioButton"
-import TextField from "../../../../shared-module/components/InputFields/TextField"
+import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import { primaryFont } from "../../../../shared-module/styles"
 import EditorCard from "../common/EditorCard"
+import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
 
 import MultipleChoiceOption from "./MultipleChoiceOption"
@@ -89,9 +91,24 @@ const MultipleChoiceLayoutChoiceContainer = styled.div`
 const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem }) => {
   const { t } = useTranslation()
 
+  const MULTIPLE_CHOICE_OPTIONS = [
+    {
+      value: "default",
+      label: t("multiple-choice-grading-default"),
+    },
+    {
+      value: "points-off-incorrect-options",
+      label: t("multiple-choice-grading-points-off-incorrect-options"),
+    },
+    {
+      value: "points-off-unselected-options",
+      label: t("multiple-choice-grading-points-off-unselected-options"),
+    },
+  ]
+
   return (
     <EditorCard title={t("quiz-multiple-choice-name")}>
-      <TextField value={quizItem.title} label={t("title")} name={t("title")} />
+      <ParsedTextField label={t("title")} />
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>
       <OptionCardContainer>
@@ -104,14 +121,14 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
       <OptionCreationContainer>
         <OptionCreationWrapper>
           <OptionNameContainer>
-            <TextField label={t("option-title")} placeholder={t("option-title")} />
+            <ParsedTextField label={t("option-title")} />
           </OptionNameContainer>
           <OptionCheckBoxContainer>
             <CheckBox label={t("label-correct")} />
           </OptionCheckBoxContainer>
         </OptionCreationWrapper>
 
-        <TextField label={t("success-message")} placeholder={t("success-message")} />
+        <ParsedTextField label={t("success-message")} />
         <Button variant="primary" size={"medium"}>
           {t("add-option")}
         </Button>
@@ -131,18 +148,52 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
             </MultipleChoiceLayoutChoiceContainer>
             <OptionTitle> {t("answer-settings")}</OptionTitle>
             <ToggleCard
-              title={t("allow-selecting-multiple-options")}
-              description={t("allow-selecting-multiple-options-description")}
-              state={quizItem.allowSelectingMultipleOptions}
-            />
-            <ToggleCard
               title={t("shuffled-checkbox-message")}
               description={t("shuffle-option-description")}
               state={quizItem.shuffleOptions}
             />
+            <ToggleCard
+              title={t("allow-selecting-multiple-options")}
+              description={t("allow-selecting-multiple-options-description")}
+              state={quizItem.allowSelectingMultipleOptions}
+            />
+            <SelectField
+              id={"multiple-choice-grading"}
+              className={css`
+                width: 100%;
+                margin-bottom: 0.3rem;
+              `}
+              disabled={!quizItem.allowSelectingMultipleOptions}
+              onChange={(value) =>
+                // TODO: handle cache
+                console.log(value)
+              }
+              defaultValue={quizItem.multipleChoiceMultipleOptionsGradingPolicy}
+              label={t("multiple-choice-grading")}
+              options={MULTIPLE_CHOICE_OPTIONS}
+            />
+            <span
+              className={css`
+                color: #414246;
+                font-size: 14px;
+                font-family: Josefin Sans, sans-serif;
+                display: block;
+                margin-bottom: 8px;
+                ${!quizItem.allowSelectingMultipleOptions && "opacity: 0.5;"}
+              `}
+            >
+              {quizItem.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+                t("multiple-choice-grading-default-description")}
+              {quizItem.multipleChoiceMultipleOptionsGradingPolicy ==
+                "points-off-incorrect-options" &&
+                t("multiple-choice-grading-points-off-incorrect-options-description")}
+              {quizItem.multipleChoiceMultipleOptionsGradingPolicy ==
+                "points-off-unselected-options" &&
+                t("multiple-choice-grading-points-off-unselected-options-description")}
+            </span>
             <OptionTitle> {t("feedback-message")} </OptionTitle>
-            <TextField label={t("success-message")} />
-            <TextField label={t("failure-message")} />
+            <ParsedTextField label={t("success-message")} />
+            <ParsedTextField label={t("failure-message")} />
           </AdvancedOptionsContainer>
         </details>
       </Accordion>

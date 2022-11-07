@@ -43,10 +43,18 @@ const convertToString = (regexInput: string | null) => {
 const REGEX_PATTERNS = [
   {
     label: "String",
-    value: "S+",
+    value: "\\S+",
   },
   {
-    label: "Date (dd/mm/YYYY)",
+    label: "Date (mm/dd/YYYY)",
+    value: "d{2}\\/\\d{2}\\/\\d{4}",
+  },
+  {
+    label: "Date (YYYY-mm-dd)",
+    value: "d{2}\\/\\d{2}\\/\\d{4}",
+  },
+  {
+    label: "Date (dd.mm.YYYY)",
     value: "d{2}\\/\\d{2}\\/\\d{4}",
   },
   {
@@ -78,7 +86,7 @@ const RegexMethodView: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItem })
   )
 }
 
-const MarginlessContainer = styled.div`
+const TestButtonContainer = styled.div`
   * {
     margin: 0px;
     margin-bottom: 8px;
@@ -142,6 +150,8 @@ const AddNewRowContainer = styled.div`
 `
 
 const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => {
+  const { t } = useTranslation()
+
   const validateStrings = () => {
     const validationRegExp = new RegExp(convertToString(quizItem.validityRegex))
     const formatRegExp = new RegExp(convertToString(quizItem.formatRegex))
@@ -160,22 +170,22 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
   return (
     <TestTable>
       <tr key={`test-table-headers`}>
-        <RegexTableHeaderCell> String </RegexTableHeaderCell>
-        <RegexTableHeaderCell> Format </RegexTableHeaderCell>
-        <RegexTableHeaderCell> Validation </RegexTableHeaderCell>
+        <RegexTableHeaderCell> {t("string")} </RegexTableHeaderCell>
+        <RegexTableHeaderCell> {t("format")} </RegexTableHeaderCell>
+        <RegexTableHeaderCell> {t("validation")} </RegexTableHeaderCell>
       </tr>
       {result.map((result, idx) => (
         <tr key={`test-table-row-${idx}`}>
           <RegexTableStringCell> {result.string} </RegexTableStringCell>
           {result.format ? (
-            <RegexTableCorrectCell> PASSED </RegexTableCorrectCell>
+            <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
-            <RegexTableFailedCell> FAILED </RegexTableFailedCell>
+            <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
           )}
           {result.validation ? (
-            <RegexTableCorrectCell> PASSED </RegexTableCorrectCell>
+            <RegexTableCorrectCell> {t("passed")} </RegexTableCorrectCell>
           ) : (
-            <RegexTableFailedCell> FAILED </RegexTableFailedCell>
+            <RegexTableFailedCell> {t("failed")} </RegexTableFailedCell>
           )}
         </tr>
       ))}
@@ -224,17 +234,17 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
   return (
     <EditorCard title={t("quiz-open-name")}>
-      <OptionTitle> Grading strategy </OptionTitle>
+      <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton
           checked={method == 0}
           onClick={() => setMethod(0)}
-          label={"Exact string"}
+          label={t("exact-string")}
         ></RadioButton>
         <RadioButton
           checked={method == 1}
           onClick={() => setMethod(1)}
-          label={"Regex"}
+          label={t("regex")}
         ></RadioButton>
       </RadioButtonContainer>
       {method == 0 && <ExactStringMethodView quizItem={quizItem} />}
@@ -242,7 +252,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       <Accordion variant="detail" title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
-          <MarginlessContainer>
+          <TestButtonContainer>
             {testStrings.map((string, idx) => (
               <TextField
                 key={`test-string-field-${idx}`}
@@ -254,9 +264,9 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
             ))}
             <AddNewRowContainer>
               <CircleButton icon={faPlus} onClick={() => addNewString()} />
-              <p>Add example string</p>
+              <p> {t("add-example-string")}</p>
             </AddNewRowContainer>
-          </MarginlessContainer>
+          </TestButtonContainer>
           <RegexTestTableContainer>
             <RegexTestTable quizItem={quizItem} testStrings={testStrings} />
           </RegexTestTableContainer>

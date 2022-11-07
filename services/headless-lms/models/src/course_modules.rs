@@ -66,11 +66,12 @@ impl CourseModule {
         mut self,
         automatic_completion_policy: &AutomaticCompletionPolicy,
     ) -> Self {
-        let (automatic_completion, exercises_treshold, points_treshold) =
+        let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
             automatic_completion_policy.to_database_fields();
         self.automatic_completion = automatic_completion;
         self.automatic_completion_number_of_exercises_attempted_treshold = exercises_treshold;
         self.automatic_completion_number_of_points_treshold = points_treshold;
+        self.automatic_completion_exam_points_treshold = exam_points_treshold;
         self
     }
 
@@ -339,6 +340,7 @@ WHERE uh_course_code IS NOT NULL
 pub struct AutomaticCompletionCriteria {
     pub number_of_exercises_attempted_treshold: Option<i32>,
     pub number_of_points_treshold: Option<i32>,
+    pub number_of_exam_points_treshold: Option<i32>,
 }
 
 pub enum AutomaticCompletionPolicy {
@@ -347,14 +349,15 @@ pub enum AutomaticCompletionPolicy {
 }
 
 impl AutomaticCompletionPolicy {
-    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>) {
+    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, Option<i32>) {
         match self {
             AutomaticCompletionPolicy::AutomaticCompletion(criteria) => (
                 true,
                 criteria.number_of_exercises_attempted_treshold,
                 criteria.number_of_points_treshold,
+                criteria.number_of_exam_points_treshold,
             ),
-            AutomaticCompletionPolicy::NoAutomaticCompletion => (false, None, None),
+            AutomaticCompletionPolicy::NoAutomaticCompletion => (false, None, None, None),
         }
     }
 }
@@ -364,7 +367,7 @@ pub async fn update_automatic_completion_status(
     id: Uuid,
     automatic_completion_policy: &AutomaticCompletionPolicy,
 ) -> ModelResult<CourseModule> {
-    let (automatic_completion, exercises_treshold, points_treshold) =
+    let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
         automatic_completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModule,
@@ -372,14 +375,16 @@ pub async fn update_automatic_completion_status(
 UPDATE course_modules
 SET automatic_completion = $1,
   automatic_completion_number_of_exercises_attempted_treshold = $2,
-  automatic_completion_number_of_points_treshold = $3
-WHERE id = $4
+  automatic_completion_number_of_points_treshold = $3,
+  automatic_completion_exam_points_treshold = $4
+WHERE id = $5
   AND deleted_at IS NULL
 RETURNING *
         ",
         automatic_completion,
         exercises_treshold,
         points_treshold,
+        exam_points_treshold,
         id,
     )
     .fetch_one(conn)

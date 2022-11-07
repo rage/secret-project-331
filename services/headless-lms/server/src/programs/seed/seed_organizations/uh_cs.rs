@@ -101,6 +101,7 @@ pub async fn seed_organization_uh_cs(
         &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
+            number_of_exam_points_treshold: None,
         }),
     )
     .await?;

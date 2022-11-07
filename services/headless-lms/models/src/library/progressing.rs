@@ -773,6 +773,7 @@ mod tests {
                 AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
+                    number_of_exam_points_treshold: None,
                 });
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)

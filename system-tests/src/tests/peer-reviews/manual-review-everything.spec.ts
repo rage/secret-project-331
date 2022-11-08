@@ -3,6 +3,7 @@ import { chromium, expect, Page, test } from "@playwright/test"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForFunction from "../../utils/waitForFunction"
 
 test.describe("test ManualReviewEverything behavior", () => {
   test.use({
@@ -31,289 +32,175 @@ test.describe("test ManualReviewEverything behavior", () => {
     await logout(page3)
     await logout(page4)
 
-    await login("teacher@example.com", "teacher", page1, true)
-    await login("student1@example.com", "student.1", page2, true)
-    await login("student2@example.com", "student.2", page3, true)
-    await login("student3@example.com", "student.3", page4, true)
+    await login("student1@example.com", "student.1", page1, true)
+    await login("student2@example.com", "student.2", page2, true)
+    await login("student3@example.com", "student.3", page3, true)
+    await login("teacher@example.com", "teacher", page4, true)
   })
-  test("ManualReviewEverything > That gets a perfect score gets sent to manual review", async ({
+  test.skip("ManualReviewEverything > That gets a perfect score gets sent to manual review", async ({
     headless,
   }) => {
-    // Go to http://project-331.local/
+    // Student 1 submits an answer
     await page1.goto("http://project-331.local/")
-    // Click [aria-label="University of Helsinki\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ") >> nth=0
     await page1
-      .locator(
-        '[aria-label="University of Helsinki\\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-      )
-      .first()
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
     await expect(page1).toHaveURL("http://project-331.local/org/uh-cs")
-    // Click text=Course ModulesSample course.
-    await page1.locator("text=Course ModulesSample course.").click()
-    await expect(page1).toHaveURL("http://project-331.local/org/uh-cs/courses/course-modules")
-    // Check input[name="select-course-instance"] >> nth=0
-    await page1.locator('input[name="select-course-instance"]').first().check()
-    // Click button:has-text("Continue")
-    await page1.locator('button:has-text("Continue")').click()
-    // Click .css-1q12po3 >> nth=0
-    await page1.locator(".css-1q12po3").first().click()
+    await page1.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
     await expect(page1).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/course-modules/chapter-1",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states",
     )
-    // Click text=Table of contents1Page One2Page 23Page 34Page 45Page 56Page 67The timeline8Multi
-    await page1
-      .locator(
-        "text=Table of contents1Page One2Page 23Page 34Page 45Page 56Page 67The timeline8Multi",
-      )
-      .click()
+    await page1.getByRole("radio", { name: "Default" }).check()
+    await page1.getByRole("button", { name: "Continue" }).click()
+    await page1.getByRole("link", { name: "Chapter 1 The Basics" }).click()
     await expect(page1).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/course-modules/chapter-1/page-4",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1",
     )
-    // Click a[role="button"]
-    await page1.locator('a[role="button"]').click()
-    await expect(page1).toHaveURL("http://project-331.local/")
-    // Click [aria-label="University of Helsinki\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ") >> nth=0
-    await page1
-      .locator(
-        '[aria-label="University of Helsinki\\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-      )
-      .first()
-      .click()
-    await expect(page1).toHaveURL("http://project-331.local/org/uh-cs")
-    // Click text=Introduction to everythingSample course.
-    await page1.locator("text=Introduction to everythingSample course.").click()
+    await page1.getByRole("link", { name: "1 Page One" }).click()
     await expect(page1).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/page-1",
     )
-    // Check input[name="select-course-instance"] >> nth=0
-    await page1.locator('input[name="select-course-instance"]').first().check()
-    // Click button:has-text("Continue")
-    await page1.locator('button:has-text("Continue")').click()
-    // Click text=The Basics
-    await page1.locator("text=The Basics").click()
-    await expect(page1).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
-    )
-    // Click text=Page One >> nth=0
-    await page1.locator("text=Page One").first().click()
-    await expect(page1).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
-    )
-    // Click text=c
-    await page1.frameLocator("iframe").locator("text=c").click()
-    // Click button:has-text("Submit")
-    await page1.locator('button:has-text("Submit")').click()
-    // Click text=Start peer review
-    await page1.locator("text=Start peer review").click()
-    // Click textarea
-    await page1.locator("textarea").click()
-    // Fill textarea
-    await page1.locator("textarea").fill("yes")
-    // Click button:has-text("Submit")
-    await page1.locator('button:has-text("Submit")').click()
+    await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
+    await page1.getByRole("button", { name: "Submit" }).click()
+    await page1.waitForTimeout(1000)
 
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      snapshotName: "student-1-peer-review",
-      waitForThisToBeVisibleAndStable: `text="Answer from another student"`,
-      page: page1,
-      clearNotifications: true,
-      beforeScreenshot: async () => {
-        page1.locator('h3:has-text("Peer review")').scrollIntoViewIfNeeded()
-      },
-    })
-
-    // Go to http://project-331.local/
+    // Student 2 submits an answer
     await page2.goto("http://project-331.local/")
-    // Click [aria-label="University of Helsinki\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ") >> nth=0
     await page2
-      .locator(
-        '[aria-label="University of Helsinki\\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-      )
-      .first()
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
     await expect(page2).toHaveURL("http://project-331.local/org/uh-cs")
-    // Click text=Course ModulesSample course.
-    await page2.locator("text=Course ModulesSample course.").click()
-    await expect(page2).toHaveURL("http://project-331.local/org/uh-cs/courses/course-modules")
-    // Check input[name="select-course-instance"] >> nth=0
-    await page2.locator('input[name="select-course-instance"]').first().check()
-    // Click button:has-text("Continue")
-    await page2.locator('button:has-text("Continue")').click()
-    // Click .css-1q12po3 >> nth=0
-    await page2.locator(".css-1q12po3").first().click()
+    await page2.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
     await expect(page2).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/course-modules/chapter-1",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states",
     )
+    await page2.getByRole("radio", { name: "Default" }).check()
+    await page2.getByRole("button", { name: "Continue" }).click()
+    await page2.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    await expect(page2).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1",
+    )
+    await page2.getByRole("link", { name: "1 Page One" }).click()
+    await expect(page2).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/page-1",
+    )
+    await page2.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
+    await page2.getByRole("button", { name: "Submit" }).click()
+    await page2.waitForTimeout(1000)
 
-    // Click text=Table of contents1Page One2Page 23Page 34Page 45Page 56Page 67The timeline8Multi
-    await page2
-      .locator(
-        "text=Table of contents1Page One2Page 23Page 34Page 45Page 56Page 67The timeline8Multi",
-      )
-      .click()
-    await expect(page2).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/course-modules/chapter-1/page-4",
-    )
-    // Click a[role="button"]
-    await page2.locator('a[role="button"]').click()
-    await expect(page2).toHaveURL("http://project-331.local/")
-    // Click [aria-label="University of Helsinki\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ") >> nth=0
-    await page2
-      .locator(
-        '[aria-label="University of Helsinki\\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-      )
-      .first()
-      .click()
-    await expect(page2).toHaveURL("http://project-331.local/org/uh-cs")
-    // Click text=Introduction to everythingSample course.
-    await page2.locator("text=Introduction to everythingSample course.").click()
-    await expect(page2).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything",
-    )
-    // Check input[name="select-course-instance"] >> nth=0
-    await page2.locator('input[name="select-course-instance"]').first().check()
-    // Click button:has-text("Continue")
-    await page2.locator('button:has-text("Continue")').click()
-    // Click text=The Basics
-    await page2.locator("text=The Basics").click()
-    await expect(page2).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
-    )
-    // Click text=Page One >> nth=0
-    await page2.locator("text=Page One").first().click()
-    await expect(page2).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
-    )
-    // Click text=c
-    await page2.frameLocator("iframe").locator("text=c").click()
-    // Click button:has-text("Submit")
-    await page2.locator('button:has-text("Submit")').click()
-    // Click text=Start peer review
-    await page2.locator("text=Start peer review").click()
-    // Click textarea
-    await page2.locator("textarea").click()
-    // Fill textarea
-    await page2.locator("textarea").fill("yes")
-    // Click button:has-text("Submit")
-    await page2.locator('button:has-text("Submit")').click()
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      snapshotName: "student-2-peer-review",
-      waitForThisToBeVisibleAndStable: `text="Answer from another student"`,
-      page: page2,
-      clearNotifications: true,
-      beforeScreenshot: async () => {
-        page1.locator('h3:has-text("Peer review")').scrollIntoViewIfNeeded()
-      },
-    })
-
-    // Go to http://project-331.local/
+    // Student 3 submits an answer
     await page3.goto("http://project-331.local/")
-    // Click [aria-label="University of Helsinki\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ") >> nth=0
     await page3
-      .locator(
-        '[aria-label="University of Helsinki\\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-      )
-      .first()
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
     await expect(page3).toHaveURL("http://project-331.local/org/uh-cs")
-    // Click text=Course ModulesSample course.
-    await page3.locator("text=Course ModulesSample course.").click()
-    await expect(page3).toHaveURL("http://project-331.local/org/uh-cs/courses/course-modules")
-    // Check input[name="select-course-instance"] >> nth=0
-    await page3.locator('input[name="select-course-instance"]').first().check()
-    // Click button:has-text("Continue")
-    await page3.locator('button:has-text("Continue")').click()
-    // Click .css-1q12po3 >> nth=0
-    await page3.locator(".css-1q12po3").first().click()
+    await page3.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
     await expect(page3).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/course-modules/chapter-1",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states",
     )
-    // Click text=Table of contents1Page One2Page 23Page 34Page 45Page 56Page 67The timeline8Multi
-    await page3
-      .locator(
-        "text=Table of contents1Page One2Page 23Page 34Page 45Page 56Page 67The timeline8Multi",
-      )
-      .click()
+    await page3.getByRole("radio", { name: "Default" }).check()
+    await page3.getByRole("button", { name: "Continue" }).click()
+    await page3.getByRole("link", { name: "Chapter 1 The Basics" }).click()
     await expect(page3).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/course-modules/chapter-1/page-4",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1",
     )
-    // Click a[role="button"]
-    await page3.locator('a[role="button"]').click()
-    await expect(page3).toHaveURL("http://project-331.local/")
-    // Click [aria-label="University of Helsinki\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ") >> nth=0
-    await page3
-      .locator(
-        '[aria-label="University of Helsinki\\, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
-      )
-      .first()
-      .click()
-    await expect(page3).toHaveURL("http://project-331.local/org/uh-cs")
-    // Click text=Introduction to everythingSample course.
-    await page3.locator("text=Introduction to everythingSample course.").click()
+    await page3.getByRole("link", { name: "1 Page One" }).click()
     await expect(page3).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything",
+      "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/page-1",
     )
-    // Check input[name="select-course-instance"] >> nth=0
-    await page3.locator('input[name="select-course-instance"]').first().check()
-    // Click button:has-text("Continue")
-    await page3.locator('button:has-text("Continue")').click()
-    // Click text=The Basics
-    await page3.locator("text=The Basics").click()
-    await expect(page3).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
-    )
-    // Click text=Page One >> nth=0
-    await page3.locator("text=Page One").first().click()
-    await expect(page3).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
-    )
-    // Click text=c
-    await page3.frameLocator("iframe").locator("text=c").click()
-    // Click button:has-text("Submit")
-    await page3.locator('button:has-text("Submit")').click()
-    // Click text=Start peer review
-    await page3.locator("text=Start peer review").click()
-    // Click textarea
-    await page3.locator("textarea").click()
-    // Fill textarea
-    await page3.locator("textarea").fill("yes")
-    // Click button:has-text("Submit")
-    await page3.locator('button:has-text("Submit")').click()
+    await page3.frameLocator("iframe").getByRole("checkbox", { name: "c" }).click()
+    await page3.getByRole("button", { name: "Submit" }).click()
+    await page3.waitForTimeout(1000)
 
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      snapshotName: "student-3-peer-review",
-      waitForThisToBeVisibleAndStable: `text="Answer from another student"`,
-      page: page3,
-      clearNotifications: true,
-      beforeScreenshot: async () => {
-        page1.locator('h3:has-text("Peer review")').scrollIntoViewIfNeeded()
-      },
-    })
-  })
+    // Student 1 starts peer review
+    await page1.getByRole("button", { name: "Start peer review" }).click()
+    await page1.getByPlaceholder("Write a review").click()
+    await page1.getByPlaceholder("Write a review").fill("yes")
+    await page1.getByRole("button", { name: "Submit" }).click()
+    await page1.getByPlaceholder("Write a review").click()
+    await page1.getByPlaceholder("Write a review").fill("kinda")
+    await page1.getByRole("button", { name: "Submit" }).click()
+    await page1.waitForTimeout(1000)
 
-  test("ManualReviewEverything > That gets the worst score gets sent to manual review", async ({
-    headless,
-  }) => {
-    console.log("hello")
+    // Student 2 starts peer review
+    await page2.getByRole("button", { name: "Start peer review" }).click()
+    await page2.getByPlaceholder("Write a review").click()
+    await page2.getByPlaceholder("Write a review").fill("yes")
+    await page2.getByRole("button", { name: "Submit" }).click()
+    await page2.getByPlaceholder("Write a review").click()
+    await page2.getByPlaceholder("Write a review").fill("kinda")
+    await page2.getByRole("button", { name: "Submit" }).click()
+    await page2.waitForTimeout(1000)
+
+    // Student 3 starts peer review
+    await page3.getByRole("button", { name: "Start peer review" }).click()
+    await page3.getByPlaceholder("Write a review").click()
+    await page3.getByPlaceholder("Write a review").fill("yes")
+    await page3.getByRole("button", { name: "Submit" }).click()
+    await page3.getByPlaceholder("Write a review").click()
+    await page3.getByPlaceholder("Write a review").fill("kinda")
+    await page3.getByRole("button", { name: "Submit" }).click()
+    await page3.waitForTimeout(1000)
+
+    // Teacher checks answers requiring attention
+    await page4.goto("http://project-331.local/")
+    await page4.waitForTimeout(1000)
+    await page4
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click()
+    await expect(page4).toHaveURL("http://project-331.local/org/uh-cs")
+    await page4.getByRole("link", { name: "Manage course 'Advanced exercise states'" }).click()
+    await expect(page4).toHaveURL(
+      "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3",
+    )
+    await page4.getByRole("tab", { name: "Exercises" }).click()
+    await expect(page4).toHaveURL(
+      "http://project-331.local/manage/courses/0cf67777-0edb-480c-bdb6-13f90c136fc3/exercises",
+    )
+    await page4
+      .locator('li:has-text("Best exercise View submissionsView answers requiring attention(3)")')
+      .getByRole("link", { name: "View answers requiring attention" })
+      .click()
+    await expect(page4).toHaveURL(
+      "http://project-331.local/manage/exercises/0f827be8-9043-576a-badd-868137143ee6/answers-requiring-attention",
+    )
+    await page4.waitForTimeout(1000)
+    await page4.getByRole("button", { name: "Zero points" }).first().click()
+    await page4.waitForTimeout(1000)
+    await page4.getByRole("button", { name: "Full points" }).nth(1).click()
+    await page4.waitForTimeout(1000)
+
+    // Student 1 views his reviews and grading
+    await page1.reload()
+    await page1.getByText("Peer reviews received from other students2").click()
+
+    // Student 2 views his reviews and grading
+    await page2.reload()
+    await page2.getByText("Peer reviews received from other students2").click()
+
+    // Student 3 views his reviews and grading
+    await page3.reload()
+    await page3.getByText("Peer reviews received from other students2").click()
   })
-  test("ManualReviewEverything > When an answer goes to manual review, the student won't get the points straight away", async ({
-    headless,
-  }) => {
-    console.log("hello")
-  })
-  test("ManualReviewEverything > When the teacher manually reviews an answer, the user gets the points after it", async ({
-    headless,
-  }) => {
-    console.log("hello")
-  })
-  test("ManualReviewEverything > If user submits multiple submissions to an exercise, and the answer goes to manual review after that, the manual review ui shows those submissions as grouped instead of two separate entries", async ({
-    headless,
-  }) => {
-    console.log("hello")
-  })
+})
+
+test("ManualReviewEverything > That gets the worst score gets sent to manual review", async ({
+  headless,
+}) => {
+  console.log("hello")
+})
+test("ManualReviewEverything > When an answer goes to manual review, the student won't get the points straight away", async ({
+  headless,
+}) => {
+  console.log("hello")
+})
+test("ManualReviewEverything > When the teacher manually reviews an answer, the user gets the points after it", async ({
+  headless,
+}) => {
+  console.log("hello")
+})
+test("ManualReviewEverything > If user submits multiple submissions to an exercise, and the answer goes to manual review after that, the manual review ui shows those submissions as grouped instead of two separate entries", async ({
+  headless,
+}) => {
+  console.log("hello")
 })

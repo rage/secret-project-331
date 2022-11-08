@@ -64,6 +64,7 @@ const Wrapper = styled.div`
 
   li {
     margin-left: 1.5rem;
+    padding: 0 2rem 0 2rem;
   }
 
   li::marker {

@@ -53,7 +53,7 @@ function enforce_inotify_watches_limit_sufficient() {
 function check_minikube_version() {
   # just to be sure
   ensure_program_in_path minikube
-  MINIKUBE_VERSION_STRING=$(minikube version | grep -oP '\d+\.\d+\.\d+')
+  MINIKUBE_VERSION_STRING=$(minikube version | grep 'version' | cut -d ' ' -f 3 | cut -d 'v' -f 2)
   MINIKUBE_VERSION_MAJOR=$(echo "$MINIKUBE_VERSION_STRING" | cut -d . -f 1)
   MINIKUBE_VERSION_MINOR=$(echo "$MINIKUBE_VERSION_STRING" | cut -d . -f 2)
   MINIKUBE_VERSION_PATCH=$(echo "$MINIKUBE_VERSION_STRING" | cut -d . -f 3)
@@ -78,7 +78,7 @@ function check_sqlx_cli_version() {
   MINIMUM_ACCEPTABLE_VERSION="0.6.2"
   ensure_program_in_path cargo
   ensure_program_in_path cargo-sqlx
-  SQLX=$(cargo sqlx --version | grep -oP '\d+\.\d+\.\d+')
+  SQLX=$(cargo sqlx --version | cut -d ' ' -f 2)
   SQLX_VERSION_MAJOR=$(echo "$SQLX" | cut -d . -f 1)
   SQLX_VERSION_MINOR=$(echo "$SQLX" | cut -d . -f 2)
   SQLX_VERSION_PATCH=$(echo "$SQLX" | cut -d . -f 3)

@@ -201,7 +201,7 @@ pub fn example_exercise_flexible(
     let exercise = CmsPageExercise {
         id: exercise_id,
         name: exercise_name,
-        order_number: 1,
+        order_number: 0,
         score_maximum: tasks.len() as i32,
         max_tries_per_slide: None,
         limit_number_of_tries: false,

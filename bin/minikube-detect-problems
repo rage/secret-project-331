@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+DOMAIN="project-331.local"
+
+ensure_program_in_path minikube
+ensure_program_in_path getent
+
+if ! getent hosts "$DOMAIN" > /dev/null; then
+    echo "Error: cannot resolve an ip for $DOMAIN. Please update your /etc/hosts according to the documentation."
+    exit 255
+fi
+
+
+PROJECT_DOMAIN_IP=$(getent hosts "$DOMAIN" | awk '{ print $1 }')
+echo "Resolved ip for $DOMAIN: $PROJECT_DOMAIN_IP"
+
+MINIKUBE_IP=$(minikube ip)
+echo "Minikube ip: $MINIKUBE_IP"
+
+if [ "$PROJECT_DOMAIN_IP" = "$MINIKUBE_IP" ]; then
+  echo "The ips match."
+  echo ""
+else
+ echo "The ips don't match. Please update your /etc/hosts"
+ exit 255
+fi
+
+echo "Checking if the ingress works"
+run_command kubectl get pods --namespace ingress-nginx
+echo ""
+run_command kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller

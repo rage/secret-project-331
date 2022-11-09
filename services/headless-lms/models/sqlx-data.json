@@ -7083,6 +7083,27 @@
     },
     "query": "\nUPDATE peer_review_queue_entries\nSET removed_from_queue_for_unusual_reason = TRUE\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n    "
   },
+  "695f399cc0631dcb51a1feac9384440ea7887dea7fe8097d08c18866ab391abb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\n        INSERT INTO exercises (\n            id,\n            course_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          uuid_generate_v5($1, chapter_id::text),\n          id\n        FROM exercises\n        WHERE course_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            "
+  },
   "69ce80ab82e60eebfbd382f16c0e5ea305457176ea0868b935835b4398e09106": {
     "describe": {
       "columns": [
@@ -9012,27 +9033,6 @@
       }
     },
     "query": "\nSELECT chapters.course_module_id,\n  COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE ues.course_instance_id = $1\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\nGROUP BY chapters.course_module_id;\n        "
-  },
-  "7afc90f9381a04e4c0390b627468f4e98af77da0570168747ef9fb7cc3c86042": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, true],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\n        INSERT INTO exercises (\n            id,\n            course_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE course_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            "
   },
   "7b20a0607bcc9030593d45c58002b5adf794d5956f57c4262ef3868b443e2a35": {
     "describe": {
@@ -15222,6 +15222,27 @@
     },
     "query": "\nUPDATE regradings\nSET error_message = $1\nWHERE id = $2\n"
   },
+  "c73a2a7333319894d99be453e45b50701829dd037f04f3af0bd3862781c600bf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\n        INSERT INTO exercises (\n            id,\n            exam_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          uuid_generate_v5($1, chapter_id::text),\n          id\n        FROM exercises\n        WHERE exam_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            "
+  },
   "c75b95b2e869f2a60c81353b562b9e0bf421a6332ecc32d0cc7eb42a9a40b7fd": {
     "describe": {
       "columns": [
@@ -17908,27 +17929,6 @@
       }
     },
     "query": "\nINSERT INTO page_visit_datum_daily_visit_hashing_keys(valid_for_date)\nVALUES ($1)\nON CONFLICT (valid_for_date) DO NOTHING\n    "
-  },
-  "f21c96c64d0bf9550cd3cd8b51a1090200ead72843ce423169401549eadb5790": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, true],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\n        INSERT INTO exercises (\n            id,\n            exam_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE exam_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            "
   },
   "f277300b53e828732168d2b58bdab1746b112ad732a2fef2b78487102b674c9c": {
     "describe": {

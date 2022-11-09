@@ -79,6 +79,10 @@ export const baseTheme = {
       100: "#FFFFFF",
       200: "#000000",
     },
+    gradient: {
+      green: "linear-gradient(to bottom right, #075854, #4DE2C5);",
+      blue: "linear-gradient(-70deg, #020344 0%, #28b8d5 100%)",
+    },
   },
 }
 

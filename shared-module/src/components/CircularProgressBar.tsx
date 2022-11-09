@@ -50,8 +50,9 @@ const CircleBox = styled.div`
   }
   .progress-text {
     position: absolute;
-    top: 20px;
-    left: 21px;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 12px;
     font-family: ${headingFont};
   }

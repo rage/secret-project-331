@@ -25,14 +25,14 @@ const CompletionRequirementsTabulation: React.FC<
       <HilightContainer>
         {pointsRequiredForCompletion && (
           <HighlightItem
-            highlightColor={baseTheme.colors.green[700]}
+            highlightColor={baseTheme.colors.gradient["green"]}
             highlightDescription={t("points-required-for-completion")}
             highlightText={pointsRequiredForCompletion}
           />
         )}
         {attemptedExercisesRequiredForCompletion && (
           <HighlightItem
-            highlightColor={baseTheme.colors.blue[700]}
+            highlightColor={baseTheme.colors.gradient["blue"]}
             highlightDescription={t("attempted-exercises-required-for-completion")}
             highlightText={attemptedExercisesRequiredForCompletion}
             leftBorder={true}

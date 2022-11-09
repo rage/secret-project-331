@@ -226,12 +226,6 @@ You don't need these if you don't intend to change the headless-lms.
 
 ## Starting minikube
 
-### Linux
-
-Run the command `./bin/minikube-start` from the root directory
-
-### Mac
-
 Run the command `./bin/minikube-start` from the root directory
 
 ## Setting up local domain

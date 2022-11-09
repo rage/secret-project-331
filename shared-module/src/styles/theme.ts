@@ -80,8 +80,8 @@ export const baseTheme = {
       200: "#000000",
     },
     gradient: {
-      green: "-webkit-linear-gradient(to bottom right, #075854, #4DE2C5);",
-      blue: "-webkit-linear-gradient(-70deg, #020344 0%, #28b8d5 100%)",
+      green: "linear-gradient(to bottom right, #075854, #4DE2C5);",
+      blue: "linear-gradient(-70deg, #020344 0%, #28b8d5 100%)",
     },
   },
 }

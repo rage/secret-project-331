@@ -178,7 +178,7 @@ macro_rules! insert_data {
         .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; course_module: $course_module:ident) => {
-        let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, $course, Some("extra module"), 999).await.unwrap();
+        let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, &headless_lms_models::course_modules::NewCourseModule::new($course, Some("extra module".to_string()), 999)).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
         let $chapter = headless_lms_models::library::content_management::create_new_chapter(

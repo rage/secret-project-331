@@ -4,7 +4,7 @@ use crate::{
     chapters::{self, DatabaseChapter, NewChapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
-    course_modules::CourseModule,
+    course_modules::{CourseModule, NewCourseModule},
     courses::{self, Course, NewCourse},
     pages::{self, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
@@ -79,8 +79,12 @@ pub async fn create_new_course(
     .await?;
 
     // Create default course module
-    let default_module =
-        crate::course_modules::insert(&mut tx, PKeyPolicy::Generate, course.id, None, 0).await?;
+    let default_module = crate::course_modules::insert(
+        &mut tx,
+        PKeyPolicy::Generate,
+        &NewCourseModule::new_course_default(course.id),
+    )
+    .await?;
 
     // Create course default peer review config
     let peer_review_config_id =

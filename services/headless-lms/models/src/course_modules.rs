@@ -100,64 +100,97 @@ pub struct AutomaticCompletionRequirements {
     pub ects_credits: Option<i32>,
 }
 
+pub struct NewCourseModule {
+    automatic_completion_policy: AutomaticCompletionPolicy,
+    completion_registration_link_override: Option<String>,
+    course_id: Uuid,
+    ects_credits: Option<i32>,
+    name: Option<String>,
+    order_number: i32,
+    uh_course_code: Option<String>,
+}
+
+impl NewCourseModule {
+    pub fn new(course_id: Uuid, name: Option<String>, order_number: i32) -> Self {
+        Self {
+            automatic_completion_policy: AutomaticCompletionPolicy::NoAutomaticCompletion,
+            completion_registration_link_override: None,
+            course_id,
+            ects_credits: None,
+            name,
+            order_number,
+            uh_course_code: None,
+        }
+    }
+
+    pub fn new_course_default(course_id: Uuid) -> Self {
+        Self::new(course_id, None, 0)
+    }
+
+    pub fn set_uh_course_code(mut self, uh_course_code: Option<String>) -> Self {
+        self.uh_course_code = uh_course_code;
+        self
+    }
+
+    pub fn set_automatic_completion_policy(
+        mut self,
+        automatic_completion: AutomaticCompletionPolicy,
+    ) -> Self {
+        self.automatic_completion_policy = automatic_completion;
+        self
+    }
+
+    pub fn set_completion_registration_link_override(
+        mut self,
+        completion_registration_link_override: Option<String>,
+    ) -> Self {
+        self.completion_registration_link_override = completion_registration_link_override;
+        self
+    }
+
+    pub fn set_ects_credits(mut self, ects_credits: Option<i32>) -> Self {
+        self.ects_credits = ects_credits;
+        self
+    }
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
-    course_id: Uuid,
-    name: Option<&str>,
-    order_number: i32,
+    new_course_module: &NewCourseModule,
 ) -> ModelResult<CourseModule> {
+    let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
+        new_course_module
+            .automatic_completion_policy
+            .to_database_fields();
     let res = sqlx::query_as!(
         CourseModule,
         "
-INSERT INTO course_modules (id, course_id, name, order_number)
-VALUES ($1, $2, $3, $4)
+INSERT INTO course_modules (
+    id,
+    course_id,
+    name,
+    order_number,
+    automatic_completion,
+    automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_number_of_points_treshold,
+    automatic_completion_exam_points_treshold
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
-        course_id,
-        name,
-        order_number,
+        new_course_module.course_id,
+        new_course_module.name,
+        new_course_module.order_number,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        exam_points_treshold,
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
-}
-
-pub async fn insert_with_automatic_completion(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    name: Option<&str>,
-    order_number: i32,
-    completion_requirements: AutomaticCompletionRequirements,
-) -> ModelResult<CourseModule> {
-    let res = sqlx::query_as!(
-        CourseModule,
-        "
-INSERT INTO course_modules (course_id, name, order_number, uh_course_code, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING *
-",
-        course_id,
-        name,
-        order_number,
-        completion_requirements.uh_course_code,
-        completion_requirements.ects_credits,
-        completion_requirements.automatic_completion,
-        completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
-        completion_requirements.automatic_completion_number_of_points_treshold,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn insert_default_for_course(
-    conn: &mut PgConnection,
-    pkey_policy: PKeyPolicy<Uuid>,
-    course_id: Uuid,
-) -> ModelResult<CourseModule> {
-    insert(conn, pkey_policy, course_id, None, 0).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -349,6 +382,23 @@ pub enum AutomaticCompletionPolicy {
 }
 
 impl AutomaticCompletionPolicy {
+    fn new(
+        exercises_attempted: Option<i32>,
+        points_treshold: Option<i32>,
+        exam_points_treshold: Option<i32>,
+    ) -> Self {
+        match (exercises_attempted, points_treshold, exam_points_treshold) {
+            (None, None, None) => Self::NoAutomaticCompletion,
+            (exercises_attempted, points_treshold, exam_points_treshold) => {
+                Self::AutomaticCompletion(AutomaticCompletionCriteria {
+                    number_of_exercises_attempted_treshold: exercises_attempted,
+                    number_of_points_treshold: points_treshold,
+                    number_of_exam_points_treshold: exam_points_treshold,
+                })
+            }
+        }
+    }
+
     fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, Option<i32>) {
         match self {
             AutomaticCompletionPolicy::AutomaticCompletion(criteria) => (
@@ -425,6 +475,7 @@ pub struct NewModule {
     automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
+    automatic_completion_exam_points_treshold: Option<i32>,
     completion_registration_link_override: Option<String>,
 }
 
@@ -436,9 +487,10 @@ pub struct ModifiedModule {
     order_number: i32,
     uh_course_code: Option<String>,
     ects_credits: Option<i32>,
-    automatic_completion: Option<bool>,
+    pub automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
+    automatic_completion_exam_points_treshold: Option<i32>,
     completion_registration_link_override: Option<String>,
 }
 
@@ -476,33 +528,36 @@ WHERE id = $3
 pub async fn update(
     conn: &mut PgConnection,
     id: Uuid,
-    name: Option<&str>,
-    order_number: i32,
-    completion_requirements: AutomaticCompletionRequirements,
-    completion_registration_link_override: Option<String>,
+    updated_course_module: &NewCourseModule,
 ) -> ModelResult<()> {
+    let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
+        updated_course_module
+            .automatic_completion_policy
+            .to_database_fields();
     sqlx::query!(
         "
 UPDATE course_modules
-SET name = COALESCE($1, name),
-  order_number = $2,
+SET name = COALESCE($2, name),
+  order_number = $3,
   uh_course_code = $4,
   ects_credits = $5,
   automatic_completion = $6,
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
-  completion_registration_link_override = $9
-WHERE id = $3
-",
-        name,
-        order_number,
+  automatic_completion_exam_points_treshold = $9,
+  completion_registration_link_override = $10
+WHERE id = $1
+        ",
         id,
-        completion_requirements.uh_course_code,
-        completion_requirements.ects_credits,
-        completion_requirements.automatic_completion,
-        completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
-        completion_requirements.automatic_completion_number_of_points_treshold,
-        completion_registration_link_override,
+        updated_course_module.name,
+        updated_course_module.order_number,
+        updated_course_module.uh_course_code,
+        updated_course_module.ects_credits,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        exam_points_treshold,
+        updated_course_module.completion_registration_link_override,
     )
     .execute(conn)
     .await?;
@@ -530,22 +585,19 @@ pub async fn update_modules(
     let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
         // insert with a random order number to avoid conflicts
-        let module = insert_with_automatic_completion(
-            &mut tx,
-            course_id,
-            Some(&new.name),
-            rand::random(),
-            AutomaticCompletionRequirements {
-                uh_course_code: new.uh_course_code,
-                ects_credits: new.ects_credits,
-                automatic_completion: new.automatic_completion,
-                automatic_completion_number_of_exercises_attempted_treshold: new
-                    .automatic_completion_number_of_exercises_attempted_treshold,
-                automatic_completion_number_of_points_treshold: new
-                    .automatic_completion_number_of_points_treshold,
-            },
-        )
-        .await?;
+        let new_course_module =
+            NewCourseModule::new(course_id, Some(new.name.clone()), rand::random())
+                .set_automatic_completion_policy(AutomaticCompletionPolicy::new(
+                    new.automatic_completion_number_of_exercises_attempted_treshold,
+                    new.automatic_completion_number_of_points_treshold,
+                    None,
+                ))
+                .set_completion_registration_link_override(
+                    new.completion_registration_link_override,
+                )
+                .set_ects_credits(new.ects_credits)
+                .set_uh_course_code(new.uh_course_code);
+        let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
         for chapter in new.chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
         }
@@ -561,6 +613,8 @@ pub async fn update_modules(
                 .automatic_completion_number_of_exercises_attempted_treshold,
             automatic_completion_number_of_points_treshold: new
                 .automatic_completion_number_of_points_treshold,
+            automatic_completion_exam_points_treshold: new
+                .automatic_completion_exam_points_treshold,
             completion_registration_link_override: module.completion_registration_link_override,
         })
     }
@@ -569,18 +623,17 @@ pub async fn update_modules(
         update(
             &mut tx,
             module.id,
-            module.name.as_deref(),
-            module.order_number,
-            AutomaticCompletionRequirements {
-                uh_course_code: module.uh_course_code,
-                ects_credits: module.ects_credits,
-                automatic_completion: module.automatic_completion,
-                automatic_completion_number_of_exercises_attempted_treshold: module
-                    .automatic_completion_number_of_exercises_attempted_treshold,
-                automatic_completion_number_of_points_treshold: module
-                    .automatic_completion_number_of_points_treshold,
-            },
-            module.completion_registration_link_override,
+            &NewCourseModule::new(course_id, module.name.clone(), module.order_number)
+                .set_automatic_completion_policy(AutomaticCompletionPolicy::new(
+                    module.automatic_completion_number_of_exercises_attempted_treshold,
+                    module.automatic_completion_number_of_points_treshold,
+                    module.automatic_completion_exam_points_treshold,
+                ))
+                .set_completion_registration_link_override(
+                    module.completion_registration_link_override,
+                )
+                .set_ects_credits(module.ects_credits)
+                .set_uh_course_code(module.uh_course_code),
         )
         .await?;
     }

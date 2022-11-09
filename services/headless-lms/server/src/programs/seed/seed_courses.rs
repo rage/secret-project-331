@@ -11,7 +11,7 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
-    course_modules,
+    course_modules::{self, NewCourseModule},
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
@@ -196,9 +196,7 @@ pub async fn seed_sample_course(
     let second_module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        course.id,
-        Some("Another module"),
-        1,
+        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -244,9 +242,7 @@ pub async fn seed_sample_course(
     let module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        course.id,
-        Some("Bonus module"),
-        2,
+        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2),
     )
     .await?;
     let new_chapter = NewChapter {

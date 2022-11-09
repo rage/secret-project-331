@@ -1044,108 +1044,6 @@
     },
     "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                "
   },
-  "134673cb7b1d32240f86b986fd92486db431366da97442f601a3e4817d2e5c78": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "uh_course_code",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "automatic_completion",
-          "ordinal": 9,
-          "type_info": "Bool"
-        },
-        {
-          "name": "automatic_completion_number_of_exercises_attempted_treshold",
-          "ordinal": 10,
-          "type_info": "Int4"
-        },
-        {
-          "name": "automatic_completion_number_of_points_treshold",
-          "ordinal": 11,
-          "type_info": "Int4"
-        },
-        {
-          "name": "ects_credits",
-          "ordinal": 12,
-          "type_info": "Int4"
-        },
-        {
-          "name": "completion_registration_link_override",
-          "ordinal": 13,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "automatic_completion_exam_points_treshold",
-          "ordinal": 14,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        false,
-        true,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Int4", "Varchar", "Int4", "Bool", "Int4", "Int4"]
-      }
-    },
-    "query": "\nINSERT INTO course_modules (course_id, name, order_number, uh_course_code, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n"
-  },
   "13b0e10930d6dfb86d0ca5bf493c6741ec5faa14fd199a7c407197568f40f3f3": {
     "describe": {
       "columns": [
@@ -3453,16 +3351,6 @@
       }
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nLIMIT $2 OFFSET $3\n        "
-  },
-  "36215357ddca441f9864257c857aad76cb01a1ba55aef526dc7cc34e4b266519": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Varchar", "Int4", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4", "Varchar"]
-      }
-    },
-    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = $2,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8,\n  completion_registration_link_override = $9\nWHERE id = $3\n"
   },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
     "describe": {
@@ -6418,6 +6306,108 @@
     },
     "query": "\nINSERT INTO peer_review_questions (\n    id,\n    peer_review_config_id,\n    order_number,\n    question,\n    question_type\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        "
   },
+  "64c945f4465adb90728206ccbad3ed0f1932b93715fa787f02a26f33d5e48b44": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "uh_course_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "automatic_completion_number_of_points_treshold",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "ects_credits",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion_exam_points_treshold",
+          "ordinal": 14,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4", "Int4"]
+      }
+    },
+    "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number,\n    automatic_completion,\n    automatic_completion_number_of_exercises_attempted_treshold,\n    automatic_completion_number_of_points_treshold,\n    automatic_completion_exam_points_treshold\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n        "
+  },
   "64fc40c3fe0f442a0fbb85a5295039374b67635e04ff6f8cb16f29ef14494cfd": {
     "describe": {
       "columns": [
@@ -8972,108 +8962,6 @@
     },
     "query": "\nUPDATE exercise_task_regrading_submissions\nSET grading_after_regrading = $1\nWHERE id = $2\n"
   },
-  "7b3df17f2d55b51b856e4c014bed19feb05ffd44ae3e85594c113d0f745215a9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "uh_course_code",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "automatic_completion",
-          "ordinal": 9,
-          "type_info": "Bool"
-        },
-        {
-          "name": "automatic_completion_number_of_exercises_attempted_treshold",
-          "ordinal": 10,
-          "type_info": "Int4"
-        },
-        {
-          "name": "automatic_completion_number_of_points_treshold",
-          "ordinal": 11,
-          "type_info": "Int4"
-        },
-        {
-          "name": "ects_credits",
-          "ordinal": 12,
-          "type_info": "Int4"
-        },
-        {
-          "name": "completion_registration_link_override",
-          "ordinal": 13,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "automatic_completion_exam_points_treshold",
-          "ordinal": 14,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        false,
-        true,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Int4"]
-      }
-    },
-    "query": "\nINSERT INTO course_modules (id, course_id, name, order_number)\nVALUES ($1, $2, $3, $4)\nRETURNING *\n        "
-  },
   "7c2cc58d398cf1584bac88ff9c7786d687b3909482e8d3245ea263cb54ede227": {
     "describe": {
       "columns": [
@@ -10761,6 +10649,27 @@
       }
     },
     "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\nAND re.deleted_at IS NULL\nand er.deleted_at IS NULL\n"
+  },
+  "8f0f2f899f35723623831d22181ee935da8743a3a65c55c749c8c23299970d55": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Int4",
+          "Varchar",
+          "Int4",
+          "Bool",
+          "Int4",
+          "Int4",
+          "Int4",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET name = COALESCE($2, name),\n  order_number = $3,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8,\n  automatic_completion_exam_points_treshold = $9,\n  completion_registration_link_override = $10\nWHERE id = $1\n        "
   },
   "9042f4a78140ea8061a5d2f7ea3f6d8ae53b484871e869ebd0dd4cb31da6d9fb": {
     "describe": {

@@ -629,6 +629,8 @@ export function isModifiedModule(obj: unknown): obj is ModifiedModule {
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
       typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["automatic_completion_exam_points_treshold"] === null ||
+      typeof typedObj["automatic_completion_exam_points_treshold"] === "number") &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string")
   )
@@ -669,6 +671,8 @@ export function isNewModule(obj: unknown): obj is NewModule {
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
       typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["automatic_completion_exam_points_treshold"] === null ||
+      typeof typedObj["automatic_completion_exam_points_treshold"] === "number") &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string")
   )

@@ -3093,7 +3093,7 @@ mod test {
         let e1 = CmsPageExercise {
             id: Uuid::parse_str("0c9dca80-5904-4d35-a945-8c080446f667").unwrap(),
             name: "".to_string(),
-            order_number: 1,
+            order_number: 0,
             score_maximum: 1,
             max_tries_per_slide: None,
             limit_number_of_tries: false,
@@ -3106,7 +3106,7 @@ mod test {
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
             exercise_id: e1.id,
-            order_number: 1,
+            order_number: 0,
         };
         let e1_s1_t1 = CmsPageExerciseTask {
             id: Uuid::parse_str("6fb19c22-bca0-42cf-8be5-4141e21cc7a9").unwrap(),
@@ -3114,7 +3114,7 @@ mod test {
             assignment: serde_json::json!([]),
             exercise_type: "exercise".to_string(),
             private_spec: None,
-            order_number: 1,
+            order_number: 0,
         };
 
         // Works without exercises

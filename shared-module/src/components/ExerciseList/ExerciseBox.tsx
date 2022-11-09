@@ -29,8 +29,9 @@ const StyledLink = styled.div`
 `
 
 const ImageBox = styled.div`
-  width: 40px;
+  width: auto;
   height: 40px;
+  padding: 0 6px;
   position: relative;
   vertical-align: middle;
   display: inline-block;

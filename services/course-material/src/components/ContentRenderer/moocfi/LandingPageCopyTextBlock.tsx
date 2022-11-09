@@ -18,6 +18,11 @@ const Wrapper = styled.div`
     font-weight: 700 !important;
     color: ${baseTheme.colors.green[600]} !important;
     padding: 0.5rem 1.5rem 0 2rem;
+    border-top: 2px solid #e2e3e7;
+  }
+
+  #about-this-course {
+    border: none !important;
   }
 
   p {
@@ -59,6 +64,7 @@ const Wrapper = styled.div`
 
   li {
     margin-left: 1.5rem;
+    padding: 0 2rem 0 2rem;
   }
 
   li::marker {
@@ -71,6 +77,7 @@ const Wrapper = styled.div`
     font-weight: 700 !important;
     padding: 1rem 1rem 0 2rem;
     color: ${baseTheme.colors.green[700]};
+    border-top: 2px solid #e2e3e7;
   }
 `
 

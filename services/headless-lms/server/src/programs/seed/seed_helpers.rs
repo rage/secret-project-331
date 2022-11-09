@@ -166,7 +166,7 @@ pub fn example_exercise_flexible(
         .map(|(slide_id, _)| CmsPageExerciseSlide {
             id: *slide_id,
             exercise_id,
-            order_number: 0,
+            order_number: 1,
         })
         .collect();
     let tasks: Vec<CmsPageExerciseTask> = exercise_slides
@@ -245,7 +245,7 @@ pub fn quizzes_exercise(
     let exercise = CmsPageExercise {
         id: exercise_id,
         name,
-        order_number: 0,
+        order_number: 1,
         score_maximum: 1,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
@@ -258,7 +258,7 @@ pub fn quizzes_exercise(
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
         exercise_id,
-        order_number: 0,
+        order_number: 1,
     };
     let exercise_task = CmsPageExerciseTask {
         id: exercise_task_id,

@@ -492,7 +492,7 @@ fn models() {
         assignment: serde_json::json!({"options": ["a", "b", "c"]}),
         exercise_type: "quizzes".to_string(),
         private_spec: None,
-        order_number: 0,
+        order_number: 1,
     });
     example!(CmsPeerReviewConfig {
         id,

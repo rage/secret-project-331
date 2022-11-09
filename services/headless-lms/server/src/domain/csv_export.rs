@@ -388,7 +388,7 @@ mod test {
                 public_spec: Some(Value::Null),
                 private_spec: Some(Value::Null),
                 model_solution_spec: Some(Value::Null),
-                order_number: 0,
+                order_number: 1,
             },
         )
         .await

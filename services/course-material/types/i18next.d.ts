@@ -1,11 +1,13 @@
-import ownTranslations from "../src/shared-module/locales/en/main-frontend.json"
+import "i18next"
+
+import ownTranslations from "../src/shared-module/locales/en/course-material.json"
 import sharedModule from "../src/shared-module/locales/en/shared-module.json"
 
-declare module "react-i18next" {
+declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: ["main-frontend", "shared-module"]
+    defaultNS: "course-material"
     resources: {
-      "main-frontend": typeof ownTranslations
+      "course-material": typeof ownTranslations
       "shared-module": typeof sharedModule
     }
     allowObjectInHTMLChildren: true

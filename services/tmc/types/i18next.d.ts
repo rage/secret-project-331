@@ -1,11 +1,13 @@
-import ownTranslations from "../src/shared-module/locales/en/quizzes.json"
-import sharedModule from "../src/shared-module/locales/en/shared-module.json"
+import "i18next"
 
-declare module "react-i18next" {
+import sharedModule from "../src/shared-module/locales/en/shared-module.json"
+import ownTranslations from "../src/shared-module/locales/en/tmc.json"
+
+declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: ["quizzes", "shared-module"]
+    defaultNS: "tmc"
     resources: {
-      quizzes: typeof ownTranslations
+      tmc: typeof ownTranslations
       "shared-module": typeof sharedModule
     }
     allowObjectInHTMLChildren: true

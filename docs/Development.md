@@ -10,8 +10,8 @@
 ### Development tools
 
 1. Install Skaffold: https://skaffold.dev/docs/install/
-2. Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-3. Install Minikube: https://minikube.sigs.k8s.io/docs/start/
+2. Install Kubectl (available on brew): https://kubernetes.io/docs/tasks/tools/install-kubectl/
+3. Install Minikube (available on brew): https://minikube.sigs.k8s.io/docs/start/
 4. Install Kustomize: https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/
    - mkdir ~/bin/
    - Add ~/bin/ to PATH
@@ -21,7 +21,8 @@
 6. Install Postgresql: http://postgresguide.com/setup/install.html
 7. Install `bc`, `find`, `jq`, `rsync` and `sponge` with your package manager.
    - On Arch Linux, `sponge` is included in the `moretools` package.
-8. Install `actionlint`: https://github.com/rhysd/actionlint#quick-start
+8. If you are using mac, you need to install coreutils (brew install coreutils) in order to use `realpath`.
+9. Install `actionlint`: https://github.com/rhysd/actionlint#quick-start
 
 You may also need stern and kubectx.
 
@@ -31,7 +32,7 @@ You don't need these if you don't intend to change the headless-lms.
 
 1. Install rust (https://www.rust-lang.org/tools/install)
 2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
-3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora)
+3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora, `brew install openssl`)
 4. Install `pkg-config`
 
 ### Setting up minikube
@@ -40,6 +41,14 @@ Start minikube:
 
 ```sh
 bin/minikube-start
+```
+
+### Configure database
+
+Add configuration for the headless lms by running the following command in the root directory
+
+```shell
+cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ```
 
 #### Using Node Version Manager

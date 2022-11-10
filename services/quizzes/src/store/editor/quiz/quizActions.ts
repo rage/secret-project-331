@@ -42,6 +42,11 @@ export const editedQuizzesDeadline = createAction(
   }),
 )<{ deadline: Date | null; id: string }>()
 
+export const editedQuizzesDirection = createAction(
+  "EDITED_QUIZZES_DIRECTION",
+  (newDirection: "column" | "row", quizId: string) => ({ direction: newDirection, id: quizId }),
+)<{ direction: "column" | "row"; id: string }>()
+
 export const editedQuizzesBody = createAction(
   "EDITED_QUIZZES_BODY",
   (quizId: string, newBody: string) => ({
@@ -88,6 +93,7 @@ export const quizActions = [
   editedQuizzesPointsToGain,
   editedQuizzesPointsGrantingPolicy,
   editedQuizzesDeadline,
+  editedQuizzesDirection,
   editedQuizzesBody,
   editedQuizzesSubmitmessage,
   editedQuizzesPart,

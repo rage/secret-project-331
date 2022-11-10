@@ -29,8 +29,9 @@ const StyledLink = styled.div`
 `
 
 const ImageBox = styled.div`
-  width: 40px;
+  width: auto;
   height: 40px;
+  padding: 0 6px;
   position: relative;
   vertical-align: middle;
   display: inline-block;
@@ -132,23 +133,25 @@ const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<Exer
                 </div>
               </ImageBox>
               <span>{exerciseTitle}</span>
-              {userPoints !== null && (
-                <div
-                  className={css`
-                    background: rgb(235, 239, 242);
-                    width: 65px;
-                    height: 62px;
-                    display: flex;
-                    align-items: center;
-                  `}
-                >
+              <div
+                className={css`
+                  background: rgb(235, 239, 242);
+                  width: 65px;
+                  height: 62px;
+                  display: flex;
+                  align-items: center;
+                `}
+              >
+                {userPoints !== null ? (
                   <CircularProgressBar
                     scoreMaximum={scoreMaximum}
                     userPoints={userPoints}
                     className="progress"
                   />
-                </div>
-              )}
+                ) : (
+                  <CircularProgressBar scoreMaximum={1} userPoints={0} className="progress" />
+                )}
+              </div>
             </ExercisePart>
           </a>
         </Link>

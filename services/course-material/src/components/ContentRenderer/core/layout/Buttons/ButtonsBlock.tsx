@@ -9,7 +9,7 @@ import {
 import Button from "../../../../../shared-module/components/Button"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
-import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 
 // Layout looks like this:
 // export interface Layout {

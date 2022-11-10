@@ -19,6 +19,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
     courseId: quiz.courseId,
     body: quiz.body,
     deadline: quiz.deadline,
+    direction: quiz.direction,
     open: quiz.open,
     part: quiz.part,
     section: quiz.section,

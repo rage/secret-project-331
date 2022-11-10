@@ -32,6 +32,7 @@ export interface EditCourseModuleFormFields {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_exam_points_treshold: number | null
   override_completion_link: boolean
   completion_registration_link_override: string
 }
@@ -48,6 +49,8 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
       Number(module.automatic_completion_number_of_points_treshold) ?? null,
     automatic_completion_number_of_exercises_attempted_treshold:
       Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
+    automatic_completion_number_of_exam_points_treshold:
+      Number(module.automatic_completion_exam_points_treshold) ?? null,
     override_completion_link: module.completion_registration_link_override !== null,
     completion_registration_link_override: module.completion_registration_link_override ?? "",
   }
@@ -249,11 +252,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   flex: 1;
                 `}
                 type="number"
-                label={t("automatic-completion-points-treshold")}
+                label={t("automatic-completion-exercise-points-treshold")}
                 labelStyle={css`
                   color: #fff;
                 `}
-                placeholder={t("automatic-completion-points-treshold")}
+                placeholder={t("automatic-completion-exercise-points-treshold")}
                 register={register("automatic_completion_number_of_points_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,
@@ -271,6 +274,22 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 placeholder={t("automatic-completion-exercise-treshold")}
                 type="number"
                 register={register("automatic_completion_number_of_exercises_attempted_treshold", {
+                  valueAsNumber: true,
+                  disabled: !isChecked,
+                })}
+                error={errors["name"]?.message}
+              />
+              <TextField
+                className={css`
+                  flex: 1;
+                `}
+                label={t("automatic-completion-exam-points-treshold")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                placeholder={t("automatic-completion-exam-points-treshold")}
+                type="number"
+                register={register("automatic_completion_number_of_exam_points_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}

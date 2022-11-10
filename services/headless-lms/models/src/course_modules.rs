@@ -590,7 +590,7 @@ pub async fn update_modules(
                 .set_automatic_completion_policy(AutomaticCompletionPolicy::new(
                     new.automatic_completion_number_of_exercises_attempted_treshold,
                     new.automatic_completion_number_of_points_treshold,
-                    None,
+                    new.automatic_completion_exam_points_treshold,
                 ))
                 .set_completion_registration_link_override(
                     new.completion_registration_link_override,

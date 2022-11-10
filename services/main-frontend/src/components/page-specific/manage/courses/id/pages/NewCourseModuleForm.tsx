@@ -23,6 +23,8 @@ export interface Fields {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_exam_points_treshold: number | null
+  automatic_completion_exam_points_treshold: number | null
   override_completion_link: boolean
   completion_registration_link_override: string
 }
@@ -140,7 +142,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               grid-template-areas:
                 "a b"
                 "c c"
-                "d e";
+                "d e"
+                "f g";
               column-gap: 10px;
             `}
           >
@@ -173,8 +176,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               className={css`
                 grid-area: d;
               `}
-              label={t("automatic-completion-points-treshold")}
-              placeholder={t("automatic-completion-points-treshold")}
+              label={t("automatic-completion-exercise-points-treshold")}
+              placeholder={t("automatic-completion-exercise-points-treshold")}
               type="number"
               register={register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,
@@ -190,6 +193,19 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               placeholder={t("automatic-completion-exercise-treshold")}
               type="number"
               register={register("automatic_completion_number_of_exercises_attempted_treshold", {
+                valueAsNumber: true,
+                disabled: !isChecked,
+              })}
+              error={errors["name"]?.message}
+            />
+            <TextField
+              className={css`
+                grid-area: f;
+              `}
+              label={t("automatic-completion-exam-points-treshold")}
+              placeholder={t("automatic-completion-exam-points-treshold")}
+              type="number"
+              register={register("automatic_completion_number_of_exam_points_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}

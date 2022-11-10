@@ -33,6 +33,7 @@ export type ModuleView = {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_exam_points_treshold: number | null
   completion_registration_link_override: string | null
 }
 
@@ -207,6 +208,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 m.automatic_completion_number_of_points_treshold,
               automatic_completion_number_of_exercises_attempted_treshold:
                 m.automatic_completion_number_of_exercises_attempted_treshold,
+              automatic_completion_exam_points_treshold:
+                m.automatic_completion_exam_points_treshold,
               completion_registration_link_override: m.completion_registration_link_override,
             }
           })
@@ -247,6 +250,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               module.automatic_completion_number_of_points_treshold,
             automatic_completion_number_of_exercises_attempted_treshold:
               module.automatic_completion_number_of_exercises_attempted_treshold,
+            automatic_completion_exam_points_treshold:
+              module.automatic_completion_exam_points_treshold,
             completion_registration_link_override: module.completion_registration_link_override,
           })
         } else if (initialModule !== undefined) {
@@ -260,7 +265,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               initialModule.automatic_completion_number_of_points_treshold ||
             module.ects_credits !== initialModule.ects_credits ||
             module.automatic_completion_number_of_exercises_attempted_treshold !==
-              initialModule.automatic_completion_number_of_exercises_attempted_treshold
+              initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
+            module.automatic_completion_exam_points_treshold !==
+              initialModule.automatic_completion_exam_points_treshold
           ) {
             modifiedModules.push({
               id: module.id,
@@ -273,6 +280,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 module.automatic_completion_number_of_points_treshold,
               automatic_completion_number_of_exercises_attempted_treshold:
                 module.automatic_completion_number_of_exercises_attempted_treshold,
+              automatic_completion_exam_points_treshold:
+                module.automatic_completion_exam_points_treshold,
               completion_registration_link_override: module.completion_registration_link_override,
             })
           }
@@ -342,40 +351,46 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       automatic_completion,
       automatic_completion_number_of_points_treshold,
       automatic_completion_number_of_exercises_attempted_treshold,
+      automatic_completion_number_of_exam_points_treshold,
       completion_registration_link_override,
       override_completion_link,
     }: EditCourseModuleFormFields,
   ) => {
     setEdited(true)
     setModuleList((old) => {
-      const chapters = [...old.chapters]
-      chapters.forEach((c) => {
+      const chapters = old.chapters.map((c) => {
         if (starts <= c.chapter_number && c.chapter_number <= ends) {
-          c.module = id
+          return { ...c, module: id }
         } else if (c.module === id) {
-          c.module = null
+          return { ...c, module: null }
+        } else {
+          return c
         }
       })
-      const modules = [...old.modules]
-      modules.forEach((m) => {
-        if (m.id === id) {
-          return (
-            (m.name = name),
-            (m.ects_credits = ects_credits),
-            (m.uh_course_code = uh_course_code),
-            (m.automatic_completion = automatic_completion),
-            (m.automatic_completion_number_of_points_treshold =
-              automatic_completion_number_of_points_treshold),
-            (m.automatic_completion_number_of_exercises_attempted_treshold =
-              automatic_completion_number_of_exercises_attempted_treshold),
-            (m.completion_registration_link_override = override_completion_link
+      const modules = old.modules.map((m) => {
+        if (m.id !== id) {
+          return m
+        } else {
+          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+          return {
+            id,
+            name,
+            order_number: m.order_number,
+            ects_credits,
+            uh_course_code,
+            automatic_completion,
+            automatic_completion_number_of_points_treshold,
+            automatic_completion_number_of_exercises_attempted_treshold,
+            automatic_completion_exam_points_treshold:
+              automatic_completion_number_of_exam_points_treshold,
+            completion_registration_link_override: override_completion_link
               ? completion_registration_link_override
-              : null)
-          )
+              : null,
+            firstChapter,
+            lastChapter,
+            isNew: m.isNew,
+          }
         }
-        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
-        m.firstChapter = first
-        m.lastChapter = last
       })
       return {
         modules: sortAndUpdateOrderNumbers(modules),
@@ -417,6 +432,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     automatic_completion,
     automatic_completion_number_of_points_treshold,
     automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_exam_points_treshold,
     override_completion_link,
     completion_registration_link_override,
   }: Fields) => {
@@ -447,6 +463,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           automatic_completion,
           automatic_completion_number_of_points_treshold,
           automatic_completion_number_of_exercises_attempted_treshold,
+          automatic_completion_exam_points_treshold,
           completion_registration_link_override: override_completion_link
             ? completion_registration_link_override
             : null,

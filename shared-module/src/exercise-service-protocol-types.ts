@@ -64,7 +64,7 @@ export type IframeState =
       exercise_task_id: string
       user_information: UserInformation
       /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
-      user_variables?: UserVariablesMap
+      user_variables?: UserVariablesMap | null
       data: {
         public_spec: unknown
         previous_submission: unknown | null
@@ -75,7 +75,7 @@ export type IframeState =
       exercise_task_id: string
       user_information: UserInformation
       /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
-      user_variables?: UserVariablesMap
+      user_variables?: UserVariablesMap | null
       data: {
         grading: ExerciseTaskGradingResult | null
         user_answer: unknown

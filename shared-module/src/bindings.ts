@@ -552,7 +552,6 @@ export interface ExerciseTaskGrading {
   feedback_json: unknown | null
   feedback_text: string | null
   deleted_at: Date | null
-  set_user_variables?: Record<string, unknown> | null
 }
 
 export interface ExerciseTaskGradingResult {
@@ -561,7 +560,7 @@ export interface ExerciseTaskGradingResult {
   score_maximum: number
   feedback_text: string | null
   feedback_json: unknown | null
-  set_user_variables?: Record<string, unknown> | null
+  set_user_variables: Record<string, unknown> | null
 }
 
 export type UserPointsUpdateStrategy =

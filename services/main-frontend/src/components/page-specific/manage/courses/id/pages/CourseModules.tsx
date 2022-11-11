@@ -6,7 +6,11 @@ import { v4 } from "uuid"
 
 import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-import { ModifiedModule, NewModule } from "../../../../../../shared-module/bindings"
+import {
+  CompletionPolicy,
+  ModifiedModule,
+  NewModule,
+} from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
@@ -16,6 +20,9 @@ import BottomPanel from "../../../../../BottomPanel"
 
 import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
 import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
+
+const AUTOMATIC = "automatic"
+const MANUAL = "manual"
 
 interface Props {
   courseId: string
@@ -245,13 +252,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
             uh_course_code: module.uh_course_code,
             ects_credits: module.ects_credits,
-            automatic_completion: module.automatic_completion,
-            automatic_completion_number_of_points_treshold:
-              module.automatic_completion_number_of_points_treshold,
-            automatic_completion_number_of_exercises_attempted_treshold:
-              module.automatic_completion_number_of_exercises_attempted_treshold,
-            automatic_completion_exam_points_treshold:
-              module.automatic_completion_exam_points_treshold,
+            completion_policy: mapFieldsToCompletionPolicy(module),
             completion_registration_link_override: module.completion_registration_link_override,
           })
         } else if (initialModule !== undefined) {
@@ -275,13 +276,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               order_number: module.order_number,
               uh_course_code: module.uh_course_code,
               ects_credits: module.ects_credits,
-              automatic_completion: module.automatic_completion,
-              automatic_completion_number_of_points_treshold:
-                module.automatic_completion_number_of_points_treshold,
-              automatic_completion_number_of_exercises_attempted_treshold:
-                module.automatic_completion_number_of_exercises_attempted_treshold,
-              automatic_completion_exam_points_treshold:
-                module.automatic_completion_exam_points_treshold,
+              completion_policy: mapFieldsToCompletionPolicy(module),
               completion_registration_link_override: module.completion_registration_link_override,
             })
           }
@@ -574,3 +569,17 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 }
 
 export default CourseModules
+
+function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
+  if (fields.automatic_completion) {
+    return {
+      policy: AUTOMATIC,
+      number_of_exam_points_treshold: fields.automatic_completion_exam_points_treshold,
+      number_of_exercises_attempted_treshold:
+        fields.automatic_completion_number_of_exercises_attempted_treshold,
+      number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
+    }
+  } else {
+    return { policy: MANUAL }
+  }
+}

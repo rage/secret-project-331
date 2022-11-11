@@ -660,7 +660,7 @@ mod tests {
         use crate::{
             chapters::NewChapter,
             course_modules::{
-                self, AutomaticCompletionCriteria, AutomaticCompletionPolicy, NewCourseModule,
+                self, AutomaticCompletionRequirements, CompletionPolicy, NewCourseModule,
             },
             exercises::{self, ActivityProgress, GradingProgress},
             library::content_management,
@@ -772,7 +772,7 @@ mod tests {
             mut tx: Tx<'_>,
         ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
             let automatic_completion_policy =
-                AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+                CompletionPolicy::Automatic(AutomaticCompletionRequirements {
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
                     number_of_exam_points_treshold: None,

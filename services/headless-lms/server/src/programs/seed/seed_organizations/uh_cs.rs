@@ -2,7 +2,7 @@ use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
-    course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
     library::content_management::CreateNewCourseFixedIds,
     library::{
@@ -98,7 +98,7 @@ pub async fn seed_organization_uh_cs(
     let automatic_default_module = course_modules::update_automatic_completion_status(
         &mut conn,
         automatic_default_module.id,
-        &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
             number_of_exam_points_treshold: None,

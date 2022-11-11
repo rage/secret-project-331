@@ -12,6 +12,7 @@ import {
   AnswerRequiringAttention,
   AnswerRequiringAttentionWithTasks,
   AnswersRequiringAttention,
+  AutomaticCompletionRequirements,
   BlockProposal,
   BlockProposalAction,
   BlockProposalInfo,
@@ -28,6 +29,7 @@ import {
   CmsPeerReviewConfig,
   CmsPeerReviewConfiguration,
   CmsPeerReviewQuestion,
+  CompletionPolicy,
   CompletionRegistrationLink,
   ContentManagementPage,
   Course,
@@ -112,6 +114,7 @@ import {
   NewChapter,
   NewCourse,
   NewCourseBackgroundQuestionAnswer,
+  NewCourseModule,
   NewExam,
   NewExerciseRepository,
   NewFeedback,
@@ -585,6 +588,32 @@ export function isCourseModuleCompletionWithRegistrationInfo(
   )
 }
 
+export function isAutomaticCompletionRequirements(
+  obj: unknown,
+): obj is AutomaticCompletionRequirements {
+  const typedObj = obj as AutomaticCompletionRequirements
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["number_of_exercises_attempted_treshold"] === null ||
+      typeof typedObj["number_of_exercises_attempted_treshold"] === "number") &&
+    (typedObj["number_of_points_treshold"] === null ||
+      typeof typedObj["number_of_points_treshold"] === "number") &&
+    (typedObj["number_of_exam_points_treshold"] === null ||
+      typeof typedObj["number_of_exam_points_treshold"] === "number")
+  )
+}
+
+export function isCompletionPolicy(obj: unknown): obj is CompletionPolicy {
+  const typedObj = obj as CompletionPolicy
+  return (
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["policy"] === "automatic" &&
+      (isAutomaticCompletionRequirements(typedObj) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["policy"] === "manual")
+  )
+}
+
 export function isCourseModule(obj: unknown): obj is CourseModule {
   const typedObj = obj as CourseModule
   return (
@@ -612,6 +641,21 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
   )
 }
 
+export function isNewCourseModule(obj: unknown): obj is NewCourseModule {
+  const typedObj = obj as NewCourseModule
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string") &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string")
+  )
+}
+
 export function isModifiedModule(obj: unknown): obj is ModifiedModule {
   const typedObj = obj as ModifiedModule
   return (
@@ -621,16 +665,7 @@ export function isModifiedModule(obj: unknown): obj is ModifiedModule {
     typeof typedObj["order_number"] === "number" &&
     (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
-    (typedObj["automatic_completion"] === null ||
-      typedObj["automatic_completion"] === false ||
-      typedObj["automatic_completion"] === true) &&
-    (typedObj["automatic_completion_number_of_exercises_attempted_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
-        "number") &&
-    (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
-    (typedObj["automatic_completion_exam_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_exam_points_treshold"] === "number") &&
+    (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string")
   )
@@ -663,16 +698,7 @@ export function isNewModule(obj: unknown): obj is NewModule {
     typedObj["chapters"].every((e: any) => typeof e === "string") &&
     (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
-    (typedObj["automatic_completion"] === null ||
-      typedObj["automatic_completion"] === false ||
-      typedObj["automatic_completion"] === true) &&
-    (typedObj["automatic_completion_number_of_exercises_attempted_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
-        "number") &&
-    (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
-    (typedObj["automatic_completion_exam_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_exam_points_treshold"] === "number") &&
+    (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string")
   )

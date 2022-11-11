@@ -238,6 +238,16 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   user_id: string
 }
 
+export interface AutomaticCompletionRequirements {
+  number_of_exercises_attempted_treshold: number | null
+  number_of_points_treshold: number | null
+  number_of_exam_points_treshold: number | null
+}
+
+export type CompletionPolicy =
+  | ({ policy: "automatic" } & AutomaticCompletionRequirements)
+  | { policy: "manual" }
+
 export interface CourseModule {
   id: string
   created_at: Date
@@ -256,16 +266,23 @@ export interface CourseModule {
   ects_credits: number | null
 }
 
+export interface NewCourseModule {
+  completion_policy: CompletionPolicy
+  completion_registration_link_override: string | null
+  course_id: string
+  ects_credits: number | null
+  name: string | null
+  order_number: number
+  uh_course_code: string | null
+}
+
 export interface ModifiedModule {
   id: string
   name: string | null
   order_number: number
   uh_course_code: string | null
   ects_credits: number | null
-  automatic_completion: boolean | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
-  automatic_completion_exam_points_treshold: number | null
+  completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
 }
 
@@ -282,10 +299,7 @@ export interface NewModule {
   chapters: Array<string>
   uh_course_code: string | null
   ects_credits: number | null
-  automatic_completion: boolean | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
-  automatic_completion_exam_points_treshold: number | null
+  completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
 }
 

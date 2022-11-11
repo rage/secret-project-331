@@ -342,7 +342,9 @@ fn models() {
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
-        course_modules::CourseModule,
+        course_modules::{
+            AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
+        },
         courses::{Course, CourseCount, CourseStructure},
         email_templates::EmailTemplate,
         exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},

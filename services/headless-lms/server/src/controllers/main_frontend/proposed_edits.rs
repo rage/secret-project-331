@@ -1,6 +1,6 @@
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -84,6 +84,8 @@ pub async fn process_edit_proposal(
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
 

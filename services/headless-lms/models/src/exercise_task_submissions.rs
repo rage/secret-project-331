@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 
-use futures::Stream;
+use futures::{future::BoxFuture, Stream};
 use serde_json::Value;
+use url::Url;
 
 use crate::{
-    exercise_service_info, exercise_services, exercise_slide_submissions,
+    exercise_service_info::{self, ExerciseServiceInfoApi},
+    exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::PeerReviewQuestion,
@@ -320,6 +322,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
     viewer_user_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let task_submisssions = crate::exercise_task_submissions::get_by_exercise_slide_submission_id(
         &mut *conn,
@@ -350,6 +353,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         exercise_service_info::get_selected_exercise_services_by_type(
             &mut *conn,
             &unique_exercise_service_slugs,
+            fetch_service_info,
         )
         .await?;
 

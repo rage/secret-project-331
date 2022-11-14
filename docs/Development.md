@@ -299,7 +299,7 @@ Take a look at `kubernetes/ingress.yml` to see how requests are routed to differ
 
 ## Installing secret-projects dependencies
 
-In the root directory, run the command `nvm use`. After that you should have node 16. Then run `npm ci` in the root folder to install the dependencies and `./bin/npm-ci-all` which will install all the dependencies for the services.
+In the root directory, run the command `nvm use`. After that you should have node 16. Then run `npm ci` in the root folder to install the dependencies and `./bin/npm-ci-all` which will install all the dependencies for the services. Then make sure that TMC-Langs is downloaded by running `bin/download-tmc-langs`. Otherwise the build won't succeed.
 
 Once you've installed the node modules run the command `./bin/copy-and-check-shared-module` which will copy the contents of the shared module to each of the services.
 
@@ -312,6 +312,14 @@ cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ## Starting development cluster
 
 Before starting the cluster, make sure skaffold is running.
+
+TIP: For multiple terminal windows, we recommend you to use a terminal with split window support for convenience.
+
+For Linux, one good option is [Tilix](https://gnunn1.github.io/tilix-web/).
+
+For windows environment, you can use [windows terminal](https://aka.ms/terminal)
+
+For macOS, you can use [Iterm2](https://iterm2.com/)
 
 ### Linux
 

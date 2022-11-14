@@ -1,4 +1,8 @@
+use futures::future::BoxFuture;
+use url::Url;
+
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_tasks::{self, CourseMaterialExerciseTask},
     prelude::*,
 };
@@ -208,9 +212,11 @@ pub async fn get_course_material_exercise_slide_by_id(
     conn: &mut PgConnection,
     id: Uuid,
     user_id: Option<Uuid>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
     let exercise_tasks =
-        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id).await?;
+        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id, fetch_service_info)
+            .await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

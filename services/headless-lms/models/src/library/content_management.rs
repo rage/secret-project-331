@@ -1,4 +1,6 @@
+use futures::future::BoxFuture;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use url::Url;
 
 use crate::{
     chapters::{self, DatabaseChapter, NewChapter},
@@ -6,6 +8,7 @@ use crate::{
     course_language_groups,
     course_modules::CourseModule,
     courses::{self, Course, NewCourse},
+    exercise_service_info::ExerciseServiceInfoApi,
     pages::{self, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
@@ -23,6 +26,11 @@ pub async fn create_new_course(
     pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
 
@@ -59,7 +67,14 @@ pub async fn create_new_course(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = crate::pages::insert_page(&mut tx, course_front_page, user).await?;
+    let page = crate::pages::insert_page(
+        &mut tx,
+        course_front_page,
+        user,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await?;
 
     // Create default course instance
     let default_course_instance = crate::course_instances::insert(
@@ -128,6 +143,11 @@ pub async fn create_new_chapter(
     pkey_policy: PKeyPolicy<(Uuid, Uuid)>,
     new_chapter: &NewChapter,
     user: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
     let chapter_id = chapters::insert(&mut tx, pkey_policy.map_ref(|x| x.0), new_chapter).await?;
@@ -151,7 +171,14 @@ pub async fn create_new_chapter(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = pages::insert_page(&mut tx, chapter_frontpage, user).await?;
+    let page = pages::insert_page(
+        &mut tx,
+        chapter_frontpage,
+        user,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await?;
     tx.commit().await?;
     Ok((chapter, page))
 }

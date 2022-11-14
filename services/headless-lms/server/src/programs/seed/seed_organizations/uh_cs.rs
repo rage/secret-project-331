@@ -16,9 +16,12 @@ use headless_lms_models::{
 use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
-use crate::programs::seed::{
-    seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
-    seed_helpers::create_exam,
+use crate::{
+    domain::models_requests,
+    programs::seed::{
+        seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
+        seed_helpers::create_exam,
+    },
 };
 
 use super::super::seed_users::SeedUsersResult;
@@ -235,6 +238,8 @@ pub async fn seed_organization_uh_cs(
             }),
             new_course,
             admin_user_id,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .await?;
     let _cs_course_instance = course_instances::insert(

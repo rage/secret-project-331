@@ -10,6 +10,7 @@ use headless_lms_models::{
     library::content_management::CreateNewCourseFixedIds,
     PKeyPolicy,
 };
+use headless_lms_server::domain::models_requests;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -151,6 +152,8 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
                 is_test_mode: false,
             },
             user_1,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .await
         .unwrap();

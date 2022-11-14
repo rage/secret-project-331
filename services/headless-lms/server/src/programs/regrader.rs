@@ -4,6 +4,8 @@ use headless_lms_models as models;
 use models::library::regrading;
 use sqlx::{Connection, PgConnection};
 
+use crate::domain::models_requests;
+
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
 */
@@ -19,9 +21,19 @@ pub async fn main() -> anyhow::Result<()> {
         interval.tick().await;
         let mut conn = PgConnection::connect(&db_url).await?;
         let exercise_services_by_type =
-            models::exercise_service_info::get_all_exercise_services_by_type(&mut conn).await?;
+            models::exercise_service_info::get_all_exercise_services_by_type(
+                &mut conn,
+                models_requests::fetch_service_info,
+            )
+            .await?;
         // do not stop the thread on error, report it and try again next tick
-        if let Err(err) = regrading::regrade(&mut conn, &exercise_services_by_type).await {
+        if let Err(err) = regrading::regrade(
+            &mut conn,
+            &exercise_services_by_type,
+            models_requests::send_grading_request,
+        )
+        .await
+        {
             tracing::error!("Error in regrader: {}", err);
         }
     }

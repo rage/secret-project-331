@@ -453,7 +453,7 @@ async fn search_pages_with_phrase(
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
-        models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &*payload).await?;
+        models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &payload).await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(res))
 }
@@ -485,7 +485,7 @@ async fn search_pages_with_words(
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
-        models::pages::get_page_search_results_for_words(&mut conn, *course_id, &*payload).await?;
+        models::pages::get_page_search_results_for_words(&mut conn, *course_id, &payload).await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(res))
 }

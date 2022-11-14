@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
+use futures::future::BoxFuture;
+use url::Url;
 
 use crate::{
     courses::Course,
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{Exercise, GradingProgress},
@@ -681,11 +684,12 @@ pub async fn get_exercise_slide_submission_info(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ExerciseSlideSubmissionInfo> {
     let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
-    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id, fetch_service_info).await?;
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,
@@ -697,11 +701,12 @@ pub async fn get_all_exercise_slide_submission_info(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
     viewer_user_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ExerciseSlideSubmissionInfo> {
     let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
-    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, viewer_user_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, viewer_user_id, fetch_service_info).await?;
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,

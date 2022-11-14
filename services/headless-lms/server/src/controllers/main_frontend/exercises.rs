@@ -11,7 +11,7 @@ use models::{
     CourseOrExamId,
 };
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -123,6 +123,7 @@ async fn get_exercise_answers_requiring_attention(
             &mut conn,
             answer.submission_id,
             user.id,
+            models_requests::fetch_service_info,
         )
         .await?;
         let new_answer = AnswerRequiringAttentionWithTasks {

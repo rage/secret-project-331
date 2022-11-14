@@ -2,7 +2,7 @@
 
 use models::exercise_services::ExerciseServiceIframeRenderingInfo;
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 /**
 GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
@@ -15,9 +15,11 @@ async fn get_all_exercise_services(
 ) -> ControllerResult<web::Json<Vec<ExerciseServiceIframeRenderingInfo>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    let res =
-        models::exercise_services::get_all_exercise_services_iframe_rendering_infos(&mut conn)
-            .await?;
+    let res = models::exercise_services::get_all_exercise_services_iframe_rendering_infos(
+        &mut conn,
+        models_requests::fetch_service_info,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }

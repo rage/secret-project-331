@@ -1,5 +1,9 @@
+use futures::future::BoxFuture;
+use url::Url;
+
 use crate::{
     course_instances, exams,
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
         get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
     },
@@ -328,10 +332,11 @@ pub async fn get_course_material_exercise(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
     let (current_exercise_slide, instance_or_exam_id) =
-        get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
+        get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
     info!(
         "Current exercise slide id: {:#?}",
         current_exercise_slide.id
@@ -446,15 +451,20 @@ pub async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseInstanceOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
             // No signed in user. Show random exercise without model solution.
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
-            let random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, None)
-                    .await?;
+            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                conn,
+                random_slide.id,
+                None,
+                fetch_service_info,
+            )
+            .await?;
             Ok((
                 CourseMaterialExerciseSlide {
                     id: random_slide.id,
@@ -478,7 +488,7 @@ pub async fn get_or_select_exercise_slide(
                             user_id,
                             exercise.id,
                             Some(settings.current_course_instance_id),
-                            None,
+                            None,fetch_service_info
                         )
                         .await?;
                     Ok((
@@ -503,6 +513,7 @@ pub async fn get_or_select_exercise_slide(
                                 user_id,
                                 exercise.id,
                                 instance.id,
+                                &fetch_service_info,
                             )
                             .await?;
                         if let Some(exercise_tasks) = exercise_tasks {
@@ -522,6 +533,7 @@ pub async fn get_or_select_exercise_slide(
                                 conn,
                                 random_slide.id,
                                 Some(user_id),
+                                &fetch_service_info,
                             )
                             .await?;
 
@@ -546,6 +558,7 @@ pub async fn get_or_select_exercise_slide(
                             conn,
                             random_slide.id,
                             Some(user_id),
+                            fetch_service_info,
                         )
                         .await?;
 
@@ -579,6 +592,7 @@ pub async fn get_or_select_exercise_slide(
                     exercise.id,
                     None,
                     Some(exam_id),
+                    fetch_service_info,
                 )
                 .await?;
             info!("selecting exam task {:#?}", tasks);
@@ -685,9 +699,14 @@ mod test {
         .unwrap();
         assert!(user_exercise_state.is_none());
 
-        let exercise = get_course_material_exercise(tx.as_mut(), Some(user_id), exercise_id)
-            .await
-            .unwrap();
+        let exercise = get_course_material_exercise(
+            tx.as_mut(),
+            Some(user_id),
+            exercise_id,
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
         assert_eq!(
             exercise
                 .current_exercise_slide

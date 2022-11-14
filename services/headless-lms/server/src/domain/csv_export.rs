@@ -341,7 +341,7 @@ mod test {
     use serde_json::Value;
 
     use super::*;
-    use crate::test_helper::*;
+    use crate::{domain::models_requests, test_helper::*};
 
     #[actix_web::test]
     async fn exports() {
@@ -494,6 +494,8 @@ mod test {
                     score_maximum: 100,
                 },
             )])),
+            models_requests::fetch_service_info,
+            models_requests::send_grading_request,
         )
         .await
         .unwrap();

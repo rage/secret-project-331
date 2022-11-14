@@ -65,9 +65,6 @@ rand = "0.8.5"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.65"
 
-# Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
-indexmap = "1.9.1"
-
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.3.0"

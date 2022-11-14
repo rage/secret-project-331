@@ -1246,7 +1246,6 @@ dependencies = [
  "mockito",
  "pretty_assertions",
  "rand 0.8.5",
- "reqwest",
  "serde",
  "serde_json",
  "sqlx",

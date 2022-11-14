@@ -1,11 +1,14 @@
 use std::collections::{hash_map::Entry, HashMap};
 
+use futures::future::BoxFuture;
 use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
 use serde_json::Value;
+use url::Url;
 
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     page_history::HistoryChangeReason,
-    pages::CmsPageUpdate,
+    pages::{CmsPageUpdate, PageUpdate},
     prelude::*,
     proposed_block_edits::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
@@ -268,6 +271,11 @@ pub async fn process_proposal(
     page_proposal_id: Uuid,
     block_proposals: Vec<BlockProposalInfo>,
     author: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<()> {
     if block_proposals.is_empty() {
         return Err(ModelError::new(
@@ -347,7 +355,7 @@ WHERE id = $1
     }
 
     let updated_content = serde_json::to_value(&blocks)?;
-    let page_update = CmsPageUpdate {
+    let cms_page_update = CmsPageUpdate {
         content: updated_content,
         exercises: page_with_exercises.exercises,
         exercise_slides: page_with_exercises.exercise_slides,
@@ -358,12 +366,16 @@ WHERE id = $1
     };
     crate::pages::update_page(
         &mut tx,
-        page_with_exercises.page.id,
-        page_update,
-        author,
-        true,
-        HistoryChangeReason::PageSaved,
-        page_with_exercises.page.exam_id.is_some(),
+        PageUpdate {
+            page_id: page_with_exercises.page.id,
+            author,
+            cms_page_update,
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: page_with_exercises.page.exam_id.is_some(),
+        },
+        spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -407,7 +419,7 @@ mod test {
     use headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
 
     use super::*;
-    use crate::{proposed_block_edits::*, test_helper::*};
+    use crate::{pages::PageUpdate, proposed_block_edits::*, test_helper::*};
 
     async fn init_content(
         conn: &mut PgConnection,
@@ -426,7 +438,7 @@ mod test {
             },
             inner_blocks: vec![],
         }];
-        let page_update = CmsPageUpdate {
+        let cms_page_update = CmsPageUpdate {
             content: serde_json::to_value(&new_content).unwrap(),
             url_path: "".to_string(),
             title: "".to_string(),
@@ -437,12 +449,16 @@ mod test {
         };
         crate::pages::update_page(
             conn,
-            page,
-            page_update,
-            user,
-            true,
-            HistoryChangeReason::PageSaved,
-            false,
+            PageUpdate {
+                page_id: page,
+                author: user,
+                cms_page_update,
+                retain_ids: true,
+                history_change_reason: HistoryChangeReason::PageSaved,
+                is_exam_page: false,
+            },
+            |_, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap();
@@ -496,6 +512,8 @@ mod test {
                 action: BlockProposalAction::Accept("Content with a typo in it.".to_string()),
             }],
             user,
+            |_, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap();
@@ -549,6 +567,8 @@ mod test {
                 action: BlockProposalAction::Reject,
             }],
             user,
+            |_, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap();

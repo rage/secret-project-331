@@ -1,9 +1,6 @@
-use std::{
-    collections::{hash_map, HashMap},
-    time::Duration,
-};
+use std::collections::{hash_map, HashMap};
 
-use futures::future::OptionFuture;
+use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
     contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
 };
@@ -17,7 +14,7 @@ use crate::{
     },
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
-    exercise_service_info,
+    exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
     exercise_tasks::ExerciseTask,
@@ -1000,20 +997,31 @@ impl CmsPageUpdate {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct PageUpdate {
+    pub page_id: Uuid,
+    pub author: Uuid,
+    pub cms_page_update: CmsPageUpdate,
+    pub retain_ids: bool,
+    pub history_change_reason: HistoryChangeReason,
+    pub is_exam_page: bool,
+}
+
 pub async fn update_page(
     conn: &mut PgConnection,
-    page_id: Uuid,
-    page_update: CmsPageUpdate,
-    author: Uuid,
-    retain_ids: bool,
-    history_change_reason: HistoryChangeReason,
-    is_exam_page: bool,
+    page_update: PageUpdate,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
-    page_update.validate_exercise_data()?;
+    let cms_page_update = page_update.cms_page_update;
+    cms_page_update.validate_exercise_data()?;
 
-    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
-    if !is_exam_page
-        && page_update.chapter_id.is_none()
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
+    if !page_update.is_exam_page
+        && cms_page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
         return Err(ModelError::new(
@@ -1047,11 +1055,11 @@ RETURNING id,
   copied_from,
   pages.hidden
         ",
-        page_id,
+        page_update.page_id,
         serde_json::to_value(parsed_content)?,
-        page_update.url_path.trim(),
-        page_update.title.trim(),
-        page_update.chapter_id
+        cms_page_update.url_path.trim(),
+        cms_page_update.title.trim(),
+        cms_page_update.chapter_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -1063,8 +1071,8 @@ RETURNING id,
         &mut tx,
         &page,
         &existing_exercise_ids,
-        &page_update.exercises,
-        retain_ids,
+        &cms_page_update.exercises,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -1079,8 +1087,8 @@ RETURNING id,
         &mut tx,
         &remapped_exercises,
         &existing_exercise_slide_ids,
-        &page_update.exercise_slides,
-        retain_ids,
+        &cms_page_update.exercise_slides,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -1092,7 +1100,7 @@ RETURNING id,
         )
         .await?;
 
-    let (peer_review_configs, peer_review_questions) = page_update
+    let (peer_review_configs, peer_review_questions) = cms_page_update
         .exercises
         .into_iter()
         .filter(|e| !e.use_course_default_peer_review_config)
@@ -1108,7 +1116,7 @@ RETURNING id,
         &existing_peer_review_config_ids,
         &peer_review_configs,
         &remapped_exercises,
-        retain_ids,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -1125,7 +1133,7 @@ RETURNING id,
         &existing_peer_review_questions,
         &peer_review_questions,
         &remapped_peer_review_configs,
-        retain_ids,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -1150,8 +1158,10 @@ RETURNING id,
         &mut tx,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
-        &page_update.exercise_tasks,
-        retain_ids,
+        &cms_page_update.exercise_tasks,
+        page_update.retain_ids,
+        &spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -1228,11 +1238,11 @@ RETURNING id,
     crate::page_history::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        page_id,
-        &page_update.title,
+        page_update.page_id,
+        &cms_page_update.title,
         &history_content,
-        history_change_reason,
-        author,
+        page_update.history_change_reason,
+        page_update.author,
         None,
     )
     .await?;
@@ -1400,17 +1410,24 @@ async fn upsert_exercise_tasks(
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
     // For generating public specs for exercises.
-    let client = reqwest::Client::new();
     let exercise_types: Vec<String> = task_updates
         .iter()
         .map(|task| task.exercise_type.clone())
         .unique()
         .collect();
-    let exercise_service_hashmap =
-        exercise_service_info::get_selected_exercise_services_by_type(&mut *conn, &exercise_types)
-            .await?;
+    let exercise_service_hashmap = exercise_service_info::get_selected_exercise_services_by_type(
+        &mut *conn,
+        &exercise_types,
+        fetch_service_info,
+    )
+    .await?;
     let public_spec_urls_by_exercise_type = exercise_service_hashmap
         .iter()
         .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(service, info)?)))
@@ -1447,7 +1464,7 @@ async fn upsert_exercise_tasks(
             existing_exercise_task,
             &normalized_task,
             &model_solution_urls_by_exercise_type,
-            &client,
+            &spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
         )
@@ -1456,7 +1473,7 @@ async fn upsert_exercise_tasks(
             existing_exercise_task,
             &normalized_task,
             &public_spec_urls_by_exercise_type,
-            &client,
+            &spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
         )
@@ -1803,7 +1820,10 @@ async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
     urls_by_exercise_type: &HashMap<&String, Url>,
-    client: &reqwest::Client,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
 ) -> Result<Option<serde_json::Value>, ModelError> {
@@ -1826,21 +1846,8 @@ async fn fetch_derived_spec(
                     )
                 })?
                 .clone();
-            let res = client
-                .post(url)
-                .timeout(Duration::from_secs(120))
-                .json(&task_update.private_spec)
-                .send()
-                .await?;
-            if !res.status().is_success() {
-                let error = res.text().await.unwrap_or_default();
-                return Err(ModelError::new(
-                    ModelErrorType::Generic,
-                    format!("Failed to generate spec for exercise: {}.", error,),
-                    None,
-                ));
-            }
-            Some(res.json::<serde_json::Value>().await?)
+            let res = spec_fetcher(url, task_update.private_spec.as_ref()).await?;
+            Some(res)
         }
     };
     Ok(result_spec)
@@ -1850,6 +1857,11 @@ pub async fn insert_new_content_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     user: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
 
@@ -1871,7 +1883,14 @@ pub async fn insert_new_content_page(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = crate::pages::insert_page(&mut tx, content_page, user).await?;
+    let page = crate::pages::insert_page(
+        &mut tx,
+        content_page,
+        user,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await?;
 
     tx.commit().await?;
     Ok(page)
@@ -1881,6 +1900,11 @@ pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     author: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let next_order_number = match (new_page.chapter_id, new_page.course_id) {
         (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
@@ -1944,20 +1968,24 @@ RETURNING id,
 
     let cms_page = update_page(
         &mut tx,
-        page.id,
-        CmsPageUpdate {
-            content: page.content,
-            exercises: new_page.exercises,
-            exercise_slides: new_page.exercise_slides,
-            exercise_tasks: new_page.exercise_tasks,
-            url_path: page.url_path,
-            title: page.title,
-            chapter_id: page.chapter_id,
+        PageUpdate {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: page.content,
+                exercises: new_page.exercises,
+                exercise_slides: new_page.exercise_slides,
+                exercise_tasks: new_page.exercise_tasks,
+                url_path: page.url_path,
+                title: page.title,
+                chapter_id: page.chapter_id,
+            },
+            retain_ids: false,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: new_page.exam_id.is_some(),
         },
-        author,
-        false,
-        HistoryChangeReason::PageSaved,
-        new_page.exam_id.is_some(),
+        spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -2716,6 +2744,11 @@ pub async fn restore(
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
     // fetch old content
     let page = get_page(conn, page_id).await?;
@@ -2723,20 +2756,24 @@ pub async fn restore(
 
     update_page(
         conn,
-        page.id,
-        CmsPageUpdate {
-            content: history_data.content.content,
-            exercises: history_data.content.exercises,
-            exercise_slides: history_data.content.exercise_slides,
-            exercise_tasks: history_data.content.exercise_tasks,
-            url_path: page.url_path,
-            title: history_data.title,
-            chapter_id: page.chapter_id,
+        PageUpdate {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: history_data.content.content,
+                exercises: history_data.content.exercises,
+                exercise_slides: history_data.content.exercise_slides,
+                exercise_tasks: history_data.content.exercise_tasks,
+                url_path: page.url_path,
+                title: history_data.title,
+                chapter_id: page.chapter_id,
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::HistoryRestored,
+            is_exam_page: history_data.exam_id.is_some(),
         },
-        author,
-        true,
-        HistoryChangeReason::HistoryRestored,
-        history_data.exam_id.is_some(),
+        spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -3081,6 +3118,8 @@ mod test {
                 content_search_language: None,
             },
             user,
+            |_, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap();
@@ -3132,12 +3171,12 @@ mod test {
         .is_ok());
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1])
+        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
             .validate_exercise_data()
             .is_err());
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![])
+        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
             .validate_exercise_data()
             .is_err());
     }

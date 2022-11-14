@@ -9,6 +9,7 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
+        PageUpdate,
     },
     user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
@@ -16,6 +17,8 @@ use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
 use sqlx::PgConnection;
 use uuid::Uuid;
+
+use crate::domain::models_requests;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn create_page(
@@ -38,23 +41,34 @@ pub async fn create_page(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = pages::insert_page(conn, new_page, author).await?;
+    let page = pages::insert_page(
+        conn,
+        new_page,
+        author,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .await?;
     pages::update_page(
         conn,
-        page.id,
-        CmsPageUpdate {
-            content: page_data.content,
-            exercises: page_data.exercises,
-            exercise_slides: page_data.exercise_slides,
-            exercise_tasks: page_data.exercise_tasks,
-            url_path: page_data.url_path,
-            title: page_data.title,
-            chapter_id,
+        PageUpdate {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: page_data.content,
+                exercises: page_data.exercises,
+                exercise_slides: page_data.exercise_slides,
+                exercise_tasks: page_data.exercise_tasks,
+                url_path: page_data.url_path,
+                title: page_data.title,
+                chapter_id,
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: false,
         },
-        author,
-        true,
-        HistoryChangeReason::PageSaved,
-        false,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     Ok(page.id)
@@ -440,6 +454,8 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     exams::set_course(conn, new_exam_id, course_id).await?;

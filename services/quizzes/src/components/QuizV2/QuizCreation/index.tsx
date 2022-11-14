@@ -24,63 +24,69 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     name: "quiz-essay-name",
     description: "quiz-essay-description",
     disabled: false,
+    category: "input",
   },
   "multiple-choice": {
     type: "multiple-choice",
     name: "quiz-multiple-choice-name",
     description: "quiz-multiple-choice-description",
     disabled: false,
+    category: "multiple-choice",
   },
   scale: {
     type: "scale",
     name: "quiz-scale-name",
     description: "quiz-scale-description",
     disabled: false,
+    category: "other",
   },
   checkbox: {
     type: "checkbox",
     name: "quiz-checkbox-name",
     description: "quiz-checkbox-description",
     disabled: false,
+    category: "other",
   },
   "closed-ended-question": {
     type: "closed-ended-question",
     name: "quiz-open-name",
     description: "quiz-open-description",
     disabled: false,
+    category: "input",
   },
   matrix: {
     type: "matrix",
     name: "quiz-matrix-name",
     description: "quiz-matrix-description",
     disabled: false,
+    category: "other",
   },
   timeline: {
     type: "timeline",
     name: "quiz-timeline-name",
     description: "quiz-timeline-description",
     disabled: false,
-  },
-  "choose-n": {
-    type: "choose-n",
-    name: "quiz-clickable-multiple-choice-name",
-    description: "quiz-multiple-choice-description",
-    disabled: false,
+    category: "other",
   },
   "multiple-choice-dropdown": {
     type: "multiple-choice-dropdown",
     name: "quiz-multiple-choice-dropdown-name",
     description: "quiz-multiple-choice-dropdown-description",
     disabled: false,
+    category: "multiple-choice",
+  },
+  "choose-n": {
+    type: "choose-n",
+    name: "quiz-clickable-multiple-choice-name",
+    description: "quiz-multiple-choice-description",
+    disabled: false,
+    category: "multiple-choice",
   },
 }
 
 const AddQuizItemWrapper = styled.div`
   display: flex;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
   flex-wrap: wrap;
-  justify-content: space-around;
 `
 
 const TypeContainer = styled.div`
@@ -99,16 +105,38 @@ const DuplicateContainer = styled.div`
   margin-bottom: 1rem;
 `
 
+const QuizItemSectionTitle = styled.h4`
+  font-weight: bold;
+`
+
 const QuizItemSelection: React.FC = () => {
   const { t } = useTranslation()
 
   return (
     <AddQuizItemWrapper>
-      <h3>{t("add-new-quiz-item")}</h3>
+      <QuizItemSectionTitle> {t("multiple-choice-header")} </QuizItemSectionTitle>
       <TypeContainer>
-        {Object.keys(QUIZ_COMPONENTS).map((type, _) => (
-          <QuizItemOption key={type} quizOption={QUIZ_COMPONENTS[type]} />
-        ))}
+        {Object.values(QUIZ_COMPONENTS)
+          .filter((item) => item.category === "multiple-choice")
+          .map((item) => (
+            <QuizItemOption key={item.type} quizOption={item} />
+          ))}
+      </TypeContainer>
+      <QuizItemSectionTitle> {t("input-header")} </QuizItemSectionTitle>
+      <TypeContainer>
+        {Object.values(QUIZ_COMPONENTS)
+          .filter((item) => item.category === "input")
+          .map((item) => (
+            <QuizItemOption key={item.type} quizOption={item} />
+          ))}
+      </TypeContainer>
+      <QuizItemSectionTitle> {t("specialized-header")} </QuizItemSectionTitle>
+      <TypeContainer>
+        {Object.values(QUIZ_COMPONENTS)
+          .filter((item) => item.category === "other")
+          .map((item) => (
+            <QuizItemOption key={item.type} quizOption={item} />
+          ))}
       </TypeContainer>
     </AddQuizItemWrapper>
   )
@@ -208,7 +236,7 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
       <ItemsTitleContainer>
         <SubsectionTitleWrapper>
           <h2>{t("quiz-items")}</h2>
-        </SubsectionTitleWrapper>{" "}
+        </SubsectionTitleWrapper>
       </ItemsTitleContainer>
       <QuizItemContainer>
         {storeItems.map((oldQuiz) => {

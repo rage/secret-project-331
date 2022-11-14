@@ -9,7 +9,7 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
-        PageUpdate,
+        PageUpdateArgs,
     },
     user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
@@ -51,7 +51,7 @@ pub async fn create_page(
     .await?;
     pages::update_page(
         conn,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {

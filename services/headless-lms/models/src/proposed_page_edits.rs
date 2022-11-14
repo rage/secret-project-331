@@ -8,7 +8,7 @@ use url::Url;
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     page_history::HistoryChangeReason,
-    pages::{CmsPageUpdate, PageUpdate},
+    pages::{CmsPageUpdate, PageUpdateArgs},
     prelude::*,
     proposed_block_edits::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
@@ -366,7 +366,7 @@ WHERE id = $1
     };
     crate::pages::update_page(
         &mut tx,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: page_with_exercises.page.id,
             author,
             cms_page_update,
@@ -419,7 +419,7 @@ mod test {
     use headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
 
     use super::*;
-    use crate::{pages::PageUpdate, proposed_block_edits::*, test_helper::*};
+    use crate::{pages::PageUpdateArgs, proposed_block_edits::*, test_helper::*};
 
     async fn init_content(
         conn: &mut PgConnection,
@@ -449,7 +449,7 @@ mod test {
         };
         crate::pages::update_page(
             conn,
-            PageUpdate {
+            PageUpdateArgs {
                 page_id: page,
                 author: user,
                 cms_page_update,

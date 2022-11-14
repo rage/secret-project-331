@@ -3,7 +3,7 @@
 use models::{
     page_history::HistoryChangeReason,
     pages::{
-        CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdate,
+        CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
     },
     CourseOrExamId,
 };
@@ -86,7 +86,7 @@ async fn update_page(
     let is_exam_page = matches!(course_or_exam_id, CourseOrExamId::Exam(_));
     let saved = models::pages::update_page(
         &mut conn,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: *page_id,
             author: user.id,
             cms_page_update,

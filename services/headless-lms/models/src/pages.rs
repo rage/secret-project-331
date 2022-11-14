@@ -998,7 +998,7 @@ impl CmsPageUpdate {
 }
 
 #[derive(Debug, Clone)]
-pub struct PageUpdate {
+pub struct PageUpdateArgs {
     pub page_id: Uuid,
     pub author: Uuid,
     pub cms_page_update: CmsPageUpdate,
@@ -1009,7 +1009,7 @@ pub struct PageUpdate {
 
 pub async fn update_page(
     conn: &mut PgConnection,
-    page_update: PageUpdate,
+    page_update: PageUpdateArgs,
     spec_fetcher: impl Fn(
         Url,
         Option<&serde_json::Value>,
@@ -1968,7 +1968,7 @@ RETURNING id,
 
     let cms_page = update_page(
         &mut tx,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
@@ -2756,7 +2756,7 @@ pub async fn restore(
 
     update_page(
         conn,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {

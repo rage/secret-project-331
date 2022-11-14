@@ -6,7 +6,7 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::pages::PageUpdate;
+use headless_lms_models::pages::PageUpdateArgs;
 use headless_lms_models::{
     chapters,
     chapters::NewChapter,
@@ -1910,7 +1910,7 @@ pub async fn seed_cs_course_material(
 
     pages::update_page(
         &mut conn,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: front_page.id,
             author: admin,
             cms_page_update: CmsPageUpdate {
@@ -1975,7 +1975,7 @@ pub async fn seed_cs_course_material(
 
     pages::update_page(
         &mut conn,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: front_page_ch_1.id,
             author: admin,
             cms_page_update: CmsPageUpdate {
@@ -2137,7 +2137,7 @@ pub async fn seed_cs_course_material(
 
     pages::update_page(
         &mut conn,
-        PageUpdate {
+        PageUpdateArgs {
             page_id: front_page_ch_2.id,
             author: admin,
             cms_page_update: CmsPageUpdate {

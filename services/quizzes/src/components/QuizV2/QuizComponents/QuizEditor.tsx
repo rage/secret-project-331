@@ -3,8 +3,10 @@ import { PrivateSpecQuizItem } from "../../../../types/quizTypes"
 import CheckboxEditor from "./checkbox"
 import ClosedEndedQuestionEditor from "./closed-ended-question"
 import EssayEditor from "./essay"
+import MatrixEditor from "./matrix"
 import MultipleChoiceEditor from "./multiple-choice"
 import ScaleEditor from "./scale"
+import TimelineEditor from "./timeline"
 import UnsupportedExercise from "./unsupported"
 
 interface QuizEditor {
@@ -23,6 +25,10 @@ const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
       return <EssayEditor quizItem={quizItem} />
     case "closed-ended-question":
       return <ClosedEndedQuestionEditor quizItem={quizItem} />
+    case "matrix":
+      return <MatrixEditor quizItem={quizItem} />
+    case "timeline":
+      return <TimelineEditor quizItem={quizItem} />
     default:
       return <UnsupportedExercise />
   }

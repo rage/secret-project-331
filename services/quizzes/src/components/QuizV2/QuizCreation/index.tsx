@@ -53,13 +53,13 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     type: "matrix",
     name: "quiz-matrix-name",
     description: "quiz-matrix-description",
-    disabled: true,
+    disabled: false,
   },
   timeline: {
     type: "timeline",
     name: "quiz-timeline-name",
     description: "quiz-timeline-description",
-    disabled: true,
+    disabled: false,
   },
   "choose-n": {
     type: "choose-n",

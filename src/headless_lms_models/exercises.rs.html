@@ -715,8 +715,31 @@
 <span id="715">715</span>
 <span id="716">716</span>
 <span id="717">717</span>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+</pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
+
+<span class="kw">use crate</span>::{
     course_instances, exams,
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
         get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
     },
@@ -1045,10 +1068,11 @@ WHERE id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     exercise_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialExercise&gt; {
     <span class="kw">let </span>exercise = get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>(current_exercise_slide, instance_or_exam_id) =
-        get_or_select_exercise_slide(<span class="kw-2">&amp;mut *</span>conn, user_id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+        get_or_select_exercise_slide(<span class="kw-2">&amp;mut *</span>conn, user_id, <span class="kw-2">&amp;</span>exercise, fetch_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(
         <span class="string">&quot;Current exercise slide id: {:#?}&quot;</span>,
         current_exercise_slide.id
@@ -1163,15 +1187,20 @@ WHERE id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     exercise: <span class="kw-2">&amp;</span>Exercise,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;(CourseMaterialExerciseSlide, <span class="prelude-ty">Option</span>&lt;CourseInstanceOrExamId&gt;)&gt; {
     <span class="kw">match </span>(user_id, exercise.course_id, exercise.exam_id) {
         (<span class="prelude-val">None</span>, ..) =&gt; {
             <span class="comment">// No signed in user. Show random exercise without model solution.
             </span><span class="kw">let </span>random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let </span>random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, <span class="prelude-val">None</span>)
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                conn,
+                random_slide.id,
+                <span class="prelude-val">None</span>,
+                fetch_service_info,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>((
                 CourseMaterialExerciseSlide {
                     id: random_slide.id,
@@ -1195,7 +1224,7 @@ WHERE id = $1
                             user_id,
                             exercise.id,
                             <span class="prelude-val">Some</span>(settings.current_course_instance_id),
-                            <span class="prelude-val">None</span>,
+                            <span class="prelude-val">None</span>,fetch_service_info
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>((
@@ -1220,6 +1249,7 @@ WHERE id = $1
                                 user_id,
                                 exercise.id,
                                 instance.id,
+                                <span class="kw-2">&amp;</span>fetch_service_info,
                             )
                             .<span class="kw">await</span><span class="question-mark">?</span>;
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(exercise_tasks) = exercise_tasks {
@@ -1239,6 +1269,7 @@ WHERE id = $1
                                 conn,
                                 random_slide.id,
                                 <span class="prelude-val">Some</span>(user_id),
+                                <span class="kw-2">&amp;</span>fetch_service_info,
                             )
                             .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1263,6 +1294,7 @@ WHERE id = $1
                             conn,
                             random_slide.id,
                             <span class="prelude-val">Some</span>(user_id),
+                            fetch_service_info,
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1296,6 +1328,7 @@ WHERE id = $1
                     exercise.id,
                     <span class="prelude-val">None</span>,
                     <span class="prelude-val">Some</span>(exam_id),
+                    fetch_service_info,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="macro">info!</span>(<span class="string">&quot;selecting exam task {:#?}&quot;</span>, tasks);
@@ -1402,9 +1435,14 @@ RETURNING id;
         </span>.unwrap();
         <span class="macro">assert!</span>(user_exercise_state.is_none());
 
-        <span class="kw">let </span>exercise = get_course_material_exercise(tx.as_mut(), <span class="prelude-val">Some</span>(user_id), exercise_id)
-            .<span class="kw">await
-            </span>.unwrap();
+        <span class="kw">let </span>exercise = get_course_material_exercise(
+            tx.as_mut(),
+            <span class="prelude-val">Some</span>(user_id),
+            exercise_id,
+            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+        )
+        .<span class="kw">await
+        </span>.unwrap();
         <span class="macro">assert_eq!</span>(
             exercise
                 .current_exercise_slide

@@ -485,6 +485,11 @@
 <span id="485">485</span>
 <span id="486">486</span>
 <span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
 </pre><pre class="rust"><code><span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
 <span class="kw">use </span>futures::try_join;
 <span class="kw">use </span>headless_lms_models::{
@@ -503,9 +508,12 @@
 <span class="kw">use </span>headless_lms_utils::futures::run_parallelly;
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">use </span><span class="kw">crate</span>::programs::seed::{
-    seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
-    seed_helpers::create_exam,
+<span class="kw">use crate</span>::{
+    domain::models_requests,
+    programs::seed::{
+        seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
+        seed_helpers::create_exam,
+    },
 };
 
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::seed_users::SeedUsersResult;
@@ -722,6 +730,8 @@
             }),
             new_course,
             admin_user_id,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>_cs_course_instance = course_instances::insert(

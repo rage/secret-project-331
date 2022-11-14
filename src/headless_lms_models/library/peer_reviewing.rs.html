@@ -614,11 +614,21 @@
 <span id="614">614</span>
 <span id="615">615</span>
 <span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
+<span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>rand::{seq::SliceRandom, thread_rng};
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{<span class="self">self</span>, ExerciseSlideSubmission},
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
@@ -929,6 +939,7 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise: <span class="kw-2">&amp;</span>Exercise,
     reviewer_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialPeerReviewData&gt; {
     <span class="kw">let </span>peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
         conn,
@@ -973,6 +984,7 @@
         reviewer_user_exercise_state.user_id,
         course_instance_id,
         exercise.id,
+        fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1065,6 +1077,7 @@
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialPeerReviewData&gt; {
     <span class="kw">let </span>peer_review_questions =
         peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
@@ -1085,6 +1098,7 @@
                 conn,
                 exercise_slide_submission_id,
                 reviewer_user_id,
+                 fetch_service_info
             ).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(CourseMaterialPeerReviewDataAnswerToReview {
                 exercise_slide_submission_id,

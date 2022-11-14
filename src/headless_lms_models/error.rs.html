@@ -320,11 +320,6 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Contains error and result types for all the model functions.
 */
@@ -511,7 +506,6 @@ some_function_returning_an_error().map_err(|original_error| {
     Conversion,
     Database,
     Json,
-    Reqwest,
     Util,
     Generic,
 }
@@ -578,16 +572,6 @@ some_function_returning_an_error().map_err(|original_error| {
     }
 }
 
-<span class="kw">impl </span>std::convert::From&lt;reqwest::Error&gt; <span class="kw">for </span>ModelError {
-    <span class="kw">fn </span>from(source: reqwest::Error) -&gt; <span class="self">Self </span>{
-        ModelError::new(
-            ModelErrorType::Reqwest,
-            source.to_string(),
-            <span class="prelude-val">Some</span>(source.into()),
-        )
-    }
-}
-
 <span class="kw">impl </span>std::convert::From&lt;UtilError&gt; <span class="kw">for </span>ModelError {
     <span class="kw">fn </span>from(source: UtilError) -&gt; <span class="self">Self </span>{
         ModelError::new(
@@ -600,7 +584,13 @@ some_function_returning_an_error().map_err(|original_error| {
 
 <span class="kw">impl </span>From&lt;anyhow::Error&gt; <span class="kw">for </span>ModelError {
     <span class="kw">fn </span>from(err: anyhow::Error) -&gt; ModelError {
-        <span class="self">Self</span>::new(ModelErrorType::Generic, err.to_string(), <span class="prelude-val">Some</span>(err))
+        <span class="self">Self</span>::new(ModelErrorType::Conversion, err.to_string(), <span class="prelude-val">Some</span>(err))
+    }
+}
+
+<span class="kw">impl </span>From&lt;url::ParseError&gt; <span class="kw">for </span>ModelError {
+    <span class="kw">fn </span>from(err: url::ParseError) -&gt; ModelError {
+        <span class="self">Self</span>::new(ModelErrorType::Generic, err.to_string(), <span class="prelude-val">Some</span>(err.into()))
     }
 }
 

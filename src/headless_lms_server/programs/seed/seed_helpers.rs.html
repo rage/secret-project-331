@@ -445,6 +445,22 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
@@ -456,6 +472,7 @@
     page_history::HistoryChangeReason,
     pages::{
         <span class="self">self</span>, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
+        PageUpdateArgs,
     },
     user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
@@ -463,6 +480,8 @@
 <span class="kw">use </span>serde_json::Value;
 <span class="kw">use </span>sqlx::PgConnection;
 <span class="kw">use </span>uuid::Uuid;
+
+<span class="kw">use </span><span class="kw">crate</span>::domain::models_requests;
 
 <span class="attribute">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">pub async fn </span>create_page(
@@ -485,23 +504,34 @@
         exercise_tasks: <span class="macro">vec!</span>[],
         content_search_language: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let </span>page = pages::insert_page(conn, new_page, author).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = pages::insert_page(
+        conn,
+        new_page,
+        author,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     pages::update_page(
         conn,
-        page.id,
-        CmsPageUpdate {
-            content: page_data.content,
-            exercises: page_data.exercises,
-            exercise_slides: page_data.exercise_slides,
-            exercise_tasks: page_data.exercise_tasks,
-            url_path: page_data.url_path,
-            title: page_data.title,
-            chapter_id,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: page_data.content,
+                exercises: page_data.exercises,
+                exercise_slides: page_data.exercise_slides,
+                exercise_tasks: page_data.exercise_tasks,
+                url_path: page_data.url_path,
+                title: page_data.title,
+                chapter_id,
+            },
+            retain_ids: <span class="bool-val">true</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: <span class="bool-val">false</span>,
         },
-        author,
-        <span class="bool-val">true</span>,
-        HistoryChangeReason::PageSaved,
-        <span class="bool-val">false</span>,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(page.id)
@@ -887,6 +917,8 @@
             content_search_language: <span class="prelude-val">None</span>,
         },
         teacher,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     exams::set_course(conn, new_exam_id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;

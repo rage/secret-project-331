@@ -126,15 +126,23 @@
 <span id="126">126</span>
 <span id="127">127</span>
 <span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/pages`.
 
 </span><span class="kw">use </span>models::{
     page_history::HistoryChangeReason,
-    pages::{CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation},
+    pages::{
+        CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
+    },
     CourseOrExamId,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
@@ -207,17 +215,21 @@ Content-Type: application/json
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Page(<span class="kw-2">*</span>page_id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>page_update = payload.<span class="number">0</span>;
+    <span class="kw">let </span>cms_page_update = payload.<span class="number">0</span>;
     <span class="kw">let </span>course_or_exam_id = models::pages::get_course_and_exam_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>is_exam_page = <span class="macro">matches!</span>(course_or_exam_id, CourseOrExamId::Exam(<span class="kw">_</span>));
     <span class="kw">let </span>saved = models::pages::update_page(
         <span class="kw-2">&amp;mut </span>conn,
-        <span class="kw-2">*</span>page_id,
-        page_update,
-        user.id,
-        <span class="bool-val">false</span>,
-        HistoryChangeReason::PageSaved,
-        is_exam_page,
+        PageUpdateArgs {
+            page_id: <span class="kw-2">*</span>page_id,
+            author: user.id,
+            cms_page_update,
+            retain_ids: <span class="bool-val">false</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page,
+        },
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(saved))

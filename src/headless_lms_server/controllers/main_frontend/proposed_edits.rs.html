@@ -115,9 +115,11 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
 </pre><pre class="rust"><code><span class="kw">use </span>models::proposed_page_edits::{<span class="self">self</span>, EditProposalInfo, PageProposal, ProposalCount};
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="attribute">#[derive(Debug, Deserialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -201,6 +203,8 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

@@ -459,9 +459,33 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
+<span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
+
 <span class="kw">use crate</span>::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{<span class="self">self</span>, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
         <span class="self">self</span>, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
@@ -682,6 +706,12 @@
     exercise_with_user_state: <span class="kw-2">&amp;mut </span>ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    send_grading_request: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="kw-2">&amp;</span>ExerciseTask,
+        <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;StudentExerciseSlideSubmissionResult&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -709,6 +739,8 @@
                     <span class="kw-2">&amp;</span>task_submission,
                     exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
+                    <span class="kw-2">&amp;</span>fetch_service_info,
+                    <span class="kw-2">&amp;</span>send_grading_request,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 results.push(submission);
@@ -766,6 +798,12 @@
     submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
     exercise: <span class="kw-2">&amp;</span>Exercise,
     user_exercise_slide_state_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    send_grading_request: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="kw-2">&amp;</span>ExerciseTask,
+        <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;StudentExerciseTaskSubmissionResult&gt; {
     <span class="kw">let </span>grading = exercise_task_gradings::new_grading(conn, exercise, submission).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>updated_submission =
@@ -778,6 +816,8 @@
         <span class="kw-2">&amp;</span>exercise_task,
         exercise,
         <span class="kw-2">&amp;</span>grading,
+        fetch_service_info,
+        send_grading_request,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state_id, <span class="kw-2">&amp;</span>grading)

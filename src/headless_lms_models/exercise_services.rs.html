@@ -271,10 +271,17 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-</pre><pre class="rust"><code><span class="kw">use </span>url::Url;
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+</pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
-    exercise_service_info::{get_all_exercise_services_by_type, ExerciseServiceInfo},
+    exercise_service_info::{
+        get_all_exercise_services_by_type, ExerciseServiceInfo, ExerciseServiceInfoApi,
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -488,9 +495,10 @@ WHERE deleted_at IS NULL
 
 <span class="kw">pub async fn </span>get_all_exercise_services_iframe_rendering_infos(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Vec&lt;ExerciseServiceIframeRenderingInfo&gt;&gt; {
     <span class="kw">let </span>services = get_exercise_services(conn).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>service_infos = get_all_exercise_services_by_type(conn).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>service_infos = get_all_exercise_services_by_type(conn, fetch_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res = services
         .into_iter()
         .filter_map(|exercise_service| {

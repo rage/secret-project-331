@@ -263,13 +263,15 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 
 </span><span class="kw">use </span>std::{path::PathBuf, str::FromStr};
 
 <span class="kw">use </span>models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -311,6 +313,8 @@ Content-Type: application/json
         PKeyPolicy::Generate,
         <span class="kw-2">&amp;</span>new_chapter,
         user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">return </span>token.authorized_ok(web::Json(Chapter::from_database_chapter(

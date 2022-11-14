@@ -892,6 +892,72 @@
 <span id="892">892</span>
 <span id="893">893</span>
 <span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     convert::TryFrom,
@@ -900,11 +966,12 @@
 };
 
 <span class="kw">use </span>futures::{
-    future::FutureExt,
+    future::{BoxFuture, FutureExt},
     stream::{FuturesUnordered, StreamExt},
 };
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>sqlx::PgConnection;
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
     <span class="self">self </span><span class="kw">as </span>models,
@@ -912,6 +979,8 @@
     exercise_services::{get_internal_grade_url, ExerciseService},
     exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult},
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
+    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::<span class="kw-2">*</span>,
     ModelResult,
@@ -923,6 +992,11 @@
 <span class="kw">pub async fn </span>regrade(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_services_by_type: <span class="kw-2">&amp;</span>HashMap&lt;String, (ExerciseService, ExerciseServiceInfo)&gt;,
+    send_grading_request: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="kw-2">&amp;</span>ExerciseTask,
+        <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="comment">// stores all the futures which will resolve into new gradings
     </span><span class="kw">let </span><span class="kw-2">mut </span>grading_futures = GradingFutures::new();
@@ -945,6 +1019,7 @@
             exercise_services_by_type,
             regrading_id,
             <span class="kw-2">&amp;mut </span>grading_futures,
+            <span class="kw-2">&amp;</span>send_grading_request,
         )
         .<span class="kw">await
         </span>{
@@ -1040,6 +1115,11 @@
     exercise_services_by_type: <span class="kw-2">&amp;</span>HashMap&lt;String, (ExerciseService, ExerciseServiceInfo)&gt;,
     regrading_id: Uuid,
     grading_futures: <span class="kw-2">&amp;mut </span>GradingFutures,
+    send_grading_request: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="kw-2">&amp;</span>ExerciseTask,
+        <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;RegradingStatus&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>regrading_status = RegradingStatus {
         exercise_services_full: <span class="bool-val">false</span>,
@@ -1128,18 +1208,14 @@
                     get_internal_grade_url(exercise_service, exercise_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="kw">let </span>exercise_service_name = exercise_service.name.clone();
-                <span class="kw">let </span>grading_future = models::exercise_task_gradings::send_grading_request(
-                    grade_url,
-                    <span class="kw-2">&amp;</span>exercise_task,
-                    <span class="kw-2">&amp;</span>submission,
-                )
-                .map(<span class="kw">move </span>|exercise_service_result| GradingData {
-                    exercise_service_name,
-                    regrading_submission,
-                    grading: not_ready_grading,
-                    exercise,
-                    exercise_service_result,
-                });
+                <span class="kw">let </span>grading_future = send_grading_request(grade_url, <span class="kw-2">&amp;</span>exercise_task, <span class="kw-2">&amp;</span>submission)
+                    .map(<span class="kw">move </span>|exercise_service_result| GradingData {
+                        exercise_service_name,
+                        regrading_submission,
+                        grading: not_ready_grading,
+                        exercise,
+                        exercise_service_result,
+                    });
                 entry.push(Box::pin(grading_future));
             } <span class="kw">else </span>{
                 <span class="comment">// we can&#39;t send this submission right now
@@ -1274,7 +1350,20 @@
             </span>.unwrap();
         <span class="macro">assert!</span>(regrading_submission.grading_after_regrading.is_none());
 
-        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services).<span class="kw">await</span>.unwrap();
+        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services, |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| {
+            <span class="kw">async </span>{
+                <span class="prelude-val">Ok</span>(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given: <span class="number">0.0</span>,
+                    score_maximum: <span class="number">1</span>,
+                    feedback_text: <span class="prelude-val">None</span>,
+                    feedback_json: <span class="prelude-val">None</span>,
+                })
+            }
+            .boxed()
+        })
+        .<span class="kw">await
+        </span>.unwrap();
 
         <span class="kw">let </span>regrading_submission =
             models::exercise_task_regrading_submissions::get_regrading_submission(
@@ -1369,7 +1458,20 @@
         <span class="macro">assert!</span>(regrading.regrading_started_at.is_none());
         <span class="macro">assert!</span>(regrading.regrading_completed_at.is_none());
 
-        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services).<span class="kw">await</span>.unwrap();
+        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services, |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| {
+            <span class="kw">async </span>{
+                <span class="prelude-val">Ok</span>(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given: <span class="number">1.0</span>,
+                    score_maximum: <span class="number">1</span>,
+                    feedback_text: <span class="prelude-val">None</span>,
+                    feedback_json: <span class="prelude-val">None</span>,
+                })
+            }
+            .boxed()
+        })
+        .<span class="kw">await
+        </span>.unwrap();
 
         <span class="kw">let </span>regrading_1 = models::regradings::get_by_id(tx.as_mut(), regrading.id)
             .<span class="kw">await
@@ -1530,7 +1632,20 @@
         );
         <span class="macro">assert!</span>(regrading_2.regrading_started_at.is_none());
 
-        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services).<span class="kw">await</span>.unwrap();
+        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services, |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| {
+            <span class="kw">async </span>{
+                <span class="prelude-val">Ok</span>(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::Pending,
+                    score_given: <span class="number">0.0</span>,
+                    score_maximum: <span class="number">1</span>,
+                    feedback_text: <span class="prelude-val">None</span>,
+                    feedback_json: <span class="prelude-val">None</span>,
+                })
+            }
+            .boxed()
+        })
+        .<span class="kw">await
+        </span>.unwrap();
 
         <span class="kw">let </span>regrading_2 = models::regradings::get_by_id(tx.as_mut(), regrading)
             .<span class="kw">await
@@ -1639,7 +1754,20 @@
             <span class="number">0.0
         </span>);
 
-        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services).<span class="kw">await</span>.unwrap();
+        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services, |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| {
+            <span class="kw">async </span>{
+                <span class="prelude-val">Ok</span>(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given: <span class="number">1.0</span>,
+                    score_maximum: <span class="number">1</span>,
+                    feedback_text: <span class="prelude-val">None</span>,
+                    feedback_json: <span class="prelude-val">None</span>,
+                })
+            }
+            .boxed()
+        })
+        .<span class="kw">await
+        </span>.unwrap();
 
         <span class="kw">let </span>user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
             tx.as_mut(),
@@ -1708,7 +1836,9 @@
         </span>.unwrap();
 
         <span class="kw">let </span>services = HashMap::new();
-        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services).<span class="kw">await</span>.unwrap();
+        regrade(tx.as_mut(), <span class="kw-2">&amp;</span>services, |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>())
+            .<span class="kw">await
+            </span>.unwrap();
 
         <span class="kw">let </span>regrading = models::regradings::get_by_id(tx.as_mut(), regrading)
             .<span class="kw">await
@@ -1749,6 +1879,8 @@
             <span class="kw-2">&amp;mut </span>exercise_with_user_state,
             submission,
             GradingPolicy::Fixed(mock_results),
+            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
         </span>.unwrap();

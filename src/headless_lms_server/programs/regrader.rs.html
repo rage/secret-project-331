@@ -26,11 +26,25 @@
 <span id="26">26</span>
 <span id="27">27</span>
 <span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{env, time::Duration};
 
 <span class="kw">use </span>headless_lms_models <span class="kw">as </span>models;
 <span class="kw">use </span>models::library::regrading;
 <span class="kw">use </span>sqlx::{Connection, PgConnection};
+
+<span class="kw">use </span><span class="kw">crate</span>::domain::models_requests;
 
 <span class="doccomment">/**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
@@ -47,9 +61,19 @@ Starts a thread that will periodically send regrading submissions to the corresp
         interval.tick().<span class="kw">await</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>conn = PgConnection::connect(<span class="kw-2">&amp;</span>db_url).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>exercise_services_by_type =
-            models::exercise_service_info::get_all_exercise_services_by_type(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+            models::exercise_service_info::get_all_exercise_services_by_type(
+                <span class="kw-2">&amp;mut </span>conn,
+                models_requests::fetch_service_info,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="comment">// do not stop the thread on error, report it and try again next tick
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = regrading::regrade(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>exercise_services_by_type).<span class="kw">await </span>{
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = regrading::regrade(
+            <span class="kw-2">&amp;mut </span>conn,
+            <span class="kw-2">&amp;</span>exercise_services_by_type,
+            models_requests::send_grading_request,
+        )
+        .<span class="kw">await
+        </span>{
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Error in regrader: {}&quot;</span>, err);
         }
     }

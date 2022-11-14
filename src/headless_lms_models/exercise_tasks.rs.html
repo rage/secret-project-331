@@ -463,14 +463,31 @@
 <span id="463">463</span>
 <span id="464">464</span>
 <span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{HashMap, HashSet};
 
-<span class="kw">use </span>futures::TryStreamExt;
+<span class="kw">use </span>futures::{future::BoxFuture, TryStreamExt};
 
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
-    exercise_service_info, exercise_services,
+    exercise_service_info::{<span class="self">self</span>, ExerciseServiceInfoApi},
+    exercise_services,
     exercise_slides::{<span class="self">self</span>, CourseMaterialExerciseSlide},
     exercise_task_gradings::{<span class="self">self</span>, ExerciseTaskGrading},
     exercise_task_submissions::{<span class="self">self</span>, ExerciseTaskSubmission},
@@ -626,6 +643,7 @@ WHERE id = (
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_id: Uuid,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Vec&lt;CourseMaterialExerciseTask&gt;&gt; {
     <span class="kw">let </span>exercise_tasks: Vec&lt;ExerciseTask&gt; =
         get_exercise_tasks_by_exercise_slide_id(conn, <span class="kw-2">&amp;</span>exercise_slide_id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -655,6 +673,7 @@ WHERE id = (
         exercise_service_info::get_selected_exercise_services_by_type(
             <span class="kw-2">&amp;mut *</span>conn,
             <span class="kw-2">&amp;</span>unique_exercise_service_slugs,
+            fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -747,6 +766,7 @@ WHERE exercise_slide_id = ANY($1)
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;CourseMaterialExerciseSlide&gt;&gt; {
     <span class="kw">let </span>user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
         conn,
@@ -757,9 +777,13 @@ WHERE exercise_slide_id = ANY($1)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise_tasks = <span class="kw">if let </span><span class="prelude-val">Some</span>(user_exercise_state) = user_exercise_state {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
-            <span class="kw">let </span>exercise_tasks =
-                get_course_material_exercise_tasks(conn, selected_exercise_slide_id, <span class="prelude-val">Some</span>(user_id))
-                    .<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>exercise_tasks = get_course_material_exercise_tasks(
+                conn,
+                selected_exercise_slide_id,
+                <span class="prelude-val">Some</span>(user_id),
+                fetch_service_info,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(CourseMaterialExerciseSlide {
                 id: selected_exercise_slide_id,
                 exercise_tasks,
@@ -780,6 +804,7 @@ WHERE exercise_slide_id = ANY($1)
     exercise_id: Uuid,
     course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialExerciseSlide&gt; {
     <span class="kw">let </span>user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
@@ -812,8 +837,13 @@ WHERE exercise_slide_id = ANY($1)
             exercise_slide_id
         };
 
-    <span class="kw">let </span>exercise_tasks =
-        get_course_material_exercise_tasks(conn, selected_exercise_slide_id, <span class="prelude-val">Some</span>(user_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise_tasks = get_course_material_exercise_tasks(
+        conn,
+        selected_exercise_slide_id,
+        <span class="prelude-val">Some</span>(user_id),
+        fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(<span class="string">&quot;got tasks&quot;</span>);
     <span class="kw">if </span>exercise_tasks.is_empty() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(

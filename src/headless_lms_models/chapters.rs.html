@@ -638,6 +638,8 @@
 <span id="638">638</span>
 <span id="639">639</span>
 <span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use crate</span>::{
@@ -1251,6 +1253,8 @@ AND deleted_at IS NULL
                     is_test_mode: <span class="bool-val">false</span>,
                 },
                 user,
+                |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+                |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
             )
             .<span class="kw">await
             </span>.unwrap()

@@ -517,6 +517,8 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>csv::Writer;
@@ -860,7 +862,7 @@ HttpResponse::Ok()
     <span class="kw">use </span>serde_json::Value;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::test_helper::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{domain::models_requests, test_helper::<span class="kw-2">*</span>};
 
     <span class="attribute">#[actix_web::test]
     </span><span class="kw">async fn </span>exports() {
@@ -1013,6 +1015,8 @@ HttpResponse::Ok()
                     score_maximum: <span class="number">100</span>,
                 },
             )])),
+            models_requests::fetch_service_info,
+            models_requests::send_grading_request,
         )
         .<span class="kw">await
         </span>.unwrap();

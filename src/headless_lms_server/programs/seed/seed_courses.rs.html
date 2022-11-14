@@ -2287,13 +2287,57 @@
 <span id="2287">2287</span>
 <span id="2288">2288</span>
 <span id="2289">2289</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::programs::seed::seed_helpers::{
+<span id="2290">2290</span>
+<span id="2291">2291</span>
+<span id="2292">2292</span>
+<span id="2293">2293</span>
+<span id="2294">2294</span>
+<span id="2295">2295</span>
+<span id="2296">2296</span>
+<span id="2297">2297</span>
+<span id="2298">2298</span>
+<span id="2299">2299</span>
+<span id="2300">2300</span>
+<span id="2301">2301</span>
+<span id="2302">2302</span>
+<span id="2303">2303</span>
+<span id="2304">2304</span>
+<span id="2305">2305</span>
+<span id="2306">2306</span>
+<span id="2307">2307</span>
+<span id="2308">2308</span>
+<span id="2309">2309</span>
+<span id="2310">2310</span>
+<span id="2311">2311</span>
+<span id="2312">2312</span>
+<span id="2313">2313</span>
+<span id="2314">2314</span>
+<span id="2315">2315</span>
+<span id="2316">2316</span>
+<span id="2317">2317</span>
+<span id="2318">2318</span>
+<span id="2319">2319</span>
+<span id="2320">2320</span>
+<span id="2321">2321</span>
+<span id="2322">2322</span>
+<span id="2323">2323</span>
+<span id="2324">2324</span>
+<span id="2325">2325</span>
+<span id="2326">2326</span>
+<span id="2327">2327</span>
+<span id="2328">2328</span>
+<span id="2329">2329</span>
+<span id="2330">2330</span>
+<span id="2331">2331</span>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::domain::models_requests;
+<span class="kw">use </span><span class="kw">crate</span>::programs::seed::seed_helpers::{
     create_best_exercise, create_page, example_exercise_flexible, paragraph, quizzes_exercise,
     submit_and_grade,
 };
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{TimeZone, Utc};
 
+<span class="kw">use </span>headless_lms_models::pages::PageUpdateArgs;
 <span class="kw">use </span>headless_lms_models::{
     chapters,
     chapters::NewChapter,
@@ -2358,6 +2402,8 @@
             }),
             new_course,
             admin,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     course_instances::insert(
@@ -2399,6 +2445,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(<span class="kw-2">&amp;mut </span>conn, chapter_1.id, Utc::now()).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2420,6 +2468,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(
@@ -2446,6 +2496,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(
@@ -2472,6 +2524,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(
@@ -2508,6 +2562,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_chapter = NewChapter {
@@ -2528,6 +2584,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>module = course_modules::insert(
@@ -2556,6 +2614,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_chapter = NewChapter {
@@ -2576,6 +2636,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3809,6 +3871,8 @@
             }),
             new_course,
             admin,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3851,6 +3915,8 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(<span class="kw-2">&amp;mut </span>conn, chapter.id, Utc::now()).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -3914,6 +3980,8 @@
             }),
             new_course,
             admin,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4173,30 +4241,34 @@
 
     pages::update_page(
         <span class="kw-2">&amp;mut </span>conn,
-        front_page.id,
-        CmsPageUpdate {
-            title: <span class="string">&quot;Introduction to Course Material&quot;</span>.to_string(),
-            url_path: <span class="string">&quot;/&quot;</span>.to_string(),
-            chapter_id: <span class="prelude-val">None</span>,
-            content: serde_json::to_value(<span class="kw-2">&amp;</span>[
-                GutenbergBlock::landing_page_hero_section(<span class="string">&quot;Welcome to Introduction to Course Material&quot;</span>, <span class="string">&quot;In this course you&#39;ll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.&quot;</span>)
-                .with_id(Uuid::parse_str(<span class="string">&quot;6ad81525-0010-451f-85e5-4832e3e364a8&quot;</span>)<span class="question-mark">?</span>),
-            GutenbergBlock::course_objective_section()
-                .with_id(Uuid::parse_str(<span class="string">&quot;2eec7ad7-a95f-406f-acfe-f3a332b86e26&quot;</span>)<span class="question-mark">?</span>),
-            GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.to_string())
-                .with_id(Uuid::parse_str(<span class="string">&quot;bb51d61b-fd19-44a0-8417-7ffc6058b247&quot;</span>)<span class="question-mark">?</span>),
-            GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-progress&quot;</span>.to_string())
-                .with_id(Uuid::parse_str(<span class="string">&quot;1d7c28ca-86ab-4318-8b10-3e5b7cd6e465&quot;</span>)<span class="question-mark">?</span>),
-            ])
-            .unwrap(),
-            exercises: <span class="macro">vec!</span>[],
-            exercise_slides: <span class="macro">vec!</span>[],
-            exercise_tasks: <span class="macro">vec!</span>[],
-        },
-        admin,
-        <span class="bool-val">true</span>,
-        HistoryChangeReason::PageSaved,
-        <span class="bool-val">false</span>,
+        PageUpdateArgs {
+            page_id: front_page.id,
+            author: admin,
+            cms_page_update: CmsPageUpdate {
+                title: <span class="string">&quot;Introduction to Course Material&quot;</span>.to_string(),
+                url_path: <span class="string">&quot;/&quot;</span>.to_string(),
+                chapter_id: <span class="prelude-val">None</span>,
+                content: serde_json::to_value(<span class="kw-2">&amp;</span>[
+                    GutenbergBlock::landing_page_hero_section(<span class="string">&quot;Welcome to Introduction to Course Material&quot;</span>, <span class="string">&quot;In this course you&#39;ll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.&quot;</span>)
+                    .with_id(Uuid::parse_str(<span class="string">&quot;6ad81525-0010-451f-85e5-4832e3e364a8&quot;</span>)<span class="question-mark">?</span>),
+                    GutenbergBlock::course_objective_section()
+                        .with_id(Uuid::parse_str(<span class="string">&quot;2eec7ad7-a95f-406f-acfe-f3a332b86e26&quot;</span>)<span class="question-mark">?</span>),
+                    GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.to_string())
+                        .with_id(Uuid::parse_str(<span class="string">&quot;bb51d61b-fd19-44a0-8417-7ffc6058b247&quot;</span>)<span class="question-mark">?</span>),
+                    GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-progress&quot;</span>.to_string())
+                        .with_id(Uuid::parse_str(<span class="string">&quot;1d7c28ca-86ab-4318-8b10-3e5b7cd6e465&quot;</span>)<span class="question-mark">?</span>),
+                ])
+                .unwrap(),
+                exercises: <span class="macro">vec!</span>[],
+                exercise_slides: <span class="macro">vec!</span>[],
+                exercise_tasks: <span class="macro">vec!</span>[],
+            },
+            retain_ids: <span class="bool-val">true</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: <span class="bool-val">false
+        </span>},
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// FAQ, we should add card/accordion block to visualize here.
@@ -4226,36 +4298,42 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(<span class="kw-2">&amp;mut </span>conn, chapter_1.id, Utc::now()).<span class="kw">await</span><span class="question-mark">?</span>;
 
     pages::update_page(
         <span class="kw-2">&amp;mut </span>conn,
-        front_page_ch_1.id,
-        CmsPageUpdate {
-            title: <span class="string">&quot;User Interface&quot;</span>.to_string(),
-            url_path: <span class="string">&quot;/chapter-1&quot;</span>.to_string(),
-            chapter_id: <span class="prelude-val">Some</span>(chapter_1.id),
-            content: serde_json::to_value(<span class="kw-2">&amp;</span>[
-                GutenbergBlock::hero_section(<span class="string">&quot;User Interface&quot;</span>, <span class="string">&quot;In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.&quot;</span>)
-                .with_id(Uuid::parse_str(<span class="string">&quot;848ac898-81c0-4ebc-881f-6f84e9eaf472&quot;</span>)<span class="question-mark">?</span>),
-            GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.to_string())
-                .with_id(Uuid::parse_str(<span class="string">&quot;c8b36f58-5366-4d6b-b4ec-9fc0bd65950e&quot;</span>)<span class="question-mark">?</span>),
-            GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.to_string())
-                .with_id(Uuid::parse_str(<span class="string">&quot;cdb9e4b9-ba68-4933-b037-4648e3df7a6c&quot;</span>)<span class="question-mark">?</span>),
-            GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.to_string())
-                .with_id(Uuid::parse_str(<span class="string">&quot;457431b0-55db-46ac-90ae-03965f48b27e&quot;</span>)<span class="question-mark">?</span>),
-            ])
-            .unwrap(),
-            exercises: <span class="macro">vec!</span>[],
-            exercise_slides: <span class="macro">vec!</span>[],
-            exercise_tasks: <span class="macro">vec!</span>[],
-        },
-        admin,
-        <span class="bool-val">true</span>,
-        HistoryChangeReason::PageSaved,
-        <span class="bool-val">false</span>,
+        PageUpdateArgs {
+            page_id: front_page_ch_1.id,
+            author: admin,
+            cms_page_update: CmsPageUpdate {
+                title: <span class="string">&quot;User Interface&quot;</span>.to_string(),
+                url_path: <span class="string">&quot;/chapter-1&quot;</span>.to_string(),
+                chapter_id: <span class="prelude-val">Some</span>(chapter_1.id),
+                content: serde_json::to_value(<span class="kw-2">&amp;</span>[
+                    GutenbergBlock::hero_section(<span class="string">&quot;User Interface&quot;</span>, <span class="string">&quot;In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.&quot;</span>)
+                    .with_id(Uuid::parse_str(<span class="string">&quot;848ac898-81c0-4ebc-881f-6f84e9eaf472&quot;</span>)<span class="question-mark">?</span>),
+                GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.to_string())
+                    .with_id(Uuid::parse_str(<span class="string">&quot;c8b36f58-5366-4d6b-b4ec-9fc0bd65950e&quot;</span>)<span class="question-mark">?</span>),
+                GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.to_string())
+                    .with_id(Uuid::parse_str(<span class="string">&quot;cdb9e4b9-ba68-4933-b037-4648e3df7a6c&quot;</span>)<span class="question-mark">?</span>),
+                GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.to_string())
+                    .with_id(Uuid::parse_str(<span class="string">&quot;457431b0-55db-46ac-90ae-03965f48b27e&quot;</span>)<span class="question-mark">?</span>),
+                ])
+                .unwrap(),
+                exercises: <span class="macro">vec!</span>[],
+                exercise_slides: <span class="macro">vec!</span>[],
+                exercise_tasks: <span class="macro">vec!</span>[],
+            },
+            retain_ids: <span class="bool-val">true</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: <span class="bool-val">false
+        </span>},
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4382,36 +4460,42 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter_2,
         admin,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     chapters::set_opens_at(<span class="kw-2">&amp;mut </span>conn, chapter_2.id, Utc::now()).<span class="kw">await</span><span class="question-mark">?</span>;
 
     pages::update_page(
         <span class="kw-2">&amp;mut </span>conn,
-        front_page_ch_2.id,
-        CmsPageUpdate {
-            url_path: <span class="string">&quot;/chapter-2&quot;</span>.to_string(),
-            title: <span class="string">&quot;User Experience&quot;</span>.to_string(),
-            chapter_id: <span class="prelude-val">Some</span>(chapter_2.id),
-            content: serde_json::to_value(<span class="kw-2">&amp;</span>[
-                GutenbergBlock::hero_section(<span class="string">&quot;User Experience&quot;</span>, <span class="string">&quot;The user experience is how a user interacts with and experiences a product, system or service. It includes a person&#39;s perceptions of utility, ease of use, and efficiency.&quot;</span>)
-                    .with_id(Uuid::parse_str(<span class="string">&quot;c5c623f9-c7ca-4f8e-b04b-e91cecef217a&quot;</span>)<span class="question-mark">?</span>),
-                GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.to_string())
-                    .with_id(Uuid::parse_str(<span class="string">&quot;37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3&quot;</span>)<span class="question-mark">?</span>),
-                GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.to_string())
-                    .with_id(Uuid::parse_str(<span class="string">&quot;2e91c140-fd17-486b-8dc1-0a9589a18e3a&quot;</span>)<span class="question-mark">?</span>),
-                GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.to_string())
-                    .with_id(Uuid::parse_str(<span class="string">&quot;1bf7e311-75e8-48ec-bd55-e8f1185d76d0&quot;</span>)<span class="question-mark">?</span>),
-            ])
-            .unwrap(),
-            exercises: <span class="macro">vec!</span>[],
-            exercise_slides: <span class="macro">vec!</span>[],
-            exercise_tasks: <span class="macro">vec!</span>[],
-        },
-        admin,
-        <span class="bool-val">true</span>,
-        HistoryChangeReason::PageSaved,
-        <span class="bool-val">false</span>,
+        PageUpdateArgs {
+            page_id: front_page_ch_2.id,
+            author: admin,
+            cms_page_update: CmsPageUpdate {
+                url_path: <span class="string">&quot;/chapter-2&quot;</span>.to_string(),
+                title: <span class="string">&quot;User Experience&quot;</span>.to_string(),
+                chapter_id: <span class="prelude-val">Some</span>(chapter_2.id),
+                content: serde_json::to_value(<span class="kw-2">&amp;</span>[
+                    GutenbergBlock::hero_section(<span class="string">&quot;User Experience&quot;</span>, <span class="string">&quot;The user experience is how a user interacts with and experiences a product, system or service. It includes a person&#39;s perceptions of utility, ease of use, and efficiency.&quot;</span>)
+                        .with_id(Uuid::parse_str(<span class="string">&quot;c5c623f9-c7ca-4f8e-b04b-e91cecef217a&quot;</span>)<span class="question-mark">?</span>),
+                    GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.to_string())
+                        .with_id(Uuid::parse_str(<span class="string">&quot;37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3&quot;</span>)<span class="question-mark">?</span>),
+                    GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.to_string())
+                        .with_id(Uuid::parse_str(<span class="string">&quot;2e91c140-fd17-486b-8dc1-0a9589a18e3a&quot;</span>)<span class="question-mark">?</span>),
+                    GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.to_string())
+                        .with_id(Uuid::parse_str(<span class="string">&quot;1bf7e311-75e8-48ec-bd55-e8f1185d76d0&quot;</span>)<span class="question-mark">?</span>),
+                ])
+                .unwrap(),
+                exercises: <span class="macro">vec!</span>[],
+                exercise_slides: <span class="macro">vec!</span>[],
+                exercise_tasks: <span class="macro">vec!</span>[],
+            },
+            retain_ids: <span class="bool-val">true</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: <span class="bool-val">false
+        </span>},
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// /chapter-2/user-research

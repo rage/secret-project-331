@@ -57,7 +57,7 @@ GET `/api/v0/main-frontend/org/:slug
 ) -&gt; ControllerResult&lt;web::Json&lt;Organization&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>db_organization =
-        models::organizations::get_organization_by_slug(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;*</span>organization_slug).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::organizations::get_organization_by_slug(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>organization_slug).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), <span class="kw-2">&amp;</span>app_conf);
 

@@ -522,44 +522,15 @@
 <span id="522">522</span>
 <span id="523">523</span>
 <span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, time::Duration};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use </span>futures::Future;
+<span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>headless_lms_utils::numbers::f32_to_two_decimals;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
     exams,
-    exercise_service_info::get_service_info_by_exercise_type,
+    exercise_service_info::{get_service_info_by_exercise_type, ExerciseServiceInfoApi},
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::{<span class="self">self</span>, ExerciseTask},
@@ -861,51 +832,22 @@ WHERE id = $2
     exercise_task: <span class="kw-2">&amp;</span>ExerciseTask,
     exercise: <span class="kw-2">&amp;</span>Exercise,
     grading: <span class="kw-2">&amp;</span>ExerciseTaskGrading,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+    send_grading_request: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="kw-2">&amp;</span>ExerciseTask,
+        <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseTaskGradingResult&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
     <span class="kw">let </span>exercise_service_info =
-        get_service_info_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
+        get_service_info_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type, fetch_service_info)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise_service =
         get_exercise_service_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>grade_url = get_internal_grade_url(<span class="kw-2">&amp;</span>exercise_service, <span class="kw-2">&amp;</span>exercise_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>obj = send_grading_request(grade_url, exercise_task, submission).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>updated_grading = update_grading(conn, grading, <span class="kw-2">&amp;</span>obj, exercise).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(updated_grading)
-}
-
-<span class="comment">// does not use async fn because the arguments should only be borrowed
-// for the part before any async stuff happens
-</span><span class="kw">pub fn </span>send_grading_request(
-    grade_url: Url,
-    exercise_task: <span class="kw-2">&amp;</span>ExerciseTask,
-    submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
-) -&gt; <span class="kw">impl </span>Future&lt;Output = ModelResult&lt;ExerciseTaskGradingResult&gt;&gt; + <span class="lifetime">&#39;static </span>{
-    <span class="kw">let </span>client = reqwest::Client::new();
-    <span class="kw">let </span>req = client
-        .post(grade_url)
-        .timeout(Duration::from_secs(<span class="number">120</span>))
-        .json(<span class="kw-2">&amp;</span>ExerciseTaskGradingRequest {
-            exercise_spec: <span class="kw-2">&amp;</span>exercise_task.private_spec,
-            submission_data: <span class="kw-2">&amp;</span>submission.data_json,
-        });
-    <span class="kw">async </span>{
-        <span class="kw">let </span>res = req.send().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>status = res.status();
-        <span class="kw">if </span>!status.is_success() {
-            <span class="kw">let </span>response_body = res.text().<span class="kw">await</span>;
-            <span class="macro">error!</span>(
-                <span class="question-mark">?</span>response_body,
-                <span class="string">&quot;Grading request returned an unsuccesful status code&quot;
-            </span>);
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-                ModelErrorType::Generic,
-                <span class="string">&quot;Grading failed&quot;</span>.to_string(),
-                <span class="prelude-val">None</span>,
-            ));
-        }
-        <span class="kw">let </span>obj = res.json::&lt;ExerciseTaskGradingResult&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">info!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span>obj);
-        <span class="prelude-val">Ok</span>(obj)
-    }
 }
 
 <span class="kw">pub async fn </span>update_grading(

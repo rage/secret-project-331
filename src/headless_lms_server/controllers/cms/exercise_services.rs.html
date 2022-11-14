@@ -25,11 +25,13 @@
 <span id="25">25</span>
 <span id="26">26</span>
 <span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/exercise-services`.
 
 </span><span class="kw">use </span>models::exercise_services::ExerciseServiceIframeRenderingInfo;
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
@@ -42,9 +44,11 @@ GET `/api/v0/cms/exercise-services` - List all exercise services configured in t
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;ExerciseServiceIframeRenderingInfo&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res =
-        models::exercise_services::get_all_exercise_services_iframe_rendering_infos(<span class="kw-2">&amp;mut </span>conn)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::exercise_services::get_all_exercise_services_iframe_rendering_infos(
+        <span class="kw-2">&amp;mut </span>conn,
+        models_requests::fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
 }

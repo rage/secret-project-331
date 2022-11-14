@@ -234,7 +234,17 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+</pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
+
+<span class="kw">use crate</span>::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_tasks::{<span class="self">self</span>, CourseMaterialExerciseTask},
     prelude::<span class="kw-2">*</span>,
 };
@@ -444,9 +454,11 @@ WHERE exercise_id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     id: Uuid,
     user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialExerciseSlide&gt; {
     <span class="kw">let </span>exercise_tasks =
-        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id, fetch_service_info)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

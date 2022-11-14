@@ -167,6 +167,21 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
 </span><span class="kw">use </span>models::{
@@ -174,7 +189,7 @@
     pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -222,7 +237,14 @@ Content-Type: application/json
     })<span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>page = models::pages::insert_new_content_page(<span class="kw-2">&amp;mut </span>conn, new_page, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = models::pages::insert_new_content_page(
+        <span class="kw-2">&amp;mut </span>conn,
+        new_page,
+        user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(page))
 }
 
@@ -297,7 +319,15 @@ POST /api/v0/main-frontend/pages/:page_id/restore
 ) -&gt; ControllerResult&lt;web::Json&lt;Uuid&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Page(<span class="kw-2">*</span>page_id)).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>res = models::pages::restore(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id, restore_data.history_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::pages::restore(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>page_id,
+        restore_data.history_id,
+        user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
 }

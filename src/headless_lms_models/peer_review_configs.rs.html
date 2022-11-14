@@ -438,7 +438,22 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+</pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
+
+<span class="kw">use crate</span>::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercises::{<span class="self">self</span>, Exercise},
     library::{<span class="self">self</span>, peer_reviewing::CourseMaterialPeerReviewData},
     peer_review_questions::{
@@ -694,10 +709,16 @@ RETURNING id
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;CourseMaterialPeerReviewData&gt; {
     <span class="kw">let </span>exercise = exercises::get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>(_current_exercise_slide, instance_or_exam_id) =
-        exercises::get_or_select_exercise_slide(<span class="kw-2">&amp;mut *</span>conn, <span class="prelude-val">Some</span>(user_id), <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(_current_exercise_slide, instance_or_exam_id) = exercises::get_or_select_exercise_slide(
+        <span class="kw-2">&amp;mut *</span>conn,
+        <span class="prelude-val">Some</span>(user_id),
+        <span class="kw-2">&amp;</span>exercise,
+        <span class="kw-2">&amp;</span>fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>user_exercise_state = <span class="kw">match </span>instance_or_exam_id {
         <span class="prelude-val">Some</span>(course_instance_or_exam_id) =&gt; {
@@ -721,6 +742,7 @@ RETURNING id
                     conn,
                     <span class="kw-2">&amp;</span>exercise,
                     user_exercise_state,
+                    <span class="kw-2">&amp;</span>fetch_service_info
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(res)

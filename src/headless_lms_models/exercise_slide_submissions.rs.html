@@ -708,12 +708,20 @@
 <span id="708">708</span>
 <span id="709">709</span>
 <span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::NaiveDate;
+<span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
     courses::Course,
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{Exercise, GradingProgress},
@@ -1391,11 +1399,12 @@ GROUP BY exercise_slide_id;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseSlideSubmissionInfo&gt; {
     <span class="kw">let </span>exercise_slide_submission = get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise =
         <span class="kw">crate</span>::exercises::get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission.exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>tasks = <span class="kw">crate</span>::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>tasks = <span class="kw">crate</span>::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id, user_id, fetch_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,
@@ -1407,11 +1416,12 @@ GROUP BY exercise_slide_id;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_submission_id: Uuid,
     viewer_user_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseSlideSubmissionInfo&gt; {
     <span class="kw">let </span>exercise_slide_submission = get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise =
         <span class="kw">crate</span>::exercises::get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission.exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>tasks = <span class="kw">crate</span>::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id, viewer_user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>tasks = <span class="kw">crate</span>::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide_submission_id, viewer_user_id, fetch_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,

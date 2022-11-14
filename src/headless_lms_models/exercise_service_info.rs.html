@@ -266,19 +266,9 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, time::Duration};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use </span>reqwest::IntoUrl;
+<span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
@@ -355,6 +345,7 @@ RETURNING *
 <span class="kw">pub async fn </span>fetch_and_upsert_service_info(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseServiceInfo&gt; {
     <span class="kw">let </span>url = <span class="kw">match </span>exercise_service
         .internal_url
@@ -373,30 +364,8 @@ RETURNING *
         }
         <span class="prelude-val">None </span>=&gt; exercise_service.public_url.clone(),
     };
-    <span class="kw">let </span>fetched_info = fetch_service_info(url).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>fetched_info = fetch_service_info(url.parse()<span class="question-mark">?</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res = upsert_service_info(conn, exercise_service.id, <span class="kw-2">&amp;</span>fetched_info).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
-}
-
-<span class="kw">pub async fn </span>fetch_service_info(url: <span class="kw">impl </span>IntoUrl) -&gt; ModelResult&lt;ExerciseServiceInfoApi&gt; {
-    <span class="kw">let </span>client = reqwest::Client::new();
-    <span class="kw">let </span>res = client
-        .get(url) <span class="comment">// e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
-        </span>.timeout(Duration::from_secs(<span class="number">120</span>))
-        .send()
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>status = res.status();
-    <span class="kw">if </span>!status.is_success() {
-        <span class="kw">let </span>response_url = res.url().to_string();
-        <span class="kw">let </span>body = res.text().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">warn!</span>(url=<span class="question-mark">?</span>response_url, status=<span class="question-mark">?</span>status, body=<span class="question-mark">?</span>body, <span class="string">&quot;Could not fetch service info.&quot;</span>);
-        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-            ModelErrorType::Generic,
-            <span class="string">&quot;Could not fetch service info.&quot;</span>.to_string(),
-            <span class="prelude-val">None</span>,
-        ));
-    }
-    <span class="kw">let </span>res = res.json::&lt;ExerciseServiceInfoApi&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res)
 }
 
@@ -455,18 +424,23 @@ WHERE exercise_service_id = $1
 <span class="kw">pub async fn </span>get_service_info_by_exercise_type(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_type: <span class="kw-2">&amp;</span>str,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseServiceInfo&gt; {
     <span class="kw">let </span>exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>service_info = get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>service_info =
+        get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service, fetch_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(service_info)
 }
 
 <span class="kw">pub async fn </span>get_all_exercise_services_by_type(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;HashMap&lt;String, (ExerciseService, ExerciseServiceInfo)&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>exercise_services_by_type = HashMap::new();
     <span class="kw">for </span>exercise_service <span class="kw">in </span>get_exercise_services(conn).<span class="kw">await</span><span class="question-mark">? </span>{
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(info) = get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service).<span class="kw">await </span>{
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(info) =
+            get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service, <span class="kw-2">&amp;</span>fetch_service_info).<span class="kw">await
+        </span>{
             exercise_services_by_type
                 .insert(exercise_service.slug.clone(), (exercise_service, info));
         } <span class="kw">else </span>{
@@ -483,6 +457,7 @@ WHERE exercise_service_id = $1
 <span class="kw">pub async fn </span>get_selected_exercise_services_by_type(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     slugs: <span class="kw-2">&amp;</span>[String],
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;HashMap&lt;String, (ExerciseService, ExerciseServiceInfo)&gt;&gt; {
     <span class="kw">let </span>selected_services = <span class="macro">sqlx::query_as!</span>(
         ExerciseService,
@@ -496,7 +471,9 @@ WHERE slug = ANY($1);&quot;</span>,
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>exercise_services_by_type = HashMap::new();
     <span class="kw">for </span>exercise_service <span class="kw">in </span>selected_services {
-        <span class="kw">let </span>info = get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>info =
+            get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service, <span class="kw-2">&amp;</span>fetch_service_info)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
         exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
     }
     <span class="prelude-val">Ok</span>(exercise_services_by_type)
@@ -505,6 +482,7 @@ WHERE slug = ANY($1);&quot;</span>,
 <span class="kw">pub async fn </span>get_service_info_by_exercise_service(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ExerciseServiceInfo&gt; {
     <span class="kw">let </span>res = get_service_info(conn, exercise_service.id).<span class="kw">await</span>;
     <span class="kw">let </span>service_info = <span class="kw">if let </span><span class="prelude-val">Ok</span>(exercise_service_info) = res {
@@ -512,7 +490,7 @@ WHERE slug = ANY($1);&quot;</span>,
     } <span class="kw">else </span>{
         <span class="macro">warn!</span>(<span class="string">&quot;Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.&quot;</span>, exercise_service.name, exercise_service.slug);
 
-        fetch_and_upsert_service_info(conn, exercise_service).<span class="kw">await</span><span class="question-mark">?
+        fetch_and_upsert_service_info(conn, exercise_service, fetch_service_info).<span class="kw">await</span><span class="question-mark">?
     </span>};
     <span class="prelude-val">Ok</span>(service_info)
 }
@@ -524,9 +502,11 @@ indicate that the service info is unavailable.
 </span><span class="kw">pub async fn </span>get_course_material_service_info_by_exercise_type(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_type: <span class="kw-2">&amp;</span>str,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;CourseMaterialExerciseServiceInfo&gt;&gt; {
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(exercise_service) = get_exercise_service_by_exercise_type(conn, exercise_type).<span class="kw">await </span>{
-        <span class="kw">let </span>full_service_info = get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service).<span class="kw">await</span>;
+        <span class="kw">let </span>full_service_info =
+            get_service_info_by_exercise_service(conn, <span class="kw-2">&amp;</span>exercise_service, fetch_service_info).<span class="kw">await</span>;
         <span class="kw">let </span>service_info_option = <span class="kw">if let </span><span class="prelude-val">Ok</span>(o) = full_service_info {
             <span class="comment">// Need to convert relative url to absolute url because
             // otherwise the material won&#39;t be able to request the path

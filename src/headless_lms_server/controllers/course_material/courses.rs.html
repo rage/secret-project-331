@@ -1115,7 +1115,7 @@ Content-Type: application/json
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PageSearchResult&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res =
-        models::pages::get_page_search_results_for_phrase(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;*</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::pages::get_page_search_results_for_phrase(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
     token.authorized_ok(web::Json(res))
 }
@@ -1147,7 +1147,7 @@ Content-Type: application/json
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PageSearchResult&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res =
-        models::pages::get_page_search_results_for_words(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;*</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::pages::get_page_search_results_for_words(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
     token.authorized_ok(web::Json(res))
 }

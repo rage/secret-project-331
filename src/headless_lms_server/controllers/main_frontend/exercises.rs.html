@@ -167,6 +167,7 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
 </span><span class="kw">use </span>chrono::{DateTime, Utc};
@@ -180,7 +181,7 @@
     CourseOrExamId,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="attribute">#[derive(Debug, Serialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -292,6 +293,7 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` -
             <span class="kw-2">&amp;mut </span>conn,
             answer.submission_id,
             user.id,
+            models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>new_answer = AnswerRequiringAttentionWithTasks {

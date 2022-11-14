@@ -406,13 +406,19 @@
 <span id="406">406</span>
 <span id="407">407</span>
 <span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use </span>futures::Stream;
+<span class="kw">use </span>futures::{future::BoxFuture, Stream};
 <span class="kw">use </span>serde_json::Value;
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
-    exercise_service_info, exercise_services, exercise_slide_submissions,
+    exercise_service_info::{<span class="self">self</span>, ExerciseServiceInfoApi},
+    exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::PeerReviewQuestion,
@@ -728,6 +734,7 @@ WHERE exercise_slide_submissions.exam_id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_slide_submission_id: Uuid,
     viewer_user_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Vec&lt;CourseMaterialExerciseTask&gt;&gt; {
     <span class="kw">let </span>task_submisssions = <span class="kw">crate</span>::exercise_task_submissions::get_by_exercise_slide_submission_id(
         <span class="kw-2">&amp;mut *</span>conn,
@@ -758,6 +765,7 @@ WHERE exercise_slide_submissions.exam_id = $1
         exercise_service_info::get_selected_exercise_services_by_type(
             <span class="kw-2">&amp;mut *</span>conn,
             <span class="kw-2">&amp;</span>unique_exercise_service_slugs,
+            fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 

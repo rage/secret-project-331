@@ -3260,12 +3260,48 @@
 <span id="3260">3260</span>
 <span id="3261">3261</span>
 <span id="3262">3262</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{
-    collections::{hash_map, HashMap},
-    time::Duration,
-};
+<span id="3263">3263</span>
+<span id="3264">3264</span>
+<span id="3265">3265</span>
+<span id="3266">3266</span>
+<span id="3267">3267</span>
+<span id="3268">3268</span>
+<span id="3269">3269</span>
+<span id="3270">3270</span>
+<span id="3271">3271</span>
+<span id="3272">3272</span>
+<span id="3273">3273</span>
+<span id="3274">3274</span>
+<span id="3275">3275</span>
+<span id="3276">3276</span>
+<span id="3277">3277</span>
+<span id="3278">3278</span>
+<span id="3279">3279</span>
+<span id="3280">3280</span>
+<span id="3281">3281</span>
+<span id="3282">3282</span>
+<span id="3283">3283</span>
+<span id="3284">3284</span>
+<span id="3285">3285</span>
+<span id="3286">3286</span>
+<span id="3287">3287</span>
+<span id="3288">3288</span>
+<span id="3289">3289</span>
+<span id="3290">3290</span>
+<span id="3291">3291</span>
+<span id="3292">3292</span>
+<span id="3293">3293</span>
+<span id="3294">3294</span>
+<span id="3295">3295</span>
+<span id="3296">3296</span>
+<span id="3297">3297</span>
+<span id="3298">3298</span>
+<span id="3299">3299</span>
+<span id="3300">3300</span>
+<span id="3301">3301</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
-<span class="kw">use </span>futures::future::OptionFuture;
+<span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::{
     contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
 };
@@ -3279,7 +3315,7 @@
     },
     course_instances::{<span class="self">self</span>, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
-    exercise_service_info,
+    exercise_service_info::{<span class="self">self</span>, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
     exercise_tasks::ExerciseTask,
@@ -4262,20 +4298,31 @@ AND pages.deleted_at IS NULL
     }
 }
 
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>PageUpdateArgs {
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>author: Uuid,
+    <span class="kw">pub </span>cms_page_update: CmsPageUpdate,
+    <span class="kw">pub </span>retain_ids: bool,
+    <span class="kw">pub </span>history_change_reason: HistoryChangeReason,
+    <span class="kw">pub </span>is_exam_page: bool,
+}
+
 <span class="kw">pub async fn </span>update_page(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    page_id: Uuid,
-    page_update: CmsPageUpdate,
-    author: Uuid,
-    retain_ids: bool,
-    history_change_reason: HistoryChangeReason,
-    is_exam_page: bool,
+    page_update: PageUpdateArgs,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ContentManagementPage&gt; {
-    page_update.validate_exercise_data()<span class="question-mark">?</span>;
+    <span class="kw">let </span>cms_page_update = page_update.cms_page_update;
+    cms_page_update.validate_exercise_data()<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>parsed_content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(page_update.content)<span class="question-mark">?</span>;
-    <span class="kw">if </span>!is_exam_page
-        &amp;&amp; page_update.chapter_id.is_none()
+    <span class="kw">let </span>parsed_content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(cms_page_update.content)<span class="question-mark">?</span>;
+    <span class="kw">if </span>!page_update.is_exam_page
+        &amp;&amp; cms_page_update.chapter_id.is_none()
         &amp;&amp; contains_blocks_not_allowed_in_top_level_pages(<span class="kw-2">&amp;</span>parsed_content)
     {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
@@ -4309,11 +4356,11 @@ RETURNING id,
   copied_from,
   pages.hidden
         &quot;</span>,
-        page_id,
+        page_update.page_id,
         serde_json::to_value(parsed_content)<span class="question-mark">?</span>,
-        page_update.url_path.trim(),
-        page_update.title.trim(),
-        page_update.chapter_id
+        cms_page_update.url_path.trim(),
+        cms_page_update.title.trim(),
+        cms_page_update.chapter_id
     )
     .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4325,8 +4372,8 @@ RETURNING id,
         <span class="kw-2">&amp;mut </span>tx,
         <span class="kw-2">&amp;</span>page,
         <span class="kw-2">&amp;</span>existing_exercise_ids,
-        <span class="kw-2">&amp;</span>page_update.exercises,
-        retain_ids,
+        <span class="kw-2">&amp;</span>cms_page_update.exercises,
+        page_update.retain_ids,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4341,8 +4388,8 @@ RETURNING id,
         <span class="kw-2">&amp;mut </span>tx,
         <span class="kw-2">&amp;</span>remapped_exercises,
         <span class="kw-2">&amp;</span>existing_exercise_slide_ids,
-        <span class="kw-2">&amp;</span>page_update.exercise_slides,
-        retain_ids,
+        <span class="kw-2">&amp;</span>cms_page_update.exercise_slides,
+        page_update.retain_ids,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4354,7 +4401,7 @@ RETURNING id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(peer_review_configs, peer_review_questions) = page_update
+    <span class="kw">let </span>(peer_review_configs, peer_review_questions) = cms_page_update
         .exercises
         .into_iter()
         .filter(|e| !e.use_course_default_peer_review_config)
@@ -4370,7 +4417,7 @@ RETURNING id,
         <span class="kw-2">&amp;</span>existing_peer_review_config_ids,
         <span class="kw-2">&amp;</span>peer_review_configs,
         <span class="kw-2">&amp;</span>remapped_exercises,
-        retain_ids,
+        page_update.retain_ids,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4387,7 +4434,7 @@ RETURNING id,
         <span class="kw-2">&amp;</span>existing_peer_review_questions,
         <span class="kw-2">&amp;</span>peer_review_questions,
         <span class="kw-2">&amp;</span>remapped_peer_review_configs,
-        retain_ids,
+        page_update.retain_ids,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4412,8 +4459,10 @@ RETURNING id,
         <span class="kw-2">&amp;mut </span>tx,
         <span class="kw-2">&amp;</span>remapped_exercise_slides,
         <span class="kw-2">&amp;</span>existing_exercise_task_specs,
-        <span class="kw-2">&amp;</span>page_update.exercise_tasks,
-        retain_ids,
+        <span class="kw-2">&amp;</span>cms_page_update.exercise_tasks,
+        page_update.retain_ids,
+        <span class="kw-2">&amp;</span>spec_fetcher,
+        fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -4490,11 +4539,11 @@ RETURNING id,
     <span class="kw">crate</span>::page_history::insert(
         <span class="kw-2">&amp;mut </span>tx,
         PKeyPolicy::Generate,
-        page_id,
-        <span class="kw-2">&amp;</span>page_update.title,
+        page_update.page_id,
+        <span class="kw-2">&amp;</span>cms_page_update.title,
         <span class="kw-2">&amp;</span>history_content,
-        history_change_reason,
-        author,
+        page_update.history_change_reason,
+        page_update.author,
         <span class="prelude-val">None</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4662,17 +4711,24 @@ RETURNING id,
     existing_task_specs: <span class="kw-2">&amp;</span>[ExerciseTaskIdAndSpec],
     task_updates: <span class="kw-2">&amp;</span>[CmsPageExerciseTask],
     retain_exercise_ids: bool,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;serde_json::Value, ModelError&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Vec&lt;CmsPageExerciseTask&gt;&gt; {
     <span class="comment">// For generating public specs for exercises.
-    </span><span class="kw">let </span>client = reqwest::Client::new();
-    <span class="kw">let </span>exercise_types: Vec&lt;String&gt; = task_updates
+    </span><span class="kw">let </span>exercise_types: Vec&lt;String&gt; = task_updates
         .iter()
         .map(|task| task.exercise_type.clone())
         .unique()
         .collect();
-    <span class="kw">let </span>exercise_service_hashmap =
-        exercise_service_info::get_selected_exercise_services_by_type(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>exercise_types)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise_service_hashmap = exercise_service_info::get_selected_exercise_services_by_type(
+        <span class="kw-2">&amp;mut *</span>conn,
+        <span class="kw-2">&amp;</span>exercise_types,
+        fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>public_spec_urls_by_exercise_type = exercise_service_hashmap
         .iter()
         .map(|(key, (service, info))| <span class="prelude-val">Ok</span>((key, get_internal_public_spec_url(service, info)<span class="question-mark">?</span>)))
@@ -4709,7 +4765,7 @@ RETURNING id,
             existing_exercise_task,
             <span class="kw-2">&amp;</span>normalized_task,
             <span class="kw-2">&amp;</span>model_solution_urls_by_exercise_type,
-            <span class="kw-2">&amp;</span>client,
+            <span class="kw-2">&amp;</span>spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
         )
@@ -4718,7 +4774,7 @@ RETURNING id,
             existing_exercise_task,
             <span class="kw-2">&amp;</span>normalized_task,
             <span class="kw-2">&amp;</span>public_spec_urls_by_exercise_type,
-            <span class="kw-2">&amp;</span>client,
+            <span class="kw-2">&amp;</span>spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
         )
@@ -5065,7 +5121,10 @@ WHERE id = $2;
     existing_exercise_task: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ExerciseTaskIdAndSpec&gt;,
     task_update: <span class="kw-2">&amp;</span>NormalizedCmsExerciseTask,
     urls_by_exercise_type: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>String, Url&gt;,
-    client: <span class="kw-2">&amp;</span>reqwest::Client,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;serde_json::Value, ModelError&gt;&gt;,
     previous_spec: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
     cms_block_id: Uuid,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;, ModelError&gt; {
@@ -5088,21 +5147,8 @@ WHERE id = $2;
                     )
                 })<span class="question-mark">?
                 </span>.clone();
-            <span class="kw">let </span>res = client
-                .post(url)
-                .timeout(Duration::from_secs(<span class="number">120</span>))
-                .json(<span class="kw-2">&amp;</span>task_update.private_spec)
-                .send()
-                .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">if </span>!res.status().is_success() {
-                <span class="kw">let </span>error = res.text().<span class="kw">await</span>.unwrap_or_default();
-                <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
-                    ModelErrorType::Generic,
-                    <span class="macro">format!</span>(<span class="string">&quot;Failed to generate spec for exercise: {}.&quot;</span>, error,),
-                    <span class="prelude-val">None</span>,
-                ));
-            }
-            <span class="prelude-val">Some</span>(res.json::&lt;serde_json::Value&gt;().<span class="kw">await</span><span class="question-mark">?</span>)
+            <span class="kw">let </span>res = spec_fetcher(url, task_update.private_spec.as_ref()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="prelude-val">Some</span>(res)
         }
     };
     <span class="prelude-val">Ok</span>(result_spec)
@@ -5112,6 +5158,11 @@ WHERE id = $2;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     new_page: NewPage,
     user: Uuid,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -5133,7 +5184,14 @@ WHERE id = $2;
         exercise_tasks: <span class="macro">vec!</span>[],
         content_search_language: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let </span>page = <span class="kw">crate</span>::pages::insert_page(<span class="kw-2">&amp;mut </span>tx, content_page, user).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = <span class="kw">crate</span>::pages::insert_page(
+        <span class="kw-2">&amp;mut </span>tx,
+        content_page,
+        user,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(page)
@@ -5143,6 +5201,11 @@ WHERE id = $2;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     new_page: NewPage,
     author: Uuid,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span>next_order_number = <span class="kw">match </span>(new_page.chapter_id, new_page.course_id) {
         (<span class="prelude-val">Some</span>(id), <span class="kw">_</span>) =&gt; get_next_page_order_number_in_chapter(conn, id).<span class="kw">await</span><span class="question-mark">?</span>,
@@ -5206,20 +5269,24 @@ RETURNING id,
 
     <span class="kw">let </span>cms_page = update_page(
         <span class="kw-2">&amp;mut </span>tx,
-        page.id,
-        CmsPageUpdate {
-            content: page.content,
-            exercises: new_page.exercises,
-            exercise_slides: new_page.exercise_slides,
-            exercise_tasks: new_page.exercise_tasks,
-            url_path: page.url_path,
-            title: page.title,
-            chapter_id: page.chapter_id,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: page.content,
+                exercises: new_page.exercises,
+                exercise_slides: new_page.exercise_slides,
+                exercise_tasks: new_page.exercise_tasks,
+                url_path: page.url_path,
+                title: page.title,
+                chapter_id: page.chapter_id,
+            },
+            retain_ids: <span class="bool-val">false</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: new_page.exam_id.is_some(),
         },
-        author,
-        <span class="bool-val">false</span>,
-        HistoryChangeReason::PageSaved,
-        new_page.exam_id.is_some(),
+        spec_fetcher,
+        fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -5978,6 +6045,11 @@ LIMIT 50;
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="comment">// fetch old content
     </span><span class="kw">let </span>page = get_page(conn, page_id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -5985,20 +6057,24 @@ LIMIT 50;
 
     update_page(
         conn,
-        page.id,
-        CmsPageUpdate {
-            content: history_data.content.content,
-            exercises: history_data.content.exercises,
-            exercise_slides: history_data.content.exercise_slides,
-            exercise_tasks: history_data.content.exercise_tasks,
-            url_path: page.url_path,
-            title: history_data.title,
-            chapter_id: page.chapter_id,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: history_data.content.content,
+                exercises: history_data.content.exercises,
+                exercise_slides: history_data.content.exercise_slides,
+                exercise_tasks: history_data.content.exercise_tasks,
+                url_path: page.url_path,
+                title: history_data.title,
+                chapter_id: page.chapter_id,
+            },
+            retain_ids: <span class="bool-val">true</span>,
+            history_change_reason: HistoryChangeReason::HistoryRestored,
+            is_exam_page: history_data.exam_id.is_some(),
         },
-        author,
-        <span class="bool-val">true</span>,
-        HistoryChangeReason::HistoryRestored,
-        history_data.exam_id.is_some(),
+        spec_fetcher,
+        fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -6343,6 +6419,8 @@ WHERE pages.order_number = $1
                 content_search_language: <span class="prelude-val">None</span>,
             },
             user,
+            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
         </span>.unwrap();
@@ -6394,12 +6472,12 @@ WHERE pages.order_number = $1
         .is_ok());
 
         <span class="comment">// Fails with missing slide
-        </span><span class="macro">assert!</span>(create_update(<span class="macro">vec!</span>[e1.clone()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[e1_s1_t1])
+        </span><span class="macro">assert!</span>(create_update(<span class="macro">vec!</span>[e1.clone()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[e1_s1_t1],)
             .validate_exercise_data()
             .is_err());
 
         <span class="comment">// Fails with missing task
-        </span><span class="macro">assert!</span>(create_update(<span class="macro">vec!</span>[e1], <span class="macro">vec!</span>[e1_s1], <span class="macro">vec!</span>[])
+        </span><span class="macro">assert!</span>(create_update(<span class="macro">vec!</span>[e1], <span class="macro">vec!</span>[e1_s1], <span class="macro">vec!</span>[],)
             .validate_exercise_data()
             .is_err());
     }

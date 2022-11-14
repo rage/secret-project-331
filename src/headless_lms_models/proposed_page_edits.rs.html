@@ -561,14 +561,37 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map::Entry, HashMap};
 
+<span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
 <span class="kw">use </span>serde_json::Value;
+<span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
+    exercise_service_info::ExerciseServiceInfoApi,
     page_history::HistoryChangeReason,
-    pages::CmsPageUpdate,
+    pages::{CmsPageUpdate, PageUpdateArgs},
     prelude::<span class="kw-2">*</span>,
     proposed_block_edits::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
@@ -831,6 +854,11 @@ AND proposed_page_edits.deleted_at IS NULL
     page_proposal_id: Uuid,
     block_proposals: Vec&lt;BlockProposalInfo&gt;,
     author: Uuid,
+    spec_fetcher: <span class="kw">impl </span>Fn(
+        Url,
+        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="kw">if </span>block_proposals.is_empty() {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
@@ -910,7 +938,7 @@ WHERE id = $1
     }
 
     <span class="kw">let </span>updated_content = serde_json::to_value(<span class="kw-2">&amp;</span>blocks)<span class="question-mark">?</span>;
-    <span class="kw">let </span>page_update = CmsPageUpdate {
+    <span class="kw">let </span>cms_page_update = CmsPageUpdate {
         content: updated_content,
         exercises: page_with_exercises.exercises,
         exercise_slides: page_with_exercises.exercise_slides,
@@ -921,12 +949,16 @@ WHERE id = $1
     };
     <span class="kw">crate</span>::pages::update_page(
         <span class="kw-2">&amp;mut </span>tx,
-        page_with_exercises.page.id,
-        page_update,
-        author,
-        <span class="bool-val">true</span>,
-        HistoryChangeReason::PageSaved,
-        page_with_exercises.page.exam_id.is_some(),
+        PageUpdateArgs {
+            page_id: page_with_exercises.page.id,
+            author,
+            cms_page_update,
+            retain_ids: <span class="bool-val">true</span>,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: page_with_exercises.page.exam_id.is_some(),
+        },
+        spec_fetcher,
+        fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -970,7 +1002,7 @@ WHERE id = $2
     <span class="kw">use </span>headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use crate</span>::{proposed_block_edits::<span class="kw-2">*</span>, test_helper::<span class="kw-2">*</span>};
+    <span class="kw">use crate</span>::{pages::PageUpdateArgs, proposed_block_edits::<span class="kw-2">*</span>, test_helper::<span class="kw-2">*</span>};
 
     <span class="kw">async fn </span>init_content(
         conn: <span class="kw-2">&amp;mut </span>PgConnection,
@@ -989,7 +1021,7 @@ WHERE id = $2
             },
             inner_blocks: <span class="macro">vec!</span>[],
         }];
-        <span class="kw">let </span>page_update = CmsPageUpdate {
+        <span class="kw">let </span>cms_page_update = CmsPageUpdate {
             content: serde_json::to_value(<span class="kw-2">&amp;</span>new_content).unwrap(),
             url_path: <span class="string">&quot;&quot;</span>.to_string(),
             title: <span class="string">&quot;&quot;</span>.to_string(),
@@ -1000,12 +1032,16 @@ WHERE id = $2
         };
         <span class="kw">crate</span>::pages::update_page(
             conn,
-            page,
-            page_update,
-            user,
-            <span class="bool-val">true</span>,
-            HistoryChangeReason::PageSaved,
-            <span class="bool-val">false</span>,
+            PageUpdateArgs {
+                page_id: page,
+                author: user,
+                cms_page_update,
+                retain_ids: <span class="bool-val">true</span>,
+                history_change_reason: HistoryChangeReason::PageSaved,
+                is_exam_page: <span class="bool-val">false</span>,
+            },
+            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
         </span>.unwrap();
@@ -1059,6 +1095,8 @@ WHERE id = $2
                 action: BlockProposalAction::Accept(<span class="string">&quot;Content with a typo in it.&quot;</span>.to_string()),
             }],
             user,
+            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
         </span>.unwrap();
@@ -1112,6 +1150,8 @@ WHERE id = $2
                 action: BlockProposalAction::Reject,
             }],
             user,
+            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
         </span>.unwrap();

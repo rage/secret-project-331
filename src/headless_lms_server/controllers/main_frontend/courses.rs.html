@@ -961,6 +961,8 @@
 <span id="961">961</span>
 <span id="962">962</span>
 <span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>headless_lms_utils::strings::is_ietf_language_code_like;
@@ -984,7 +986,7 @@
     user_exercise_states::ExerciseUserCounts,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -1048,6 +1050,8 @@ Content-Type: application/json
         PKeyPolicy::Generate,
         new_course,
         user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     models::roles::insert(

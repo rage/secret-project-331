@@ -65,12 +65,14 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     type: "choose-n",
     name: "quiz-clickable-multiple-choice-name",
     description: "quiz-multiple-choice-description",
-    disabled: true,
+    disabled: false,
   },
-  // "multiple-choice-dropdown": {
-  //   name: "quiz-multiple-choice-dropdown-name",
-  //   description: "quiz-multiple-choice-dropdown-description",
-  // }
+  "multiple-choice-dropdown": {
+    type: "multiple-choice-dropdown",
+    name: "quiz-multiple-choice-dropdown-name",
+    description: "quiz-multiple-choice-dropdown-description",
+    disabled: false,
+  },
 }
 
 const AddQuizItemWrapper = styled.div`
@@ -211,7 +213,11 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
       <QuizItemContainer>
         {storeItems.map((oldQuiz) => {
           const quiz = migrateQuizItem(oldQuiz)
-          if (quiz.type == "multiple-choice") {
+          if (
+            quiz.type == "multiple-choice" ||
+            quiz.type == "choose-n" ||
+            quiz.type == "multiple-choice-dropdown"
+          ) {
             const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
             quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
           }

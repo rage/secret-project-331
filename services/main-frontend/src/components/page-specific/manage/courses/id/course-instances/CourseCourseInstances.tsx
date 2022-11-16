@@ -65,29 +65,25 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                   <li key={instance.id}>
                     {name}{" "}
                     <Link href={manageCourseInstancePageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
-                        {t("link-manage")}
-                      </a>
+                      <a aria-label={`${t("link-manage")} (${name})`}>{t("link-manage")}</a>
                     </Link>{" "}
                     <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
+                      <a aria-label={`${t("link-manage-emails")} (${name})`}>
                         {t("link-manage-emails")}
                       </a>
                     </Link>{" "}
                     <Link href={manageCourseInstancePermissionsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-manage-permissions")} (${name})`}>
+                      <a aria-label={`${t("link-manage-permissions")} (${name})`}>
                         {t("link-manage-permissions")}
                       </a>
                     </Link>{" "}
                     <Link href={viewCourseInstanceCompletionsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-view-completions")}`}>
+                      <a aria-label={`${t("link-view-completions")}`}>
                         {t("link-view-completions")}
                       </a>
                     </Link>{" "}
                     <Link href={viewCourseInstancePointsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-view-points")}`}>
-                        {t("link-view-points")}
-                      </a>
+                      <a aria-label={`${t("link-view-points")}`}>{t("link-view-points")}</a>
                     </Link>{" "}
                     <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
                     <ModuleCompletionReprocessButton courseInstanceId={instance.id} />

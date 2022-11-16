@@ -30,7 +30,6 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
         <div>
           <Link href={MANAGE_EXERCISE_SERVICES_HREF} passHref>
             <a
-              href="replace"
               className={css`
                 cursor: pointer;
                 color: blue;

@@ -77,7 +77,7 @@ jobs:
       - name: Build and deploy
         run: |
           skaffold build --filename ./skaffold.production.yaml
-          skaffold run --port-forward --force --filename ./skaffold.production.yaml --tail &
+          skaffold run --force --filename ./skaffold.production.yaml --tail &
           sleep 10
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
           echo "All pods ready"

@@ -36,7 +36,7 @@ const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
       </div>
 
       <Link href="/" passHref>
-        <a href="replace">
+        <a>
           <Button size="medium" variant="primary">
             {t("home-page")}
           </Button>

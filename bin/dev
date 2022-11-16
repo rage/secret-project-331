@@ -11,5 +11,5 @@ ensure_common_programs_in_path
 
 enforce_inotify_watches_limit_sufficient
 
-run_command skaffold dev --force --port-forward "$@"
+run_command skaffold dev --force "$@"
 

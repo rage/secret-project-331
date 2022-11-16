@@ -125,7 +125,7 @@ const RegradingsPage: React.FC = () => {
               <FullWidthTableRow key={regrading.id}>
                 <td>
                   <Link href={`/manage/regradings/${regrading.id}`} passHref>
-                    <a href="replace">{regrading.id}</a>
+                    <a>{regrading.id}</a>
                   </Link>
                 </td>
                 <td>{dateToString(regrading.created_at)}</td>

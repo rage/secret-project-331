@@ -69,7 +69,7 @@ const NextSectionLink: React.FC<
     >
       {chapterFrontPageURL && (
         <Link href={chapterFrontPageURL} passHref>
-          <StyledLink href="replace">
+          <StyledLink>
             <ArrowSVGIcon
               id="up-svg-icon"
               role="presentation"
@@ -127,7 +127,7 @@ const NextSectionLink: React.FC<
         >
           {previous && (
             <Link href={previous} passHref>
-              <a href="replace" aria-label={t("previous-page")}>
+              <a aria-label={t("previous-page")}>
                 <div
                   className={css`
                     background: ${baseTheme.colors.green[100]};

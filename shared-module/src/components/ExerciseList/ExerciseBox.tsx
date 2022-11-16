@@ -124,7 +124,6 @@ const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<Exer
                 }
               }
             `}
-            href="replace"
           >
             <ExercisePart bg={bg}>
               <ImageBox>

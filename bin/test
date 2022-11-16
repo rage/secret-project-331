@@ -9,4 +9,4 @@ ensure_program_in_path "kustomize"
 check_minikube_version
 ensure_common_programs_in_path
 
-run_command skaffold dev --force --port-forward --filename ./skaffold.production.yaml "$@"
+run_command skaffold dev --force --filename ./skaffold.production.yaml "$@"

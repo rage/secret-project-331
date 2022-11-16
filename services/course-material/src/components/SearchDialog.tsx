@@ -207,7 +207,6 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                         passHref
                       >
                         <a
-                          href="replace"
                           className={css`
                             text-decoration: none;
                             color: unset;

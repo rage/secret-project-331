@@ -44,7 +44,6 @@ const UserOnWrongCourseNotification: React.FC<
               }
             `}
             hrefLang={getCourseById.data.language_code}
-            href="replace"
           >
             <Trans t={t} i18nKey="message-already-on-different-language-version">
               Looks like you&apos;re already on a different language version of this course. Before

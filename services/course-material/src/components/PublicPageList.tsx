@@ -42,7 +42,7 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
                     key={page.id}
                     passHref
                   >
-                    <a href="replace">
+                    <a>
                       {page.title} ({page.url_path})
                     </a>
                   </Link>

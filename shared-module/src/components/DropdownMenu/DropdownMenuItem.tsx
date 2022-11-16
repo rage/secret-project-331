@@ -49,9 +49,7 @@ const DropdownMenuItem: React.FC<
     return (
       <li>
         <Link href={item.href} passHref>
-          <a href="replace" className={itemInnerStyles}>
-            {item.label}
-          </a>
+          <a className={itemInnerStyles}>{item.label}</a>
         </Link>
       </li>
     )

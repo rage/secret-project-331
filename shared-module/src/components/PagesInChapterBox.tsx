@@ -92,7 +92,6 @@ const PagesInChapterBox: React.FC<
       <>
         <Link href={props.url} passHref>
           <a
-            href="replace"
             className={css`
               color: #1c3b40;
               box-shadow: none;

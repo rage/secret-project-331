@@ -5,7 +5,7 @@ import { BlockRendererProps } from "../../.."
 import { ListItemAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
-import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 

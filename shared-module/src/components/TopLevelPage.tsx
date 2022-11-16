@@ -82,7 +82,6 @@ const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<Top
         className={css`
           text-decoration: none;
         `}
-        href="replace"
       >
         <Content>
           <div>

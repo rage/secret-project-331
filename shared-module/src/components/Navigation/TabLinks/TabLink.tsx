@@ -44,7 +44,6 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
   return (
     <Link href={urlObject} passHref replace>
       <a
-        href="replace"
         role="tab"
         tabIndex={isActive ? 0 : -1}
         aria-selected={isActive}

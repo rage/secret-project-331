@@ -204,46 +204,40 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       <Link
                         href={`/${organizationSlug}/courses/${result.url_path}`}
                         key={result.id}
-                        passHref
-                      >
-                        <a
-                          className={css`
-                            text-decoration: none;
-                            color: unset;
-                            display: block;
-                            background: #f5f6f7;
-                            margin-bottom: 0.5rem;
-                            padding: 1rem;
+                        className={css`
+                          text-decoration: none;
+                          color: unset;
+                          display: block;
+                          background: #f5f6f7;
+                          margin-bottom: 0.5rem;
+                          padding: 1rem;
 
-                            :hover {
-                              background: #ebedee;
+                          :hover {
+                            background: #ebedee;
+                          }
+                        `}
+                      >
+                        <h2
+                          className={css`
+                            font-size: 1.5rem;
+                            b {
+                              text-decoration: underline;
                             }
                           `}
-                          key={result.id}
-                        >
-                          <h2
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeCourseMaterialHtml(result.title_headline),
+                          }}
+                        />
+                        {result.content_headline && (
+                          <p
                             className={css`
-                              font-size: 1.5rem;
-                              b {
-                                text-decoration: underline;
-                              }
+                              color: #5a5757;
                             `}
                             dangerouslySetInnerHTML={{
-                              __html: sanitizeCourseMaterialHtml(result.title_headline),
+                              __html: sanitizeCourseMaterialHtml(result.content_headline),
                             }}
                           />
-
-                          {result.content_headline && (
-                            <p
-                              className={css`
-                                color: #5a5757;
-                              `}
-                              dangerouslySetInnerHTML={{
-                                __html: sanitizeCourseMaterialHtml(result.content_headline),
-                              }}
-                            />
-                          )}
-                        </a>
+                        )}
                       </Link>
                     )
                   })}

@@ -113,46 +113,45 @@ const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<Exer
   return (
     <Wrapper>
       <StyledLink>
-        <Link href={url} passHref>
-          <a
-            className={css`
-              text-decoration: none;
-              &:focus-visible {
-                & > div {
-                  background-color: ${baseTheme.colors.grey[500]};
-                  color: ${baseTheme.colors.clear[100]};
-                }
+        <Link
+          href={url}
+          className={css`
+            text-decoration: none;
+            &:focus-visible {
+              & > div {
+                background-color: ${baseTheme.colors.grey[500]};
+                color: ${baseTheme.colors.clear[100]};
               }
-            `}
-          >
-            <ExercisePart bg={bg}>
-              <ImageBox>
-                <div>
-                  <p>{exerciseIndex}</p>
-                </div>
-              </ImageBox>
-              <span>{exerciseTitle}</span>
-              <div
-                className={css`
-                  background: rgb(235, 239, 242);
-                  width: 65px;
-                  height: 62px;
-                  display: flex;
-                  align-items: center;
-                `}
-              >
-                {userPoints !== null ? (
-                  <CircularProgressBar
-                    scoreMaximum={scoreMaximum}
-                    userPoints={userPoints}
-                    className="progress"
-                  />
-                ) : (
-                  <CircularProgressBar scoreMaximum={1} userPoints={0} className="progress" />
-                )}
+            }
+          `}
+        >
+          <ExercisePart bg={bg}>
+            <ImageBox>
+              <div>
+                <p>{exerciseIndex}</p>
               </div>
-            </ExercisePart>
-          </a>
+            </ImageBox>
+            <span>{exerciseTitle}</span>
+            <div
+              className={css`
+                background: rgb(235, 239, 242);
+                width: 65px;
+                height: 62px;
+                display: flex;
+                align-items: center;
+              `}
+            >
+              {userPoints !== null ? (
+                <CircularProgressBar
+                  scoreMaximum={scoreMaximum}
+                  userPoints={userPoints}
+                  className="progress"
+                />
+              ) : (
+                <CircularProgressBar scoreMaximum={1} userPoints={0} className="progress" />
+              )}
+            </div>
+          </ExercisePart>
         </Link>
       </StyledLink>
     </Wrapper>

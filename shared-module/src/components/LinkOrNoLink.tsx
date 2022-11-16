@@ -9,8 +9,8 @@ const LinkOrNoLink: React.FC<
     return <>{children}</>
   }
   return (
-    <Link href={url} passHref>
-      <a className={linkClassName}>{children}</a>
+    <Link href={url} className={linkClassName}>
+      {children}
     </Link>
   )
 }

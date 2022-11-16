@@ -35,12 +35,10 @@ const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
         </h1>
       </div>
 
-      <Link href="/" passHref>
-        <a>
-          <Button size="medium" variant="primary">
-            {t("home-page")}
-          </Button>
-        </a>
+      <Link href="/">
+        <Button size="medium" variant="primary">
+          {t("home-page")}
+        </Button>
       </Link>
     </Layout>
   )

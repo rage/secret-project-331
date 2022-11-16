@@ -45,6 +45,7 @@ const config = {
         transform: "lodash/{{member}}",
       },
     },
+    newNextLinkBehavior: true,
   },
 }
 

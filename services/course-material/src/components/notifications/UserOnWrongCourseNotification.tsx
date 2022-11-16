@@ -34,23 +34,22 @@ const UserOnWrongCourseNotification: React.FC<
   return (
     <BreakFromCentered sidebar={false}>
       <Banner variant="readOnly">
-        <Link passHref href={`/${organizationSlug}/courses/${getCourseById.data.slug}`}>
-          <a
-            className={css`
-              color: #000;
-              text-decoration: none;
-              &:hover {
-                color: #333;
-              }
-            `}
-            hrefLang={getCourseById.data.language_code}
-          >
-            <Trans t={t} i18nKey="message-already-on-different-language-version">
-              Looks like you&apos;re already on a different language version of this course. Before
-              answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
-              or change your active language in the settings.
-            </Trans>
-          </a>
+        <Link
+          href={`/${organizationSlug}/courses/${getCourseById.data.slug}`}
+          className={css`
+            color: #000;
+            text-decoration: none;
+            &:hover {
+              color: #333;
+            }
+          `}
+          hrefLang={getCourseById.data.language_code}
+        >
+          <Trans t={t} i18nKey="message-already-on-different-language-version">
+            Looks like you&apos;re already on a different language version of this course. Before
+            answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
+            or change your active language in the settings.
+          </Trans>
         </Link>
       </Banner>
     </BreakFromCentered>

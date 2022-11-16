@@ -48,8 +48,8 @@ const DropdownMenuItem: React.FC<
   if (item.href) {
     return (
       <li>
-        <Link href={item.href} passHref>
-          <a className={itemInnerStyles}>{item.label}</a>
+        <Link href={item.href} className={itemInnerStyles}>
+          {item.label}
         </Link>
       </li>
     )

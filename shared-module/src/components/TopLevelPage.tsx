@@ -77,26 +77,25 @@ const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<Top
 }) => {
   const isEven = index % 2 === 0
   return (
-    <Link href={url} passHref>
-      <a
-        className={css`
-          text-decoration: none;
-        `}
-      >
-        <Content>
-          <div>
-            <SVGWrapper isEven={isEven}>{isEven ? <Bulleye /> : <Cross />}</SVGWrapper>
-            <h3>{title}</h3>
-            {/* <span>{subtitlePlaceholder}</span> */}
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 56.957 49">
-            <path
-              d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
-              fill="#44827E"
-            />
-          </svg>
-        </Content>
-      </a>
+    <Link
+      href={url}
+      className={css`
+        text-decoration: none;
+      `}
+    >
+      <Content>
+        <div>
+          <SVGWrapper isEven={isEven}>{isEven ? <Bulleye /> : <Cross />}</SVGWrapper>
+          <h3>{title}</h3>
+          {/* <span>{subtitlePlaceholder}</span> */}
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 56.957 49">
+          <path
+            d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
+            fill="#44827E"
+          />
+        </svg>
+      </Content>
     </Link>
   )
 }

@@ -28,16 +28,15 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           {t("title-services")}
         </h1>
         <div>
-          <Link href={MANAGE_EXERCISE_SERVICES_HREF} passHref>
-            <a
-              className={css`
-                cursor: pointer;
-                color: blue;
-                text-decoration: underline;
-              `}
-            >
-              {t("link-manage-exercise-services")}
-            </a>
+          <Link
+            href={MANAGE_EXERCISE_SERVICES_HREF}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("link-manage-exercise-services")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

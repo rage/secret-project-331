@@ -68,7 +68,7 @@ const NextSectionLink: React.FC<
       `}
     >
       {chapterFrontPageURL && (
-        <Link href={chapterFrontPageURL} passHref>
+        <Link href={chapterFrontPageURL}>
           <StyledLink>
             <ArrowSVGIcon
               id="up-svg-icon"
@@ -126,37 +126,35 @@ const NextSectionLink: React.FC<
           `}
         >
           {previous && (
-            <Link href={previous} passHref>
-              <a aria-label={t("previous-page")}>
-                <div
-                  className={css`
-                    background: ${baseTheme.colors.green[100]};
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100%;
+            <Link href={previous} aria-label={t("previous-page")}>
+              <div
+                className={css`
+                  background: ${baseTheme.colors.green[100]};
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100%;
 
-                    &:hover {
-                      filter: brightness(95%) contrast(110%);
-                      cursor: pointer;
-                    }
+                  &:hover {
+                    filter: brightness(95%) contrast(110%);
+                    cursor: pointer;
+                  }
 
-                    .arrow {
-                      fill: #44827e;
-                    }
-                  `}
-                >
-                  <ArrowSVGIcon
-                    id="left-svg-icon"
-                    role="presentation"
-                    alt=""
-                    width="25"
-                    height="25"
-                    viewBox="0 0 39 39"
-                    transform="rotate(180)"
-                  />
-                </div>
-              </a>
+                  .arrow {
+                    fill: #44827e;
+                  }
+                `}
+              >
+                <ArrowSVGIcon
+                  id="left-svg-icon"
+                  role="presentation"
+                  alt=""
+                  width="25"
+                  height="25"
+                  viewBox="0 0 39 39"
+                  transform="rotate(180)"
+                />
+              </div>
             </Link>
           )}
           <LinkOrNoLink

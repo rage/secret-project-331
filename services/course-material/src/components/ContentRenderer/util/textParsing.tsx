@@ -54,7 +54,9 @@ const parseCitation = (data: string) => {
   const converted = data.replace(
     LATEX_CITE_REGEX,
     // eslint-disable-next-line i18next/no-literal-string
-    (_, citationId) => `<sup class="reference" data-citation-id="${citationId}">[?]</sup>`,
+    (_, citationId) =>
+      // eslint-disable-next-line i18next/no-literal-string
+      `<sup class="reference" data-citation-id="${citationId}" style="line-height: 1.5em;">[?]</sup>`,
   )
   return converted
 }

@@ -18,6 +18,7 @@ import {
   editedQuizzesAutoconfirm,
   editedQuizzesBody,
   editedQuizzesDeadline,
+  editedQuizzesDirection,
   editedQuizzesNumberOfTries,
   editedQuizzesPart,
   editedQuizzesPointsGrantingPolicy,
@@ -67,6 +68,12 @@ export const quizReducer = createReducer<{ [quizId: string]: NormalizedQuiz }, a
     })
   })
 
+  .handleAction(editedQuizzesDirection, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.id].direction = action.payload.direction
+    })
+  })
+
   .handleAction(editedQuizzesBody, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.quizId].body = action.payload.newBody
@@ -110,6 +117,7 @@ export const quizReducer = createReducer<{ [quizId: string]: NormalizedQuiz }, a
       createdAt: new Date(),
       updatedAt: new Date(),
       deadline: null,
+      direction: "column",
       excludedFromScore: false,
       grantPointsPolicy: "grant_whenever_possible",
       items: [],

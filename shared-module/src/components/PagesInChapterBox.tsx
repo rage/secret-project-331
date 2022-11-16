@@ -66,7 +66,7 @@ const ChapterParts = styled.div`
     font-family: ${headingFont};
     font-weight: 500;
     vertical-align: top;
-    font-size: clamp(16px, 1vw, 18px);
+    font-size: clamp(16px, 1.2vw, 20px);
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;

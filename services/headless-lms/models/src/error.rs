@@ -184,7 +184,6 @@ pub enum ModelErrorType {
     Conversion,
     Database,
     Json,
-    Reqwest,
     Util,
     Generic,
 }
@@ -251,16 +250,6 @@ impl std::convert::From<serde_json::Error> for ModelError {
     }
 }
 
-impl std::convert::From<reqwest::Error> for ModelError {
-    fn from(source: reqwest::Error) -> Self {
-        ModelError::new(
-            ModelErrorType::Reqwest,
-            source.to_string(),
-            Some(source.into()),
-        )
-    }
-}
-
 impl std::convert::From<UtilError> for ModelError {
     fn from(source: UtilError) -> Self {
         ModelError::new(
@@ -273,7 +262,13 @@ impl std::convert::From<UtilError> for ModelError {
 
 impl From<anyhow::Error> for ModelError {
     fn from(err: anyhow::Error) -> ModelError {
-        Self::new(ModelErrorType::Generic, err.to_string(), Some(err))
+        Self::new(ModelErrorType::Conversion, err.to_string(), Some(err))
+    }
+}
+
+impl From<url::ParseError> for ModelError {
+    fn from(err: url::ParseError) -> ModelError {
+        Self::new(ModelErrorType::Generic, err.to_string(), Some(err.into()))
     }
 }
 

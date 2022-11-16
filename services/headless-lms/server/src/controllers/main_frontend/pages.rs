@@ -5,7 +5,7 @@ use models::{
     pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 /**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -53,7 +53,14 @@ async fn post_new_page(
     })?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    let page = models::pages::insert_new_content_page(&mut conn, new_page, user.id).await?;
+    let page = models::pages::insert_new_content_page(
+        &mut conn,
+        new_page,
+        user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .await?;
     token.authorized_ok(web::Json(page))
 }
 
@@ -128,7 +135,15 @@ async fn restore(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let res = models::pages::restore(&mut conn, *page_id, restore_data.history_id, user.id).await?;
+    let res = models::pages::restore(
+        &mut conn,
+        *page_id,
+        restore_data.history_id,
+        user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }

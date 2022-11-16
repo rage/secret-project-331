@@ -39,8 +39,6 @@ serde_json = "1.0.87"
 derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.10.5"
-# higher level HTTP client library
-reqwest = { version = "0.11.12", features = ["brotli", "gzip", "json"] }
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.3.1"
 # Application-level tracing for Rust.
@@ -64,9 +62,6 @@ lettre = "0.10.1"
 rand = "0.8.5"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.66"
-
-# Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
-indexmap = "1.9.1"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

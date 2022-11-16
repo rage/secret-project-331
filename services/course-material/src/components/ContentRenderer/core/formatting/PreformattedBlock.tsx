@@ -5,7 +5,7 @@ import { PreformattedAttributes } from "../../../../../types/GutenbergBlockAttri
 import { monospaceFont } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
-import fontSizeMapper from "../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const PreformattedBlock: React.FC<

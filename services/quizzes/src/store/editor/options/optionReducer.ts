@@ -5,6 +5,7 @@ import { createReducer } from "typesafe-actions"
 
 import { action, NormalizedQuizItemOption, Quiz } from "../../../../types/types"
 import { normalizedQuiz } from "../../../schemas"
+import { COLUMN } from "../../../util/constants"
 import {
   createdNewOption,
   createdNewQuiz,
@@ -85,6 +86,7 @@ export const optionReducer = createReducer<
       createdAt: new Date(),
       updatedAt: new Date(),
       deadline: null,
+      direction: COLUMN,
       excludedFromScore: false,
       grantPointsPolicy: "grant_whenever_possible",
       items: [],

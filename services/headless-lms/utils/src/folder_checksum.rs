@@ -209,9 +209,9 @@ mod tests {
         });
         if res.is_ok() {
             return;
-        } else {
-            warn!("First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine.");
-            do_the_test().await;
         }
+
+        warn!("First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine.");
+        do_the_test().await;
     }
 }

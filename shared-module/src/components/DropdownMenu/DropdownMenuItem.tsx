@@ -29,7 +29,7 @@ const itemInnerStyles = css`
   background-color: white;
   cursor: pointer;
   display: block;
-  color: ${baseTheme.colors.grey[500]};
+  color: ${baseTheme.colors.gray[500]};
   font-weight: 600;
   text-decoration: none;
   width: 100%;

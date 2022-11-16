@@ -45,7 +45,7 @@ const Wrapper = styled.div`
 
   h1 {
     font-size: clamp(30px, 3vw, 34px);
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     text-align: center;
     font-family: ${headingFont};
     font-weight: 600;
@@ -102,7 +102,7 @@ const Wrapper = styled.div`
     a {
       text-decoration: none;
       font-size: 20px;
-      color: ${baseTheme.colors.grey[700]};
+      color: ${baseTheme.colors.gray[700]};
 
       &:hover {
         color: ${baseTheme.colors.blue[700]};

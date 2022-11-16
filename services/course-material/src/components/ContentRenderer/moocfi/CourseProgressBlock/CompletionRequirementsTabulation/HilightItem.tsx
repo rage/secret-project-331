@@ -15,7 +15,7 @@ const highlightItemStyle = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const highlightItemLeftBorder = css`
-  border-left: 2px solid ${baseTheme.colors.grey[100]};
+  border-left: 2px solid ${baseTheme.colors.gray[100]};
 `
 
 interface HighlightItemProps {

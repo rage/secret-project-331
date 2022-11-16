@@ -99,7 +99,7 @@ const NextSectionLink: React.FC<
         <p
           className={css`
             font-size: 1.2rem;
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
             margin: 0.5rem 0;
             padding: 0;
             display: flex;
@@ -185,7 +185,7 @@ const NextSectionLink: React.FC<
                 className={css`
                   background-color: ${url
                     ? baseTheme.colors.green[600]
-                    : baseTheme.colors.grey[600]};
+                    : baseTheme.colors.gray[600]};
 
                   flex: 1;
                   line-height: 1.3;
@@ -231,7 +231,7 @@ const NextSectionLink: React.FC<
                   padding: 1rem 1rem;
                   background-color: ${url
                     ? baseTheme.colors.green[600]
-                    : baseTheme.colors.grey[600]};
+                    : baseTheme.colors.gray[600]};
                   display: flex;
                   justify-content: center;
                   align-items: center;

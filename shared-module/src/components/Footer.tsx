@@ -42,7 +42,7 @@ const Wrapper = styled.div`
     margin-bottom: 0.8rem;
     line-height: 1;
     font-size: 1.2rem;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     font-family: ${secondaryFont};
   }
 
@@ -61,7 +61,7 @@ const Wrapper = styled.div`
 
 const StyledLink = styled.a`
   text-decoration: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.gray[700]};
   font-size: 18px;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;

@@ -70,7 +70,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
           <h2
             className={css`
               font-size: clamp(2rem, 3.6vh, 36px);
-              color: ${baseTheme.colors.grey[700]};
+              color: ${baseTheme.colors.gray[700]};
               font-family: ${headingFont};
               font-weight: bold;
             `}

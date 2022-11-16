@@ -10,7 +10,7 @@ import TableCellContent from "./TableCellContent"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
-  background-color: grey;
+  background-color: gray;
   border-collapse: collapse;
   td {
     border: 2px solid #e1e1e199;
@@ -68,7 +68,7 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ it
     setMatrixActiveSize(sizeOfTheMatrix)
   }, [matrixVariable])
 
-  const checkNeighbourCells = (column: number, row: number) => {
+  const checkNeighborCells = (column: number, row: number) => {
     return matrixVariable[row][column]
   }
 
@@ -95,14 +95,14 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ it
             {tempArray.map((rowIndex) => (
               <tr key={`row ${rowIndex}`}>
                 {tempArray.map((columnIndex) => {
-                  const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
+                  const checkNeighbor = checkNeighborCells(columnIndex, rowIndex)
                   return (
                     <>
-                      {checkNeighbour !== null ? (
+                      {checkNeighbor !== null ? (
                         <TableCellContent
                           key={`row ${rowIndex} column: ${columnIndex}`}
                           matrixSize={matrixActiveSize}
-                          cellText={checkNeighbour}
+                          cellText={checkNeighbor}
                           columnLoop={columnIndex}
                           rowLoop={rowIndex}
                           variables={variables}

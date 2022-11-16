@@ -32,7 +32,7 @@ const Label = styled.label<LabelExtraProps>`
   display: grid;
   grid-template-columns: 1em auto;
   gap: 0.5em;
-  color: ${baseTheme.colors.grey[600]};
+  color: ${baseTheme.colors.gray[600]};
 
   input[type="checkbox"] {
     appearance: none;

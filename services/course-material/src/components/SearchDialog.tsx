@@ -146,7 +146,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                   font-size: 22px;
                   position: relative;
                   right: -9px;
-                  color: ${baseTheme.colors.grey[400]};
+                  color: ${baseTheme.colors.gray[400]};
                 `}
                 icon={faSearch}
                 aria-label={t("button-label-search-for-pages")}
@@ -162,7 +162,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                   box-shadow: 0px 8px 40px rgb(0 0 0 / 5%);
                   border-radius: 3px;
                   border: none;
-                  outline: 1px solid ${baseTheme.colors.grey[200]};
+                  outline: 1px solid ${baseTheme.colors.gray[200]};
                   margin-right: 0.5rem;
 
                   &:focus {

@@ -51,7 +51,7 @@ const ImageBox = styled.div`
     height: 100%;
     text-align: center;
     z-index: 3;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     font-size: 16px;
     margin-bottom: 0;
   }
@@ -63,7 +63,7 @@ const ExercisePart = styled.div<StyledProps>`
   margin-left: 0em;
   padding-left: 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.gray[700]};
   text-decoration: none;
   background: ${({ bg }) => bg && bg};
   display: flex;
@@ -119,7 +119,7 @@ const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<Exer
             text-decoration: none;
             &:focus-visible {
               & > div {
-                background-color: ${baseTheme.colors.grey[500]};
+                background-color: ${baseTheme.colors.gray[500]};
                 color: ${baseTheme.colors.clear[100]};
               }
             }

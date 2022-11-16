@@ -3,9 +3,11 @@ import "i18next"
 import sharedModule from "../src/shared-module/locales/en/shared-module.json"
 import ownTranslations from "../src/shared-module/locales/en/tmc.json"
 
+const allAvailableTranslations = { ...sharedModule, ...ownTranslations }
+
 declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: "tmc"
+    defaultNS: typeof allAvailableTranslations
     resources: {
       tmc: typeof ownTranslations
       "shared-module": typeof sharedModule

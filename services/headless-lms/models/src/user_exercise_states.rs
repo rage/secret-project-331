@@ -381,6 +381,7 @@ fn merge_modules_with_metrics(
         .map(|course_module| {
             let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
             let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
+            let requirements = course_module.completion_policy.automatic();
             let progress = UserCourseInstanceProgress {
                 course_module_id: course_module.id,
                 // Only default course module doesn't have a name.
@@ -391,7 +392,7 @@ fn merge_modules_with_metrics(
                 score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
                     user_metrics.and_then(|x| x.score_given),
                 ),
-                score_required: course_module.automatic_completion_number_of_points_treshold,
+                score_required: requirements.and_then(|x| x.number_of_points_treshold),
                 score_maximum: course_metrics
                     .and_then(|x| x.score_maximum)
                     .map(TryInto::try_into)
@@ -404,8 +405,8 @@ fn merge_modules_with_metrics(
                     .and_then(|x| x.attempted_exercises)
                     .map(TryInto::try_into)
                     .transpose()?,
-                attempted_exercises_required: course_module
-                    .automatic_completion_number_of_exercises_attempted_treshold,
+                attempted_exercises_required: requirements
+                    .and_then(|x| x.number_of_exercises_attempted_treshold),
             };
             Ok(progress)
         })

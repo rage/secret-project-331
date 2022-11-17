@@ -8,11 +8,10 @@ use crate::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    course_modules::{self, CourseModule},
+    course_modules::{self, CompletionPolicy, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
-    user_course_settings,
-    user_exercise_states::{self, UserCourseInstanceMetrics},
+    user_course_settings, user_exercise_states,
     users::{self, User},
 };
 
@@ -72,14 +71,14 @@ async fn create_automatic_course_module_completion_if_eligible(
         // If user already has a completion, do not attempt to create a new one.
         Ok(true)
     } else {
-        let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+        let eligible = user_is_eligible_for_automatic_completion(
             conn,
+            course_module,
             course_instance_id,
-            course_module.id,
             user_id,
         )
         .await?;
-        if user_is_eligible_for_automatic_completion(course_module, &user_metrics) {
+        if eligible {
             let course = courses::get_course(conn, course_module.course_id).await?;
             let user = users::get_by_id(conn, user_id).await?;
             let _completion_id = course_module_completions::insert(
@@ -110,36 +109,32 @@ async fn create_automatic_course_module_completion_if_eligible(
     }
 }
 
-fn user_is_eligible_for_automatic_completion(
+#[instrument(skip(conn))]
+async fn user_is_eligible_for_automatic_completion(
+    conn: &mut PgConnection,
     course_module: &CourseModule,
-    user_course_instance_metrics: &UserCourseInstanceMetrics,
-) -> bool {
-    // Count passes to make sure that at least one requirement exists.
-    let mut flags = 0;
-    if !course_module.automatic_completion {
-        return false;
-    }
-    if let Some(attepted_treshold) =
-        course_module.automatic_completion_number_of_exercises_attempted_treshold
-    {
-        if user_course_instance_metrics
-            .attempted_exercises
-            .unwrap_or(0)
-            >= attepted_treshold.into()
-        {
-            flags += 1;
-        } else {
-            return false;
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    match &course_module.completion_policy {
+        CompletionPolicy::Automatic(requirements) => {
+            let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+                conn,
+                course_instance_id,
+                course_module.id,
+                user_id,
+            )
+            .await?;
+            let attempted_exercises: i32 = user_metrics
+                .attempted_exercises
+                .map_or(Ok(0), |x| x.try_into())?;
+            let exercise_points = user_metrics.score_given.unwrap_or(0.0) as i32;
+            let eligible =
+                requirements.passes_exercise_tresholds(attempted_exercises, exercise_points);
+            Ok(eligible)
         }
+        CompletionPolicy::Manual => Ok(false),
     }
-    if let Some(points_treshold) = course_module.automatic_completion_number_of_points_treshold {
-        if user_course_instance_metrics.score_given.unwrap_or(0.0) >= points_treshold as f32 {
-            flags += 1;
-        } else {
-            return false;
-        }
-    }
-    flags > 0
 }
 
 /// Fetches all course module completions for the given user on the given course and updates the
@@ -893,77 +888,5 @@ mod tests {
         }
     }
 
-    mod automatic_completion_validation {
-        use chrono::TimeZone;
-
-        use super::*;
-
-        #[test]
-        fn doesnt_give_completion_if_automatic_completions_are_not_enabled() {
-            let course_module = create_course_module(false, Some(0), Some(0));
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(!user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        #[test]
-        fn doesnt_give_completion_if_no_tresholds_are_defined() {
-            let course_module = create_course_module(true, None, None);
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(!user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        #[test]
-        fn gives_completion_if_exercises_attempted_treshold_is_met() {
-            let course_module = create_course_module(true, Some(1), None);
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        #[test]
-        fn gives_completion_if_points_treshold_is_met() {
-            let course_module = create_course_module(true, None, Some(1));
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        fn create_course_module(
-            automatic_completion: bool,
-            exercises_attempted_treshold: Option<i32>,
-            number_of_points_treshold: Option<i32>,
-        ) -> CourseModule {
-            let id = Uuid::parse_str("f2cd5971-444f-4b1b-9ef9-4d283fecf6f8").unwrap();
-            let timestamp = Utc.ymd(2022, 6, 27).and_hms(0, 0, 0);
-            let mut course_module =
-                CourseModule::new(id, id).set_timestamps(timestamp, timestamp, None);
-            course_module.automatic_completion = automatic_completion;
-            course_module.automatic_completion_number_of_exercises_attempted_treshold =
-                exercises_attempted_treshold;
-            course_module.automatic_completion_number_of_points_treshold =
-                number_of_points_treshold;
-            course_module
-        }
-
-        fn create_user_course_instance_metrics(
-            score_given: Option<f32>,
-            attempted_exercises: Option<i64>,
-        ) -> UserCourseInstanceMetrics {
-            UserCourseInstanceMetrics {
-                course_module_id: Uuid::parse_str("f2cd5971-444f-4b1b-9ef9-4d283fecf6f8").unwrap(),
-                score_given,
-                attempted_exercises,
-            }
-        }
-    }
+    // TODO: New automatic completion tests?
 }

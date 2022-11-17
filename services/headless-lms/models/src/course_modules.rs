@@ -2,6 +2,24 @@ use std::collections::HashMap;
 
 use crate::{chapters, prelude::*};
 
+struct CourseModulesSchema {
+    id: Uuid,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
+    deleted_at: Option<DateTime<Utc>>,
+    name: Option<String>,
+    course_id: Uuid,
+    order_number: i32,
+    copied_from: Option<Uuid>,
+    uh_course_code: Option<String>,
+    automatic_completion: bool,
+    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    automatic_completion_number_of_points_treshold: Option<i32>,
+    automatic_completion_exam_points_treshold: Option<i32>,
+    completion_registration_link_override: Option<String>,
+    ects_credits: Option<i32>,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModule {
@@ -14,10 +32,7 @@ pub struct CourseModule {
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
     pub uh_course_code: Option<String>,
-    pub automatic_completion: bool,
-    pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
-    pub automatic_completion_number_of_points_treshold: Option<i32>,
-    pub automatic_completion_exam_points_treshold: Option<i32>,
+    pub completion_policy: CompletionPolicy,
     /// If set, use this link rather than the default one when registering course completions.
     pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<i32>,
@@ -35,10 +50,7 @@ impl CourseModule {
             order_number: 0,
             copied_from: None,
             uh_course_code: None,
-            automatic_completion: false,
-            automatic_completion_number_of_exercises_attempted_treshold: None,
-            automatic_completion_number_of_points_treshold: None,
-            automatic_completion_exam_points_treshold: None,
+            completion_policy: CompletionPolicy::Manual,
             completion_registration_link_override: None,
             ects_credits: None,
         }
@@ -62,13 +74,8 @@ impl CourseModule {
         self
     }
 
-    pub fn set_completion_policy(mut self, automatic_completion_policy: &CompletionPolicy) -> Self {
-        let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
-            automatic_completion_policy.to_database_fields();
-        self.automatic_completion = automatic_completion;
-        self.automatic_completion_number_of_exercises_attempted_treshold = exercises_treshold;
-        self.automatic_completion_number_of_points_treshold = points_treshold;
-        self.automatic_completion_exam_points_treshold = exam_points_treshold;
+    pub fn set_completion_policy(mut self, completion_policy: CompletionPolicy) -> Self {
+        self.completion_policy = completion_policy;
         self
     }
 
@@ -86,6 +93,35 @@ impl CourseModule {
 
     pub fn is_default_module(&self) -> bool {
         self.name.is_none()
+    }
+}
+
+impl From<CourseModulesSchema> for CourseModule {
+    fn from(schema: CourseModulesSchema) -> Self {
+        let completion_policy = if schema.automatic_completion {
+            CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                number_of_exercises_attempted_treshold: schema
+                    .automatic_completion_number_of_exercises_attempted_treshold,
+                number_of_points_treshold: schema.automatic_completion_number_of_points_treshold,
+                number_of_exam_points_treshold: schema.automatic_completion_exam_points_treshold,
+            })
+        } else {
+            CompletionPolicy::Manual
+        };
+        Self {
+            id: schema.id,
+            created_at: schema.created_at,
+            updated_at: schema.updated_at,
+            deleted_at: schema.deleted_at,
+            name: schema.name,
+            course_id: schema.course_id,
+            order_number: schema.order_number,
+            copied_from: schema.copied_from,
+            uh_course_code: schema.uh_course_code,
+            completion_policy,
+            completion_registration_link_override: schema.completion_registration_link_override,
+            ects_credits: schema.ects_credits,
+        }
     }
 }
 
@@ -150,7 +186,7 @@ pub async fn insert(
     let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
         new_course_module.completion_policy.to_database_fields();
     let res = sqlx::query_as!(
-        CourseModule,
+        CourseModulesSchema,
         "
 INSERT INTO course_modules (
     id,
@@ -176,7 +212,7 @@ RETURNING *
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.into())
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -221,7 +257,7 @@ WHERE id = $1
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        CourseModule,
+        CourseModulesSchema,
         "
 SELECT *
 FROM course_modules
@@ -232,15 +268,15 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.into())
 }
 
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<CourseModule>> {
-    let modules = sqlx::query_as!(
-        CourseModule,
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
         "
 SELECT *
 FROM course_modules
@@ -249,9 +285,10 @@ AND deleted_at IS NULL
 ",
         course_id
     )
+    .map(|x| x.into())
     .fetch_all(conn)
     .await?;
-    Ok(modules)
+    Ok(res)
 }
 
 /// Gets course module where the given exercise belongs to. This will result in an error in the case
@@ -261,7 +298,7 @@ pub async fn get_by_exercise_id(
     exercise_id: Uuid,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        CourseModule,
+        CourseModulesSchema,
         "
 SELECT course_modules.*
 FROM exercises
@@ -275,7 +312,7 @@ AND course_modules.deleted_at IS NULL
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.into())
 }
 
 pub async fn get_default_by_course_id(
@@ -283,7 +320,7 @@ pub async fn get_default_by_course_id(
     course_id: Uuid,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        CourseModule,
+        CourseModulesSchema,
         "
 SELECT *
 FROM course_modules
@@ -296,7 +333,7 @@ WHERE course_id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.into())
 }
 
 /// Gets all course modules with a matching `uh_course_code` or course `slug`.
@@ -364,6 +401,43 @@ pub struct AutomaticCompletionRequirements {
     pub number_of_exam_points_treshold: Option<i32>,
 }
 
+impl AutomaticCompletionRequirements {
+    /// Shorthand for checking whether the given exercise related values pass their respective
+    /// tresholds.
+    pub fn passes_exercise_tresholds(
+        &self,
+        exercises_attempted: i32,
+        exercise_points: i32,
+    ) -> bool {
+        self.passes_number_of_exercises_attempted_treshold(exercises_attempted)
+            && self.passes_number_of_exercise_points_treshold(exercise_points)
+    }
+
+    /// Whether the given number is higher than exam points treshold. Always returns true if there
+    /// is no treshold.
+    pub fn passes_number_of_exam_points_treshold(&self, exam_points: i32) -> bool {
+        self.number_of_exam_points_treshold
+            .map(|x| x <= exam_points)
+            .unwrap_or(true)
+    }
+
+    /// Whether the given number is higher than the exercises attempted treshold. Always returns
+    /// true if there is no treshold.
+    pub fn passes_number_of_exercises_attempted_treshold(&self, exercises_attempted: i32) -> bool {
+        self.number_of_exam_points_treshold
+            .map(|x| x <= exercises_attempted)
+            .unwrap_or(true)
+    }
+
+    /// Whether the given number is higher than the exercise points treshold. Always returns true
+    /// if there is no treshold.
+    pub fn passes_number_of_exercise_points_treshold(&self, exercise_points: i32) -> bool {
+        self.number_of_points_treshold
+            .map(|x| x <= exercise_points)
+            .unwrap_or(true)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -373,6 +447,14 @@ pub enum CompletionPolicy {
 }
 
 impl CompletionPolicy {
+    /// Returns associated data for `Automatic` variant, if matches.
+    pub fn automatic(&self) -> Option<&AutomaticCompletionRequirements> {
+        match self {
+            CompletionPolicy::Automatic(requirements) => Some(requirements),
+            CompletionPolicy::Manual => None,
+        }
+    }
+
     fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, Option<i32>) {
         match self {
             CompletionPolicy::Automatic(criteria) => (
@@ -394,7 +476,7 @@ pub async fn update_automatic_completion_status(
     let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
         automatic_completion_policy.to_database_fields();
     let res = sqlx::query_as!(
-        CourseModule,
+        CourseModulesSchema,
         "
 UPDATE course_modules
 SET automatic_completion = $1,
@@ -413,7 +495,7 @@ RETURNING *
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.into())
 }
 
 pub async fn update_uh_course_code(
@@ -422,7 +504,7 @@ pub async fn update_uh_course_code(
     uh_course_code: Option<String>,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        CourseModule,
+        CourseModulesSchema,
         "
 UPDATE course_modules
 SET uh_course_code = $1
@@ -435,7 +517,7 @@ RETURNING *
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.into())
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

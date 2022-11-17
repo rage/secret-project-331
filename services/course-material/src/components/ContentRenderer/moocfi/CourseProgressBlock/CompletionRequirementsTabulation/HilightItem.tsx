@@ -39,11 +39,14 @@ const HighlightItem: React.FC<React.PropsWithChildren<HighlightItemProps>> = ({
       <div
         className={css`
           font-family: ${headingFont};
-          color: ${highlightColor};
+          background: ${highlightColor};
           flex: 2;
           font-size: 2.5em;
           font-weight: bold;
           text-align: center;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
         `}
       >
         {highlightText}

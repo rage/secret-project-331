@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, headingFont, typography } from "../../styles"
+import { baseTheme, headingFont } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 

@@ -246,6 +246,19 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     <div
       className={css`
         font-size: 20px;
+
+        a {
+          color: #61a7ff;
+          &:hover {
+            color: #61adfa;
+          }
+          &:active {
+            color: #61adfa;
+          }
+          &:visited {
+            color: #9973f3;
+          }
+        }
       `}
     >
       {content}

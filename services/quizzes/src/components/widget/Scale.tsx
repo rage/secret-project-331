@@ -32,6 +32,8 @@ const Scale: React.FC<QuizItemComponentProps> = ({
       aria-labelledby={radioLabelId}
       className={css`
         display: flex;
+        flex: 1;
+        min-width: 100%;
         padding: 10px;
         flex-direction: column;
         margin-bottom: 10px;

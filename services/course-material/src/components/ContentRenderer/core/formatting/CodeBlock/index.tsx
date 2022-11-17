@@ -6,7 +6,7 @@ import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes
 import Spinner from "../../../../../shared-module/components/Spinner"
 import { monospaceFont } from "../../../../../shared-module/styles"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
-import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 
 const SyntaxHighlightedContainerLoading = <Spinner variant="medium" />
 

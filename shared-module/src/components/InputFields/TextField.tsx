@@ -30,7 +30,7 @@ interface TextFieldExtraProps {
   step?: string
 }
 
-const ERRORCOLOR = "#F76D82"
+const ERRORCOLOR = baseTheme.colors.red[600]
 const DEFAULTCOLOR = "#dedede"
 
 interface InputExtraProps {
@@ -66,11 +66,11 @@ const Input = styled.input<InputExtraProps>`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const errorClass = css`
-  color: #f76d82;
+  color: ${baseTheme.colors.red[600]};
   font-size: 14px;
   display: inline-block;
-  margin-top: -15px;
 `
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps

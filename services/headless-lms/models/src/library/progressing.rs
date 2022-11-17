@@ -797,6 +797,8 @@ mod tests {
                     course_module_id: Some(course_module_2.id),
                 },
                 user,
+                |_, _| unimplemented!(),
+                |_| unimplemented!(),
             )
             .await
             .unwrap();

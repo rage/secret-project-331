@@ -201,23 +201,41 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             })
           const modules = courseStructure.modules.map<ModuleView>((m) => {
             const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-            return {
-              id: m.id,
-              name: m.name,
-              order_number: m.order_number,
-              firstChapter,
-              lastChapter,
-              isNew: false,
-              uh_course_code: m.uh_course_code,
-              ects_credits: m.ects_credits,
-              automatic_completion: m.automatic_completion,
-              automatic_completion_number_of_points_treshold:
-                m.automatic_completion_number_of_points_treshold,
-              automatic_completion_number_of_exercises_attempted_treshold:
-                m.automatic_completion_number_of_exercises_attempted_treshold,
-              automatic_completion_exam_points_treshold:
-                m.automatic_completion_exam_points_treshold,
-              completion_registration_link_override: m.completion_registration_link_override,
+            if (m.completion_policy.policy === "automatic") {
+              return {
+                id: m.id,
+                name: m.name,
+                order_number: m.order_number,
+                firstChapter,
+                lastChapter,
+                isNew: false,
+                uh_course_code: m.uh_course_code,
+                ects_credits: m.ects_credits,
+                automatic_completion: true,
+                automatic_completion_number_of_points_treshold:
+                  m.completion_policy.number_of_points_treshold,
+                automatic_completion_number_of_exercises_attempted_treshold:
+                  m.completion_policy.number_of_exercises_attempted_treshold,
+                automatic_completion_exam_points_treshold:
+                  m.completion_policy.number_of_exam_points_treshold,
+                completion_registration_link_override: m.completion_registration_link_override,
+              }
+            } else {
+              return {
+                id: m.id,
+                name: m.name,
+                order_number: m.order_number,
+                firstChapter,
+                lastChapter,
+                isNew: false,
+                uh_course_code: m.uh_course_code,
+                ects_credits: m.ects_credits,
+                automatic_completion: false,
+                automatic_completion_number_of_points_treshold: null,
+                automatic_completion_number_of_exercises_attempted_treshold: null,
+                automatic_completion_exam_points_treshold: null,
+                completion_registration_link_override: m.completion_registration_link_override,
+              }
             }
           })
           const error = validateModuleList(modules, chapters)

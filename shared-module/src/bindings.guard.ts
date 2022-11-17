@@ -627,14 +627,7 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
     (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
-    typeof typedObj["automatic_completion"] === "boolean" &&
-    (typedObj["automatic_completion_number_of_exercises_attempted_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
-        "number") &&
-    (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
-    (typedObj["automatic_completion_exam_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_exam_points_treshold"] === "number") &&
+    (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")

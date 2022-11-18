@@ -17,7 +17,10 @@ use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::programs::seed::{
-    seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
+    seed_courses::{
+        create_glossary_course, seed_course_without_submissions, seed_cs_course_material,
+        seed_sample_course,
+    },
     seed_helpers::create_exam,
 };
 
@@ -85,6 +88,13 @@ pub async fn seed_organization_uh_cs(
             example_normal_user_ids.clone(),
         )),
         run_parallelly(courses_group_4(
+            db_pool.clone(),
+            uh_cs_organization_id,
+            admin_user_id,
+            student_user_id,
+            example_normal_user_ids.clone(),
+        )),
+        run_parallelly(courses_group_5(
             db_pool.clone(),
             uh_cs_organization_id,
             admin_user_id,
@@ -480,6 +490,27 @@ async fn courses_group_4(
         uh_cs_organization_id,
         admin_user_id,
         Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
+    )
+    .await?;
+
+    Ok(())
+}
+
+async fn courses_group_5(
+    db_pool: Pool<Postgres>,
+    uh_cs_organization_id: Uuid,
+    admin_user_id: Uuid,
+    student_user_id: Uuid,
+    _example_normal_user_ids: Vec<Uuid>,
+) -> anyhow::Result<()> {
+    seed_course_without_submissions(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0")?,
+        "Peer review Course",
+        "peer-review-course",
+        admin_user_id,
+        student_user_id,
     )
     .await?;
 

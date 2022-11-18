@@ -248,15 +248,17 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         font-size: 20px;
 
         a {
-          color: #61a7ff;
+          color: #4290f2;
+          text-decoration: none;
           &:hover {
-            color: #61adfa;
+            color: #378cf8;
+            text-decoration: underline;
           }
           &:active {
             color: #61adfa;
           }
           &:visited {
-            color: #9973f3;
+            color: #8c60f3;
           }
         }
       `}

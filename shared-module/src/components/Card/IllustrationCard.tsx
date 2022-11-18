@@ -33,7 +33,7 @@ const CardContentWrapper = styled.div`
   ${BackgroundStyles}
 
   h2 {
-    font-size: clamp(22px, 2vh, 1.8rem);
+    font-size: clamp(22px, 3vh, 2rem);
     font-weight: 500;
     z-index: 20;
     line-height: 1.2;
@@ -98,7 +98,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
           <div
             className={css`
               position: absolute;
-              top: -10px;
+              top: -15px;
               left: 10px;
               ${respondToOrLarger.md} {
                 left: 30px;
@@ -114,8 +114,12 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
                 background: #edf1f4;
                 border: 3px solid #fff;
                 border-radius: 20px;
-                font-size: 0.8rem;
-                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+
+                ${respondToOrLarger.md} {
+                  font-size: 0.9rem;
+                }
               `}
             >
               {t("chapter-chapter-number", { number: chapterNumber })}

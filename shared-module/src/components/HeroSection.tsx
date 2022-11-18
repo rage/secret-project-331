@@ -8,17 +8,13 @@ import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/cons
 
 // eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div`
-  padding: 1rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 2.5rem 3rem 2.5rem;
   margin-bottom: 1rem;
+  align-items: center;
   text-align: center;
-  width: 100%;
-
-  ${respondToOrLarger.md} {
-    width: 90%;
-  }
-  ${respondToOrLarger.lg} {
-    width: 50%;
-  }
+  justify-content: center;
 
   h1 {
     font-weight: 700;
@@ -62,19 +58,9 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
       className={css`
         background: ${baseTheme.colors.green[200]};
         width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        padding: 2.5em 1em;
-
-        ${respondToOrLarger.md} {
-          padding: 4.5em 1em;
-        }
-        ${respondToOrLarger.lg} {
-          padding: 6.5em 1em;
-        }
+        padding: 7.5em 1em;
         margin-bottom: 3rem;
         ${backgroundColor && `background-color: ${backgroundColor}`}
         ${backgroundImage &&

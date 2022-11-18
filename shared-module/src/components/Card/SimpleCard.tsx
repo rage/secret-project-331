@@ -42,7 +42,6 @@ const CardContentWrapper = styled.div`
     z-index: 20;
     color: #fff;
     font-weight: 500;
-    z-index: 20;
     line-height: 100%;
     font-size: clamp(30px, 2.7rem, 46px);
   }

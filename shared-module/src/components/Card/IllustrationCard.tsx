@@ -33,12 +33,13 @@ const CardContentWrapper = styled.div`
   ${BackgroundStyles}
 
   h2 {
-    font-size: clamp(22px, 3vh, 2rem);
-    font-weight: 500;
+    font-weight: 600;
     z-index: 20;
     line-height: 1.2;
     color: ${baseTheme.colors.grey[700]};
     margin-top: 5px;
+    font-size: clamp(26px, 2.2vw, 30px);
+    opacity: 0.9;
   }
 `
 

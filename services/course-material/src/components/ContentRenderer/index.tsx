@@ -252,7 +252,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           text-decoration: none;
           &:hover {
             color: #378cf8;
-            text-decoration: underline;
           }
           &:active {
             color: #61adfa;

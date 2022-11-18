@@ -16,7 +16,7 @@ const Wrapper = styled.div`
 
   h2 {
     font-weight: 700 !important;
-    color: ${baseTheme.colors.green[600]} !important;
+    color: ${baseTheme.colors.grey[700]} !important;
     padding: 0.5rem 1.5rem 0 2rem;
     border-top: 2px solid #e2e3e7;
   }
@@ -70,13 +70,13 @@ const Wrapper = styled.div`
   li::marker {
     content: "☉  ";
     font-size: 1rem;
-    color: ${baseTheme.colors.green[600]};
+    color: ${baseTheme.colors.grey[700]};
   }
 
   h3 {
     font-weight: 700 !important;
     padding: 1rem 1rem 0 2rem;
-    color: ${baseTheme.colors.green[700]};
+    color: ${baseTheme.colors.grey[700]};
     border-top: 2px solid #e2e3e7;
   }
 `

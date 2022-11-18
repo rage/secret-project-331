@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
+    course_exams,
     exams::{self, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -458,6 +459,6 @@ pub async fn create_exam(
         models_requests::fetch_service_info,
     )
     .await?;
-    exams::set_course(conn, new_exam_id, course_id).await?;
+    course_exams::upsert(conn, new_exam_id, course_id).await?;
     Ok(())
 }

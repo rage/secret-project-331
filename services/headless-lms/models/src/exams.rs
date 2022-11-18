@@ -52,12 +52,12 @@ WHERE exams.id = $1
         "
 SELECT id,
   slug,
-  created_at,
-  updated_at,
+  courses.created_at,
+  courses.updated_at,
+  courses.deleted_at,
   name,
   description,
   organization_id,
-  deleted_at,
   language_code,
   copied_from,
   content_search_language::text,
@@ -68,7 +68,8 @@ SELECT id,
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
-AND deleted_at IS NULL
+  AND courses.deleted_at IS NULL
+  AND course_exams.deleted_at IS NULL
 ",
         id
     )
@@ -181,35 +182,6 @@ WHERE id = $1
         starts_at,
         ends_at,
         time_minutes,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn set_course(conn: &mut PgConnection, id: Uuid, course: Uuid) -> ModelResult<()> {
-    sqlx::query!(
-        "
-INSERT INTO course_exams (course_id, exam_id)
-VALUES ($1, $2)
-",
-        course,
-        id,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn unset_course(conn: &mut PgConnection, id: Uuid, course: Uuid) -> ModelResult<()> {
-    sqlx::query!(
-        "
-DELETE FROM course_exams
-WHERE exam_id = $1
-  AND course_id = $2
-",
-        id,
-        course
     )
     .execute(conn)
     .await?;

@@ -1,3 +1,7 @@
+-- Revert course_exams changes
+ALTER TABLE course_exams DROP created_at,
+  DROP updated_at,
+  DROP deleted_at;
 -- Add down migration script here
 ALTER TABLE course_modules DROP CONSTRAINT course_module_automatic_completion_validity,
   ADD CONSTRAINT course_module_automatic_completion_validity CHECK (

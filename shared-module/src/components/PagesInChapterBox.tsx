@@ -21,14 +21,24 @@ const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
   font-family: ${secondaryFont};
-  opacity: 0.6;
-  margin: 0 0.8rem 0 0.4rem;
-  top: -3px;
+  opacity: 0.8;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${baseTheme.colors.blue[200]};
+  margin-right: 8px;
+
+  span {
+    color: ${baseTheme.colors.grey[700]};
+    line-height: 1;
+    font-size: 12px !important;
+    text-align: center;
+    font-weight: 600;
+  }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const ChapterParts = styled.div`
-  position: relative;
   margin-left: 0em;
   padding: 0.8em 1em;
   list-style-type: none;
@@ -37,6 +47,8 @@ const ChapterParts = styled.div`
   border-radius: 2px;
   margin-bottom: 0.4em;
   background: rgb(242, 245, 247);
+  display: flex;
+  align-items: center;
 
   ${({ selected }: PagesInChapterBoxExtraProps) =>
     selected &&

@@ -28,6 +28,7 @@ const StyledLink = styled.div`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const ImageBox = styled.div`
   width: auto;
   height: 40px;

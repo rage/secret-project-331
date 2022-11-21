@@ -6,11 +6,12 @@ use std::{
 };
 
 use futures::{
-    future::FutureExt,
+    future::{BoxFuture, FutureExt},
     stream::{FuturesUnordered, StreamExt},
 };
 use itertools::Itertools;
 use sqlx::PgConnection;
+use url::Url;
 
 use crate::{
     self as models,
@@ -18,6 +19,8 @@ use crate::{
     exercise_services::{get_internal_grade_url, ExerciseService},
     exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult},
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
+    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
     ModelResult,
@@ -29,6 +32,11 @@ type GradingFutures =
 pub async fn regrade(
     conn: &mut PgConnection,
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
+    send_grading_request: impl Fn(
+        Url,
+        &ExerciseTask,
+        &ExerciseTaskSubmission,
+    ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
 ) -> ModelResult<()> {
     // stores all the futures which will resolve into new gradings
     let mut grading_futures = GradingFutures::new();
@@ -51,6 +59,7 @@ pub async fn regrade(
             exercise_services_by_type,
             regrading_id,
             &mut grading_futures,
+            &send_grading_request,
         )
         .await
         {
@@ -146,6 +155,11 @@ async fn do_single_regrading(
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
     regrading_id: Uuid,
     grading_futures: &mut GradingFutures,
+    send_grading_request: impl Fn(
+        Url,
+        &ExerciseTask,
+        &ExerciseTaskSubmission,
+    ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
 ) -> ModelResult<RegradingStatus> {
     let mut regrading_status = RegradingStatus {
         exercise_services_full: false,
@@ -234,18 +248,14 @@ async fn do_single_regrading(
                     get_internal_grade_url(exercise_service, exercise_service_info).await?;
 
                 let exercise_service_name = exercise_service.name.clone();
-                let grading_future = models::exercise_task_gradings::send_grading_request(
-                    grade_url,
-                    &exercise_task,
-                    &submission,
-                )
-                .map(move |exercise_service_result| GradingData {
-                    exercise_service_name,
-                    regrading_submission,
-                    grading: not_ready_grading,
-                    exercise,
-                    exercise_service_result,
-                });
+                let grading_future = send_grading_request(grade_url, &exercise_task, &submission)
+                    .map(move |exercise_service_result| GradingData {
+                        exercise_service_name,
+                        regrading_submission,
+                        grading: not_ready_grading,
+                        exercise,
+                        exercise_service_result,
+                    });
                 entry.push(Box::pin(grading_future));
             } else {
                 // we can't send this submission right now
@@ -381,7 +391,20 @@ mod test {
             .unwrap();
         assert!(regrading_submission.grading_after_regrading.is_none());
 
-        regrade(tx.as_mut(), &services).await.unwrap();
+        regrade(tx.as_mut(), &services, |_, _, _| {
+            async {
+                Ok(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given: 0.0,
+                    score_maximum: 1,
+                    feedback_text: None,
+                    feedback_json: None,
+                })
+            }
+            .boxed()
+        })
+        .await
+        .unwrap();
 
         let regrading_submission =
             models::exercise_task_regrading_submissions::get_regrading_submission(
@@ -477,7 +500,20 @@ mod test {
         assert!(regrading.regrading_started_at.is_none());
         assert!(regrading.regrading_completed_at.is_none());
 
-        regrade(tx.as_mut(), &services).await.unwrap();
+        regrade(tx.as_mut(), &services, |_, _, _| {
+            async {
+                Ok(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given: 1.0,
+                    score_maximum: 1,
+                    feedback_text: None,
+                    feedback_json: None,
+                })
+            }
+            .boxed()
+        })
+        .await
+        .unwrap();
 
         let regrading_1 = models::regradings::get_by_id(tx.as_mut(), regrading.id)
             .await
@@ -639,7 +675,20 @@ mod test {
         );
         assert!(regrading_2.regrading_started_at.is_none());
 
-        regrade(tx.as_mut(), &services).await.unwrap();
+        regrade(tx.as_mut(), &services, |_, _, _| {
+            async {
+                Ok(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::Pending,
+                    score_given: 0.0,
+                    score_maximum: 1,
+                    feedback_text: None,
+                    feedback_json: None,
+                })
+            }
+            .boxed()
+        })
+        .await
+        .unwrap();
 
         let regrading_2 = models::regradings::get_by_id(tx.as_mut(), regrading)
             .await
@@ -750,7 +799,20 @@ mod test {
             0.0
         );
 
-        regrade(tx.as_mut(), &services).await.unwrap();
+        regrade(tx.as_mut(), &services, |_, _, _| {
+            async {
+                Ok(ExerciseTaskGradingResult {
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given: 1.0,
+                    score_maximum: 1,
+                    feedback_text: None,
+                    feedback_json: None,
+                })
+            }
+            .boxed()
+        })
+        .await
+        .unwrap();
 
         let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
             tx.as_mut(),
@@ -820,7 +882,9 @@ mod test {
         .unwrap();
 
         let services = HashMap::new();
-        regrade(tx.as_mut(), &services).await.unwrap();
+        regrade(tx.as_mut(), &services, |_, _, _| unimplemented!())
+            .await
+            .unwrap();
 
         let regrading = models::regradings::get_by_id(tx.as_mut(), regrading)
             .await
@@ -861,6 +925,8 @@ mod test {
             &mut exercise_with_user_state,
             submission,
             GradingPolicy::Fixed(mock_results),
+            |_| unimplemented!(),
+            |_, _, _| unimplemented!(),
         )
         .await
         .unwrap();

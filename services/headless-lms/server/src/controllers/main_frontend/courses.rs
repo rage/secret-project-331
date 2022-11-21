@@ -21,7 +21,7 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -85,6 +85,8 @@ async fn post_new_course(
         PKeyPolicy::Generate,
         new_course,
         user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     models::roles::insert(

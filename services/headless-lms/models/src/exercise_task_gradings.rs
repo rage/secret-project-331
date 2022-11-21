@@ -1,12 +1,12 @@
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
 
-use futures::Future;
+use futures::future::BoxFuture;
 use headless_lms_utils::numbers::f32_to_two_decimals;
 use url::Url;
 
 use crate::{
     exams,
-    exercise_service_info::get_service_info_by_exercise_type,
+    exercise_service_info::{get_service_info_by_exercise_type, ExerciseServiceInfoApi},
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::{self, ExerciseTask},
@@ -311,9 +311,16 @@ pub async fn grade_submission(
     exercise: &Exercise,
     grading: &ExerciseTaskGrading,
     user_exercise_state: &UserExerciseState,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    send_grading_request: impl Fn(
+        Url,
+        &ExerciseTask,
+        &ExerciseTaskSubmission,
+    ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
 ) -> ModelResult<ExerciseTaskGrading> {
     let exercise_service_info =
-        get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
+        get_service_info_by_exercise_type(conn, &exercise_task.exercise_type, fetch_service_info)
+            .await?;
     let exercise_service =
         get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
@@ -331,42 +338,6 @@ pub async fn grade_submission(
     .await?;
     tx.commit().await?;
     Ok(updated_grading)
-}
-
-// does not use async fn because the arguments should only be borrowed
-// for the part before any async stuff happens
-pub fn send_grading_request(
-    grade_url: Url,
-    exercise_task: &ExerciseTask,
-    submission: &ExerciseTaskSubmission,
-) -> impl Future<Output = ModelResult<ExerciseTaskGradingResult>> + 'static {
-    let client = reqwest::Client::new();
-    let req = client
-        .post(grade_url)
-        .timeout(Duration::from_secs(120))
-        .json(&ExerciseTaskGradingRequest {
-            exercise_spec: &exercise_task.private_spec,
-            submission_data: &submission.data_json,
-        });
-    async {
-        let res = req.send().await?;
-        let status = res.status();
-        if !status.is_success() {
-            let response_body = res.text().await;
-            error!(
-                ?response_body,
-                "Grading request returned an unsuccesful status code"
-            );
-            return Err(ModelError::new(
-                ModelErrorType::Generic,
-                "Grading failed".to_string(),
-                None,
-            ));
-        }
-        let obj = res.json::<ExerciseTaskGradingResult>().await?;
-        info!("Received a grading result: {:#?}", &obj);
-        Ok(obj)
-    }
 }
 
 pub async fn update_grading(

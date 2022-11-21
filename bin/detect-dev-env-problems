@@ -2,10 +2,35 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_program_in_path docker
+
+if groups | grep -q '\bdocker\b'; then
+    echo "Current user is in the docker group."
+else
+    echo 'Error: you are not in the docker group. Please follow the instructions from https://docs.docker.com/engine/install/linux-postinstall/'
+    exit 255
+fi
+echo "Testing if docker works"
+
+DOCKER_OUTPUT=$(docker run hello-world | grep 'Hello from Docker!')
+echo "$DOCKER_OUTPUT"
+
+echo ""
+
 DOMAIN="project-331.local"
 
 ensure_program_in_path minikube
 ensure_program_in_path getent
+
+if [ "$(minikube status --format '{{.APIServer}}')" = "Running" ]; then
+  echo "Minikube is running."
+  run_command minikube status
+else
+ echo "Minikube is not running. Please start it with bin/minikube-start and run this again."
+ exit 255
+fi
+
+echo ""
 
 if ! getent hosts "$DOMAIN" > /dev/null; then
     echo "Error: cannot resolve an ip for $DOMAIN. Please update your /etc/hosts according to the documentation."
@@ -31,3 +56,7 @@ echo "Checking if the ingress works"
 run_command kubectl get pods --namespace ingress-nginx
 echo ""
 run_command kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller
+
+
+echo ""
+echo "Checks done."

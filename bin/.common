@@ -97,3 +97,15 @@ function fail_sqlx_cli_version() {
   echo "Your sqlx-cli needs to be updated. Minimum acceptable version: $2, installed: $1. Please run: cargo install sqlx-cli --force"
   exit 255
 }
+
+function disallow_running_as_root() {
+  if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    # Windows: NOP
+    true
+  else
+    if [ "$(id -u)" = "0" ]; then
+      echo "Please don't try to run this command as root."
+      exit 255
+    fi
+  fi
+}

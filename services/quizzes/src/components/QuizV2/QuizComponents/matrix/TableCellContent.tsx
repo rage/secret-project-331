@@ -13,7 +13,6 @@ interface CellInputStyleProps {
   isActive: boolean
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInputStyleProps) =>
   `
     position: relative;

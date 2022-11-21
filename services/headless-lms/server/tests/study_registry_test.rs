@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix_http::{body, Method};
 use actix_web::test;
 use chrono::{TimeZone, Utc};
@@ -10,7 +12,7 @@ use headless_lms_models::{
     library::content_management::CreateNewCourseFixedIds,
     PKeyPolicy,
 };
-use headless_lms_server::domain::models_requests;
+use headless_lms_server::domain::models_requests::{self, JwtKey};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -20,7 +22,9 @@ mod integration_test;
 async fn gets_and_registers_completions() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    let (_user, _org, course, module, _completion, _completion_2) = insert_data(&mut conn).await;
+    let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
+    let (_user, _org, course, module, _completion, _completion_2) =
+        insert_data(&mut conn, jwt_key).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);
 
     // Without header nor database entry
@@ -104,7 +108,10 @@ async fn gets_and_registers_completions() {
     assert!(res.status().is_success());
 }
 
-async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
+async fn insert_data(
+    conn: &mut PgConnection,
+    jwt_key: Arc<JwtKey>,
+) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
     let user_1 = headless_lms_models::users::insert(
         conn,
         PKeyPolicy::Fixed(Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap()),
@@ -152,7 +159,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
                 is_test_mode: false,
             },
             user_1,
-            models_requests::spec_fetcher,
+            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await

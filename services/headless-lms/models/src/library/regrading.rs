@@ -399,6 +399,7 @@ mod test {
                     score_maximum: 1,
                     feedback_text: None,
                     feedback_json: None,
+                    set_user_variables: None,
                 })
             }
             .boxed()
@@ -508,6 +509,7 @@ mod test {
                     score_maximum: 1,
                     feedback_text: None,
                     feedback_json: None,
+                    set_user_variables: None,
                 })
             }
             .boxed()
@@ -683,6 +685,7 @@ mod test {
                     score_maximum: 1,
                     feedback_text: None,
                     feedback_json: None,
+                    set_user_variables: None,
                 })
             }
             .boxed()
@@ -807,6 +810,7 @@ mod test {
                     score_maximum: 1,
                     feedback_text: None,
                     feedback_json: None,
+                    set_user_variables: None,
                 })
             }
             .boxed()

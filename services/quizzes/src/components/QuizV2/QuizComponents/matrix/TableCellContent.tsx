@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 
 import { QuizItemVariables } from "../../../../../types/types"
+import { baseTheme } from "../../../../shared-module/styles"
 
 interface CellInputStyleProps {
   row: number
@@ -28,15 +29,16 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     ${
       cellText === "" &&
       (column > matrixSize[1] || row > matrixSize[0]) &&
-      `
-      background-color: #f5f6f7;
+      // eslint-disable-next-line i18next/no-literal-string
+      `background-color: ${baseTheme.colors.clear[100]};
 `
     }
     ${
       cellText === "" &&
       isActive &&
       (column > matrixSize[1] || row > matrixSize[0]) &&
-      `background-color: #e2e4e6;`
+      // eslint-disable-next-line i18next/no-literal-string
+      `background-color: ${baseTheme.colors.clear[300]};`
     }
   `
 

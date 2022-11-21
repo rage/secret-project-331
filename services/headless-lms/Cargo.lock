@@ -1283,8 +1283,10 @@ dependencies = [
  "git2",
  "headless-lms-models",
  "headless-lms-utils",
+ "hmac",
  "isbot",
  "itertools",
+ "jwt",
  "lettre",
  "listenfd",
  "mime",
@@ -1297,6 +1299,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "sha2",
  "sqlx",
  "tar",
  "tempfile",
@@ -1632,6 +1635,21 @@ dependencies = [
  "serde",
  "serde_json",
  "simple_asn1",
+]
+
+[[package]]
+name = "jwt"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6204285f77fe7d9784db3fdc449ecce1a0114927a51d5a41c4c7a292011c015f"
+dependencies = [
+ "base64 0.13.0",
+ "crypto-common",
+ "digest",
+ "hmac",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -3056,7 +3074,7 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 [[package]]
 name = "ts-rs"
 version = "6.2.0"
-source = "git+https://github.com/Heliozoa/ts-rs?rev=8b0a9fd00acb43447c28271eb36fa770c7646609#8b0a9fd00acb43447c28271eb36fa770c7646609"
+source = "git+https://github.com/Heliozoa/ts-rs?rev=54263034d33818c292b9470cd61e2a2c8dff6097#54263034d33818c292b9470cd61e2a2c8dff6097"
 dependencies = [
  "chrono",
  "serde_json",
@@ -3068,7 +3086,7 @@ dependencies = [
 [[package]]
 name = "ts-rs-macros"
 version = "6.2.0"
-source = "git+https://github.com/Heliozoa/ts-rs?rev=8b0a9fd00acb43447c28271eb36fa770c7646609#8b0a9fd00acb43447c28271eb36fa770c7646609"
+source = "git+https://github.com/Heliozoa/ts-rs?rev=54263034d33818c292b9470cd61e2a2c8dff6097#54263034d33818c292b9470cd61e2a2c8dff6097"
 dependencies = [
  "Inflector",
  "proc-macro2",

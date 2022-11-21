@@ -1,8 +1,11 @@
 {
+  "download": "Download",
+  "reset": "Reset",
   "select-repository-exercise": "Please select a repository exercise.",
   "selected-repository-exercise": "Selected repository exercise",
   "solve-in-browser": "Solve in the browser",
   "solve-in-editor": "Solve in an editor",
+  "submit": "Submit",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port..."
 }

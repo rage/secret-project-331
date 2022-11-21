@@ -1,4 +1,4 @@
-// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.25.1/bindings/tmc-langs-node/ts/generated.d.ts
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.26.0/bindings/tmc-langs-node/ts/generated.d.ts
 
 export interface StyleValidationResult {
   strategy: StyleValidationStrategy

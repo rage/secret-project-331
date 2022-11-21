@@ -81,7 +81,8 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
-      data: { private_spec: unknown; repository_exercise?: RepositoryExercise }
+      repository_exercises?: Array<RepositoryExercise>
+      data: { private_spec: unknown }
     }
 
 export type IframeViewType = IframeState["view_type"]

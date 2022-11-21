@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme, headingFont, secondaryFont } from "../../styles"
+import { baseTheme, headingFont, monospaceFont, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`
@@ -52,7 +52,7 @@ const ImageBox = styled.div`
   p {
     text-align: center;
     z-index: 3;
-    font-family: ${headingFont};
+    font-family: ${monospaceFont};
     color: ${baseTheme.colors.grey[700]};
     font-weight: 600;
     line-height: 1.8;

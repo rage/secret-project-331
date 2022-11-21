@@ -4,7 +4,7 @@ import Link from "next/link"
 import React from "react"
 
 import ArrowSVGIcon from "../img/blackArrow.svg"
-import { baseTheme, headingFont, secondaryFont } from "../styles"
+import { baseTheme, headingFont, monospaceFont, secondaryFont } from "../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
@@ -17,10 +17,10 @@ const Wrapper = styled.div`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
-  font-family: ${secondaryFont};
   opacity: 0.8;
   width: 24px;
   height: 24px;
@@ -30,6 +30,7 @@ const PageNumberBox = styled.div`
 
   span {
     color: ${baseTheme.colors.grey[700]};
+    font-family: ${monospaceFont};
     line-height: 1;
     font-size: 12px !important;
     text-align: center;
@@ -108,6 +109,7 @@ const PagesInChapterBox: React.FC<
             className={css`
               color: #1c3b40;
               box-shadow: none;
+              text-decoration: none;
               &:focus-visible {
                 outline: 2px solid ${baseTheme.colors.green[500]};
                 outline-offset: 2px;

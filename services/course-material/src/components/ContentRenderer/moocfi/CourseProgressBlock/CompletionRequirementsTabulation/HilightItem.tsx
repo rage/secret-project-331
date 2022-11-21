@@ -44,7 +44,6 @@ const HighlightItem: React.FC<React.PropsWithChildren<HighlightItemProps>> = ({
           font-size: 2.5em;
           font-weight: bold;
           text-align: center;
-          -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
         `}

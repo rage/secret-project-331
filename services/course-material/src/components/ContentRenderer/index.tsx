@@ -249,7 +249,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
 
         a {
           color: #4290f2;
-          text-decoration: none;
           &:hover {
             color: #378cf8;
           }

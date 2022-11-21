@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../../../types/quizTypes"
 import { primaryFont } from "../../../../shared-module/styles"
-import MessageModel from "../common/MessageModal"
+import MessageDialog from "../common/MessageDialog"
 
 const OptionCard = styled.div`
   height: 50px;
@@ -63,7 +63,7 @@ const DeleteOptionButton = styled(FontAwesomeIcon)`
     background-color: #aaafb3;
   }
 `
-const MultipleChoiceMessageModalContainer = styled.div`
+const MultipleChoiceMessageDialogContainer = styled.div`
   margin-bottom: 4px;
 `
 
@@ -92,12 +92,12 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
         </OptionButtonGroup>
       </OptionCard>
       {!visible && (
-        <MultipleChoiceMessageModalContainer>
-          <MessageModel
+        <MultipleChoiceMessageDialogContainer>
+          <MessageDialog
             title={t("success-message")}
             description={option.messageAfterSubmissionWhenSelected ?? ""}
           />
-        </MultipleChoiceMessageModalContainer>
+        </MultipleChoiceMessageDialogContainer>
       )}
     </>
   )

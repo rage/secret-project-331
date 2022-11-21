@@ -1,6 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-/* Temporary fix, remove this when the component done */
-
 import styled from "@emotion/styled"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"

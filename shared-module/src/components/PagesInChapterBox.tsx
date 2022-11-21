@@ -4,7 +4,7 @@ import Link from "next/link"
 import React from "react"
 
 import ArrowSVGIcon from "../img/blackArrow.svg"
-import { baseTheme, headingFont, monospaceFont, secondaryFont } from "../styles"
+import { baseTheme, headingFont, monospaceFont } from "../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`

@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import Divider from "@mui/material/Divider"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -24,62 +23,70 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     type: "essay",
     name: "quiz-essay-name",
     description: "quiz-essay-description",
-    disabled: true,
+    disabled: false,
+    category: "input",
   },
   "multiple-choice": {
     type: "multiple-choice",
     name: "quiz-multiple-choice-name",
     description: "quiz-multiple-choice-description",
     disabled: false,
+    category: "multiple-choice",
   },
   scale: {
     type: "scale",
     name: "quiz-scale-name",
     description: "quiz-scale-description",
-    disabled: true,
+    disabled: false,
+    category: "other",
   },
   checkbox: {
     type: "checkbox",
     name: "quiz-checkbox-name",
     description: "quiz-checkbox-description",
-    disabled: true,
+    disabled: false,
+    category: "other",
   },
   "closed-ended-question": {
     type: "closed-ended-question",
     name: "quiz-open-name",
     description: "quiz-open-description",
-    disabled: true,
+    disabled: false,
+    category: "input",
   },
   matrix: {
     type: "matrix",
     name: "quiz-matrix-name",
     description: "quiz-matrix-description",
-    disabled: true,
+    disabled: false,
+    category: "other",
   },
   timeline: {
     type: "timeline",
     name: "quiz-timeline-name",
     description: "quiz-timeline-description",
-    disabled: true,
+    disabled: false,
+    category: "other",
+  },
+  "multiple-choice-dropdown": {
+    type: "multiple-choice-dropdown",
+    name: "quiz-multiple-choice-dropdown-name",
+    description: "quiz-multiple-choice-dropdown-description",
+    disabled: false,
+    category: "multiple-choice",
   },
   "choose-n": {
     type: "choose-n",
     name: "quiz-clickable-multiple-choice-name",
     description: "quiz-multiple-choice-description",
-    disabled: true,
+    disabled: false,
+    category: "multiple-choice",
   },
-  // "multiple-choice-dropdown": {
-  //   name: "quiz-multiple-choice-dropdown-name",
-  //   description: "quiz-multiple-choice-dropdown-description",
-  // }
 }
 
 const AddQuizItemWrapper = styled.div`
   display: flex;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
   flex-wrap: wrap;
-  justify-content: space-around;
 `
 
 const TypeContainer = styled.div`
@@ -98,16 +105,38 @@ const DuplicateContainer = styled.div`
   margin-bottom: 1rem;
 `
 
+const QuizItemSectionTitle = styled.h4`
+  font-weight: bold;
+`
+
 const QuizItemSelection: React.FC = () => {
   const { t } = useTranslation()
 
   return (
     <AddQuizItemWrapper>
-      <h3>{t("add-new-quiz-item")}</h3>
+      <QuizItemSectionTitle> {t("multiple-choice-header")} </QuizItemSectionTitle>
       <TypeContainer>
-        {Object.keys(QUIZ_COMPONENTS).map((type, _) => (
-          <QuizItemOption key={type} quizOption={QUIZ_COMPONENTS[type]} />
-        ))}
+        {Object.values(QUIZ_COMPONENTS)
+          .filter((item) => item.category === "multiple-choice")
+          .map((item) => (
+            <QuizItemOption key={item.type} quizOption={item} />
+          ))}
+      </TypeContainer>
+      <QuizItemSectionTitle> {t("input-header")} </QuizItemSectionTitle>
+      <TypeContainer>
+        {Object.values(QUIZ_COMPONENTS)
+          .filter((item) => item.category === "input")
+          .map((item) => (
+            <QuizItemOption key={item.type} quizOption={item} />
+          ))}
+      </TypeContainer>
+      <QuizItemSectionTitle> {t("specialized-header")} </QuizItemSectionTitle>
+      <TypeContainer>
+        {Object.values(QUIZ_COMPONENTS)
+          .filter((item) => item.category === "other")
+          .map((item) => (
+            <QuizItemOption key={item.type} quizOption={item} />
+          ))}
       </TypeContainer>
     </AddQuizItemWrapper>
   )
@@ -190,6 +219,12 @@ const SubsectionTitleWrapper = styled.div`
   margin-top: 1rem;
 `
 
+const QuizItemContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
 const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const storeItems = Object.values(useTypedSelector((state) => state.editor.items))
@@ -201,22 +236,27 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
       <ItemsTitleContainer>
         <SubsectionTitleWrapper>
           <h2>{t("quiz-items")}</h2>
-        </SubsectionTitleWrapper>{" "}
+        </SubsectionTitleWrapper>
       </ItemsTitleContainer>
-      {storeItems.map((oldQuiz) => {
-        const quiz = migrateQuizItem(oldQuiz)
-        if (quiz.type == "multiple-choice") {
-          const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
-          quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
-        }
-        return (
-          <div key={quiz.id}>
-            <QuizEditor quizItem={quiz} />
-            <Divider variant="fullWidth" />
-          </div>
-        )
-      })}
-      <AddQuizItem storeItems={storeItems} />
+      <QuizItemContainer>
+        {storeItems.map((oldQuiz) => {
+          const quiz = migrateQuizItem(oldQuiz)
+          if (
+            quiz.type == "multiple-choice" ||
+            quiz.type == "choose-n" ||
+            quiz.type == "multiple-choice-dropdown"
+          ) {
+            const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
+            quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
+          }
+          return (
+            <div key={quiz.id}>
+              <QuizEditor quizItem={quiz} />
+            </div>
+          )
+        })}
+        <AddQuizItem storeItems={storeItems} />
+      </QuizItemContainer>
     </>
   )
 }

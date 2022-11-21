@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
-import { NormalizedQuizItem } from "../../../../../types/types"
+import { PrivateSpecQuizItemMatrix } from "../../../../../types/quizTypes"
 import { editedQuizItemOptionCells } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 
@@ -30,7 +30,7 @@ const MatrixTableContainer = styled.table`
 `
 
 interface TableContentProps {
-  item: NormalizedQuizItem
+  item: PrivateSpecQuizItemMatrix
 }
 
 const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ item }) => {

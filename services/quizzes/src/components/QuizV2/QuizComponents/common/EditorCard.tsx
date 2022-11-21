@@ -1,7 +1,9 @@
 import styled from "@emotion/styled"
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons"
+import { faArrowDown, faArrowUp, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
+
+import Button from "../../../../shared-module/components/Button"
 
 interface EditorCardProps {
   title: string
@@ -44,6 +46,18 @@ const CircleButton = styled(FontAwesomeIcon)`
 const EditorContent = styled.div`
   padding: 16px;
 `
+
+const DeleteButtonContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+`
+
+const DeleteButton = styled(Button)`
+  margin-bottom: 8px;
+  margin-right: 8px;
+`
+
 const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({ children, title }) => {
   return (
     <EditorWrapper>
@@ -53,6 +67,11 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({ childr
         <CircleButton icon={faArrowDown} />
       </EditorSection>
       <EditorContent>{children}</EditorContent>
+      <DeleteButtonContainer>
+        <DeleteButton size="medium" variant="outlined">
+          <FontAwesomeIcon icon={faTrash} />
+        </DeleteButton>
+      </DeleteButtonContainer>
     </EditorWrapper>
   )
 }

@@ -33,6 +33,7 @@ type QuizItemType =
   | "matrix"
   | "timeline"
   | "choose-n"
+  | "multiple-choice-dropdown"
 
 type OldQuizItemType =
   | "essay"
@@ -43,6 +44,7 @@ type OldQuizItemType =
   | "matrix"
   | "timeline"
   | "clickable-multiple-choice"
+  | "multiple-choice-dropdown"
 
 type multipleChoiceMultipleOptionsGradingPolicy =
   | "default"
@@ -58,6 +60,7 @@ export type PrivateSpecQuizItem =
   | PrivateSpecQuizItemMatrix
   | PrivateSpecQuizItemTimeline
   | PrivateSpecQuizItemChooseN
+  | PrivateSpecQuizItemMultiplechoiceDropdown
 
 export interface PrivateSpecQuizItemMultiplechoice {
   type: "multiple-choice"
@@ -143,6 +146,17 @@ export interface PrivateSpecQuizItemTimeline {
 
 export interface PrivateSpecQuizItemChooseN {
   type: "choose-n"
+  id: string
+  order: number
+  options: QuizItemOption[]
+  title: string
+  body: string
+  successMessage: string | null
+  failureMessage: string | null
+}
+
+export interface PrivateSpecQuizItemMultiplechoiceDropdown {
+  type: "multiple-choice-dropdown"
   id: string
   order: number
   options: QuizItemOption[]

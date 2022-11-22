@@ -22,7 +22,7 @@ mod integration_test;
 async fn gets_and_registers_completions() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
+    let jwt_key = Arc::new(integration_test::make_jwt_key());
     let (_user, _org, course, module, _completion, _completion_2) =
         insert_data(&mut conn, jwt_key).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);

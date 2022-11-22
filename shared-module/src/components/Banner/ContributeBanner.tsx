@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { headingFont } from "../../styles"
+import { baseTheme, headingFont } from "../../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
@@ -38,7 +38,7 @@ const Content = styled.div`
   text-align: center;
 
   h2 {
-    font-size: clamp(35px, 4vw, 50px);
+    font-size: clamp(35px, 4vw, 56px);
     font-family: ${headingFont};
     font-weight: 700;
     text-align: center;
@@ -56,7 +56,7 @@ const Text = styled.div`
   margin-bottom: 10px;
 
   div {
-    color: #1a2333;
+    color: ${baseTheme.colors.grey[700]};
     opacity: 0.8;
   }
 `

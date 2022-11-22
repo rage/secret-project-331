@@ -12,6 +12,15 @@ else
 fi
 echo "Testing if docker works"
 
+if [ "$(docker context inspect | grep '"Name"' | grep -c "desktop-linux")" -eq "1" ]; then
+  echo -e "$RED"
+  echo "Warning: You are using the docker desktop docker context. Other developers have reported problems with this setup."
+  echo "If you encounter problems with running docker try the following:"
+  echo "1. Install the normal docker engine (https://docs.docker.com/engine/install/) instead of docker desktop"
+  echo "2. Run command: docker context use default"
+  echo -e "$RESET_EVERYTHING"
+fi
+
 DOCKER_OUTPUT=$(docker run hello-world | grep 'Hello from Docker!')
 echo "$DOCKER_OUTPUT"
 

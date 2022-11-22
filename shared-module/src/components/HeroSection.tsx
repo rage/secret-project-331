@@ -17,11 +17,12 @@ const TextBox = styled.div`
   justify-content: center;
 
   h1 {
-    font-weight: 400;
+    font-weight: 700;
     z-index: 20;
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
-    line-height: 1;
+    line-height: 120%;
+    color: ${baseTheme.colors.grey[700]};
   }
 
   span {

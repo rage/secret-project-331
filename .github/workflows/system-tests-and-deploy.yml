@@ -44,7 +44,7 @@ jobs:
           sudo sysctl net/netfilter/nf_conntrack_max=131072
 
       - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.4.2
+        uses: manusa/actions-setup-minikube@v2.7.1
         with:
           minikube version: "v1.23.2"
           kubernetes version: "v1.22.4"

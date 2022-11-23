@@ -42,7 +42,7 @@ export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typedObj["message"] === "file-upload" &&
-    typeof typedObj["url"] === "string"
+    typedObj["files"] instanceof Map
   )
 }
 
@@ -62,7 +62,7 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "upload-result" &&
       typedObj["success"] === true &&
-      typeof typedObj["url"] === "string") ||
+      typedObj["urls"] instanceof Map) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "upload-result" &&
       typedObj["success"] === false &&
@@ -136,7 +136,7 @@ export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage 
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "upload-result" &&
       typedObj["success"] === true &&
-      typeof typedObj["url"] === "string") ||
+      typedObj["urls"] instanceof Map) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "upload-result" &&
       typedObj["success"] === false &&

@@ -62,7 +62,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
               // eslint-disable-next-line i18next/no-literal-string
-              await onUploadFileMessage("playground", msg.data, responsePort)
+              await onUploadFileMessage("playground", msg.files, responsePort)
             }
           }
         }}

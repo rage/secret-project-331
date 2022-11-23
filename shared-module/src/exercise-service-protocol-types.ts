@@ -15,8 +15,7 @@ export interface CurrentStateMessage {
 
 export interface FileUploadMessage {
   message: "file-upload"
-  url: string
-  data: unknown
+  files: Map<string, string | Blob>
 }
 
 export interface HeightChangedMessage {
@@ -41,7 +40,7 @@ export type UploadResultMessage =
   | {
       message: "upload-result"
       success: true
-      url: string
+      urls: Map<string, string>
     }
   | {
       message: "upload-result"

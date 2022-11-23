@@ -2,7 +2,10 @@
 Handlers for HTTP requests to `/api/v0/files`.
 
 */
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
@@ -124,15 +127,14 @@ Used to upload data from exercise service iframes.
 # Returns
 The randomly generated path to the uploaded file.
 */
-#[instrument(skip(data, file_store))]
+#[instrument(skip(payload, file_store))]
 #[generated_doc]
 async fn upload_from_exercise_service(
     exercise_service_slug: web::Path<String>,
-    request: HttpRequest,
-    data: web::Payload,
+    payload: Multipart,
     file_store: web::Data<dyn FileStore>,
     upload_claim: Result<UploadClaim<'static>, ControllerError>,
-) -> ControllerResult<web::Json<String>> {
+) -> ControllerResult<web::Json<HashMap<String, String>>> {
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
     let token = skip_authorize()?;
@@ -151,18 +153,53 @@ async fn upload_from_exercise_service(
         }
     }
 
-    // todo: convert archives into a uniform format
-    let random_filename = file_utils::random_filename();
-    let path = format!("{exercise_service_slug}/{random_filename}");
-    file_store
-        .upload_stream(
-            Path::new(&path),
-            data.map_err(anyhow::Error::msg).boxed_local(),
-            "application/octet-stream",
-        )
-        .await?;
+    let mut paths = HashMap::new();
+    if let Err(outer_err) = upload_from_exercise_service_inner(
+        exercise_service_slug.as_str(),
+        payload,
+        file_store.as_ref(),
+        &mut paths,
+    )
+    .await
+    {
+        // something went wrong while uploading the files, try to delete leftovers
+        for path in paths.values() {
+            if let Err(err) = file_store.delete(Path::new(path)).await {
+                error!("Failed to delete file '{path}' during cleanup: {err}")
+            }
+        }
+        return Err(outer_err);
+    }
 
-    token.authorized_ok(web::Json(path))
+    token.authorized_ok(web::Json(paths))
+}
+
+// Wraps the uploading logic
+async fn upload_from_exercise_service_inner(
+    exercise_service_slug: &str,
+    mut payload: Multipart,
+    file_store: &dyn FileStore,
+    paths: &mut HashMap<String, String>,
+) -> Result<(), ControllerError> {
+    while let Some(item) = payload.next().await {
+        let field = item.unwrap();
+        let field_name = field.name().to_string();
+
+        let random_filename = file_utils::random_filename();
+        let path = format!("{exercise_service_slug}/{random_filename}");
+
+        // todo: convert archives into a uniform format
+        file_store
+            .upload_stream(
+                Path::new(&path),
+                field.map_err(Into::into).boxed_local(),
+                "application/octet-stream",
+            )
+            .await?;
+
+        paths.insert(field_name, path.clone());
+    }
+    Ok(())
 }
 
 /**

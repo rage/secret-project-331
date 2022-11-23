@@ -7,17 +7,17 @@ export const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER = "exercise-service-upload-cla
 
 export const onUploadFileMessage = async (
   exerciseServiceSlug: string,
-  data: unknown,
+  files: Map<string, string | Blob>,
   responsePort: MessagePort,
 ): Promise<void> => {
   let msg: UploadResultMessage
   try {
-    const url = await uploadFromExerciseService(exerciseServiceSlug, data)
+    const urls = await uploadFromExerciseService(exerciseServiceSlug, files)
     msg = {
       // eslint-disable-next-line i18next/no-literal-string
       message: "upload-result",
       success: true,
-      url,
+      urls: new Map(Object.entries(urls)),
     }
   } catch (e) {
     msg = {

@@ -103,6 +103,16 @@ export const getPoints = async (courseInstanceId: string): Promise<Points> => {
   return validateResponse(response, isPoints)
 }
 
+export const getExerciseStatus = async (courseInstanceId: string): Promise<Points> => {
+  const response = await mainFrontendClient.get(
+    `/course-instances/${courseInstanceId}/exercise-status`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isPoints)
+}
+
 export const editCourseInstance = async (
   courseInstanceId: string,
   update: CourseInstanceForm,

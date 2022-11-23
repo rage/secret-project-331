@@ -7,6 +7,7 @@ use models::{
     course_module_completions::{self, NewCourseModuleCompletion},
     course_modules, courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
+    exercises::ExerciseStatusForUser,
     library::{
         self,
         progressing::{
@@ -352,6 +353,29 @@ async fn delete(
 }
 
 /**
+POST /course-instances/:id/get-exercises
+*/
+#[instrument(skip(pool))]
+async fn get_exercises_by_course_instance_id(
+    id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseStatusForUser>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*id),
+    )
+    .await?;
+    let exercises =
+        models::exercises::get_exercises_and_exercise_status_by_course_instance_id(&mut conn, *id)
+            .await?;
+    token.authorized_ok(web::Json(exercises))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -387,6 +411,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(preview_post_completions),
         )
         .route("/{course_instance_id}/points", web::get().to(points))
+        .route(
+            "/{course_instance_id}/exercise-status",
+            web::get().to(get_exercises_by_course_instance_id),
+        )
         .route(
             "/{course_instance_id}/reprocess-completions",
             web::post().to(post_reprocess_module_completions),

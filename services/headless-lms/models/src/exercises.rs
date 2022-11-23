@@ -33,6 +33,28 @@ pub struct Exercise {
     pub use_course_default_peer_review_config: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseStatusForUser {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub score_maximum: i32,
+    pub score_given: Option<f32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExercisePeerReviewDataForUser {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub text_data: Option<String>,
+    pub number_data: Option<f32>,
+}
+
 impl Exercise {
     pub fn get_course_id(&self) -> ModelResult<Uuid> {
         self.course_id.ok_or_else(|| {
@@ -229,6 +251,70 @@ WHERE course_id = (
   )
   AND deleted_at IS NULL
 ORDER BY order_number ASC
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
+pub async fn get_exercises_and_exercise_status_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<ExerciseStatusForUser>> {
+    let exercises = sqlx::query_as!(
+        ExerciseStatusForUser,
+        r#"
+        SELECT
+        e.id,
+        e.created_at,
+        e.updated_at,
+        e.name,e.score_maximum,
+        ues.score_given
+        FROM exercises e
+        LEFT JOIN user_exercise_states ues on e.id = ues.exercise_id
+        LEFT JOIN teacher_grading_decisions tgd on tgd.user_exercise_state_id = ues.id
+        WHERE e.course_id = (
+            SELECT course_id
+            FROM course_instances
+            WHERE id = $1
+          )
+          AND e.deleted_at IS NULL
+        ORDER BY e.order_number ASC;
+"#,
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
+pub async fn get_peer_review_data_for_exercise_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExercisePeerReviewDataForUser>> {
+    let exercises = sqlx::query_as!(
+        ExercisePeerReviewDataForUser,
+        r#"
+        SELECT
+        e.id,
+        e.created_at,
+        e.updated_at,
+        e.name,
+        prqs.text_data,
+        prqs.number_data
+        FROM exercises e
+        LEFT JOIN peer_review_queue_entries prqe on e.id = prqe.exercise_id
+        LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
+        LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id
+        WHERE e.course_id = (
+            SELECT course_id
+            FROM course_instances
+            WHERE id = $1
+          )
+          AND e.deleted_at IS NULL
+        ORDER BY e.order_number ASC;
 "#,
         course_id
     )

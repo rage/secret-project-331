@@ -35,7 +35,8 @@ WHERE id = $2
   AND deleted_at IS NULL ON CONFLICT (user_id, course_language_group_id) DO
 UPDATE
 SET current_course_id = $2,
-  current_course_instance_id = $3
+  current_course_instance_id = $3,
+  deleted_at = NULL
 RETURNING *;
         ",
         course_instance_enrollment.user_id,
@@ -129,8 +130,8 @@ mod test {
 
         let instance_2 = course_instances::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewCourseInstance {
-                id: Uuid::new_v4(),
                 course_id: course,
                 name: Some("instance-2"),
                 description: None,

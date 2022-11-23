@@ -100,6 +100,7 @@ pub fn forget(session: &Session) {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case", tag = "type", content = "variant")]
 pub enum Action {
+    ViewMaterial,
     View,
     Edit,
     Grade,
@@ -193,8 +194,31 @@ async fn example_function(
 }
 ```
 */
-pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
+pub fn skip_authorize() -> Result<AuthorizationToken, ControllerError> {
     Ok(AuthorizationToken(()))
+}
+
+/**  Can be used to check whether user is allowed to view some course material
+
+*/
+pub async fn authorize_access_to_course_material(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+) -> Result<AuthorizationToken, ControllerError> {
+    let token = if models::courses::is_draft(conn, course_id).await? {
+        if user_id.is_none() {
+            return Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "The course is not public".to_string(),
+                None,
+            ));
+        }
+        authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await?
+    } else {
+        skip_authorize()?
+    };
+    Ok(token)
 }
 
 /**
@@ -356,14 +380,9 @@ async fn check_organization_permission(
 async fn check_course_permission(
     conn: &mut PgConnection,
     roles: &[Role],
-    mut action: Action,
+    action: Action,
     course_id: Uuid,
 ) -> Result<AuthorizationToken, ControllerError> {
-    // if trying to View a draft course, check for permission to Teach instead
-    if action == Action::View && models::courses::is_draft(conn, course_id).await? {
-        action = Action::Teach;
-    }
-
     // check course role
     for role in roles {
         if role.is_role_for_course(course_id) && has_permission(role.role, action) {
@@ -472,13 +491,20 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | DeleteAnswer
                 | EditRole(Teacher | Assistant | Reviewer)
                 | CreateCoursesOrExams
+                | ViewMaterial
         ),
         Assistant => matches!(
             action,
-            View | Edit | Grade | DeleteAnswer | EditRole(Assistant | Reviewer) | Teach
+            View | Edit
+                | Grade
+                | DeleteAnswer
+                | EditRole(Assistant | Reviewer)
+                | Teach
+                | ViewMaterial
         ),
-        Reviewer => matches!(action, View | Grade),
+        Reviewer => matches!(action, View | Grade | ViewMaterial),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
+        MaterialViewer => matches!(action, ViewMaterial),
     }
 }
 
@@ -517,10 +543,16 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let user = users::insert(tx.as_mut(), "auth@example.com", None, None)
-            .await
-            .unwrap();
-        let org = organizations::insert(tx.as_mut(), "auth", "auth", "auth", Uuid::new_v4())
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "auth@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let org = organizations::insert(tx.as_mut(), PKeyPolicy::Generate, "auth", "auth", "auth")
             .await
             .unwrap();
 

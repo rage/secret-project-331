@@ -10,10 +10,11 @@ import MessageChannelIFrame from "../../shared-module/components/MessageChannelI
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../shared-module/exercise-service-protocol-types"
-import { isCurrentStateMessage } from "../../shared-module/exercise-service-protocol-types.guard"
+import { isMessageFromIframe } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
 import useUserInfo from "../../shared-module/hooks/useUserInfo"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { onUploadFileMessage } from "../../shared-module/utils/exerciseServices"
 import getGuestPseudonymousUserId from "../../shared-module/utils/getGuestPseudonymousUserId"
 import withNoSsr from "../../shared-module/utils/withNoSsr"
 
@@ -22,6 +23,7 @@ const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
+  exerciseServiceSlug: string
   exerciseTaskId: string
   onPrivateSpecChange(newSpec: string): void
   privateSpec: string | null
@@ -30,7 +32,7 @@ interface ExerciseTaskIFrameEditorProps {
 
 const ExerciseTaskIFrameEditor: React.FC<
   React.PropsWithChildren<ExerciseTaskIFrameEditorProps>
-> = ({ exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
+> = ({ exerciseServiceSlug, exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const userInfo = useUserInfo()
@@ -66,10 +68,14 @@ const ExerciseTaskIFrameEditor: React.FC<
     <MessageChannelIFrame
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
-      onMessageFromIframe={(messageContainer, _responsePort) => {
-        if (isCurrentStateMessage(messageContainer)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+      onMessageFromIframe={async (messageContainer, responsePort) => {
+        if (isMessageFromIframe(messageContainer)) {
+          if (messageContainer.message === "current-state") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+          } else if (messageContainer.message === "file-upload") {
+            await onUploadFileMessage(exerciseServiceSlug, messageContainer.data, responsePort)
+          }
         } else {
           console.error(UNEXPECTED_MESSAGE_ERROR)
         }

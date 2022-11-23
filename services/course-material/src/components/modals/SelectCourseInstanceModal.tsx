@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import React, { useCallback, useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
+import { fetchCourseInstances, postSaveCourseSettings } from "../../services/backend"
+import { NewCourseBackgroundQuestionAnswer } from "../../shared-module/bindings"
+import Dialog from "../../shared-module/components/Dialog"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -22,6 +23,7 @@ const CourseInstanceSelectModal: React.FC<
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
+  const dialogTitleId = useId()
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
@@ -45,12 +47,11 @@ const CourseInstanceSelectModal: React.FC<
   }, [loginState, pageState, manualOpen])
 
   const handleSubmitAndClose = useCallback(
-    async (instanceId: string, reason?: string) => {
-      if (reason === "backdropClick") {
-        return
-      }
+    async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
       try {
-        await postCourseInstanceEnrollment(instanceId)
+        await postSaveCourseSettings(instanceId, {
+          background_question_answers: backgroundQuestionAnswers,
+        })
         setOpen(false)
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
@@ -81,7 +82,7 @@ const CourseInstanceSelectModal: React.FC<
   }
 
   return (
-    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialog-label">
+    <Dialog open={open} aria-labelledby={dialogTitleId} closeable={false}>
       <div
         className={css`
           margin: 1rem;
@@ -90,19 +91,16 @@ const CourseInstanceSelectModal: React.FC<
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
         <h1
           className={css`
-            font-size: clamp(18px, 2vw, 20px);
+            font-weight: 500;
+            font-size: 22px;
+            line-height: 26px;
+            margin-bottom: 1rem;
           `}
-          id="dialog-label"
+          id={dialogTitleId}
         >
-          {t("title-select-course-instance-to-continue")}
+          {t("title-course-settings")}
         </h1>
-        <div
-          className={css`
-            margin-bottom: 0.6rem;
-          `}
-        >
-          {t("select-course-instance-explanation")}
-        </div>
+
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

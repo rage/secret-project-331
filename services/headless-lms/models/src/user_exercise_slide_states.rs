@@ -20,31 +20,7 @@ pub struct UserExerciseSlideStateGradingSummary {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    user_exercise_state_id: Uuid,
-    exercise_slide_id: Uuid,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO user_exercise_slide_states (
-    exercise_slide_id,
-    user_exercise_state_id,
-    grading_progress
-  )
-VALUES ($1, $2, $3)
-RETURNING id
-        ",
-        exercise_slide_id,
-        user_exercise_state_id,
-        GradingProgress::NotReady as GradingProgress,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
+    pkey_policy: PKeyPolicy<Uuid>,
     user_exercise_state_id: Uuid,
     exercise_slide_id: Uuid,
 ) -> ModelResult<Uuid> {
@@ -59,7 +35,7 @@ INSERT INTO user_exercise_slide_states (
 VALUES ($1, $2, $3, $4)
 RETURNING id
         ",
-        id,
+        pkey_policy.into_uuid(),
         exercise_slide_id,
         user_exercise_state_id,
         GradingProgress::NotReady as GradingProgress,
@@ -157,7 +133,13 @@ pub async fn get_or_insert_by_unique_index(
     if let Some(user_exercise_slide_state) = user_exercise_slide_state {
         Ok(user_exercise_slide_state)
     } else {
-        let id = insert(conn, user_exercise_state_id, exercise_slide_id).await?;
+        let id = insert(
+            conn,
+            PKeyPolicy::Generate,
+            user_exercise_state_id,
+            exercise_slide_id,
+        )
+        .await?;
         get_by_id(conn, id).await
     }
 }
@@ -239,7 +221,10 @@ mod tests {
     mod get_grading_summary_by_user_exercise_state_id {
         use headless_lms_utils::numbers::f32_approx_eq;
 
-        use crate::{chapters, exercise_slides, exercises, pages, user_exercise_states};
+        use crate::{
+            chapters, chapters::NewChapter, exercise_slides, exercises, pages,
+            pages::NewCoursePage, user_exercise_states,
+        };
 
         use super::*;
 
@@ -248,15 +233,30 @@ mod tests {
             insert_data!(:tx);
             let (user_exercise_state_id, slide_1, slide_2, slide_3) =
                 create_test_data(&mut tx).await.unwrap();
-            insert(tx.as_mut(), user_exercise_state_id, slide_1)
-                .await
-                .unwrap();
-            insert(tx.as_mut(), user_exercise_state_id, slide_2)
-                .await
-                .unwrap();
-            insert(tx.as_mut(), user_exercise_state_id, slide_3)
-                .await
-                .unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_1,
+            )
+            .await
+            .unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_2,
+            )
+            .await
+            .unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_3,
+            )
+            .await
+            .unwrap();
 
             let UserExerciseSlideStateGradingSummary {
                 score_given,
@@ -273,15 +273,30 @@ mod tests {
             insert_data!(:tx);
             let (user_exercise_state_id, slide_1, slide_2, slide_3) =
                 create_test_data(&mut tx).await.unwrap();
-            insert(tx.as_mut(), user_exercise_state_id, slide_1)
-                .await
-                .unwrap();
-            insert(tx.as_mut(), user_exercise_state_id, slide_2)
-                .await
-                .unwrap();
-            let id_3 = insert(tx.as_mut(), user_exercise_state_id, slide_3)
-                .await
-                .unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_1,
+            )
+            .await
+            .unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_2,
+            )
+            .await
+            .unwrap();
+            let id_3 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_3,
+            )
+            .await
+            .unwrap();
             update(tx.as_mut(), id_3, Some(1.0), GradingProgress::FullyGraded)
                 .await
                 .unwrap();
@@ -301,21 +316,36 @@ mod tests {
             insert_data!(:tx);
             let (user_exercise_state_id, slide_1, slide_2, slide_3) =
                 create_test_data(&mut tx).await.unwrap();
-            let id_1 = insert(tx.as_mut(), user_exercise_state_id, slide_1)
-                .await
-                .unwrap();
+            let id_1 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_1,
+            )
+            .await
+            .unwrap();
             update(tx.as_mut(), id_1, Some(1.0), GradingProgress::FullyGraded)
                 .await
                 .unwrap();
-            let id_2 = insert(tx.as_mut(), user_exercise_state_id, slide_2)
-                .await
-                .unwrap();
+            let id_2 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_2,
+            )
+            .await
+            .unwrap();
             update(tx.as_mut(), id_2, Some(1.0), GradingProgress::FullyGraded)
                 .await
                 .unwrap();
-            let id_3 = insert(tx.as_mut(), user_exercise_state_id, slide_3)
-                .await
-                .unwrap();
+            let id_3 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_3,
+            )
+            .await
+            .unwrap();
             update(tx.as_mut(), id_3, Some(1.0), GradingProgress::FullyGraded)
                 .await
                 .unwrap();
@@ -334,20 +364,41 @@ mod tests {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),
-                "chapter",
-                "#065853",
-                course,
-                1,
-                course_module.id,
+                PKeyPolicy::Generate,
+                &NewChapter {
+                    name: "chapter".to_string(),
+                    color: Some("#065853".to_string()),
+                    course_id: course,
+                    chapter_number: 1,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module.id),
+                },
             )
             .await?;
-            let (page_id, _history) =
-                pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
-            let exercise_id =
-                exercises::insert(tx.as_mut(), course, "course", page_id, chapter_id, 1).await?;
-            let slide_1 = exercise_slides::insert(tx.as_mut(), exercise_id, 1).await?;
-            let slide_2 = exercise_slides::insert(tx.as_mut(), exercise_id, 2).await?;
-            let slide_3 = exercise_slides::insert(tx.as_mut(), exercise_id, 3).await?;
+            let (page_id, _history) = pages::insert_course_page(
+                tx.as_mut(),
+                &NewCoursePage::new(course, 1, "/test", "test"),
+                user,
+            )
+            .await?;
+            let exercise_id = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
+                "course",
+                page_id,
+                chapter_id,
+                1,
+            )
+            .await?;
+            let slide_1 =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, 1).await?;
+            let slide_2 =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, 2).await?;
+            let slide_3 =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, 3).await?;
             let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
                 tx.as_mut(),
                 user,

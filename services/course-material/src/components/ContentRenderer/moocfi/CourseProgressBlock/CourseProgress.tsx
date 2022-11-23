@@ -7,6 +7,7 @@ import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
+import ColoursIdentifier from "./ColoursIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
 
@@ -15,7 +16,7 @@ export interface CourseProgressProps {
 }
 
 const Wrapper = styled.div`
-  background-color: #f5f6f7;
+  background-color: rgba(242, 245, 247, 0.8);
   margin: 3px 0 6px 0;
   padding: 0;
 
@@ -24,7 +25,7 @@ const Wrapper = styled.div`
   }
 `
 const TotalWrapper = styled.div`
-  background-color: #f5f6f7;
+  background-color: rgb(242, 245, 247);
   margin: 3px 0 3px 0;
   padding: 0.8rem 3rem 1.5rem 3rem;
 `
@@ -43,10 +44,12 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
     <>
       <h2
         className={css`
-          font-size: 2.5rem;
-          font-weight: 350;
+          font-size: clamp(28px, 3.5vw, 46px);
           margin: 1rem;
+          font-weight: 700;
+          color: #1a2333;
           text-align: center;
+          opacity: 0.9;
         `}
       >
         {t("track-your-progress")}
@@ -85,6 +88,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   required={courseModuleProgress.attempted_exercises_required ?? undefined}
                   label={t("exercises-attempted")}
                 />
+                <ColoursIdentifier />
               </div>
             </TotalWrapper>
             <Wrapper>

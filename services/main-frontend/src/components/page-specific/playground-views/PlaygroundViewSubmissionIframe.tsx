@@ -9,6 +9,7 @@ import {
   IframeState,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
 
 interface PlaygroundViewSubmissionIframeProps {
   url: string
@@ -76,8 +77,15 @@ const PlaygroundViewSubmissionIframe: React.FC<
         key={iframeKey}
         url={url}
         postThisStateToIFrame={iframeState}
-        onMessageFromIframe={(msg) => {
-          setCurrentStateReceivedFromIframe(msg)
+        onMessageFromIframe={async (msg) => {
+          if (isMessageFromIframe(msg)) {
+            if (msg.message === "current-state") {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              setCurrentStateReceivedFromIframe(msg)
+            } else if (msg.message === "file-upload") {
+              // cannot upload from submission view
+            }
+          }
         }}
         title={TITLE}
         showBorders={showIframeBorders}

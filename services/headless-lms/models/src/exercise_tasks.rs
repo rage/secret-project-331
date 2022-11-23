@@ -1,11 +1,13 @@
 use std::collections::{HashMap, HashSet};
 
-use futures::TryStreamExt;
+use futures::{future::BoxFuture, TryStreamExt};
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use url::Url;
 
 use crate::{
-    exercise_service_info, exercise_services,
+    exercise_service_info::{self, ExerciseServiceInfoApi},
+    exercise_services,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
@@ -19,6 +21,7 @@ use crate::{
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
+    pub exercise_service_slug: String,
     pub exercise_slide_id: Uuid,
     /**
     If none, the task is not completable at the moment because the service needs to
@@ -84,11 +87,13 @@ impl Extend<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_exercise_task: NewExerciseTask,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO exercise_tasks (
+    id,
     exercise_slide_id,
     exercise_type,
     assignment,
@@ -97,9 +102,10 @@ INSERT INTO exercise_tasks (
     model_solution_spec,
     order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         new_exercise_task.exercise_slide_id,
         new_exercise_task.exercise_type,
         serde_json::to_value(new_exercise_task.assignment)?,
@@ -157,6 +163,7 @@ pub async fn get_course_material_exercise_tasks(
     conn: &mut PgConnection,
     exercise_slide_id: Uuid,
     user_id: Option<Uuid>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
         get_exercise_tasks_by_exercise_slide_id(conn, &exercise_slide_id).await?;
@@ -186,6 +193,7 @@ pub async fn get_course_material_exercise_tasks(
         exercise_service_info::get_selected_exercise_services_by_type(
             &mut *conn,
             &unique_exercise_service_slugs,
+            fetch_service_info,
         )
         .await?;
 
@@ -214,6 +222,7 @@ pub async fn get_course_material_exercise_tasks(
 
         material_tasks.push(CourseMaterialExerciseTask {
             id: exercise_task.id,
+            exercise_service_slug: exercise_task.exercise_type,
             exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_iframe_url: Some(exercise_iframe_url.to_string()),
             pseudonumous_user_id: user_id
@@ -277,6 +286,7 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Option<CourseMaterialExerciseSlide>> {
     let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
         conn,
@@ -287,9 +297,13 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
         if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
-            let exercise_tasks =
-                get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id))
-                    .await?;
+            let exercise_tasks = get_course_material_exercise_tasks(
+                conn,
+                selected_exercise_slide_id,
+                Some(user_id),
+                fetch_service_info,
+            )
+            .await?;
             Some(CourseMaterialExerciseSlide {
                 id: selected_exercise_slide_id,
                 exercise_tasks,
@@ -310,6 +324,7 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
     exercise_id: Uuid,
     course_instance_id: Option<Uuid>,
     exam_id: Option<Uuid>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
@@ -342,8 +357,13 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
             exercise_slide_id
         };
 
-    let exercise_tasks =
-        get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id)).await?;
+    let exercise_tasks = get_course_material_exercise_tasks(
+        conn,
+        selected_exercise_slide_id,
+        Some(user_id),
+        fetch_service_info,
+    )
+    .await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
         return Err(ModelError::new(

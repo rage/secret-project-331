@@ -1,11 +1,15 @@
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
-    courses::{self, NewCourse},
-    organizations,
+    courses::NewCourse,
+    library,
+    library::content_management::CreateNewCourseFixedIds,
+    organizations, PKeyPolicy,
 };
 use uuid::Uuid;
 
 use sqlx::{Pool, Postgres};
+
+use crate::{domain::models_requests, programs::seed::seed_courses::seed_sample_course};
 
 use super::super::seed_users::SeedUsersResult;
 
@@ -21,18 +25,18 @@ pub async fn seed_organization_uh_mathstat(
         language_teacher_user_id: _,
         assistant_user_id: _,
         course_or_exam_creator_user_id: _,
-        student_user_id: _,
-        example_normal_user_ids: _,
+        student_user_id,
+        example_normal_user_ids,
     } = seed_users_result;
 
     let mut conn = db_pool.acquire().await?;
 
     let uh_mathstat_id = organizations::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?),
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
         "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
-        Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?,
     )
     .await?;
     let new_course = NewCourse {
@@ -51,21 +55,25 @@ pub async fn seed_organization_uh_mathstat(
         _statistics_front_page,
         _statistics_default_course_instancem,
         _statistics_default_course_module,
-    ) = courses::insert_course(
+    ) = library::content_management::create_new_course(
         &mut conn,
-        Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
-        Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
+            default_course_instance_id: Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
+        }),
         new_course,
         admin_user_id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?),
         NewCourseInstance {
-            id: Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?,
             course_id: statistics_course.id,
-            name: Some("non-default instance"),
-            description: Some("this appears to be a non-default instance"),
+            name: Some("Non-default instance"),
+            description: Some("This appears to be a non-default instance"),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -86,13 +94,30 @@ pub async fn seed_organization_uh_mathstat(
         is_draft: true,
         is_test_mode: false,
     };
-    courses::insert_course(
+    library::content_management::create_new_course(
         &mut conn,
-        Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
-        Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
+            default_course_instance_id: Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        }),
         draft_course,
         admin_user_id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
+
+    let _introduction_to_citations = seed_sample_course(
+        &db_pool,
+        uh_mathstat_id,
+        Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
+        "Introduction to citations",
+        "introduction-to-citations",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

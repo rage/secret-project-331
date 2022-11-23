@@ -1,10 +1,12 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
-import { UseFormRegisterReturn } from "react-hook-form"
+import { FieldError, UseFormRegisterReturn } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
+import { errorToDescription } from "../../utils/strings"
 
 interface TextFieldExtraProps {
   name?: string
@@ -12,7 +14,7 @@ interface TextFieldExtraProps {
   label?: string
   labelStyle?: string
   hint?: string
-  error?: string
+  error?: string | FieldError
   placeholder?: string
   required?: boolean
   value?: string | number
@@ -28,7 +30,7 @@ interface TextFieldExtraProps {
   step?: string
 }
 
-const ERRORCOLOR = "#F76D82"
+const ERRORCOLOR = baseTheme.colors.red[600]
 const DEFAULTCOLOR = "#dedede"
 
 interface InputExtraProps {
@@ -64,16 +66,24 @@ const Input = styled.input<InputExtraProps>`
   }
 `
 
-const error = css`
-  color: #f76d82;
+// eslint-disable-next-line i18next/no-literal-string
+const errorClass = css`
+  color: ${baseTheme.colors.red[600]};
   font-size: 14px;
   display: inline-block;
-  margin-top: -15px;
 `
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({ onChange, className, register, disabled, ...rest }: TextFieldExtraProps) => {
+const TextField = ({
+  onChange,
+  className,
+  register,
+  disabled,
+  error,
+  ...rest
+}: TextFieldExtraProps) => {
+  const { t } = useTranslation()
   return (
     <div
       className={cx(
@@ -86,25 +96,26 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
         className,
       )}
     >
-      <label>
+      <label
+        aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
+        className={cx(
+          css`
+            color: #333;
+            font-family: ${primaryFont};
+            font-weight: 500;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 2px;
+            ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+            ${disabled && `cursor: not-allowed;`}
+          `,
+          rest.labelStyle,
+        )}
+      >
         {rest.label && (
-          <div
-            className={cx(
-              css`
-                color: #333;
-                font-family: ${primaryFont};
-                font-weight: 500;
-                font-size: 14px;
-                display: inline-block;
-                margin-bottom: 2px;
-                ${disabled && `color: ${baseTheme.colors.grey[400]};`}
-                ${disabled && `cursor: not-allowed;`}
-              `,
-              rest.labelStyle,
-            )}
-          >
-            {rest.label}
-          </div>
+          <>
+            {rest.label} {rest.required === true && ` *`}
+          </>
         )}
         <Input
           id={rest.id}
@@ -112,19 +123,21 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
           disabled={disabled}
           colorField={rest.type === "color"}
           // eslint-disable-next-line i18next/no-literal-string
-          aria-errormessage={`${rest.label}_error`}
-          aria-invalid={rest.error !== undefined}
+          aria-errormessage={`${rest.id ?? rest.label}_error`}
+          aria-invalid={error !== undefined}
           onChange={({ target: { value } }) => onChange && onChange(value)}
           defaultValue={rest.defaultValue}
+          error={errorToDescription(error) ?? undefined}
           {...rest}
           // Register overrides onChange if specified
           {...register}
         />
       </label>
+
       <span
         className={
-          rest.error
-            ? cx(error)
+          error
+            ? cx(errorClass)
             : css`
                 visibility: hidden;
               `
@@ -132,7 +145,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
         id={`${rest.id ?? rest.label}_error`}
         role="alert"
       >
-        {rest.error}
+        {errorToDescription(error)}
       </span>
     </div>
   )

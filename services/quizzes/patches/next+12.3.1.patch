@@ -1,8 +1,8 @@
 diff --git a/node_modules/next/dist/client/components/hot-reloader.client.js b/node_modules/next/dist/client/components/hot-reloader.client.js
-index abd8ec6..1fc7b84 100644
+index 77d2b8b..c486623 100644
 --- a/node_modules/next/dist/client/components/hot-reloader.client.js
 +++ b/node_modules/next/dist/client/components/hot-reloader.client.js
-@@ -43,7 +43,12 @@ function HotReload({ assetPrefix  }) {
+@@ -44,7 +44,12 @@ function HotReload({ assetPrefix  }) {
          if (normalizedAssetPrefix.startsWith('http')) {
              url = `${protocol}://${normalizedAssetPrefix.split('://')[1]}`;
          }
@@ -11,16 +11,16 @@ index abd8ec6..1fc7b84 100644
 +            webSocketRef.current = new window.WebSocket(`${url}/_next/webpack-hmr`);
 +	} catch (e) {
 +	    console.warn("Could not create a WebSocket", e)
-+	    websocketRef.current = null
++	    webSocketRef.current = null
 +	}
      }, [
          assetPrefix
      ]);
 diff --git a/node_modules/next/dist/client/dev/error-overlay/websocket.js b/node_modules/next/dist/client/dev/error-overlay/websocket.js
-index c147732..43c489b 100644
+index 4d0acae..f3a59d1 100644
 --- a/node_modules/next/dist/client/dev/error-overlay/websocket.js
 +++ b/node_modules/next/dist/client/dev/error-overlay/websocket.js
-@@ -42,10 +42,15 @@ function connectHMR(options) {
+@@ -57,10 +57,15 @@ function connectHMR(options) {
          if (assetPrefix.startsWith('http')) {
              url = `${protocol}://${assetPrefix.split('://')[1]}`;
          }
@@ -28,15 +28,15 @@ index c147732..43c489b 100644
 -        source.onopen = handleOnline;
 -        source.onerror = handleDisconnect;
 -        source.onmessage = handleMessage;
-+	try {
++        try {
 +            source = new window.WebSocket(`${url}${options.path}`);
 +            source.onopen = handleOnline;
 +            source.onerror = handleDisconnect;
 +            source.onmessage = handleMessage;
-+	} catch (e) {
-+	    console.warn("Cannot create a websocket", e);
-+	    source = null;
-+	}
++        } catch (e) {
++            console.warn("Cannot create a websocket", e);
++            source = null;
++        }
      }
-     function handleOnline() {
-         if (options.log) console.log('[HMR] connected');
+     init();
+ }

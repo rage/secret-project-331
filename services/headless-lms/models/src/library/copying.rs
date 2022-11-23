@@ -30,7 +30,7 @@ pub async fn copy_course(
     let course_language_group_id = if same_language_group {
         parent_course.course_language_group_id
     } else {
-        course_language_groups::insert(&mut tx).await?
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?
     };
 
     // Create new course.
@@ -131,8 +131,8 @@ WHERE id = $2;
     // Create default instance for copied course.
     course_instances::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         NewCourseInstance {
-            id: Uuid::new_v4(),
             course_id: copied_course.id,
             name: None,
             description: None,
@@ -400,6 +400,7 @@ WHERE course_id = $2
     Ok(())
 }
 
+/// After this one `set_chapter_front_pages` needs to be called to get these to point to the correct front pages.
 async fn copy_course_chapters(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
@@ -465,7 +466,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE course_id = $2
@@ -524,7 +525,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE exam_id = $2
@@ -771,15 +772,24 @@ mod tests {
                 .await
                 .unwrap();
             let mut original_pages_by_id: HashMap<Uuid, Page> =
-                crate::pages::course_pages(tx.as_mut(), course.id)
-                    .await
-                    .unwrap()
-                    .into_iter()
-                    .map(|page| (page.id, page))
-                    .collect();
-            let copied_pages = crate::pages::course_pages(tx.as_mut(), copied_course.id)
+                crate::pages::get_all_by_course_id_and_visibility(
+                    tx.as_mut(),
+                    course.id,
+                    crate::pages::PageVisibility::Any,
+                )
                 .await
-                .unwrap();
+                .unwrap()
+                .into_iter()
+                .map(|page| (page.id, page))
+                .collect();
+            assert_eq!(original_pages_by_id.len(), 3);
+            let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                crate::pages::PageVisibility::Any,
+            )
+            .await
+            .unwrap();
             // Creating a course and a chapter both lead to an additional page being created.
             assert_eq!(copied_pages.len(), 3);
             copied_pages.into_iter().for_each(|copied_page| {
@@ -816,9 +826,13 @@ mod tests {
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
-            let copied_pages = crate::pages::course_pages(tx.as_mut(), copied_course.id)
-                .await
-                .unwrap();
+            let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                crate::pages::PageVisibility::Any,
+            )
+            .await
+            .unwrap();
             let copied_page = copied_pages
                 .into_iter()
                 .find(|copied_page| copied_page.copied_from == Some(page))
@@ -868,7 +882,17 @@ mod tests {
                 .unwrap();
             assert_eq!(copied_tasks.len(), 1);
             let copied_task = copied_tasks.first().unwrap();
-            assert_eq!(copied_task.copied_from, Some(task))
+            assert_eq!(copied_task.copied_from, Some(task));
+
+            // Make sure we don't have the bug where the chapter id pointed to the old chapter in the exercises.
+            let original_course_chapters = crate::chapters::course_chapters(tx.as_mut(), course.id)
+                .await
+                .unwrap();
+            for original_chapter in original_course_chapters {
+                for copied_exercise in &copied_exercises {
+                    assert_ne!(original_chapter.id, copied_exercise.id);
+                }
+            }
         }
 
         fn create_new_course(organization_id: Uuid) -> NewCourse {

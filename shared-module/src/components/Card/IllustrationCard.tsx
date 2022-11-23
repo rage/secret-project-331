@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { headingFont, typography } from "../../styles"
+import { baseTheme, headingFont } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -29,30 +29,17 @@ const CardContentWrapper = styled.div`
   height: 100%;
   text-align: left;
   flex-direction: column;
-  word-break: break-all;
+  overflow-wrap: break-word;
   ${BackgroundStyles}
 
   h2 {
-    font-size: /* ${typography.h3} */ 1.8rem;
-    font-weight: 400;
+    font-weight: 600;
     z-index: 20;
     line-height: 1.2;
-    color: #fff;
+    color: ${baseTheme.colors.grey[700]};
     margin-top: 5px;
-  }
-
-  span {
-    color: #333;
-    font-size: 0.8rem;
-    z-index: 20;
-    font-weight: 800;
-    width: 50%;
-    line-height: 3em;
-    background-color: #f9f9f9;
-    padding: 0.2rem 0.2rem 0.1rem;
-  }
-  ${respondToOrLarger.lg} {
-    word-break: normal;
+    font-size: clamp(26px, 2.2vw, 30px);
+    opacity: 0.9;
   }
 `
 
@@ -76,8 +63,9 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
         border-radius: 1px;
         position: relative;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        background: #48cfad;
+        background: #f2f2f2;
         aspect-ratio: 1/1;
+        padding: 10px;
       `}
     >
       <CardContentWrapper bg={bg}>
@@ -85,46 +73,61 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
         <div
           className={css`
             width: 100%;
-            height: 345.6px;
+            height: 370.6px;
             ${backgroundImage &&
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
+              background: ${bg};
               background-position: center center;
               background-size: contain;
-              background-color: #f2f2f2;`}
+              background: ${bg};
+              `}
           `}
         ></div>
         <div
           className={css`
             flex: 1 1 auto;
-            padding: 2rem;
-            background: ${bg};
-            height: 200px;
+            padding: 1rem;
+            position: relative;
+            background: #fff;
+
+            ${respondToOrLarger.md} {
+              padding: 2rem 2rem;
+            }
           `}
         >
           <div
             className={css`
-              display: flex;
-              flex-direction: column;
-              height: 100%;
+              position: absolute;
+              top: -15px;
+              left: 10px;
+              ${respondToOrLarger.md} {
+                left: 30px;
+              }
             `}
           >
-            <div
+            <span
               className={css`
-                /* margin-top: auto; */
+                font-family: ${headingFont};
+                min-width: 18px;
+                font-weight: 500;
+                color: ${baseTheme.colors.blue[600]} !important;
+                background: #edf1f4;
+                border: 3px solid #fff;
+                border-radius: 20px;
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem 0.3rem 0.6rem;
+
+                ${respondToOrLarger.md} {
+                  font-size: 0.9rem;
+                }
               `}
             >
-              <span
-                className={css`
-                  text-transform: uppercase;
-                  font-family: ${headingFont};
-                `}
-              >
-                {t("chapter-chapter-number", { number: chapterNumber })}
-              </span>
-              <h2>{title}</h2>
-            </div>
+              {t("chapter-chapter-number", { number: chapterNumber })}
+            </span>
           </div>
+
+          <h2>{title}</h2>
         </div>
       </CardContentWrapper>
     </div>

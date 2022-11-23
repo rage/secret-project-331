@@ -39,7 +39,6 @@ pub struct CourseInstanceForm {
 
 #[derive(Debug, Clone, Copy)]
 pub struct NewCourseInstance<'a> {
-    pub id: Uuid,
     pub course_id: Uuid,
     pub name: Option<&'a str>,
     pub description: Option<&'a str>,
@@ -52,6 +51,7 @@ pub struct NewCourseInstance<'a> {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_course_instance: NewCourseInstance<'_>,
 ) -> ModelResult<CourseInstance> {
     let course_instance = sqlx::query_as!(
@@ -80,7 +80,7 @@ RETURNING id,
   teacher_in_charge_email,
   support_email
 "#,
-        new_course_instance.id,
+        pkey_policy.into_uuid(),
         new_course_instance.course_id,
         new_course_instance.name,
         new_course_instance.description,
@@ -121,6 +121,26 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(course_instance)
+}
+
+pub async fn get_default_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseInstance> {
+    let res = sqlx::query_as!(
+        CourseInstance,
+        "
+SELECT *
+FROM course_instances
+WHERE course_id = $1
+  AND name IS NULL
+  AND deleted_at IS NULL
+    ",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_organization_id(
@@ -319,6 +339,7 @@ SELECT user_id,
   score_given
 FROM user_exercise_states
 WHERE course_instance_id = $1
+AND deleted_at IS NULL
 ORDER BY user_id ASC
 ",
         instance_id,
@@ -455,7 +476,6 @@ mod test {
         let mut tx1 = tx.begin().await;
         // courses always have a default instance with no name, so this should fail
         let mut instance = NewCourseInstance {
-            id: Uuid::new_v4(),
             course_id,
             name: None,
             description: None,
@@ -465,12 +485,16 @@ mod test {
             opening_time: None,
             closing_time: None,
         };
-        insert(tx1.as_mut(), instance).await.unwrap_err();
+        insert(tx1.as_mut(), PKeyPolicy::Generate, instance)
+            .await
+            .unwrap_err();
         tx1.rollback().await;
 
         let mut tx2 = tx.begin().await;
         // after we give it a name, it should be ok
         instance.name = Some("name");
-        insert(tx2.as_mut(), instance).await.unwrap();
+        insert(tx2.as_mut(), PKeyPolicy::Generate, instance)
+            .await
+            .unwrap();
     }
 }

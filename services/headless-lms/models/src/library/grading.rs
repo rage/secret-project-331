@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
+use futures::future::BoxFuture;
+use url::Url;
+
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
@@ -145,6 +149,7 @@ pub async fn create_user_exercise_slide_submission(
             })?;
         let submission_id = exercise_task_submissions::insert(
             &mut tx,
+            PKeyPolicy::Generate,
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,
@@ -220,6 +225,12 @@ pub async fn grade_user_submission(
     exercise_with_user_state: &mut ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    send_grading_request: impl Fn(
+        Url,
+        &ExerciseTask,
+        &ExerciseTaskSubmission,
+    ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
 ) -> ModelResult<StudentExerciseSlideSubmissionResult> {
     let mut tx = conn.begin().await?;
 
@@ -247,6 +258,8 @@ pub async fn grade_user_submission(
                     &task_submission,
                     exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
+                    &fetch_service_info,
+                    &send_grading_request,
                 )
                 .await?;
                 results.push(submission);
@@ -304,6 +317,12 @@ async fn grade_user_submission_task(
     submission: &ExerciseTaskSubmission,
     exercise: &Exercise,
     user_exercise_slide_state_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    send_grading_request: impl Fn(
+        Url,
+        &ExerciseTask,
+        &ExerciseTaskSubmission,
+    ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
 ) -> ModelResult<StudentExerciseTaskSubmissionResult> {
     let grading = exercise_task_gradings::new_grading(conn, exercise, submission).await?;
     let updated_submission =
@@ -316,6 +335,8 @@ async fn grade_user_submission_task(
         &exercise_task,
         exercise,
         &grading,
+        fetch_service_info,
+        send_grading_request,
     )
     .await?;
     user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state_id, &grading)

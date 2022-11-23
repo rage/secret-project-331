@@ -38,6 +38,7 @@ const LinearProgressFill = styled.div<LinearProgressFillProps>`
   top: 0;
   left: 0;
   transition: 1.5s ease-in-out;
+  border-radius: 50px;
   width: ${(props) => props.percentage}%;
   background: ${(props) =>
     props.light ? baseTheme.colors.green[100] : baseTheme.colors.green[600]};
@@ -58,7 +59,7 @@ const Label = styled.div`
 
   span:first-of-type {
     font-size: 0.8em;
-    font-weight: 600;
+    font-weight: 500;
     font-family: ${headingFont};
     color: #313947;
   }
@@ -100,6 +101,7 @@ const ProgressBar: React.FC<
           align-items: center;
           justify-content: center;
           flex-direction: column;
+          text-transform: lowercase;
         `}
       >
         {label && (

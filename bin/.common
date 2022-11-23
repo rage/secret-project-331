@@ -4,6 +4,7 @@ set -euo pipefail
 
 export BLUE='\033[0;34m'
 export RED='\033[0;31m'
+export GREEN='\033[0;32m'
 export BOLD='\e[1m'
 export RESET_EVERYTHING='\e[0m'
 
@@ -31,6 +32,7 @@ function ensure_program_in_path() {
 }
 
 function ensure_common_programs_in_path() {
+  ensure_program_in_path bc
   ensure_program_in_path jq
   ensure_program_in_path find
   ensure_program_in_path sponge
@@ -52,7 +54,7 @@ function enforce_inotify_watches_limit_sufficient() {
 function check_minikube_version() {
   # just to be sure
   ensure_program_in_path minikube
-  MINIKUBE_VERSION_STRING=$(minikube version | grep -oP '\d+\.\d+\.\d+')
+  MINIKUBE_VERSION_STRING=$(minikube version | grep 'version' | cut -d ' ' -f 3 | cut -d 'v' -f 2)
   MINIKUBE_VERSION_MAJOR=$(echo "$MINIKUBE_VERSION_STRING" | cut -d . -f 1)
   MINIKUBE_VERSION_MINOR=$(echo "$MINIKUBE_VERSION_STRING" | cut -d . -f 2)
   MINIKUBE_VERSION_PATCH=$(echo "$MINIKUBE_VERSION_STRING" | cut -d . -f 3)
@@ -69,5 +71,30 @@ function check_minikube_version() {
 
 function fail_minikube_version() {
   echo "Please run bin/minikube-delete and after that upgrade minikube to its latest version."
+  exit 255
+}
+
+function check_sqlx_cli_version() {
+  # just to be sure
+  MINIMUM_ACCEPTABLE_VERSION="0.6.2"
+  ensure_program_in_path cargo
+  ensure_program_in_path cargo-sqlx
+  SQLX=$(cargo sqlx --version | cut -d ' ' -f 2)
+  SQLX_VERSION_MAJOR=$(echo "$SQLX" | cut -d . -f 1)
+  SQLX_VERSION_MINOR=$(echo "$SQLX" | cut -d . -f 2)
+  SQLX_VERSION_PATCH=$(echo "$SQLX" | cut -d . -f 3)
+  if [ "$SQLX_VERSION_MAJOR" -lt "0" ]; then
+    fail_sqlx_cli_version "$SQLX" "$MINIMUM_ACCEPTABLE_VERSION"
+  fi
+  if [ "$SQLX_VERSION_MAJOR" -lt "1" ] && [ "$SQLX_VERSION_MINOR" -lt "6" ]; then
+    fail_sqlx_cli_version "$SQLX" "$MINIMUM_ACCEPTABLE_VERSION"
+  fi
+  if [ "$SQLX_VERSION_MAJOR" -lt "1" ] && [ "$SQLX_VERSION_MINOR" -lt "7" ] && [ "$SQLX_VERSION_PATCH" -lt "2" ]; then
+    fail_sqlx_cli_version "$SQLX" "$MINIMUM_ACCEPTABLE_VERSION"
+  fi
+}
+
+function fail_sqlx_cli_version() {
+  echo "Your sqlx-cli needs to be updated. Minimum acceptable version: $2, installed: $1. Please run: cargo install sqlx-cli --force"
   exit 255
 }

@@ -68,6 +68,7 @@ SELECT id,
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
+AND deleted_at IS NULL
 ",
         id
     )
@@ -120,8 +121,8 @@ pub struct ExamInstructionsUpdate {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     exam: &NewExam,
-    seed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -134,10 +135,10 @@ INSERT INTO exams (
     time_minutes,
     organization_id
   )
-VALUES (COALESCE($1, uuid_generate_v4()), $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
-",
-        seed_id,
+        ",
+        pkey_policy.into_uuid(),
         exam.name,
         serde_json::Value::Array(vec![]),
         exam.starts_at,
@@ -347,6 +348,7 @@ SELECT user_id,
 FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
+  AND deleted_at IS NULL
 ",
         exam_id,
         user_id

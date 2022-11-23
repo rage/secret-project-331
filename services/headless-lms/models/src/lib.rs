@@ -4,6 +4,8 @@ Functions and structs for interacting with the database.
 Each submodule corresponds to a database table.
 */
 pub mod chapters;
+pub mod course_background_question_answers;
+pub mod course_background_questions;
 pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
@@ -39,6 +41,7 @@ pub mod peer_review_question_submissions;
 pub mod peer_review_questions;
 pub mod peer_review_queue_entries;
 pub mod peer_review_submissions;
+pub mod pending_roles;
 pub mod playground_examples;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
@@ -66,6 +69,151 @@ use crate::prelude::*;
 
 #[macro_use]
 extern crate tracing;
+
+/**
+Helper struct to use with functions that insert data into the database.
+
+## Examples
+
+### Usage when inserting to a database
+
+By calling `.into_uuid()` function implemented by `PKeyPolicy<Uuid>`, this enum can be used with
+SQLX queries while letting the caller dictate how the primary key should be decided.
+
+```no_run
+# use headless_lms_models::{ModelResult, PKeyPolicy};
+# use uuid::Uuid;
+# use sqlx::PgConnection;
+async fn insert(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "INSERT INTO organizations (id) VALUES ($1) RETURNING id",
+        pkey_policy.into_uuid(),
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
+# async fn random_function(conn: &mut PgConnection) -> ModelResult<()> {
+// Insert using generated id.
+let foo_1_id = insert(conn, PKeyPolicy::Generate).await.unwrap();
+
+// Insert using fixed id.
+let uuid = Uuid::parse_str("8fce44cf-738e-4fc9-8d8e-47c350fd3a7f").unwrap();
+let foo_2_id = insert(conn, PKeyPolicy::Fixed(uuid)).await.unwrap();
+assert_eq!(foo_2_id, uuid);
+# Ok(())
+# }
+```
+
+### Usage in a higher-order function.
+
+When `PKeyPolicy` is used with a higher-order function, an arbitrary struct can be provided
+instead. The data can be mapped further by calling the `.map()` or `.map_ref()` methods.
+
+```no_run
+# use headless_lms_models::{ModelResult, PKeyPolicy};
+# use uuid::Uuid;
+# use sqlx::PgConnection;
+# mod foos {
+#   use headless_lms_models::{ModelResult, PKeyPolicy};
+#   use uuid::Uuid;
+#   use sqlx::PgConnection;
+#   pub async fn insert(conn: &mut PgConnection, pkey_policy: PKeyPolicy<Uuid>) -> ModelResult<()> {
+#       Ok(())
+#   }
+# }
+# mod bars {
+#   use headless_lms_models::{ModelResult, PKeyPolicy};
+#   use uuid::Uuid;
+#   use sqlx::PgConnection;
+#   pub async fn insert(conn: &mut PgConnection, pkey_policy: PKeyPolicy<Uuid>) -> ModelResult<()> {
+#       Ok(())
+#   }
+# }
+
+struct FooBar {
+    foo: Uuid,
+    bar: Uuid,
+}
+
+async fn multiple_inserts(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<FooBar>,
+) -> ModelResult<()> {
+    foos::insert(conn, pkey_policy.map_ref(|x| x.foo)).await?;
+    bars::insert(conn, pkey_policy.map_ref(|x| x.bar)).await?;
+    Ok(())
+}
+
+# async fn some_function(conn: &mut PgConnection) {
+// Insert using generated ids.
+assert!(multiple_inserts(conn, PKeyPolicy::Generate).await.is_ok());
+
+// Insert using fixed ids.
+let foobar = FooBar {
+    foo: Uuid::parse_str("52760668-cc9d-4144-9226-d2aacb83bea9").unwrap(),
+    bar: Uuid::parse_str("ce9bd0cd-0e66-4522-a1b4-52a9347a115c").unwrap(),
+};
+assert!(multiple_inserts(conn, PKeyPolicy::Fixed(foobar)).await.is_ok());
+# }
+```
+*/
+pub enum PKeyPolicy<T> {
+    /// Ids will be generated based on the associated data. Usually only used in
+    /// local test environments where reproducible database states are desired.
+    Fixed(T),
+    /// Ids will be generated on the database level. This should be the default
+    /// behavior.
+    Generate,
+}
+
+impl<T> PKeyPolicy<T> {
+    /// Gets reference to the fixed data, if there are any.
+    pub fn fixed(&self) -> Option<&T> {
+        match self {
+            PKeyPolicy::Fixed(t) => Some(t),
+            PKeyPolicy::Generate => None,
+        }
+    }
+
+    /// Maps `PKeyPolicy<T>` to `PKeyPolicy<U>` by applying a function to the contained value.
+    pub fn map<U, F>(self, f: F) -> PKeyPolicy<U>
+    where
+        F: FnOnce(T) -> U,
+    {
+        match self {
+            PKeyPolicy::Fixed(x) => PKeyPolicy::Fixed(f(x)),
+            PKeyPolicy::Generate => PKeyPolicy::Generate,
+        }
+    }
+
+    /// Maps a reference of contained data in `Fixed(T)` to `PKeyPolicy<U>` by applying a function
+    /// to the contained value. This is useful whenever a referenced value can be used instead of
+    /// having to consume the original value.
+    pub fn map_ref<U, F>(&self, f: F) -> PKeyPolicy<U>
+    where
+        F: FnOnce(&T) -> U,
+    {
+        match self {
+            PKeyPolicy::Fixed(x) => PKeyPolicy::Fixed(f(x)),
+            PKeyPolicy::Generate => PKeyPolicy::Generate,
+        }
+    }
+}
+
+impl PKeyPolicy<Uuid> {
+    /// Maps into the contained `Uuid` value or generates a new one.
+    pub fn into_uuid(self) -> Uuid {
+        match self {
+            PKeyPolicy::Fixed(uuid) => uuid,
+            PKeyPolicy::Generate => Uuid::new_v4(),
+        }
+    }
+}
 
 /// Many database tables are related to either a course or an exam
 #[derive(Clone, Copy)]

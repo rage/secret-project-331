@@ -1,9 +1,6 @@
-use std::{
-    collections::{hash_map, HashMap},
-    time::Duration,
-};
+use std::collections::{hash_map, HashMap};
 
-use futures::future::OptionFuture;
+use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
     contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
 };
@@ -17,7 +14,7 @@ use crate::{
     },
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
-    exercise_service_info,
+    exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
     exercise_tasks::ExerciseTask,
@@ -46,6 +43,7 @@ pub struct Page {
     pub content: serde_json::Value,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+    pub hidden: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -209,12 +207,50 @@ pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewCoursePage<'a> {
+    pub content: Vec<GutenbergBlock>,
+    pub course_id: Uuid,
+    pub order_number: i32,
+    pub title: &'a str,
+    pub hidden: bool,
+    pub url_path: &'a str,
+}
+
+impl<'a> NewCoursePage<'a> {
+    /// Creates `NewCoursePage` with provided values that is public by default.
+    pub fn new(course_id: Uuid, order_number: i32, url_path: &'a str, title: &'a str) -> Self {
+        Self {
+            content: Default::default(),
+            course_id,
+            order_number,
+            title,
+            hidden: false,
+            url_path,
+        }
+    }
+
+    /// Creates a new `NewCoursePage` for the same course as this one and increments the page number.
+    pub fn followed_by(&self, url_path: &'a str, title: &'a str) -> Self {
+        Self::new(self.course_id, self.order_number + 1, url_path, title)
+    }
+
+    /// Sets the content of this page.
+    pub fn set_content(mut self, content: Vec<GutenbergBlock>) -> Self {
+        self.content = content;
+        self
+    }
+
+    /// Sets the hidden status of this page.
+    pub fn set_hidden(mut self, hidden: bool) -> Self {
+        self.hidden = hidden;
+        self
+    }
+}
+
 pub async fn insert_course_page(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    url_path: &str,
-    title: &str,
-    order_number: i32,
+    new_course_page: &NewCoursePage<'_>,
     author: Uuid,
 ) -> ModelResult<(Uuid, Uuid)> {
     let mut tx = conn.begin().await?;
@@ -225,23 +261,26 @@ INSERT INTO pages (
     content,
     url_path,
     title,
-    order_number
+    order_number,
+    hidden
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
-        course_id,
-        serde_json::Value::Array(vec![]),
-        url_path,
-        title,
-        order_number
+        new_course_page.course_id,
+        serde_json::to_value(new_course_page.content.clone())?,
+        new_course_page.url_path,
+        new_course_page.title,
+        new_course_page.order_number,
+        new_course_page.hidden,
     )
     .fetch_one(&mut tx)
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_res.id,
-        title,
+        new_course_page.title,
         &PageHistoryContent {
             content: serde_json::Value::Array(vec![]),
             exercises: vec![],
@@ -289,6 +328,7 @@ RETURNING id
 
     let history_id = crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
@@ -341,7 +381,99 @@ WHERE id = $1
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
+pub enum PageVisibility {
+    Any,
+    Public,
+    Hidden,
+}
+
+impl PageVisibility {
+    /// Hacky way to implement a nullable boolean filter. Based on the idea that
+    /// `null IS DISTINCT FROM anything` in PostgreSQL.
+    ///
+    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use headless_lms_models::{ModelResult, pages::PageVisibility};
+    /// # use sqlx::PgConnection;
+    /// # async fn random_function_1(conn: &mut PgConnection) -> ModelResult<()> {
+    /// // Evaluates to "hidden <> NULL"
+    /// let visibility = PageVisibility::Any;
+    /// sqlx::query!(
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
+    ///     visibility.get_inverse_visibility_filter(),
+    /// )
+    /// .fetch_all(conn)
+    /// .await?;
+    /// # Ok(())
+    /// # }
+    ///
+    /// # async fn random_function_2(conn: &mut PgConnection) -> ModelResult<()> {
+    /// // Evaluates to "hidden <> true"
+    /// let visibility = PageVisibility::Public;
+    /// sqlx::query!(
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
+    ///     visibility.get_inverse_visibility_filter(),
+    /// )
+    /// .fetch_all(conn)
+    /// .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn get_inverse_visibility_filter(&self) -> Option<bool> {
+        match self {
+            PageVisibility::Any => None,
+            PageVisibility::Public => Some(true),
+            PageVisibility::Hidden => Some(false),
+        }
+    }
+}
+
+/// Gets all pages that belong to the given course that match the visibility filter.
+pub async fn get_all_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
+    let res = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from,
+  hidden
+FROM pages
+WHERE course_id = $1
+  AND hidden IS DISTINCT FROM $2
+  AND deleted_at IS NULL
+    ",
+        course_id,
+        inverse_visibility_filter,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets all pages that belong to the given course but not in any chapter.
+pub async fn get_course_top_level_pages_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let pages = sqlx::query_as!(
         Page,
         "
@@ -356,20 +488,30 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
-FROM pages
+  copied_from,
+  hidden
+FROM pages p
 WHERE course_id = $1
-  AND deleted_at IS NULL;
+  AND hidden IS DISTINCT FROM $2
+  AND p.chapter_id IS NULL
+  AND p.deleted_at IS NULL
         ",
-        course_id
+        course_id,
+        inverse_visibility_filter,
     )
     .fetch_all(conn)
     .await?;
     Ok(pages)
 }
 
-pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
+/// Gets all pages that belong to the given chapter that match the visibility filter.
+pub async fn get_course_pages_by_chapter_id_and_visibility(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
+    let res = sqlx::query_as!(
         Page,
         "
 SELECT id,
@@ -383,16 +525,19 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages
 WHERE chapter_id = $1
-  AND deleted_at IS NULL;
-        ",
-        chapter_id
+  AND hidden IS DISTINCT FROM $2
+  AND deleted_at IS NULL
+    ",
+        chapter_id,
+        inverse_visibility_filter,
     )
     .fetch_all(conn)
     .await?;
-    Ok(pages)
+    Ok(res)
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
@@ -410,7 +555,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages
 WHERE id = $1;
 ",
@@ -466,7 +612,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.hidden
 FROM pages
 WHERE pages.course_id = $1
   AND url_path = $2
@@ -539,7 +686,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.hidden
 FROM url_redirections
   JOIN pages on pages.id = url_redirections.destination_page_id
 WHERE url_redirections.course_id = $1
@@ -670,6 +818,7 @@ pub async fn get_page_with_exercises(
     })
 }
 
+/// Gets the page that belongs to the given exam. For exams, the page visibility is ignored.
 pub async fn get_by_exam_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Page> {
     let res = sqlx::query_as!(
         Page,
@@ -685,7 +834,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.hidden
 FROM pages
 WHERE exam_id = $1
 AND pages.deleted_at IS NULL
@@ -847,20 +997,31 @@ impl CmsPageUpdate {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct PageUpdateArgs {
+    pub page_id: Uuid,
+    pub author: Uuid,
+    pub cms_page_update: CmsPageUpdate,
+    pub retain_ids: bool,
+    pub history_change_reason: HistoryChangeReason,
+    pub is_exam_page: bool,
+}
+
 pub async fn update_page(
     conn: &mut PgConnection,
-    page_id: Uuid,
-    page_update: CmsPageUpdate,
-    author: Uuid,
-    retain_ids: bool,
-    history_change_reason: HistoryChangeReason,
-    is_exam_page: bool,
+    page_update: PageUpdateArgs,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
-    page_update.validate_exercise_data()?;
+    let cms_page_update = page_update.cms_page_update;
+    cms_page_update.validate_exercise_data()?;
 
-    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
-    if !is_exam_page
-        && page_update.chapter_id.is_none()
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
+    if !page_update.is_exam_page
+        && cms_page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
         return Err(ModelError::new(
@@ -891,13 +1052,14 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  pages.hidden
         ",
-        page_id,
+        page_update.page_id,
         serde_json::to_value(parsed_content)?,
-        page_update.url_path.trim(),
-        page_update.title.trim(),
-        page_update.chapter_id
+        cms_page_update.url_path.trim(),
+        cms_page_update.title.trim(),
+        cms_page_update.chapter_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -909,8 +1071,8 @@ RETURNING id,
         &mut tx,
         &page,
         &existing_exercise_ids,
-        &page_update.exercises,
-        retain_ids,
+        &cms_page_update.exercises,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -925,8 +1087,8 @@ RETURNING id,
         &mut tx,
         &remapped_exercises,
         &existing_exercise_slide_ids,
-        &page_update.exercise_slides,
-        retain_ids,
+        &cms_page_update.exercise_slides,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -938,9 +1100,10 @@ RETURNING id,
         )
         .await?;
 
-    let (peer_reviews, peer_review_questions) = page_update
+    let (peer_review_configs, peer_review_questions) = cms_page_update
         .exercises
         .into_iter()
+        .filter(|e| !e.use_course_default_peer_review_config)
         .flat_map(|e| e.peer_review_config.zip(e.peer_review_questions))
         .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
             a.push(pr);
@@ -951,8 +1114,9 @@ RETURNING id,
     let remapped_peer_review_configs = upsert_peer_review_configs(
         &mut tx,
         &existing_peer_review_config_ids,
-        &peer_reviews,
-        retain_ids,
+        &peer_review_configs,
+        &remapped_exercises,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -969,7 +1133,7 @@ RETURNING id,
         &existing_peer_review_questions,
         &peer_review_questions,
         &remapped_peer_review_configs,
-        retain_ids,
+        page_update.retain_ids,
     )
     .await?;
 
@@ -980,6 +1144,7 @@ RETURNING id,
 UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
+AND deleted_at IS NULL
 RETURNING id,
   private_spec,
   public_spec,
@@ -993,8 +1158,10 @@ RETURNING id,
         &mut tx,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
-        &page_update.exercise_tasks,
-        retain_ids,
+        &cms_page_update.exercise_tasks,
+        page_update.retain_ids,
+        &spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -1024,7 +1191,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from;
+  copied_from,
+  hidden
         ",
         new_content,
         page.id
@@ -1069,11 +1237,12 @@ RETURNING id,
     };
     crate::page_history::insert(
         &mut tx,
-        page_id,
-        &page_update.title,
+        PKeyPolicy::Generate,
+        page_update.page_id,
+        &cms_page_update.title,
         &history_content,
-        history_change_reason,
-        author,
+        page_update.history_change_reason,
+        page_update.author,
         None,
     )
     .await?;
@@ -1241,17 +1410,24 @@ async fn upsert_exercise_tasks(
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
     // For generating public specs for exercises.
-    let client = reqwest::Client::new();
     let exercise_types: Vec<String> = task_updates
         .iter()
         .map(|task| task.exercise_type.clone())
         .unique()
         .collect();
-    let exercise_service_hashmap =
-        exercise_service_info::get_selected_exercise_services_by_type(&mut *conn, &exercise_types)
-            .await?;
+    let exercise_service_hashmap = exercise_service_info::get_selected_exercise_services_by_type(
+        &mut *conn,
+        &exercise_types,
+        fetch_service_info,
+    )
+    .await?;
     let public_spec_urls_by_exercise_type = exercise_service_hashmap
         .iter()
         .map(|(key, (service, info))| Ok((key, get_internal_public_spec_url(service, info)?)))
@@ -1288,7 +1464,7 @@ async fn upsert_exercise_tasks(
             existing_exercise_task,
             &normalized_task,
             &model_solution_urls_by_exercise_type,
-            &client,
+            &spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
         )
@@ -1297,7 +1473,7 @@ async fn upsert_exercise_tasks(
             existing_exercise_task,
             &normalized_task,
             &public_spec_urls_by_exercise_type,
-            &client,
+            &spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
         )
@@ -1364,6 +1540,7 @@ pub async fn upsert_peer_review_configs(
     conn: &mut PgConnection,
     existing_peer_reviews: &[Uuid],
     peer_reviews: &[CmsPeerReviewConfig],
+    remapped_exercises: &HashMap<Uuid, Exercise>,
     retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReviewConfig>> {
     if peer_reviews.is_empty() {
@@ -1384,6 +1561,9 @@ pub async fn upsert_peer_review_configs(
       ) ",
         );
 
+        // No way to return from push_values, we can use this to detect an error after the push_values
+        let mut illegal_exercise_id = None;
+
         sql.push_values(peer_reviews.iter().take(1000), |mut x, pr| {
             let peer_review_exists = existing_peer_reviews.iter().any(|id| *id == pr.id);
             let safe_for_db_peer_review_config_id = if retain_ids || peer_review_exists {
@@ -1392,15 +1572,33 @@ pub async fn upsert_peer_review_configs(
                 Uuid::new_v4()
             };
             new_peer_review_config_id_to_old_id.insert(safe_for_db_peer_review_config_id, pr.id);
+
+            let safe_for_db_exercise_id = pr.exercise_id.and_then(|id| {
+                let res = remapped_exercises.get(&id).map(|e| e.id);
+                if res.is_none() {
+                    error!("Illegal exercise id {:?}", id);
+                    illegal_exercise_id = Some(id);
+                }
+                res
+            });
+
             x.push_bind(safe_for_db_peer_review_config_id)
                 .push_bind(pr.course_id)
-                .push_bind(pr.exercise_id)
+                .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
                 .push_bind(pr.accepting_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push("NULL");
         });
+
+        if let Some(illegal_exercise_id) = illegal_exercise_id {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Illegal exercise id {:?}", illegal_exercise_id),
+                None,
+            ));
+        }
 
         sql.push(
             " ON CONFLICT (id) DO
@@ -1622,7 +1820,10 @@ async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
     urls_by_exercise_type: &HashMap<&String, Url>,
-    client: &reqwest::Client,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
 ) -> Result<Option<serde_json::Value>, ModelError> {
@@ -1645,21 +1846,8 @@ async fn fetch_derived_spec(
                     )
                 })?
                 .clone();
-            let res = client
-                .post(url)
-                .timeout(Duration::from_secs(120))
-                .json(&task_update.private_spec)
-                .send()
-                .await?;
-            if !res.status().is_success() {
-                let error = res.text().await.unwrap_or_default();
-                return Err(ModelError::new(
-                    ModelErrorType::Generic,
-                    format!("Failed to generate spec for exercise: {}.", error,),
-                    None,
-                ));
-            }
-            Some(res.json::<serde_json::Value>().await?)
+            let res = spec_fetcher(url, task_update.private_spec.as_ref()).await?;
+            Some(res)
         }
     };
     Ok(result_spec)
@@ -1669,6 +1857,11 @@ pub async fn insert_new_content_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     user: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
 
@@ -1690,7 +1883,14 @@ pub async fn insert_new_content_page(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = crate::pages::insert_page(&mut tx, content_page, user).await?;
+    let page = crate::pages::insert_page(
+        &mut tx,
+        content_page,
+        user,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await?;
 
     tx.commit().await?;
     Ok(page)
@@ -1700,6 +1900,11 @@ pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     author: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let next_order_number = match (new_page.chapter_id, new_page.course_id) {
         (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
@@ -1746,7 +1951,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  pages.hidden
           "#,
         new_page.course_id,
         new_page.exam_id,
@@ -1762,20 +1968,24 @@ RETURNING id,
 
     let cms_page = update_page(
         &mut tx,
-        page.id,
-        CmsPageUpdate {
-            content: page.content,
-            exercises: new_page.exercises,
-            exercise_slides: new_page.exercise_slides,
-            exercise_tasks: new_page.exercise_tasks,
-            url_path: page.url_path,
-            title: page.title,
-            chapter_id: page.chapter_id,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: page.content,
+                exercises: new_page.exercises,
+                exercise_slides: new_page.exercise_slides,
+                exercise_tasks: new_page.exercise_tasks,
+                url_path: page.url_path,
+                title: page.title,
+                chapter_id: page.chapter_id,
+            },
+            retain_ids: false,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: new_page.exam_id.is_some(),
         },
-        author,
-        false,
-        HistoryChangeReason::PageSaved,
-        new_page.exam_id.is_some(),
+        spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -1810,6 +2020,7 @@ RETURNING *;
         order_number: page.order_number,
         chapter_id: page.chapter_id,
         copied_from: page.copied_from,
+        hidden: page.hidden,
     })
 }
 
@@ -1835,7 +2046,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
           "#,
         page_id,
     )
@@ -1847,6 +2059,7 @@ RETURNING id,
   UPDATE exercises
   SET deleted_at = now()
   WHERE page_id = $1
+  AND deleted_at IS NULL
           "#,
         page_id,
     )
@@ -1861,7 +2074,8 @@ WHERE exercise_id IN (
     SELECT id
     FROM exercises
     WHERE page_id = $1
-  );
+  )
+  AND deleted_at IS NULL;
         ",
         page.id
     )
@@ -1877,7 +2091,8 @@ WHERE exercise_slide_id IN (
     FROM exercise_slides s
       JOIN exercises e ON (s.exercise_id = e.id)
     WHERE e.page_id = $1
-  );
+  )
+  AND deleted_at IS NULL;
             "#,
         page.id
     )
@@ -1906,7 +2121,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -2286,7 +2502,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
@@ -2299,7 +2516,7 @@ WHERE p.chapter_id = $1
     Ok(pages)
 }
 
-pub async fn get_chapters_pages_exclude_main_frontpage(
+pub async fn get_chapters_visible_pages_exclude_main_frontpage(
     conn: &mut PgConnection,
     chapter_id: Uuid,
 ) -> ModelResult<Vec<Page>> {
@@ -2317,10 +2534,12 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
+  AND p.hidden IS FALSE
   AND p.id NOT IN (
     SELECT front_page_id
     FROM chapters c
@@ -2331,7 +2550,6 @@ WHERE p.chapter_id = $1
     )
     .fetch_all(conn)
     .await?;
-
     Ok(pages)
 }
 
@@ -2526,6 +2744,11 @@ pub async fn restore(
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
+    spec_fetcher: impl Fn(
+        Url,
+        Option<&serde_json::Value>,
+    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
     // fetch old content
     let page = get_page(conn, page_id).await?;
@@ -2533,20 +2756,24 @@ pub async fn restore(
 
     update_page(
         conn,
-        page.id,
-        CmsPageUpdate {
-            content: history_data.content.content,
-            exercises: history_data.content.exercises,
-            exercise_slides: history_data.content.exercise_slides,
-            exercise_tasks: history_data.content.exercise_tasks,
-            url_path: page.url_path,
-            title: history_data.title,
-            chapter_id: page.chapter_id,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: history_data.content.content,
+                exercises: history_data.content.exercises,
+                exercise_slides: history_data.content.exercise_slides,
+                exercise_tasks: history_data.content.exercise_tasks,
+                url_path: page.url_path,
+                title: history_data.title,
+                chapter_id: page.chapter_id,
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::HistoryRestored,
+            is_exam_page: history_data.exam_id.is_some(),
         },
-        author,
-        true,
-        HistoryChangeReason::HistoryRestored,
-        history_data.exam_id.is_some(),
+        spec_fetcher,
+        fetch_service_info,
     )
     .await?;
 
@@ -2606,7 +2833,8 @@ pub async fn reorder_pages(
     pages: &[Page],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_pages = course_pages(conn, course_id).await?;
+    let db_pages =
+        get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     for page in pages {
@@ -2863,6 +3091,7 @@ mod test {
 
         let new_exam_id = crate::exams::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             &NewExam {
                 name: "name".to_string(),
                 starts_at: None,
@@ -2870,7 +3099,6 @@ mod test {
                 time_minutes: 120,
                 organization_id: org,
             },
-            None,
         )
         .await
         .unwrap();
@@ -2890,6 +3118,8 @@ mod test {
                 content_search_language: None,
             },
             user,
+            |_, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap();
@@ -2941,12 +3171,12 @@ mod test {
         .is_ok());
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1])
+        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
             .validate_exercise_data()
             .is_err());
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![])
+        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
             .validate_exercise_data()
             .is_err());
     }
@@ -2969,13 +3199,16 @@ mod test {
 
     #[tokio::test]
     async fn page_upsert_peer_reviews_work() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise_id);
         let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
         let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
+        let exercise = crate::exercises::get_by_id(tx.as_mut(), exercise_id)
+            .await
+            .unwrap();
 
         let pr1 = CmsPeerReviewConfig {
             id:pr_id,
-            exercise_id: Some(exercise),
+            exercise_id: Some(exercise_id),
             course_id: course,
             accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
             accepting_threshold:0.5,
@@ -2990,9 +3223,12 @@ mod test {
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
         };
-        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], false)
-            .await
-            .unwrap();
+        let mut remapped_exercises = HashMap::new();
+        remapped_exercises.insert(exercise_id, exercise);
+        let pr_res =
+            upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], &remapped_exercises, false)
+                .await
+                .unwrap();
         let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[prq], &pr_res, false)
             .await
             .unwrap();
@@ -3004,12 +3240,15 @@ mod test {
 
     #[tokio::test]
     async fn page_upsert_peer_reviews_work_retain_ids() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page:_page, exercise:exercise);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise_id);
+        let exercise = crate::exercises::get_by_id(tx.as_mut(), exercise_id)
+            .await
+            .unwrap();
         let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
         let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
         let pr1 = CmsPeerReviewConfig {
             id:pr_id,
-            exercise_id: Some(exercise),
+            exercise_id: Some(exercise_id),
             course_id: course,
             accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
             accepting_threshold:0.5,
@@ -3024,9 +3263,12 @@ mod test {
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
         };
-        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], true)
-            .await
-            .unwrap();
+        let mut remapped_exercises = HashMap::new();
+        remapped_exercises.insert(exercise_id, exercise);
+        let pr_res =
+            upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], &remapped_exercises, true)
+                .await
+                .unwrap();
         let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[prq], &pr_res, true)
             .await
             .unwrap();
@@ -3040,9 +3282,13 @@ mod test {
 
     #[tokio::test]
     async fn page_upsert_peer_reviews_work_empty() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
-
-        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[], true)
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise_id);
+        let exercise = crate::exercises::get_by_id(tx.as_mut(), exercise_id)
+            .await
+            .unwrap();
+        let mut remapped_exercises = HashMap::new();
+        remapped_exercises.insert(exercise_id, exercise);
+        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[], &remapped_exercises, true)
             .await
             .unwrap();
         let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[], &pr_res, true)

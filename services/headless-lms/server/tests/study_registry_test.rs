@@ -3,9 +3,14 @@ use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
     course_module_completion_registered_to_study_registries::RegisteredCompletion,
-    course_module_completions::{NewCourseModuleCompletion, StudyRegistryCompletion},
+    course_module_completions::{
+        CourseModuleCompletionGranter, NewCourseModuleCompletion, StudyRegistryCompletion,
+    },
     courses::NewCourse,
+    library::content_management::CreateNewCourseFixedIds,
+    PKeyPolicy,
 };
+use headless_lms_server::domain::models_requests;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -36,9 +41,9 @@ async fn gets_and_registers_completions() {
     // With header and database entry
     headless_lms_models::study_registry_registrars::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("9d5aa77c-1c8c-4333-a3d2-1f328b9da87a").unwrap()),
         "Integration test",
         "integration-test-intentionally-public",
-        Some(Uuid::parse_str("9d5aa77c-1c8c-4333-a3d2-1f328b9da87a").unwrap()),
     )
     .await
     .unwrap();
@@ -100,54 +105,61 @@ async fn gets_and_registers_completions() {
 }
 
 async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
-    let user_1 = headless_lms_models::users::insert_with_id(
+    let user_1 = headless_lms_models::users::insert(
         conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap()),
         "user@example.com",
         None,
         None,
-        Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap(),
     )
     .await
     .unwrap();
-    let user_2 = headless_lms_models::users::insert_with_id(
+    let user_2 = headless_lms_models::users::insert(
         conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("934c6121-6e60-472f-b806-d0af058b8ce9").unwrap()),
         "user2@example.com",
         None,
         None,
-        Uuid::parse_str("934c6121-6e60-472f-b806-d0af058b8ce9").unwrap(),
     )
     .await
     .unwrap();
     let org = headless_lms_models::organizations::insert(
         conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("c0938ae7-9f5d-4646-b3ba-900068f72ba4").unwrap()),
         "",
         "stream-org",
         "",
-        Uuid::parse_str("c0938ae7-9f5d-4646-b3ba-900068f72ba4").unwrap(),
     )
     .await
     .unwrap();
-    let (course, _, instance, course_module) = headless_lms_models::courses::insert_course(
-        conn,
-        Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
-        Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3").unwrap(),
-        NewCourse {
-            name: "course".to_string(),
-            slug: "slug".to_string(),
-            organization_id: org,
-            language_code: "en-US".to_string(),
-            teacher_in_charge_name: "Teacher".to_string(),
-            teacher_in_charge_email: "teacher@email.com".to_string(),
-            description: "".to_string(),
-            is_draft: false,
-            is_test_mode: false,
-        },
-        user_1,
-    )
-    .await
-    .unwrap();
+    let (course, _, instance, course_module) =
+        headless_lms_models::library::content_management::create_new_course(
+            conn,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
+                default_course_instance_id: Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3")
+                    .unwrap(),
+            }),
+            NewCourse {
+                name: "course".to_string(),
+                slug: "slug".to_string(),
+                organization_id: org,
+                language_code: "en-US".to_string(),
+                teacher_in_charge_name: "Teacher".to_string(),
+                teacher_in_charge_email: "teacher@email.com".to_string(),
+                description: "".to_string(),
+                is_draft: false,
+                is_test_mode: false,
+            },
+            user_1,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
+        )
+        .await
+        .unwrap();
     let course_module_completion_id = headless_lms_models::course_module_completions::insert(
         conn,
+        PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
             course_id: course.id,
             course_instance_id: instance.id,
@@ -161,7 +173,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             grade: Some(4),
             passed: true,
         },
-        None,
+        CourseModuleCompletionGranter::Automatic,
     )
     .await
     .unwrap();
@@ -174,6 +186,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     .unwrap();
     let course_module_completion_2_id = headless_lms_models::course_module_completions::insert(
         conn,
+        PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
             course_id: course.id,
             course_instance_id: instance.id,
@@ -187,7 +200,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             grade: Some(3),
             passed: true,
         },
-        None,
+        CourseModuleCompletionGranter::Automatic,
     )
     .await
     .unwrap();

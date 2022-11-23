@@ -62,12 +62,13 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
       {!cannotAnswerButNoSubmission &&
         (url ? (
           <ExerciseTaskIframe
+            exerciseServiceSlug={exerciseTask.exercise_service_slug}
             postThisStateToIFrame={postThisStateToIFrame}
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
             title={t("exercise-task-content", {
-              "exercise-number": exerciseNumber,
-              "task-number": exerciseTask.order_number,
+              "exercise-number": exerciseNumber + 1,
+              "task-number": exerciseTask.order_number + 1,
             })}
           />
         ) : (

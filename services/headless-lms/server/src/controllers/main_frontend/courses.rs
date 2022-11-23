@@ -13,6 +13,7 @@ use models::{
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
+    library,
     material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
     peer_review_configs::PeerReviewConfig,
@@ -20,7 +21,7 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -79,12 +80,13 @@ async fn post_new_course(
     .await?;
 
     let mut tx = conn.begin().await?;
-    let (course, ..) = models::courses::insert_course(
+    let (course, ..) = library::content_management::create_new_course(
         &mut tx,
-        Uuid::new_v4(),
-        Uuid::new_v4(),
+        PKeyPolicy::Generate,
         new_course,
         user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     models::roles::insert(
@@ -614,7 +616,6 @@ async fn new_course_instance(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let form = form.into_inner();
     let new = NewCourseInstance {
-        id: Uuid::new_v4(),
         course_id: *course_id,
         name: form.name.as_deref(),
         description: form.description.as_deref(),
@@ -624,7 +625,7 @@ async fn new_course_instance(
         opening_time: form.opening_time,
         closing_time: form.closing_time,
     };
-    let ci = models::course_instances::insert(&mut conn, new).await?;
+    let ci = models::course_instances::insert(&mut conn, PKeyPolicy::Generate, new).await?;
 
     token.authorized_ok(web::Json(ci.id))
 }
@@ -643,9 +644,10 @@ async fn glossary(
     token.authorized_ok(web::Json(glossary))
 }
 
+// unused?
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn new_term(
+async fn _new_term(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,

@@ -4,7 +4,7 @@ use std::{path::PathBuf, str::FromStr};
 
 use models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
-use crate::prelude::*;
+use crate::{domain::models_requests, prelude::*};
 
 /**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -41,8 +41,15 @@ async fn post_new_chapter(
     )
     .await?;
     let new_chapter = payload.0;
-    let (database_chapter, ..) =
-        models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
+    let (database_chapter, ..) = models::library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        user.id,
+        models_requests::spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &database_chapter,
         file_store.as_ref(),

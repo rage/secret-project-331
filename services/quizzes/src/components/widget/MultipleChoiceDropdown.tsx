@@ -38,6 +38,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
     <div
       className={css`
         display: flex;
+        flex: 1;
         flex-direction: column;
         justify-content: space-between;
         ${respondToOrLarger.sm} {
@@ -113,6 +114,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             background: #f9f9f9;
             grid-template-areas: "select";
             align-items: center;
+            margin-left: 0.5rem;
           `}
         >
           <option

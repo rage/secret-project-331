@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+
+# Generate types
+
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+run_command cargo run -- sorter

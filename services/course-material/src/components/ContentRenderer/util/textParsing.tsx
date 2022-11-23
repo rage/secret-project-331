@@ -1,5 +1,5 @@
 import KaTex from "katex"
-import * as ReactDOMServer from "react-dom/server"
+import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
 import { Term } from "../../../shared-module/bindings"
@@ -33,7 +33,7 @@ const convertToLatex = (data: string) => {
 }
 
 const generateToolTip = (term: Term) => {
-  return ReactDOMServer.renderToString(<Tooltip term={term} />)
+  return renderToString(<Tooltip term={term} />)
 }
 
 const parseGlossary = (data: string, glossary: Term[]): string => {
@@ -54,7 +54,9 @@ const parseCitation = (data: string) => {
   const converted = data.replace(
     LATEX_CITE_REGEX,
     // eslint-disable-next-line i18next/no-literal-string
-    (_, citationId) => `<sup class="reference" data-citation-id="${citationId}">[?]</sup>`,
+    (_, citationId) =>
+      // eslint-disable-next-line i18next/no-literal-string
+      `<sup class="reference" data-citation-id="${citationId}" style="line-height: 1.5em;">[?]</sup>`,
   )
   return converted
 }

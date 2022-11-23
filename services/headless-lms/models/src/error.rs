@@ -112,7 +112,7 @@ impl std::error::Error for ModelError {
 
 impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ModelError")
+        write!(f, "ModelError {:?} {:?}", self.error_type, self.message)
     }
 }
 
@@ -184,7 +184,6 @@ pub enum ModelErrorType {
     Conversion,
     Database,
     Json,
-    Reqwest,
     Util,
     Generic,
 }
@@ -251,16 +250,6 @@ impl std::convert::From<serde_json::Error> for ModelError {
     }
 }
 
-impl std::convert::From<reqwest::Error> for ModelError {
-    fn from(source: reqwest::Error) -> Self {
-        ModelError::new(
-            ModelErrorType::Reqwest,
-            source.to_string(),
-            Some(source.into()),
-        )
-    }
-}
-
 impl std::convert::From<UtilError> for ModelError {
     fn from(source: UtilError) -> Self {
         ModelError::new(
@@ -273,7 +262,13 @@ impl std::convert::From<UtilError> for ModelError {
 
 impl From<anyhow::Error> for ModelError {
     fn from(err: anyhow::Error) -> ModelError {
-        Self::new(ModelErrorType::Generic, err.to_string(), Some(err))
+        Self::new(ModelErrorType::Conversion, err.to_string(), Some(err))
+    }
+}
+
+impl From<url::ParseError> for ModelError {
+    fn from(err: url::ParseError) -> ModelError {
+        Self::new(ModelErrorType::Generic, err.to_string(), Some(err.into()))
     }
 }
 
@@ -282,7 +277,7 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{email_templates::EmailTemplateNew, test_helper::*};
+    use crate::{email_templates::EmailTemplateNew, test_helper::*, PKeyPolicy};
 
     #[tokio::test]
     async fn email_templates_check() {
@@ -309,12 +304,12 @@ mod test {
     async fn users_email_check() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let err = crate::users::insert_with_id(
+        let err = crate::users::insert(
             tx.as_mut(),
+            PKeyPolicy::Fixed(Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap()),
             "invalid email",
             None,
             None,
-            Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap(),
         )
         .await
         .unwrap_err();

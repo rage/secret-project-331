@@ -17,7 +17,76 @@ pub struct CourseModule {
     pub automatic_completion: bool,
     pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     pub automatic_completion_number_of_points_treshold: Option<i32>,
+    /// If set, use this link rather than the default one when registering course completions.
+    pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<i32>,
+}
+
+impl CourseModule {
+    pub fn new(id: Uuid, course_id: Uuid) -> Self {
+        Self {
+            id,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            name: None,
+            course_id,
+            order_number: 0,
+            copied_from: None,
+            uh_course_code: None,
+            automatic_completion: false,
+            automatic_completion_number_of_exercises_attempted_treshold: None,
+            automatic_completion_number_of_points_treshold: None,
+            completion_registration_link_override: None,
+            ects_credits: None,
+        }
+    }
+    pub fn set_timestamps(
+        mut self,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
+        deleted_at: Option<DateTime<Utc>>,
+    ) -> Self {
+        self.created_at = created_at;
+        self.updated_at = updated_at;
+        self.deleted_at = deleted_at;
+        self
+    }
+
+    /// order_number == 0 in and only if name == None
+    pub fn set_name_and_order_number(mut self, name: Option<String>, order_number: i32) -> Self {
+        self.name = name;
+        self.order_number = order_number;
+        self
+    }
+
+    pub fn set_completion_policy(
+        mut self,
+        automatic_completion_policy: &AutomaticCompletionPolicy,
+    ) -> Self {
+        let (automatic_completion, exercises_treshold, points_treshold) =
+            automatic_completion_policy.to_database_fields();
+        self.automatic_completion = automatic_completion;
+        self.automatic_completion_number_of_exercises_attempted_treshold = exercises_treshold;
+        self.automatic_completion_number_of_points_treshold = points_treshold;
+        self
+    }
+
+    pub fn set_registration_info(
+        mut self,
+        uh_course_code: Option<String>,
+        ects_credits: Option<i32>,
+        completion_registration_link_override: Option<String>,
+    ) -> Self {
+        self.uh_course_code = uh_course_code;
+        self.ects_credits = ects_credits;
+        self.completion_registration_link_override = completion_registration_link_override;
+        self
+    }
+
+    pub fn is_default_module(&self) -> bool {
+        self.name.is_none()
+    }
 }
 
 pub struct AutomaticCompletionRequirements {
@@ -28,14 +97,9 @@ pub struct AutomaticCompletionRequirements {
     pub ects_credits: Option<i32>,
 }
 
-impl CourseModule {
-    pub fn is_default_module(&self) -> bool {
-        self.name.is_none()
-    }
-}
-
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
@@ -43,10 +107,11 @@ pub async fn insert(
     let res = sqlx::query_as!(
         CourseModule,
         "
-INSERT INTO course_modules (course_id, name, order_number)
-VALUES ($1, $2, $3)
+INSERT INTO course_modules (id, course_id, name, order_number)
+VALUES ($1, $2, $3, $4)
 RETURNING *
-",
+        ",
+        pkey_policy.into_uuid(),
         course_id,
         name,
         order_number,
@@ -86,9 +151,10 @@ RETURNING *
 
 pub async fn insert_default_for_course(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
 ) -> ModelResult<CourseModule> {
-    insert(conn, course_id, None, 0).await
+    insert(conn, pkey_policy, course_id, None, 0).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -180,6 +246,8 @@ FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
+AND chapters.deleted_at IS NULL
+AND course_modules.deleted_at IS NULL
         ",
         exercise_id,
     )
@@ -276,20 +344,26 @@ pub enum AutomaticCompletionPolicy {
     NoAutomaticCompletion,
 }
 
-pub async fn update_automatic_completion_status(
-    conn: &mut PgConnection,
-    id: Uuid,
-    automatic_completion_policy: &AutomaticCompletionPolicy,
-) -> ModelResult<CourseModule> {
-    let (automatic_completion, exercises_treshold, points_treshold) =
-        match automatic_completion_policy {
+impl AutomaticCompletionPolicy {
+    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>) {
+        match self {
             AutomaticCompletionPolicy::AutomaticCompletion(criteria) => (
                 true,
                 criteria.number_of_exercises_attempted_treshold,
                 criteria.number_of_points_treshold,
             ),
             AutomaticCompletionPolicy::NoAutomaticCompletion => (false, None, None),
-        };
+        }
+    }
+}
+
+pub async fn update_automatic_completion_status(
+    conn: &mut PgConnection,
+    id: Uuid,
+    automatic_completion_policy: &AutomaticCompletionPolicy,
+) -> ModelResult<CourseModule> {
+    let (automatic_completion, exercises_treshold, points_treshold) =
+        automatic_completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModule,
         "
@@ -344,6 +418,7 @@ pub struct NewModule {
     automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
+    completion_registration_link_override: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -357,6 +432,7 @@ pub struct ModifiedModule {
     automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
+    completion_registration_link_override: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -396,6 +472,7 @@ pub async fn update(
     name: Option<&str>,
     order_number: i32,
     completion_requirements: AutomaticCompletionRequirements,
+    completion_registration_link_override: Option<String>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -406,7 +483,8 @@ SET name = COALESCE($1, name),
   ects_credits = $5,
   automatic_completion = $6,
   automatic_completion_number_of_exercises_attempted_treshold = $7,
-  automatic_completion_number_of_points_treshold = $8
+  automatic_completion_number_of_points_treshold = $8,
+  completion_registration_link_override = $9
 WHERE id = $3
 ",
         name,
@@ -416,7 +494,8 @@ WHERE id = $3
         completion_requirements.ects_credits,
         completion_requirements.automatic_completion,
         completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
-        completion_requirements.automatic_completion_number_of_points_treshold
+        completion_requirements.automatic_completion_number_of_points_treshold,
+        completion_registration_link_override,
     )
     .execute(conn)
     .await?;
@@ -475,6 +554,7 @@ pub async fn update_modules(
                 .automatic_completion_number_of_exercises_attempted_treshold,
             automatic_completion_number_of_points_treshold: new
                 .automatic_completion_number_of_points_treshold,
+            completion_registration_link_override: module.completion_registration_link_override,
         })
     }
     // update modified and new modules
@@ -493,6 +573,7 @@ pub async fn update_modules(
                 automatic_completion_number_of_points_treshold: module
                     .automatic_completion_number_of_points_treshold,
             },
+            module.completion_registration_link_override,
         )
         .await?;
     }

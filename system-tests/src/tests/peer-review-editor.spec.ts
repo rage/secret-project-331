@@ -30,11 +30,7 @@ test("create peer review", async ({ page, headless }) => {
 
   await page.locator("text=Add peer review").check()
   // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
-  await page
-    .locator(
-      'text=Use course default peer reviewCourse default peer review config >> input[type="checkbox"]',
-    )
-    .uncheck()
+  await page.locator("text=Use course default peer review config").uncheck()
   // Click text=Add peer review question
   await page.locator("text=Add peer review question").click()
   // Fill text=Insert question here
@@ -53,15 +49,11 @@ test("create peer review", async ({ page, headless }) => {
   })
 
   // Check text=Use course global peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]
-  await page
-    .locator(
-      'text=Use course default peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]',
-    )
-    .check()
+  await page.locator("text=Use course default peer review config").click()
   // Click text=Course default peer review config
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
-    page.locator("text=Course default peer review config").click(),
+    page.locator(`a:has-text("Course default peer review config")`).click(),
   ])
   // Click text=Save
   await page1.locator("text=Save").click()

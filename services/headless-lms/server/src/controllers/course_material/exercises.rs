@@ -3,6 +3,7 @@
 use futures::future::OptionFuture;
 use models::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_task_submissions::PeerReviewsRecieved,
     exercises::{CourseMaterialExercise, Exercise},
     library::{
         grading::{
@@ -15,7 +16,10 @@ use models::{
 
 use chrono::{Duration, Utc};
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::{
+    domain::{authorization::skip_authorize, models_requests},
+    prelude::*,
+};
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -33,8 +37,13 @@ async fn get_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
-    let mut course_material_exercise =
-        models::exercises::get_course_material_exercise(&mut conn, user_id, *exercise_id).await?;
+    let mut course_material_exercise = models::exercises::get_course_material_exercise(
+        &mut conn,
+        user_id,
+        *exercise_id,
+        models_requests::fetch_service_info,
+    )
+    .await?;
     if course_material_exercise.can_post_submission
         && course_material_exercise.exercise.exam_id.is_some()
     {
@@ -89,6 +98,7 @@ async fn get_peer_review_for_exercise(
         &mut conn,
         user.id,
         *exercise_id,
+        models_requests::fetch_service_info,
     )
     .await?;
     let token = authorize(
@@ -98,6 +108,29 @@ async fn get_peer_review_for_exercise(
         Res::Exercise(*exercise_id),
     )
     .await?;
+    token.authorized_ok(web::Json(peer_review_data))
+}
+
+/**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_peer_reviews_received(
+    pool: web::Data<PgPool>,
+    params: web::Path<(Uuid, Uuid)>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
+    let mut conn = pool.acquire().await?;
+    let (exercise_id, exercise_slide_submission_id) = params.into_inner();
+    let peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(
+        &mut conn,
+        exercise_id,
+        exercise_slide_submission_id,
+        user.id,
+    )
+    .await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(peer_review_data))
 }
 
@@ -184,6 +217,8 @@ async fn post_submission(
         &mut exercise_with_user_state,
         payload.0,
         GradingPolicy::Default,
+        models_requests::fetch_service_info,
+        models_requests::send_grading_request,
     )
     .await?;
 
@@ -377,6 +412,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/peer-review",
             web::get().to(get_peer_review_for_exercise),
+        )
+        .route(
+            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received",
+            web::get().to(get_peer_reviews_received),
         )
         .route(
             "/{exercise_id}/submissions",

@@ -1,18 +1,27 @@
-use chrono::{Duration, Utc};
+use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
-    courses::{self, NewCourse},
+    courses::NewCourse,
+    library::content_management::CreateNewCourseFixedIds,
+    library::{
+        self,
+        progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
+    },
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
+    PKeyPolicy,
 };
 use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
-use crate::programs::seed::{
-    seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
-    seed_helpers::create_exam,
+use crate::{
+    domain::models_requests,
+    programs::seed::{
+        seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
+        seed_helpers::create_exam,
+    },
 };
 
 use super::super::seed_users::SeedUsersResult;
@@ -42,17 +51,21 @@ pub async fn seed_organization_uh_cs(
 
     let uh_cs_organization_id = organizations::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?),
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
         "Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.",
-        Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
 
     info!("inserting uh-cs courses");
 
     // Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
-    let ((cs_intro, automatic_completions_id, introduction_to_localizing), ..) = try_join!(
+    let (
+        (cs_intro, automatic_completions_id, introduction_to_localizing),
+        manual_completions_id,
+        ..,
+    ) = try_join!(
         run_parallelly(courses_group_1(
             db_pool.clone(),
             uh_cs_organization_id,
@@ -102,6 +115,26 @@ pub async fn seed_organization_uh_cs(
     .await?;
     open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
         .await?;
+
+    let manual_default_module =
+        course_modules::get_default_by_course_id(&mut conn, manual_completions_id).await?;
+    let manual_default_instance =
+        course_instances::get_default_by_course_id(&mut conn, manual_completions_id).await?;
+    library::progressing::add_manual_completions(
+        &mut conn,
+        admin_user_id,
+        &manual_default_instance,
+        &TeacherManualCompletionRequest {
+            course_module_id: manual_default_module.id,
+            new_completions: vec![TeacherManualCompletion {
+                user_id: *example_normal_user_ids.first().unwrap(),
+                grade: Some(4),
+                completion_date: Some(Utc.ymd(2022, 9, 1).and_hms(0, 0, 0)),
+            }],
+            skip_duplicate_completions: true,
+        },
+    )
+    .await?;
 
     roles::insert(
         &mut conn,
@@ -195,21 +228,27 @@ pub async fn seed_organization_uh_cs(
         is_test_mode: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
-        courses::insert_course(
+        library::content_management::create_new_course(
             &mut conn,
-            Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
-            Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
+                default_course_instance_id: Uuid::parse_str(
+                    "48399008-6523-43c5-8fd6-59ecc731a426",
+                )?,
+            }),
             new_course,
             admin_user_id,
+            models_requests::spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?),
         NewCourseInstance {
-            id: Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?,
             course_id: cs_course.id,
-            name: Some("non-default instance"),
-            description: Some("this is another non-default instance"),
+            name: Some("Non-default instance"),
+            description: Some("This is another non-default instance"),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -288,7 +327,7 @@ async fn courses_group_2(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Uuid> {
     seed_sample_course(
         &db_pool,
         uh_cs_organization_id,
@@ -322,7 +361,7 @@ async fn courses_group_2(
         &example_normal_user_ids,
     )
     .await?;
-    seed_sample_course(
+    let manual_completions = seed_sample_course(
         &db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
@@ -333,7 +372,7 @@ async fn courses_group_2(
         &example_normal_user_ids,
     )
     .await?;
-    Ok(())
+    Ok(manual_completions)
 }
 
 async fn courses_group_3(

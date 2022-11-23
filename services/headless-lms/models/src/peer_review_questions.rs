@@ -52,34 +52,7 @@ pub struct PeerReviewQuestion {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    new_peer_review_question: &CmsPeerReviewQuestion,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO peer_review_questions (
-    peer_review_config_id,
-    order_number,
-    question,
-    question_type,
-    answer_required
-  )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
-        ",
-        new_peer_review_question.peer_review_config_id,
-        new_peer_review_question.order_number,
-        new_peer_review_question.question,
-        new_peer_review_question.question_type as PeerReviewQuestionType,
-        new_peer_review_question.answer_required,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_peer_review_question: &CmsPeerReviewQuestion,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -89,18 +62,16 @@ INSERT INTO peer_review_questions (
     peer_review_config_id,
     order_number,
     question,
-    question_type,
-    answer_required
+    question_type
   )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id;
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
         ",
-        id,
+        pkey_policy.into_uuid(),
         new_peer_review_question.peer_review_config_id,
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
-        new_peer_review_question.answer_required,
     )
     .fetch_one(conn)
     .await?;
@@ -127,6 +98,33 @@ WHERE id = $1
         id,
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_peer_review_configs_id(
+    conn: &mut PgConnection,
+    peer_review_id: Uuid,
+) -> ModelResult<Vec<PeerReviewQuestion>> {
+    let res = sqlx::query_as!(
+        PeerReviewQuestion,
+        r#"
+SELECT id,
+    created_at,
+    updated_at,
+    deleted_at,
+    peer_review_config_id,
+    order_number,
+    question,
+    question_type AS "question_type: _",
+    answer_required
+FROM peer_review_questions
+WHERE peer_review_config_id = $1
+  AND deleted_at IS NULL;
+        "#,
+        peer_review_id,
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -210,6 +208,7 @@ pub async fn delete_peer_review_questions_by_peer_review_config_ids(
 UPDATE peer_review_questions
 SET deleted_at = now()
 WHERE peer_review_config_id = ANY ($1)
+AND deleted_at IS NULL
 RETURNING id;
     ",
         peer_review_config_ids

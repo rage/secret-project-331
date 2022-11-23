@@ -3,6 +3,7 @@ import { css } from "@emotion/css"
 import { BlockRendererProps, blockToRendererMap } from "../.."
 import { ColumnAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import DefaultBlock from "../../DefaultBlock"
 
@@ -38,7 +39,7 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
         ${gradient && `background: ${colorMapper(gradient)};`}
         ${textColor && `color: ${colorMapper(textColor)};`}
         ${verticalAlignment && getAlignSelf(verticalAlignment)}
-        word-break: break-word;
+        overflow-wrap: break-word;
         flex-grow: 1;
         ${respondToOrLarger.md} {
           ${width && `max-width: ${width};`}
@@ -59,4 +60,4 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
   )
 }
 
-export default ColumnBlock
+export default withErrorBoundary(ColumnBlock)

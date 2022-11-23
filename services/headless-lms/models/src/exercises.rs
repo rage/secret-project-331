@@ -1,9 +1,15 @@
+use futures::future::BoxFuture;
+use url::Url;
+
 use crate::{
     course_instances, exams,
-    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_service_info::ExerciseServiceInfoApi,
+    exercise_slide_submissions::{
+        get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
+    },
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
-    peer_review_configs::PeerReviewConfig,
+    peer_review_configs::CourseMaterialPeerReviewConfig,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
@@ -77,7 +83,8 @@ pub struct CourseMaterialExercise {
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
-    pub peer_review_config: Option<PeerReviewConfig>,
+    pub peer_review_config: Option<CourseMaterialPeerReviewConfig>,
+    pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
 }
 
 impl CourseMaterialExercise {
@@ -171,6 +178,7 @@ pub struct ExerciseStatus {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     name: &str,
     page_id: Uuid,
@@ -179,10 +187,18 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO exercises (course_id, name, page_id, chapter_id, order_number)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO exercises (
+    id,
+    course_id,
+    name,
+    page_id,
+    chapter_id,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         course_id,
         name,
         page_id,
@@ -402,10 +418,11 @@ pub async fn get_course_material_exercise(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
     let (current_exercise_slide, instance_or_exam_id) =
-        get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
+        get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
     info!(
         "Current exercise slide id: {:#?}",
         current_exercise_slide.id
@@ -426,6 +443,18 @@ pub async fn get_course_material_exercise(
 
     let can_post_submission =
         determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
+
+    let previous_exercise_slide_submission = match user_id {
+        Some(user_id) => {
+            crate::exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
+                conn,
+                current_exercise_slide.id,
+                user_id,
+            )
+            .await?
+        }
+        _ => None,
+    };
 
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
@@ -452,9 +481,18 @@ pub async fn get_course_material_exercise(
 
     let peer_review_config = match (exercise.needs_peer_review, exercise.course_id) {
         (true, Some(course_id)) => {
-            crate::peer_review_configs::get_by_exercise_or_course_id(conn, exercise.id, course_id)
-                .await
-                .optional()?
+            let prc = crate::peer_review_configs::get_by_exercise_or_course_id(
+                conn, &exercise, course_id,
+            )
+            .await
+            .optional()?;
+            prc.map(|prc| CourseMaterialPeerReviewConfig {
+                id: prc.id,
+                course_id: prc.course_id,
+                exercise_id: prc.exercise_id,
+                peer_reviews_to_give: prc.peer_reviews_to_give,
+                peer_reviews_to_receive: prc.peer_reviews_to_receive,
+            })
         }
         _ => None,
     };
@@ -466,6 +504,7 @@ pub async fn get_course_material_exercise(
         exercise_status,
         exercise_slide_submission_counts,
         peer_review_config,
+        previous_exercise_slide_submission,
     })
 }
 
@@ -498,15 +537,20 @@ pub async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseInstanceOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
             // No signed in user. Show random exercise without model solution.
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
-            let random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, None)
-                    .await?;
+            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                conn,
+                random_slide.id,
+                None,
+                fetch_service_info,
+            )
+            .await?;
             Ok((
                 CourseMaterialExerciseSlide {
                     id: random_slide.id,
@@ -530,7 +574,7 @@ pub async fn get_or_select_exercise_slide(
                             user_id,
                             exercise.id,
                             Some(settings.current_course_instance_id),
-                            None,
+                            None,fetch_service_info
                         )
                         .await?;
                     Ok((
@@ -555,6 +599,7 @@ pub async fn get_or_select_exercise_slide(
                                 user_id,
                                 exercise.id,
                                 instance.id,
+                                &fetch_service_info,
                             )
                             .await?;
                         if let Some(exercise_tasks) = exercise_tasks {
@@ -574,6 +619,7 @@ pub async fn get_or_select_exercise_slide(
                                 conn,
                                 random_slide.id,
                                 Some(user_id),
+                                &fetch_service_info,
                             )
                             .await?;
 
@@ -598,6 +644,7 @@ pub async fn get_or_select_exercise_slide(
                             conn,
                             random_slide.id,
                             Some(user_id),
+                            fetch_service_info,
                         )
                         .await?;
 
@@ -631,6 +678,7 @@ pub async fn get_or_select_exercise_slide(
                     exercise.id,
                     None,
                     Some(exam_id),
+                    fetch_service_info,
                 )
                 .await?;
             info!("selecting exam task {:#?}", tasks);
@@ -737,9 +785,14 @@ mod test {
         .unwrap();
         assert!(user_exercise_state.is_none());
 
-        let exercise = get_course_material_exercise(tx.as_mut(), Some(user_id), exercise_id)
-            .await
-            .unwrap();
+        let exercise = get_course_material_exercise(
+            tx.as_mut(),
+            Some(user_id),
+            exercise_id,
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
         assert_eq!(
             exercise
                 .current_exercise_slide

@@ -24,7 +24,7 @@ const Content = styled.div`
   height: auto;
   align-items: center;
   justify-content: space-between;
-  padding: 2.5rem 2rem;
+  padding: 2rem;
   color: #1a2333;
   margin-bottom: 10px;
   overflow: hidden;
@@ -40,6 +40,7 @@ const Content = styled.div`
   h3 {
     font-family: ${headingFont};
     font-size: clamp(24px, 2.8vw, 28px);
+    font-weight: 600;
     color: #065853;
   }
 
@@ -89,7 +90,7 @@ const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<Top
             <h3>{title}</h3>
             {/* <span>{subtitlePlaceholder}</span> */}
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" width="57" height="40" viewBox="0 0 56.957 49">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 56.957 49">
             <path
               d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
               fill="#44827E"

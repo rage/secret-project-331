@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { COLUMN } from "../../../src/util/constants";
 import { multipleChoiceMultipleOptionsGradingPolicy, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption } from "../../../types/types";
 
 
@@ -82,6 +83,7 @@ const emptyQuiz = (): Quiz => ({
   title: '',
   body: '',
   deadline: new Date(),
+  direction: COLUMN,
   open: new Date(),
   items: [],
   tries: 10,
@@ -118,7 +120,7 @@ export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(initia
 /**
  * Generates quiz with multiple-choice exercise. First few options are correct and all the rest are incorrect.
  * Each item has an id of 'option-<order-number>'
- * 
+ *
  * @param numberOfOptions Number of correct options
  * @param numberOfCorrectOptions Number of correct options
  * @param options List of options. E.g. ['option-1', 'option-3']
@@ -126,7 +128,7 @@ export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(initia
  * @returns Quiz with multiple-choice exercise
  */
 export const generateMultipleChoiceRequest = (
-    numberOfOptions: number, 
+    numberOfOptions: number,
     numberOfCorrectOptions: number,
     options: string[],
     multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy,
@@ -143,7 +145,7 @@ export const generateMultipleChoiceRequest = (
       title: `option-${i + 1}`,
       id: `option-${i + 1}`,
       order: i + 1
-    })) 
+    }))
   }
 
   const multipleChoice = generateQuizItem({
@@ -155,7 +157,7 @@ export const generateMultipleChoiceRequest = (
   })
 
   const publicQuiz = generateQuiz({
-    title: 'Generated Multiple Choice', 
+    title: 'Generated Multiple Choice',
     items: [multipleChoice]
   })
 

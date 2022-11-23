@@ -3,13 +3,14 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme, secondaryFont } from "../../styles"
+import { baseTheme, headingFont, monospaceFont, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
+  margin-bottom: 5px;
 
   h2 {
     text-align: center;
@@ -27,38 +28,44 @@ const StyledLink = styled.div`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const ImageBox = styled.div`
-  width: 40px;
+  width: auto;
   height: 40px;
+  padding: 0 6px;
   position: relative;
   vertical-align: middle;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 
   div {
-    width: 100%;
-    height: 100%;
     z-index: 2;
     text-align: center;
-    display: flex;
     align-content: center;
-    padding-top: 7px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: ${baseTheme.colors.blue[200]};
+    opacity: 0.8;
   }
 
   p {
-    width: 100%;
-    height: 100%;
     text-align: center;
     z-index: 3;
+    font-family: ${monospaceFont};
     color: ${baseTheme.colors.grey[700]};
-    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.8;
+    font-size: 12px;
     margin-bottom: 0;
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const ExercisePart = styled.div<StyledProps>`
   position: relative;
   margin-left: 0em;
-  padding: 0.6em 1em;
+  padding-left: 1em;
   list-style-type: none;
   color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
@@ -67,29 +74,24 @@ const ExercisePart = styled.div<StyledProps>`
   align-items: center;
 
   :hover {
-    background-color: ${baseTheme.colors.blue[300]};
+    background-color: rgb(235, 239, 242);
   }
 
   span {
     vertical-align: top;
-    /* marginLeft: "1em", */
+    padding: 0.6em 0;
     font-size: 18px;
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
-    font-family: "Josefin Sans", sans-serif;
-    text-transform: uppercase;
+    font-family: ${headingFont};
+    font-weight: 400;
+  }
+
+  div:last-of-type {
+    margin-left: auto;
   }
 `
-/*
-const chooseChapterValue = {
-  0: "I",
-  1: "II",
-  2: "III",
-  3: "IV",
-  4: "V",
-} */
-
 export interface ExerciseBoxExtraProps {
   exerciseIndex: number
   exerciseTitle: string
@@ -111,7 +113,7 @@ const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<Exer
   url,
   scoreMaximum,
   userPoints,
-  bg = "#DDDEE0",
+  bg,
 }) => {
   return (
     <Wrapper>
@@ -136,13 +138,25 @@ const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<Exer
                 </div>
               </ImageBox>
               <span>{exerciseTitle}</span>
-              {userPoints !== null && (
-                <CircularProgressBar
-                  scoreMaximum={scoreMaximum}
-                  userPoints={userPoints}
-                  className="progress"
-                />
-              )}
+              <div
+                className={css`
+                  background: rgb(235, 239, 242);
+                  width: 65px;
+                  height: 62px;
+                  display: flex;
+                  align-items: center;
+                `}
+              >
+                {userPoints !== null ? (
+                  <CircularProgressBar
+                    scoreMaximum={scoreMaximum}
+                    userPoints={userPoints}
+                    className="progress"
+                  />
+                ) : (
+                  <CircularProgressBar scoreMaximum={1} userPoints={0} className="progress" />
+                )}
+              </div>
             </ExercisePart>
           </a>
         </Link>

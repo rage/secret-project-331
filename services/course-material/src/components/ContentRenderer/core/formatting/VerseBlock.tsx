@@ -2,8 +2,9 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { VerseAttributes } from "../../../../../types/GutenbergBlockAttributes"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
-import fontSizeMapper from "../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const VerseBlock: React.FC<React.PropsWithChildren<BlockRendererProps<VerseAttributes>>> = ({
@@ -38,4 +39,4 @@ const VerseBlock: React.FC<React.PropsWithChildren<BlockRendererProps<VerseAttri
   )
 }
 
-export default VerseBlock
+export default withErrorBoundary(VerseBlock)

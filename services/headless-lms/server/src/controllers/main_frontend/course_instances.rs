@@ -4,8 +4,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
-    course_module_completions::{self, NewCourseModuleCompletion},
-    course_modules, courses,
+    courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
     exercises::ExerciseStatusForUser,
     library::{
@@ -15,7 +14,6 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
-    users,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -238,51 +236,10 @@ async fn post_completions(
     )
     .await?;
     let data = payload.0;
-    let course_module = course_modules::get_by_id(&mut conn, data.course_module_id).await?;
-    let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
-    if course_module.course_id != instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Course module not part of the course.".to_string(),
-            None,
-        ));
-    }
-    let course = courses::get_course(&mut conn, instance.course_id).await?;
-    let mut tx = conn.begin().await?;
-    for completion in data.new_completions {
-        let user = users::get_by_id(&mut tx, completion.user_id).await?;
-        let existing_completion =
-            course_module_completions::get_by_course_module_instance_and_user_ids(
-                &mut tx,
-                data.course_module_id,
-                *course_instance_id,
-                completion.user_id,
-            )
-            .await
-            .optional()?;
-        if existing_completion.is_none() || !data.skip_duplicate_completions {
-            course_module_completions::insert(
-                &mut tx,
-                &NewCourseModuleCompletion {
-                    course_id: instance.course_id,
-                    course_instance_id: instance.id,
-                    course_module_id: data.course_module_id,
-                    user_id: completion.user_id,
-                    completion_date: completion.completion_date.unwrap_or_else(Utc::now),
-                    completion_registration_attempt_date: None,
-                    completion_language: course.language_code.clone(),
-                    eligible_for_ects: true,
-                    email: user.email,
-                    grade: completion.grade,
-                    // Should passed be false if grade == Some(0)?
-                    passed: true,
-                },
-                None,
-            )
-            .await?;
-        }
-    }
-    tx.commit().await?;
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    library::progressing::add_manual_completions(&mut conn, user.id, &course_instance, &data)
+        .await?;
     token.authorized_ok(web::Json(()))
 }
 

@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 
+use futures::future::BoxFuture;
 use rand::{seq::SliceRandom, thread_rng};
+use url::Url;
 
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{self, ExerciseSlideSubmission},
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
@@ -68,7 +71,7 @@ pub async fn create_peer_review_submission_for_user(
 ) -> ModelResult<UserExerciseState> {
     let peer_review = peer_review_configs::get_by_exercise_or_course_id(
         conn,
-        giver_exercise_state.exercise_id,
+        exercise,
         exercise.get_course_id()?,
     )
     .await?;
@@ -81,6 +84,7 @@ pub async fn create_peer_review_submission_for_user(
     let mut tx = conn.begin().await?;
     let peer_review_submission_id = peer_review_submissions::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         giver_exercise_state.user_id,
         giver_exercise_state.exercise_id,
         giver_exercise_state.get_course_instance_id()?,
@@ -91,6 +95,7 @@ pub async fn create_peer_review_submission_for_user(
     for answer in sanitized_answers {
         peer_review_question_submissions::insert(
             &mut tx,
+            PKeyPolicy::Generate,
             answer.peer_review_question_id,
             peer_review_submission_id,
             answer.text_data,
@@ -311,10 +316,11 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     conn: &mut PgConnection,
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
-    let peer_review = peer_review_configs::get_by_exercise_or_course_id(
+    let peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
         conn,
-        reviewer_user_exercise_state.exercise_id,
+        exercise,
         exercise.get_course_id()?,
     )
     .await?;
@@ -335,9 +341,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     )
     .await?;
     let exercise_slide_submission_to_review = match candidate_submission_id {
-        Some(exercise_slide_submission_id) => {
-            Some(exercise_slide_submissions::get_by_id(conn, exercise_slide_submission_id).await?)
-        }
+        Some(exercise_slide_submission) => Some(exercise_slide_submission),
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.
@@ -352,11 +356,12 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     };
     let data = get_course_material_peer_review_data(
         conn,
-        &peer_review,
+        &peer_review_config,
         &exercise_slide_submission_to_review,
         reviewer_user_exercise_state.user_id,
         course_instance_id,
         exercise.id,
+        fetch_service_info,
     )
     .await?;
 
@@ -364,6 +369,46 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
 }
 
 async fn try_to_select_peer_review_candidate_from_queue(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+    excluded_exercise_slide_submission_ids: &[Uuid],
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    // Loop until we either find a non deleted submission or we find no submission at all
+    loop {
+        let exercise_slide_submission_id = try_to_select_peer_review_candidate_from_queue_impl(
+            conn,
+            exercise_id,
+            excluded_user_id,
+            excluded_exercise_slide_submission_ids,
+        )
+        .await?;
+        // Let's make sure we don't return peer review queue entries for exercise slide submissions that are deleted.
+        if let Some(ess_id) = exercise_slide_submission_id {
+            let ess = exercise_slide_submissions::get_by_id(conn, ess_id)
+                .await
+                .optional()?;
+            if let Some(ess) = ess {
+                if ess.deleted_at.is_none() {
+                    return Ok(Some(ess));
+                } else {
+                }
+            }
+            // We found a submission from the peer reveiw queue but the submission was deleted. This is unfortunate since if
+            // the submission was deleted the peer review queue entry should have been deleted too. We can try to fix the situation somehow.
+            warn!(exercise_slide_submission_id = %ess_id, "Selected exercise slide submission that was deleted from the peer review queue. The peer review queue entry should've been deleted too! Deleting it now.");
+            peer_review_queue_entries::delete_by_receiving_peer_reviews_exercise_slide_submission_id(
+                conn, ess_id,
+            ).await?;
+            info!("Deleting done, trying to select a new peer review candidate");
+        } else {
+            // We didn't manage to select a candidate from the queue
+            return Ok(None);
+        }
+    }
+}
+
+async fn try_to_select_peer_review_candidate_from_queue_impl(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     excluded_user_id: Uuid,
@@ -409,6 +454,7 @@ async fn get_course_material_peer_review_data(
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review_questions =
         peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
@@ -429,6 +475,7 @@ async fn get_course_material_peer_review_data(
                 conn,
                 exercise_slide_submission_id,
                 reviewer_user_id,
+                 fetch_service_info
             ).await?;
             Some(CourseMaterialPeerReviewDataAnswerToReview {
                 exercise_slide_submission_id,
@@ -461,7 +508,7 @@ pub async fn update_peer_review_queue_reviews_received(
     for exercise in exercises {
         info!("Processing exercise {:?}", exercise.id);
         let peer_review_config =
-            peer_review_configs::get_by_exercise_or_course_id(&mut tx, exercise.id, course_id)
+            peer_review_configs::get_by_exercise_or_course_id(&mut tx, &exercise, course_id)
                 .await?;
         let peer_review_queue_entries =
             crate::peer_review_queue_entries::get_all_that_need_peer_reviews_by_exercise_id(

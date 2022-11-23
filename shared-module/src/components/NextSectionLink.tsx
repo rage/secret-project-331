@@ -87,7 +87,7 @@ const NextSectionLink: React.FC<
       <Fragment>
         <h2
           className={css`
-            font-size: clamp(28px, 3vw, 2.4rem);
+            font-size: clamp(28px, 3vw, 2rem);
             line-height: 1.3;
             font-weight: 500;
             margin-bottom: 0.8rem;
@@ -105,7 +105,7 @@ const NextSectionLink: React.FC<
             display: flex;
 
             ${respondToOrLarger.md} {
-              font-size: 1.4rem;
+              font-size: 1.3rem;
             }
           `}
         >
@@ -201,8 +201,8 @@ const NextSectionLink: React.FC<
                   .next-page-title {
                     display: block;
                     width: 100%;
-                    font-size: ${typography.h4};
-                    font-weight: bold;
+                    font-size: ${typography.h5};
+                    font-weight: 600;
                     color: #fff;
                     white-space: nowrap;
                     text-overflow: ellipsis;
@@ -211,7 +211,7 @@ const NextSectionLink: React.FC<
                   .next-page-subtitle {
                     font-weight: medium;
                     color: #dae6e5;
-                    font-size: ${typography.h6};
+                    font-size: ${typography.paragraph};
                   }
 
                   ${respondToOrLarger.sm} {
@@ -260,8 +260,8 @@ const NextSectionLink: React.FC<
                     id="right-svg-icon"
                     role="presentation"
                     alt=""
-                    width="50"
-                    height="50"
+                    width="40"
+                    height="40"
                     viewBox="0 0 39 39"
                   />
                 ) : (

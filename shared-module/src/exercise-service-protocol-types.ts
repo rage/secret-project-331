@@ -5,29 +5,23 @@ import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
  *
  * to: parent
  */
+export type MessageFromIframe = CurrentStateMessage | FileUploadMessage | HeightChangedMessage
+
 export interface CurrentStateMessage {
   message: "current-state"
   data: unknown
   valid: boolean
 }
 
-/**
- * from: IFrame
- *
- * to: parent
- */
+export interface FileUploadMessage {
+  message: "file-upload"
+  url: string
+  data: unknown
+}
+
 export interface HeightChangedMessage {
   message: "height-changed"
   data: number
-}
-
-/**
- * from: IFrame
- *
- * to: parent
- */
-export interface ReadyMessage {
-  message: "ready"
 }
 
 /**
@@ -35,17 +29,26 @@ export interface ReadyMessage {
  *
  * to: IFrame
  */
+export type MessageToIframe = SetLanguageMessage | UploadResultMessage | SetStateMessage
+
 export interface SetLanguageMessage {
   message: "set-language"
   // e.g. "en" or "fi"
   data: string
 }
 
-/**
- * from: parent
- *
- * to: IFrame
- */
+export type UploadResultMessage =
+  | {
+      message: "upload-result"
+      success: true
+      url: string
+    }
+  | {
+      message: "upload-result"
+      success: false
+      error: string
+    }
+
 export type SetStateMessage = { message: "set-state" } & IframeState
 
 export type UserInformation = {

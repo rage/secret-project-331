@@ -18,6 +18,7 @@ async fn main() -> anyhow::Result<()> {
         "service-info-fetcher" => programs::service_info_fetcher::main().await?,
         "peer-review-updater" => programs::peer_review_updater::main().await?,
         "start-server" => programs::start_server::main().await?,
+        "sorter" => programs::sorter::sort()?,
         _ => panic!("Unknown program name: {}", program_name),
     };
 

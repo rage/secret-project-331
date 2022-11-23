@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { groupBy, max } from "lodash"
+import { Dictionary, groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchCourseWeekdayHourSubmissionCounts } from "../../../../../../services/backend/courses"
+import { ExerciseSlideSubmissionCountByWeekAndHour } from "../../../../../../shared-module/bindings"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
@@ -56,7 +57,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
     () => fetchCourseWeekdayHourSubmissionCounts(courseId),
     {
       select: (data) => {
-        const dataByWeekDay = groupBy(data, (o) => o.isodow)
+        const dataByWeekDay = makeSureAllDaysHaveEntries(groupBy(data, (o) => o.isodow))
         const maxValue = max(data.map((o) => o.count)) || 10000
         return { apiData: data, dataByWeekDay, maxValue }
       },
@@ -84,6 +85,12 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
   if (getCourseWeekdayHourSubmissionCount.data.apiData.length === 0) {
     return <div>{t("no-data")}</div>
   }
+
+  const dataByWeekDayOrdered = Object.entries(
+    getCourseWeekdayHourSubmissionCount.data.dataByWeekDay,
+  ).sort(([num, _a], [num2, _a2]) => Number(num) - Number(num2))
+
+  dataByWeekDayOrdered.push(["2", []])
 
   return (
     <div
@@ -118,42 +125,37 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
               })
             },
           },
-          singleAxis: Object.entries(getCourseWeekdayHourSubmissionCount.data.dataByWeekDay).map(
-            ([_weekdayNumber, _entries], i) => {
-              return {
-                left: 150,
-                // eslint-disable-next-line i18next/no-literal-string
-                type: "category",
-                boundaryGap: false,
-                data: hours,
-                top: (i * 100) / 7 + 5 + "%",
-                height: 100 / 7 - 10 + "%",
-                axisLabel: {
-                  interval: 2,
-                },
-              }
-            },
-          ),
-          series: Object.entries(getCourseWeekdayHourSubmissionCount.data.dataByWeekDay).map(
-            ([_weekdayNumber, entries], i) => {
-              return {
-                singleAxisIndex: i,
-                // eslint-disable-next-line i18next/no-literal-string
-                coordinateSystem: "singleAxis",
-                // eslint-disable-next-line i18next/no-literal-string
-                type: "scatter",
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                data: (entries as any[]).map((o) => [o.hour, o.count]),
-                symbolSize: function (dataItem) {
-                  // scaling the size so that the largest value has size maxCircleSize
-                  return (
-                    (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) *
-                    maxCircleSize
-                  )
-                },
-              }
-            },
-          ),
+          singleAxis: dataByWeekDayOrdered.map(([_weekdayNumber, _entries], i) => {
+            return {
+              left: 150,
+              // eslint-disable-next-line i18next/no-literal-string
+              type: "category",
+              boundaryGap: false,
+              data: hours,
+              top: (i * 100) / 7 + 5 + "%",
+              height: 100 / 7 - 10 + "%",
+              axisLabel: {
+                interval: 2,
+              },
+            }
+          }),
+          series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
+            return {
+              singleAxisIndex: i,
+              // eslint-disable-next-line i18next/no-literal-string
+              coordinateSystem: "singleAxis",
+              // eslint-disable-next-line i18next/no-literal-string
+              type: "scatter",
+              // eslint-disable-next-line
+                data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
+              symbolSize: function (dataItem) {
+                // scaling the size so that the largest value has size maxCircleSize
+                return (
+                  (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) * maxCircleSize
+                )
+              },
+            }
+          }),
         }}
       />
       <DebugModal data={getCourseWeekdayHourSubmissionCount.data.apiData} />
@@ -164,3 +166,30 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
 export default withErrorBoundary(
   dontRenderUntilQueryParametersReady(CourseSubmissionsByWeekdayAndHour),
 )
+
+function makeSureAllDaysHaveEntries(
+  dict: Dictionary<ExerciseSlideSubmissionCountByWeekAndHour[]>,
+): Dictionary<ExerciseSlideSubmissionCountByWeekAndHour[]> {
+  if (dict["1"] === null || dict["1"] === undefined) {
+    dict["1"] = []
+  }
+  if (dict["2"] === null || dict["2"] === undefined) {
+    dict["2"] = []
+  }
+  if (dict["3"] === null || dict["3"] === undefined) {
+    dict["3"] = []
+  }
+  if (dict["4"] === null || dict["4"] === undefined) {
+    dict["4"] = []
+  }
+  if (dict["5"] === null || dict["5"] === undefined) {
+    dict["5"] = []
+  }
+  if (dict["6"] === null || dict["6"] === undefined) {
+    dict["6"] = []
+  }
+  if (dict["7"] === null || dict["7"] === undefined) {
+    dict["7"] = []
+  }
+  return dict
+}

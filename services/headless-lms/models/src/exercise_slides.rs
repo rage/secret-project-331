@@ -1,4 +1,8 @@
+use futures::future::BoxFuture;
+use url::Url;
+
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_tasks::{self, CourseMaterialExerciseTask},
     prelude::*,
 };
@@ -28,26 +32,7 @@ pub struct CourseMaterialExerciseSlide {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_id: Uuid,
-    order_number: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO exercise_slides (exercise_id, order_number)
-VALUES ($1, $2)
-RETURNING id;
-    ",
-        exercise_id,
-        order_number
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
+    pkey_policy: PKeyPolicy<Uuid>,
     exercise_id: Uuid,
     order_number: i32,
 ) -> ModelResult<Uuid> {
@@ -55,9 +40,9 @@ pub async fn insert_with_id(
         "
 INSERT INTO exercise_slides (id, exercise_id, order_number)
 VALUES ($1, $2, $3)
-RETURNING id;
-",
-        id,
+RETURNING id
+        ",
+        pkey_policy.into_uuid(),
         exercise_id,
         order_number
     )
@@ -227,9 +212,11 @@ pub async fn get_course_material_exercise_slide_by_id(
     conn: &mut PgConnection,
     id: Uuid,
     user_id: Option<Uuid>,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
     let exercise_tasks =
-        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id).await?;
+        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id, fetch_service_info)
+            .await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

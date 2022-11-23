@@ -15,7 +15,7 @@ struct CourseModulesSchema {
     automatic_completion: bool,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
-    automatic_completion_exam_points_treshold: Option<i32>,
+    automatic_completion_requires_exam: bool,
     completion_registration_link_override: Option<String>,
     ects_credits: Option<i32>,
 }
@@ -104,7 +104,7 @@ impl From<CourseModulesSchema> for CourseModule {
                 number_of_exercises_attempted_treshold: schema
                     .automatic_completion_number_of_exercises_attempted_treshold,
                 number_of_points_treshold: schema.automatic_completion_number_of_points_treshold,
-                number_of_exam_points_treshold: schema.automatic_completion_exam_points_treshold,
+                requires_exam: schema.automatic_completion_requires_exam,
             })
         } else {
             CompletionPolicy::Manual
@@ -184,7 +184,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     new_course_module: &NewCourseModule,
 ) -> ModelResult<CourseModule> {
-    let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
+    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         new_course_module.completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModulesSchema,
@@ -197,7 +197,7 @@ INSERT INTO course_modules (
     automatic_completion,
     automatic_completion_number_of_exercises_attempted_treshold,
     automatic_completion_number_of_points_treshold,
-    automatic_completion_exam_points_treshold
+    automatic_completion_requires_exam
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
@@ -209,7 +209,7 @@ RETURNING *
         automatic_completion,
         exercises_treshold,
         points_treshold,
-        exam_points_treshold,
+        requires_exam,
     )
     .fetch_one(conn)
     .await?;
@@ -401,7 +401,7 @@ pub struct AutomaticCompletionRequirements {
     pub course_module_id: Uuid,
     pub number_of_exercises_attempted_treshold: Option<i32>,
     pub number_of_points_treshold: Option<i32>,
-    pub number_of_exam_points_treshold: Option<i32>,
+    pub requires_exam: bool,
 }
 
 impl AutomaticCompletionRequirements {
@@ -416,18 +416,10 @@ impl AutomaticCompletionRequirements {
             && self.passes_number_of_exercise_points_treshold(exercise_points)
     }
 
-    /// Whether the given number is higher than exam points treshold. Always returns true if there
-    /// is no treshold.
-    pub fn passes_number_of_exam_points_treshold(&self, exam_points: i32) -> bool {
-        self.number_of_exam_points_treshold
-            .map(|x| x <= exam_points)
-            .unwrap_or(true)
-    }
-
     /// Whether the given number is higher than the exercises attempted treshold. Always returns
     /// true if there is no treshold.
     pub fn passes_number_of_exercises_attempted_treshold(&self, exercises_attempted: i32) -> bool {
-        self.number_of_exam_points_treshold
+        self.number_of_points_treshold
             .map(|x| x <= exercises_attempted)
             .unwrap_or(true)
     }
@@ -458,15 +450,15 @@ impl CompletionPolicy {
         }
     }
 
-    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, Option<i32>) {
+    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>, bool) {
         match self {
-            CompletionPolicy::Automatic(criteria) => (
+            CompletionPolicy::Automatic(requirements) => (
                 true,
-                criteria.number_of_exercises_attempted_treshold,
-                criteria.number_of_points_treshold,
-                criteria.number_of_exam_points_treshold,
+                requirements.number_of_exercises_attempted_treshold,
+                requirements.number_of_points_treshold,
+                requirements.requires_exam,
             ),
-            CompletionPolicy::Manual => (false, None, None, None),
+            CompletionPolicy::Manual => (false, None, None, false),
         }
     }
 }
@@ -476,7 +468,7 @@ pub async fn update_automatic_completion_status(
     id: Uuid,
     automatic_completion_policy: &CompletionPolicy,
 ) -> ModelResult<CourseModule> {
-    let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
+    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         automatic_completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModulesSchema,
@@ -485,7 +477,7 @@ UPDATE course_modules
 SET automatic_completion = $1,
   automatic_completion_number_of_exercises_attempted_treshold = $2,
   automatic_completion_number_of_points_treshold = $3,
-  automatic_completion_exam_points_treshold = $4
+  automatic_completion_requires_exam = $4
 WHERE id = $5
   AND deleted_at IS NULL
 RETURNING *
@@ -493,7 +485,7 @@ RETURNING *
         automatic_completion,
         exercises_treshold,
         points_treshold,
-        exam_points_treshold,
+        requires_exam,
         id,
     )
     .fetch_one(conn)
@@ -583,7 +575,7 @@ pub async fn update(
     id: Uuid,
     updated_course_module: &NewCourseModule,
 ) -> ModelResult<()> {
-    let (automatic_completion, exercises_treshold, points_treshold, exam_points_treshold) =
+    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
     sqlx::query!(
         "
@@ -595,7 +587,7 @@ SET name = COALESCE($2, name),
   automatic_completion = $6,
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
-  automatic_completion_exam_points_treshold = $9,
+  automatic_completion_requires_exam = $9,
   completion_registration_link_override = $10
 WHERE id = $1
         ",
@@ -607,7 +599,7 @@ WHERE id = $1
         automatic_completion,
         exercises_treshold,
         points_treshold,
-        exam_points_treshold,
+        requires_exam,
         updated_course_module.completion_registration_link_override,
     )
     .execute(conn)

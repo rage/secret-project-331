@@ -40,7 +40,7 @@ export type ModuleView = {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_exam_points_treshold: number | null
+  automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
 }
 
@@ -216,8 +216,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                   m.completion_policy.number_of_points_treshold,
                 automatic_completion_number_of_exercises_attempted_treshold:
                   m.completion_policy.number_of_exercises_attempted_treshold,
-                automatic_completion_exam_points_treshold:
-                  m.completion_policy.number_of_exam_points_treshold,
+                automatic_completion_requires_exam: m.completion_policy.requires_exam,
                 completion_registration_link_override: m.completion_registration_link_override,
               }
             } else {
@@ -233,7 +232,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 automatic_completion: false,
                 automatic_completion_number_of_points_treshold: null,
                 automatic_completion_number_of_exercises_attempted_treshold: null,
-                automatic_completion_exam_points_treshold: null,
+                automatic_completion_requires_exam: false,
                 completion_registration_link_override: m.completion_registration_link_override,
               }
             }
@@ -285,8 +284,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             module.ects_credits !== initialModule.ects_credits ||
             module.automatic_completion_number_of_exercises_attempted_treshold !==
               initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
-            module.automatic_completion_exam_points_treshold !==
-              initialModule.automatic_completion_exam_points_treshold
+            module.automatic_completion_requires_exam !==
+              initialModule.automatic_completion_requires_exam
           ) {
             modifiedModules.push({
               id: module.id,
@@ -364,7 +363,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       automatic_completion,
       automatic_completion_number_of_points_treshold,
       automatic_completion_number_of_exercises_attempted_treshold,
-      automatic_completion_number_of_exam_points_treshold,
+      automatic_completion_requires_exam,
       completion_registration_link_override,
       override_completion_link,
     }: EditCourseModuleFormFields,
@@ -394,8 +393,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             automatic_completion,
             automatic_completion_number_of_points_treshold,
             automatic_completion_number_of_exercises_attempted_treshold,
-            automatic_completion_exam_points_treshold:
-              automatic_completion_number_of_exam_points_treshold,
+            automatic_completion_requires_exam,
             completion_registration_link_override: override_completion_link
               ? completion_registration_link_override
               : null,
@@ -445,7 +443,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     automatic_completion,
     automatic_completion_number_of_points_treshold,
     automatic_completion_number_of_exercises_attempted_treshold,
-    automatic_completion_exam_points_treshold,
     override_completion_link,
     completion_registration_link_override,
   }: Fields) => {
@@ -476,7 +473,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           automatic_completion,
           automatic_completion_number_of_points_treshold,
           automatic_completion_number_of_exercises_attempted_treshold,
-          automatic_completion_exam_points_treshold,
+          automatic_completion_requires_exam: false,
           completion_registration_link_override: override_completion_link
             ? completion_registration_link_override
             : null,
@@ -592,10 +589,11 @@ function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
   if (fields.automatic_completion) {
     return {
       policy: AUTOMATIC,
-      number_of_exam_points_treshold: fields.automatic_completion_exam_points_treshold,
+      course_module_id: fields.id,
       number_of_exercises_attempted_treshold:
         fields.automatic_completion_number_of_exercises_attempted_treshold,
       number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
+      requires_exam: fields.automatic_completion_requires_exam,
     }
   } else {
     return { policy: MANUAL }

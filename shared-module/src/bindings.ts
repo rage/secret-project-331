@@ -242,7 +242,7 @@ export interface AutomaticCompletionRequirements {
   course_module_id: string
   number_of_exercises_attempted_treshold: number | null
   number_of_points_treshold: number | null
-  number_of_exam_points_treshold: number | null
+  requires_exam: boolean
 }
 
 export type CompletionPolicy =

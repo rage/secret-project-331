@@ -832,7 +832,7 @@ mod tests {
                     course_module_id: course_module.id,
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
-                    number_of_exam_points_treshold: None,
+                    requires_exam: false,
                 });
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await

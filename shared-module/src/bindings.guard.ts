@@ -599,8 +599,7 @@ export function isAutomaticCompletionRequirements(
       typeof typedObj["number_of_exercises_attempted_treshold"] === "number") &&
     (typedObj["number_of_points_treshold"] === null ||
       typeof typedObj["number_of_points_treshold"] === "number") &&
-    (typedObj["number_of_exam_points_treshold"] === null ||
-      typeof typedObj["number_of_exam_points_treshold"] === "number")
+    typeof typedObj["requires_exam"] === "boolean"
   )
 }
 

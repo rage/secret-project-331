@@ -18,7 +18,7 @@ export interface PrivateSpecQuiz {
   id: string
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
-  items: QuizItem[]
+  items: PrivateSpecQuizItem[]
   title: string
   body: string
   submitMessage: string | null

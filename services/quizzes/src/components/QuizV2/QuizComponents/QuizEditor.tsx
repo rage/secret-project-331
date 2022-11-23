@@ -28,7 +28,7 @@ const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
     case "checkbox":
       return <CheckboxEditor quizItem={quizItem} />
     case "essay":
-      return <EssayEditor quizItem={quizItem} />
+      return <EssayEditor quizItemId={quizItem.id} />
     case "closed-ended-question":
       return <ClosedEndedQuestionEditor quizItem={quizItem} />
     case "matrix":

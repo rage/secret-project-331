@@ -47,7 +47,7 @@
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
     "i18next": "^21.10.0",
-    "immer": "^9.0.15",
+    "immer": "^9.0.16",
     "js-base64": "^3.7.2",
     "jszip": "^3.10.1",
     "jszip-utils": "^0.1.0",

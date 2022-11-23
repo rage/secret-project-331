@@ -30,6 +30,7 @@
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
     "i18next": "^21.10.0",
+    "immer": "^9.0.16",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.34.0",
     "next": "^12.3.1",

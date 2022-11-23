@@ -3,13 +3,9 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { PrivateSpecQuiz } from "../../../../types/quizTypes"
 import { NormalizedQuizItem } from "../../../../types/types"
 import Button from "../../../shared-module/components/Button"
-import { useTypedSelector } from "../../../store/store"
-import {
-  convertNormalizedQuizItemOptionsToQuizItemOptions,
-  migrateQuizItem,
-} from "../../../util/quizMigration"
 import QuizEditor from "../QuizComponents/QuizEditor"
 
 import QuizItemOption, { QuizOption } from "./QuizOption"
@@ -225,11 +221,16 @@ const QuizItemContainer = styled.div`
   gap: 16px;
 `
 
-const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
+interface QuizItemProps {
+  quiz: PrivateSpecQuiz | null
+}
+
+const QuizItems: React.FC<QuizItemProps> = ({ quiz }) => {
   const { t } = useTranslation()
-  const storeItems = Object.values(useTypedSelector((state) => state.editor.items))
-  const storeOptions = useTypedSelector((state) => state.editor.options)
-  storeItems.sort((item1, item2) => item1.order - item2.order)
+
+  if (!quiz) {
+    return null
+  }
 
   return (
     <>
@@ -239,23 +240,14 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
         </SubsectionTitleWrapper>
       </ItemsTitleContainer>
       <QuizItemContainer>
-        {storeItems.map((oldQuiz) => {
-          const quiz = migrateQuizItem(oldQuiz)
-          if (
-            quiz.type == "multiple-choice" ||
-            quiz.type == "choose-n" ||
-            quiz.type == "multiple-choice-dropdown"
-          ) {
-            const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
-            quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
-          }
+        {quiz.items.map((quizItem) => {
           return (
-            <div key={quiz.id}>
-              <QuizEditor quizItem={quiz} />
+            <div key={quizItem.id}>
+              <QuizEditor quizItem={quizItem} />
             </div>
           )
         })}
-        <AddQuizItem storeItems={storeItems} />
+        {/* <AddQuizItem storeItems={storeItems} /> */}
       </QuizItemContainer>
     </>
   )

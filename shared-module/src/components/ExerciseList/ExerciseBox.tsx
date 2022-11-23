@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme, headingFont, secondaryFont } from "../../styles"
+import { baseTheme, headingFont, monospaceFont, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`
@@ -28,30 +28,35 @@ const StyledLink = styled.div`
   }
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const ImageBox = styled.div`
-  width: 40px;
+  width: auto;
   height: 40px;
+  padding: 0 6px;
   position: relative;
   vertical-align: middle;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 
   div {
-    width: 100%;
-    height: 100%;
     z-index: 2;
     text-align: center;
-    display: flex;
     align-content: center;
-    padding-top: 7px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: ${baseTheme.colors.blue[200]};
+    opacity: 0.8;
   }
 
   p {
-    width: 100%;
-    height: 100%;
     text-align: center;
     z-index: 3;
+    font-family: ${monospaceFont};
     color: ${baseTheme.colors.grey[700]};
-    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.8;
+    font-size: 12px;
     margin-bottom: 0;
   }
 `
@@ -80,6 +85,7 @@ const ExercisePart = styled.div<StyledProps>`
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
     font-family: ${headingFont};
+    font-weight: 400;
   }
 
   div:last-of-type {

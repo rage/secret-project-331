@@ -8,6 +8,7 @@ import {
   PrivateSpecQuizItemEssay,
   PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
+  PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes"
@@ -61,7 +62,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         successMessage: quizItem.successMessage,
         title: quizItem.title,
       } as PrivateSpecQuizItemCheckbox
-      break
     case "essay":
       return {
         id: quizItem.id,
@@ -74,7 +74,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         minWords: quizItem.minWords,
         successMessage: quizItem.successMessage,
       } as PrivateSpecQuizItemEssay
-      break
     case "matrix":
       return {
         id: quizItem.id,
@@ -84,7 +83,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
       } as PrivateSpecQuizItemMatrix
-      break
     case "multiple-choice":
       return {
         id: quizItem.id,
@@ -102,7 +100,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
       } as PrivateSpecQuizItemMultiplechoice
-      break
     case "open":
       return {
         id: quizItem.id,
@@ -115,7 +112,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
       } as PrivateSpecQuizItemClosedEndedQuestion
-      break
     case "scale":
       return {
         id: quizItem.id,
@@ -130,7 +126,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
       } as PrivateSpecQuizItemScale
-      break
     case "timeline":
       return {
         id: quizItem.id,
@@ -140,7 +135,6 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
       } as PrivateSpecQuizItemTimeline
-      break
     case "clickable-multiple-choice":
       return {
         id: quizItem.id,
@@ -152,7 +146,17 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         successMessage: quizItem.successMessage,
         options: quizItem.options,
       } as PrivateSpecQuizItemChooseN
-      break
+    case "multiple-choice-dropdown":
+      return {
+        id: quizItem.id,
+        type: "multiple-choice-dropdown",
+        order: quizItem.order,
+        body: quizItem.body,
+        title: quizItem.title,
+        failureMessage: quizItem.failureMessage,
+        successMessage: quizItem.successMessage,
+        options: quizItem.options,
+      } as PrivateSpecQuizItemMultiplechoiceDropdown
     default:
       console.error(`Unknown type: '${quizItem.type}'`)
   }

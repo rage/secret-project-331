@@ -1,6 +1,6 @@
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
 
-use reqwest::IntoUrl;
+use futures::future::BoxFuture;
 use url::Url;
 
 use crate::{
@@ -77,6 +77,7 @@ RETURNING *
 pub async fn fetch_and_upsert_service_info(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ExerciseServiceInfo> {
     let url = match exercise_service
         .internal_url
@@ -95,30 +96,8 @@ pub async fn fetch_and_upsert_service_info(
         }
         None => exercise_service.public_url.clone(),
     };
-    let fetched_info = fetch_service_info(url).await?;
+    let fetched_info = fetch_service_info(url.parse()?).await?;
     let res = upsert_service_info(conn, exercise_service.id, &fetched_info).await?;
-    Ok(res)
-}
-
-pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServiceInfoApi> {
-    let client = reqwest::Client::new();
-    let res = client
-        .get(url) // e.g. http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info
-        .timeout(Duration::from_secs(120))
-        .send()
-        .await?;
-    let status = res.status();
-    if !status.is_success() {
-        let response_url = res.url().to_string();
-        let body = res.text().await?;
-        warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "Could not fetch service info.".to_string(),
-            None,
-        ));
-    }
-    let res = res.json::<ExerciseServiceInfoApi>().await?;
     Ok(res)
 }
 
@@ -177,18 +156,23 @@ WHERE exercise_service_id = $1
 pub async fn get_service_info_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ExerciseServiceInfo> {
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
-    let service_info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
+    let service_info =
+        get_service_info_by_exercise_service(conn, &exercise_service, fetch_service_info).await?;
     Ok(service_info)
 }
 
 pub async fn get_all_exercise_services_by_type(
     conn: &mut PgConnection,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
     let mut exercise_services_by_type = HashMap::new();
     for exercise_service in get_exercise_services(conn).await? {
-        if let Ok(info) = get_service_info_by_exercise_service(conn, &exercise_service).await {
+        if let Ok(info) =
+            get_service_info_by_exercise_service(conn, &exercise_service, &fetch_service_info).await
+        {
             exercise_services_by_type
                 .insert(exercise_service.slug.clone(), (exercise_service, info));
         } else {
@@ -205,6 +189,7 @@ pub async fn get_all_exercise_services_by_type(
 pub async fn get_selected_exercise_services_by_type(
     conn: &mut PgConnection,
     slugs: &[String],
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<HashMap<String, (ExerciseService, ExerciseServiceInfo)>> {
     let selected_services = sqlx::query_as!(
         ExerciseService,
@@ -218,7 +203,9 @@ WHERE slug = ANY($1);",
     .await?;
     let mut exercise_services_by_type = HashMap::new();
     for exercise_service in selected_services {
-        let info = get_service_info_by_exercise_service(conn, &exercise_service).await?;
+        let info =
+            get_service_info_by_exercise_service(conn, &exercise_service, &fetch_service_info)
+                .await?;
         exercise_services_by_type.insert(exercise_service.slug.clone(), (exercise_service, info));
     }
     Ok(exercise_services_by_type)
@@ -227,6 +214,7 @@ WHERE slug = ANY($1);",
 pub async fn get_service_info_by_exercise_service(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ExerciseServiceInfo> {
     let res = get_service_info(conn, exercise_service.id).await;
     let service_info = if let Ok(exercise_service_info) = res {
@@ -234,7 +222,7 @@ pub async fn get_service_info_by_exercise_service(
     } else {
         warn!("Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.", exercise_service.name, exercise_service.slug);
 
-        fetch_and_upsert_service_info(conn, exercise_service).await?
+        fetch_and_upsert_service_info(conn, exercise_service, fetch_service_info).await?
     };
     Ok(service_info)
 }
@@ -246,9 +234,11 @@ indicate that the service info is unavailable.
 pub async fn get_course_material_service_info_by_exercise_type(
     conn: &mut PgConnection,
     exercise_type: &str,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Option<CourseMaterialExerciseServiceInfo>> {
     if let Ok(exercise_service) = get_exercise_service_by_exercise_type(conn, exercise_type).await {
-        let full_service_info = get_service_info_by_exercise_service(conn, &exercise_service).await;
+        let full_service_info =
+            get_service_info_by_exercise_service(conn, &exercise_service, fetch_service_info).await;
         let service_info_option = if let Ok(o) = full_service_info {
             // Need to convert relative url to absolute url because
             // otherwise the material won't be able to request the path

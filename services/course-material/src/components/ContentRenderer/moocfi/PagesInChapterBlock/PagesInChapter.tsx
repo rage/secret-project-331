@@ -39,8 +39,8 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
             className={cx(
               INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
               css`
-                font-size: 2.2rem;
-                font-weight: 500;
+                font-size: 2rem;
+                font-weight: 600;
                 text-align: center;
                 color: #1a2333;
                 margin-bottom: 2rem;

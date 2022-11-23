@@ -16,7 +16,10 @@ use models::{
 
 use chrono::{Duration, Utc};
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::{
+    domain::{authorization::skip_authorize, models_requests},
+    prelude::*,
+};
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -34,8 +37,13 @@ async fn get_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
-    let mut course_material_exercise =
-        models::exercises::get_course_material_exercise(&mut conn, user_id, *exercise_id).await?;
+    let mut course_material_exercise = models::exercises::get_course_material_exercise(
+        &mut conn,
+        user_id,
+        *exercise_id,
+        models_requests::fetch_service_info,
+    )
+    .await?;
     if course_material_exercise.can_post_submission
         && course_material_exercise.exercise.exam_id.is_some()
     {
@@ -90,6 +98,7 @@ async fn get_peer_review_for_exercise(
         &mut conn,
         user.id,
         *exercise_id,
+        models_requests::fetch_service_info,
     )
     .await?;
     let token = authorize(
@@ -208,6 +217,8 @@ async fn post_submission(
         &mut exercise_with_user_state,
         payload.0,
         GradingPolicy::Default,
+        models_requests::fetch_service_info,
+        models_requests::send_grading_request,
     )
     .await?;
 

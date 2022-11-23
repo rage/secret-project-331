@@ -9,7 +9,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../../shared-module/components/LandingPageHeroSection"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { headingFont, secondaryFont } from "../../../../shared-module/styles"
+import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
@@ -48,19 +48,19 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
         CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
       )}
     >
-      <h1
+      <h2
         className={css`
           font-style: normal;
-          font-weight: 600;
+          font-weight: 700;
           text-align: center;
-          padding-bottom: 1em;
-          line-height: 1.1;
-          font-size: clamp(30px, 3vw, 3rem);
-          margin-bottom: 1rem;
+          color: ${baseTheme.colors.gray[700]};
+          padding-bottom: 0.6em;
+          line-height: 140%;
+          font-size: clamp(28px, 3.5vw, 48px);
         `}
       >
         {t("course-overview")}
-      </h1>
+      </h2>
       {getChaptersInCourse.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}

@@ -10,7 +10,7 @@ import TableCellContent from "./TableCellContent"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
-  background-color: gray;
+  background-color: #f5f6f7;
   border-collapse: collapse;
   td {
     border: 2px solid #e1e1e199;

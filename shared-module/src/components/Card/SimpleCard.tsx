@@ -39,21 +39,21 @@ const CardContentWrapper = styled.div`
   ${BackgroundStyles}
 
   h2 {
-    font-size: 2.7rem;
-    font-weight: 500;
     z-index: 20;
-    line-height: 1em;
     color: #fff;
+    font-weight: 500;
+    line-height: 100%;
+    font-size: clamp(30px, 2.7rem, 46px);
   }
 
   span {
     color: #f5f6f7;
-    font-size: 1em;
+    font-size: clamp(16px, 1em, 20px);
     opacity: 0.9;
     z-index: 20;
     font-weight: 500;
     width: 50%;
-    line-height: 3em;
+    line-height: 2.5em;
   }
 `
 export const StyledSVG = (Image: any) => {
@@ -139,7 +139,6 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
             >
               <span
                 className={css`
-                  text-transform: uppercase;
                   font-family: ${headingFont};
                 `}
               >

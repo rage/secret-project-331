@@ -44,10 +44,12 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
     <>
       <h2
         className={css`
-          font-size: clamp(30px, 2vw, 2.4rem);
+          font-size: clamp(28px, 3.5vw, 46px);
           margin: 1rem;
-          font-weight: 500;
+          font-weight: 700;
+          color: #1a2333;
           text-align: center;
+          opacity: 0.9;
         `}
       >
         {t("track-your-progress")}

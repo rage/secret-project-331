@@ -29,18 +29,14 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
       cellText === "" &&
       (column > matrixSize[1] || row > matrixSize[0]) &&
       `
-      background-color: #ECECEC;
+      background-color: #f5f6f7;
 `
     }
     ${
-      (cellText !== "" && column > matrixSize[1]) ||
-      (cellText !== "" &&
-        row > matrixSize[0] &&
-        isActive &&
-        cellText.length === 0 &&
-        `
-      background-color: #DBDBDB;
-`)
+      cellText === "" &&
+      isActive &&
+      (column > matrixSize[1] || row > matrixSize[0]) &&
+      `background-color: #e2e4e6;`
     }
   `
 

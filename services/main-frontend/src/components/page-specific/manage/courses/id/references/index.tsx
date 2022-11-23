@@ -121,6 +121,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
                   return (
                     <li key={idx}>
                       <ErrorHeader>{r.citation_key}</ErrorHeader>
+                      <ErrorBanner error={error} variant="readOnly" />
                       <Button
                         size="medium"
                         variant="secondary"

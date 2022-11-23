@@ -15,6 +15,10 @@ env:
 jobs:
   system-tests:
     runs-on: ubuntu-latest
+    concurrency:
+      # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
+      group: system-tests-${{ github.head_ref || github.sha }}
+      cancel-in-progress: true
     steps:
       - name: Free up disk space
         run: |
@@ -44,7 +48,7 @@ jobs:
           sudo sysctl net/netfilter/nf_conntrack_max=131072
 
       - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.4.2
+        uses: manusa/actions-setup-minikube@v2.7.1
         with:
           minikube version: "v1.23.2"
           kubernetes version: "v1.22.4"

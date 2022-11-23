@@ -37,9 +37,9 @@ jobs:
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
-          kubectl: "1.22.4"
-          kustomize: "4.4.0"
-          skaffold: "1.35.0"
+          kubectl: "1.25.2"
+          kustomize: "4.5.7"
+          skaffold: "2.0.1"
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
         run: |
           # Workarounds this issue when starting up kube-system/kube-proxy:
@@ -50,8 +50,8 @@ jobs:
       - name: Install, start & configure minikube
         uses: manusa/actions-setup-minikube@v2.7.1
         with:
-          minikube version: "v1.23.2"
-          kubernetes version: "v1.22.4"
+          minikube version: "v1.28.0"
+          kubernetes version: "v1.25.3"
           start args: "--addons ingress --memory max"
           driver: "docker"
 

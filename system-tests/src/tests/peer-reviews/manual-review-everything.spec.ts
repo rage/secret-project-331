@@ -291,24 +291,3 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
   })
 })
-
-test("ManualReviewEverything > That gets the worst score gets sent to manual review", async ({
-  headless,
-}) => {
-  console.log("hello")
-})
-test("ManualReviewEverything > When an answer goes to manual review, the student won't get the points straight away", async ({
-  headless,
-}) => {
-  console.log("hello")
-})
-test("ManualReviewEverything > When the teacher manually reviews an answer, the user gets the points after it", async ({
-  headless,
-}) => {
-  console.log("hello")
-})
-test("ManualReviewEverything > If user submits multiple submissions to an exercise, and the answer goes to manual review after that, the manual review ui shows those submissions as grouped instead of two separate entries", async ({
-  headless,
-}) => {
-  console.log("hello")
-})

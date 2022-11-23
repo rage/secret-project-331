@@ -20,6 +20,10 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
+    peer_review_configs::PeerReviewAcceptingStrategy::{
+        AutomaticallyAcceptOrManualReviewByAverage, AutomaticallyAcceptOrRejectByAverage,
+        ManualReviewEverything,
+    },
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
@@ -355,8 +359,6 @@ pub async fn seed_sample_course(
         },
     )
     .await?;
-
-    create_best_peer_review(&mut conn, course_id, exercise_1_id).await?;
 
     let exercise_2_id = Uuid::new_v5(&course_id, b"36e7f0c2-e663-4382-a503-081866cfe7d0");
     let exercise_2_slide_1_id = Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8");
@@ -2572,7 +2574,14 @@ pub async fn seed_course_without_submissions(
     )
     .await?;
 
-    create_best_peer_review(&mut conn, course_id, exercise_1_id).await?;
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_1_id,
+        ManualReviewEverything,
+        3.0,
+    )
+    .await?;
 
     let exercise_2_id = Uuid::new_v5(&course_id, b"36e7f0c2-e663-4382-a503-081866cfe7d0");
     let exercise_2_slide_1_id = Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8");
@@ -2657,6 +2666,24 @@ pub async fn seed_course_without_submissions(
                 exercise_block_4,
             ]),
         },
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_2_id,
+        AutomaticallyAcceptOrManualReviewByAverage,
+        2.5,
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_3_id,
+        AutomaticallyAcceptOrRejectByAverage,
+        2.0,
     )
     .await?;
 

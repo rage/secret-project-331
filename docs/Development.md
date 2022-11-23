@@ -10,6 +10,8 @@
 
 ## Setting up development environment on Linux
 
+**After you're done installing everything, please run `bin/print-versions` to verify you have everything installed.**
+
 ### Development tools
 
 #### DevOps

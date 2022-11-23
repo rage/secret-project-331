@@ -329,14 +329,14 @@ For macOS, you can use [Iterm2](https://iterm2.com/)
 
 **Verify that you've setup minikube corretly by running `bin/detect-dev-env-problems`.**
 
-Aftwards, in the root of the repo, run: `bin/dev`. This script will start the development environment inside minikube with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+Afterwards, in the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
 ### Windows
 
 Start Windows Terminal (Make sure you are using _Cygwin_ terminal)
 
-In the root of the repo, run: `bin/dev`. This script will start the development environment inside minikube with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
 ### Mac
 
-In the root of the repo, run: `bin/dev`. This script will start the development environment inside minikube with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.

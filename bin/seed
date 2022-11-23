@@ -5,4 +5,11 @@ source "$(dirname "$0")/.common"
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name --sort-by=.metadata.creationTimestamp | tac | head -n 1)
 [ -z "$POD_NAME" ] && { echo "Failed to find pod name. Note that this command assumes you have the headless-lms pod running."; exit 1; }
 
-run_command kubectl exec -it "$POD_NAME" "$@" -- cargo run -- seed "$@"
+NUMBER_OF_CARGO_FILES=$(kubectl exec -it "$POD_NAME" -- ls | grep -c Cargo.toml || true)
+
+if [ "$NUMBER_OF_CARGO_FILES" -eq "0" ]; then
+  echo "Error: this command is meant to be used with bin/dev but you have bin/test running. Please use bin/setup-system-test-db or switch to bin/dev."
+  exit 255
+fi
+
+run_command kubectl exec -it "$POD_NAME" -- cargo run -- seed "$@"

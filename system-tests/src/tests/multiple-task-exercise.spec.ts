@@ -7,9 +7,9 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-const FIRST_TASK = `[title="Exercise 1, task 0 content"]`
-const SECOND_TASK = `[title="Exercise 1, task 1 content"]`
-const THIRD_TASK = `[title="Exercise 1, task 2 content"]`
+const FIRST_TASK = `[title="Exercise 1, task 1 content"]`
+const SECOND_TASK = `[title="Exercise 1, task 2 content"]`
+const THIRD_TASK = `[title="Exercise 1, task 3 content"]`
 const CORRECT = `button:has-text("Correct") >> nth=0`
 const INCORRECT = `button:has-text("Incorrect")`
 

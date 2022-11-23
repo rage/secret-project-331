@@ -10,6 +10,13 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
 [ -z "$POD_NAME" ] && { echo "Failed to find pod name"; exit 1; }
 
+NUMBER_OF_CARGO_FILES=$(kubectl exec -it "$POD_NAME" -- ls | grep -c Cargo.toml || true)
+
+if [ "$NUMBER_OF_CARGO_FILES" -ne "0" ]; then
+  echo "Error: this command is meant to be used with bin/test but you have bin/dev running. Please use bin/seed or switch to bin/test."
+  exit 255
+fi
+
 run_command kubectl exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432
 
 run_command cd "$RELATIVE_PATH" || exit

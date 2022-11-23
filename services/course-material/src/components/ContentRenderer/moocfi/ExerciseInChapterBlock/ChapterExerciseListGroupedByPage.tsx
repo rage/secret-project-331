@@ -79,7 +79,7 @@ const ChapterExerciseListGroupedByPage: React.FC<
                       )}
                       // eslint-disable-next-line i18next/no-literal-string
                       bg={"rgb(242, 245, 247)"}
-                      exerciseIndex={e.order_number}
+                      exerciseIndex={e.order_number + 1}
                       exerciseTitle={e.name}
                       scoreMaximum={e.score_maximum}
                       userPoints={userPoints}

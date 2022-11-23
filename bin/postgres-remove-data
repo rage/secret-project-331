@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+NUM_POSTGRES_PODS_RUNNING=$(kubectl get pods 2> /dev/null | grep -c postgres || true)
+
+if [ "$NUM_POSTGRES_PODS_RUNNING" -ne "0" ]; then
+  echo "Error: you seem to have postgres running (see bin/pods). Please close postgres by closing all instances bin/dev or bin/test or bin/dev-only-db. If you don't have these running can try bin/skaffold-delete."
+  exit 255
+fi
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/minikube-shell"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+# extra check to make sure the command works
+
+echo "Making sure that the bin/minikube-shell command works..."
+"$RELATIVE_PATH" -- true
+echo "bin/minkube-shell seems ok."
+echo ""
+
+echo "Removing the data files for the minikube postgres. You should get a new database the next time you start the development environment."
+run_command "$RELATIVE_PATH" -- sudo rm -rf /mnt/data
+

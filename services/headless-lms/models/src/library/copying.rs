@@ -400,6 +400,7 @@ WHERE course_id = $2
     Ok(())
 }
 
+/// After this one `set_chapter_front_pages` needs to be called to get these to point to the correct front pages.
 async fn copy_course_chapters(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
@@ -465,7 +466,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE course_id = $2
@@ -524,7 +525,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE exam_id = $2
@@ -881,7 +882,17 @@ mod tests {
                 .unwrap();
             assert_eq!(copied_tasks.len(), 1);
             let copied_task = copied_tasks.first().unwrap();
-            assert_eq!(copied_task.copied_from, Some(task))
+            assert_eq!(copied_task.copied_from, Some(task));
+
+            // Make sure we don't have the bug where the chapter id pointed to the old chapter in the exercises.
+            let original_course_chapters = crate::chapters::course_chapters(tx.as_mut(), course.id)
+                .await
+                .unwrap();
+            for original_chapter in original_course_chapters {
+                for copied_exercise in &copied_exercises {
+                    assert_ne!(original_chapter.id, copied_exercise.id);
+                }
+            }
         }
 
         fn create_new_course(organization_id: Uuid) -> NewCourse {

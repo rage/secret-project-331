@@ -202,7 +202,7 @@ test("test", async ({ page, headless }) => {
 
   // Wait for the exercise to load because otherwise it might mess up the screenshot
   await page1
-    .frameLocator(`[title="Exercise 1, task 0 content"]`)
+    .frameLocator(`[title="Exercise 1, task 1 content"]`)
     .locator(`button:text-is("a")`)
     .waitFor()
 

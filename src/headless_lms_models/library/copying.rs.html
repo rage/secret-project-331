@@ -899,6 +899,17 @@
 <span id="899">899</span>
 <span id="900">900</span>
 <span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1301,7 +1312,8 @@ WHERE course_id = $2
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">async fn </span>copy_course_chapters(
+<span class="doccomment">/// After this one `set_chapter_front_pages` needs to be called to get these to point to the correct front pages.
+</span><span class="kw">async fn </span>copy_course_chapters(
     tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
     namespace_id: Uuid,
     parent_course_id: Uuid,
@@ -1366,7 +1378,7 @@ AND deleted_at IS NULL;
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE course_id = $2
@@ -1425,7 +1437,7 @@ AND deleted_at IS NULL;
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE exam_id = $2
@@ -1782,7 +1794,17 @@ AND deleted_at IS NULL;
                 </span>.unwrap();
             <span class="macro">assert_eq!</span>(copied_tasks.len(), <span class="number">1</span>);
             <span class="kw">let </span>copied_task = copied_tasks.first().unwrap();
-            <span class="macro">assert_eq!</span>(copied_task.copied_from, <span class="prelude-val">Some</span>(task))
+            <span class="macro">assert_eq!</span>(copied_task.copied_from, <span class="prelude-val">Some</span>(task));
+
+            <span class="comment">// Make sure we don&#39;t have the bug where the chapter id pointed to the old chapter in the exercises.
+            </span><span class="kw">let </span>original_course_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), course.id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">for </span>original_chapter <span class="kw">in </span>original_course_chapters {
+                <span class="kw">for </span>copied_exercise <span class="kw">in </span><span class="kw-2">&amp;</span>copied_exercises {
+                    <span class="macro">assert_ne!</span>(original_chapter.id, copied_exercise.id);
+                }
+            }
         }
 
         <span class="kw">fn </span>create_new_course(organization_id: Uuid) -&gt; NewCourse {

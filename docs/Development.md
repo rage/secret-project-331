@@ -10,6 +10,8 @@
 
 ## Setting up development environment on Linux
 
+**After you're done installing everything, please run `bin/print-versions` to verify you have everything installed.**
+
 ### Development tools
 
 #### DevOps
@@ -226,7 +228,9 @@ You don't need these if you don't intend to change the headless-lms.
 
 ## Starting minikube
 
-Run the command `./bin/minikube-start` from the root directory
+**Before you do this the first time:** If you're running Linux, you can detect common problems with your setup by running `bin/detect-dev-env-problems` on the repo root. Once you see this script printing `Minikube is not running. Please start it with bin/minikube-start and run this again.`, you can proceed to the next step.
+
+Run the command `./bin/minikube-start` from the root directory. If you're having problems with getting Minikube to start, ru
 
 ## Setting up local domain
 
@@ -251,6 +255,8 @@ You can find the hosts file in Linux from `/etc/hosts`.
 After that, you should be able to access the application by going to `http://project-331.local/` in your web browser.
 
 Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
+
+\*\*If you're having problems with minikube, try running ``
 
 ### Windows
 
@@ -309,9 +315,9 @@ Add the environment variables for the headless-lms by the following command
 cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ```
 
-## Starting development cluster
+## Starting development the application
 
-Before starting the cluster, make sure skaffold is running.
+Before starting the application, make sure minikube is running.
 
 TIP: For multiple terminal windows, we recommend you to use a terminal with split window support for convenience.
 
@@ -323,14 +329,16 @@ For macOS, you can use [Iterm2](https://iterm2.com/)
 
 ### Linux
 
-In the root of the repo, run: `bin/dev`. This script will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+**Verify that you've setup minikube corretly by running `bin/detect-dev-env-problems`.**
+
+Afterwards, in the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
 ### Windows
 
 Start Windows Terminal (Make sure you are using _Cygwin_ terminal)
 
-In the root of the repo, run: `bin/dev`. This script will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
 ### Mac
 
-In the root of the repo, run: `bin/dev`. This script will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.

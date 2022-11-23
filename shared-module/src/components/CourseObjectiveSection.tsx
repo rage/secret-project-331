@@ -39,7 +39,6 @@ const TextBox = styled.div`
 
   h2 {
     z-index: 20;
-    font-size: 3.5rem;
     font-size: clamp(30px, 3vw, 3rem);
     font-style: normal;
     font-weight: 600;

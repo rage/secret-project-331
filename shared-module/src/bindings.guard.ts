@@ -594,6 +594,7 @@ export function isAutomaticCompletionRequirements(
   const typedObj = obj as AutomaticCompletionRequirements
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
     (typedObj["number_of_exercises_attempted_treshold"] === null ||
       typeof typedObj["number_of_exercises_attempted_treshold"] === "number") &&
     (typedObj["number_of_points_treshold"] === null ||
@@ -2470,7 +2471,8 @@ export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
       (isPage(typedObj["page"]) as boolean) &&
       (isExamEnrollment(typedObj["enrollment"]) as boolean)) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["tag"] === "NotEnrolled") ||
+      typedObj["tag"] === "NotEnrolled" &&
+      typeof typedObj["can_enroll"] === "boolean") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "NotYetStarted") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&

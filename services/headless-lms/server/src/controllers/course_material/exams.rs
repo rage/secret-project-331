@@ -49,8 +49,19 @@ pub async fn enroll(
 
     if let Some(starts_at) = exam.starts_at {
         if now > starts_at {
+            // This check should probably be handled in the authorize function but I'm not sure of
+            // the proper action type.
+            let can_start =
+                models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id)
+                    .await?;
+            if !can_start {
+                return Err(ControllerError::new(
+                    ControllerErrorType::Forbidden,
+                    "User is not allowed to enroll to the exam.".to_string(),
+                    None,
+                ));
+            }
             exams::enroll(&mut conn, *exam_id, user.id).await?;
-            // Anyone should be able to start an exam.
             let token = skip_authorize()?;
             return token.authorized_ok(web::Json(()));
         }
@@ -86,7 +97,9 @@ pub enum ExamEnrollmentData {
         page: Box<Page>,
         enrollment: ExamEnrollment,
     },
-    NotEnrolled,
+    NotEnrolled {
+        can_enroll: bool,
+    },
     NotYetStarted,
     StudentTimeUp,
 }
@@ -164,6 +177,8 @@ pub async fn fetch_exam_for_user(
     } else {
         // user has not started the exam
         let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+        let can_enroll =
+            models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id).await?;
         return token.authorized_ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
@@ -172,7 +187,7 @@ pub async fn fetch_exam_for_user(
             ends_at,
             ended,
             time_minutes: exam.time_minutes,
-            enrollment_data: ExamEnrollmentData::NotEnrolled,
+            enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll },
         }));
     };
 

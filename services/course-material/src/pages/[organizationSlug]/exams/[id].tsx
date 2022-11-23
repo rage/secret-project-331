@@ -165,6 +165,11 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     </BreakFromCentered>
   )
 
+  const canStartExam =
+    exam.data.enrollment_data.tag === "NotEnrolled"
+      ? exam.data.enrollment_data.can_enroll ?? false
+      : false
+
   if (
     exam.data.enrollment_data.tag === "NotEnrolled" ||
     exam.data.enrollment_data.tag === "NotYetStarted"
@@ -179,6 +184,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                 await enrollInExam(examId)
                 exam.refetch()
               }}
+              canStartExam={canStartExam}
               examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
               examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
               timeMinutes={exam.data.time_minutes}

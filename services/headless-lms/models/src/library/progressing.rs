@@ -2,13 +2,14 @@ use itertools::Itertools;
 use std::collections::HashMap;
 
 use crate::{
+    course_exams,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_instances::{self, CourseInstance},
     course_module_completions::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    course_modules::{self, CompletionPolicy, CourseModule},
+    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
     user_course_settings, user_exercise_states,
@@ -118,23 +119,82 @@ async fn user_is_eligible_for_automatic_completion(
 ) -> ModelResult<bool> {
     match &course_module.completion_policy {
         CompletionPolicy::Automatic(requirements) => {
-            let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+            let eligible = user_passes_automatic_completion_exercise_tresholds(
                 conn,
-                course_instance_id,
-                course_module.id,
                 user_id,
+                requirements,
+                course_instance_id,
             )
             .await?;
-            let attempted_exercises: i32 = user_metrics
-                .attempted_exercises
-                .map_or(Ok(0), |x| x.try_into())?;
-            let exercise_points = user_metrics.score_given.unwrap_or(0.0) as i32;
-            let eligible =
-                requirements.passes_exercise_tresholds(attempted_exercises, exercise_points);
             Ok(eligible)
+            // TODO: Check for exam stuff here.
         }
         CompletionPolicy::Manual => Ok(false),
     }
+}
+
+/// Checks whether the student can partake in an exam.
+///
+/// The result of this process depends on the configuration for the exam. If the exam is not linked
+/// to any course, the user will always be able to take it by default. Otherwise the student
+/// progress in their current selected instances is compared against any of the linked courses, and
+/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses have
+/// automatic completion configuration, the exam is once again allowed to be taken by default.
+#[instrument(skip(conn))]
+pub async fn user_can_take_exam(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    let course_ids = course_exams::get_course_ids_by_exam_id(conn, exam_id).await?;
+    let settings = user_course_settings::get_all_by_user_and_multiple_current_courses(
+        conn,
+        &course_ids,
+        user_id,
+    )
+    .await?;
+    let mut automatic_eligibility = None;
+    for course_id in course_ids {
+        let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
+        if let CompletionPolicy::Automatic(requirements) = &default_module.completion_policy {
+            if let Some(s) = settings.iter().find(|x| x.current_course_id == course_id) {
+                let eligible = user_passes_automatic_completion_exercise_tresholds(
+                    conn,
+                    s.user_id,
+                    requirements,
+                    s.current_course_instance_id,
+                )
+                .await?;
+                if eligible {
+                    // Only one current instance needs to pass the tresholds.
+                    automatic_eligibility = Some(true);
+                    break;
+                }
+            }
+            automatic_eligibility = Some(false);
+        }
+    }
+    // By default the exam can be taken if it is only linked to manual completion courses.
+    Ok(automatic_eligibility.unwrap_or(true))
+}
+
+async fn user_passes_automatic_completion_exercise_tresholds(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    requirements: &AutomaticCompletionRequirements,
+    course_instance_id: Uuid,
+) -> ModelResult<bool> {
+    let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+        conn,
+        course_instance_id,
+        requirements.course_module_id,
+        user_id,
+    )
+    .await?;
+    let attempted_exercises: i32 = user_metrics.attempted_exercises.unwrap_or(0) as i32;
+    let exercise_points = user_metrics.score_given.unwrap_or(0.0) as i32;
+    let eligible = requirements.passes_exercise_tresholds(attempted_exercises, exercise_points);
+    Ok(eligible)
 }
 
 /// Fetches all course module completions for the given user on the given course and updates the
@@ -766,13 +826,14 @@ mod tests {
         async fn create_test_data(
             mut tx: Tx<'_>,
         ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
+            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             let automatic_completion_policy =
                 CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: course_module.id,
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
                     number_of_exam_points_treshold: None,
                 });
-            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await
                 .unwrap();

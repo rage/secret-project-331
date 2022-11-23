@@ -102,6 +102,7 @@ pub async fn seed_organization_uh_cs(
         &mut conn,
         automatic_default_module.id,
         &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_default_module.id,
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
             number_of_exam_points_treshold: None,

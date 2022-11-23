@@ -100,6 +100,7 @@ impl From<CourseModulesSchema> for CourseModule {
     fn from(schema: CourseModulesSchema) -> Self {
         let completion_policy = if schema.automatic_completion {
             CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: schema.id,
                 number_of_exercises_attempted_treshold: schema
                     .automatic_completion_number_of_exercises_attempted_treshold,
                 number_of_points_treshold: schema.automatic_completion_number_of_points_treshold,
@@ -396,6 +397,8 @@ WHERE uh_course_code IS NOT NULL
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AutomaticCompletionRequirements {
+    /// Course module associated with these requirements.
+    pub course_module_id: Uuid,
     pub number_of_exercises_attempted_treshold: Option<i32>,
     pub number_of_points_treshold: Option<i32>,
     pub number_of_exam_points_treshold: Option<i32>,

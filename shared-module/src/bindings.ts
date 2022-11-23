@@ -239,6 +239,7 @@ export interface CourseModuleCompletionWithRegistrationInfo {
 }
 
 export interface AutomaticCompletionRequirements {
+  course_module_id: string
   number_of_exercises_attempted_treshold: number | null
   number_of_points_treshold: number | null
   number_of_exam_points_treshold: number | null
@@ -1395,7 +1396,7 @@ export interface ExamData {
 
 export type ExamEnrollmentData =
   | { tag: "EnrolledAndStarted"; page_id: string; page: Page; enrollment: ExamEnrollment }
-  | { tag: "NotEnrolled" }
+  | { tag: "NotEnrolled"; can_enroll: boolean }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
 

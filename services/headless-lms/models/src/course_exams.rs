@@ -16,6 +16,26 @@ SET deleted_at = NULL;
     Ok(())
 }
 
+/// Gets all course ids associated with the given exam id.
+pub async fn get_course_ids_by_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT course_id
+FROM course_exams
+WHERE exam_id = $1
+  AND deleted_at IS NULL
+        ",
+        exam_id,
+    )
+    .map(|x| x.course_id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn delete(conn: &mut PgConnection, exam_id: Uuid, course_id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "

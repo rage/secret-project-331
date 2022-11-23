@@ -7197,6 +7197,22 @@
     },
     "query": "\nINSERT INTO exercise_slide_submissions (\n    id,\n    exercise_slide_id,\n    course_id,\n    course_instance_id,\n    exam_id,\n    exercise_id,\n    user_id,\n    user_points_update_strategy\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\n        "
   },
+  "6b1d2d02c551a78e8ac46f38a69af4a12fcdf343700d147064fa97603558a19e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "course_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT course_id\nFROM course_exams\nWHERE exam_id = $1\n  AND deleted_at IS NULL\n        "
+  },
   "6b764fb042540c04fc7a581e5e95427dbd071d439b167d5b541a5e3054110e58": {
     "describe": {
       "columns": [
@@ -11825,6 +11841,52 @@
       }
     },
     "query": "\nINSERT INTO exam_enrollments (exam_id, user_id)\nVALUES ($1, $2)\n"
+  },
+  "a0b48249b8e8eaabcb2549b040ac9c368170235edd5c605028ed2d16f72e1ce6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_language_group_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "current_course_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "current_course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_course_settings\nWHERE current_course_id = ANY($1)\n  AND user_id = $2\n  AND deleted_at IS NULL\n        "
   },
   "a1950c52d0c3a14f61af932da633d933b302959a471958bea0d15215205423c8": {
     "describe": {

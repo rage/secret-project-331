@@ -310,7 +310,7 @@ fn controllers() {
         ends_at,
         ended: false,
         time_minutes: 120,
-        enrollment_data: ExamEnrollmentData::NotEnrolled
+        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true }
     });
     doc!(ExerciseSubmissions {
         data,

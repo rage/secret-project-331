@@ -15,10 +15,10 @@ function print_version() {
   installed_version="Not installed"
   color=$RED
   set +e
-  # if command -v "$binary" &> /dev/null; then
-    installed_version=$($binary "${args[@]}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+  if command -v "$binary" &> /dev/null; then
+    installed_version=$($binary "${args[@]}" 2> /dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
     color=$GREEN
-  # fi
+  fi
   set -e
   printf "%-15s ${color}%s${RESET_EVERYTHING}\n" "$program_name:" "$installed_version"
 }

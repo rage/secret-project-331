@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
-import axios from "axios"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"

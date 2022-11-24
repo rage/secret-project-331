@@ -80,7 +80,6 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
               background: ${bg};
               background-position: center center;
               background-size: contain;
-              background: ${bg};
               `}
           `}
         ></div>

@@ -21,7 +21,7 @@ const HightlightBlock: React.FC<
     <>
       <div
         className={css`
-          padding: 1.5rem;
+          padding: 1rem 1.5rem;
           background-color: #fafbfb;
           margin: 1rem 0;
           border: 1px solid #e2e4e6;
@@ -33,6 +33,14 @@ const HightlightBlock: React.FC<
             margin-left: auto;
             margin-right: auto;
             padding: 0rem 1.375rem;
+
+            span {
+              font-size: 18px;
+
+              ${respondToOrLarger.md} {
+                font-size: 20px;
+              }
+            }
             ${respondToOrLarger.md} {
               padding: 0rem;
             }

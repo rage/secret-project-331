@@ -43,7 +43,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
               <h2
                 className={css`
                   font-family: ${headingFont};
-                  font-size: clamp(28px, 3.5vw, 46px);
+                  font-size: clamp(30px, 3.5vw, 46px);
                   font-weight: 700;
                   color: #1a2333;
                   text-align: center;

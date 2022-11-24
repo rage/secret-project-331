@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import CircularCheck from "../../../../img/circular-check.svg"
+import Badge from "../../../../img/grade-badge.svg"
 import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
 import { headingFont, typography } from "../../../../shared-module/styles"
 
@@ -29,7 +29,7 @@ const Wrapper = styled.div`
     line-height: 30px;
   }
 `
-const StyledSVG = styled(CircularCheck)`
+const StyledBadgeSVG = styled(Badge)`
   position: absolute;
   top: 26px;
   right: 29px;
@@ -42,7 +42,7 @@ export interface ModuleCardProps {
 const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
   return (
     <Wrapper>
-      {module.completed && <StyledSVG />}
+      {module.completed && <StyledBadgeSVG />}
       <h2
         className={css`
           font-size: ${typography.h5};

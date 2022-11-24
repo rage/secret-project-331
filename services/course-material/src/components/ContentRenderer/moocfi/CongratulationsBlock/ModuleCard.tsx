@@ -40,7 +40,6 @@ const Wrapper = styled.div`
     line-height: 30px;
   }
 `
-const StyledBadgeSVG = styled(Badge)``
 
 // eslint-disable-next-line i18next/no-literal-string
 const BadgeWrapper = styled.div`
@@ -51,20 +50,20 @@ const BadgeWrapper = styled.div`
   height: auto;
   transform: rotate(-30deg);
 
-  .badge {
+  .grade {
     position: absolute;
     top: 18px;
-    left: 26px;
+    left: 23px;
     font-family: ${monospaceFont};
-    font-size: 8px;
+    font-size: 10px;
     color: #535a66;
   }
   .points {
     position: absolute;
-    top: 24px;
-    left: 30px;
-    font-family: ${monospaceFont};
-    font-size: 24px;
+    top: 28px;
+    left: 20px;
+    font-family: ${headingFont};
+    font-size: 18px;
     font-weight: 700;
     color: ${baseTheme.colors.grey[700]};
   }
@@ -81,9 +80,9 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module
       {/* REMOVE THIS WHEN COMPLETE */}
       {!module.completed && (
         <BadgeWrapper>
-          <StyledBadgeSVG />
-          <span className="badge">{t("badge")}</span>
-          <span className="points">0</span>
+          <Badge />
+          <span className="grade">{t("grade")}</span>
+          <span className="points">FAIL</span>
         </BadgeWrapper>
       )}
       <h2

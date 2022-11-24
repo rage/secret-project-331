@@ -22,7 +22,8 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: hidden !important;
+  margin: 1rem 0;
 `
 const Content = styled.div`
   width: 100%;
@@ -32,8 +33,8 @@ const Content = styled.div`
   z-index: 99;
 
   .heading {
-    color: #f5f6f7;
-    font-weight: extra-bold;
+    color: #ffff;
+    font-weight: 800;
     font-size: clamp(30px, 5vw, 70px) !important;
   }
 
@@ -43,6 +44,7 @@ const Content = styled.div`
     font-weight: 500;
     width: 100%;
     color: #fff;
+    line-height: 150%;
     opacity: 1;
 
     ${respondToOrLarger.md} {

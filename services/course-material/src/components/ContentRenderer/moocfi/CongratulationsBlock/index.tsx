@@ -33,8 +33,10 @@ const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
       {getModuleCompletions.isLoading && null}
       {getModuleCompletions.isSuccess && (
         <>
-          {/* This block is only visible after the default module is completed. */}
-          {getModuleCompletions.data.some((x) => x.default && x.completed) && (
+          {/* This block is only visible after the default module is completed.
+              CHANGE THIS LOGIC WHEN DONE
+          */}
+          {getModuleCompletions.data.some((x) => !x.default && !x.completed) && (
             <BreakFromCentered sidebar={false}>
               <Congratulations modules={getModuleCompletions.data} />
             </BreakFromCentered>

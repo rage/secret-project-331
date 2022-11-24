@@ -15,8 +15,10 @@ const CTAWrapper = styled.div`
 
 const StyledLink = styled.a`
   padding: 1rem;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.1;
+  color: #044743 !important;
+  text-decoration: underline;
 `
 
 export interface CongratulationsLinksProps {

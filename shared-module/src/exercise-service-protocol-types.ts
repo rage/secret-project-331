@@ -15,8 +15,7 @@ export interface CurrentStateMessage {
 
 export interface FileUploadMessage {
   message: "file-upload"
-  url: string
-  data: unknown
+  files: Map<string, string | Blob>
 }
 
 export interface HeightChangedMessage {
@@ -41,7 +40,7 @@ export type UploadResultMessage =
   | {
       message: "upload-result"
       success: true
-      url: string
+      urls: Map<string, string>
     }
   | {
       message: "upload-result"
@@ -81,7 +80,8 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
-      data: { private_spec: unknown; repository_exercise?: RepositoryExercise }
+      repository_exercises?: Array<RepositoryExercise>
+      data: { private_spec: unknown }
     }
 
 export type IframeViewType = IframeState["view_type"]

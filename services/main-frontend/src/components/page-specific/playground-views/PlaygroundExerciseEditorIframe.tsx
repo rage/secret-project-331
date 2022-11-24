@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
-import axios from "axios"
 
+import { RepositoryExercise } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
@@ -18,6 +18,7 @@ interface PlaygroundExerciseEditorIframeProps {
   showIframeBorders: boolean
   disableSandbox: boolean
   userInformation: UserInformation
+  repositoryExercises: Array<RepositoryExercise>
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -32,6 +33,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
   showIframeBorders,
   disableSandbox,
   userInformation,
+  repositoryExercises,
 }) => {
   // Makes sure the iframe renders again when the data changes
   const iframeKey = url + JSON.stringify(privateSpec) + disableSandbox
@@ -52,6 +54,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
             private_spec: privateSpec,
           },
           user_information: userInformation,
+          repository_exercises: repositoryExercises,
         }}
         onMessageFromIframe={async (msg, responsePort) => {
           if (isMessageFromIframe(msg)) {
@@ -59,7 +62,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
               // eslint-disable-next-line i18next/no-literal-string
-              await onUploadFileMessage("playground", msg.data, responsePort)
+              await onUploadFileMessage("playground", msg.files, responsePort)
             }
           }
         }}

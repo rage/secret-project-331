@@ -1373,6 +1373,12 @@ fn models() {
                 .unwrap()
         }],
     });
+    doc!(HashMap<String, String>, {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), "val1".to_string());
+        map.insert("key2".to_string(), "val2".to_string());
+        map
+    });
 }
 
 fn utils() {

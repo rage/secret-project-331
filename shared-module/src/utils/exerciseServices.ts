@@ -26,6 +26,6 @@ export const onUploadFileMessage = async (
       success: false,
       error: JSON.stringify(e, null, 2),
     }
-    responsePort.postMessage(msg)
   }
+  responsePort.postMessage(msg)
 }

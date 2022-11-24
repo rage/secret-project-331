@@ -77,6 +77,8 @@ print_version "Skaffold" skaffold version
 print_version "Kubectl" kubectl version -o yaml
 print_version "Kustomize" kustomize version --short
 print_version "Minikube" minikube version
+print_version "Stern" stern --version
+print_is_installed "Kubectx" kubectx
 
 echo -e "\n-----[ Utilities ]------"
 print_version "bc" bc --version
@@ -86,3 +88,4 @@ print_version_two_numbers "getent" getent --version
 print_is_installed "sponge" sponge
 print_version "rsync" rsync --version
 print_version "actionlint" actionlint --version
+

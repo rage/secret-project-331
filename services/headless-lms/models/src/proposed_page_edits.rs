@@ -273,6 +273,7 @@ pub async fn process_proposal(
     author: Uuid,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -457,7 +458,7 @@ mod test {
                 history_change_reason: HistoryChangeReason::PageSaved,
                 is_exam_page: false,
             },
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -512,7 +513,7 @@ mod test {
                 action: BlockProposalAction::Accept("Content with a typo in it.".to_string()),
             }],
             user,
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -567,7 +568,7 @@ mod test {
                 action: BlockProposalAction::Reject,
             }],
             user,
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await

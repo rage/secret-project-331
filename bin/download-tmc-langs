@@ -24,7 +24,7 @@ echo "Downloading CLI"
 run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_FILENAME"
 run_command chmod +x "$LANGS_FILENAME"
 
-GENERATED_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/bindings/tmc-langs-node/ts/generated.d.ts"
+GENERATED_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/bindings/tmc-langs-node/ts/generated.d.ts"
 GENERATED_DOWNLOAD_TARGET="./src/tmc/generated.d.ts"
 GENERATED_GUARD="./src/tmc/generated.guard.ts"
 

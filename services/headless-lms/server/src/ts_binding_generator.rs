@@ -32,6 +32,7 @@ fn domain(target: &mut File) {
         authorization::Resource,
         error::ErrorData,
         error::ErrorResponse,
+        models_requests::SpecRequest,
     };
 }
 

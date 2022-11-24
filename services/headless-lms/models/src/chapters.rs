@@ -611,7 +611,7 @@ mod tests {
                     is_test_mode: false,
                 },
                 user,
-                |_, _| unimplemented!(),
+                |_, _, _| unimplemented!(),
                 |_| unimplemented!(),
             )
             .await

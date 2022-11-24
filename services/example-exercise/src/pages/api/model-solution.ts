@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
+import { SpecRequest } from "../../shared-module/bindings"
 import {
   ClientErrorResponse,
   ModelSolutionApi,
@@ -19,7 +20,8 @@ const handlePost = (
   req: NextApiRequest,
   res: NextApiResponse<ModelSolutionApi | ClientErrorResponse>,
 ) => {
-  const uncheckedAlternatives: unknown = req.body
+  const specRequest = req.body as SpecRequest
+  const uncheckedAlternatives: unknown = specRequest.private_spec
   if (!Array.isArray(uncheckedAlternatives)) {
     return res
       .status(400)

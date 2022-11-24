@@ -1,6 +1,11 @@
+use std::sync::Arc;
+
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
 
-use crate::{domain::models_requests, prelude::*};
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    prelude::*,
+};
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -74,6 +79,7 @@ pub async fn process_edit_proposal(
     proposal: web::Json<EditProposalInfo>,
     user: AuthUser,
     pool: web::Data<PgPool>,
+    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let proposal = proposal.into_inner();
@@ -84,7 +90,7 @@ pub async fn process_edit_proposal(
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

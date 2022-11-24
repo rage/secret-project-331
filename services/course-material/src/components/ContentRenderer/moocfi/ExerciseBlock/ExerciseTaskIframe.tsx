@@ -40,7 +40,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
               setAnswer({ data, valid })
             }
           } else if (messageContainer.message === "file-upload") {
-            await onUploadFileMessage(exerciseServiceSlug, messageContainer.data, responsePort)
+            await onUploadFileMessage(exerciseServiceSlug, messageContainer.files, responsePort)
           }
         }
       }}

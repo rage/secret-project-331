@@ -74,7 +74,7 @@ const ExerciseTaskIFrameEditor: React.FC<
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
           } else if (messageContainer.message === "file-upload") {
-            await onUploadFileMessage(exerciseServiceSlug, messageContainer.data, responsePort)
+            await onUploadFileMessage(exerciseServiceSlug, messageContainer.files, responsePort)
           }
         } else {
           console.error(UNEXPECTED_MESSAGE_ERROR)

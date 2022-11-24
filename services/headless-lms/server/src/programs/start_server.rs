@@ -1,6 +1,6 @@
 use std::{env, sync::Arc};
 
-use crate::{setup_tracing, OAuthClient};
+use crate::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
 use actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
@@ -40,6 +40,8 @@ pub async fn main() -> anyhow::Result<()> {
     let base_url = env::var("BASE_URL").expect("BASE_URL must be defined");
     let test_mode = env::var("TEST_MODE").is_ok();
     let allow_no_https_for_development = env::var("ALLOW_NO_HTTPS_FOR_DEVELOPMENT").is_ok();
+    let jwt_key = JwtKey::try_from_env().expect("Failed to create JwtKey");
+
     if test_mode {
         info!("***********************************");
         info!("*  Starting backend in test mode  *");
@@ -76,9 +78,10 @@ pub async fn main() -> anyhow::Result<()> {
             development_uuid_login,
         };
         let file_store = setup_file_store();
+        let jwt_key_clone = jwt_key.clone();
 
         App::new()
-            .configure(move |config| crate::configure(config, file_store, app_conf))
+            .configure(move |config| crate::configure(config, file_store, app_conf, jwt_key_clone))
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
@@ -101,7 +104,8 @@ pub async fn main() -> anyhow::Result<()> {
                 "Completed %r %s %b bytes - %D ms, request_id=%{request-id}o",
             ))
             .app_data(Data::new(db_clone.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
-            .app_data(Data::new(oauth_client.clone()))
+            .app_data(Data::new(oauth_client.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
+            .app_data(Data::new(jwt_key.clone()))
     });
 
     server = match listenfd.take_tcp_listener(0)? {

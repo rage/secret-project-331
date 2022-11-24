@@ -1,11 +1,17 @@
 import axios from "axios"
 
-import { isString, validateResponse } from "../../utils/fetching"
+import { isObjectMap, isString, validateResponse } from "../../utils/fetching"
 
+// Returns a `filename => download-url` map.
 export const uploadFromExerciseService = async (
   exerciseServiceSlug: string,
-  data: unknown,
-): Promise<string> => {
-  const response = await axios.post(`/api/v0/files/${exerciseServiceSlug}`, data)
-  return validateResponse(response, isString)
+  files: Map<string, string | Blob>,
+): Promise<{ [key: string]: string }> => {
+  const data = new FormData()
+  files.forEach((contents, name) => data.append(name, contents))
+
+  const response = await axios.post(`/api/v0/files/${exerciseServiceSlug}`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
+  return validateResponse(response, isObjectMap(isString))
 }

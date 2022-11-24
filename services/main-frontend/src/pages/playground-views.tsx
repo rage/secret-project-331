@@ -13,7 +13,11 @@ import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "../components/page-specific/playground-views/PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "../components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
-import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "../shared-module/bindings"
+import {
+  ExerciseServiceInfoApi,
+  ExerciseTaskGradingResult,
+  SpecRequest,
+} from "../shared-module/bindings"
 import { isExerciseServiceInfoApi } from "../shared-module/bindings.guard"
 import Button from "../shared-module/components/Button"
 import BreakFromCentered from "../shared-module/components/Centering/BreakFromCentered"
@@ -230,9 +234,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
       }
+      const payload: SpecRequest = {
+        private_spec: privateSpecParsed,
+        upload_url: "http://project-331.local/api/v0/files/playground",
+      }
       const res = await axios.post(
         `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        privateSpecParsed,
+        payload,
       )
       return res.data
     },
@@ -278,9 +286,14 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
       }
+      const payload: SpecRequest = {
+        private_spec: privateSpecParsed,
+        // eslint-disable-next-line i18next/no-literal-string
+        upload_url: "http://project-331.local/api/v0/files/playground",
+      }
       const res = await axios.post(
         `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        privateSpecParsed,
+        payload,
       )
       return res.data
     },
@@ -602,6 +615,41 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   showIframeBorders={showIframeBorders}
                   disableSandbox={disableSandbox}
                   userInformation={userInformation}
+                  repositoryExercises={[
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      id: "sample-exercise-1",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      repository_id: "sample-repository-1",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      part: "part01",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      name: "ex01",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      repository_url: "https://github.com/testmycode/tmc-testcourse",
+                      checksum: [1, 2, 3, 4],
+                      download_url:
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "http://project-331.local/api/v0/files/playground-views/repository-exercise-1.tar.zst",
+                    },
+                    {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      id: "sample-exercise-2",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      repository_id: "sample-repository-1",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      part: "part01",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      name: "ex02",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      repository_url: "https://github.com/testmycode/tmc-testcourse",
+                      checksum: [5, 6, 7, 8],
+                      // eslint-disable-next-line i18next/no-literal-string
+                      download_url:
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "http://project-331.local/api/v0/files/playground-views/repository-exercise-2.tar.zst",
+                    },
+                  ]}
                 />
               )}
               {currentView === "answer-exercise" && (

@@ -97,8 +97,8 @@ export function isLocalExercise(obj: unknown): obj is LocalExercise {
   const typedObj = obj as LocalExercise
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["exercise_slug"] === "string" &&
-    typeof typedObj["exercise_path"] === "string"
+    typeof typedObj["exercise-slug"] === "string" &&
+    typeof typedObj["exercise-path"] === "string"
   )
 }
 
@@ -111,8 +111,8 @@ export function isRefreshData(obj: unknown): obj is RefreshData {
   const typedObj = obj as RefreshData
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["new_cache_path"] === "string" &&
-    typeof typedObj["course_options"] === "object" &&
+    typeof typedObj["new-cache-path"] === "string" &&
+    typeof typedObj["course-options"] === "object" &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isRefreshExercise(e) as boolean)
   )
@@ -126,9 +126,9 @@ export function isRefreshExercise(obj: unknown): obj is RefreshExercise {
     typeof typedObj["checksum"] === "string" &&
     Array.isArray(typedObj["points"]) &&
     typedObj["points"].every((e: any) => typeof e === "string") &&
-    typeof typedObj["sandbox_image"] === "string" &&
-    (typedObj["tmcproject_yml"] === null ||
-      (isTmcProjectYml(typedObj["tmcproject_yml"]) as boolean))
+    typeof typedObj["sandbox-image"] === "string" &&
+    (typedObj["tmcproject-yml"] === null ||
+      (isTmcProjectYml(typedObj["tmcproject-yml"]) as boolean))
   )
 }
 
@@ -158,7 +158,7 @@ export function isPythonVer(obj: unknown): obj is PythonVer {
   const typedObj = obj as PythonVer
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typedObj["major"] === null || typeof typedObj["major"] === "number") &&
+    typeof typedObj["major"] === "number" &&
     (typedObj["minor"] === null || typeof typedObj["minor"] === "number") &&
     (typedObj["patch"] === null || typeof typedObj["patch"] === "number")
   )
@@ -259,8 +259,8 @@ export function isExerciseDownload(obj: unknown): obj is ExerciseDownload {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "number" &&
-    typeof typedObj["course_slug"] === "string" &&
-    typeof typedObj["exercise_slug"] === "string" &&
+    typeof typedObj["course-slug"] === "string" &&
+    typeof typedObj["exercise-slug"] === "string" &&
     typeof typedObj["path"] === "string"
   )
 }

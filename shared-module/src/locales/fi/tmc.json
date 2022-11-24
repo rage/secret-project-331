@@ -1,8 +1,11 @@
 {
+  "download": "Lataa",
+  "reset": "Palauta",
   "select-repository-exercise": "Valitse repositoriotehtävä.",
   "selected-repository-exercise": "Valittu repositoriotehtävä",
   "solve-in-browser": "Ratkaise selaimessa",
   "solve-in-editor": "Ratkaise editorissa",
+  "submit": "Lähetä",
   "waiting-for-content": "Odotetaan dataa...",
   "waiting-for-port": "Odotetaan porttia..."
 }

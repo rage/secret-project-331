@@ -44,7 +44,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
     <>
       <h2
         className={css`
-          font-size: clamp(28px, 3.5vw, 46px);
+          font-size: clamp(30px, 3.5vw, 46px);
           margin: 1rem;
           font-weight: 700;
           color: #1a2333;

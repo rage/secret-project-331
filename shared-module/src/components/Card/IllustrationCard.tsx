@@ -77,7 +77,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
             ${backgroundImage &&
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
-              background: ${bg};
+              background-color: ${bg};
               background-position: center center;
               background-size: contain;
               `}

@@ -117,9 +117,20 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-</pre><pre class="rust"><code><span class="kw">use </span>models::proposed_page_edits::{<span class="self">self</span>, EditProposalInfo, PageProposal, ProposalCount};
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>models::proposed_page_edits::{<span class="self">self</span>, EditProposalInfo, PageProposal, ProposalCount};
+
+<span class="kw">use crate</span>::{
+    domain::models_requests::{<span class="self">self</span>, JwtKey},
+    prelude::<span class="kw-2">*</span>,
+};
 
 <span class="attribute">#[derive(Debug, Deserialize)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -193,6 +204,7 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
     proposal: web::Json&lt;EditProposalInfo&gt;,
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
+    jwt_key: web::Data&lt;JwtKey&gt;,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>proposal = proposal.into_inner();
@@ -203,7 +215,7 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

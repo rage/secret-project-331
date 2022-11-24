@@ -122,6 +122,8 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 The server that handles the requests.
 
@@ -156,7 +158,7 @@ The server that handles the requests.
     HttpResponse,
 };
 <span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span>domain::request_span_middleware::RequestSpan;
+<span class="kw">use </span>domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
 <span class="kw">use </span>headless_lms_utils::{
     file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
 };
@@ -171,6 +173,7 @@ The server that handles the requests.
     config: <span class="kw-2">&amp;mut </span>ServiceConfig,
     file_store: Arc&lt;<span class="kw">dyn </span>FileStore&gt;,
     app_conf: ApplicationConfiguration,
+    jwt_key: JwtKey,
 ) {
     <span class="kw">let </span>ip_to_country_mapper =
         IpToCountryMapper::new().expect(<span class="string">&quot;Could not load ip to country mapper&quot;</span>);
@@ -194,7 +197,8 @@ The server that handles the requests.
         <span class="comment">// Not using Data::new for file_store to avoid double wrapping it in a arc
         </span>.app_data(Data::from(file_store))
         .app_data(Data::new(app_conf))
-        .app_data(Data::new(ip_to_country_mapper));
+        .app_data(Data::new(ip_to_country_mapper))
+        .app_data(Data::new(jwt_key));
 }
 
 <span class="doccomment">/**

@@ -625,6 +625,8 @@
 <span id="625">625</span>
 <span id="626">626</span>
 <span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>actix_http::Payload;
@@ -739,6 +741,7 @@
     CreateCoursesOrExams,
     <span class="doccomment">/// Deletion that we usually don&#39;t want to allow.
     </span>UsuallyUnacceptableDeletion,
+    UploadFile,
 }
 
 <span class="doccomment">/// The target of an action.
@@ -1119,6 +1122,7 @@ token.authorized_ok(web::Json(cms_page_info))
                 | EditRole(Teacher | Assistant | Reviewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
+                | UploadFile
         ),
         Assistant =&gt; <span class="macro">matches!</span>(
             action,

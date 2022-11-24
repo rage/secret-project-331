@@ -3299,6 +3299,17 @@
 <span id="3299">3299</span>
 <span id="3300">3300</span>
 <span id="3301">3301</span>
+<span id="3302">3302</span>
+<span id="3303">3303</span>
+<span id="3304">3304</span>
+<span id="3305">3305</span>
+<span id="3306">3306</span>
+<span id="3307">3307</span>
+<span id="3308">3308</span>
+<span id="3309">3309</span>
+<span id="3310">3310</span>
+<span id="3311">3311</span>
+<span id="3312">3312</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -4313,6 +4324,7 @@ AND pages.deleted_at IS NULL
     page_update: PageUpdateArgs,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
@@ -4713,6 +4725,7 @@ RETURNING id,
     retain_exercise_ids: bool,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;serde_json::Value, ModelError&gt;&gt;,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
@@ -5123,6 +5136,7 @@ WHERE id = $2;
     urls_by_exercise_type: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>String, Url&gt;,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;serde_json::Value, ModelError&gt;&gt;,
     previous_spec: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
@@ -5147,7 +5161,12 @@ WHERE id = $2;
                     )
                 })<span class="question-mark">?
                 </span>.clone();
-            <span class="kw">let </span>res = spec_fetcher(url, task_update.private_spec.as_ref()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>res = spec_fetcher(
+                url,
+                <span class="kw-2">&amp;</span>task_update.exercise_type,
+                task_update.private_spec.as_ref(),
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(res)
         }
     };
@@ -5160,6 +5179,7 @@ WHERE id = $2;
     user: Uuid,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
@@ -5203,6 +5223,7 @@ WHERE id = $2;
     author: Uuid,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
@@ -6047,6 +6068,7 @@ LIMIT 50;
     author: Uuid,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
@@ -6419,7 +6441,7 @@ WHERE pages.order_number = $1
                 content_search_language: <span class="prelude-val">None</span>,
             },
             user,
-            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
             |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await

@@ -581,6 +581,7 @@
 <span id="581">581</span>
 <span id="582">582</span>
 <span id="583">583</span>
+<span id="584">584</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map::Entry, HashMap};
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -856,6 +857,7 @@ AND proposed_page_edits.deleted_at IS NULL
     author: Uuid,
     spec_fetcher: <span class="kw">impl </span>Fn(
         Url,
+        <span class="kw-2">&amp;</span>str,
         <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
@@ -1040,7 +1042,7 @@ WHERE id = $2
                 history_change_reason: HistoryChangeReason::PageSaved,
                 is_exam_page: <span class="bool-val">false</span>,
             },
-            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
             |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
@@ -1095,7 +1097,7 @@ WHERE id = $2
                 action: BlockProposalAction::Accept(<span class="string">&quot;Content with a typo in it.&quot;</span>.to_string()),
             }],
             user,
-            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
             |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await
@@ -1150,7 +1152,7 @@ WHERE id = $2
                 action: BlockProposalAction::Reject,
             }],
             user,
-            |<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
             |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
         )
         .<span class="kw">await

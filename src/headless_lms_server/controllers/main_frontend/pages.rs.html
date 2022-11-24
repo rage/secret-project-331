@@ -182,14 +182,26 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
-</span><span class="kw">use </span>models::{
+</span><span class="kw">use </span>std::sync::Arc;
+
+<span class="kw">use </span>models::{
     page_history::PageHistory,
     pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
-<span class="kw">use crate</span>::{domain::models_requests, prelude::<span class="kw-2">*</span>};
+<span class="kw">use crate</span>::{
+    domain::models_requests::{<span class="self">self</span>, JwtKey},
+    prelude::<span class="kw-2">*</span>,
+};
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -225,6 +237,7 @@ Content-Type: application/json
     payload: web::Json&lt;NewPage&gt;,
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
+    jwt_key: web::Data&lt;JwtKey&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Page&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_page = payload.<span class="number">0</span>;
@@ -241,7 +254,7 @@ Content-Type: application/json
         <span class="kw-2">&amp;mut </span>conn,
         new_page,
         user.id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -316,6 +329,7 @@ POST /api/v0/main-frontend/pages/:page_id/restore
     page_id: web::Path&lt;Uuid&gt;,
     restore_data: web::Json&lt;HistoryRestoreData&gt;,
     user: AuthUser,
+    jwt_key: web::Data&lt;JwtKey&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Uuid&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Page(<span class="kw-2">*</span>page_id)).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -324,7 +338,7 @@ POST /api/v0/main-frontend/pages/:page_id/restore
         <span class="kw-2">*</span>page_id,
         restore_data.history_id,
         user.id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

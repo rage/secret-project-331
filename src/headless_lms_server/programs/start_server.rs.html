@@ -141,9 +141,13 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc};
 
-<span class="kw">use crate</span>::{setup_tracing, OAuthClient};
+<span class="kw">use crate</span>::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
 <span class="kw">use </span>actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
@@ -183,6 +187,8 @@
     <span class="kw">let </span>base_url = env::var(<span class="string">&quot;BASE_URL&quot;</span>).expect(<span class="string">&quot;BASE_URL must be defined&quot;</span>);
     <span class="kw">let </span>test_mode = env::var(<span class="string">&quot;TEST_MODE&quot;</span>).is_ok();
     <span class="kw">let </span>allow_no_https_for_development = env::var(<span class="string">&quot;ALLOW_NO_HTTPS_FOR_DEVELOPMENT&quot;</span>).is_ok();
+    <span class="kw">let </span>jwt_key = JwtKey::try_from_env().expect(<span class="string">&quot;Failed to create JwtKey&quot;</span>);
+
     <span class="kw">if </span>test_mode {
         <span class="macro">info!</span>(<span class="string">&quot;***********************************&quot;</span>);
         <span class="macro">info!</span>(<span class="string">&quot;*  Starting backend in test mode  *&quot;</span>);
@@ -219,9 +225,10 @@
             development_uuid_login,
         };
         <span class="kw">let </span>file_store = setup_file_store();
+        <span class="kw">let </span>jwt_key_clone = jwt_key.clone();
 
         App::new()
-            .configure(<span class="kw">move </span>|config| <span class="kw">crate</span>::configure(config, file_store, app_conf))
+            .configure(<span class="kw">move </span>|config| <span class="kw">crate</span>::configure(config, file_store, app_conf, jwt_key_clone))
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
@@ -244,7 +251,8 @@
                 <span class="string">&quot;Completed %r %s %b bytes - %D ms, request_id=%{request-id}o&quot;</span>,
             ))
             .app_data(Data::new(db_clone.clone())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers
-            </span>.app_data(Data::new(oauth_client.clone()))
+            </span>.app_data(Data::new(oauth_client.clone())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers
+            </span>.app_data(Data::new(jwt_key.clone()))
     });
 
     server = <span class="kw">match </span>listenfd.take_tcp_listener(<span class="number">0</span>)<span class="question-mark">? </span>{

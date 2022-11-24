@@ -490,7 +490,47 @@
 <span id="490">490</span>
 <span id="491">491</span>
 <span id="492">492</span>
-</pre><pre class="rust"><code><span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+
+<span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
 <span class="kw">use </span>futures::try_join;
 <span class="kw">use </span>headless_lms_models::{
     course_instances::{<span class="self">self</span>, NewCourseInstance},
@@ -509,7 +549,7 @@
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use crate</span>::{
-    domain::models_requests,
+    domain::models_requests::{<span class="self">self</span>, JwtKey},
     programs::seed::{
         seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
         seed_helpers::create_exam,
@@ -527,6 +567,7 @@
 <span class="kw">pub async fn </span>seed_organization_uh_cs(
     db_pool: Pool&lt;Postgres&gt;,
     seed_users_result: SeedUsersResult,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; anyhow::Result&lt;SeedOrganizationUhCsResult&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;inserting organization uh-cs&quot;</span>);
     <span class="kw">let </span>SeedUsersResult {
@@ -564,6 +605,7 @@
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         )),
         run_parallelly(courses_group_2(
             db_pool.clone(),
@@ -571,6 +613,7 @@
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         )),
         run_parallelly(courses_group_3(
             db_pool.clone(),
@@ -578,6 +621,7 @@
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         )),
         run_parallelly(courses_group_4(
             db_pool.clone(),
@@ -585,6 +629,7 @@
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         ))
     )<span class="question-mark">?</span>;
 
@@ -654,6 +699,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;7d6ed843-2a94-445b-8ced-ab3c67290ad0&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -666,6 +712,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;6959e7af-6b78-4d37-b381-eef5b7aaad6c&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -678,6 +725,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;8e202d37-3a26-4181-b9e4-0560b90c0ccb&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -690,6 +738,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;65f5c3f3-b5fd-478d-8858-a45cdcb16b86&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -702,12 +751,18 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;5c4fca1f-f0d6-471f-a0fd-eac552f5fb84&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">info!</span>(<span class="string">&quot;cs&quot;</span>);
-    <span class="kw">let </span>_cs_design =
-        seed_cs_course_material(<span class="kw-2">&amp;</span>db_pool, uh_cs_organization_id, admin_user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>_cs_design = seed_cs_course_material(
+        <span class="kw-2">&amp;</span>db_pool,
+        uh_cs_organization_id,
+        admin_user_id,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_course = NewCourse {
         name: <span class="string">&quot;Introduction to Computer Science&quot;</span>.to_string(),
         slug: <span class="string">&quot;introduction-to-computer-science&quot;</span>.to_string(),
@@ -730,7 +785,7 @@
             }),
             new_course,
             admin_user_id,
-            models_requests::spec_fetcher,
+            models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
             models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -761,6 +816,7 @@
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec&lt;Uuid&gt;,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; anyhow::Result&lt;(Uuid, Uuid, Uuid)&gt; {
     <span class="kw">let </span>cs_intro = seed_sample_course(
         <span class="kw-2">&amp;</span>db_pool,
@@ -771,6 +827,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>automatic_completions_id = seed_sample_course(
@@ -782,6 +839,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>introduction_to_localizing = seed_sample_course(
@@ -793,6 +851,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -804,6 +863,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((
@@ -819,6 +879,7 @@
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec&lt;Uuid&gt;,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; anyhow::Result&lt;Uuid&gt; {
     seed_sample_course(
         <span class="kw-2">&amp;</span>db_pool,
@@ -829,6 +890,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -840,6 +902,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -851,6 +914,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>manual_completions = seed_sample_course(
@@ -862,6 +926,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(manual_completions)
@@ -873,6 +938,7 @@
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec&lt;Uuid&gt;,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; anyhow::Result&lt;()&gt; {
     seed_sample_course(
         <span class="kw-2">&amp;</span>db_pool,
@@ -883,6 +949,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -894,6 +961,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -905,6 +973,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -916,6 +985,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -927,6 +997,7 @@
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec&lt;Uuid&gt;,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; anyhow::Result&lt;()&gt; {
     seed_sample_course(
         <span class="kw-2">&amp;</span>db_pool,
@@ -937,6 +1008,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -948,6 +1020,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -959,6 +1032,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     seed_sample_course(
@@ -970,6 +1044,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_glossary_course(
@@ -977,6 +1052,7 @@
         uh_cs_organization_id,
         admin_user_id,
         Uuid::parse_str(<span class="string">&quot;e5b89931-e3d6-4930-9692-61539748c12c&quot;</span>)<span class="question-mark">?</span>,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

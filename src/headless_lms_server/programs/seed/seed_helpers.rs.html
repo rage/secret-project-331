@@ -461,7 +461,13 @@
 <span id="461">461</span>
 <span id="462">462</span>
 <span id="463">463</span>
-</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+
+<span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
     exams::{<span class="self">self</span>, NewExam},
@@ -481,7 +487,7 @@
 <span class="kw">use </span>sqlx::PgConnection;
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">use </span><span class="kw">crate</span>::domain::models_requests;
+<span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
 
 <span class="attribute">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">pub async fn </span>create_page(
@@ -490,6 +496,7 @@
     author: Uuid,
     chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     page_data: CmsPageUpdate,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span>new_page = NewPage {
         content: Value::Array(<span class="macro">vec!</span>[]),
@@ -508,7 +515,7 @@
         conn,
         new_page,
         author,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -530,7 +537,7 @@
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: <span class="bool-val">false</span>,
         },
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -850,6 +857,7 @@
     course_id: Uuid,
     exam_id: Uuid,
     teacher: Uuid,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>new_exam_id = exams::insert(
         conn,
@@ -917,7 +925,7 @@
             content_search_language: <span class="prelude-val">None</span>,
         },
         teacher,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(jwt_key),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

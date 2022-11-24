@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":[["TypeLevelAlgorithmType","A trait used to make the implementation of `SigningAlgorithm` and `VerifyingAlgorithm` easier. RustCrypto crates tend to have algorithm types defined at the type level, so they cannot accept a self argument."]]};

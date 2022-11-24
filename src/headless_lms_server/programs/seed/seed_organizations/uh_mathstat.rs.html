@@ -121,7 +121,16 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
-</pre><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+
+<span class="kw">use </span>headless_lms_models::{
     course_instances::{<span class="self">self</span>, NewCourseInstance},
     courses::NewCourse,
     library,
@@ -132,13 +141,17 @@
 
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 
-<span class="kw">use crate</span>::{domain::models_requests, programs::seed::seed_courses::seed_sample_course};
+<span class="kw">use crate</span>::{
+    domain::models_requests::{<span class="self">self</span>, JwtKey},
+    programs::seed::seed_courses::seed_sample_course,
+};
 
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::seed_users::SeedUsersResult;
 
 <span class="kw">pub async fn </span>seed_organization_uh_mathstat(
     db_pool: Pool&lt;Postgres&gt;,
     seed_users_result: SeedUsersResult,
+    jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; anyhow::Result&lt;Uuid&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;seeding organization uh-mathstat&quot;</span>);
 
@@ -186,7 +199,7 @@
         }),
         new_course,
         admin_user_id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -225,7 +238,7 @@
         }),
         draft_course,
         admin_user_id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -239,6 +252,7 @@
         admin_user_id,
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

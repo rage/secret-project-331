@@ -73,6 +73,8 @@ export interface ModuleCardProps {
   module: UserModuleCompletionStatus
 }
 
+const GRADE = "FAIL"
+
 const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
   const { t } = useTranslation()
   return (
@@ -82,7 +84,7 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module
         <BadgeWrapper>
           <Badge />
           <span className="grade">{t("grade")}</span>
-          <span className="points">FAIL</span>
+          <span className="points">{GRADE}</span>
         </BadgeWrapper>
       )}
       <h2

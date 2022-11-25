@@ -11,9 +11,9 @@ interface SVGProps {
   isEven: boolean
 }
 // eslint-disable-next-line i18next/no-literal-string
-const BulleyeTopPosition = "-40px"
+const BulleyeTopPosition = "-48px"
 // eslint-disable-next-line i18next/no-literal-string
-const CrossTopPosition = "-20px"
+const CrossTopPosition = "-26px"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Content = styled.div`
@@ -24,7 +24,7 @@ const Content = styled.div`
   height: auto;
   align-items: center;
   justify-content: space-between;
-  padding: 2rem;
+  padding: 1.8rem;
   color: #1a2333;
   margin-bottom: 10px;
   overflow: hidden;
@@ -39,7 +39,7 @@ const Content = styled.div`
 
   h3 {
     font-family: ${headingFont};
-    font-size: clamp(24px, 2.8vw, 28px);
+    font-size: clamp(22px, 2vw, 24px);
     font-weight: 600;
     color: #065853;
   }

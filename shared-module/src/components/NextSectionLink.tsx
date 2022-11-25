@@ -32,6 +32,17 @@ const StyledLink = styled.a`
   text-decoration: none;
   transition: all 0.2s;
 
+  span {
+    font-size: 15px;
+    font-weight: 500;
+    padding-left: 8px;
+    color: ${baseTheme.colors.blue[500]};
+  }
+
+  .arrow {
+    fill: ${baseTheme.colors.blue[500]};
+  }
+
   &:hover {
     cursor: pointer;
     background: ${baseTheme.colors.blue[100]};
@@ -43,17 +54,6 @@ const StyledLink = styled.a`
     .arrow {
       fill: ${baseTheme.colors.blue[600]};
     }
-  }
-
-  span {
-    font-size: 15px;
-    font-weight: 500;
-    padding-left: 8px;
-    color: ${baseTheme.colors.blue[500]};
-  }
-
-  .arrow {
-    fill: ${baseTheme.colors.blue[500]};
   }
 `
 

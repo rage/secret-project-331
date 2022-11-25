@@ -7,4 +7,5 @@ type Exam = {
   starts_at: Date | null
   ends_at: Date | null
   time_minutes: number
+  minimum_points_treshold: number
 }

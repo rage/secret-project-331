@@ -164,6 +164,7 @@ pub async fn seed_organization_uh_cs(
         cs_intro,
         Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
         teacher_user_id,
+        0,
     )
     .await?;
     create_exam(
@@ -176,6 +177,7 @@ pub async fn seed_organization_uh_cs(
         cs_intro,
         Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
         teacher_user_id,
+        0,
     )
     .await?;
     create_exam(
@@ -188,6 +190,7 @@ pub async fn seed_organization_uh_cs(
         cs_intro,
         Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
         teacher_user_id,
+        0,
     )
     .await?;
     create_exam(
@@ -200,6 +203,7 @@ pub async fn seed_organization_uh_cs(
         cs_intro,
         Uuid::parse_str("65f5c3f3-b5fd-478d-8858-a45cdcb16b86")?,
         teacher_user_id,
+        0,
     )
     .await?;
     create_exam(
@@ -212,6 +216,7 @@ pub async fn seed_organization_uh_cs(
         cs_intro,
         Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
         teacher_user_id,
+        0,
     )
     .await?;
 

@@ -941,7 +941,8 @@ fn models() {
         courses,
         starts_at,
         ends_at,
-        time_minutes: 120
+        time_minutes: 120,
+        minimum_points_treshold: 24,
     });
     doc!(
         T,
@@ -990,7 +991,8 @@ fn models() {
             instructions: Page::example().content,
             time_minutes: 120,
             starts_at,
-            ends_at
+            ends_at,
+            minimum_points_treshold: 24,
         }
     );
     doc!(

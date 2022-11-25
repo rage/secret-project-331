@@ -828,7 +828,8 @@ export function isExam(obj: unknown): obj is Exam {
     typedObj["courses"].every((e: any) => isCourse(e) as boolean) &&
     (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
     (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
-    typeof typedObj["time_minutes"] === "number"
+    typeof typedObj["time_minutes"] === "number" &&
+    typeof typedObj["minimum_points_treshold"] === "number"
   )
 }
 
@@ -863,7 +864,8 @@ export function isNewExam(obj: unknown): obj is NewExam {
     (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
     (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
     typeof typedObj["time_minutes"] === "number" &&
-    typeof typedObj["organization_id"] === "string"
+    typeof typedObj["organization_id"] === "string" &&
+    typeof typedObj["minimum_points_treshold"] === "number"
   )
 }
 
@@ -876,7 +878,8 @@ export function isOrgExam(obj: unknown): obj is OrgExam {
     (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
     (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
     typeof typedObj["time_minutes"] === "number" &&
-    typeof typedObj["organization_id"] === "string"
+    typeof typedObj["organization_id"] === "string" &&
+    typeof typedObj["minimum_points_treshold"] === "number"
   )
 }
 

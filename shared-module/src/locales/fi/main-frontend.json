@@ -201,6 +201,7 @@
   "label-email": "Sähköposti",
   "label-ends-at": "Loppuu",
   "label-exam": "Koe",
+  "label-exam-minimum-points": "Vähimmäispisteet läpäisyyn",
   "label-example-name": "Esimerkin nimi",
   "label-examples": "Esimerkit",
   "label-exercise-task": "Tehtävän osa",

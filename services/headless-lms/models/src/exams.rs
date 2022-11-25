@@ -14,6 +14,7 @@ pub struct Exam {
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
+    pub minimum_points_treshold: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -26,6 +27,7 @@ pub struct OrgExam {
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
     pub organization_id: Uuid,
+    pub minimum_points_treshold: i32,
 }
 
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
@@ -37,7 +39,8 @@ SELECT exams.id,
   pages.id AS page_id,
   exams.starts_at,
   exams.ends_at,
-  exams.time_minutes
+  exams.time_minutes,
+  exams.minimum_points_treshold
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
@@ -85,6 +88,7 @@ WHERE course_exams.exam_id = $1
         ends_at: exam.ends_at,
         time_minutes: exam.time_minutes,
         courses,
+        minimum_points_treshold: exam.minimum_points_treshold,
     })
 }
 
@@ -105,6 +109,7 @@ pub struct NewExam {
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
     pub organization_id: Uuid,
+    pub minimum_points_treshold: i32,
 }
 
 #[derive(Debug, Serialize)]
@@ -134,9 +139,10 @@ INSERT INTO exams (
     starts_at,
     ends_at,
     time_minutes,
-    organization_id
+    organization_id,
+    minimum_points_treshold
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
         ",
         pkey_policy.into_uuid(),
@@ -145,7 +151,8 @@ RETURNING id
         exam.starts_at,
         exam.ends_at,
         exam.time_minutes,
-        exam.organization_id
+        exam.organization_id,
+        exam.minimum_points_treshold,
     )
     .fetch_one(conn)
     .await?;
@@ -201,7 +208,8 @@ SELECT id,
   starts_at,
   ends_at,
   time_minutes,
-  organization_id
+  organization_id,
+  minimum_points_treshold
 FROM exams
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL

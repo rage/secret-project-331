@@ -388,6 +388,7 @@ pub async fn create_exam(
     course_id: Uuid,
     exam_id: Uuid,
     teacher: Uuid,
+    minimum_points_treshold: i32,
 ) -> Result<()> {
     let new_exam_id = exams::insert(
         conn,
@@ -398,6 +399,7 @@ pub async fn create_exam(
             ends_at,
             time_minutes,
             organization_id,
+            minimum_points_treshold,
         },
     )
     .await?;

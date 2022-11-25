@@ -527,52 +527,6 @@
     },
     "query": "\n  UPDATE exercises\n  SET deleted_at = now()\n  WHERE page_id = $1\n  AND deleted_at IS NULL\n          "
   },
-  "06518b02100124d605ae4cd2b84008fe94e46360284a701d60f79c7dcb117ea6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "instructions",
-          "ordinal": 2,
-          "type_info": "Jsonb"
-        },
-        {
-          "name": "page_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "starts_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "ends_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "time_minutes",
-          "ordinal": 6,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [false, false, false, false, true, true, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n"
-  },
   "06dafe01a08e4b37c02ea33c13cd49fad72a2c436a52983cadf9821f0c742445": {
     "describe": {
       "columns": [
@@ -5232,27 +5186,6 @@
       }
     },
     "query": "\nSELECT ucs.*\nFROM courses c\n  JOIN user_course_settings ucs ON (\n    ucs.course_language_group_id = c.course_language_group_id\n  )\nWHERE c.id = $1\n  AND ucs.user_id = $2\n  AND c.deleted_at IS NULL\n  AND ucs.deleted_at IS NULL;\n        "
-  },
-  "50b4bf67ea475c5c88a749b74348226173feaa6a71905709ac869270ee7b4c62": {
-    "describe": {
-      "columns": [
-        {
-          "name": "language",
-          "ordinal": 0,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "organization_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [true, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "SELECT language, organization_id FROM exams WHERE id = $1"
   },
   "527d742c378dfc52f5d1c999138ee8c12547442f36d8ea9b3df18405f7e526d5": {
     "describe": {
@@ -11745,72 +11678,6 @@
     },
     "query": "\nSELECT exams.id,\n  courses.id as course_id,\n  courses.name as course_name,\n  exams.name\nFROM exams\n  JOIN course_exams ON course_id = $1\n  JOIN courses ON courses.id = $1\n  AND exams.deleted_at IS NULL\n  AND courses.deleted_at IS NULL\n"
   },
-  "a034dee244e1330c8c79e833f718afbe34df340690b20293155eefb513b315d9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "organization_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "starts_at",
-          "ordinal": 6,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "ends_at",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "language",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "time_minutes",
-          "ordinal": 9,
-          "type_info": "Int4"
-        },
-        {
-          "name": "instructions",
-          "ordinal": 10,
-          "type_info": "Jsonb"
-        }
-      ],
-      "nullable": [false, false, false, true, false, false, true, true, true, false, false],
-      "parameters": {
-        "Left": ["Varchar", "Uuid", "Jsonb", "Timestamptz", "Timestamptz", "Varchar", "Int4"]
-      }
-    },
-    "query": "\n    INSERT INTO exams(\n        name,\n        organization_id,\n        instructions,\n        starts_at,\n        ends_at,\n        language,\n        time_minutes\n      )\n    VALUES ($1, $2, $3, $4, $5, $6, $7)\n    RETURNING *;\n        "
-  },
   "a0506edd480e7dec860a33702092c243a207450909a69db5a44ad6fcb72b2fb2": {
     "describe": {
       "columns": [],
@@ -11912,6 +11779,57 @@
       }
     },
     "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  p.id as page_id,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM chapters c\n  INNER JOIN pages p on c.id = p.chapter_id\nWHERE c.chapter_number = (\n    SELECT MAX(ca.chapter_number)\n    FROM chapters ca\n    WHERE ca.chapter_number < $1\n      AND ca.deleted_at IS NULL\n  )\n  AND c.course_id = $2\n  AND p.deleted_at IS NULL\nORDER BY p.order_number\nLIMIT 1;\n        "
+  },
+  "a20713f03a272294f8134ee1dba5e327215625cc98568daff6691f879928bf4e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "instructions",
+          "ordinal": 2,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "starts_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "time_minutes",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "minimum_points_treshold",
+          "ordinal": 7,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [false, false, false, false, true, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes,\n  exams.minimum_points_treshold\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n"
   },
   "a31ab4987f8b24cf19bb676819c964d629e6147d37e4732109cd39ad9793e68a": {
     "describe": {
@@ -12687,6 +12605,22 @@
       }
     },
     "query": "\nSELECT i.id,\n  i.created_at,\n  i.updated_at,\n  i.deleted_at,\n  i.course_id,\n  i.starts_at,\n  i.ends_at,\n  i.name,\n  i.description,\n  i.teacher_in_charge_name,\n  i.teacher_in_charge_email,\n  i.support_email\nFROM course_instances i\n  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)\nWHERE i.course_id = $1\n  AND i.deleted_at IS NULL\n  AND ie.user_id = $2\n  AND ie.deleted_at IS NULL\nORDER BY ie.created_at DESC;\n    "
+  },
+  "aa31c9ac2566ab617066e365b22d919fc138a046d8ae095af6194a7fd77fe89d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid", "Int4"]
+      }
+    },
+    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    instructions,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id,\n    minimum_points_treshold\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING id\n        "
   },
   "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
     "describe": {
@@ -13778,6 +13712,32 @@
       }
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n"
+  },
+  "b70ff6e4dfab0f4f914a18fa28313455732e13d7e2161675f053897793a27708": {
+    "describe": {
+      "columns": [
+        {
+          "name": "language",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "minimum_points_treshold",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT language,\n  organization_id,\n  minimum_points_treshold\nFROM exams\nWHERE id = $1\n        "
   },
   "b762efb77876e893abf712da8e1568b7406c5efd2cbe92e54520b6c93558794b": {
     "describe": {
@@ -16533,21 +16493,56 @@
     },
     "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
   },
-  "d889a856bb9422d37a2d1c5c5da2c334170ebb1753763c3deaa6b36150fc498a": {
+  "d7cdd6617a177d724eea412d3f408dd74f8e271aa1bb6ab0f62d97d4147f60fd": {
     "describe": {
       "columns": [
         {
           "name": "id",
           "ordinal": 0,
           "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "instructions",
+          "ordinal": 2,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "starts_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "time_minutes",
+          "ordinal": 5,
+          "type_info": "Int4"
+        },
+        {
+          "name": "organization_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "minimum_points_treshold",
+          "ordinal": 7,
+          "type_info": "Int4"
         }
       ],
-      "nullable": [false],
+      "nullable": [false, false, false, true, true, false, false, false],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
+        "Left": ["Uuid"]
       }
     },
-    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    instructions,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n        "
+    "query": "\nSELECT id,\n  name,\n  instructions,\n  starts_at,\n  ends_at,\n  time_minutes,\n  organization_id,\n  minimum_points_treshold\nFROM exams\nWHERE exams.organization_id = $1\n  AND exams.deleted_at IS NULL\n"
   },
   "d8b2a6968b0e923cf3a3412460762b1218ca3a63b91467fe03d79349dd3d048b": {
     "describe": {
@@ -16670,6 +16665,86 @@
       }
     },
     "query": "\nupdate email_deliveries\nset sent = FALSE,\n  error = $1\nwhere id = $2;\n    "
+  },
+  "da0f676c3df132fa6eee840e03ac3313356905100e6ad145abba619f8d1df249": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "organization_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "starts_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "language",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "time_minutes",
+          "ordinal": 9,
+          "type_info": "Int4"
+        },
+        {
+          "name": "instructions",
+          "ordinal": 10,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "minimum_points_treshold",
+          "ordinal": 11,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, true, true, true, false, false, false],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Jsonb",
+          "Timestamptz",
+          "Timestamptz",
+          "Varchar",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO exams(\n    name,\n    organization_id,\n    instructions,\n    starts_at,\n    ends_at,\n    language,\n    time_minutes,\n    minimum_points_treshold\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n        "
   },
   "da2f334d21855b3fe0513f95ed5e9fb65331bcae85f935928559c420dfa15a3b": {
     "describe": {
@@ -17415,52 +17490,6 @@
       }
     },
     "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4\nWHERE id = $5\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
-  },
-  "e81f68320c722d60ef526f006e39003a1349551bacebb0fc4907f93a26b0411b": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "instructions",
-          "ordinal": 2,
-          "type_info": "Jsonb"
-        },
-        {
-          "name": "starts_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "ends_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "time_minutes",
-          "ordinal": 5,
-          "type_info": "Int4"
-        },
-        {
-          "name": "organization_id",
-          "ordinal": 6,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, false, false, true, true, false, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT id,\n  name,\n  instructions,\n  starts_at,\n  ends_at,\n  time_minutes,\n  organization_id\nFROM exams\nWHERE exams.organization_id = $1\n  AND exams.deleted_at IS NULL\n"
   },
   "e8e669f13e4fd4e3f485510dd945f62ad16910268e651d316a27dbb0cc4493f3": {
     "describe": {

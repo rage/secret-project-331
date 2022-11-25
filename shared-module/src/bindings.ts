@@ -390,6 +390,7 @@ export interface Exam {
   starts_at: Date | null
   ends_at: Date | null
   time_minutes: number
+  minimum_points_treshold: number
 }
 
 export interface ExamEnrollment {
@@ -413,6 +414,7 @@ export interface NewExam {
   ends_at: Date | null
   time_minutes: number
   organization_id: string
+  minimum_points_treshold: number
 }
 
 export interface OrgExam {
@@ -423,6 +425,7 @@ export interface OrgExam {
   ends_at: Date | null
   time_minutes: number
   organization_id: string
+  minimum_points_treshold: number
 }
 
 export interface ExerciseRepository {

@@ -25,6 +25,7 @@ interface NewExamFields {
   endsAt: Date
   timeMinutes: number
   parentId: string | null
+  minimumPointsTreshold: number
 }
 
 const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
@@ -57,6 +58,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       starts_at: new Date(data.startsAt),
       ends_at: new Date(data.endsAt),
       time_minutes: Number(data.timeMinutes),
+      minimum_points_treshold: Number(data.minimumPointsTreshold),
     })
   })
 
@@ -68,6 +70,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         starts_at: new Date(data.startsAt),
         ends_at: new Date(data.endsAt),
         time_minutes: Number(data.timeMinutes),
+        minimum_points_treshold: Number(data.minimumPointsTreshold),
       }
       const examId = String(parentId)
       onDuplicateExam(examId, newExam)
@@ -114,6 +117,14 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           error={errors.timeMinutes?.message}
           label={t("label-time-minutes")}
           register={register("timeMinutes", {
+            required: t("required-field"),
+          })}
+        />
+        <TextField
+          id={"minimumPointsTreshold"}
+          error={errors.timeMinutes?.message}
+          label={t("label-exam-minimum-points")}
+          register={register("minimumPointsTreshold", {
             required: t("required-field"),
           })}
         />

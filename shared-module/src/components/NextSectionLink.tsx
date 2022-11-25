@@ -24,25 +24,36 @@ export interface NextSectionLinkExtraProps {
 // eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   border: 1px solid ${baseTheme.colors.blue[200]};
-  padding: 0.4rem 1rem;
+  padding: 0.5rem 1rem;
   background: #fff;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   text-decoration: none;
+  transition: all 0.2s;
 
   &:hover {
     cursor: pointer;
+    background: ${baseTheme.colors.blue[100]};
+
+    span {
+      color: ${baseTheme.colors.blue[600]};
+    }
+
+    .arrow {
+      fill: ${baseTheme.colors.blue[600]};
+    }
   }
 
   span {
     font-size: 15px;
+    font-weight: 500;
     padding-left: 8px;
-    color: ${baseTheme.colors.blue[600]};
+    color: ${baseTheme.colors.blue[500]};
   }
 
   .arrow {
-    fill: ${baseTheme.colors.blue[400]};
+    fill: ${baseTheme.colors.blue[500]};
   }
 `
 
@@ -57,30 +68,36 @@ const NextSectionLink: React.FC<
       className={css`
         margin-top: 3rem;
         font-family: ${headingFont};
-        min-height: 300px;
+        min-height: auto;
         ${respondToOrLarger.md} {
           margin-top: 6rem;
           margin-bottom: 4rem;
-          padding: 2.5rem 3rem 4rem 3rem;
+          padding: 2.5rem 3rem 3rem 3rem;
         }
-        background: ${baseTheme.colors.clear[100]};
+        background: #f4f6f8;
         padding: 1.4rem 1rem 2rem 1.4rem;
       `}
     >
       {chapterFrontPageURL && (
         <Link href={chapterFrontPageURL} passHref>
-          <StyledLink href="replace">
-            <ArrowSVGIcon
-              id="up-svg-icon"
-              role="presentation"
-              alt=""
-              width="12"
-              height="12"
-              viewBox="0 0 39 39"
-              transform="rotate(270)"
-            />
-            <span>{t("chapter-front-page")}</span>
-          </StyledLink>
+          <div
+            className={css`
+              margin-bottom: 2.4rem;
+            `}
+          >
+            <StyledLink href="replace">
+              <ArrowSVGIcon
+                id="up-svg-icon"
+                role="presentation"
+                alt=""
+                width="12"
+                height="12"
+                viewBox="0 0 39 39"
+                transform="rotate(270)"
+              />
+              <span>{t("chapter-front-page")}</span>
+            </StyledLink>
+          </div>
         </Link>
       )}
 
@@ -89,23 +106,24 @@ const NextSectionLink: React.FC<
           className={css`
             font-size: clamp(28px, 3vw, 2rem);
             line-height: 1.3;
-            font-weight: 500;
-            margin-bottom: 0.8rem;
-            margin-top: 2.5rem;
+            font-weight: 600;
+            opacity: 0.9;
+            color: ${baseTheme.colors.grey[700]};
           `}
         >
           {title}
         </h2>
         <p
           className={css`
-            font-size: 1.2rem;
-            color: ${baseTheme.colors.grey[500]};
+            font-size: 18px;
+            color: ${baseTheme.colors.grey[400]};
+            font-weight: 500;
             margin: 0.5rem 0;
             padding: 0;
             display: flex;
 
             ${respondToOrLarger.md} {
-              font-size: 1.3rem;
+              font-size: 20px;
             }
           `}
         >
@@ -119,7 +137,6 @@ const NextSectionLink: React.FC<
             margin-top: 1.5rem;
 
             ${respondToOrLarger.md} {
-              margin-top: 2rem;
               grid-template-columns: ${previous ? "80px 1fr" : "1fr"};
               column-gap: 12px;
             }

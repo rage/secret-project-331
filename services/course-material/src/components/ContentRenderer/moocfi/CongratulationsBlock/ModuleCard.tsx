@@ -60,7 +60,7 @@ const BadgeWrapper = styled.div`
   }
   .points {
     position: absolute;
-    top: 28px;
+    top: 29px;
     left: 50%;
     transform: translate(-50%, 0);
     font-family: ${headingFont};
@@ -74,7 +74,7 @@ export interface ModuleCardProps {
   module: UserModuleCompletionStatus
 }
 
-const GRADE = "PASS"
+const GRADE = "FAIL"
 
 const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
   const { t } = useTranslation()

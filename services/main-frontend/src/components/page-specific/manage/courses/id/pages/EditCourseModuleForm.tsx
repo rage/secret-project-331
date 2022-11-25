@@ -251,11 +251,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   flex: 1;
                 `}
                 type="number"
-                label={t("automatic-completion-exercise-points-treshold")}
+                label={t("automatic-completion-points-treshold")}
                 labelStyle={css`
                   color: #fff;
                 `}
-                placeholder={t("automatic-completion-exercise-points-treshold")}
+                placeholder={t("automatic-completion-points-treshold")}
                 register={register("automatic_completion_number_of_points_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,

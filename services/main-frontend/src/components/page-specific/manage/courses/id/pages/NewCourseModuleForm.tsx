@@ -174,8 +174,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               className={css`
                 grid-area: d;
               `}
-              label={t("automatic-completion-exercise-points-treshold")}
-              placeholder={t("automatic-completion-exercise-points-treshold")}
+              label={t("automatic-completion-points-treshold")}
+              placeholder={t("automatic-completion-points-treshold")}
               type="number"
               register={register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,

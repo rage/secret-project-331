@@ -116,7 +116,7 @@ const NextSectionLink: React.FC<
         <p
           className={css`
             font-size: 18px;
-            color: ${baseTheme.colors.grey[400]};
+            color: ${baseTheme.colors.grey[700]};
             font-weight: 500;
             margin: 0.5rem 0;
             padding: 0;

@@ -70,12 +70,11 @@ const TextBox = styled.div`
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
   min-height: 100%;
-  background: ${({ index }) => index === 1 && `#1a2333`};
+  background: ${({ index }) => (index === 1 ? `#1a2333` : `#f5f5f5`)};
   position: relative;
   overflow: hidden;
   display: grid;
-  border: ${({ index }) => (index === 1 ? `none` : `1px solid #babdc2 `)};
-  border-radius: 4px;
+  border: ${({ index }) => (index === 1 ? `none` : `2px solid #eeeeee`)};
   color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {

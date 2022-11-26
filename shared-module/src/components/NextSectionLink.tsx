@@ -118,7 +118,7 @@ const NextSectionLink: React.FC<
             font-size: 18px;
             color: ${baseTheme.colors.grey[700]};
             font-weight: 500;
-            margin: 0.5rem 0;
+            margin: 0.3rem 0;
             padding: 0;
             display: flex;
 

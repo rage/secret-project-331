@@ -17,6 +17,26 @@ pub struct Exam {
     pub minimum_points_treshold: i32,
 }
 
+impl Exam {
+    /// Whether or not the exam has already started at the specified timestamp. If no start date for
+    /// exam is defined, returns the provided default instead.
+    pub fn started_at_or(&self, timestamp: DateTime<Utc>, default: bool) -> bool {
+        match self.starts_at {
+            Some(starts_at) => starts_at > timestamp,
+            None => default,
+        }
+    }
+
+    /// Whether or not the exam has already ended at the specified timestamp. If no end date for exam
+    /// is defined, returns the provided default instead.
+    pub fn ended_at_or(&self, timestamp: DateTime<Utc>, default: bool) -> bool {
+        match self.ends_at {
+            Some(ends_at) => ends_at < timestamp,
+            None => default,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct OrgExam {

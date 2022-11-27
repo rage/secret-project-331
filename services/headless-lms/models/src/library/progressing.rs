@@ -10,7 +10,7 @@ use crate::{
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
-    courses, open_university_registration_links,
+    courses, exams, open_university_registration_links,
     prelude::*,
     user_course_settings, user_exercise_states,
     users::{self, User},
@@ -126,8 +126,16 @@ async fn user_is_eligible_for_automatic_completion(
                 course_instance_id,
             )
             .await?;
-            Ok(eligible)
-            // TODO: Check for exam stuff here.
+            if eligible {
+                if requirements.requires_exam {
+                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
+                        .await
+                } else {
+                    Ok(true)
+                }
+            } else {
+                Ok(false)
+            }
         }
         CompletionPolicy::Manual => Ok(false),
     }
@@ -176,6 +184,28 @@ pub async fn user_can_take_exam(
     }
     // By default the exam can be taken if it is only linked to manual completion courses.
     Ok(automatic_eligibility.unwrap_or(true))
+}
+
+/// Returns true if there is at least one exam associated with the course, that has ended and the
+/// user has received enough points from it.
+async fn user_has_passed_exam_for_the_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<bool> {
+    let now = Utc::now();
+    let exam_ids = course_exams::get_course_ids_by_exam_id(conn, course_id).await?;
+    for exam_id in exam_ids {
+        let exam = exams::get(conn, exam_id).await?;
+        if exam.ended_at_or(now, false) {
+            let points =
+                user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
+            if points >= exam.minimum_points_treshold as f32 {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
 }
 
 async fn user_passes_automatic_completion_exercise_tresholds(

@@ -370,6 +370,31 @@ pub async fn get_user_course_instance_progress(
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
 }
 
+/// Gets the total amount of points that the user has received from an exam.
+///
+/// The caller should take into consideration that for an ongoing exam the result will be volatile.
+pub async fn get_user_total_exam_points(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exam_id: Uuid,
+) -> ModelResult<f32> {
+    let res = sqlx::query!(
+        r#"
+SELECT COALESCE(SUM(score_given), 0) AS "points!"
+FROM user_exercise_states
+WHERE user_id = $2
+  AND exam_id = $1
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id,
+    )
+    .map(|x| x.points)
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 fn merge_modules_with_metrics(
     course_modules: Vec<CourseModule>,
     course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,

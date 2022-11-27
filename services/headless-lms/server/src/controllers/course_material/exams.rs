@@ -37,34 +37,29 @@ pub async fn enroll(
 
     // check that the exam is not over
     let now = Utc::now();
-    if let Some(ends_at) = exam.ends_at {
-        if ends_at < now {
+    if exam.ended_at_or(now, false) {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Exam is over".to_string(),
+            None,
+        ));
+    }
+
+    if exam.started_at_or(now, false) {
+        // This check should probably be handled in the authorize function but I'm not sure of
+        // the proper action type.
+        let can_start =
+            models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id).await?;
+        if !can_start {
             return Err(ControllerError::new(
                 ControllerErrorType::Forbidden,
-                "Exam is over".to_string(),
+                "User is not allowed to enroll to the exam.".to_string(),
                 None,
             ));
         }
-    }
-
-    if let Some(starts_at) = exam.starts_at {
-        if now > starts_at {
-            // This check should probably be handled in the authorize function but I'm not sure of
-            // the proper action type.
-            let can_start =
-                models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id)
-                    .await?;
-            if !can_start {
-                return Err(ControllerError::new(
-                    ControllerErrorType::Forbidden,
-                    "User is not allowed to enroll to the exam.".to_string(),
-                    None,
-                ));
-            }
-            exams::enroll(&mut conn, *exam_id, user.id).await?;
-            let token = skip_authorize()?;
-            return token.authorized_ok(web::Json(()));
-        }
+        exams::enroll(&mut conn, *exam_id, user.id).await?;
+        let token = skip_authorize()?;
+        return token.authorized_ok(web::Json(()));
     }
 
     // no start time defined or it's still upcoming

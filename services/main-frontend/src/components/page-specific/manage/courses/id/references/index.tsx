@@ -118,6 +118,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
                     </li>
                   )
                 } catch (error) {
+                  console.error(error)
                   return (
                     <li key={idx}>
                       <ErrorHeader>{r.citation_key}</ErrorHeader>

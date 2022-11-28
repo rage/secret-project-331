@@ -68,7 +68,7 @@ test("material reference tests", async ({ page, headless }) => {
   await page.locator("text=Success").waitFor()
 
   // If the bibtext fails to parse, an error will be displayed.
-  await page.locator("text=Error").waitFor({ state: "hidden" })
+  await page.locator("text=Error").first().waitFor({ state: "hidden" })
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],

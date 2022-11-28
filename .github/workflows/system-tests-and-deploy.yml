@@ -37,7 +37,7 @@ jobs:
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
-          kubectl: "1.25.2"
+          kubectl: "1.25.4"
           kustomize: "4.5.7"
           skaffold: "2.0.1"
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
@@ -80,7 +80,9 @@ jobs:
 
       - name: Build and deploy
         run: |
+          echo "Running skaffold build"
           skaffold build --filename ./skaffold.production.yaml
+          echo "Running skaffold run"
           skaffold run --force --filename ./skaffold.production.yaml --tail &
           sleep 10
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
@@ -162,9 +164,9 @@ jobs:
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
-          kubectl: "1.22.4"
-          kustomize: "4.4.0"
-          skaffold: "1.35.0"
+          kubectl: "1.25.4"
+          kustomize: "4.5.7"
+          skaffold: "2.0.1"
       - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
         with:
           service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}

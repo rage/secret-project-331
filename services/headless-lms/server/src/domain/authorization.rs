@@ -112,6 +112,7 @@ pub enum Action {
     CreateCoursesOrExams,
     /// Deletion that we usually don't want to allow.
     UsuallyUnacceptableDeletion,
+    UploadFile,
 }
 
 /// The target of an action.
@@ -492,6 +493,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | EditRole(Teacher | Assistant | Reviewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
+                | UploadFile
         ),
         Assistant => matches!(
             action,

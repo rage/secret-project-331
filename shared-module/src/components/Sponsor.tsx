@@ -16,7 +16,7 @@ const Container = styled.div`
     color: ${baseTheme.colors.gray[700]};
     text-align: center;
     margin-bottom: 2rem;
-    opacity: 0.7;
+    opacity: 0.9;
   }
   ${respondToOrLarger.xxs} {
     width: 100%;

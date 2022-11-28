@@ -1,58 +1,79 @@
+/* eslint-disable i18next/no-literal-string */
 import {
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,
   RepositoryExercise,
 } from "../shared-module/bindings"
 
-export type State =
-  | {
-      viewType: "answer-exercise"
-      exerciseTaskId: string
-      publicSpec: PublicSpec
-      previousSubmission: ExerciseTaskSubmission | null
-    }
-  | {
-      viewType: "view-submission"
-      exerciseTaskId: string
-      grading: ExerciseTaskGradingResult | null
-      userAnswer: UserAnswer
-      publicSpec: PublicSpec
-      modelSolutionSpec: ModelSolutionSpec | null
-    }
-  | {
-      viewType: "exercise-editor"
-      exerciseTaskId: string
-      privateSpec: PrivateSpec | null
-      selectedRepositoryExercise: RepositoryExercise | null
-    }
+export const playgroundPublicSpecUploadUrl = "http://project-331.local/api/v0/files/playground"
+export const publicSpecUploadUrl = "http://project-331.local/api/v0/files/tmc"
+export const publicSpecDownloadUrlRoot = "http://project-331.local/api/v0/files/"
+
+export type IframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
+
+export type ExerciseEditorState = {
+  viewType: "exercise-editor"
+  exerciseTaskId: string
+  repositoryExercises: Array<RepositoryExercise> | null
+  privateSpec: PrivateSpec | null
+}
+
+export type AnswerExerciseState = {
+  viewType: "answer-exercise"
+  initialPublicSpec: PublicSpec
+  publicSpec: PublicSpec
+  previousSubmission: ExerciseTaskSubmission | null
+}
+
+export type ViewSubmissionState = {
+  viewType: "view-submission"
+  exerciseTaskId: string
+  grading: ExerciseTaskGradingResult | null
+  userAnswer: UserAnswer
+  publicSpec: PublicSpec
+  modelSolutionSpec: ModelSolutionSpec | null
+}
+
+export type PrivateSpec = {
+  type: "browser" | "editor"
+  repositoryExercise: RepositoryExercise
+}
 
 export type PublicSpec = BrowserExercisePublicSpec | EditorExercisePublicSpec
 
 export interface BrowserExercisePublicSpec {
   type: "browser"
-  initialContents: string
-  currentContents: string
+  files: Array<[string, string]>
 }
 
 export interface EditorExercisePublicSpec {
   type: "editor"
+  archiveName: string
+  archiveDownloadUrl: string
 }
 
-export type PrivateSpec = {
-  type: "browser" | "editor"
-  repository_exercise_id: string
+export type Submission = BrowserSubmission | EditorSubmission
+
+export interface BrowserSubmission {
+  type: "browser"
+  files: Array<[string, string]>
+}
+
+export interface EditorSubmission {
+  type: "editor"
+  archiveDownloadUrl: string
 }
 
 export type ModelSolutionSpec = BrowserExerciseModelSolutionSpec | EditorExerciseModelSolutionSpec
 
 export interface BrowserExerciseModelSolutionSpec {
   type: "browser"
-  fileContents: string
+  solutionFiles: Array<ExerciseFile>
 }
 
 export interface EditorExerciseModelSolutionSpec {
   type: "editor"
-  solutionFiles: [ExerciseFile]
+  downloadUrl: string
 }
 
 export interface ExerciseFile {

@@ -1,11 +1,16 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
+use std::sync::Arc;
+
 use models::{
     page_history::PageHistory,
     pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
-use crate::{domain::models_requests, prelude::*};
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    prelude::*,
+};
 
 /**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -41,6 +46,7 @@ async fn post_new_page(
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
@@ -57,7 +63,7 @@ async fn post_new_page(
         &mut conn,
         new_page,
         user.id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -132,6 +138,7 @@ async fn restore(
     page_id: web::Path<Uuid>,
     restore_data: web::Json<HistoryRestoreData>,
     user: AuthUser,
+    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
@@ -140,7 +147,7 @@ async fn restore(
         *page_id,
         restore_data.history_id,
         user.id,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

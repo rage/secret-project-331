@@ -24,14 +24,18 @@ const Wrapper = styled.div`
 
   h2 {
     z-index: 20;
-    width: 400px;
-    font-size: clamp(28px, 3.5vw, 48px);
+    width: 200px;
+    font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
     font-weight: 700;
     text-align: left;
     color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
     line-height: 120%;
+
+    ${respondToOrLarger.md} {
+      width: 400px;
+    }
   }
 `
 

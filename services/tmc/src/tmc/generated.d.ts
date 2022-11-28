@@ -1,4 +1,4 @@
-// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.25.1/bindings/tmc-langs-node/ts/generated.d.ts
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.29.0/crates/bindings/tmc-langs-node/ts/generated.d.ts
 
 export interface StyleValidationResult {
   strategy: StyleValidationStrategy
@@ -20,15 +20,15 @@ export interface ExercisePackagingConfiguration {
 }
 
 export interface LocalExercise {
-  exercise_slug: string
-  exercise_path: string
+  "exercise-slug": string
+  "exercise-path": string
 }
 
 export type Compression = "tar" | "zip" | "zstd"
 
 export interface RefreshData {
-  new_cache_path: string
-  course_options: object
+  "new-cache-path": string
+  "course-options": object
   exercises: Array<RefreshExercise>
 }
 
@@ -36,8 +36,8 @@ export interface RefreshExercise {
   name: string
   checksum: string
   points: Array<string>
-  sandbox_image: string
-  tmcproject_yml: TmcProjectYml | null
+  "sandbox-image": string
+  "tmcproject-yml": TmcProjectYml | null
 }
 
 export interface TmcProjectYml {
@@ -51,7 +51,7 @@ export interface TmcProjectYml {
 }
 
 export interface PythonVer {
-  major: number | null
+  major: number
   minor: number | null
   patch: number | null
 }
@@ -99,8 +99,8 @@ export interface DownloadOrUpdateCourseExercisesResult {
 
 export interface ExerciseDownload {
   id: number
-  course_slug: string
-  exercise_slug: string
+  "course-slug": string
+  "exercise-slug": string
   path: string
 }
 

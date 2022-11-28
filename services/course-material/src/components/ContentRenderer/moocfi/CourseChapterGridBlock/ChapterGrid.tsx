@@ -56,7 +56,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
           color: ${baseTheme.colors.gray[700]};
           padding-bottom: 0.6em;
           line-height: 140%;
-          font-size: clamp(28px, 3.5vw, 48px);
+          font-size: clamp(30px, 3.5vw, 48px);
         `}
       >
         {t("course-overview")}

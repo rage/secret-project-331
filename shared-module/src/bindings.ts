@@ -798,6 +798,8 @@ export interface UserModuleCompletionStatus {
   name: string
   order_number: number
   prerequisite_modules_completed: boolean
+  grade: number | null
+  passed: boolean | null
 }
 
 export interface UserWithModuleCompletions {

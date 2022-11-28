@@ -51,7 +51,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
                   opacity: 0.9;
                 `}
               >
-                {t("featured-links")}
+                {t("information-pages")}
               </h2>
               {getTopLevelPages.data.map((page, index) => {
                 const url = coursePageRoute(organizationSlug, courseSlug, page.url_path)

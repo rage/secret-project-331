@@ -29,6 +29,7 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
   module,
 }) => {
   const { t } = useTranslation()
+  const isReady = false
   return (
     <CTAWrapper>
       <a
@@ -39,7 +40,7 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
           {t("register")}
         </Button>
       </a>
-      <StyledLink>{t("generate-certicate")}</StyledLink>
+      {isReady && <StyledLink>{t("generate-certicate")}</StyledLink>}
     </CTAWrapper>
   )
 }

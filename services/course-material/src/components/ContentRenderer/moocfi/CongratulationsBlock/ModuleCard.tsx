@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { Module } from "module"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -78,14 +79,20 @@ const GRADE = "FAIL"
 
 const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
   const { t } = useTranslation()
+  const { grade, passed, prerequisite_modules_completed } = module
+  const numericGrade = grade?.toString()
+  const passOrFAil = passed ? t("column-passed") : t("column-failed")
+
+  const gradeText = numericGrade === undefined ? passOrFAil : numericGrade
+
   return (
     <Wrapper>
       {/* REMOVE THIS WHEN COMPLETE */}
-      {!module.completed && (
+      {!prerequisite_modules_completed && (
         <BadgeWrapper>
           <Badge />
           <span className="grade">{t("grade")}</span>
-          <span className="points">{GRADE}</span>
+          <span className="points">{gradeText}</span>
         </BadgeWrapper>
       )}
       <h2

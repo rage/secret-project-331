@@ -22,6 +22,9 @@ example-exercise:
 headless-lms:
   - services/headless-lms/**/*
 
+db-migrations:
+  - services/headless-lms/migrations/**/*
+
 main-frontend:
   - services/main-frontend/**/*
 

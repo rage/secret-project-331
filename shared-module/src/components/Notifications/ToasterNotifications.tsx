@@ -10,7 +10,12 @@ const ToasterNotifications: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<unknown>>
 > = () => {
   const notMobile = useMedia(respondToOrLarger.xs)
-  return <Toaster position={notMobile ? TOAST_BOTTOM_LEFT : TOAST_BOTTOM_CENTER} />
+  return (
+    <Toaster
+      toastOptions={{ duration: 5000 }}
+      position={notMobile ? TOAST_BOTTOM_LEFT : TOAST_BOTTOM_CENTER}
+    />
+  )
 }
 
 export default ToasterNotifications

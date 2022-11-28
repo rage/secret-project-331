@@ -1,6 +1,7 @@
 use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
+    course_exams,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -63,7 +64,7 @@ pub async fn seed_organization_uh_cs(
     // Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
     let (
         (cs_intro, automatic_completions_id, introduction_to_localizing),
-        manual_completions_id,
+        (manual_completions_id, automatic_course_with_exam_id),
         ..,
     ) = try_join!(
         run_parallelly(courses_group_1(
@@ -112,6 +113,25 @@ pub async fn seed_organization_uh_cs(
     course_modules::update_uh_course_code(
         &mut conn,
         automatic_default_module.id,
+        Some("EXAMPLE123".to_string()),
+    )
+    .await?;
+    let automatic_with_exam_default_module =
+        course_modules::get_default_by_course_id(&mut conn, automatic_course_with_exam_id).await?;
+    let automatic_with_exam_default_module = course_modules::update_automatic_completion_status(
+        &mut conn,
+        automatic_with_exam_default_module.id,
+        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_with_exam_default_module.id,
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+            requires_exam: true,
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_with_exam_default_module.id,
         Some("EXAMPLE123".to_string()),
     )
     .await?;
@@ -217,6 +237,25 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
         teacher_user_id,
         0,
+    )
+    .await?;
+    let automatic_course_exam = create_exam(
+        &mut conn,
+        "Automatic course exam".to_string(),
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(10)),
+        1,
+        uh_cs_organization_id,
+        cs_intro,
+        Uuid::parse_str("b2168b2f-f721-4771-a35d-ca75ca0937b1")?,
+        teacher_user_id,
+        0,
+    )
+    .await?;
+    course_exams::upsert(
+        &mut conn,
+        automatic_course_exam,
+        automatic_course_with_exam_id,
     )
     .await?;
 
@@ -334,7 +373,7 @@ async fn courses_group_2(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
-) -> anyhow::Result<Uuid> {
+) -> anyhow::Result<(Uuid, Uuid)> {
     seed_sample_course(
         &db_pool,
         uh_cs_organization_id,
@@ -379,7 +418,18 @@ async fn courses_group_2(
         &example_normal_user_ids,
     )
     .await?;
-    Ok(manual_completions)
+    let automatic_exam_course_completions = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("260b2157-94ad-4791-91c7-f236f203c338")?,
+        "Automatic Course with Exam",
+        "automatic-course-with-exam",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    Ok((manual_completions, automatic_exam_course_completions))
 }
 
 async fn courses_group_3(

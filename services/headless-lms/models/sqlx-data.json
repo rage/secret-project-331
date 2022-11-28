@@ -1806,22 +1806,6 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  hidden\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        "
   },
-  "20e6eab4c1a5c81ecf66e4b2b2311cbd7835f4681e7bde6c55fbfa4fdbbfe6d8": {
-    "describe": {
-      "columns": [
-        {
-          "name": "exam_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT exam_id\nFROM course_exams\nWHERE exam_id = $1\n  AND deleted_at IS NULL\n        "
-  },
   "20fc12ac7e010520d3a0fc268c01c6fd85802b41adc867ed79edb32b74bcbc17": {
     "describe": {
       "columns": [
@@ -5578,6 +5562,22 @@
       }
     },
     "query": "UPDATE pages SET order_number = $2 WHERE pages.id = $1"
+  },
+  "59830bf03af0473697a647c7ff0ee73027922ef7fc4ebfe705e47caf4b9ee7e9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT exam_id\nFROM course_exams\nWHERE course_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "59c480d849f7798893ef7cc56f426216e4b7a6b33f554c7b301acae2262f7e97": {
     "describe": {

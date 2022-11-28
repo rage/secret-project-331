@@ -44,7 +44,7 @@ pub async fn get_exam_ids_by_course_id(
         "
 SELECT exam_id
 FROM course_exams
-WHERE exam_id = $1
+WHERE course_id = $1
   AND deleted_at IS NULL
         ",
         course_id,

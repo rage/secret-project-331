@@ -194,7 +194,7 @@ async fn user_has_passed_exam_for_the_course(
     course_id: Uuid,
 ) -> ModelResult<bool> {
     let now = Utc::now();
-    let exam_ids = course_exams::get_course_ids_by_exam_id(conn, course_id).await?;
+    let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
         if exam.ended_at_or(now, false) {

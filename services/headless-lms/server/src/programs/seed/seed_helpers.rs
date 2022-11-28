@@ -389,7 +389,7 @@ pub async fn create_exam(
     exam_id: Uuid,
     teacher: Uuid,
     minimum_points_treshold: i32,
-) -> Result<()> {
+) -> Result<Uuid> {
     let new_exam_id = exams::insert(
         conn,
         PKeyPolicy::Fixed(exam_id),
@@ -462,5 +462,5 @@ pub async fn create_exam(
     )
     .await?;
     course_exams::upsert(conn, new_exam_id, course_id).await?;
-    Ok(())
+    Ok(new_exam_id)
 }

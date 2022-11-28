@@ -22,7 +22,7 @@ impl Exam {
     /// exam is defined, returns the provided default instead.
     pub fn started_at_or(&self, timestamp: DateTime<Utc>, default: bool) -> bool {
         match self.starts_at {
-            Some(starts_at) => starts_at > timestamp,
+            Some(starts_at) => starts_at <= timestamp,
             None => default,
         }
     }

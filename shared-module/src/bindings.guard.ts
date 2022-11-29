@@ -163,6 +163,7 @@ import {
   RoleQuery,
   RoleUser,
   SaveCourseSettingsPayload,
+  SpecRequest,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
@@ -214,7 +215,9 @@ export function isAction(obj: unknown): obj is Action {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "create_courses_or_exams") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["type"] === "usually_unacceptable_deletion")
+      typedObj["type"] === "usually_unacceptable_deletion") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "upload_file")
   )
 }
 
@@ -299,6 +302,14 @@ export function isErrorResponse(obj: unknown): obj is ErrorResponse {
     typeof typedObj["message"] === "string" &&
     (typedObj["source"] === null || typeof typedObj["source"] === "string") &&
     (typedObj["data"] === null || (isErrorData(typedObj["data"]) as boolean))
+  )
+}
+
+export function isSpecRequest(obj: unknown): obj is SpecRequest {
+  const typedObj = obj as SpecRequest
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["upload_url"] === null || typeof typedObj["upload_url"] === "string")
   )
 }
 

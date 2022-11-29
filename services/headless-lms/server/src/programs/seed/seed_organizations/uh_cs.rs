@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
@@ -18,7 +20,7 @@ use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::{
-    domain::models_requests,
+    domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
         seed_helpers::create_exam,
@@ -36,6 +38,7 @@ pub struct SeedOrganizationUhCsResult {
 pub async fn seed_organization_uh_cs(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
     let SeedUsersResult {
@@ -73,6 +76,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_2(
             db_pool.clone(),
@@ -80,6 +84,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_3(
             db_pool.clone(),
@@ -87,6 +92,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_4(
             db_pool.clone(),
@@ -94,6 +100,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            Arc::clone(&jwt_key),
         ))
     )?;
 
@@ -185,6 +192,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
         teacher_user_id,
         0,
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_exam(
@@ -198,6 +206,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
         teacher_user_id,
         0,
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_exam(
@@ -211,6 +220,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
         teacher_user_id,
         0,
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_exam(
@@ -224,6 +234,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("65f5c3f3-b5fd-478d-8858-a45cdcb16b86")?,
         teacher_user_id,
         0,
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_exam(
@@ -237,6 +248,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
         teacher_user_id,
         0,
+        Arc::clone(&jwt_key),
     )
     .await?;
     let automatic_course_exam = create_exam(
@@ -250,6 +262,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("b2168b2f-f721-4771-a35d-ca75ca0937b1")?,
         teacher_user_id,
         0,
+        Arc::clone(&jwt_key),
     )
     .await?;
     course_exams::upsert(
@@ -260,8 +273,13 @@ pub async fn seed_organization_uh_cs(
     .await?;
 
     info!("cs");
-    let _cs_design =
-        seed_cs_course_material(&db_pool, uh_cs_organization_id, admin_user_id).await?;
+    let _cs_design = seed_cs_course_material(
+        &db_pool,
+        uh_cs_organization_id,
+        admin_user_id,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),
@@ -284,7 +302,7 @@ pub async fn seed_organization_uh_cs(
             }),
             new_course,
             admin_user_id,
-            models_requests::spec_fetcher,
+            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -315,6 +333,7 @@ async fn courses_group_1(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<(Uuid, Uuid, Uuid)> {
     let cs_intro = seed_sample_course(
         &db_pool,
@@ -325,6 +344,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     let automatic_completions_id = seed_sample_course(
@@ -336,6 +356,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     let introduction_to_localizing = seed_sample_course(
@@ -347,6 +368,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -358,6 +380,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     Ok((
@@ -373,6 +396,7 @@ async fn courses_group_2(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<(Uuid, Uuid)> {
     seed_sample_course(
         &db_pool,
@@ -383,6 +407,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -394,6 +419,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -405,6 +431,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     let manual_completions = seed_sample_course(
@@ -416,6 +443,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     let automatic_exam_course_completions = seed_sample_course(
@@ -427,6 +455,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     Ok((manual_completions, automatic_exam_course_completions))
@@ -438,6 +467,7 @@ async fn courses_group_3(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<()> {
     seed_sample_course(
         &db_pool,
@@ -448,6 +478,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -459,6 +490,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -470,6 +502,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -481,6 +514,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     Ok(())
@@ -492,6 +526,7 @@ async fn courses_group_4(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<()> {
     seed_sample_course(
         &db_pool,
@@ -502,6 +537,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -513,6 +549,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -524,6 +561,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     seed_sample_course(
@@ -535,6 +573,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_glossary_course(
@@ -542,6 +581,7 @@ async fn courses_group_4(
         uh_cs_organization_id,
         admin_user_id,
         Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
+        Arc::clone(&jwt_key),
     )
     .await?;
 

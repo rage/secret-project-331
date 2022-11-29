@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
@@ -19,7 +21,7 @@ use serde_json::Value;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::domain::models_requests;
+use crate::domain::models_requests::{self, JwtKey};
 
 #[allow(clippy::too_many_arguments)]
 pub async fn create_page(
@@ -28,6 +30,7 @@ pub async fn create_page(
     author: Uuid,
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_page = NewPage {
         content: Value::Array(vec![]),
@@ -46,7 +49,7 @@ pub async fn create_page(
         conn,
         new_page,
         author,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -68,7 +71,7 @@ pub async fn create_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false,
         },
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -389,6 +392,7 @@ pub async fn create_exam(
     exam_id: Uuid,
     teacher: Uuid,
     minimum_points_treshold: i32,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_exam_id = exams::insert(
         conn,
@@ -457,7 +461,7 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(jwt_key),
         models_requests::fetch_service_info,
     )
     .await?;

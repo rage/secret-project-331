@@ -18,6 +18,7 @@ export type Action =
   | { type: "edit_role"; variant: UserRole }
   | { type: "create_courses_or_exams" }
   | { type: "usually_unacceptable_deletion" }
+  | { type: "upload_file" }
 
 export interface ActionOnResource {
   action: Action
@@ -52,6 +53,11 @@ export interface ErrorResponse {
   message: string
   source: string | null
   data: ErrorData | null
+}
+
+export interface SpecRequest {
+  private_spec: unknown | null
+  upload_url: string | null
 }
 
 export interface Chapter {

@@ -28,6 +28,7 @@ pub async fn create_new_course(
     user: Uuid,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -149,6 +150,7 @@ pub async fn create_new_chapter(
     user: Uuid,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,

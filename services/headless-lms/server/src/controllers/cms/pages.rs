@@ -8,7 +8,10 @@ use models::{
     CourseOrExamId,
 };
 
-use crate::{domain::models_requests, prelude::*};
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    prelude::*,
+};
 
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
@@ -76,6 +79,7 @@ async fn update_page(
     payload: web::Json<CmsPageUpdate>,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    jwt_key: web::Data<JwtKey>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
@@ -94,7 +98,7 @@ async fn update_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page,
         },
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(jwt_key.into_inner()),
         models_requests::fetch_service_info,
     )
     .await?;

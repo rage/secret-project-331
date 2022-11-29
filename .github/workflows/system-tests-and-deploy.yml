@@ -202,12 +202,12 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test -- --shard="$shard/2"
+        run: npm run test -- -- --shard="${{ matrix.shard }}/2"
         working-directory: ./system-tests/
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
-        run: npm run test -- --shard="$shard/2"
+        run: npm run test -- -- --shard="${{ matrix.shard }}/2"
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 

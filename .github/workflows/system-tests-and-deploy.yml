@@ -101,9 +101,8 @@ jobs:
         run: skaffold build -p push-images --filename ./skaffold.production.yaml
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: Store skaffold output json if master
+      - name: Store skaffold output json
         uses: actions/upload-artifact@v2
-        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json

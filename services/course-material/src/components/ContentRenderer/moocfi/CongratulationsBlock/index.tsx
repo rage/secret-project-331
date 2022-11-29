@@ -36,7 +36,7 @@ const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
           {/* This block is only visible after the default module is completed.
               CHANGE THIS LOGIC WHEN DONE
           */}
-          {getModuleCompletions.data.some((x) => !x.default && !x.completed) && (
+          {getModuleCompletions.data.some((x) => x.default && x.completed) && (
             <BreakFromCentered sidebar={false}>
               <Congratulations modules={getModuleCompletions.data} />
             </BreakFromCentered>

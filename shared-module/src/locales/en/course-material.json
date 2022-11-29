@@ -157,5 +157,7 @@
   "youve-made-changes": "You've made changes",
   "grade": "grade",
   "information-pages": "Information pages",
+  "column-failed": "Fail",
+  "column-passed": "Pass",
   "youve-selected-material-for-editing": "You've selected material for editing"
 }

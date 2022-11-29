@@ -74,20 +74,18 @@ export interface ModuleCardProps {
   module: UserModuleCompletionStatus
 }
 
-const GRADE = "FAIL"
-
 const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
   const { t } = useTranslation()
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
-  const passOrFAil = passed ? t("column-passed") : t("column-failed")
+  const passOrFAilGrade = passed ? t("column-passed") : t("column-failed")
 
-  const gradeText = numericGrade === undefined ? passOrFAil : numericGrade
+  const gradeText = numericGrade == undefined ? passOrFAilGrade : numericGrade
 
   return (
     <Wrapper>
       {/* REMOVE THIS WHEN COMPLETE */}
-      {!prerequisite_modules_completed && (
+      {prerequisite_modules_completed && (
         <BadgeWrapper>
           <Badge />
           <span className="grade">{t("grade")}</span>

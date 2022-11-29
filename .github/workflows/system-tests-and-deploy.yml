@@ -76,7 +76,6 @@ jobs:
 
       - name: Store built images
         uses: actions/upload-artifact@v2
-        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: skaffold-images
           path: ./skaffold-images

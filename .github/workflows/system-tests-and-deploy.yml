@@ -13,8 +13,108 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  system-tests:
+  build:
     runs-on: ubuntu-latest
+    concurrency:
+      # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
+      group: system-tests-${{ github.head_ref || github.sha }}
+      cancel-in-progress: true
+    steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+        # This would cause all other tests to be skipped
+      - name: Make sure we have no focused system-tests
+        run: |
+          test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
+
+      - name: Install kustomize, kubectl & skaffold
+        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        with:
+          kubectl: "1.25.4"
+          kustomize: "4.5.7"
+          skaffold: "2.0.1"
+      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
+        run: |
+          # Workarounds this issue when starting up kube-system/kube-proxy:
+          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
+          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
+          sudo sysctl net/netfilter/nf_conntrack_max=131072
+
+      - name: Install, start & configure minikube
+        uses: manusa/actions-setup-minikube@v2.7.1
+        with:
+          minikube version: "v1.28.0"
+          kubernetes version: "v1.25.3"
+          start args: "--memory max"
+          driver: "docker"
+
+      - name: Debug kube-system
+        run: |
+          kubectl get pods --namespace kube-system
+          PODS=$(kubectl get pods --namespace kube-system -o name | cut -d '/' -f 2)
+          for pod in $PODS
+          do
+            echo "------------------"
+            kubectl describe pod "$pod" --namespace kube-system
+          done
+
+      - name: Run npm ci for shared-modules
+        run: npm ci
+
+      - name: Build
+        run: bin/skaffold-build-test-env-and-serialize-output
+
+      - name: Export production images
+        run: bin/skaffold-export-production-images
+
+      - name: Store built images
+        uses: actions/upload-artifact@v2
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: skaffold-images
+          path: ./skaffold-images
+          retention-days: 5
+
+      - name: Authenticate to Google Cloud
+        env:
+          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        run: |
+          echo Authenticating to Google Cloud
+          echo "$GCLOUD_SERVICE_KEY" | python -m base64 -d > /tmp/key.json
+          gcloud auth activate-service-account --key-file=/tmp/key.json
+          if gcloud auth configure-docker -q; then
+              echo "Authenticated to Google Cloud..."
+          else
+              echo "Authentication to Google Cloud failed. Exiting..."
+              exit 1
+          fi
+        if: ${{ github.ref == 'refs/heads/master' }}
+
+      # These images are used for deployments and for caching
+      - name: Push images if master
+        run: skaffold build -p push-images --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Store skaffold output json if master
+        uses: actions/upload-artifact@v2
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: skaffold-build-output
+          path: ./skaffold-build-output.json
+
+  system-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2]
     concurrency:
       # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
       group: system-tests-${{ github.head_ref || github.sha }}
@@ -78,15 +178,23 @@ jobs:
       - name: Run npm ci for shared-modules
         run: npm ci
 
-      - name: Build and deploy
-        run: |
-          echo "Running skaffold build"
-          skaffold build --verbosity trace --filename ./skaffold.production.yaml
-          echo "Running skaffold run"
-          skaffold run --verbosity trace --force --filename ./skaffold.production.yaml --tail &
-          sleep 10
-          kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
-          echo "All pods ready"
+      - name: Download skaffold build output artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: skaffold-build-output
+          path: skaffold-build-output
+
+      - name: Download built images
+        uses: actions/download-artifact@v2
+        with:
+          name: skaffold-images
+          path: skaffold-images
+
+      - name: Import downloaded images to minikube
+        run: bin/skaffold-import-images-to-minikube
+
+      - name: Deploy to local minikube
+        run: skaffold deploy --force --filename ./skaffold.production.yaml --build-artifacts=./skaffold-build-output/skaffold-build-output.json
 
       - name: Configure ingress
         run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
@@ -96,12 +204,12 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run system tests
-        run: npm run test
+        run: npm run test -- --shard="$shard/2"
         working-directory: ./system-tests/
 
       # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
       - name: Run system tests again to make sure they're stable (if not master)
-        run: npm run test
+        run: npm run test -- --shard="$shard/2"
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
@@ -118,32 +226,6 @@ jobs:
           name: playwright-html-report
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
-
-      - name: Authenticate to Google Cloud
-        env:
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-        run: |
-          echo Authenticating to Google Cloud
-          echo "$GCLOUD_SERVICE_KEY" | python -m base64 -d > /tmp/key.json
-          gcloud auth activate-service-account --key-file=/tmp/key.json
-          if gcloud auth configure-docker -q; then
-              echo "Authenticated to Google Cloud..."
-          else
-              echo "Authentication to Google Cloud failed. Exiting..."
-              exit 1
-          fi
-        if: ${{ github.ref == 'refs/heads/master' }}
-
-      - name: Push images if master
-        run: skaffold build -p push-images --filename ./skaffold.production.yaml --file-output=skaffold-build-output.json
-        if: ${{ github.ref == 'refs/heads/master' }}
-
-      - name: Store skaffold output json if master
-        uses: actions/upload-artifact@v2
-        if: ${{ github.ref == 'refs/heads/master' }}
-        with:
-          name: skaffold-build-output
-          path: ./skaffold-build-output.json
 
   deploy:
     needs: system-tests

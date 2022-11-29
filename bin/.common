@@ -110,3 +110,21 @@ function disallow_running_as_root() {
     fi
   fi
 }
+
+# Makes the command work no matter which directory it's called from. Converts a path that is relative to the bin folder to be relative to the current directory the script caller is in.
+function relativize_path() {
+  local basedir
+  local path_to_target
+  local relative_path
+  basedir="$(dirname "${BASH_SOURCE[0]}")"
+  path_to_target="$basedir/$1"
+  relative_path=$(realpath --relative-to="$(pwd)" "$path_to_target")
+  echo "$relative_path"
+}
+
+function point_docker_cli_to_minikube_docker() {
+  echo "Making docker cli to use the minikube docker"
+  echo "> eval \"\$(minikube -p minikube docker-env --shell bash)\""
+  eval "$(minikube -p minikube docker-env --shell bash)"
+  echo ""
+}

@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+path_to_input=$(relativize_path "../skaffold-build-output.json")
+path_to_ouput_folder=$(relativize_path "../skaffold-images")
+
+ensure_program_in_path jq
+
+point_docker_cli_to_minikube_docker
+
+images_to_export=$(jq --raw-output '.builds[].tag' < "$path_to_input" | grep --invert-match cache)
+
+if [ -d "$path_to_ouput_folder" ]; then
+  run_command rm -r "$path_to_ouput_folder"
+fi
+
+run_command mkdir -p "$path_to_ouput_folder"
+
+echo "$images_to_export" | while read -r line
+do
+  sanitized_filename=$(echo "$line" | tr '/' '_')
+  output_path="$path_to_ouput_folder/$sanitized_filename.tar.zst"
+  echo "> docker save \"$line\" | zstd > \"$output_path\""
+  docker save "$line" | zstd > "$output_path"
+done

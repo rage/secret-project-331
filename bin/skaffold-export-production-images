@@ -19,7 +19,7 @@ run_command mkdir -p "$path_to_ouput_folder"
 
 echo "$images_to_export" | while read -r line
 do
-  sanitized_filename=$(echo "$line" | tr '/' '_')
+  sanitized_filename=$(echo "$line" | tr '/' '_'  | tr ':' '_')
   output_path="$path_to_ouput_folder/$sanitized_filename.tar.zst"
   echo "> docker save \"$line\" | zstd > \"$output_path\""
   docker save "$line" | zstd > "$output_path"

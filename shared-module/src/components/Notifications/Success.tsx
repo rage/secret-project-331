@@ -55,7 +55,7 @@ const CloseIconWrapper = styled.div`
       opacity: 0.7;
     }
     &:hover {
-      background: ${baseTheme.colors.grey[300]};
+      background: ${baseTheme.colors.gray[300]};
       cursor: pointer;
     }
   }
@@ -82,7 +82,7 @@ const SuccessHeader = styled.div`
 const SuccessMessage = styled.div`
   margin-top: auto;
   display: none;
-  color: ${baseTheme.colors.grey[500]};
+  color: ${baseTheme.colors.gray[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }

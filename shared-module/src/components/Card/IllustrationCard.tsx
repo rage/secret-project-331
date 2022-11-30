@@ -36,7 +36,7 @@ const CardContentWrapper = styled.div`
     font-weight: 600;
     z-index: 20;
     line-height: 1.2;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     margin-top: 5px;
     font-size: clamp(26px, 2.2vw, 30px);
     opacity: 0.9;

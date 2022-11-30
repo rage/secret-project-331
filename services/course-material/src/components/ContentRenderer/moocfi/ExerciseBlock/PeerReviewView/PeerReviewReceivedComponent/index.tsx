@@ -34,7 +34,7 @@ const Wrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details[open] > div {
@@ -53,7 +53,7 @@ const Wrapper = styled.div`
     font-weight: 500;
     font-family: ${headingFont};
     list-style: none;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     outline: 0;
     background: ${baseTheme.colors.clear[100]};
     margin-bottom: 5px;
@@ -64,14 +64,14 @@ const Wrapper = styled.div`
   }
 
   details[open] > summary {
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details summary:after {
     content: "+";
     position: absolute;
     font-size: 2.4rem;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     line-height: 0;
     margin-top: 0.75rem;
     top: 14px;

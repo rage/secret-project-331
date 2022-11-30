@@ -123,6 +123,7 @@ build:
     useDockerCLI: true
      # Allow parallel builds
     concurrency: 0
+    push: false
 
 manifests:
   kustomize:

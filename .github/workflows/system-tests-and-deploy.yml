@@ -21,6 +21,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
       # This would cause all other tests to be skipped
       - name: Make sure we have no focused system-tests
         run: |
@@ -36,10 +39,6 @@ jobs:
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
-
-
-      - name: Check out repository code
-        uses: actions/checkout@v2
 
       - name: Install skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1

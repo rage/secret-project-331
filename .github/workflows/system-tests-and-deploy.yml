@@ -87,14 +87,17 @@ jobs:
           fi
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      # These images are used for deployments
+      # These images are used for deployments and caching
       - name: Push images if master
         run: skaffold build -p push-images --filename ./skaffold.production.yaml
         if: ${{ github.ref == 'refs/heads/master' }}
-
-      # These images are used for caching
       - name: Push latest images if master
         run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
+      - name: Push images tagged with sha if master
+        run: |
+          # shellcheck disable=SC2016
+          jq --raw-output '.builds[].tag' < skaffold-build-output.json | xargs -d $'\n' sh -c 'for arg do echo "> docker push $arg"; docker push "$arg"; done'
         if: ${{ github.ref == 'refs/heads/master' }}
 
   system-tests:

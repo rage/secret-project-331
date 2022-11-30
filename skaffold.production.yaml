@@ -117,8 +117,9 @@ build:
     - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
       alias: BUILD_CACHE
   tagPolicy:
-    # sha256 tag policy pushes the latest tag, which is used for caching
-    sha256: {}
+    # Default tag policy
+    gitCommit:
+      variant: CommitSha
   local:
     useDockerCLI: true
      # Allow parallel builds
@@ -157,3 +158,11 @@ profiles:
     path: /manifests/kustomize/paths
     value:
     - kubernetes/production
+# Used to push the latest tag in ci, used for caching.
+- name: latest-tag
+  patches:
+  - op: replace
+    path: /build/tagPolicy
+    value:
+      # sha256 tag policy pushes the latest tag, which is used for caching
+      sha256: {}

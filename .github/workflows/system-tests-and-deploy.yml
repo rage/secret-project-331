@@ -51,6 +51,12 @@ jobs:
       - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output
 
+      - name: Store skaffold output json
+        uses: actions/upload-artifact@v2
+        with:
+          name: skaffold-build-output
+          path: ./skaffold-build-output.json
+
       - name: Export production images
         run: bin/skaffold-export-production-images
 
@@ -81,16 +87,15 @@ jobs:
           fi
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      # These images are used for deployments and for caching
+      # These images are used for deployments
       - name: Push images if master
         run: skaffold build -p push-images --filename ./skaffold.production.yaml
         if: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: Store skaffold output json
-        uses: actions/upload-artifact@v2
-        with:
-          name: skaffold-build-output
-          path: ./skaffold-build-output.json
+      # These images are used for caching
+      - name: Push latest images if master
+        run: skaffold build -p push-images,latest-tag --filename ./skaffold.production.yaml
+        if: ${{ github.ref == 'refs/heads/master' }}
 
   system-tests:
     needs: build

@@ -3,7 +3,9 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import FailedIcon from "../../../../img/failed-icon.svg"
 import Badge from "../../../../img/grade-badge.svg"
+import PassedIcon from "../../../../img/passed-icon.svg"
 import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
 import { baseTheme, headingFont, monospaceFont, typography } from "../../../../shared-module/styles"
 
@@ -60,14 +62,20 @@ const BadgeWrapper = styled.div`
   }
   .points {
     position: absolute;
+    height: auto;
     top: 29px;
+    line-height: 1.1;
     left: 50%;
     transform: translate(-50%, 0);
     font-family: ${headingFont};
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 700;
     color: ${baseTheme.colors.grey[700]};
   }
+`
+
+const StyledFailedIcon = styled(FailedIcon)`
+  margin-top: 3px;
 `
 
 export interface ModuleCardProps {
@@ -78,9 +86,7 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module
   const { t } = useTranslation()
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
-  const passOrFAilGrade = passed ? t("column-passed") : t("column-failed")
-
-  const gradeText = numericGrade == undefined ? passOrFAilGrade : numericGrade
+  const passOrFAilGrade = passed ? <PassedIcon /> : <StyledFailedIcon />
 
   return (
     <Wrapper>
@@ -89,7 +95,7 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module
         <BadgeWrapper>
           <Badge />
           <span className="grade">{t("grade")}</span>
-          <span className="points">{gradeText}</span>
+          <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>
         </BadgeWrapper>
       )}
       <h2

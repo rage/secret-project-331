@@ -7,12 +7,11 @@ path_to_ouput_folder=$(relativize_path "../skaffold-images")
 
 ensure_program_in_path jq
 
-if command -v minikube &> /dev/null
+if [ -z ${CI+x} ]
 then
-  # If minikube is installed, point the docker cli to use the docker inside minikube because that's where the images are built in development environments
   point_docker_cli_to_minikube_docker
 else
-  echo "Minikube is not installed. Assuming skaffold has been building the images outside minikube. This commonly is the case only in the continuos integration environment."
+  echo "In CI, not using minikube docker because builds in ci happen without minikube"
 fi
 
 images_to_export=$(jq --raw-output '.builds[].tag' < "$path_to_input" | grep --invert-match cache| xargs echo)

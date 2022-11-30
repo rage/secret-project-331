@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email_address-0.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../email_address/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email_address-0.2.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../email_address/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1110,6 +1110,60 @@
 <span id="1110">1110</span>
 <span id="1111">1111</span>
 <span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
+<span id="1154">1154</span>
+<span id="1155">1155</span>
+<span id="1156">1156</span>
+<span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 A Rust crate providing an implementation of an RFC-compliant `EmailAddress` newtype.
 
@@ -1394,6 +1448,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 </span><span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::{Debug, Display, Formatter};
+<span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::str::FromStr;
 
 <span class="comment">// ------------------------------------------------------------------------------------------------
@@ -1437,7 +1492,7 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
 /// create an instance. The various components of the email _are not_ parsed out to be accessible
 /// independently.
 ///
-</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+</span><span class="attribute">#[derive(Debug, Clone, Eq)]
 #[cfg_attr(feature = <span class="string">&quot;serde_support&quot;</span>, derive(Serialize))]
 </span><span class="kw">pub struct </span>EmailAddress(String);
 
@@ -1518,6 +1573,30 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     }
 }
 
+<span class="comment">// From RFC 5321, section 2.4:
+//
+// The local-part of a mailbox MUST BE treated as case sensitive. Therefore,
+// SMTP implementations MUST take care to preserve the case of mailbox
+// local-parts. In particular, for some hosts, the user &quot;smith&quot; is different
+// from the user &quot;Smith&quot;. However, exploiting the case sensitivity of mailbox
+// local-parts impedes interoperability and is discouraged. Mailbox domains
+// follow normal DNS rules and are hence not case sensitive.
+//
+
+</span><span class="kw">impl </span>PartialEq <span class="kw">for </span>EmailAddress {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">let </span>(left, right) = split_at(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).unwrap();
+        <span class="kw">let </span>(other_left, other_right) = split_at(<span class="kw-2">&amp;</span>other.<span class="number">0</span>).unwrap();
+        left.eq(other_left) &amp;&amp; right.eq_ignore_ascii_case(other_right)
+    }
+}
+
+<span class="kw">impl </span>Hash <span class="kw">for </span>EmailAddress {
+    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        <span class="self">self</span>.<span class="number">0</span>.hash(state);
+    }
+}
+
 <span class="kw">impl </span>FromStr <span class="kw">for </span>EmailAddress {
     <span class="kw">type </span><span class="prelude-val">Err </span>= Error;
 
@@ -1586,8 +1665,11 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     ///
     /// assert_eq!(&quot;John Doe &lt;john.doe@example.com&gt;&quot;, email.to_display(&quot;John Doe&quot;));
     /// ```
-    </span><span class="kw">pub fn </span>new_unchecked(address: String) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(address)
+    </span><span class="kw">pub fn </span>new_unchecked&lt;S&gt;(address: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>S: Into&lt;String&gt;,
+    {
+        <span class="self">Self</span>(address.into())
     }
 
     <span class="doccomment">///
@@ -1695,6 +1777,13 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     </span><span class="kw">pub fn </span>domain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">let </span>(<span class="kw">_</span>, right) = split_at(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).unwrap();
         right
+    }
+
+    <span class="doccomment">///
+    /// Returns the email address as a string reference.
+    ///
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="self">self</span>.as_ref()
     }
 }
 
@@ -2220,6 +2309,25 @@ An informal description can be found on [Wikipedia](https://en.wikipedia.org/wik
     </span><span class="kw">fn </span>test_error_traits() {
         is_send::&lt;Error&gt;();
         is_sync::&lt;Error&gt;();
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="comment">// BUG: https://github.com/johnstonskj/rust-email_address/issues/11
+    </span><span class="kw">fn </span>test_eq_name_case_sensitive_local() {
+        <span class="kw">let </span>email = EmailAddress::new_unchecked(<span class="string">&quot;simon@example.com&quot;</span>);
+
+        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simon@example.com&quot;</span>));
+        <span class="macro">assert_ne!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;Simon@example.com&quot;</span>));
+        <span class="macro">assert_ne!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simoN@example.com&quot;</span>));
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="comment">// BUG: https://github.com/johnstonskj/rust-email_address/issues/11
+    </span><span class="kw">fn </span>test_eq_name_case_insensitive_domain() {
+        <span class="kw">let </span>email = EmailAddress::new_unchecked(<span class="string">&quot;simon@example.com&quot;</span>);
+
+        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simon@Example.com&quot;</span>));
+        <span class="macro">assert_eq!</span>(email, EmailAddress::new_unchecked(<span class="string">&quot;simon@example.COM&quot;</span>));
     }
 }
 </code></pre></div>

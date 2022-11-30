@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-macros-0.2.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../time_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../time_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../time_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-macros-0.2.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../time_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../time_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../time_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -127,6 +127,40 @@
 <span id="127">127</span>
 <span id="128">128</span>
 <span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><pre class="rust"><code><span class="attribute">#![deny(
     anonymous_parameters,
     clippy::all,
@@ -165,14 +199,18 @@
 <span class="kw">mod </span>date;
 <span class="kw">mod </span>datetime;
 <span class="kw">mod </span>error;
-<span class="kw">mod </span>format_description;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;formatting&quot;</span>, feature = <span class="string">&quot;parsing&quot;</span>))]
+</span><span class="kw">mod </span>format_description;
 <span class="kw">mod </span>helpers;
 <span class="kw">mod </span>offset;
-<span class="kw">mod </span>serde_format_description;
+<span class="attribute">#[cfg(all(feature = <span class="string">&quot;serde&quot;</span>, any(feature = <span class="string">&quot;formatting&quot;</span>, feature = <span class="string">&quot;parsing&quot;</span>)))]
+</span><span class="kw">mod </span>serde_format_description;
 <span class="kw">mod </span>time;
 <span class="kw">mod </span>to_tokens;
 
-<span class="kw">use </span>proc_macro::{TokenStream, TokenTree};
+<span class="kw">use </span>proc_macro::TokenStream;
+<span class="attribute">#[cfg(all(feature = <span class="string">&quot;serde&quot;</span>, any(feature = <span class="string">&quot;formatting&quot;</span>, feature = <span class="string">&quot;parsing&quot;</span>)))]
+</span><span class="kw">use </span>proc_macro::TokenTree;
 
 <span class="kw">use </span><span class="self">self</span>::error::Error;
 
@@ -196,9 +234,8 @@
 
 <span class="macro">impl_macros!</span>[date datetime offset time];
 
-<span class="comment">// TODO Gate this behind the the `formatting` or `parsing` feature flag when weak dependency
-// features land.
-</span><span class="attribute">#[proc_macro]
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;formatting&quot;</span>, feature = <span class="string">&quot;parsing&quot;</span>))]
+#[proc_macro]
 </span><span class="kw">pub fn </span>format_description(input: TokenStream) -&gt; TokenStream {
     (|| {
         <span class="kw">let </span>(span, string) = helpers::get_string_literal(input)<span class="question-mark">?</span>;
@@ -217,7 +254,8 @@
     .unwrap_or_else(|err: Error| err.to_compile_error())
 }
 
-<span class="attribute">#[proc_macro]
+<span class="attribute">#[cfg(all(feature = <span class="string">&quot;serde&quot;</span>, any(feature = <span class="string">&quot;formatting&quot;</span>, feature = <span class="string">&quot;parsing&quot;</span>)))]
+#[proc_macro]
 </span><span class="kw">pub fn </span>serde_format_description(input: TokenStream) -&gt; TokenStream {
     (|| {
         <span class="kw">let </span><span class="kw-2">mut </span>tokens = input.into_iter().peekable();
@@ -241,17 +279,47 @@
         <span class="comment">// Another comma
         </span>helpers::consume_punct(<span class="string">&#39;,&#39;</span>, <span class="kw-2">&amp;mut </span>tokens)<span class="question-mark">?</span>;
 
-        <span class="comment">// Then, a string literal.
-        </span><span class="kw">let </span>(span, format_string) = helpers::get_string_literal(tokens.collect())<span class="question-mark">?</span>;
+        <span class="comment">// We now have two options. The user can either provide a format description as a string or
+        // they can provide a path to a format description. If the latter, all remaining tokens are
+        // assumed to be part of the path.
+        </span><span class="kw">let </span>(format, raw_format_string) = <span class="kw">match </span>tokens.peek() {
+            <span class="comment">// string literal
+            </span><span class="prelude-val">Some</span>(TokenTree::Literal(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">let </span>(span, format_string) = helpers::get_string_literal(tokens.collect())<span class="question-mark">?</span>;
+                <span class="kw">let </span>items = format_description::parse(<span class="kw-2">&amp;</span>format_string, span)<span class="question-mark">?</span>;
+                <span class="kw">let </span>items: TokenStream =
+                    items.into_iter().map(|item| <span class="macro">quote! </span>{ #S(item), }).collect();
+                <span class="kw">let </span>items = <span class="macro">quote! </span>{ <span class="kw-2">&amp;</span>[#S(items)] };
 
-        <span class="kw">let </span>items = format_description::parse(<span class="kw-2">&amp;</span>format_string, span)<span class="question-mark">?</span>;
-        <span class="kw">let </span>items: TokenStream = items.into_iter().map(|item| <span class="macro">quote! </span>{ #S(item), }).collect();
+                (
+                    items,
+                    <span class="prelude-val">Some</span>(String::from_utf8_lossy(<span class="kw-2">&amp;</span>format_string).into_owned()),
+                )
+            }
+            <span class="comment">// path
+            </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; (
+                <span class="macro">quote! </span>{{
+                    <span class="comment">// We can&#39;t just do `super::path` because the path could be an absolute path. In
+                    // that case, we&#39;d be generating `super::::path`, which is invalid. Even if we
+                    // took that into account, it&#39;s not possible to know if it&#39;s an external crate,
+                    // which would just require emitting `path` directly. By taking this approach,
+                    // we can leave it to the compiler to do the actual resolution.
+                    </span><span class="kw">mod </span>__path_hack {
+                        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::<span class="kw-2">*</span>;
+                        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>#S(tokens.collect::&lt;TokenStream&gt;()) <span class="kw">as </span>FORMAT;
+                    }
+                    __path_hack::FORMAT
+                }},
+                <span class="prelude-val">None</span>,
+            ),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnexpectedEndOfInput),
+        };
 
         <span class="prelude-val">Ok</span>(serde_format_description::build(
             mod_name,
-            items,
             formattable,
-            <span class="kw-2">&amp;</span>String::from_utf8_lossy(<span class="kw-2">&amp;</span>format_string),
+            format,
+            raw_format_string,
         ))
     })()
     .unwrap_or_else(|err: Error| err.to_compile_error_standalone())

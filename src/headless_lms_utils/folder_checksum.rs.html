@@ -203,6 +203,18 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Provides functionality for checksumming directory trees.
 
@@ -310,9 +322,7 @@ might take a while since reading a lot of data from disk is not fast.
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[cfg(not(target_os = <span class="string">&quot;windows&quot;</span>))]
-    #[tokio::test]
-    </span><span class="kw">async fn </span>it_works() {
+    <span class="kw">async fn </span>do_the_test() {
         <span class="kw">let </span>dir = TempDir::new(<span class="string">&quot;test-folder-checksum&quot;</span>).expect(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
         File::open(dir.path())
             .<span class="kw">await
@@ -406,6 +416,20 @@ might take a while since reading a lot of data from disk is not fast.
             seventh_hash.to_hex().to_string(),
             <span class="string">&quot;5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c&quot;
         </span>);
+    }
+
+    <span class="attribute">#[cfg(not(target_os = <span class="string">&quot;windows&quot;</span>))]
+    #[tokio::test]
+    </span><span class="kw">async fn </span>it_works() {
+        <span class="kw">let </span>res = std::panic::catch_unwind(|| {
+            futures::executor::block_on(do_the_test());
+        });
+        <span class="kw">if </span>res.is_ok() {
+            <span class="kw">return</span>;
+        }
+
+        <span class="macro">warn!</span>(<span class="string">&quot;First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine.&quot;</span>);
+        do_the_test().<span class="kw">await</span>;
     }
 }
 </code></pre></div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../aes/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -161,6 +161,77 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Pure Rust implementation of the [Advanced Encryption Standard][AES]
 //! (AES, a.k.a. Rijndael).
 //!
@@ -185,7 +256,7 @@
 //! implemented entirely in terms of bitwise arithmetic with no use of any
 //! lookup tables or data-dependent branches.
 //!
-//! Enabling the `compact` Cargo feature will reduce the code size of this
+//! Enabling the `aes_compact` configuration flag will reduce the code size of this
 //! backend at the cost of decreased performance (using a modified form of
 //! the fixslicing technique called &quot;semi-fixslicing&quot;).
 //!
@@ -194,9 +265,9 @@
 //! targets such as `aarch64-unknown-linux-gnu` and `aarch64-unknown-linux-musl`,
 //! support for using AES intrinsics provided by the ARMv8 Cryptography Extensions
 //! is available when using the nightly compiler, and can be enabled using the
-//! `armv8` crate feature.
+//! `aes_armv8` configuration flag.
 //!
-//! On Linux and macOS, when the `armv8` feature is enabled support for AES
+//! On Linux and macOS, when the `aes_armv8` flag is enabled support for AES
 //! intrinsics is autodetected at runtime. On other platforms the `aes`
 //! target feature must be enabled via RUSTFLAGS.
 //!
@@ -236,7 +307,7 @@
 //! cipher.decrypt_block(&amp;mut block);
 //! assert_eq!(block, block_copy);
 //!
-//! // implementation supports parrallel block processing
+//! // implementation supports parallel block processing
 //! // number of blocks processed in parallel depends in general
 //! // on hardware capabilities
 //! let mut blocks = [block; 100];
@@ -267,7 +338,7 @@
 //! - `aes_compact`: reduce code size at the cost of slower performance
 //! (affects only software backend).
 //!
-//! It can be enabled using `RUSTFLAGS` enviromental variable
+//! It can be enabled using `RUSTFLAGS` environmental variable
 //! (e.g. `RUSTFLAGS=&quot;--cfg aes_compact&quot;`) or by modifying `.cargo/config`.
 //!
 //! [AES]: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
@@ -278,17 +349,14 @@
 </span><span class="attribute">#![no_std]
 #![doc(
     html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;</span>,
-    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;</span>,
-    html_root_url = <span class="string">&quot;https://docs.rs/aes/0.8.1&quot;
+    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;
 </span>)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![warn(missing_docs, rust_2018_idioms)]
-#![cfg_attr(
-    all(aes_armv8, target_arch = <span class="string">&quot;aarch64&quot;</span>),
-    feature(stdsimd, aarch64_target_feature)
-)]
+#![cfg_attr(all(aes_armv8, target_arch = <span class="string">&quot;aarch64&quot;</span>), feature(stdsimd))]
 
 #[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;hazmat&quot;</span>)))]
 </span><span class="kw">pub mod </span>hazmat;
 
 <span class="kw">mod </span>soft;
@@ -322,5 +390,79 @@
 </span><span class="kw">pub type </span>Block = GenericArray&lt;u8, U16&gt;;
 <span class="doccomment">/// Eight 128-bit AES blocks
 </span><span class="kw">pub type </span>Block8 = GenericArray&lt;Block, U8&gt;;
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+    #[test]
+    </span><span class="kw">fn </span>zeroize_works() {
+        <span class="kw">use </span><span class="kw">super</span>::soft;
+
+        <span class="kw">fn </span>test_for&lt;T: zeroize::ZeroizeOnDrop&gt;(val: T) {
+            <span class="kw">use </span>core::mem::{size_of, ManuallyDrop};
+
+            <span class="kw">let </span><span class="kw-2">mut </span>val = ManuallyDrop::new(val);
+            <span class="kw">let </span>ptr = <span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>u8;
+            <span class="kw">let </span>len = size_of::&lt;ManuallyDrop&lt;T&gt;&gt;();
+
+            <span class="kw">unsafe </span>{ ManuallyDrop::drop(<span class="kw-2">&amp;mut </span>val) };
+
+            <span class="kw">let </span>slice = <span class="kw">unsafe </span>{ core::slice::from_raw_parts(ptr, len) };
+
+            <span class="macro">assert!</span>(slice.iter().all(|<span class="kw-2">&amp;</span>byte| byte == <span class="number">0</span>));
+        }
+
+        <span class="kw">let </span>key_128 = [<span class="number">42</span>; <span class="number">16</span>].into();
+        <span class="kw">let </span>key_192 = [<span class="number">42</span>; <span class="number">24</span>].into();
+        <span class="kw">let </span>key_256 = [<span class="number">42</span>; <span class="number">32</span>].into();
+
+        <span class="kw">use </span>cipher::KeyInit <span class="kw">as _</span>;
+        test_for(soft::Aes128::new(<span class="kw-2">&amp;</span>key_128));
+        test_for(soft::Aes128Enc::new(<span class="kw-2">&amp;</span>key_128));
+        test_for(soft::Aes128Dec::new(<span class="kw-2">&amp;</span>key_128));
+        test_for(soft::Aes192::new(<span class="kw-2">&amp;</span>key_192));
+        test_for(soft::Aes192Enc::new(<span class="kw-2">&amp;</span>key_192));
+        test_for(soft::Aes192Dec::new(<span class="kw-2">&amp;</span>key_192));
+        test_for(soft::Aes256::new(<span class="kw-2">&amp;</span>key_256));
+        test_for(soft::Aes256Enc::new(<span class="kw-2">&amp;</span>key_256));
+        test_for(soft::Aes256Dec::new(<span class="kw-2">&amp;</span>key_256));
+
+        <span class="attribute">#[cfg(all(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>), not(aes_force_soft)))]
+        </span>{
+            <span class="kw">use </span><span class="kw">super</span>::ni;
+
+            <span class="macro">cpufeatures::new!</span>(aes_intrinsics, <span class="string">&quot;aes&quot;</span>);
+            <span class="kw">if </span>aes_intrinsics::get() {
+                test_for(ni::Aes128::new(<span class="kw-2">&amp;</span>key_128));
+                test_for(ni::Aes128Enc::new(<span class="kw-2">&amp;</span>key_128));
+                test_for(ni::Aes128Dec::new(<span class="kw-2">&amp;</span>key_128));
+                test_for(ni::Aes192::new(<span class="kw-2">&amp;</span>key_192));
+                test_for(ni::Aes192Enc::new(<span class="kw-2">&amp;</span>key_192));
+                test_for(ni::Aes192Dec::new(<span class="kw-2">&amp;</span>key_192));
+                test_for(ni::Aes256::new(<span class="kw-2">&amp;</span>key_256));
+                test_for(ni::Aes256Enc::new(<span class="kw-2">&amp;</span>key_256));
+                test_for(ni::Aes256Dec::new(<span class="kw-2">&amp;</span>key_256));
+            }
+        }
+
+        <span class="attribute">#[cfg(all(target_arch = <span class="string">&quot;aarch64&quot;</span>, aes_armv8, not(aes_force_soft)))]
+        </span>{
+            <span class="kw">use </span><span class="kw">super</span>::armv8;
+
+            <span class="macro">cpufeatures::new!</span>(aes_intrinsics, <span class="string">&quot;aes&quot;</span>);
+            <span class="kw">if </span>aes_intrinsics::get() {
+                test_for(armv8::Aes128::new(<span class="kw-2">&amp;</span>key_128));
+                test_for(armv8::Aes128Enc::new(<span class="kw-2">&amp;</span>key_128));
+                test_for(armv8::Aes128Dec::new(<span class="kw-2">&amp;</span>key_128));
+                test_for(armv8::Aes192::new(<span class="kw-2">&amp;</span>key_192));
+                test_for(armv8::Aes192Enc::new(<span class="kw-2">&amp;</span>key_192));
+                test_for(armv8::Aes192Dec::new(<span class="kw-2">&amp;</span>key_192));
+                test_for(armv8::Aes256::new(<span class="kw-2">&amp;</span>key_256));
+                test_for(armv8::Aes256Enc::new(<span class="kw-2">&amp;</span>key_256));
+                test_for(armv8::Aes256Dec::new(<span class="kw-2">&amp;</span>key_256));
+            }
+        }
+    }
+}
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

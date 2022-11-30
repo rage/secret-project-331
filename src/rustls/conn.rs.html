@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/conn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../rustls/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.7/src/conn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../rustls/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1411,7 +1411,46 @@
 <span id="1411">1411</span>
 <span id="1412">1412</span>
 <span id="1413">1413</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
+<span id="1435">1435</span>
+<span id="1436">1436</span>
+<span id="1437">1437</span>
+<span id="1438">1438</span>
+<span id="1439">1439</span>
+<span id="1440">1440</span>
+<span id="1441">1441</span>
+<span id="1442">1442</span>
+<span id="1443">1443</span>
+<span id="1444">1444</span>
+<span id="1445">1445</span>
+<span id="1446">1446</span>
+<span id="1447">1447</span>
+<span id="1448">1448</span>
+<span id="1449">1449</span>
+<span id="1450">1450</span>
+<span id="1451">1451</span>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::enums::ProtocolVersion;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::key;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, error, trace, warn};
@@ -1419,7 +1458,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::MessageDeframer;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::HandshakeType;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertDescription, AlertLevel, ContentType, ProtocolVersion};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertDescription, AlertLevel, ContentType};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::fragmenter::MessageFragmenter;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::Random;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::hsjoiner::HandshakeJoiner;
@@ -1430,17 +1469,22 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::quic;
 <span class="kw">use </span><span class="kw">crate</span>::record_layer;
 <span class="kw">use </span><span class="kw">crate</span>::suites::SupportedCipherSuite;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::suites::{ExtractedSecrets, PartiallyExtractedSecrets};
 <span class="attribute">#[cfg(feature = <span class="string">&quot;tls12&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::tls12::ConnectionSecrets;
 <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
+</span><span class="kw">use </span>std::collections::VecDeque;
 
-<span class="kw">use </span>std::collections::VecDeque;
 <span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::mem;
 <span class="kw">use </span>std::ops::{Deref, DerefMut};
 
 <span class="doccomment">/// A client or server connection.
+</span><span class="attribute">#[derive(Debug)]
 </span><span class="kw">pub enum </span>Connection {
     <span class="doccomment">/// A client connection
     </span>Client(<span class="kw">crate</span>::client::ClientConnection),
@@ -1454,24 +1498,24 @@
     /// See [`ConnectionCommon::read_tls()`] for more information.
     </span><span class="kw">pub fn </span>read_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Read) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.read_tls(rd),
-            Connection::Server(conn) =&gt; conn.read_tls(rd),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.read_tls(rd),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.read_tls(rd),
         }
     }
 
     <span class="doccomment">/// Returns an object that allows reading plaintext.
     </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Reader {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.reader(),
-            Connection::Server(conn) =&gt; conn.reader(),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.reader(),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.reader(),
         }
     }
 
     <span class="doccomment">/// Returns an object that allows writing plaintext.
     </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Writer {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
-            Connection::Server(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
+            <span class="self">Self</span>::Client(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
+            <span class="self">Self</span>::Server(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
         }
     }
 
@@ -1480,8 +1524,8 @@
     /// See [`ConnectionCommon::process_new_packets()`] for more information.
     </span><span class="kw">pub fn </span>process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IoState, Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.process_new_packets(),
-            Connection::Server(conn) =&gt; conn.process_new_packets(),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.process_new_packets(),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.process_new_packets(),
         }
     }
 
@@ -1495,8 +1539,17 @@
         context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.export_keying_material(output, label, context),
-            Connection::Server(conn) =&gt; conn.export_keying_material(output, label, context),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.export_keying_material(output, label, context),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.export_keying_material(output, label, context),
+        }
+    }
+
+    <span class="doccomment">/// Extract secrets, to set up kTLS for example
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">pub fn </span>extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Client(conn) =&gt; conn.extract_secrets(),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.extract_secrets(),
         }
     }
 
@@ -1509,8 +1562,8 @@
         T: io::Read + io::Write,
     {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.complete_io(io),
-            Connection::Server(conn) =&gt; conn.complete_io(io),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.complete_io(io),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.complete_io(io),
         }
     }
 }
@@ -1519,36 +1572,36 @@
 </span><span class="kw">impl </span><span class="kw">crate</span>::quic::QuicExt <span class="kw">for </span>Connection {
     <span class="kw">fn </span>quic_transport_parameters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.quic_transport_parameters(),
-            Connection::Server(conn) =&gt; conn.quic_transport_parameters(),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.quic_transport_parameters(),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.quic_transport_parameters(),
         }
     }
 
     <span class="kw">fn </span>zero_rtt_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;quic::DirectionalKeys&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.zero_rtt_keys(),
-            Connection::Server(conn) =&gt; conn.zero_rtt_keys(),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.zero_rtt_keys(),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.zero_rtt_keys(),
         }
     }
 
     <span class="kw">fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.read_quic_hs(plaintext),
-            Connection::Server(conn) =&gt; conn.read_quic_hs(plaintext),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.read_quic_hs(plaintext),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.read_quic_hs(plaintext),
         }
     }
 
     <span class="kw">fn </span>write_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;quic::KeyChange&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; quic::write_hs(conn, buf),
-            Connection::Server(conn) =&gt; quic::write_hs(conn, buf),
+            <span class="self">Self</span>::Client(conn) =&gt; quic::write_hs(conn, buf),
+            <span class="self">Self</span>::Server(conn) =&gt; quic::write_hs(conn, buf),
         }
     }
 
     <span class="kw">fn </span>alert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AlertDescription&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; conn.alert(),
-            Connection::Server(conn) =&gt; conn.alert(),
+            <span class="self">Self</span>::Client(conn) =&gt; conn.alert(),
+            <span class="self">Self</span>::Server(conn) =&gt; conn.alert(),
         }
     }
 }
@@ -1558,8 +1611,8 @@
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; <span class="kw-2">&amp;</span>conn.common_state,
-            Connection::Server(conn) =&gt; <span class="kw-2">&amp;</span>conn.common_state,
+            <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;</span>conn.common_state,
+            <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;</span>conn.common_state,
         }
     }
 }
@@ -1567,15 +1620,15 @@
 <span class="kw">impl </span>DerefMut <span class="kw">for </span>Connection {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
         <span class="kw">match </span><span class="self">self </span>{
-            Connection::Client(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.common_state,
-            Connection::Server(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.common_state,
+            <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.common_state,
+            <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.common_state,
         }
     }
 }
 
 <span class="doccomment">/// Values of this structure are returned from [`Connection::process_new_packets`]
 /// and tell the caller the current I/O state of the TLS connection.
-</span><span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>IoState {
     tls_bytes_to_write: usize,
     plaintext_bytes_to_read: usize,
@@ -1677,12 +1730,13 @@
     /// You may learn the number of bytes available at any time by inspecting
     /// the return of [`Connection::process_new_packets`].
     </span><span class="attribute">#[cfg(read_buf)]
-    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>io::ReadBuf&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>before = buf.filled_len();
-        <span class="self">self</span>.received_plaintext.read_buf(buf)<span class="question-mark">?</span>;
-        <span class="kw">let </span>len = buf.filled_len() - before;
+    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cursor: io::BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>before = cursor.written();
+        <span class="self">self</span>.received_plaintext
+            .read_buf(cursor.reborrow())<span class="question-mark">?</span>;
+        <span class="kw">let </span>len = cursor.written() - before;
 
-        <span class="kw">if </span>len == <span class="number">0 </span>&amp;&amp; buf.capacity() &gt; <span class="number">0 </span>{
+        <span class="kw">if </span>len == <span class="number">0 </span>&amp;&amp; cursor.capacity() &gt; <span class="number">0 </span>{
             <span class="comment">// No bytes available:
             </span><span class="kw">match </span>(<span class="self">self</span>.peer_cleanly_closed, <span class="self">self</span>.has_seen_eof) {
                 <span class="comment">// cleanly closed; don&#39;t care about TCP EOF: express this as Ok(0)
@@ -1764,7 +1818,7 @@
     }
 }
 
-<span class="attribute">#[derive(Copy, Clone, Eq, PartialEq)]
+<span class="attribute">#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Protocol {
     Tcp,
     <span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
@@ -2161,6 +2215,23 @@
             <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e.clone()),
         }
     }
+
+    <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">pub fn </span>extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
+        <span class="kw">if </span>!<span class="self">self</span>.enable_secret_extraction {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="string">&quot;Secret extraction is disabled&quot;</span>.into()));
+        }
+
+        <span class="kw">let </span>st = <span class="self">self</span>.state<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>record_layer = <span class="self">self</span>.common_state.record_layer;
+        <span class="kw">let </span>PartiallyExtractedSecrets { tx, rx } = st.extract_secrets()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ExtractedSecrets {
+            tx: (record_layer.write_seq(), tx),
+            rx: (record_layer.read_seq(), rx),
+        })
+    }
 }
 
 <span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
@@ -2234,11 +2305,13 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) protocol: Protocol,
     <span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) quic: Quic,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) enable_secret_extraction: bool,
 }
 
 <span class="kw">impl </span>CommonState {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(max_fragment_size: <span class="prelude-ty">Option</span>&lt;usize&gt;, side: Side) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(side: Side) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
             negotiated_version: <span class="prelude-val">None</span>,
             side,
             record_layer: record_layer::RecordLayer::new(),
@@ -2253,8 +2326,7 @@
             has_seen_eof: <span class="bool-val">false</span>,
             received_middlebox_ccs: <span class="number">0</span>,
             peer_certificates: <span class="prelude-val">None</span>,
-            message_fragmenter: MessageFragmenter::new(max_fragment_size)
-                .map_err(|<span class="kw">_</span>| Error::BadMaxFragmentSize)<span class="question-mark">?</span>,
+            message_fragmenter: MessageFragmenter::default(),
             received_plaintext: ChunkVecBuffer::new(<span class="prelude-val">Some</span>(<span class="number">0</span>)),
             sendable_plaintext: ChunkVecBuffer::new(<span class="prelude-val">Some</span>(DEFAULT_BUFFER_LIMIT)),
             sendable_tls: ChunkVecBuffer::new(<span class="prelude-val">Some</span>(DEFAULT_BUFFER_LIMIT)),
@@ -2262,7 +2334,9 @@
             protocol: Protocol::Tcp,
             <span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
             </span>quic: Quic::new(),
-        })
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+            </span>enable_secret_extraction: <span class="bool-val">false</span>,
+        }
     }
 
     <span class="doccomment">/// Returns true if the caller should call [`CommonState::write_tls`] as soon
@@ -2440,12 +2514,11 @@
     <span class="doccomment">/// Fragment `m`, encrypt the fragments, and then queue
     /// the encrypted fragments for sending.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send_msg_encrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, m: PlainMessage) {
-        <span class="kw">let </span><span class="kw-2">mut </span>plain_messages = VecDeque::new();
-        <span class="self">self</span>.message_fragmenter
-            .fragment(m, <span class="kw-2">&amp;mut </span>plain_messages);
-
-        <span class="kw">for </span>m <span class="kw">in </span>plain_messages {
-            <span class="self">self</span>.send_single_fragment(m.borrow());
+        <span class="kw">let </span>iter = <span class="self">self
+            </span>.message_fragmenter
+            .fragment_message(<span class="kw-2">&amp;</span>m);
+        <span class="kw">for </span>m <span class="kw">in </span>iter {
+            <span class="self">self</span>.send_single_fragment(m);
         }
     }
 
@@ -2462,15 +2535,12 @@
             Limit::No =&gt; payload.len(),
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>plain_messages = VecDeque::new();
-        <span class="self">self</span>.message_fragmenter.fragment_borrow(
+        <span class="kw">let </span>iter = <span class="self">self</span>.message_fragmenter.fragment_slice(
             ContentType::ApplicationData,
             ProtocolVersion::TLSv1_2,
             <span class="kw-2">&amp;</span>payload[..len],
-            <span class="kw-2">&amp;mut </span>plain_messages,
         );
-
-        <span class="kw">for </span>m <span class="kw">in </span>plain_messages {
+        <span class="kw">for </span>m <span class="kw">in </span>iter {
             <span class="self">self</span>.send_single_fragment(m);
         }
 
@@ -2631,11 +2701,12 @@
             }
         }
         <span class="kw">if </span>!must_encrypt {
-            <span class="kw">let </span><span class="kw-2">mut </span>to_send = VecDeque::new();
-            <span class="self">self</span>.message_fragmenter
-                .fragment(m.into(), <span class="kw-2">&amp;mut </span>to_send);
-            <span class="kw">for </span>mm <span class="kw">in </span>to_send {
-                <span class="self">self</span>.queue_tls_message(mm.into_unencrypted_opaque());
+            <span class="kw">let </span>msg = <span class="kw-2">&amp;</span>m.into();
+            <span class="kw">let </span>iter = <span class="self">self
+                </span>.message_fragmenter
+                .fragment_message(msg);
+            <span class="kw">for </span>m <span class="kw">in </span>iter {
+                <span class="self">self</span>.queue_tls_message(m.to_unencrypted_opaque());
             }
         } <span class="kw">else </span>{
             <span class="self">self</span>.send_msg_encrypt(m.into());
@@ -2775,6 +2846,11 @@
         _label: <span class="kw-2">&amp;</span>[u8],
         _context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="prelude-val">Err</span>(Error::HandshakeNotComplete)
+    }
+
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">fn </span>extract_secrets(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PartiallyExtractedSecrets, Error&gt; {
         <span class="prelude-val">Err</span>(Error::HandshakeNotComplete)
     }
 

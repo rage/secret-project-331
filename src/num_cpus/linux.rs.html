@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/num_cpus-1.13.1/src/linux.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>linux.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../num_cpus/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../num_cpus/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../num_cpus/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/num_cpus-1.14.0/src/linux.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>linux.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../num_cpus/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../num_cpus/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../num_cpus/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -416,6 +416,183 @@
 <span id="416">416</span>
 <span id="417">417</span>
 <span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{BufRead, BufReader, Read};
@@ -544,6 +721,11 @@
     <span class="comment">// Should only be called once
     </span><span class="macro">debug_assert!</span>(CGROUPS_CPUS.load(Ordering::SeqCst) == <span class="number">0</span>);
 
+    <span class="comment">// Fails in Miri by default (cannot open files), and Miri does not have parallelism anyway.
+    </span><span class="kw">if </span><span class="macro">cfg!</span>(miri) {
+        <span class="kw">return</span>;
+    }
+
     <span class="kw">if let </span><span class="prelude-val">Some</span>(quota) = load_cgroups(<span class="string">&quot;/proc/self/cgroup&quot;</span>, <span class="string">&quot;/proc/self/mountinfo&quot;</span>) {
         <span class="kw">if </span>quota == <span class="number">0 </span>{
             <span class="kw">return</span>;
@@ -562,27 +744,36 @@
     P2: AsRef&lt;Path&gt;,
 {
     <span class="kw">let </span>subsys = <span class="macro">some!</span>(Subsys::load_cpu(cgroup_proc));
-    <span class="kw">let </span>mntinfo = <span class="macro">some!</span>(MountInfo::load_cpu(mountinfo_proc));
+    <span class="kw">let </span>mntinfo = <span class="macro">some!</span>(MountInfo::load_cpu(mountinfo_proc, subsys.version));
     <span class="kw">let </span>cgroup = <span class="macro">some!</span>(Cgroup::translate(mntinfo, subsys));
     cgroup.cpu_quota()
 }
 
+<span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">enum </span>CgroupVersion {
+    V1,
+    V2,
+}
+
 <span class="kw">struct </span>Cgroup {
+    version: CgroupVersion,
     base: PathBuf,
 }
 
 <span class="kw">struct </span>MountInfo {
+    version: CgroupVersion,
     root: String,
     mount_point: String,
 }
 
 <span class="kw">struct </span>Subsys {
+    version: CgroupVersion,
     base: String,
 }
 
 <span class="kw">impl </span>Cgroup {
-    <span class="kw">fn </span>new(dir: PathBuf) -&gt; Cgroup {
-        Cgroup { base: dir }
+    <span class="kw">fn </span>new(version: CgroupVersion, dir: PathBuf) -&gt; Cgroup {
+        Cgroup { version: version, base: dir }
     }
 
     <span class="kw">fn </span>translate(mntinfo: MountInfo, subsys: Subsys) -&gt; <span class="prelude-ty">Option</span>&lt;Cgroup&gt; {
@@ -599,12 +790,14 @@
         <span class="comment">// join(mp.MountPoint, relPath)
         </span><span class="kw">let </span><span class="kw-2">mut </span>path = PathBuf::from(mntinfo.mount_point);
         path.push(rel_from_root);
-        <span class="prelude-val">Some</span>(Cgroup::new(path))
+        <span class="prelude-val">Some</span>(Cgroup::new(mntinfo.version, path))
     }
 
     <span class="kw">fn </span>cpu_quota(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        <span class="kw">let </span>quota_us = <span class="macro">some!</span>(<span class="self">self</span>.quota_us());
-        <span class="kw">let </span>period_us = <span class="macro">some!</span>(<span class="self">self</span>.period_us());
+        <span class="kw">let </span>(quota_us, period_us) = <span class="kw">match </span><span class="self">self</span>.version {
+            CgroupVersion::V1 =&gt; (<span class="macro">some!</span>(<span class="self">self</span>.quota_us()), <span class="macro">some!</span>(<span class="self">self</span>.period_us())),
+            CgroupVersion::V2 =&gt; <span class="macro">some!</span>(<span class="self">self</span>.max()),
+        };
 
         <span class="comment">// protect against dividing by zero
         </span><span class="kw">if </span>period_us == <span class="number">0 </span>{
@@ -625,25 +818,41 @@
         <span class="self">self</span>.param(<span class="string">&quot;cpu.cfs_period_us&quot;</span>)
     }
 
+    <span class="kw">fn </span>max(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt; {
+        <span class="kw">let </span>max = <span class="macro">some!</span>(<span class="self">self</span>.raw_param(<span class="string">&quot;cpu.max&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>max = <span class="macro">some!</span>(max.lines().next()).split(<span class="string">&#39; &#39;</span>);
+
+        <span class="kw">let </span>quota = <span class="macro">some!</span>(max.next().and_then(|quota| quota.parse().ok()));
+        <span class="kw">let </span>period = <span class="macro">some!</span>(max.next().and_then(|period| period.parse().ok()));
+
+        <span class="prelude-val">Some</span>((quota, period))
+    }
+
     <span class="kw">fn </span>param(<span class="kw-2">&amp;</span><span class="self">self</span>, param: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="kw">let </span>buf = <span class="macro">some!</span>(<span class="self">self</span>.raw_param(param));
+
+        buf.trim().parse().ok()
+    }
+
+    <span class="kw">fn </span>raw_param(<span class="kw-2">&amp;</span><span class="self">self</span>, param: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>file = <span class="macro">some!</span>(File::open(<span class="self">self</span>.base.join(param)).ok());
 
         <span class="kw">let </span><span class="kw-2">mut </span>buf = String::new();
         <span class="macro">some!</span>(file.read_to_string(<span class="kw-2">&amp;mut </span>buf).ok());
 
-        buf.trim().parse().ok()
+        <span class="prelude-val">Some</span>(buf)
     }
 }
 
 <span class="kw">impl </span>MountInfo {
-    <span class="kw">fn </span>load_cpu&lt;P: AsRef&lt;Path&gt;&gt;(proc_path: P) -&gt; <span class="prelude-ty">Option</span>&lt;MountInfo&gt; {
+    <span class="kw">fn </span>load_cpu&lt;P: AsRef&lt;Path&gt;&gt;(proc_path: P, version: CgroupVersion) -&gt; <span class="prelude-ty">Option</span>&lt;MountInfo&gt; {
         <span class="kw">let </span>file = <span class="macro">some!</span>(File::open(proc_path).ok());
         <span class="kw">let </span>file = BufReader::new(file);
 
         file.lines()
             .filter_map(|result| result.ok())
             .filter_map(MountInfo::parse_line)
-            .next()
+            .find(|mount_info| mount_info.version == version)
     }
 
     <span class="kw">fn </span>parse_line(line: String) -&gt; <span class="prelude-ty">Option</span>&lt;MountInfo&gt; {
@@ -665,19 +874,25 @@
         };
 
         <span class="comment">// 7 5 0:6 / /sys/fs/cgroup/cpu,cpuacct rw,nosuid,nodev,noexec,relatime shared:7 - &lt;cgroup&gt; cgroup rw,cpu,cpuacct
-        </span><span class="kw">if </span>fields.next() != <span class="prelude-val">Some</span>(<span class="string">&quot;cgroup&quot;</span>) {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
-        }
+        </span><span class="kw">let </span>version = <span class="kw">match </span>fields.next() {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;cgroup&quot;</span>) =&gt; CgroupVersion::V1,
+            <span class="prelude-val">Some</span>(<span class="string">&quot;cgroup2&quot;</span>) =&gt; CgroupVersion::V2,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+        };
 
-        <span class="comment">// 7 5 0:6 / /sys/fs/cgroup/cpu,cpuacct rw,nosuid,nodev,noexec,relatime shared:7 - cgroup cgroup &lt;rw,cpu,cpuacct&gt;
-        </span><span class="kw">let </span>super_opts = <span class="macro">some!</span>(fields.nth(<span class="number">1</span>));
+        <span class="comment">// cgroups2 only has a single mount point
+        </span><span class="kw">if </span>version == CgroupVersion::V1 {
+            <span class="comment">// 7 5 0:6 / /sys/fs/cgroup/cpu,cpuacct rw,nosuid,nodev,noexec,relatime shared:7 - cgroup cgroup &lt;rw,cpu,cpuacct&gt;
+            </span><span class="kw">let </span>super_opts = <span class="macro">some!</span>(fields.nth(<span class="number">1</span>));
 
-        <span class="comment">// We only care about the &#39;cpu&#39; option
-        </span><span class="kw">if </span>!super_opts.split(<span class="string">&#39;,&#39;</span>).any(|opt| opt == <span class="string">&quot;cpu&quot;</span>) {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
+            <span class="comment">// We only care about the &#39;cpu&#39; option
+            </span><span class="kw">if </span>!super_opts.split(<span class="string">&#39;,&#39;</span>).any(|opt| opt == <span class="string">&quot;cpu&quot;</span>) {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
+            }
         }
 
         <span class="prelude-val">Some</span>(MountInfo {
+            version: version,
             root: mnt_root.to_owned(),
             mount_point: mnt_point.to_owned(),
         })
@@ -692,7 +907,14 @@
         file.lines()
             .filter_map(|result| result.ok())
             .filter_map(Subsys::parse_line)
-            .next()
+            .fold(<span class="prelude-val">None</span>, |previous, line| {
+                <span class="comment">// already-found v1 trumps v2 since it explicitly specifies its controllers
+                </span><span class="kw">if </span>previous.is_some() &amp;&amp; line.version == CgroupVersion::V2 {
+                    <span class="kw">return </span>previous;
+                }
+
+                <span class="prelude-val">Some</span>(line)
+            })
     }
 
     <span class="kw">fn </span>parse_line(line: String) -&gt; <span class="prelude-ty">Option</span>&lt;Subsys&gt; {
@@ -702,11 +924,18 @@
 
         <span class="kw">let </span>sub_systems = <span class="macro">some!</span>(fields.nth(<span class="number">1</span>));
 
-        <span class="kw">if </span>!sub_systems.split(<span class="string">&#39;,&#39;</span>).any(|sub| sub == <span class="string">&quot;cpu&quot;</span>) {
+        <span class="kw">let </span>version = <span class="kw">if </span>sub_systems.is_empty() {
+            CgroupVersion::V2
+        } <span class="kw">else </span>{
+            CgroupVersion::V1
+        };
+
+        <span class="kw">if </span>version == CgroupVersion::V1 &amp;&amp; !sub_systems.split(<span class="string">&#39;,&#39;</span>).any(|sub| sub == <span class="string">&quot;cpu&quot;</span>) {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
         fields.next().map(|path| Subsys {
+            version: version,
             base: path.to_owned(),
         })
     }
@@ -714,124 +943,249 @@
 
 <span class="attribute">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::{Cgroup, MountInfo, Subsys};
-    <span class="kw">use </span>std::path::{Path, PathBuf};
+    <span class="kw">mod </span>v1 {
+        <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{Cgroup, CgroupVersion, MountInfo, Subsys};
+        <span class="kw">use </span>std::path::{Path, PathBuf};
 
-    <span class="comment">// `static_in_const` feature is not stable in Rust 1.13.
-    </span><span class="kw">static </span>FIXTURES_PROC: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;fixtures/cgroups/proc/cgroups&quot;</span>;
+        <span class="comment">// `static_in_const` feature is not stable in Rust 1.13.
+        </span><span class="kw">static </span>FIXTURES_PROC: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;fixtures/cgroups/proc/cgroups&quot;</span>;
 
-    <span class="kw">static </span>FIXTURES_CGROUPS: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;fixtures/cgroups/cgroups&quot;</span>;
+        <span class="kw">static </span>FIXTURES_CGROUPS: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;fixtures/cgroups/cgroups&quot;</span>;
 
-    <span class="macro">macro_rules! </span>join {
-        (<span class="macro-nonterminal">$base</span>:expr, $(<span class="macro-nonterminal">$path</span>:expr),+) =&gt; ({
-            Path::new(<span class="macro-nonterminal">$base</span>)
-                $(.join(<span class="macro-nonterminal">$path</span>))+
-        })
-    }
+        <span class="macro">macro_rules! </span>join {
+            (<span class="macro-nonterminal">$base</span>:expr, $(<span class="macro-nonterminal">$path</span>:expr),+) =&gt; ({
+                Path::new(<span class="macro-nonterminal">$base</span>)
+                    $(.join(<span class="macro-nonterminal">$path</span>))+
+            })
+        }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_load_mountinfo() {
-        <span class="comment">// test only one optional fields
-        </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo&quot;</span>);
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_load_mountinfo() {
+            <span class="comment">// test only one optional fields
+            </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo&quot;</span>);
 
-        <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path).unwrap();
+            <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path, CgroupVersion::V1).unwrap();
 
-        <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup/cpu,cpuacct&quot;</span>);
+            <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup/cpu,cpuacct&quot;</span>);
 
-        <span class="comment">// test zero optional field
-        </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo_zero_opt&quot;</span>);
+            <span class="comment">// test zero optional field
+            </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo_zero_opt&quot;</span>);
 
-        <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path).unwrap();
+            <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path, CgroupVersion::V1).unwrap();
 
-        <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup/cpu,cpuacct&quot;</span>);
+            <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup/cpu,cpuacct&quot;</span>);
 
-        <span class="comment">// test multi optional fields
-        </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo_multi_opt&quot;</span>);
+            <span class="comment">// test multi optional fields
+            </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo_multi_opt&quot;</span>);
 
-        <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path).unwrap();
+            <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path, CgroupVersion::V1).unwrap();
 
-        <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup/cpu,cpuacct&quot;</span>);
-    }
+            <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup/cpu,cpuacct&quot;</span>);
+        }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_load_subsys() {
-        <span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;cgroup&quot;</span>);
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_load_subsys() {
+            <span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;cgroup&quot;</span>);
 
-        <span class="kw">let </span>subsys = Subsys::load_cpu(path).unwrap();
+            <span class="kw">let </span>subsys = Subsys::load_cpu(path).unwrap();
 
-        <span class="macro">assert_eq!</span>(subsys.base, <span class="string">&quot;/&quot;</span>);
-    }
+            <span class="macro">assert_eq!</span>(subsys.base, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(subsys.version, CgroupVersion::V1);
+        }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_cgroup_mount() {
-        <span class="kw">let </span>cases = <span class="kw-2">&amp;</span>[
-            (<span class="string">&quot;/&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>)),
-            (
-                <span class="string">&quot;/docker/01abcd&quot;</span>,
-                <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
-                <span class="string">&quot;/docker/01abcd&quot;</span>,
-                <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>),
-            ),
-            (
-                <span class="string">&quot;/docker/01abcd&quot;</span>,
-                <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
-                <span class="string">&quot;/docker/01abcd/&quot;</span>,
-                <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>),
-            ),
-            (
-                <span class="string">&quot;/docker/01abcd&quot;</span>,
-                <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
-                <span class="string">&quot;/docker/01abcd/large&quot;</span>,
-                <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu/large&quot;</span>),
-            ),
-            <span class="comment">// fails
-            </span>(<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="prelude-val">None</span>),
-            (<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/docker&quot;</span>, <span class="prelude-val">None</span>),
-            (<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/elsewhere&quot;</span>, <span class="prelude-val">None</span>),
-            (
-                <span class="string">&quot;/docker/01abcd&quot;</span>,
-                <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
-                <span class="string">&quot;/docker/01abcd-other-dir&quot;</span>,
-                <span class="prelude-val">None</span>,
-            ),
-        ];
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_mount() {
+            <span class="kw">let </span>cases = <span class="kw-2">&amp;</span>[
+                (<span class="string">&quot;/&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>)),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>),
+                ),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd/&quot;</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>),
+                ),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd/large&quot;</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu/large&quot;</span>),
+                ),
+                <span class="comment">// fails
+                </span>(<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="prelude-val">None</span>),
+                (<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/docker&quot;</span>, <span class="prelude-val">None</span>),
+                (<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/elsewhere&quot;</span>, <span class="prelude-val">None</span>),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd-other-dir&quot;</span>,
+                    <span class="prelude-val">None</span>,
+                ),
+            ];
 
-        <span class="kw">for </span><span class="kw-2">&amp;</span>(root, mount_point, subsys, expected) <span class="kw">in </span>cases.iter() {
-            <span class="kw">let </span>mnt_info = MountInfo {
-                root: root.into(),
-                mount_point: mount_point.into(),
-            };
-            <span class="kw">let </span>subsys = Subsys {
-                base: subsys.into(),
-            };
+            <span class="kw">for </span><span class="kw-2">&amp;</span>(root, mount_point, subsys, expected) <span class="kw">in </span>cases.iter() {
+                <span class="kw">let </span>mnt_info = MountInfo {
+                    version: CgroupVersion::V1,
+                    root: root.into(),
+                    mount_point: mount_point.into(),
+                };
+                <span class="kw">let </span>subsys = Subsys {
+                    version: CgroupVersion::V1,
+                    base: subsys.into(),
+                };
 
-            <span class="kw">let </span>actual = Cgroup::translate(mnt_info, subsys).map(|c| c.base);
-            <span class="kw">let </span>expected = expected.map(PathBuf::from);
-            <span class="macro">assert_eq!</span>(actual, expected);
+                <span class="kw">let </span>actual = Cgroup::translate(mnt_info, subsys).map(|c| c.base);
+                <span class="kw">let </span>expected = expected.map(PathBuf::from);
+                <span class="macro">assert_eq!</span>(actual, expected);
+            }
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_cpu_quota() {
+            <span class="kw">let </span>cgroup = Cgroup::new(CgroupVersion::V1, <span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;good&quot;</span>));
+            <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">Some</span>(<span class="number">6</span>));
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_cpu_quota_divide_by_zero() {
+            <span class="kw">let </span>cgroup = Cgroup::new(CgroupVersion::V1, <span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;zero-period&quot;</span>));
+            <span class="macro">assert!</span>(cgroup.quota_us().is_some());
+            <span class="macro">assert_eq!</span>(cgroup.period_us(), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+            <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">None</span>);
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_cpu_quota_ceil() {
+            <span class="kw">let </span>cgroup = Cgroup::new(CgroupVersion::V1, <span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;ceil&quot;</span>));
+            <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">Some</span>(<span class="number">2</span>));
         }
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_cgroup_cpu_quota() {
-        <span class="kw">let </span>cgroup = Cgroup::new(<span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;good&quot;</span>));
-        <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">Some</span>(<span class="number">6</span>));
-    }
+    <span class="kw">mod </span>v2 {
+        <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{Cgroup, CgroupVersion, MountInfo, Subsys};
+        <span class="kw">use </span>std::path::{Path, PathBuf};
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_cgroup_cpu_quota_divide_by_zero() {
-        <span class="kw">let </span>cgroup = Cgroup::new(<span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;zero-period&quot;</span>));
-        <span class="macro">assert!</span>(cgroup.quota_us().is_some());
-        <span class="macro">assert_eq!</span>(cgroup.period_us(), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">None</span>);
-    }
+        <span class="comment">// `static_in_const` feature is not stable in Rust 1.13.
+        </span><span class="kw">static </span>FIXTURES_PROC: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;fixtures/cgroups2/proc/cgroups&quot;</span>;
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>test_cgroup_cpu_quota_ceil() {
-        <span class="kw">let </span>cgroup = Cgroup::new(<span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;ceil&quot;</span>));
-        <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+        <span class="kw">static </span>FIXTURES_CGROUPS: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;fixtures/cgroups2/cgroups&quot;</span>;
+
+        <span class="macro">macro_rules! </span>join {
+            (<span class="macro-nonterminal">$base</span>:expr, $(<span class="macro-nonterminal">$path</span>:expr),+) =&gt; ({
+                Path::new(<span class="macro-nonterminal">$base</span>)
+                    $(.join(<span class="macro-nonterminal">$path</span>))+
+            })
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_load_mountinfo() {
+            <span class="comment">// test only one optional fields
+            </span><span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;mountinfo&quot;</span>);
+
+            <span class="kw">let </span>mnt_info = MountInfo::load_cpu(path, CgroupVersion::V2).unwrap();
+
+            <span class="macro">assert_eq!</span>(mnt_info.root, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(mnt_info.mount_point, <span class="string">&quot;/sys/fs/cgroup&quot;</span>);
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_load_subsys() {
+            <span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;cgroup&quot;</span>);
+
+            <span class="kw">let </span>subsys = Subsys::load_cpu(path).unwrap();
+
+            <span class="macro">assert_eq!</span>(subsys.base, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(subsys.version, CgroupVersion::V2);
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_load_subsys_multi() {
+            <span class="kw">let </span>path = <span class="macro">join!</span>(FIXTURES_PROC, <span class="string">&quot;cgroup_multi&quot;</span>);
+
+            <span class="kw">let </span>subsys = Subsys::load_cpu(path).unwrap();
+
+            <span class="macro">assert_eq!</span>(subsys.base, <span class="string">&quot;/&quot;</span>);
+            <span class="macro">assert_eq!</span>(subsys.version, CgroupVersion::V1);
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_mount() {
+            <span class="kw">let </span>cases = <span class="kw-2">&amp;</span>[
+                (<span class="string">&quot;/&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>)),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>),
+                ),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd/&quot;</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>),
+                ),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd/large&quot;</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;/sys/fs/cgroup/cpu/large&quot;</span>),
+                ),
+                <span class="comment">// fails
+                </span>(<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="prelude-val">None</span>),
+                (<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/docker&quot;</span>, <span class="prelude-val">None</span>),
+                (<span class="string">&quot;/docker/01abcd&quot;</span>, <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>, <span class="string">&quot;/elsewhere&quot;</span>, <span class="prelude-val">None</span>),
+                (
+                    <span class="string">&quot;/docker/01abcd&quot;</span>,
+                    <span class="string">&quot;/sys/fs/cgroup/cpu&quot;</span>,
+                    <span class="string">&quot;/docker/01abcd-other-dir&quot;</span>,
+                    <span class="prelude-val">None</span>,
+                ),
+            ];
+
+            <span class="kw">for </span><span class="kw-2">&amp;</span>(root, mount_point, subsys, expected) <span class="kw">in </span>cases.iter() {
+                <span class="kw">let </span>mnt_info = MountInfo {
+                    version: CgroupVersion::V1,
+                    root: root.into(),
+                    mount_point: mount_point.into(),
+                };
+                <span class="kw">let </span>subsys = Subsys {
+                    version: CgroupVersion::V1,
+                    base: subsys.into(),
+                };
+
+                <span class="kw">let </span>actual = Cgroup::translate(mnt_info, subsys).map(|c| c.base);
+                <span class="kw">let </span>expected = expected.map(PathBuf::from);
+                <span class="macro">assert_eq!</span>(actual, expected);
+            }
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_cpu_quota() {
+            <span class="kw">let </span>cgroup = Cgroup::new(CgroupVersion::V2, <span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;good&quot;</span>));
+            <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">Some</span>(<span class="number">6</span>));
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_cpu_quota_divide_by_zero() {
+            <span class="kw">let </span>cgroup = Cgroup::new(CgroupVersion::V2, <span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;zero-period&quot;</span>));
+            <span class="kw">let </span>period = cgroup.max().map(|max| max.<span class="number">1</span>);
+
+            <span class="macro">assert_eq!</span>(period, <span class="prelude-val">Some</span>(<span class="number">0</span>));
+            <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">None</span>);
+        }
+
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_cgroup_cpu_quota_ceil() {
+            <span class="kw">let </span>cgroup = Cgroup::new(CgroupVersion::V2, <span class="macro">join!</span>(FIXTURES_CGROUPS, <span class="string">&quot;ceil&quot;</span>));
+            <span class="macro">assert_eq!</span>(cgroup.cpu_quota(), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+        }
     }
 }
 </code></pre></div>

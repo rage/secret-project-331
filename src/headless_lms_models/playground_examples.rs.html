@@ -434,7 +434,7 @@ RETURNING *;
             .<span class="kw">await
             </span>.unwrap();
 
-        <span class="macro">assert!</span>(res.deleted_at != <span class="prelude-val">None</span>);
+        <span class="macro">assert!</span>(res.deleted_at.is_some());
 
         <span class="kw">let </span>fetched_data = get_all_playground_examples(tx.as_mut()).<span class="kw">await</span>.unwrap();
 

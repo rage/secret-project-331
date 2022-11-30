@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/msgs/handshake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handshake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.7/src/msgs/handshake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handshake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -2350,17 +2350,36 @@
 <span id="2350">2350</span>
 <span id="2351">2351</span>
 <span id="2352">2352</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::key;
+<span id="2353">2353</span>
+<span id="2354">2354</span>
+<span id="2355">2355</span>
+<span id="2356">2356</span>
+<span id="2357">2357</span>
+<span id="2358">2358</span>
+<span id="2359">2359</span>
+<span id="2360">2360</span>
+<span id="2361">2361</span>
+<span id="2362">2362</span>
+<span id="2363">2363</span>
+<span id="2364">2364</span>
+<span id="2365">2365</span>
+<span id="2366">2366</span>
+<span id="2367">2367</span>
+<span id="2368">2368</span>
+<span id="2369">2369</span>
+<span id="2370">2370</span>
+<span id="2371">2371</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(non_camel_case_types)]
+</span><span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, ProtocolVersion, SignatureScheme};
+<span class="kw">use </span><span class="kw">crate</span>::key;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::{Payload, PayloadU16, PayloadU24, PayloadU8};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::ECCurveType;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::PSKKeyExchangeMode;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{CertificateStatusType, ClientCertificateType};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{CipherSuite, Compression, ECPointFormat, ExtensionType};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{HandshakeType, ProtocolVersion};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{HashAlgorithm, ServerNameType, SignatureAlgorithm};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{KeyUpdateRequest, NamedGroup, SignatureScheme};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{
+    CertificateStatusType, ClientCertificateType, Compression, ECCurveType, ECPointFormat,
+    ExtensionType, HandshakeType, HashAlgorithm, KeyUpdateRequest, NamedGroup, PSKKeyExchangeMode,
+    ServerNameType, SignatureAlgorithm,
+};
 <span class="kw">use </span><span class="kw">crate</span>::rand;
 
 <span class="attribute">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
@@ -2404,7 +2423,7 @@
 <span class="macro">declare_u16_vec!</span>(VecU16OfPayloadU8, PayloadU8);
 <span class="macro">declare_u16_vec!</span>(VecU16OfPayloadU16, PayloadU16);
 
-<span class="attribute">#[derive(Clone, Copy, PartialEq)]
+<span class="attribute">#[derive(Clone, Copy, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Random(<span class="kw">pub </span>[u8; <span class="number">32</span>]);
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Random {
@@ -3413,10 +3432,10 @@
 <span class="kw">impl </span>HelloRetryExtension {
     <span class="kw">pub fn </span>get_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionType {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            HelloRetryExtension::KeyShare(<span class="kw">_</span>) =&gt; ExtensionType::KeyShare,
-            HelloRetryExtension::Cookie(<span class="kw">_</span>) =&gt; ExtensionType::Cookie,
-            HelloRetryExtension::SupportedVersions(<span class="kw">_</span>) =&gt; ExtensionType::SupportedVersions,
-            HelloRetryExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
+            <span class="self">Self</span>::KeyShare(<span class="kw">_</span>) =&gt; ExtensionType::KeyShare,
+            <span class="self">Self</span>::Cookie(<span class="kw">_</span>) =&gt; ExtensionType::Cookie,
+            <span class="self">Self</span>::SupportedVersions(<span class="kw">_</span>) =&gt; ExtensionType::SupportedVersions,
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
         }
     }
 }
@@ -3427,10 +3446,10 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>sub: Vec&lt;u8&gt; = Vec::new();
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            HelloRetryExtension::KeyShare(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            HelloRetryExtension::Cookie(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            HelloRetryExtension::SupportedVersions(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            HelloRetryExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::KeyShare(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::Cookie(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::SupportedVersions(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
         }
 
         (sub.len() <span class="kw">as </span>u16).encode(bytes);
@@ -3689,9 +3708,9 @@
 <span class="kw">impl </span>CertificateExtension {
     <span class="kw">pub fn </span>get_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionType {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            CertificateExtension::CertificateStatus(<span class="kw">_</span>) =&gt; ExtensionType::StatusRequest,
-            CertificateExtension::SignedCertificateTimestamp(<span class="kw">_</span>) =&gt; ExtensionType::SCT,
-            CertificateExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
+            <span class="self">Self</span>::CertificateStatus(<span class="kw">_</span>) =&gt; ExtensionType::StatusRequest,
+            <span class="self">Self</span>::SignedCertificateTimestamp(<span class="kw">_</span>) =&gt; ExtensionType::SCT,
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
         }
     }
 
@@ -3702,14 +3721,14 @@
 
     <span class="kw">pub fn </span>get_cert_status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Vec&lt;u8&gt;&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            CertificateExtension::CertificateStatus(<span class="kw-2">ref </span>cs) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>cs.ocsp_response.<span class="number">0</span>),
+            <span class="self">Self</span>::CertificateStatus(<span class="kw-2">ref </span>cs) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>cs.ocsp_response.<span class="number">0</span>),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">pub fn </span>get_sct_list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>SCTList&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            CertificateExtension::SignedCertificateTimestamp(<span class="kw-2">ref </span>sctl) =&gt; <span class="prelude-val">Some</span>(sctl),
+            <span class="self">Self</span>::SignedCertificateTimestamp(<span class="kw-2">ref </span>sctl) =&gt; <span class="prelude-val">Some</span>(sctl),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -3721,9 +3740,9 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>sub: Vec&lt;u8&gt; = Vec::new();
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            CertificateExtension::CertificateStatus(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            CertificateExtension::SignedCertificateTimestamp(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            CertificateExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::CertificateStatus(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::SignedCertificateTimestamp(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
         }
 
         (sub.len() <span class="kw">as </span>u16).encode(bytes);
@@ -3947,20 +3966,27 @@
 <span class="attribute">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>DigitallySignedStruct {
     <span class="kw">pub </span>scheme: SignatureScheme,
-    <span class="kw">pub </span>sig: PayloadU16,
+    <span class="attribute">#[deprecated(since = <span class="string">&quot;0.20.7&quot;</span>, note = <span class="string">&quot;Use sig() accessor&quot;</span>)]
+    </span><span class="kw">pub </span>sig: PayloadU16,
 }
 
 <span class="kw">impl </span>DigitallySignedStruct {
-    <span class="kw">pub fn </span>new(scheme: SignatureScheme, sig: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+    <span class="attribute">#![allow(deprecated)]
+    </span><span class="kw">pub fn </span>new(scheme: SignatureScheme, sig: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             scheme,
             sig: PayloadU16::new(sig),
         }
     }
+
+    <span class="kw">pub fn </span>signature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.sig.<span class="number">0
+    </span>}
 }
 
 <span class="kw">impl </span>Codec <span class="kw">for </span>DigitallySignedStruct {
-    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+    <span class="attribute">#![allow(deprecated)]
+    </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="self">self</span>.scheme.encode(bytes);
         <span class="self">self</span>.sig.encode(bytes);
     }
@@ -4053,8 +4079,8 @@
 <span class="kw">impl </span>Codec <span class="kw">for </span>ServerKeyExchangePayload {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            ServerKeyExchangePayload::ECDHE(<span class="kw-2">ref </span>x) =&gt; x.encode(bytes),
-            ServerKeyExchangePayload::Unknown(<span class="kw-2">ref </span>x) =&gt; x.encode(bytes),
+            <span class="self">Self</span>::ECDHE(<span class="kw-2">ref </span>x) =&gt; x.encode(bytes),
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>x) =&gt; x.encode(bytes),
         }
     }
 
@@ -4067,7 +4093,7 @@
 
 <span class="kw">impl </span>ServerKeyExchangePayload {
     <span class="kw">pub fn </span>unwrap_given_kxa(<span class="kw-2">&amp;</span><span class="self">self</span>, kxa: <span class="kw-2">&amp;</span>KeyExchangeAlgorithm) -&gt; <span class="prelude-ty">Option</span>&lt;ECDHEServerKeyExchange&gt; {
-        <span class="kw">if let </span>ServerKeyExchangePayload::Unknown(<span class="kw-2">ref </span>unk) = <span class="kw-2">*</span><span class="self">self </span>{
+        <span class="kw">if let </span><span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>unk) = <span class="kw-2">*</span><span class="self">self </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(<span class="kw-2">&amp;</span>unk.<span class="number">0</span>);
 
             <span class="kw">let </span>result = <span class="kw">match </span><span class="kw-2">*</span>kxa {
@@ -4147,7 +4173,19 @@
 <span class="comment">// -- CertificateRequest and sundries --
 </span><span class="macro">declare_u8_vec!</span>(ClientCertificateTypes, ClientCertificateType);
 <span class="kw">pub type </span>DistinguishedName = PayloadU16;
-<span class="kw">pub type </span>DistinguishedNames = VecU16OfPayloadU16;
+<span class="doccomment">/// DistinguishedNames is a `Vec&lt;Vec&lt;u8&gt;&gt;` wrapped in internal types. Each element contains the
+/// DER or BER encoded [`Subject` field from RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.6)
+/// for a single certificate. The Subject field is
+/// [encoded as an RFC 5280 `Name`](https://datatracker.ietf.org/doc/html/rfc5280#page-116).
+/// It can be decoded using [x509-parser&#39;s FromDer trait](https://docs.rs/x509-parser/latest/x509_parser/traits/trait.FromDer.html).
+///
+/// ```ignore
+/// for name in distinguished_names {
+///     use x509_parser::traits::FromDer;
+///     println!(&quot;{}&quot;, x509_parser::x509::X509Name::from_der(&amp;name.0)?.1);
+/// }
+/// ```
+</span><span class="kw">pub type </span>DistinguishedNames = VecU16OfPayloadU16;
 
 <span class="attribute">#[derive(Debug)]
 </span><span class="kw">pub struct </span>CertificateRequestPayload {
@@ -4191,9 +4229,9 @@
 <span class="kw">impl </span>CertReqExtension {
     <span class="kw">pub fn </span>get_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionType {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            CertReqExtension::SignatureAlgorithms(<span class="kw">_</span>) =&gt; ExtensionType::SignatureAlgorithms,
-            CertReqExtension::AuthorityNames(<span class="kw">_</span>) =&gt; ExtensionType::CertificateAuthorities,
-            CertReqExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
+            <span class="self">Self</span>::SignatureAlgorithms(<span class="kw">_</span>) =&gt; ExtensionType::SignatureAlgorithms,
+            <span class="self">Self</span>::AuthorityNames(<span class="kw">_</span>) =&gt; ExtensionType::CertificateAuthorities,
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
         }
     }
 }
@@ -4204,9 +4242,9 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>sub: Vec&lt;u8&gt; = Vec::new();
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            CertReqExtension::SignatureAlgorithms(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            CertReqExtension::AuthorityNames(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            CertReqExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::SignatureAlgorithms(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::AuthorityNames(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
         }
 
         (sub.len() <span class="kw">as </span>u16).encode(bytes);
@@ -4333,8 +4371,8 @@
 <span class="kw">impl </span>NewSessionTicketExtension {
     <span class="kw">pub fn </span>get_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionType {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            NewSessionTicketExtension::EarlyData(<span class="kw">_</span>) =&gt; ExtensionType::EarlyData,
-            NewSessionTicketExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
+            <span class="self">Self</span>::EarlyData(<span class="kw">_</span>) =&gt; ExtensionType::EarlyData,
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.typ,
         }
     }
 }
@@ -4345,8 +4383,8 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>sub: Vec&lt;u8&gt; = Vec::new();
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            NewSessionTicketExtension::EarlyData(r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
-            NewSessionTicketExtension::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::EarlyData(r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
+            <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(<span class="kw-2">&amp;mut </span>sub),
         }
 
         (sub.len() <span class="kw">as </span>u16).encode(bytes);

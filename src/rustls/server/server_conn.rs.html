@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/server/server_conn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>server_conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.7/src/server/server_conn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>server_conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -788,8 +788,69 @@
 <span id="788">788</span>
 <span id="789">789</span>
 <span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::builder::{ConfigBuilder, WantsCipherSuites};
 <span class="kw">use </span><span class="kw">crate</span>::conn::{CommonState, ConnectionCommon, Side, State};
+<span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, ProtocolVersion, SignatureScheme};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::kx::SupportedKxGroup;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
@@ -797,17 +858,17 @@
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::{Payload, PayloadU8};
 <span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::msgs::enums::AlertDescription;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::ProtocolVersion;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::SignatureScheme;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientHelloPayload, ServerExtension};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::Message;
+<span class="kw">use </span><span class="kw">crate</span>::sign;
 <span class="kw">use </span><span class="kw">crate</span>::suites::SupportedCipherSuite;
 <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
 <span class="kw">use </span><span class="kw">crate</span>::verify;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::ExtractedSecrets;
 <span class="kw">use </span><span class="kw">crate</span>::KeyLog;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;quic&quot;</span>)]
 </span><span class="kw">use crate</span>::{conn::Protocol, quic};
-<span class="kw">use crate</span>::{sign, CipherSuite};
 
 <span class="kw">use </span><span class="kw">super</span>::hs;
 
@@ -942,9 +1003,23 @@
         <span class="self">self</span>.signature_schemes
     }
 
-    <span class="doccomment">/// Get the alpn.
+    <span class="doccomment">/// Get the ALPN protocol identifiers submitted by the client.
     ///
-    /// Returns `None` if the client did not include an ALPN extension
+    /// Returns `None` if the client did not include an ALPN extension.
+    ///
+    /// Application Layer Protocol Negotiation (ALPN) is a TLS extension that lets a client
+    /// submit a set of identifiers that each a represent an application-layer protocol.
+    /// The server will then pick its preferred protocol from the set submitted by the client.
+    /// Each identifier is represented as a byte array, although common values are often ASCII-encoded.
+    /// See the official RFC-7301 specifications at &lt;https://datatracker.ietf.org/doc/html/rfc7301&gt;
+    /// for more information on ALPN.
+    ///
+    /// For example, a HTTP client might specify &quot;http/1.1&quot; and/or &quot;h2&quot;. Other well-known values
+    /// are listed in the at IANA registry at
+    /// &lt;https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids&gt;.
+    ///
+    /// The server can specify supported ALPN protocols by setting [`ServerConfig::alpn_protocols`].
+    /// During the handshake, the server will select the first protocol configured that the client supports.
     </span><span class="kw">pub fn </span>alpn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;&gt; {
         <span class="self">self</span>.alpn.map(|protocols| {
             protocols
@@ -1021,6 +1096,11 @@
     /// does nothing.
     </span><span class="kw">pub </span>key_log: Arc&lt;<span class="kw">dyn </span>KeyLog&gt;,
 
+    <span class="doccomment">/// Allows traffic secrets to be extracted after the handshake,
+    /// e.g. for kTLS setup.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">pub </span>enable_secret_extraction: bool,
+
     <span class="doccomment">/// Amount of early data to accept for sessions created by
     /// this config.  Specify 0 to disable early data.  The
     /// default is 0.
@@ -1054,6 +1134,18 @@
     /// sent by the server comes after receiving and validating the client&#39;s
     /// handshake up to the `Finished` message.  This is the safest option.
     </span><span class="kw">pub </span>send_half_rtt_data: bool,
+}
+
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ServerConfig {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;ServerConfig&quot;</span>)
+            .field(<span class="string">&quot;ignore_client_order&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.ignore_client_order)
+            .field(<span class="string">&quot;max_fragment_size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.max_fragment_size)
+            .field(<span class="string">&quot;alpn_protocols&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.alpn_protocols)
+            .field(<span class="string">&quot;max_early_data_size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.max_early_data_size)
+            .field(<span class="string">&quot;send_half_rtt_data&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.send_half_rtt_data)
+            .finish_non_exhaustive()
+    }
 }
 
 <span class="kw">impl </span>ServerConfig {
@@ -1101,8 +1193,8 @@
     }
 
     <span class="attribute">#[cfg(read_buf)]
-    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>io::ReadBuf&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
-        <span class="self">self</span>.early_data.read_buf(buf)
+    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: io::BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.early_data.read_buf(cursor)
     }
 }
 
@@ -1125,7 +1217,12 @@
         config: Arc&lt;ServerConfig&gt;,
         extra_exts: Vec&lt;ServerExtension&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="kw">let </span>common = CommonState::new(config.max_fragment_size, Side::Server)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>common = CommonState::new(Side::Server);
+        common.set_max_fragment_size(config.max_fragment_size)<span class="question-mark">?</span>;
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+        </span>{
+            common.enable_secret_extraction = config.enable_secret_extraction;
+        }
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             inner: ConnectionCommon::new(
                 Box::new(hs::ExpectClientHello::new(config, extra_exts)),
@@ -1216,6 +1313,12 @@
             <span class="prelude-val">None
         </span>}
     }
+
+    <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">pub fn </span>extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
+        <span class="self">self</span>.inner.extract_secrets()
+    }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ServerConnection {
@@ -1253,21 +1356,34 @@
     inner: <span class="prelude-ty">Option</span>&lt;ConnectionCommon&lt;ServerConnectionData&gt;&gt;,
 }
 
+<span class="kw">impl </span>Default <span class="kw">for </span>Acceptor {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: <span class="prelude-val">Some</span>(ConnectionCommon::new(
+                Box::new(Accepting),
+                ServerConnectionData::default(),
+                CommonState::new(Side::Server),
+            )),
+        }
+    }
+}
+
 <span class="kw">impl </span>Acceptor {
     <span class="doccomment">/// Create a new `Acceptor`.
+    </span><span class="attribute">#[deprecated(
+        since = <span class="string">&quot;0.20.7&quot;</span>,
+        note = <span class="string">&quot;Use Acceptor::default instead for an infallible constructor&quot;
+    </span>)]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="kw">let </span>common = CommonState::new(<span class="prelude-val">None</span>, Side::Server)<span class="question-mark">?</span>;
-        <span class="kw">let </span>state = Box::new(Accepting);
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            inner: <span class="prelude-val">Some</span>(ConnectionCommon::new(state, Default::default(), common)),
-        })
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::default())
     }
 
     <span class="doccomment">/// Returns true if the caller should call [`Connection::read_tls()`] as soon as possible.
     ///
-    /// For more details, refer to [`CommonState::wants_read()`].
+    /// Since the purpose of an Acceptor is to read and then parse TLS bytes, this always returns true.
     ///
     /// [`Connection::read_tls()`]: crate::Connection::read_tls
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.20.7&quot;</span>, note = <span class="string">&quot;Always returns true&quot;</span>)]
     </span><span class="kw">pub fn </span>wants_read(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.inner
             .as_ref()
@@ -1318,14 +1434,9 @@
             }
         };
 
-        <span class="comment">// XXX(https://github.com/rustls/rustls/issues/973): We shouldn&#39;t be using
-        // `ALL_CIPHER_SUITES` here.
-        </span><span class="kw">let </span>supported_cipher_suites = <span class="kw-2">&amp;</span><span class="kw">crate</span>::ALL_CIPHER_SUITES;
-
         <span class="kw">let </span>(<span class="kw">_</span>, sig_schemes) = hs::process_client_hello(
             <span class="kw-2">&amp;</span>message,
             <span class="bool-val">false</span>,
-            supported_cipher_suites,
             <span class="kw-2">&amp;mut </span>connection.common_state,
             <span class="kw-2">&amp;mut </span>connection.data,
         )<span class="question-mark">?</span>;
@@ -1368,6 +1479,14 @@
         <span class="self">self</span>.connection
             .common_state
             .set_max_fragment_size(config.max_fragment_size)<span class="question-mark">?</span>;
+
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+        </span>{
+            <span class="self">self</span>.connection
+                .common_state
+                .enable_secret_extraction = config.enable_secret_extraction;
+        }
+
         <span class="kw">let </span>state = hs::ExpectClientHello::new(config, Vec::new());
         <span class="kw">let </span><span class="kw-2">mut </span>cx = hs::ServerContext {
             common: <span class="kw-2">&amp;mut </span><span class="self">self</span>.connection.common_state,
@@ -1448,9 +1567,9 @@
     }
 
     <span class="attribute">#[cfg(read_buf)]
-    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>io::ReadBuf&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: io::BorrowedCursor&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Accepted(<span class="kw-2">ref mut </span>received) =&gt; received.read_buf(buf),
+            <span class="self">Self</span>::Accepted(<span class="kw-2">ref mut </span>received) =&gt; received.read_buf(cursor),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(io::Error::from(io::ErrorKind::BrokenPipe)),
         }
     }
@@ -1479,11 +1598,12 @@
 <span class="attribute">#[cfg(read_buf)]
 #[test]
 </span><span class="kw">fn </span>test_read_buf_in_new_state() {
+    <span class="kw">use </span>std::io::BorrowedBuf;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0u8</span>; <span class="number">5</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>buf: BorrowedBuf&lt;<span class="lifetime">&#39;_</span>&gt; = buf.as_mut_slice().into();
     <span class="macro">assert_eq!</span>(
-        <span class="macro">format!</span>(
-            <span class="string">&quot;{:?}&quot;</span>,
-            EarlyDataState::default().read_buf(<span class="kw-2">&amp;mut </span>io::ReadBuf::new(<span class="kw-2">&amp;mut </span>[<span class="number">0u8</span>; <span class="number">5</span>]))
-        ),
+        <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, EarlyDataState::default().read_buf(buf.unfilled())),
         <span class="string">&quot;Err(Kind(BrokenPipe))&quot;
     </span>);
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/tls13/key_schedule.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>key_schedule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.7/src/tls13/key_schedule.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>key_schedule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -713,10 +713,100 @@
 <span id="713">713</span>
 <span id="714">714</span>
 <span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::cipher::{Iv, IvLen};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::PayloadU8;
 <span class="kw">use </span><span class="kw">crate</span>::KeyLog;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+</span><span class="kw">use crate</span>::{
+    conn::Side,
+    suites::{ConnectionTrafficSecrets, PartiallyExtractedSecrets},
+};
 
 <span class="doccomment">/// Key schedule maintenance for TLS1.3
 </span><span class="kw">use </span>ring::{
@@ -1048,6 +1138,86 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="self">self</span>.ks
             .export_keying_material(<span class="kw-2">&amp;</span><span class="self">self</span>.current_exporter_secret, out, label, context)
+    }
+
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;secret_extraction&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>extract_secrets(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        algo: <span class="kw-2">&amp;</span>ring::aead::Algorithm,
+        side: Side,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PartiallyExtractedSecrets, Error&gt; {
+        <span class="kw">fn </span>expand&lt;<span class="kw">const </span>KEY_LEN: usize, <span class="kw">const </span>IV_LEN: usize&gt;(
+            secret: <span class="kw-2">&amp;</span>hkdf::Prk,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;([u8; KEY_LEN], [u8; IV_LEN]), Error&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>key = [<span class="number">0u8</span>; KEY_LEN];
+            <span class="kw">let </span><span class="kw-2">mut </span>iv = [<span class="number">0u8</span>; IV_LEN];
+
+            hkdf_expand_info(secret, PayloadU8Len(key.len()), <span class="string">b&quot;key&quot;</span>, <span class="kw-2">&amp;</span>[], |okm| {
+                okm.fill(<span class="kw-2">&amp;mut </span>key)
+            })
+            .map_err(|<span class="kw">_</span>| Error::General(<span class="string">&quot;hkdf_expand_info failed&quot;</span>.to_string()))<span class="question-mark">?</span>;
+
+            hkdf_expand_info(secret, PayloadU8Len(iv.len()), <span class="string">b&quot;iv&quot;</span>, <span class="kw-2">&amp;</span>[], |okm| {
+                okm.fill(<span class="kw-2">&amp;mut </span>iv)
+            })
+            .map_err(|<span class="kw">_</span>| Error::General(<span class="string">&quot;hkdf_expand_info failed&quot;</span>.to_string()))<span class="question-mark">?</span>;
+
+            <span class="prelude-val">Ok</span>((key, iv))
+        }
+
+        <span class="kw">let </span>client_secrets;
+        <span class="kw">let </span>server_secrets;
+
+        <span class="kw">if </span>algo == <span class="kw-2">&amp;</span>ring::aead::AES_128_GCM {
+            <span class="kw">let </span>extract = |secret: <span class="kw-2">&amp;</span>hkdf::Prk| -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionTrafficSecrets, Error&gt; {
+                <span class="kw">let </span>(key, iv_in) = expand::&lt;<span class="number">16</span>, <span class="number">12</span>&gt;(secret)<span class="question-mark">?</span>;
+
+                <span class="kw">let </span><span class="kw-2">mut </span>salt = [<span class="number">0u8</span>; <span class="number">4</span>];
+                salt.copy_from_slice(<span class="kw-2">&amp;</span>iv_in[..<span class="number">4</span>]);
+
+                <span class="kw">let </span><span class="kw-2">mut </span>iv = [<span class="number">0u8</span>; <span class="number">8</span>];
+                iv.copy_from_slice(<span class="kw-2">&amp;</span>iv_in[<span class="number">4</span>..]);
+
+                <span class="prelude-val">Ok</span>(ConnectionTrafficSecrets::Aes128Gcm { key, salt, iv })
+            };
+
+            client_secrets = extract(<span class="kw-2">&amp;</span><span class="self">self</span>.current_client_traffic_secret)<span class="question-mark">?</span>;
+            server_secrets = extract(<span class="kw-2">&amp;</span><span class="self">self</span>.current_server_traffic_secret)<span class="question-mark">?</span>;
+        } <span class="kw">else if </span>algo == <span class="kw-2">&amp;</span>ring::aead::AES_256_GCM {
+            <span class="kw">let </span>extract = |secret: <span class="kw-2">&amp;</span>hkdf::Prk| -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionTrafficSecrets, Error&gt; {
+                <span class="kw">let </span>(key, iv_in) = expand::&lt;<span class="number">32</span>, <span class="number">12</span>&gt;(secret)<span class="question-mark">?</span>;
+
+                <span class="kw">let </span><span class="kw-2">mut </span>salt = [<span class="number">0u8</span>; <span class="number">4</span>];
+                salt.copy_from_slice(<span class="kw-2">&amp;</span>iv_in[..<span class="number">4</span>]);
+
+                <span class="kw">let </span><span class="kw-2">mut </span>iv = [<span class="number">0u8</span>; <span class="number">8</span>];
+                iv.copy_from_slice(<span class="kw-2">&amp;</span>iv_in[<span class="number">4</span>..]);
+
+                <span class="prelude-val">Ok</span>(ConnectionTrafficSecrets::Aes256Gcm { key, salt, iv })
+            };
+
+            client_secrets = extract(<span class="kw-2">&amp;</span><span class="self">self</span>.current_client_traffic_secret)<span class="question-mark">?</span>;
+            server_secrets = extract(<span class="kw-2">&amp;</span><span class="self">self</span>.current_server_traffic_secret)<span class="question-mark">?</span>;
+        } <span class="kw">else if </span>algo == <span class="kw-2">&amp;</span>ring::aead::CHACHA20_POLY1305 {
+            <span class="kw">let </span>extract = |secret: <span class="kw-2">&amp;</span>hkdf::Prk| -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionTrafficSecrets, Error&gt; {
+                <span class="kw">let </span>(key, iv) = expand::&lt;<span class="number">32</span>, <span class="number">12</span>&gt;(secret)<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(ConnectionTrafficSecrets::Chacha20Poly1305 { key, iv })
+            };
+
+            client_secrets = extract(<span class="kw-2">&amp;</span><span class="self">self</span>.current_client_traffic_secret)<span class="question-mark">?</span>;
+            server_secrets = extract(<span class="kw-2">&amp;</span><span class="self">self</span>.current_server_traffic_secret)<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="macro">format!</span>(
+                <span class="string">&quot;exporting secrets for {:?}: unimplemented&quot;</span>,
+                algo
+            )));
+        }
+
+        <span class="kw">let </span>(tx, rx) = <span class="kw">match </span>side {
+            <span class="kw">crate</span>::conn::Side::Client =&gt; (client_secrets, server_secrets),
+            <span class="kw">crate</span>::conn::Side::Server =&gt; (server_secrets, client_secrets),
+        };
+        <span class="prelude-val">Ok</span>(PartiallyExtractedSecrets { tx, rx })
     }
 }
 

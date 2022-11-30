@@ -9,16 +9,17 @@ on:
     branches:
       - master
 
+concurrency:
+  # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
+  group: system-tests-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    concurrency:
-      # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
-      group: system-tests-${{ github.head_ref || github.sha }}
-      cancel-in-progress: true
     steps:
       - name: Free up disk space
         run: |
@@ -113,10 +114,6 @@ jobs:
     strategy:
       matrix:
         shard: [1, 2]
-    concurrency:
-      # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
-      group: system-tests-${{ github.head_ref || github.sha }}
-      cancel-in-progress: true
     steps:
       - name: Free up disk space
         run: |

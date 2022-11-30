@@ -46,7 +46,7 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_i
         <span
           className={css`
             text-transform: uppercase;
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
           `}
         >
           {t("word-count")}:{" "}

@@ -56,7 +56,7 @@ const Text = styled.div`
   margin-bottom: 10px;
 
   div {
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     opacity: 0.8;
   }
 `

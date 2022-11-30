@@ -29,7 +29,7 @@ const PageNumberBox = styled.div`
   margin-right: 8px;
 
   span {
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     font-family: ${monospaceFont};
     line-height: 1;
     font-size: 12px !important;
@@ -103,33 +103,31 @@ const PagesInChapterBox: React.FC<
   return (
     <Wrapper>
       <>
-        <Link href={props.url} passHref>
-          <a
-            href="replace"
-            className={css`
-              color: #1c3b40;
-              box-shadow: none;
-              text-decoration: none;
-              &:focus-visible {
-                outline: 2px solid ${baseTheme.colors.green[500]};
-                outline-offset: 2px;
-              }
+        <Link
+          href={props.url}
+          className={css`
+            color: #1c3b40;
+            box-shadow: none;
+            text-decoration: none;
+            &:focus-visible {
+              outline: 2px solid ${baseTheme.colors.green[500]};
+              outline-offset: 2px;
+            }
 
-              :hover {
-                .chapter-part-arrow {
-                  visibility: visible;
-                }
+            :hover {
+              .chapter-part-arrow {
+                visibility: visible;
               }
-            `}
-          >
-            <ChapterParts {...props}>
-              <PageNumberBox>
-                <span>{props.chapterIndex}</span>
-              </PageNumberBox>
-              <span>{props.chapterTitle}</span>
-              <ArrowSVGIcon className="chapter-part-arrow" role="presentation" alt="" width="20" />
-            </ChapterParts>
-          </a>
+            }
+          `}
+        >
+          <ChapterParts {...props}>
+            <PageNumberBox>
+              <span>{props.chapterIndex}</span>
+            </PageNumberBox>
+            <span>{props.chapterTitle}</span>
+            <ArrowSVGIcon className="chapter-part-arrow" role="presentation" alt="" width="20" />
+          </ChapterParts>
         </Link>
       </>
     </Wrapper>

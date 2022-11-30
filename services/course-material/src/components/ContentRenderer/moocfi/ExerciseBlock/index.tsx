@@ -513,7 +513,7 @@ const ExerciseBlock: React.FC<
             {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
               <div
                 className={css`
-                  color: ${baseTheme.colors.grey[500]};
+                  color: ${baseTheme.colors.gray[500]};
                 `}
               >
                 {t("tries-remaining-n", { n: triesRemaining })}

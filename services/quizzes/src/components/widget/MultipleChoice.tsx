@@ -146,7 +146,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
         <div
           className={css`
             font-size: 13px;
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
             margin: 0.3rem auto;
             width: fit-content;
           `}

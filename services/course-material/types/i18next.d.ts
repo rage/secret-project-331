@@ -1,9 +1,13 @@
+import "i18next"
+
 import ownTranslations from "../src/shared-module/locales/en/course-material.json"
 import sharedModule from "../src/shared-module/locales/en/shared-module.json"
 
-declare module "react-i18next" {
+const allAvailableTranslations = { ...sharedModule, ...ownTranslations }
+
+declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: ["course-material", "shared-module"]
+    defaultNS: typeof allAvailableTranslations
     resources: {
       "course-material": typeof ownTranslations
       "shared-module": typeof sharedModule

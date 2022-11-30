@@ -66,7 +66,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
             ${hasFixedLayout && "overflow-wrap: break-word;"}
           }
           tbody tr:nth-child(odd) {
-            ${isStriped && `background-color: ${baseTheme.colors.grey[100]};`}
+            ${isStriped && `background-color: ${baseTheme.colors.gray[100]};`}
           }
           ${hasFixedLayout && "table-layout: fixed;"}
           thead {

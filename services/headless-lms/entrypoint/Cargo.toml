@@ -15,4 +15,4 @@ headless-lms-server = { path = "../server" }
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "4.2.1"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.65"
+anyhow = "1.0.66"

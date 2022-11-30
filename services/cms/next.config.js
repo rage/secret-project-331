@@ -7,6 +7,7 @@ const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 const normalResponseHeaders = generateNormalResponseHeaders()
 
 const config = {
+  swcMinify: false,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -45,6 +46,7 @@ const config = {
         transform: "lodash/{{member}}",
       },
     },
+    newNextLinkBehavior: true,
   },
 }
 

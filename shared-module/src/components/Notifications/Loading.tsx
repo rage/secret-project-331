@@ -68,7 +68,7 @@ const TextWrapper = styled.div`
 
 const LoadingMessage = styled.div`
   display: none;
-  color: ${baseTheme.colors.grey[500]};
+  color: ${baseTheme.colors.gray[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }

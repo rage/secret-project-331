@@ -10,7 +10,8 @@ const gutenbergAxeSkip = [
   "aria-allowed-attr", // gutenberg blocks use disallowed attributes that we can't control
   "aria-allowed-role", // the editor contains elements that are not supposed to be editable (e.g. h1 with textbox role)
   "color-contrast", // the gutenberg block lists don't have a high enough constrast
-  "aria-hidden-focus", // Gutengerg draggable thing does not have a tabindex -1
+  "aria-hidden-focus", // Gutengerg draggable thing does not have a tabindex -1,
+  "aria-required-children",
 ]
 
 test("test", async ({ page, headless }) => {

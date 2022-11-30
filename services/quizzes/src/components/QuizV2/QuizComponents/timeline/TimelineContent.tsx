@@ -199,7 +199,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
       <h2
         className={css`
           font-size: 20px !important;
-          color: ${baseTheme.colors.grey[500]};
+          color: ${baseTheme.colors.gray[500]};
           margin-top: 2rem;
         `}
       >

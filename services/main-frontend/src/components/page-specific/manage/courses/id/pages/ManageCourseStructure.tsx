@@ -118,7 +118,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       <h1
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
-          color: ${baseTheme.colors.grey[700]};
+          color: ${baseTheme.colors.gray[700]};
           font-family: ${headingFont};
           font-weight: bold;
         `}
@@ -167,7 +167,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                     <h2
                       className={css`
                         font-size: ${typography.h3};
-                        color: ${baseTheme.colors.grey[500]};
+                        color: ${baseTheme.colors.gray[500]};
                         text-align: center;
                         text-transform: uppercase;
                         margin-bottom: 3rem;

@@ -1,0 +1,51 @@
+root:
+- '*'
+
+docs:
+  - docs/**/*
+
+shared-module:
+  - shared-module/**/*
+
+system-tests:
+  - system-tests/**/*
+
+cms:
+  - services/cms/**/*
+
+course-material:
+  - services/course-material/**/*
+
+example-exercise:
+  - services/example-exercise/**/*
+
+headless-lms:
+  - services/headless-lms/**/*
+
+db-migrations:
+  - services/headless-lms/migrations/**/*
+
+main-frontend:
+  - services/main-frontend/**/*
+
+quizzes:
+  - services/quizzes/**/*
+
+tmc:
+  - services/tmc/**/*
+
+deployments:
+  - skaffold.yaml
+  - skaffold.production.yaml
+  - '**/Dockerfile'
+  - '**/*.dockerfile'
+  - kubernetes/**/*
+
+scripts:
+  - bin/**/*
+
+dependencies:
+  - '**/package.json'
+  - '**/package.lock.json'
+  - '**/Cargo.lock'
+  - '**/Cargo.toml'

@@ -19,7 +19,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <h1
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
-          color: ${baseTheme.colors.grey[700]};
+          color: ${baseTheme.colors.gray[700]};
           font-family: ${headingFont};
           font-weight: bold;
         `}
@@ -29,7 +29,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <h2
         className={css`
           font-size: 1.8rem;
-          color: ${baseTheme.colors.grey[600]};
+          color: ${baseTheme.colors.gray[600]};
           font-family: ${headingFont};
           margin-bottom: 1rem;
         `}
@@ -40,7 +40,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <h2
         className={css`
           font-size: 1.8rem;
-          color: ${baseTheme.colors.grey[600]};
+          color: ${baseTheme.colors.gray[600]};
           font-family: ${headingFont};
           margin-bottom: 1rem;
         `}
@@ -51,7 +51,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <h2
         className={css`
           font-size: 1.8rem;
-          color: ${baseTheme.colors.grey[600]};
+          color: ${baseTheme.colors.gray[600]};
           font-family: ${headingFont};
           margin-bottom: 1rem;
         `}
@@ -62,7 +62,7 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <h2
         className={css`
           font-size: 1.8rem;
-          color: ${baseTheme.colors.grey[600]};
+          color: ${baseTheme.colors.gray[600]};
           font-family: ${headingFont};
           margin-bottom: 1rem;
         `}

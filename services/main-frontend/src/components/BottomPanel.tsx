@@ -60,7 +60,7 @@ const BottomPanel: React.FC<Props> = ({
           display: flex;
           align-items: center;
           font-weight: 600;
-          color: ${baseTheme.colors.grey[500]};
+          color: ${baseTheme.colors.gray[500]};
         `}
       >
         <FontAwesomeIcon
@@ -68,7 +68,7 @@ const BottomPanel: React.FC<Props> = ({
           className={css`
             font-size: 40px;
             margin-right: 1rem;
-            color: ${baseTheme.colors.grey[600]};
+            color: ${baseTheme.colors.gray[600]};
           `}
         />
         {title}

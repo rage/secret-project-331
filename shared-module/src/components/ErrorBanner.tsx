@@ -53,7 +53,7 @@ const DetailTag = styled.div`
   }
 
   details[open] summary ~ * {
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details[open] > div {
@@ -68,7 +68,7 @@ const DetailTag = styled.div`
     font-size: 1.1rem;
     font-weight: medium;
     list-style: none;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     outline: 0;
     ::-webkit-details-marker {
       display: none;

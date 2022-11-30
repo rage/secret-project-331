@@ -13,7 +13,7 @@ const Container = styled.div`
     font-family: ${headingFont};
     font-weight: 700;
     font-size: clamp(28px, 3vw, 30px);
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     text-align: center;
     margin-bottom: 2rem;
     opacity: 0.9;

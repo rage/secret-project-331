@@ -106,7 +106,7 @@ const TextField = ({
             font-size: 14px;
             display: block;
             margin-bottom: 2px;
-            ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+            ${disabled && `color: ${baseTheme.colors.gray[400]};`}
             ${disabled && `cursor: not-allowed;`}
           `,
           rest.labelStyle,

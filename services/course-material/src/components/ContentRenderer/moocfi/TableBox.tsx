@@ -87,7 +87,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
           caption {
             font-size: 15px;
             text-align: center;
-            color: ${baseTheme.colors.grey[600]};
+            color: ${baseTheme.colors.gray[600]};
             margin-top: 10px;
           }
         `}

@@ -22,7 +22,7 @@ const TextBox = styled.div`
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
     line-height: 120%;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   span {

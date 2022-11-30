@@ -29,7 +29,7 @@ const Wrapper = styled.div`
     font-style: normal;
     font-weight: 700;
     text-align: left;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
     line-height: 120%;
 

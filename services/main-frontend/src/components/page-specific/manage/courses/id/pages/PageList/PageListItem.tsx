@@ -24,7 +24,7 @@ interface PageListItemProps {
 
 // eslint-disable-next-line i18next/no-literal-string
 const ActionButton = styled.button`
-  color: ${baseTheme.colors.grey[600]};
+  color: ${baseTheme.colors.gray[600]};
   background: #ffffff;
   border: 1px solid ${baseTheme.colors.clear[400]};
   border-radius: 5px;

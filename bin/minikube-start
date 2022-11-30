@@ -2,6 +2,7 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+disallow_running_as_root
 ensure_program_in_path "minikube"
 check_minikube_version
 ensure_common_programs_in_path

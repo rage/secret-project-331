@@ -47,7 +47,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     }
 
     li::marker {
-      color: ${baseTheme.colors.grey[600]};
+      color: ${baseTheme.colors.gray[600]};
     }
   `
 

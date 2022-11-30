@@ -179,7 +179,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                 <div
                   className={css`
                     padding: 1rem;
-                    background-color: ${baseTheme.colors.grey[100]};
+                    background-color: ${baseTheme.colors.gray[100]};
                   `}
                 >
                   {t("error-quiz-item-added-after-answering")}

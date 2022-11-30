@@ -69,7 +69,7 @@ const CourseUsersCountsByExercise: React.FC<
           <div>
             <h3
               className={css`
-                color: ${baseTheme.colors.grey[400]};
+                color: ${baseTheme.colors.gray[400]};
                 font-size: 1.3rem;
               `}
             >{`${t("chapter")} ${data[0].chapter_number}`}</h3>

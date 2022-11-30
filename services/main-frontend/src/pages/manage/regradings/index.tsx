@@ -124,9 +124,7 @@ const RegradingsPage: React.FC = () => {
             {regradingsQuery.data.map((regrading) => (
               <FullWidthTableRow key={regrading.id}>
                 <td>
-                  <Link href={`/manage/regradings/${regrading.id}`} passHref>
-                    <a href="replace">{regrading.id}</a>
-                  </Link>
+                  <Link href={`/manage/regradings/${regrading.id}`}>{regrading.id}</Link>
                 </td>
                 <td>{dateToString(regrading.created_at)}</td>
                 <td>{dateToString(regrading.updated_at)}</td>

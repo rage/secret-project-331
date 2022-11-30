@@ -40,11 +40,8 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
                   <Link
                     href={coursePageRoute(organizationSlug, courseId, page.url_path)}
                     key={page.id}
-                    passHref
                   >
-                    <a href="replace">
-                      {page.title} ({page.url_path})
-                    </a>
+                    {page.title}({page.url_path})
                   </Link>
                 )
               })}

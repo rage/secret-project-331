@@ -29,8 +29,8 @@ const Collapsible: React.FC<React.PropsWithChildren<CollapsibleProps>> = ({ chil
         aria-label={visible ? t("show") : t("hide")}
         className={css`
           align-items: stretch;
-          background: ${baseTheme.colors.grey[100]};
-          border: 1px solid ${baseTheme.colors.grey[200]};
+          background: ${baseTheme.colors.gray[100]};
+          border: 1px solid ${baseTheme.colors.gray[200]};
           display: flex;
           flex-direction: row;
           padding: 0.5rem 0 0.5rem 2rem;

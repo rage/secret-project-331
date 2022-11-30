@@ -44,7 +44,7 @@ const TempAccordion: React.FC<
           className={css`
             flex: 1;
             font-weight: 500;
-            color: ${baseTheme.colors.grey[700]};
+            color: ${baseTheme.colors.gray[700]};
             opacity: 0.9;
           `}
         >

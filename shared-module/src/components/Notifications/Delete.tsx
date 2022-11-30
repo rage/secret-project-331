@@ -55,7 +55,7 @@ const CloseIconWrapper = styled.div`
       opacity: 0.7;
     }
     &:hover {
-      background: ${baseTheme.colors.grey[100]};
+      background: ${baseTheme.colors.gray[100]};
       cursor: pointer;
     }
   }
@@ -82,7 +82,7 @@ const DeleteHeader = styled.div`
 const DeleteMessage = styled.div`
   margin-top: auto;
   display: none;
-  color: ${baseTheme.colors.grey[500]};
+  color: ${baseTheme.colors.gray[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }

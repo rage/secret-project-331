@@ -23,7 +23,7 @@ const TextWrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details {
@@ -46,7 +46,7 @@ const TextWrapper = styled.div`
     list-style: none;
     outline: 0;
     height: auto;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     justify-content: center;
   }
 

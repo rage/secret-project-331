@@ -146,7 +146,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                   font-size: 22px;
                   position: relative;
                   right: -9px;
-                  color: ${baseTheme.colors.grey[400]};
+                  color: ${baseTheme.colors.gray[400]};
                 `}
                 icon={faSearch}
                 aria-label={t("button-label-search-for-pages")}
@@ -162,7 +162,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                   box-shadow: 0px 8px 40px rgb(0 0 0 / 5%);
                   border-radius: 3px;
                   border: none;
-                  outline: 1px solid ${baseTheme.colors.grey[200]};
+                  outline: 1px solid ${baseTheme.colors.gray[200]};
                   margin-right: 0.5rem;
 
                   &:focus {
@@ -204,47 +204,40 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       <Link
                         href={`/${organizationSlug}/courses/${result.url_path}`}
                         key={result.id}
-                        passHref
-                      >
-                        <a
-                          href="replace"
-                          className={css`
-                            text-decoration: none;
-                            color: unset;
-                            display: block;
-                            background: #f5f6f7;
-                            margin-bottom: 0.5rem;
-                            padding: 1rem;
+                        className={css`
+                          text-decoration: none;
+                          color: unset;
+                          display: block;
+                          background: #f5f6f7;
+                          margin-bottom: 0.5rem;
+                          padding: 1rem;
 
-                            :hover {
-                              background: #ebedee;
+                          :hover {
+                            background: #ebedee;
+                          }
+                        `}
+                      >
+                        <h2
+                          className={css`
+                            font-size: 1.5rem;
+                            b {
+                              text-decoration: underline;
                             }
                           `}
-                          key={result.id}
-                        >
-                          <h2
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeCourseMaterialHtml(result.title_headline),
+                          }}
+                        />
+                        {result.content_headline && (
+                          <p
                             className={css`
-                              font-size: 1.5rem;
-                              b {
-                                text-decoration: underline;
-                              }
+                              color: #5a5757;
                             `}
                             dangerouslySetInnerHTML={{
-                              __html: sanitizeCourseMaterialHtml(result.title_headline),
+                              __html: sanitizeCourseMaterialHtml(result.content_headline),
                             }}
                           />
-
-                          {result.content_headline && (
-                            <p
-                              className={css`
-                                color: #5a5757;
-                              `}
-                              dangerouslySetInnerHTML={{
-                                __html: sanitizeCourseMaterialHtml(result.content_headline),
-                              }}
-                            />
-                          )}
-                        </a>
+                        )}
                       </Link>
                     )
                   })}

@@ -70,7 +70,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
           <h2
             className={css`
               font-size: clamp(2rem, 3.6vh, 36px);
-              color: ${baseTheme.colors.grey[700]};
+              color: ${baseTheme.colors.gray[700]};
               font-family: ${headingFont};
               font-weight: bold;
             `}
@@ -118,9 +118,11 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
                     </li>
                   )
                 } catch (error) {
+                  console.error(error)
                   return (
                     <li key={idx}>
                       <ErrorHeader>{r.citation_key}</ErrorHeader>
+                      <ErrorBanner error={error} variant="readOnly" />
                       <Button
                         size="medium"
                         variant="secondary"

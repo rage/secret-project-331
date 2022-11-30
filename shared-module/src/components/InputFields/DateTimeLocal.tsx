@@ -73,7 +73,7 @@ const DateTimeLocal = ({
           }
 
           small {
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
             font-size: 12px;
             text-align: left;
             width: 100%;

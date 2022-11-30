@@ -2,6 +2,7 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+disallow_running_as_root
 ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
@@ -11,5 +12,5 @@ ensure_common_programs_in_path
 
 enforce_inotify_watches_limit_sufficient
 
-run_command skaffold dev --force --port-forward "$@"
+run_command skaffold dev --force "$@"
 

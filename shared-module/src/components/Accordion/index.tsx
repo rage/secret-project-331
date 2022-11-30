@@ -23,7 +23,7 @@ const TextWrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details[open] > div {
@@ -34,14 +34,14 @@ const TextWrapper = styled.div`
 
   details summary {
     padding: 1rem 0;
-    border-bottom: 1px solid ${baseTheme.colors.grey[700]};
+    border-bottom: 1px solid ${baseTheme.colors.gray[700]};
     position: relative;
     cursor: pointer;
     font-size: 1.25rem;
     font-weight: medium;
     list-style: none;
     outline: 0;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 
   details summary::-webkit-details-marker {

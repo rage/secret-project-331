@@ -33,6 +33,11 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
+      # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
+      - name: Hide gcloud cli from skaffold
+        run: sudo mv /usr/bin/gcloud /tmp/gcloud
+
+
       - name: Check out repository code
         uses: actions/checkout@v2
 
@@ -57,7 +62,12 @@ jobs:
           path: ./skaffold-images
           retention-days: 5
 
-      - name: Authenticate to Google Cloud
+      # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
+      - name: Unhide gcloud cli if master
+        run: sudo mv /tmp/gcloud /usr/bin/gcloud
+        if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Authenticate to Google Cloud if master
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
         run: |

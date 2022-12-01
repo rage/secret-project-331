@@ -25,6 +25,7 @@ interface NewExamFields {
   endsAt: Date
   timeMinutes: number
   parentId: string | null
+  automaticCompletionEnabled: boolean
   minimumPointsTreshold: number
 }
 
@@ -45,6 +46,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
     clearErrors,
     setValue,
     getValues,
+    watch,
   } = useForm<NewExamFields>()
 
   const [exam, setExam] = useState(initialData)
@@ -70,7 +72,9 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         starts_at: new Date(data.startsAt),
         ends_at: new Date(data.endsAt),
         time_minutes: Number(data.timeMinutes),
-        minimum_points_treshold: Number(data.minimumPointsTreshold),
+        minimum_points_treshold: data.automaticCompletionEnabled
+          ? Number(data.minimumPointsTreshold)
+          : 0,
       }
       const examId = String(parentId)
       onDuplicateExam(examId, newExam)
@@ -86,6 +90,8 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       setValue("timeMinutes", exam.time_minutes)
     }
   }
+
+  const automaticEnabled = watch("automaticCompletionEnabled")
 
   return (
     <div>
@@ -120,14 +126,20 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             required: t("required-field"),
           })}
         />
-        <TextField
-          id={"minimumPointsTreshold"}
-          error={errors.timeMinutes?.message}
-          label={t("label-exam-minimum-points")}
-          register={register("minimumPointsTreshold", {
-            required: t("required-field"),
-          })}
+        <CheckBox
+          label={t("label-related-courses-can-be-completed-automatically")}
+          register={register("automaticCompletionEnabled")}
         />
+        {automaticEnabled && (
+          <TextField
+            id={"minimumPointsTreshold"}
+            error={errors.timeMinutes?.message}
+            label={t("label-exam-minimum-points")}
+            register={register("minimumPointsTreshold", {
+              required: t("required-field"),
+            })}
+          />
+        )}
         <br />
         <CheckBox
           checked={duplicateExam}

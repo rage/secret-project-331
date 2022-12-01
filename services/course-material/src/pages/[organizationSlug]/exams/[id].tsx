@@ -166,9 +166,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
 
   const canStartExam =
-    exam.data.enrollment_data.tag === "NotEnrolled"
-      ? exam.data.enrollment_data.can_enroll ?? false
-      : false
+    exam.data.enrollment_data.tag === "NotEnrolled" ? exam.data.enrollment_data.can_enroll : false
 
   if (
     exam.data.enrollment_data.tag === "NotEnrolled" ||

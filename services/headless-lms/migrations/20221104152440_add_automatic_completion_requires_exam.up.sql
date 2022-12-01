@@ -13,6 +13,8 @@ ALTER TABLE course_exams
 ADD created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   ADD updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   ADD deleted_at TIMESTAMP WITH TIME ZONE;
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_exams FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON COLUMN course_exams.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN course_exams.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN course_exams.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';

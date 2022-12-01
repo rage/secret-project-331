@@ -161,7 +161,8 @@ pub async fn user_can_take_exam(
         user_id,
     )
     .await?;
-    let mut automatic_eligibility = None;
+    // User can take the exam by default if course_ids is an empty array.
+    let mut can_take_exam = true;
     for course_id in course_ids {
         let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
         if let CompletionPolicy::Automatic(requirements) = &default_module.completion_policy {
@@ -175,15 +176,16 @@ pub async fn user_can_take_exam(
                 .await?;
                 if eligible {
                     // Only one current instance needs to pass the tresholds.
-                    automatic_eligibility = Some(true);
+                    can_take_exam = true;
                     break;
                 }
             }
-            automatic_eligibility = Some(false);
+            // If there is at least one associated course with requirements, make sure that the user
+            // passes one of them.
+            can_take_exam = false;
         }
     }
-    // By default the exam can be taken if it is only linked to manual completion courses.
-    Ok(automatic_eligibility.unwrap_or(true))
+    Ok(can_take_exam)
 }
 
 /// Returns true if there is at least one exam associated with the course, that has ended and the

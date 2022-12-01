@@ -217,6 +217,7 @@
   "label-proposed-text": "Ehdotettu teksti:",
   "label-pseudonymous-user-id": "Pseudonyyminen käyttäjän id",
   "label-registered": "Rekisteröity",
+  "label-related-courses-can-be-completed-automatically": "Liitetyt kurssit voidaan suorittaa automaattisesti",
   "label-result-after-merging": "Tulos yhdistämisen jälkeen:",
   "label-role": "Rooli",
   "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydet pisteet tehtävästä)",

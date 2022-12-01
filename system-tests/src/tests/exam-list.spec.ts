@@ -58,9 +58,6 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   // Fill [label="Time\ in\ minutes"]
   await page.locator('[label="Time\\ in\\ minutes"]').fill("120")
 
-  // Fill [label="Time\ in\ minutes"]
-  await page.locator('[label="Minimum\\ points\\ to\\ pass"]').fill("1")
-
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,

@@ -49,7 +49,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
           <h2
             className={css`
               font-size: clamp(2rem, 3.6vh, 36px);
-              color: ${baseTheme.colors.grey[700]};
+              color: ${baseTheme.colors.gray[700]};
               font-family: ${headingFont};
               font-weight: bold;
             `}
@@ -64,30 +64,35 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                 return (
                   <li key={instance.id}>
                     {name}{" "}
-                    <Link href={manageCourseInstancePageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
-                        {t("link-manage")}
-                      </a>
+                    <Link
+                      href={manageCourseInstancePageRoute(instance.id)}
+                      aria-label={`${t("link-manage")} (${name})`}
+                    >
+                      {t("link-manage")}
                     </Link>{" "}
-                    <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
-                        {t("link-manage-emails")}
-                      </a>
+                    <Link
+                      href={manageCourseInstanceEmailsPageRoute(instance.id)}
+                      aria-label={`${t("link-manage-emails")} (${name})`}
+                    >
+                      {t("link-manage-emails")}
                     </Link>{" "}
-                    <Link href={manageCourseInstancePermissionsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-manage-permissions")} (${name})`}>
-                        {t("link-manage-permissions")}
-                      </a>
+                    <Link
+                      href={manageCourseInstancePermissionsPageRoute(instance.id)}
+                      aria-label={`${t("link-manage-permissions")} (${name})`}
+                    >
+                      {t("link-manage-permissions")}
                     </Link>{" "}
-                    <Link href={viewCourseInstanceCompletionsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-view-completions")}`}>
-                        {t("link-view-completions")}
-                      </a>
+                    <Link
+                      href={viewCourseInstanceCompletionsPageRoute(instance.id)}
+                      aria-label={`${t("link-view-completions")}`}
+                    >
+                      {t("link-view-completions")}
                     </Link>{" "}
-                    <Link href={viewCourseInstancePointsPageRoute(instance.id)} passHref>
-                      <a href="replace" aria-label={`${t("link-view-points")}`}>
-                        {t("link-view-points")}
-                      </a>
+                    <Link
+                      href={viewCourseInstancePointsPageRoute(instance.id)}
+                      aria-label={`${t("link-view-points")}`}
+                    >
+                      {t("link-view-points")}
                     </Link>{" "}
                     <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
                     <ModuleCompletionReprocessButton courseInstanceId={instance.id} />

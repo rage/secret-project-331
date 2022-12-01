@@ -16,14 +16,14 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
+  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to localizing Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to localizing'\"] svg"),
   ])
-  expect(page.url()).toBe(
+  expect(page).toHaveURL(
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
   )
 
@@ -58,7 +58,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
+  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   // Click text=Johdatus lokalisointiin
   await Promise.all([
@@ -95,5 +95,5 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Johdatus lokalisointiin
   await page.click("text=Johdatus lokalisointiin")
-  expect(page.url()).toBe("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
+  expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })

@@ -230,7 +230,7 @@ You don't need these if you don't intend to change the headless-lms.
 
 **Before you do this the first time:** If you're running Linux, you can detect common problems with your setup by running `bin/detect-dev-env-problems` on the repo root. Once you see this script printing `Minikube is not running. Please start it with bin/minikube-start and run this again.`, you can proceed to the next step.
 
-Run the command `./bin/minikube-start` from the root directory. If you're having problems with getting Minikube to start, ru
+Run the command `./bin/minikube-start` from the root directory.
 
 ## Setting up local domain
 

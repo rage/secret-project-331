@@ -1,9 +1,10 @@
 import { css } from "@emotion/css"
 import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
 import { useQuery } from "@tanstack/react-query"
+import { TFunction } from "i18next"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { TFunction, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"

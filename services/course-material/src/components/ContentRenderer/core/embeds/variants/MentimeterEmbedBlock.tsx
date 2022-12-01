@@ -68,7 +68,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
               font-size: ${baseTheme.fontSizes[0]}px;
               margin-top: 0.5em;
               margin-bottom: 1em;
-              color: ${baseTheme.colors.grey[400]};
+              color: ${baseTheme.colors.gray[400]};
             `}
             dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(props.caption ?? "") }}
           ></figcaption>

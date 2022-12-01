@@ -133,7 +133,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
             <div
               className={css`
                 line-height: 19px;
-                color: ${baseTheme.colors.grey[700]};
+                color: ${baseTheme.colors.gray[700]};
 
                 margin: 15px;
                 flex-grow: 1;

@@ -39,7 +39,7 @@ const MultipleChoiceLayoutChoiceContainer = styled.div`
 
 const OptionDescription = styled.div`
   font-size: 17px;
-  color: ${baseTheme.colors.grey[500]};
+  color: ${baseTheme.colors.gray[500]};
   margin-bottom: 12px;
 `
 

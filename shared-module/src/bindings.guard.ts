@@ -1221,7 +1221,12 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
     (isCourseMaterialExerciseSlide(typedObj["current_exercise_slide"]) as boolean) &&
     (typedObj["exercise_status"] === null ||
       (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
-    (isPointMap(typedObj["exercise_slide_submission_counts"]) as boolean) &&
+    ((typedObj["exercise_slide_submission_counts"] !== null &&
+      typeof typedObj["exercise_slide_submission_counts"] === "object") ||
+      typeof typedObj["exercise_slide_submission_counts"] === "function") &&
+    Object.entries<any>(typedObj["exercise_slide_submission_counts"]).every(
+      ([key, value]) => typeof value === "number" && typeof key === "string",
+    ) &&
     (typedObj["peer_review_config"] === null ||
       (isCourseMaterialPeerReviewConfig(typedObj["peer_review_config"]) as boolean)) &&
     (typedObj["previous_exercise_slide_submission"] === null ||

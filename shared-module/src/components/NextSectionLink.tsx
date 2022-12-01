@@ -22,7 +22,7 @@ export interface NextSectionLinkExtraProps {
 }
 
 // eslint-disable-next-line i18next/no-literal-string
-const StyledLink = styled.a`
+const StyledLink = styled(Link)`
   border: 1px solid ${baseTheme.colors.blue[200]};
   padding: 0.4rem 1rem;
   background: #fff;
@@ -68,20 +68,18 @@ const NextSectionLink: React.FC<
       `}
     >
       {chapterFrontPageURL && (
-        <Link href={chapterFrontPageURL} passHref>
-          <StyledLink href="replace">
-            <ArrowSVGIcon
-              id="up-svg-icon"
-              role="presentation"
-              alt=""
-              width="12"
-              height="12"
-              viewBox="0 0 39 39"
-              transform="rotate(270)"
-            />
-            <span>{t("chapter-front-page")}</span>
-          </StyledLink>
-        </Link>
+        <StyledLink href={chapterFrontPageURL}>
+          <ArrowSVGIcon
+            id="up-svg-icon"
+            role="presentation"
+            alt=""
+            width="12"
+            height="12"
+            viewBox="0 0 39 39"
+            transform="rotate(270)"
+          />
+          <span>{t("chapter-front-page")}</span>
+        </StyledLink>
       )}
 
       <Fragment>
@@ -99,7 +97,7 @@ const NextSectionLink: React.FC<
         <p
           className={css`
             font-size: 1.2rem;
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
             margin: 0.5rem 0;
             padding: 0;
             display: flex;
@@ -126,37 +124,35 @@ const NextSectionLink: React.FC<
           `}
         >
           {previous && (
-            <Link href={previous} passHref>
-              <a href="replace" aria-label={t("previous-page")}>
-                <div
-                  className={css`
-                    background: ${baseTheme.colors.green[100]};
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100%;
+            <Link href={previous} aria-label={t("previous-page")}>
+              <div
+                className={css`
+                  background: ${baseTheme.colors.green[100]};
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100%;
 
-                    &:hover {
-                      filter: brightness(95%) contrast(110%);
-                      cursor: pointer;
-                    }
+                  &:hover {
+                    filter: brightness(95%) contrast(110%);
+                    cursor: pointer;
+                  }
 
-                    .arrow {
-                      fill: #44827e;
-                    }
-                  `}
-                >
-                  <ArrowSVGIcon
-                    id="left-svg-icon"
-                    role="presentation"
-                    alt=""
-                    width="25"
-                    height="25"
-                    viewBox="0 0 39 39"
-                    transform="rotate(180)"
-                  />
-                </div>
-              </a>
+                  .arrow {
+                    fill: #44827e;
+                  }
+                `}
+              >
+                <ArrowSVGIcon
+                  id="left-svg-icon"
+                  role="presentation"
+                  alt=""
+                  width="25"
+                  height="25"
+                  viewBox="0 0 39 39"
+                  transform="rotate(180)"
+                />
+              </div>
             </Link>
           )}
           <LinkOrNoLink
@@ -187,7 +183,7 @@ const NextSectionLink: React.FC<
                 className={css`
                   background-color: ${url
                     ? baseTheme.colors.green[600]
-                    : baseTheme.colors.grey[600]};
+                    : baseTheme.colors.gray[600]};
 
                   flex: 1;
                   line-height: 1.3;
@@ -233,7 +229,7 @@ const NextSectionLink: React.FC<
                   padding: 1rem 1rem;
                   background-color: ${url
                     ? baseTheme.colors.green[600]
-                    : baseTheme.colors.grey[600]};
+                    : baseTheme.colors.gray[600]};
                   display: flex;
                   justify-content: center;
                   align-items: center;

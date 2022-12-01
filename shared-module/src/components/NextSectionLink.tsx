@@ -79,7 +79,13 @@ const NextSectionLink: React.FC<
       `}
     >
       {chapterFrontPageURL && (
-        <Link href={chapterFrontPageURL} passHref>
+        <Link
+          className={css`
+            text-decoration: none;
+          `}
+          href={chapterFrontPageURL}
+          passHref
+        >
           <div
             className={css`
               margin-bottom: 2.4rem;

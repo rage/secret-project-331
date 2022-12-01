@@ -29,6 +29,7 @@ const CardContentWrapper = styled.div`
   height: 100%;
   text-align: left;
   flex-direction: column;
+  overflow: hidden;
   overflow-wrap: break-word;
   ${BackgroundStyles}
 
@@ -74,6 +75,7 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
           className={css`
             width: 100%;
             height: 370.6px;
+            transition: transform 0.2s;
             ${backgroundImage &&
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
@@ -81,6 +83,10 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
               background-position: center center;
               background-size: contain;
               `}
+
+            &:hover {
+              transform: scale(1.1);
+            }
           `}
         ></div>
         <div

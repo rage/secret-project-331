@@ -119,8 +119,8 @@ const isValidText = (latex = false, markdown = false, text: string) => {
  * @param text Text with tags that to be parsed
  * @returns Text, where tags are replaced with html
  */
-const formatText = (latex = false, markdown = false, text: string, inline = false) => {
-  let formattedText = text
+const formatText = (latex = false, markdown = false, text: string | null, inline = false) => {
+  let formattedText = text ?? ""
   if (latex) {
     formattedText = formattedText.replace(LATEX_REGEX, (_, latex) => parseLatex(latex, !inline))
   }

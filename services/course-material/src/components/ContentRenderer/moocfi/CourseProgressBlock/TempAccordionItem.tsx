@@ -3,7 +3,7 @@ import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { animated, useSpring } from "react-spring"
 
-import { headingFont } from "../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
 import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
 
 // This should be replaced once the issues with the shared module one are resolved.
@@ -43,6 +43,9 @@ const TempAccordion: React.FC<
         <div
           className={css`
             flex: 1;
+            font-weight: 500;
+            color: ${baseTheme.colors.gray[700]};
+            opacity: 0.9;
           `}
         >
           {title}

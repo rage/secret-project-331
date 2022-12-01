@@ -33,7 +33,7 @@ const DropdownMenu: React.FC<
         className={css`
           background-color: transparent;
           border: none;
-          color: ${baseTheme.colors.grey[400]};
+          color: ${baseTheme.colors.gray[400]};
           cursor: pointer;
           padding: 0 0.66em;
           margin: 0 0.66em;

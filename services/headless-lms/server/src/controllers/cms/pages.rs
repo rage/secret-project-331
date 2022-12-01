@@ -2,11 +2,16 @@
 
 use models::{
     page_history::HistoryChangeReason,
-    pages::{CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation},
+    pages::{
+        CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
+    },
     CourseOrExamId,
 };
 
-use crate::prelude::*;
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    prelude::*,
+};
 
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
@@ -74,22 +79,27 @@ async fn update_page(
     payload: web::Json<CmsPageUpdate>,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    jwt_key: web::Data<JwtKey>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
-    let page_update = payload.0;
+    let cms_page_update = payload.0;
     let course_or_exam_id = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     let is_exam_page = matches!(course_or_exam_id, CourseOrExamId::Exam(_));
     let saved = models::pages::update_page(
         &mut conn,
-        *page_id,
-        page_update,
-        user.id,
-        false,
-        HistoryChangeReason::PageSaved,
-        is_exam_page,
+        PageUpdateArgs {
+            page_id: *page_id,
+            author: user.id,
+            cms_page_update,
+            retain_ids: false,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page,
+        },
+        models_requests::make_spec_fetcher(jwt_key.into_inner()),
+        models_requests::fetch_service_info,
     )
     .await?;
     token.authorized_ok(web::Json(saved))

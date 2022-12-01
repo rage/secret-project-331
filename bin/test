@@ -2,6 +2,7 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+disallow_running_as_root
 ensure_program_in_path "skaffold"
 ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
@@ -9,4 +10,4 @@ ensure_program_in_path "kustomize"
 check_minikube_version
 ensure_common_programs_in_path
 
-run_command skaffold dev --force --port-forward --filename ./skaffold.production.yaml "$@"
+run_command skaffold dev --force --filename ./skaffold.production.yaml "$@"

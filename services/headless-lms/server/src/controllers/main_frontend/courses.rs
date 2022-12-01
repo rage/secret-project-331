@@ -1,5 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
+use std::sync::Arc;
+
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     chapters::Chapter,
@@ -21,7 +23,10 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
-use crate::prelude::*;
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    prelude::*,
+};
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -61,6 +66,7 @@ async fn post_new_course(
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
+    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
@@ -85,6 +91,8 @@ async fn post_new_course(
         PKeyPolicy::Generate,
         new_course,
         user.id,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
     )
     .await?;
     models::roles::insert(

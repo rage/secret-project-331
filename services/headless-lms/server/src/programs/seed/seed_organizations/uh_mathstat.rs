@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     courses::NewCourse,
@@ -9,13 +11,17 @@ use uuid::Uuid;
 
 use sqlx::{Pool, Postgres};
 
-use crate::programs::seed::seed_courses::seed_sample_course;
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    programs::seed::seed_courses::seed_sample_course,
+};
 
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
 
@@ -63,6 +69,8 @@ pub async fn seed_organization_uh_mathstat(
         }),
         new_course,
         admin_user_id,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
     )
     .await?;
     let _statistics_course_instance = course_instances::insert(
@@ -100,6 +108,8 @@ pub async fn seed_organization_uh_mathstat(
         }),
         draft_course,
         admin_user_id,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
     )
     .await?;
 
@@ -112,6 +122,7 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        Arc::clone(&jwt_key),
     )
     .await?;
 

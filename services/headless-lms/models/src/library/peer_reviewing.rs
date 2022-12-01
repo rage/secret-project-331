@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 
+use futures::future::BoxFuture;
 use rand::{seq::SliceRandom, thread_rng};
+use url::Url;
 
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{self, ExerciseSlideSubmission},
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
@@ -313,6 +316,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     conn: &mut PgConnection,
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
         conn,
@@ -357,6 +361,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         reviewer_user_exercise_state.user_id,
         course_instance_id,
         exercise.id,
+        fetch_service_info,
     )
     .await?;
 
@@ -449,6 +454,7 @@ async fn get_course_material_peer_review_data(
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review_questions =
         peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
@@ -469,6 +475,7 @@ async fn get_course_material_peer_review_data(
                 conn,
                 exercise_slide_submission_id,
                 reviewer_user_id,
+                 fetch_service_info
             ).await?;
             Some(CourseMaterialPeerReviewDataAnswerToReview {
                 exercise_slide_submission_id,

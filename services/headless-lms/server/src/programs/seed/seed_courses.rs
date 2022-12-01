@@ -1,3 +1,6 @@
+use std::sync::Arc;
+
+use crate::domain::models_requests::{self, JwtKey};
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
     paragraph, quizzes_exercise, submit_and_grade,
@@ -5,6 +8,7 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
+use headless_lms_models::pages::PageUpdateArgs;
 use headless_lms_models::{
     chapters,
     chapters::NewChapter,
@@ -47,7 +51,9 @@ pub async fn seed_sample_course(
     admin: Uuid,
     student: Uuid,
     users: &[Uuid],
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
+    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -73,6 +79,8 @@ pub async fn seed_sample_course(
             }),
             new_course,
             admin,
+            &spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .await?;
     course_instances::insert(
@@ -114,6 +122,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
@@ -135,6 +145,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -161,6 +173,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -187,6 +201,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -223,6 +239,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let new_chapter = NewChapter {
@@ -243,6 +261,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let module = course_modules::insert(
@@ -271,6 +291,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let new_chapter = NewChapter {
@@ -291,6 +313,8 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
 
@@ -357,6 +381,7 @@ pub async fn seed_sample_course(
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -443,6 +468,7 @@ pub async fn seed_sample_course(
                 exercise_block_4,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -607,9 +633,9 @@ pub async fn seed_sample_course(
                 "quizId": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
                 "options": [{
                     "id": "86a2d838-04aa-4b1c-8115-2c15ed19e7b3",
-                    "body": "The right answer",
+                    "body": null,
                     "order": 1,
-                    "title": null,
+                    "title": "The right answer",
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":true,
                     "messageAfterSubmissionWhenSelected": "You chose wisely...",
@@ -617,9 +643,9 @@ pub async fn seed_sample_course(
                 },
                 {
                     "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
-                    "body": "The Wright answer",
+                    "body": null,
                     "order": 2,
-                    "title": null,
+                    "title": "The Wright answer",
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":false,
                     "messageAfterSubmissionWhenSelected": "You chose poorly...",
@@ -882,6 +908,23 @@ pub async fn seed_sample_course(
         Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
+    let (
+        quizzes_exercise_block_8,
+        quizzes_exercise_8,
+        quizzes_exercise_slide_8,
+        quizzes_exercise_task_8,
+    ) = quizzes_exercise(
+        "Vector exercise".to_string(),
+        Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
+        Uuid::new_v5(&course.id, b"08f0da90-9080-4cdd-adc7-66173cd5b833"),
+        Uuid::new_v5(&course.id, b"ea24c875-1a3c-403e-8272-b1249a475c89"),
+        Uuid::new_v5(&course.id, b"38ed716f-5d4f-4ddd-9f5a-700ef124b934"),
+        Uuid::new_v5(&course.id, b"0c271345-6934-4489-8164-2cc4dc8974bb"),
+        false,
+        serde_json::from_str(include_str!("../../assets/vector-exercise.json"))?,
+        None,
+    );
+
     let page_3 = create_page(
         &mut conn,
         course.id,
@@ -902,6 +945,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_1,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -925,6 +969,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_2
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -948,6 +993,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_3
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -971,6 +1017,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_4
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -994,6 +1041,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_5,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1017,6 +1065,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_7
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1040,6 +1089,31 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_6
             ]),
         },
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/vector".to_string(),
+            title: "Vector".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_8],
+            exercise_slides: vec![quizzes_exercise_slide_8],
+            exercise_tasks: vec![quizzes_exercise_task_8],
+            content: serde_json::json!([
+                paragraph(
+                    "This page has a vector exercise composed of three close-ended questions.",
+                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4")
+                ),
+                quizzes_exercise_block_8
+            ]),
+        },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1143,6 +1217,7 @@ pub async fn seed_sample_course(
                 multi_exercise_block_1
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1180,6 +1255,7 @@ pub async fn seed_sample_course(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_page(
@@ -1202,6 +1278,7 @@ pub async fn seed_sample_course(
                 inner_blocks: vec![]
             }]),
         },
+        jwt_key,
     )
     .await?;
 
@@ -1458,6 +1535,7 @@ pub async fn create_glossary_course(
     org_id: Uuid,
     admin: Uuid,
     course_id: Uuid,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
 
@@ -1486,6 +1564,8 @@ pub async fn create_glossary_course(
             }),
             new_course,
             admin,
+            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+            models_requests::fetch_service_info,
         )
         .await?;
 
@@ -1528,6 +1608,8 @@ pub async fn create_glossary_course(
         )),
         &new_chapter,
         admin,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter.id, Utc::now()).await?;
@@ -1550,6 +1632,7 @@ pub async fn create_glossary_course(
                 Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2")
             ),]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1566,8 +1649,10 @@ pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
     org: Uuid,
     admin: Uuid,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
+    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
@@ -1591,6 +1676,8 @@ pub async fn seed_cs_course_material(
             }),
             new_course,
             admin,
+            &spec_fetcher,
+            models_requests::fetch_service_info,
         )
         .await?;
 
@@ -1850,30 +1937,34 @@ pub async fn seed_cs_course_material(
 
     pages::update_page(
         &mut conn,
-        front_page.id,
-        CmsPageUpdate {
-            title: "Introduction to Course Material".to_string(),
-            url_path: "/".to_string(),
-            chapter_id: None,
-            content: serde_json::to_value(&[
-                GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.")
-                .with_id(Uuid::parse_str("6ad81525-0010-451f-85e5-4832e3e364a8")?),
-            GutenbergBlock::course_objective_section()
-                .with_id(Uuid::parse_str("2eec7ad7-a95f-406f-acfe-f3a332b86e26")?),
-            GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string())
-                .with_id(Uuid::parse_str("bb51d61b-fd19-44a0-8417-7ffc6058b247")?),
-            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string())
-                .with_id(Uuid::parse_str("1d7c28ca-86ab-4318-8b10-3e5b7cd6e465")?),
-            ])
-            .unwrap(),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+        PageUpdateArgs {
+            page_id: front_page.id,
+            author: admin,
+            cms_page_update: CmsPageUpdate {
+                title: "Introduction to Course Material".to_string(),
+                url_path: "/".to_string(),
+                chapter_id: None,
+                content: serde_json::to_value(&[
+                    GutenbergBlock::landing_page_hero_section("Welcome to Introduction to Course Material", "In this course you'll learn the basics of UI/UX design. At the end of course you should be able to create your own design system.")
+                    .with_id(Uuid::parse_str("6ad81525-0010-451f-85e5-4832e3e364a8")?),
+                    GutenbergBlock::course_objective_section()
+                        .with_id(Uuid::parse_str("2eec7ad7-a95f-406f-acfe-f3a332b86e26")?),
+                    GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string())
+                        .with_id(Uuid::parse_str("bb51d61b-fd19-44a0-8417-7ffc6058b247")?),
+                    GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string())
+                        .with_id(Uuid::parse_str("1d7c28ca-86ab-4318-8b10-3e5b7cd6e465")?),
+                ])
+                .unwrap(),
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: false
         },
-        admin,
-        true,
-        HistoryChangeReason::PageSaved,
-        false,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -1903,36 +1994,42 @@ pub async fn seed_cs_course_material(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
 
     pages::update_page(
         &mut conn,
-        front_page_ch_1.id,
-        CmsPageUpdate {
-            title: "User Interface".to_string(),
-            url_path: "/chapter-1".to_string(),
-            chapter_id: Some(chapter_1.id),
-            content: serde_json::to_value(&[
-                GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
-                .with_id(Uuid::parse_str("848ac898-81c0-4ebc-881f-6f84e9eaf472")?),
-            GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
-                .with_id(Uuid::parse_str("c8b36f58-5366-4d6b-b4ec-9fc0bd65950e")?),
-            GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
-                .with_id(Uuid::parse_str("cdb9e4b9-ba68-4933-b037-4648e3df7a6c")?),
-            GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
-                .with_id(Uuid::parse_str("457431b0-55db-46ac-90ae-03965f48b27e")?),
-            ])
-            .unwrap(),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+        PageUpdateArgs {
+            page_id: front_page_ch_1.id,
+            author: admin,
+            cms_page_update: CmsPageUpdate {
+                title: "User Interface".to_string(),
+                url_path: "/chapter-1".to_string(),
+                chapter_id: Some(chapter_1.id),
+                content: serde_json::to_value(&[
+                    GutenbergBlock::hero_section("User Interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
+                    .with_id(Uuid::parse_str("848ac898-81c0-4ebc-881f-6f84e9eaf472")?),
+                GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
+                    .with_id(Uuid::parse_str("c8b36f58-5366-4d6b-b4ec-9fc0bd65950e")?),
+                GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
+                    .with_id(Uuid::parse_str("cdb9e4b9-ba68-4933-b037-4648e3df7a6c")?),
+                GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
+                    .with_id(Uuid::parse_str("457431b0-55db-46ac-90ae-03965f48b27e")?),
+                ])
+                .unwrap(),
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: false
         },
-        admin,
-        true,
-        HistoryChangeReason::PageSaved,
-        false,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
 
@@ -1998,6 +2095,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_1.id),
         design_content,
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2038,7 +2136,15 @@ pub async fn seed_cs_course_material(
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]),
     };
-    create_page(&mut conn, course.id, admin, Some(chapter_1.id), content_b).await?;
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        content_b,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -2059,36 +2165,42 @@ pub async fn seed_cs_course_material(
         )),
         &new_chapter_2,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_2.id, Utc::now()).await?;
 
     pages::update_page(
         &mut conn,
-        front_page_ch_2.id,
-        CmsPageUpdate {
-            url_path: "/chapter-2".to_string(),
-            title: "User Experience".to_string(),
-            chapter_id: Some(chapter_2.id),
-            content: serde_json::to_value(&[
-                GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.")
-                    .with_id(Uuid::parse_str("c5c623f9-c7ca-4f8e-b04b-e91cecef217a")?),
-                GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
-                    .with_id(Uuid::parse_str("37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3")?),
-                GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
-                    .with_id(Uuid::parse_str("2e91c140-fd17-486b-8dc1-0a9589a18e3a")?),
-                GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
-                    .with_id(Uuid::parse_str("1bf7e311-75e8-48ec-bd55-e8f1185d76d0")?),
-            ])
-            .unwrap(),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+        PageUpdateArgs {
+            page_id: front_page_ch_2.id,
+            author: admin,
+            cms_page_update: CmsPageUpdate {
+                url_path: "/chapter-2".to_string(),
+                title: "User Experience".to_string(),
+                chapter_id: Some(chapter_2.id),
+                content: serde_json::to_value(&[
+                    GutenbergBlock::hero_section("User Experience", "The user experience is how a user interacts with and experiences a product, system or service. It includes a person's perceptions of utility, ease of use, and efficiency.")
+                        .with_id(Uuid::parse_str("c5c623f9-c7ca-4f8e-b04b-e91cecef217a")?),
+                    GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
+                        .with_id(Uuid::parse_str("37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3")?),
+                    GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
+                        .with_id(Uuid::parse_str("2e91c140-fd17-486b-8dc1-0a9589a18e3a")?),
+                    GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
+                        .with_id(Uuid::parse_str("1bf7e311-75e8-48ec-bd55-e8f1185d76d0")?),
+                ])
+                .unwrap(),
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: false
         },
-        admin,
-        true,
-        HistoryChangeReason::PageSaved,
-        false,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     // /chapter-2/user-research
@@ -2134,6 +2246,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_2.id),
         page_content,
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2153,6 +2266,7 @@ pub async fn seed_cs_course_material(
             title: "Content rendering".to_string(),
             chapter_id: Some(chapter_2.id),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2178,6 +2292,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_5,
             ]),
         },
+        jwt_key.clone(),
     )
     .await?;
 
@@ -2201,6 +2316,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_6,
             ]),
         },
+        jwt_key.clone(),
     )
     .await?;
 
@@ -2225,6 +2341,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_7,
             ]),
         },
+        jwt_key.clone(),
     )
     .await?;
 
@@ -2248,6 +2365,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_8,
             ]),
         },
+        jwt_key,
     )
     .await?;
 
@@ -2262,7 +2380,9 @@ pub async fn seed_course_without_submissions(
     course_slug: &str,
     admin: Uuid,
     student: Uuid,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
+    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -2287,6 +2407,8 @@ pub async fn seed_course_without_submissions(
         }),
         new_course,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     course_instances::insert(
@@ -2328,6 +2450,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
@@ -2349,6 +2473,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -2375,6 +2501,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -2401,6 +2529,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -2437,6 +2567,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let new_chapter = NewChapter {
@@ -2457,6 +2589,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let module = course_modules::insert(
@@ -2485,6 +2619,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
     let new_chapter = NewChapter {
@@ -2505,6 +2641,8 @@ pub async fn seed_course_without_submissions(
         )),
         &new_chapter,
         admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
     )
     .await?;
 
@@ -2570,7 +2708,7 @@ pub async fn seed_course_without_submissions(
                 paragraph("Like this.", block_id_5),
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
-        },
+        },Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2666,6 +2804,7 @@ pub async fn seed_course_without_submissions(
                 exercise_block_4,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3143,6 +3282,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_1,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3166,6 +3306,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_2
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3189,6 +3330,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_3
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3212,6 +3354,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_4
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3235,6 +3378,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_5,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3258,6 +3402,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_7
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3281,6 +3426,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_6
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3384,6 +3530,7 @@ pub async fn seed_course_without_submissions(
                 multi_exercise_block_1
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3421,6 +3568,7 @@ pub async fn seed_course_without_submissions(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_page(
@@ -3443,6 +3591,7 @@ pub async fn seed_course_without_submissions(
                 inner_blocks: vec![]
             }]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 

@@ -1,10 +1,13 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 
-use std::{path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr, sync::Arc};
 
 use models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
-use crate::prelude::*;
+use crate::{
+    domain::models_requests::{self, JwtKey},
+    prelude::*,
+};
 
 /**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -31,6 +34,7 @@ async fn post_new_chapter(
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -46,6 +50,8 @@ async fn post_new_chapter(
         PKeyPolicy::Generate,
         &new_chapter,
         user.id,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
     )
     .await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(

@@ -89,10 +89,8 @@ const Breadcrumbs: React.FC<React.PropsWithChildren<React.PropsWithChildren<Brea
                       {piece.text}
                     </a>
                   ) : (
-                    <Link href={piece.url}>
-                      <a href={piece.url} className={cx(breadCrumbText, link)}>
-                        {piece.text}
-                      </a>
+                    <Link href={piece.url} className={cx(breadCrumbText, link)}>
+                      {piece.text}
                     </Link>
                   )}
                   <span className="arrow" aria-hidden="true">

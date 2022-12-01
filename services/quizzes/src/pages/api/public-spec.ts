@@ -2,6 +2,7 @@
 import { NextApiRequest, NextApiResponse } from "next"
 
 import { PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz } from "../../../types/types"
+import { SpecRequest } from "../../shared-module/bindings"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
@@ -12,13 +13,18 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 }
 
 function handlePost(req: NextApiRequest, res: NextApiResponse) {
-  const quiz: Quiz = req.body
+  const specRequest = req.body as SpecRequest
+  const quiz = specRequest.private_spec as Quiz | null
+  if (quiz === null) {
+    throw "Private spec cannot be null"
+  }
 
   const publicSpecQuiz: PublicQuiz = {
     id: quiz.id,
     courseId: quiz.courseId,
     body: quiz.body,
     deadline: quiz.deadline,
+    direction: quiz.direction,
     open: quiz.open,
     part: quiz.part,
     section: quiz.section,

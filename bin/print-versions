@@ -1,81 +1,91 @@
 #!/bin/bash
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-NC=$(tput sgr0)
+set -euo pipefail
+source "$(dirname "$0")/.common"
 
+ensure_program_in_path grep
+ensure_program_in_path head
 
-## Rust related
-echo "-------[ Rust ]-------"
-printf "Rust:\t\t"
-if command -v rustc 1> "/dev/null"; then
-    rust_version=$(rustc --version | cut -d ' ' -f 2)
-    echo "${GREEN}${rust_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
+# Prefer this one
+function print_version() {
+  program_name=$1
+  shift
+  binary=$1
+  shift
+  args=("$@")
+  installed_version="Not installed"
+  color=$RED
+  set +e
+  if command -v "$binary" &> /dev/null; then
+    installed_version=$($binary "${args[@]}" 2> /dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+    color=$GREEN
+  fi
+  set -e
+  printf "%-15s ${color}%s${RESET_EVERYTHING}\n" "$program_name:" "$installed_version"
+}
+
+# If the version has only two numbers, use this
+function print_version_two_numbers() {
+  program_name=$1
+  shift
+  binary=$1
+  shift
+  args=("$@")
+  installed_version="Not installed"
+  color=$RED
+  set +e
+  if command -v "$binary" &> /dev/null; then
+    installed_version=$($binary "${args[@]}" | grep -oE '[0-9]+\.[0-9]+' | head -n 1)
+    color=$GREEN
+  fi
+  set -e
+  printf "%-15s ${color}%s${RESET_EVERYTHING}\n" "$program_name:" "$installed_version"
+}
+
+# If there is no way to get the version, use this to just tell whether the program is installed
+function print_is_installed() {
+  program_name=$1
+  shift
+  binary=$1
+  installed_version="Not installed"
+  color=$RED
+  set +e
+  if command -v "$binary" &> /dev/null; then
+    installed_version="Installed"
+    color=$GREEN
+  fi
+  set -e
+  printf "%-15s ${color}%s${RESET_EVERYTHING}\n" "$program_name:" "$installed_version"
+}
+
+echo "--------[ Rust ]--------"
+print_version "Rust" rustc --version
+print_version "Cargo version" sqlx --version
+print_version "Sqlx-cli" sqlx --version
+print_is_installed "Cargo sqlx" cargo-sqlx
+print_version "Pkg-config" pkg-config --version
+
+echo -e "\n--------[ Node ]--------"
+if [ "$(echo "$PATH" | grep -c nvm)" -ne 1 ]; then
+  echo -e "${RED}Warning: cannot find nvm${RESET_EVERYTHING}"
 fi
+print_version "Node" node --version
+print_version "Npm" npm --version
 
-printf "Sqlx-cli:\t"
-if command -v sqlx 1> "/dev/null"; then
-    rust_version=$(sqlx --version | cut -d ' ' -f 2)
-    echo "${GREEN}${rust_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi
+echo -e "\n-----[ Kubernetes ]-----"
+print_version "Docker" docker --version
+print_version "Skaffold" skaffold version
+print_version "Kubectl" kubectl version -o yaml
+print_version "Kustomize" kustomize version --short
+print_version "Minikube" minikube version
+print_version "Stern" stern --version
+print_is_installed "Kubectx" kubectx
 
-## Docker related
-echo "------[ Docker ]------"
-printf "Docker:\t\t"
-if command -v docker 1> "/dev/null"; then
-    docker_version=$(docker --version | cut -d ' ' -f 3 | cut -d ',' -f 1)
-    echo "${GREEN}${docker_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi
+echo -e "\n-----[ Utilities ]------"
+print_version "bc" bc --version
+print_version_two_numbers "jq" jq --version
+print_version "find" find --version
+print_version_two_numbers "getent" getent --version
+print_is_installed "sponge" sponge
+print_version "rsync" rsync --version
+print_version "actionlint" actionlint --version
 
-printf "Compose:\t"
-if command -v docker-compose 1> "/dev/null"; then
-    docker_compose_version=$(docker-compose version | grep 'docker-compose' | cut -d ' ' -f 3 | cut -d ',' -f 1)
-    echo "${GREEN}${docker_compose_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi
-
-
-## Binaries
-echo "-----[ Binaries ]-----"
-# Skaffold
-printf "Skaffold:\t"
-if command -v skaffold 1> "/dev/null"; then
-    skaffold_version=$(skaffold version | cut -d 'v' -f 2)
-    echo "${GREEN}${skaffold_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi
-
-# Kubectl
-printf "Kubectl:\t"
-if command -v kubectl 1> "/dev/null"; then
-    skaffold_output=$(kubectl version --short=true 2> /dev/null)
-    skaffold_version=$(echo "$skaffold_output" | grep 'Client' | cut -d "v" -f 2)
-    echo "${GREEN}${skaffold_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi
-
-# Kustomize
-printf "Kustomize:\t"
-if command -v kustomize 1> "/dev/null"; then
-    kustomize_version=$(kustomize version --short | cut -d 'v' -f 2 | cut -d ' ' -f 1)
-    echo "${GREEN}${kustomize_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi
-
-# Minikube
-printf "Minikube:\t"
-if command -v minikube 1> "/dev/null"; then
-    minikube_version=$(minikube version | grep 'version' | cut -d ' ' -f 3 | cut -d 'v' -f 2)
-    echo "${GREEN}${minikube_version}${NC}"
-else
-    echo "${RED}Not installed${NC}"
-fi

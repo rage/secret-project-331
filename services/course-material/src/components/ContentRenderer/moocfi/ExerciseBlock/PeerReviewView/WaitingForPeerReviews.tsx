@@ -21,7 +21,7 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<unknown>> = () => 
           text-align: center;
           margin-bottom: 1rem;
 
-          color: ${baseTheme.colors.grey[700]};
+          color: ${baseTheme.colors.gray[700]};
         `}
       >
         {t("title-waiting-for-peer-reviews")}

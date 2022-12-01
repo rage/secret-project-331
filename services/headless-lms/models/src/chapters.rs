@@ -611,6 +611,8 @@ mod tests {
                     is_test_mode: false,
                 },
                 user,
+                |_, _, _| unimplemented!(),
+                |_| unimplemented!(),
             )
             .await
             .unwrap()

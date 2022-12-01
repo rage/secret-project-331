@@ -6,15 +6,14 @@ import { useTranslation } from "react-i18next"
 import { QuizItemAnswer } from "../../../types/types"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
+import { COLUMN, ROW } from "../../util/constants"
 import { orderArrayWithId } from "../../util/randomizer"
 import ParsedText from "../ParsedText"
 
 import { QuizItemComponentProps } from "."
-
-const DIRECTION_COLUMN = "column"
-const DIRECTION_ROW = "row"
 
 const optionButton = css`
   align-items: center;
@@ -54,9 +53,8 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
 }) => {
   const { t } = useTranslation()
   // Column means that all the options are always diplayed on top of each other, regardless of the
-  // device width. Sanitized since the value is used in CSS.
-  const direction: "row" | "column" =
-    quizItem.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
+  // device width.
+  const direction = sanitizeFlexDirection(quizItem.direction, ROW)
 
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!quizItemAnswerState) {
@@ -91,6 +89,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   return (
     <div
       className={css`
+        flex: 1;
         margin: 0.7rem 0;
       `}
     >
@@ -135,7 +134,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
               className={cx(
                 optionButton,
                 selected && optionButtonSelected,
-                direction === DIRECTION_COLUMN && optionButtonColumn,
+                direction === COLUMN && optionButtonColumn,
               )}
             >
               <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />
@@ -147,7 +146,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
         <div
           className={css`
             font-size: 13px;
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
             margin: 0.3rem auto;
             width: fit-content;
           `}

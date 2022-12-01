@@ -67,8 +67,8 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
             title={t("exercise-task-content", {
-              "exercise-number": exerciseNumber,
-              "task-number": exerciseTask.order_number,
+              "exercise-number": exerciseNumber + 1,
+              "task-number": exerciseTask.order_number + 1,
             })}
           />
         ) : (
@@ -81,7 +81,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             margin-top: -1rem;
             background: white;
             font-weight: 400;
-            color: ${baseTheme.colors.grey[500]};
+            color: ${baseTheme.colors.gray[500]};
             padding: 0.75rem 1rem;
 
             svg {

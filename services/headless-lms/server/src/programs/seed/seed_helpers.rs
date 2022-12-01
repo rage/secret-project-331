@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
@@ -9,6 +11,7 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
+        PageUpdateArgs,
     },
     peer_review_configs::{self, CmsPeerReviewConfig},
     peer_review_questions::{self, CmsPeerReviewQuestion},
@@ -19,6 +22,8 @@ use serde_json::Value;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
+use crate::domain::models_requests::{self, JwtKey};
+
 #[allow(clippy::too_many_arguments)]
 pub async fn create_page(
     conn: &mut PgConnection,
@@ -26,6 +31,7 @@ pub async fn create_page(
     author: Uuid,
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_page = NewPage {
         content: Value::Array(vec![]),
@@ -40,23 +46,34 @@ pub async fn create_page(
         exercise_tasks: vec![],
         content_search_language: None,
     };
-    let page = pages::insert_page(conn, new_page, author).await?;
+    let page = pages::insert_page(
+        conn,
+        new_page,
+        author,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
+    )
+    .await?;
     pages::update_page(
         conn,
-        page.id,
-        CmsPageUpdate {
-            content: page_data.content,
-            exercises: page_data.exercises,
-            exercise_slides: page_data.exercise_slides,
-            exercise_tasks: page_data.exercise_tasks,
-            url_path: page_data.url_path,
-            title: page_data.title,
-            chapter_id,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: CmsPageUpdate {
+                content: page_data.content,
+                exercises: page_data.exercises,
+                exercise_slides: page_data.exercise_slides,
+                exercise_tasks: page_data.exercise_tasks,
+                url_path: page_data.url_path,
+                title: page_data.title,
+                chapter_id,
+            },
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: false,
         },
-        author,
-        true,
-        HistoryChangeReason::PageSaved,
-        false,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
     )
     .await?;
     Ok(page.id)
@@ -205,7 +222,7 @@ pub fn example_exercise_flexible(
     let exercise = CmsPageExercise {
         id: exercise_id,
         name: exercise_name,
-        order_number: 1,
+        order_number: 0,
         score_maximum: tasks.len() as i32,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
@@ -377,6 +394,7 @@ pub async fn create_exam(
     course_id: Uuid,
     exam_id: Uuid,
     teacher: Uuid,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<()> {
     let new_exam_id = exams::insert(
         conn,
@@ -444,6 +462,8 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
+        models_requests::make_spec_fetcher(jwt_key),
+        models_requests::fetch_service_info,
     )
     .await?;
     exams::set_course(conn, new_exam_id, course_id).await?;

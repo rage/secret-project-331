@@ -2,11 +2,15 @@
 import axios from "axios"
 import { promises as fs } from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
+import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
+import { v4 } from "uuid"
 
-import { ClientErrorResponse, GradingResult, pendingSubmissions } from "../../lib"
+import { ClientErrorResponse, downloadStream, GradingResult, pendingSubmissions } from "../../lib"
 import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
-import { extractProject, prepareSubmission } from "../../tmc/langs"
+import { Compression } from "../../tmc/generated"
+import { compressProject, extractProject, prepareSubmission } from "../../tmc/langs"
+import { PrivateSpec, Submission } from "../../util/stateInterfaces"
 
 export default async (
   req: NextApiRequest,
@@ -19,64 +23,78 @@ export default async (
   return await handlePost(req, res)
 }
 
-interface Exercise {
-  downloadUrl: string
-}
-
-interface Submission {
-  id: string
-  downloadUrl: string
-  gradingResultUrl: string
-}
-
-type TmcGradingRequest = GradingRequest<Exercise, Submission>
+type TmcGradingRequest = GradingRequest<PrivateSpec, Submission>
 
 const handlePost = async (
   req: NextApiRequest,
   res: NextApiResponse<GradingResult | ClientErrorResponse>,
 ): Promise<void> => {
-  // todo: guard
-  const gradingRequest: TmcGradingRequest = req.body
+  const { exercise_spec, submission_data } = req.body as TmcGradingRequest
 
-  // download submission
-  const submissionRes = await axios({
-    url: gradingRequest.submission_data.downloadUrl,
-    method: "GET",
-    responseType: "blob",
-  })
   const submissionArchive = temporaryFile()
-  await fs.writeFile(submissionArchive, submissionRes.data)
-
-  // extract submission
-  const submissionDir = temporaryDirectory()
-  extractProject(submissionArchive, submissionDir)
+  let compression: Compression
+  let naive: boolean
+  if (exercise_spec.type === "editor" && submission_data.type === "editor") {
+    // download submission
+    const archiveDownloadUrl = submission_data.archiveDownloadUrl
+    await downloadStream(archiveDownloadUrl, submissionArchive)
+    // todo: support other compression methods?
+    compression = "zstd"
+    naive = false
+  } else if (exercise_spec.type === "browser" && submission_data.type === "browser") {
+    // write submission files
+    const submissionDir = temporaryDirectory()
+    for (const [relativePath, contents] of submission_data.files) {
+      const target = `${submissionDir}/${relativePath}`
+      console.log("making", path.dirname(target))
+      await fs.mkdir(path.dirname(target), { recursive: true })
+      console.log("writing", target)
+      await fs.writeFile(target, contents)
+    }
+    await compressProject(submissionDir, submissionArchive, "tar", true)
+    compression = "tar"
+    naive = true
+  } else {
+    throw "unexpected submission type"
+  }
 
   // download exercise template
-  const templateRes = await axios({
-    url: gradingRequest.exercise_spec.downloadUrl,
-    method: "GET",
-    responseType: "blob",
-  })
   const templateArchive = temporaryFile()
-  await fs.writeFile(templateArchive, templateRes.data)
+  await downloadStream(exercise_spec.repositoryExercise.download_url, templateArchive)
 
   // extract template
   const extractedTemplate = temporaryDirectory()
-  extractProject(templateArchive, extractedTemplate)
-
+  await extractProject(templateArchive, extractedTemplate)
   // prepare submission with tmc-langs
-  const preparedSubmissionArchive = temporaryDirectory()
-  prepareSubmission(extractedTemplate, preparedSubmissionArchive, submissionDir)
+  const preparedSubmissionArchive = temporaryFile()
+  await prepareSubmission(
+    extractedTemplate,
+    preparedSubmissionArchive,
+    submissionArchive,
+    compression,
+    naive,
+  )
+  console.log("prepared submission")
 
-  // send prepared submission to sandbox
+  // TODO: send prepared submission to sandbox
+  return res.status(200).json({
+    grading_progress: "PendingManual",
+    score_given: 0,
+    score_maximum: 0,
+    feedback_text: null,
+    feedback_json: null,
+  })
+
+  const id = v4()
   await axios.post("sandbox", {
+    id,
     file: preparedSubmissionArchive,
   })
 
   // store pending
   pendingSubmissions.push({
-    id: gradingRequest.submission_data.id,
-    gradingResultUrl: gradingRequest.submission_data.gradingResultUrl,
+    id,
+    gradingResultUrl: "todo",
     timestamp: Date.now(),
   })
 

@@ -154,7 +154,9 @@ macro_rules! insert_data {
                 is_draft: false,
                 is_test_mode: false,
             },
-            $user
+            $user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap().0.id;
@@ -194,7 +196,9 @@ macro_rules! insert_data {
                 opens_at: None,
                 course_module_id: Some($course_module.id),
             },
-            $user
+            $user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap().0.id;
@@ -215,7 +219,9 @@ macro_rules! insert_data {
                 front_page_of_chapter_id: Some($chapter),
                 content_search_language: None,
             },
-            $user
+            $user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
         )
         .await
         .unwrap().id;

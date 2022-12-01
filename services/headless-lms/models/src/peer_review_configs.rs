@@ -1,4 +1,8 @@
+use futures::future::BoxFuture;
+use url::Url;
+
 use crate::{
+    exercise_service_info::ExerciseServiceInfoApi,
     exercises::{self, Exercise},
     library::{self, peer_reviewing::CourseMaterialPeerReviewData},
     peer_review_questions::{
@@ -255,10 +259,16 @@ pub async fn get_course_material_peer_review_data(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
-    let (_current_exercise_slide, instance_or_exam_id) =
-        exercises::get_or_select_exercise_slide(&mut *conn, Some(user_id), &exercise).await?;
+    let (_current_exercise_slide, instance_or_exam_id) = exercises::get_or_select_exercise_slide(
+        &mut *conn,
+        Some(user_id),
+        &exercise,
+        &fetch_service_info,
+    )
+    .await?;
 
     let user_exercise_state = match instance_or_exam_id {
         Some(course_instance_or_exam_id) => {
@@ -282,6 +292,7 @@ pub async fn get_course_material_peer_review_data(
                     conn,
                     &exercise,
                     user_exercise_state,
+                    &fetch_service_info
                 )
                 .await?;
                 Ok(res)

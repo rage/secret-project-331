@@ -90,7 +90,6 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module
 
   return (
     <Wrapper>
-      {/* REMOVE THIS WHEN COMPLETE */}
       {prerequisite_modules_completed && (
         <BadgeWrapper>
           <Badge />

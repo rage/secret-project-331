@@ -1396,6 +1396,10 @@
 <span id="1396">1396</span>
 <span id="1397">1397</span>
 <span id="1398">1398</span>
+<span id="1399">1399</span>
+<span id="1400">1400</span>
+<span id="1401">1401</span>
+<span id="1402">1402</span>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -2575,6 +2579,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
                 module_id: Uuid::parse_str(<span class="string">&quot;299eba99-9aa2-4023-bd64-bd4b5d7578ba&quot;</span>).unwrap(),
                 name: <span class="string">&quot;Course&quot;</span>.to_string(),
                 order_number: <span class="number">0</span>,
+                passed: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
+                grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
                 prerequisite_modules_completed: <span class="bool-val">false</span>,
             },
             UserModuleCompletionStatus {
@@ -2583,6 +2589,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
                 module_id: Uuid::parse_str(<span class="string">&quot;c6c89368-c05d-498f-a2e3-10d7c327752c&quot;</span>).unwrap(),
                 name: <span class="string">&quot;Module&quot;</span>.to_string(),
                 order_number: <span class="number">1</span>,
+                passed: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
+                grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
                 prerequisite_modules_completed: <span class="bool-val">false</span>,
             }
         ]

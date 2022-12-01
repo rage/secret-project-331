@@ -968,6 +968,10 @@
 <span id="968">968</span>
 <span id="969">969</span>
 <span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
 </pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1524,6 +1528,8 @@
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>order_number: i32,
     <span class="kw">pub </span>prerequisite_modules_completed: bool,
+    <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>passed: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
 <span class="doccomment">/// Gets course modules with user&#39;s completion status for the given instance.
@@ -1555,6 +1561,8 @@
                 module_id: module.id,
                 name: module.name.unwrap_or_else(|| course.name.clone()),
                 order_number: module.order_number,
+                passed: completion.map(|x| x.passed),
+                grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(<span class="bool-val">false</span>, |x| x.prerequisite_modules_completed),
             }

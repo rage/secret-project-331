@@ -588,7 +588,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 name: module.name.unwrap_or_else(|| course.name.clone()),
                 order_number: module.order_number,
                 passed: completion.map(|x| x.passed),
-                grade: completion.map(|x| x.grade).unwrap_or_default(),
+                grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(false, |x| x.prerequisite_modules_completed),
             }

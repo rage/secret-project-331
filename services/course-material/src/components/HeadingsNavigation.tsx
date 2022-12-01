@@ -243,7 +243,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
         <h3
           className={css`
             font-size: 16px;
-            color: ${baseTheme.colors.grey[600]};
+            color: ${baseTheme.colors.gray[600]};
             font-weight: 700;
             display: inline;
             position: relative;

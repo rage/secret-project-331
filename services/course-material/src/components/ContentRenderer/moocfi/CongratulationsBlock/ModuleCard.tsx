@@ -70,7 +70,7 @@ const BadgeWrapper = styled.div`
     font-family: ${headingFont};
     font-size: 22px;
     font-weight: 700;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
   }
 `
 

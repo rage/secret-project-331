@@ -8,7 +8,7 @@ import Button from "../../../../shared-module/components/Button"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import { primaryFont } from "../../../../shared-module/styles"
 import EditorCard from "../common/EditorCard"
-import ParsedTextField from "../common/ParsedTextField"
+// import ParsedTextField from "../common/ParsedTextField"
 
 import MultipleChoiceOption from "./MultipleChoiceOption"
 
@@ -79,7 +79,7 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
 
   return (
     <EditorCard title={t("quiz-multiple-choice-dropdown-name")}>
-      <ParsedTextField label={t("title")} />
+      {/* <ParsedTextField label={t("title")} /> */}
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>
       <OptionCardContainer>
@@ -92,14 +92,14 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
       <OptionCreationContainer>
         <OptionCreationWrapper>
           <OptionNameContainer>
-            <ParsedTextField label={t("option-title")} />
+            {/* <ParsedTextField label={t("option-title")} /> */}
           </OptionNameContainer>
           <OptionCheckBoxContainer>
             <CheckBox label={t("label-correct")} />
           </OptionCheckBoxContainer>
         </OptionCreationWrapper>
 
-        <ParsedTextField label={t("success-message")} />
+        {/* <ParsedTextField label={t("success-message")} /> */}
         <Button variant="primary" size={"medium"}>
           {t("add-option")}
         </Button>
@@ -112,8 +112,8 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
             <OptionTitle> {t("feedback-message")} </OptionTitle>
-            <ParsedTextField label={t("success-message")} />
-            <ParsedTextField label={t("failure-message")} />
+            {/* <ParsedTextField label={t("success-message")} /> */}
+            {/* <ParsedTextField label={t("failure-message")} /> */}
           </AdvancedOptionsContainer>
         </details>
       </Accordion>

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useRef } from "react"
 
 interface MessageDialogProps {
   title: string
@@ -29,10 +29,24 @@ const MessageDialogDescription = styled.div`
 `
 
 const MessageDialog: React.FC<MessageDialogProps> = ({ title, description }) => {
+  const textEl = useRef<HTMLDivElement>(null)
+
   return (
     <MessageDialogContainer>
       <MessageDialogTitle>{title}</MessageDialogTitle>
-      <MessageDialogDescription>{description}</MessageDialogDescription>
+      <MessageDialogDescription>
+        <div
+          contentEditable={true}
+          ref={textEl}
+          suppressContentEditableWarning={true}
+          onInput={() => {
+            // textEl.current.textContent = event.target.textContent
+            // onChangeDescription(textEl.current.textContent)
+          }}
+        >
+          {description}
+        </div>
+      </MessageDialogDescription>
     </MessageDialogContainer>
   )
 }

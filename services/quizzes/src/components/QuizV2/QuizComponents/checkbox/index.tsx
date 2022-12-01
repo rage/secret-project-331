@@ -3,12 +3,14 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemCheckbox } from "../../../../../types/quizTypes"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
+import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 
 interface CheckboxEditorProps {
-  quizItem: PrivateSpecQuizItemCheckbox
+  quizItemId: string
 }
 
 const OptionCheckBoxContainer = styled.div`
@@ -37,20 +39,38 @@ const OptionNameContainer = styled.div`
   top: -10px;
 `
 
-const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItem }) => {
+const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+
+  const { selected, updateState } =
+    useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemCheckbox>((quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemCheckbox>(quiz, quizItemId, "checkbox")
+    })
+
+  if (selected === null) {
+    return <></>
+  }
 
   return (
     <EditorCard title={t("quiz-checkbox-name")}>
       <OptionCreationWrapper>
         <OptionCheckBoxContainer>
-          <CheckBox label={""} />
+          <CheckBox label="" />
         </OptionCheckBoxContainer>
         <OptionNameContainer>
           <TextField
-            value={quizItem.title}
+            value={selected.title}
             label={t("option-title")}
             placeholder={t("option-title")}
+            onChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.title = value
+              })
+            }}
           />
         </OptionNameContainer>
       </OptionCreationWrapper>

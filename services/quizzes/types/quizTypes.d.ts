@@ -73,7 +73,7 @@ export interface PrivateSpecQuizItemMultiplechoice {
   body: string
   successMessage: string | null
   failureMessage: string | null
-  sharedOptionFeedbackMessage: null
+  sharedOptionFeedbackMessage: string | null
   direction: "row" | "column"
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }

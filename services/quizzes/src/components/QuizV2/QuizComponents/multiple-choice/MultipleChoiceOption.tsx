@@ -25,6 +25,10 @@ const ChoiceTitle = styled.div`
   font-size: 20px;
   margin-left: 16px;
   font-family: ${primaryFont};
+  max-width: 550ch;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `
 
 const CorrectTag = styled.div`
@@ -69,9 +73,12 @@ const MultipleChoiceMessageDialogContainer = styled.div`
 
 interface MultipleChoiceOption {
   option: QuizItemOption
+  onSuccessMessageChange: (value: string) => void
+  onTitleChange: (value: string) => void
+  onDelete: () => void
 }
 
-const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
+const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option, onDelete }) => {
   const [visible, setVisible] = useState(true)
 
   const { t } = useTranslation()
@@ -83,12 +90,20 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
   return (
     <>
       <OptionCard>
-        <ChoiceTitle>{option.title}</ChoiceTitle>
+        <ChoiceTitle
+          contentEditable={true}
+          suppressContentEditableWarning={true}
+          onInput={() => {
+            // onTitleChange(event.target.innerText)
+          }}
+        >
+          {option.title}
+        </ChoiceTitle>
 
         <OptionButtonGroup>
           {option.correct && <CorrectTag> {t("label-correct")} </CorrectTag>}
           <ExpandOptionButton onClick={handleClick} icon={visible ? faAngleDown : faAngleUp} />
-          <DeleteOptionButton icon={faX} />
+          <DeleteOptionButton onClick={onDelete} icon={faX} />
         </OptionButtonGroup>
       </OptionCard>
       {!visible && (

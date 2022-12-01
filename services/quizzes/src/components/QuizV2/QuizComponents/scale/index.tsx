@@ -3,11 +3,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemScale } from "../../../../../types/quizTypes"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
+import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 
 interface ScaleEditorProps {
-  quizItem: PrivateSpecQuizItemScale
+  quizItemId: string
 }
 
 const TextFieldContainer = styled.div`
@@ -19,27 +21,53 @@ const TextFieldWrapper = styled.div`
   margin: 0px 4px;
 `
 
-const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItem }) => {
+const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
 
+  const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemScale>(
+    (quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemScale>(quiz, quizItemId, "scale")
+    },
+  )
+
+  if (selected === null) {
+    return <></>
+  }
   return (
     <EditorCard title={t("quiz-scale-name")}>
-      <TextField value={quizItem.title} label={t("option-title")} name={t("option-title")} />
+      <TextField value={selected.title} label={t("option-title")} name={t("option-title")} />
       <TextFieldContainer>
         <TextFieldWrapper>
           <TextField
             type={"number"}
-            value={quizItem.minValue ?? 0}
+            value={selected.minValue ?? 0}
             label={t("minimum")}
             name={t("minimum")}
+            onChange={(minimum) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.minValue = parseInt(minimum)
+              })
+            }}
           />
         </TextFieldWrapper>
         <TextFieldWrapper>
           <TextField
             type={"number"}
-            value={quizItem.maxValue ?? 0}
+            value={selected.maxValue ?? 0}
             label={t("maximum")}
             name={t("maximum")}
+            onChange={(maximum) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.maxValue = parseInt(maximum)
+              })
+            }}
           />
         </TextFieldWrapper>
       </TextFieldContainer>

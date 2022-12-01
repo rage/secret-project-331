@@ -18,15 +18,15 @@ interface QuizEditor {
 const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
   switch (quizItem.type) {
     case "multiple-choice":
-      return <MultipleChoiceEditor quizItem={quizItem} />
+      return <MultipleChoiceEditor quizItemId={quizItem.id} />
     case "multiple-choice-dropdown":
       return <MultipleChoiceDropdownEditor quizItem={quizItem} />
     case "choose-n":
       return <ChooseNEditor quizItem={quizItem} />
     case "scale":
-      return <ScaleEditor quizItem={quizItem} />
+      return <ScaleEditor quizItemId={quizItem.id} />
     case "checkbox":
-      return <CheckboxEditor quizItem={quizItem} />
+      return <CheckboxEditor quizItemId={quizItem.id} />
     case "essay":
       return <EssayEditor quizItemId={quizItem.id} />
     case "closed-ended-question":

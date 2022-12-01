@@ -36,7 +36,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
           className={css`
             width: 100%;
             text-align: center;
-            padding: 2em 0;
+            padding: 1em 0 2em 0;
             margin: 5em auto;
             background: rgba(242, 245, 247, 0.8);
           `}

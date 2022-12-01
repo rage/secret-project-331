@@ -1177,6 +1177,8 @@ fn models() {
                 module_id: Uuid::parse_str("299eba99-9aa2-4023-bd64-bd4b5d7578ba").unwrap(),
                 name: "Course".to_string(),
                 order_number: 0,
+                passed: Some(true),
+                grade: Some(4),
                 prerequisite_modules_completed: false,
             },
             UserModuleCompletionStatus {
@@ -1185,6 +1187,8 @@ fn models() {
                 module_id: Uuid::parse_str("c6c89368-c05d-498f-a2e3-10d7c327752c").unwrap(),
                 name: "Module".to_string(),
                 order_number: 1,
+                passed: Some(true),
+                grade: Some(4),
                 prerequisite_modules_completed: false,
             }
         ]

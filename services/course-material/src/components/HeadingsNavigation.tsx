@@ -225,7 +225,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
           padding: 1.5rem;
           padding-top: 12px;
           z-index: 1000;
-          background-color: #f8f8f8;
+          background-color: rgb(246, 248, 250);
 
           h3 {
             margin-bottom: 1rem;
@@ -242,8 +242,9 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
       >
         <h3
           className={css`
-            font-size: 14px;
-            text-transform: uppercase;
+            font-size: 16px;
+            color: ${baseTheme.colors.gray[600]};
+            font-weight: 700;
             display: inline;
             position: relative;
             left: -2px;

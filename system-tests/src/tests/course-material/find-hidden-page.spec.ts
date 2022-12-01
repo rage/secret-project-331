@@ -26,7 +26,7 @@ test("find hidden page", async ({ page, headless }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    beforeScreenshot: () => page.locator("text=Top level pages").scrollIntoViewIfNeeded(),
+    beforeScreenshot: () => page.locator("text=Information pages").scrollIntoViewIfNeeded(),
     clearNotifications: true,
     headless,
     page,

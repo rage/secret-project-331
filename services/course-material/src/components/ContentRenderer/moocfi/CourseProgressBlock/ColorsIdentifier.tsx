@@ -9,7 +9,7 @@ interface CircleProps {
 }
 
 const Wrapper = styled.div`
-  margin-top: 2rem;
+  margin-top: 1.4rem;
   background: #fff;
   max-width: 100%;
   height: auto;

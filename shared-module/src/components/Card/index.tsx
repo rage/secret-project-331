@@ -55,9 +55,6 @@ const Card: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>
           }
           transition: filter 0.2s;
           filter: brightness(1) contrast(1);
-          &:hover {
-            filter: brightness(1.1) contrast(0.9);
-          }
         `}
       >
         <Component {...props} />

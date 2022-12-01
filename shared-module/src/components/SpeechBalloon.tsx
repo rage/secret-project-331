@@ -14,7 +14,7 @@ const SQUARE_SIZE = "1rem"
 
 const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
   ({ children, className, onClick }, ref) => {
-    const bg = baseTheme.colors.grey[100]
+    const bg = baseTheme.colors.gray[100]
 
     const outerCss = css`
       display: flex;

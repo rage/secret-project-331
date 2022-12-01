@@ -2,4 +2,5 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-run_command skaffold dev --force --port-forward -p only-db "$@"
+disallow_running_as_root
+run_command skaffold dev --force -p only-db "$@"

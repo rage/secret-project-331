@@ -17,7 +17,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expect(page.url()).toBe("http://project-331.local/org/uh-cs")
+  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
@@ -27,12 +27,12 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
-  expect(page.url()).toBe(
+  expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
   await Promise.all([page.waitForNavigation(), page.click(`a:has-text("Page 6")`)])
-  expect(page.url()).toBe(
+  expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-6",
   )
 

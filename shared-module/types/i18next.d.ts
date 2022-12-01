@@ -1,6 +1,8 @@
+import "i18next"
+
 import sharedModule from "../src/locales/en/shared-module.json"
 
-declare module "react-i18next" {
+declare module "i18next" {
   interface CustomTypeOptions {
     defaultNS: "shared-module"
     resources: {

@@ -33,7 +33,7 @@ test("Can take exam after enough course points", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/automatic-course-with-exam",
   )
   // Make sure that the course isn't completed before taking an exam.
-  await page.waitForSelector("text=Top level pages")
+  await page.waitForSelector("text=Welcome to...")
   await expect(page.locator("text=Congratulations!")).toHaveCount(0)
 
   await page.goto("http://project-331.local/org/uh-cs/exams/b2168b2f-f721-4771-a35d-ca75ca0937b1")

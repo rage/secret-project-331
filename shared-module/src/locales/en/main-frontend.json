@@ -240,6 +240,7 @@
   "link-course-instances": "Course instances",
   "link-edit-exam-instructions": "Edit exam instructions",
   "link-exercises": "Exercises",
+  "link-export-completions": "Export completions as CSV",
   "link-export-points": "Export points as CSV",
   "link-export-submissions": "Export submissions as CSV",
   "link-feedback": "Feedback",

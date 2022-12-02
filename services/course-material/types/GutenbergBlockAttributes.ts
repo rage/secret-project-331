@@ -501,6 +501,11 @@ export interface ListItemAttributes {
     [k: string]: unknown
   }
   className?: string
+  fontFamily?: string
+  fontSize?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 export interface QuoteAttributes {
@@ -1111,6 +1116,26 @@ export interface EmbedDeprecated1Attributes {
   title?: string
 }
 
+/**
+ * @deprecated This is an older version of EmbedAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface EmbedDeprecated2Attributes {
+  url?: string
+  caption?: string
+  type?: string
+  providerNameSlug?: string
+  allowResponsive: boolean
+  responsive: boolean
+  previewable: boolean
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  height?: number
+  title?: string
+}
+
 export interface FileAttributes {
   id?: number
   href?: string
@@ -1158,6 +1183,29 @@ export interface FileDeprecated1Attributes {
  */
 
 export interface FileDeprecated2Attributes {
+  id?: number
+  href?: string
+  fileId?: string
+  fileName?: string
+  textLinkHref?: string
+  textLinkTarget?: string
+  showDownloadButton: boolean
+  downloadButtonText?: string
+  displayPreview?: boolean
+  previewHeight: number
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of FileAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface FileDeprecated3Attributes {
   id?: number
   href?: string
   fileName?: string

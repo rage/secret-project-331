@@ -39,8 +39,8 @@ const svgSquare = css`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
-const grey400WithHover = css`
-  background-color: ${baseTheme.colors.grey[200]};
+const gray400WithHover = css`
+  background-color: ${baseTheme.colors.gray[200]};
 
   :hover {
     filter: brightness(92%) contrast(110%);
@@ -48,8 +48,8 @@ const grey400WithHover = css`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
-const grey500WithHover = css`
-  background-color: ${baseTheme.colors.grey[300]};
+const gray500WithHover = css`
+  background-color: ${baseTheme.colors.gray[300]};
 
   :hover {
     filter: brightness(92%) contrast(110%);
@@ -59,14 +59,14 @@ const grey500WithHover = css`
 // eslint-disable-next-line i18next/no-literal-string
 const StyledIconDark = styled(FontAwesomeIcon)`
   font-size: 1rem;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.gray[700]};
   margin: 1.5rem;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const StyledIconLight = styled(FontAwesomeIcon)`
   font-size: 1rem;
-  color: ${baseTheme.colors.grey[100]};
+  color: ${baseTheme.colors.gray[100]};
   margin: 1.5rem;
 `
 
@@ -135,7 +135,7 @@ const ExerciseTaskEditor: React.FC<
           <div
             className={css`
               align-items: center;
-              background-color: ${baseTheme.colors.grey[100]};
+              background-color: ${baseTheme.colors.gray[100]};
               display: flex;
               flex: 1;
               font-family: ${primaryFont};
@@ -147,7 +147,7 @@ const ExerciseTaskEditor: React.FC<
             {t("task")}
           </div>
           <div
-            className={cx(svgSquare, grey500WithHover)}
+            className={cx(svgSquare, gray500WithHover)}
             onKeyDown={(e) => runCallbackIfEnterPressed(e, toggleEditor)}
             onClick={toggleEditor}
             role="button"
@@ -157,7 +157,7 @@ const ExerciseTaskEditor: React.FC<
             <StyledIconLight icon={attributes.show_editor ? faWindowClose : faPenSquare} />
           </div>
           <div
-            className={cx(svgSquare, grey400WithHover)}
+            className={cx(svgSquare, gray400WithHover)}
             onKeyDown={(e) => runCallbackIfEnterPressed(e, handleDeleteTask)}
             onClick={handleDeleteTask}
             role="button"

@@ -7,7 +7,7 @@ use headless_lms_models::{
     organizations::{self, Organization},
     PKeyPolicy,
 };
-use headless_lms_server::setup_tracing;
+use headless_lms_server::{domain::models_requests::JwtKey, setup_tracing};
 use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use tokio::sync::Mutex;
@@ -51,6 +51,11 @@ pub async fn init_db() -> String {
     db
 }
 
+pub fn make_jwt_key() -> JwtKey {
+    let test_jwt_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
+    JwtKey::new(test_jwt_key).unwrap()
+}
+
 /// Initialises the actix server for testing
 pub async fn init_actix() -> (
     impl actix_web::dev::Service<Request, Response = ServiceResponse<BoxBody>, Error = actix_web::Error>,
@@ -71,8 +76,11 @@ pub async fn init_actix() -> (
         base_url: "http://project-331.local".to_string(),
         development_uuid_login: false,
     };
+    let jwt_key = make_jwt_key();
     let app = App::new()
-        .configure(move |config| headless_lms_server::configure(config, file_store, app_conf))
+        .configure(move |config| {
+            headless_lms_server::configure(config, file_store, app_conf, jwt_key)
+        })
         .wrap(
             SessionMiddleware::builder(
                 CookieSessionStore::default(),

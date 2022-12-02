@@ -28,7 +28,7 @@ const Header = styled.div`
   padding: 1rem 0.5rem;
 
   h2 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     line-height: 1.2;
     text-transform: uppercase;
@@ -40,7 +40,7 @@ const Content = styled.div`
   background: rgba(229, 224, 241, 0.05);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  row-gap: 30px;
+  row-gap: 20px;
   column-gap: 5px;
   border-right: 1px solid #e5e0f1;
   border-left: 1px solid #e5e0f1;
@@ -57,7 +57,7 @@ const StyledObjectives = styled.div`
   grid-template-columns: 20px 1fr;
   span {
     margin-left: 15px;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1.3;
     font-style: normal;
     font-weight: 400;

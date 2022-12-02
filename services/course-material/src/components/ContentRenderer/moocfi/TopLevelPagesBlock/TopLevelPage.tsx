@@ -43,7 +43,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
               <h2
                 className={css`
                   font-family: ${headingFont};
-                  font-size: clamp(28px, 3.5vw, 46px);
+                  font-size: clamp(30px, 3.5vw, 46px);
                   font-weight: 700;
                   color: #1a2333;
                   text-align: center;
@@ -51,7 +51,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
                   opacity: 0.9;
                 `}
               >
-                {t("top-level-pages")}
+                {t("information-pages")}
               </h2>
               {getTopLevelPages.data.map((page, index) => {
                 const url = coursePageRoute(organizationSlug, courseSlug, page.url_path)

@@ -29,7 +29,7 @@ const itemInnerStyles = css`
   background-color: white;
   cursor: pointer;
   display: block;
-  color: ${baseTheme.colors.grey[500]};
+  color: ${baseTheme.colors.gray[500]};
   font-weight: 600;
   text-decoration: none;
   width: 100%;
@@ -48,10 +48,8 @@ const DropdownMenuItem: React.FC<
   if (item.href) {
     return (
       <li>
-        <Link href={item.href} passHref>
-          <a href="replace" className={itemInnerStyles}>
-            {item.label}
-          </a>
+        <Link href={item.href} className={itemInnerStyles}>
+          {item.label}
         </Link>
       </li>
     )

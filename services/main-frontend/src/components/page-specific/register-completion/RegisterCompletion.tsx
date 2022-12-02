@@ -102,12 +102,10 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
           margin: 1.5rem 0;
         `}
       >
-        <Link href={registrationFormUrl} passHref>
-          <a href={registrationFormUrl}>
-            <Button variant="primary" size="large">
-              {t("to-the-registration-form")}
-            </Button>
-          </a>
+        <Link href={registrationFormUrl}>
+          <Button variant="primary" size="large">
+            {t("to-the-registration-form")}
+          </Button>
         </Link>
       </div>
       <p>{t("bachelor-and-master-degree-students-from-university-of-helsinki-notice")}</p>

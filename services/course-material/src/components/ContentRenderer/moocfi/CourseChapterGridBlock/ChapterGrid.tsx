@@ -53,10 +53,10 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
           font-style: normal;
           font-weight: 700;
           text-align: center;
-          color: ${baseTheme.colors.grey[700]};
+          color: ${baseTheme.colors.gray[700]};
           padding-bottom: 0.6em;
           line-height: 140%;
-          font-size: clamp(28px, 3.5vw, 48px);
+          font-size: clamp(30px, 3.5vw, 48px);
         `}
       >
         {t("course-overview")}
@@ -93,7 +93,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
                       />
                       <div
                         className={css`
-                          margin: 1rem 1rem 0.3rem 1rem;
+                          margin: 1rem 1rem 0 1rem;
                           text-transform: uppercase;
                           font-size: 1rem;
                           font-weight: 500;

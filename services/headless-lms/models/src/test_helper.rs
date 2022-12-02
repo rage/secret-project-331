@@ -174,7 +174,7 @@ macro_rules! insert_data {
                 is_test_mode: false,
             },
             $user,
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -216,7 +216,7 @@ macro_rules! insert_data {
                 course_module_id: Some($course_module.id),
             },
             $user,
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -239,7 +239,7 @@ macro_rules! insert_data {
                 content_search_language: None,
             },
             $user,
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await

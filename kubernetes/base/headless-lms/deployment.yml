@@ -83,8 +83,6 @@ spec:
     metadata:
       annotations:
         linkerd.io/inject: enabled
-      labels:
-        waitToBeReady: "false"
     spec:
       containers:
         - name: headless-lms-run-migrations

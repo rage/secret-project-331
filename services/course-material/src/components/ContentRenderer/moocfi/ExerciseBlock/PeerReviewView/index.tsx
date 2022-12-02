@@ -35,7 +35,7 @@ const PeerReviewView: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = (
           text-align: center;
           margin-bottom: 1rem;
 
-          color: ${baseTheme.colors.grey[700]};
+          color: ${baseTheme.colors.gray[700]};
         `}
       >
         {t("title-peer-review")}

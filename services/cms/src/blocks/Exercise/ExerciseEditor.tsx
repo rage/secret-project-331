@@ -58,7 +58,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
               className={css`
                 font-family: ${primaryFont};
                 font-size: ${typography.h4};
-                color: ${baseTheme.colors.grey[500]};
+                color: ${baseTheme.colors.gray[500]};
                 font-weight: bold;
                 margin-bottom: 1.5rem;
               `}

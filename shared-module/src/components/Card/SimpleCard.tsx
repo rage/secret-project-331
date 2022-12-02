@@ -38,12 +38,16 @@ const CardContentWrapper = styled.div`
   position: relative;
   ${BackgroundStyles}
 
+  &:hover {
+    filter: brightness(1.1) contrast(0.9);
+  }
+
   h2 {
     z-index: 20;
     color: #fff;
     font-weight: 500;
     line-height: 100%;
-    font-size: clamp(30px, 2.7rem, 46px);
+    font-size: clamp(28px, 2.7rem, 46px);
   }
 
   span {

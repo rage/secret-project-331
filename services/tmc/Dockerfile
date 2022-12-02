@@ -8,10 +8,10 @@ WORKDIR /app
 
 COPY --chown=node package.json /app/
 COPY --chown=node package-lock.json /app/
-COPY --chown=node ./tmc-langs-cli-* /app/tmc-langs-cli
 
 RUN npm ci
 
+COPY --chown=node ./tmc-langs-cli-* /app/tmc-langs-cli
 COPY --chown=node . /app
 
 EXPOSE 3005

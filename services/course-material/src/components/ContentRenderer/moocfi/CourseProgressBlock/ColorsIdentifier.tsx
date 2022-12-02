@@ -9,7 +9,7 @@ interface CircleProps {
 }
 
 const Wrapper = styled.div`
-  margin-top: 2rem;
+  margin-top: 1.4rem;
   background: #fff;
   max-width: 100%;
   height: auto;
@@ -31,7 +31,7 @@ const IdentifierContainer = styled.div`
   align-items: center;
   width: auto;
   span {
-    color: ${baseTheme.colors.grey[600]};
+    color: ${baseTheme.colors.gray[600]};
     font-size: 15px;
     line-height: 1;
     font-family: ${headingFont};
@@ -39,7 +39,7 @@ const IdentifierContainer = styled.div`
   }
 `
 
-const ColoursIdentifier: React.FunctionComponent = () => {
+const ColorsIdentifier: React.FunctionComponent = () => {
   const { t } = useTranslation()
   return (
     <Wrapper>
@@ -61,4 +61,4 @@ const ColoursIdentifier: React.FunctionComponent = () => {
   )
 }
 
-export default ColoursIdentifier
+export default ColorsIdentifier

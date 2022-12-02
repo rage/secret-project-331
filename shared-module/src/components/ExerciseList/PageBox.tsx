@@ -14,7 +14,7 @@ const PageBoxRow = styled.div`
   position: relative;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.gray[700]};
   text-decoration: none;
   border-radius: 2px;
   background: #f2f5f7;

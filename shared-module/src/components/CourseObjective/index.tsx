@@ -24,14 +24,18 @@ const Wrapper = styled.div`
 
   h2 {
     z-index: 20;
-    width: 400px;
-    font-size: clamp(28px, 3.5vw, 48px);
+    width: 250px;
+    font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
     font-weight: 700;
     text-align: left;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
     line-height: 120%;
+
+    ${respondToOrLarger.md} {
+      width: 400px;
+    }
   }
 `
 
@@ -66,12 +70,11 @@ const TextBox = styled.div`
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
   min-height: 100%;
-  background: ${({ index }) => index === 1 && `#1a2333`};
+  background: ${({ index }) => (index === 1 ? `#1a2333` : `#f7f8f9`)};
   position: relative;
   overflow: hidden;
   display: grid;
-  border: ${({ index }) => (index === 1 ? `none` : `1px solid #babdc2 `)};
-  border-radius: 4px;
+  border: ${({ index }) => (index === 1 ? `none` : `2px solid #edf0f2`)};
   color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {

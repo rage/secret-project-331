@@ -10,7 +10,7 @@ import { ProgressBarExtraProps } from "."
 // eslint-disable-next-line i18next/no-literal-string
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
-  background: ${baseTheme.colors.yellow[200]};
+  background: ${baseTheme.colors.green[100]};
   border-radius: 100px;
   overflow: hidden;
   align-items: center;
@@ -41,7 +41,7 @@ const LinearProgressFill = styled.div<LinearProgressFillProps>`
   border-radius: 50px;
   width: ${(props) => props.percentage}%;
   background: ${(props) =>
-    props.light ? baseTheme.colors.green[100] : baseTheme.colors.green[600]};
+    props.light ? baseTheme.colors.yellow[200] : baseTheme.colors.green[600]};
   justify-content: end;
 
   ${respondToOrLarger.sm} {

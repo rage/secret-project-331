@@ -22,7 +22,7 @@ export interface NextSectionLinkExtraProps {
 }
 
 // eslint-disable-next-line i18next/no-literal-string
-const StyledLinkContent = styled.div`
+const StyledLink = styled(Link)`
   border: 1px solid ${baseTheme.colors.blue[200]};
   padding: 0.3rem 1rem;
   background: #fff;
@@ -38,7 +38,7 @@ const StyledLinkContent = styled.div`
     font-size: 15px;
     font-weight: 500;
     padding-left: 8px;
-    color: ${baseTheme.colors.blue[500]};
+    color: ${baseTheme.colors.blue[700]};
   }
 
   .arrow {
@@ -81,25 +81,18 @@ const NextSectionLink: React.FC<
       `}
     >
       {chapterFrontPageURL && (
-        <Link
-          className={css`
-            text-decoration: none;
-          `}
-          href={chapterFrontPageURL}
-        >
-          <StyledLinkContent>
-            <ArrowSVGIcon
-              id="up-svg-icon"
-              role="presentation"
-              alt=""
-              width="12"
-              height="12"
-              viewBox="0 0 39 39"
-              transform="rotate(270)"
-            />
-            <span>{t("chapter-front-page")}</span>
-          </StyledLinkContent>
-        </Link>
+        <StyledLink href={chapterFrontPageURL}>
+          <ArrowSVGIcon
+            id="up-svg-icon"
+            role="presentation"
+            alt=""
+            width="12"
+            height="12"
+            viewBox="0 0 39 39"
+            transform="rotate(270)"
+          />
+          <span>{t("chapter-front-page")}</span>
+        </StyledLink>
       )}
 
       <Fragment>

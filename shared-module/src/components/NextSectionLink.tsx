@@ -86,7 +86,6 @@ const NextSectionLink: React.FC<
             text-decoration: none;
           `}
           href={chapterFrontPageURL}
-          passHref
         >
           <StyledLinkContent>
             <ArrowSVGIcon

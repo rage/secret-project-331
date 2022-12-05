@@ -91,8 +91,6 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option, onDelete
     <>
       <OptionCard>
         <ChoiceTitle
-          contentEditable={true}
-          suppressContentEditableWarning={true}
           onInput={() => {
             // onTitleChange(event.target.innerText)
           }}

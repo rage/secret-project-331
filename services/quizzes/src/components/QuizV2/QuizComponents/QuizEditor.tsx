@@ -32,7 +32,7 @@ const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
     case "closed-ended-question":
       return <ClosedEndedQuestionEditor quizItem={quizItem} />
     case "matrix":
-      return <MatrixEditor quizItem={quizItem} />
+      return <MatrixEditor quizItemId={quizItem.id} />
     case "timeline":
       return <TimelineEditor quizItem={quizItem} />
     default:

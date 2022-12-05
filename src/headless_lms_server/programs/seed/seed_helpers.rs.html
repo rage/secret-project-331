@@ -465,11 +465,15 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
+    course_exams,
     exams::{<span class="self">self</span>, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{<span class="self">self</span>, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -857,8 +861,9 @@
     course_id: Uuid,
     exam_id: Uuid,
     teacher: Uuid,
+    minimum_points_treshold: i32,
     jwt_key: Arc&lt;JwtKey&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span>new_exam_id = exams::insert(
         conn,
         PKeyPolicy::Fixed(exam_id),
@@ -868,6 +873,7 @@
             ends_at,
             time_minutes,
             organization_id,
+            minimum_points_treshold,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -929,8 +935,8 @@
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    exams::set_course(conn, new_exam_id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(())
+    course_exams::upsert(conn, new_exam_id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(new_exam_id)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

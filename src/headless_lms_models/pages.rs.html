@@ -3310,6 +3310,7 @@
 <span id="3310">3310</span>
 <span id="3311">3311</span>
 <span id="3312">3312</span>
+<span id="3313">3313</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -6421,6 +6422,7 @@ WHERE pages.order_number = $1
                 ends_at: <span class="prelude-val">None</span>,
                 time_minutes: <span class="number">120</span>,
                 organization_id: org,
+                minimum_points_treshold: <span class="number">24</span>,
             },
         )
         .<span class="kw">await

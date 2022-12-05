@@ -528,13 +528,73 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
 <span class="kw">use </span>futures::try_join;
 <span class="kw">use </span>headless_lms_models::{
+    course_exams,
     course_instances::{<span class="self">self</span>, NewCourseInstance},
-    course_modules::{<span class="self">self</span>, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+    course_modules::{<span class="self">self</span>, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
     library::content_management::CreateNewCourseFixedIds,
     library::{
@@ -596,7 +656,7 @@
     <span class="comment">// Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
     </span><span class="kw">let </span>(
         (cs_intro, automatic_completions_id, introduction_to_localizing),
-        manual_completions_id,
+        (manual_completions_id, automatic_course_with_exam_id),
         ..,
     ) = <span class="macro">try_join!</span>(
         run_parallelly(courses_group_1(
@@ -638,15 +698,36 @@
     <span class="kw">let </span>automatic_default_module = course_modules::update_automatic_completion_status(
         <span class="kw-2">&amp;mut </span>conn,
         automatic_default_module.id,
-        <span class="kw-2">&amp;</span>AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_default_module.id,
             number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
             number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+            requires_exam: <span class="bool-val">false</span>,
         }),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     course_modules::update_uh_course_code(
         <span class="kw-2">&amp;mut </span>conn,
         automatic_default_module.id,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;EXAMPLE123&quot;</span>.to_string()),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>automatic_with_exam_default_module =
+        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, automatic_course_with_exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>automatic_with_exam_default_module = course_modules::update_automatic_completion_status(
+        <span class="kw-2">&amp;mut </span>conn,
+        automatic_with_exam_default_module.id,
+        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_with_exam_default_module.id,
+            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+            requires_exam: <span class="bool-val">true</span>,
+        }),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    course_modules::update_uh_course_code(
+        <span class="kw-2">&amp;mut </span>conn,
+        automatic_with_exam_default_module.id,
         <span class="prelude-val">Some</span>(<span class="string">&quot;EXAMPLE123&quot;</span>.to_string()),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -699,6 +780,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;7d6ed843-2a94-445b-8ced-ab3c67290ad0&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        <span class="number">0</span>,
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -712,6 +794,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;6959e7af-6b78-4d37-b381-eef5b7aaad6c&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        <span class="number">0</span>,
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -725,6 +808,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;8e202d37-3a26-4181-b9e4-0560b90c0ccb&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        <span class="number">0</span>,
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -738,6 +822,7 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;65f5c3f3-b5fd-478d-8858-a45cdcb16b86&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        <span class="number">0</span>,
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -751,7 +836,28 @@
         cs_intro,
         Uuid::parse_str(<span class="string">&quot;5c4fca1f-f0d6-471f-a0fd-eac552f5fb84&quot;</span>)<span class="question-mark">?</span>,
         teacher_user_id,
+        <span class="number">0</span>,
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>automatic_course_exam = create_exam(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="string">&quot;Automatic course exam&quot;</span>.to_string(),
+        <span class="prelude-val">Some</span>(Utc::now()),
+        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">10</span>)),
+        <span class="number">1</span>,
+        uh_cs_organization_id,
+        cs_intro,
+        Uuid::parse_str(<span class="string">&quot;b2168b2f-f721-4771-a35d-ca75ca0937b1&quot;</span>)<span class="question-mark">?</span>,
+        teacher_user_id,
+        <span class="number">0</span>,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    course_exams::upsert(
+        <span class="kw-2">&amp;mut </span>conn,
+        automatic_course_exam,
+        automatic_course_with_exam_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -880,7 +986,7 @@
     student_user_id: Uuid,
     example_normal_user_ids: Vec&lt;Uuid&gt;,
     jwt_key: Arc&lt;JwtKey&gt;,
-) -&gt; anyhow::Result&lt;Uuid&gt; {
+) -&gt; anyhow::Result&lt;(Uuid, Uuid)&gt; {
     seed_sample_course(
         <span class="kw-2">&amp;</span>db_pool,
         uh_cs_organization_id,
@@ -929,7 +1035,19 @@
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(manual_completions)
+    <span class="kw">let </span>automatic_exam_course_completions = seed_sample_course(
+        <span class="kw-2">&amp;</span>db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str(<span class="string">&quot;260b2157-94ad-4791-91c7-f236f203c338&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Automatic Course with Exam&quot;</span>,
+        <span class="string">&quot;automatic-course-with-exam&quot;</span>,
+        admin_user_id,
+        student_user_id,
+        <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((manual_completions, automatic_exam_course_completions))
 }
 
 <span class="kw">async fn </span>courses_group_3(

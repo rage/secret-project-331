@@ -184,6 +184,10 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 <span class="kw">use </span>url::Url;
@@ -192,7 +196,7 @@
     chapters::{<span class="self">self</span>, DatabaseChapter, NewChapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
-    course_modules::CourseModule,
+    course_modules::{CourseModule, NewCourseModule},
     courses::{<span class="self">self</span>, Course, NewCourse},
     exercise_service_info::ExerciseServiceInfoApi,
     pages::{<span class="self">self</span>, NewPage, Page},
@@ -281,8 +285,12 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Create default course module
-    </span><span class="kw">let </span>default_module =
-        <span class="kw">crate</span>::course_modules::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, course.id, <span class="prelude-val">None</span>, <span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    </span><span class="kw">let </span>default_module = <span class="kw">crate</span>::course_modules::insert(
+        <span class="kw-2">&amp;mut </span>tx,
+        PKeyPolicy::Generate,
+        <span class="kw-2">&amp;</span>NewCourseModule::new_course_default(course.id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Create course default peer review config
     </span><span class="kw">let </span>peer_review_config_id =

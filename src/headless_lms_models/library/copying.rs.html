@@ -910,6 +910,15 @@
 <span id="910">910</span>
 <span id="911">911</span>
 <span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1070,8 +1079,14 @@ WHERE id = $2;
 
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>parent_exam_org_and_lang = <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;SELECT language, organization_id FROM exams WHERE id = $1&quot;</span>,
+    <span class="kw">let </span>parent_exam_fields = <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT language,
+  organization_id,
+  minimum_points_treshold
+FROM exams
+WHERE id = $1
+        &quot;</span>,
         parent_exam.id
     )
     .fetch_one(<span class="kw-2">&amp;mut </span>tx)
@@ -1080,25 +1095,27 @@ WHERE id = $2;
     <span class="comment">// create new exam
     </span><span class="kw">let </span>copied_exam = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-    INSERT INTO exams(
-        name,
-        organization_id,
-        instructions,
-        starts_at,
-        ends_at,
-        language,
-        time_minutes
-      )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    RETURNING *;
+INSERT INTO exams(
+    name,
+    organization_id,
+    instructions,
+    starts_at,
+    ends_at,
+    language,
+    time_minutes,
+    minimum_points_treshold
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING *
         &quot;</span>,
         new_exam.name,
-        parent_exam_org_and_lang.organization_id,
+        parent_exam_fields.organization_id,
         parent_exam.instructions,
         new_exam.starts_at,
         new_exam.ends_at,
-        parent_exam_org_and_lang.language,
-        new_exam.time_minutes
+        parent_exam_fields.language,
+        new_exam.time_minutes,
+        parent_exam_fields.minimum_points_treshold,
     )
     .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1167,6 +1184,7 @@ WHERE id = $2;
         name: copied_exam.name,
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
+        minimum_points_treshold: copied_exam.minimum_points_treshold,
     })
 }
 

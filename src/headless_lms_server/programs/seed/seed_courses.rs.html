@@ -2361,10 +2361,6 @@
 <span id="2361">2361</span>
 <span id="2362">2362</span>
 <span id="2363">2363</span>
-<span id="2364">2364</span>
-<span id="2365">2365</span>
-<span id="2366">2366</span>
-<span id="2367">2367</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -2382,7 +2378,7 @@
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{<span class="self">self</span>, NewCourseInstance},
-    course_modules,
+    course_modules::{<span class="self">self</span>, NewCourseModule},
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
@@ -2579,9 +2575,7 @@
     <span class="kw">let </span>second_module = course_modules::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Generate,
-        course.id,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;Another module&quot;</span>),
-        <span class="number">1</span>,
+        <span class="kw-2">&amp;</span>NewCourseModule::new(course.id, <span class="prelude-val">Some</span>(<span class="string">&quot;Another module&quot;</span>.to_string()), <span class="number">1</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_chapter = NewChapter {
@@ -2631,9 +2625,7 @@
     <span class="kw">let </span>module = course_modules::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Generate,
-        course.id,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;Bonus module&quot;</span>),
-        <span class="number">2</span>,
+        <span class="kw-2">&amp;</span>NewCourseModule::new(course.id, <span class="prelude-val">Some</span>(<span class="string">&quot;Bonus module&quot;</span>.to_string()), <span class="number">2</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_chapter = NewChapter {

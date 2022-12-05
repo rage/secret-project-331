@@ -972,21 +972,38 @@
 <span id="972">972</span>
 <span id="973">973</span>
 <span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
 </pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{
+    course_exams,
     course_instance_enrollments::{<span class="self">self</span>, NewCourseInstanceEnrollment},
     course_instances::{<span class="self">self</span>, CourseInstance},
     course_module_completions::{
         <span class="self">self</span>, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    course_modules::{<span class="self">self</span>, CourseModule},
-    courses, open_university_registration_links,
+    course_modules::{<span class="self">self</span>, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
+    courses, exams, open_university_registration_links,
     prelude::<span class="kw-2">*</span>,
-    user_course_settings,
-    user_exercise_states::{<span class="self">self</span>, UserCourseInstanceMetrics},
+    user_course_settings, user_exercise_states,
     users::{<span class="self">self</span>, User},
 };
 
@@ -1046,14 +1063,14 @@
         <span class="comment">// If user already has a completion, do not attempt to create a new one.
         </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
     } <span class="kw">else </span>{
-        <span class="kw">let </span>user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+        <span class="kw">let </span>eligible = user_is_eligible_for_automatic_completion(
             conn,
+            course_module,
             course_instance_id,
-            course_module.id,
             user_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if </span>user_is_eligible_for_automatic_completion(course_module, <span class="kw-2">&amp;</span>user_metrics) {
+        <span class="kw">if </span>eligible {
             <span class="kw">let </span>course = courses::get_course(conn, course_module.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let </span>user = users::get_by_id(conn, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let </span>_completion_id = course_module_completions::insert(
@@ -1084,37 +1101,124 @@
     }
 }
 
-<span class="kw">fn </span>user_is_eligible_for_automatic_completion(
+<span class="attribute">#[instrument(skip(conn))]
+</span><span class="kw">async fn </span>user_is_eligible_for_automatic_completion(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_module: <span class="kw-2">&amp;</span>CourseModule,
-    user_course_instance_metrics: <span class="kw-2">&amp;</span>UserCourseInstanceMetrics,
-) -&gt; bool {
-    <span class="comment">// Count passes to make sure that at least one requirement exists.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>flags = <span class="number">0</span>;
-    <span class="kw">if </span>!course_module.automatic_completion {
-        <span class="kw">return </span><span class="bool-val">false</span>;
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">match </span><span class="kw-2">&amp;</span>course_module.completion_policy {
+        CompletionPolicy::Automatic(requirements) =&gt; {
+            <span class="kw">let </span>eligible = user_passes_automatic_completion_exercise_tresholds(
+                conn,
+                user_id,
+                requirements,
+                course_instance_id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">if </span>eligible {
+                <span class="kw">if </span>requirements.requires_exam {
+                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
+                        .<span class="kw">await
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
+                }
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
+            }
+        }
+        CompletionPolicy::Manual =&gt; <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
     }
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(attepted_treshold) =
-        course_module.automatic_completion_number_of_exercises_attempted_treshold
-    {
-        <span class="kw">if </span>user_course_instance_metrics
-            .attempted_exercises
-            .unwrap_or(<span class="number">0</span>)
-            &gt;= attepted_treshold.into()
-        {
-            flags += <span class="number">1</span>;
-        } <span class="kw">else </span>{
-            <span class="kw">return </span><span class="bool-val">false</span>;
+}
+
+<span class="doccomment">/// Checks whether the student can partake in an exam.
+///
+/// The result of this process depends on the configuration for the exam. If the exam is not linked
+/// to any course, the user will always be able to take it by default. Otherwise the student
+/// progress in their current selected instances is compared against any of the linked courses, and
+/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses have
+/// automatic completion configuration, the exam is once again allowed to be taken by default.
+</span><span class="attribute">#[instrument(skip(conn))]
+</span><span class="kw">pub async fn </span>user_can_take_exam(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>course_ids = course_exams::get_course_ids_by_exam_id(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>settings = user_course_settings::get_all_by_user_and_multiple_current_courses(
+        conn,
+        <span class="kw-2">&amp;</span>course_ids,
+        user_id,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// User can take the exam by default if course_ids is an empty array.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>can_take_exam = <span class="bool-val">true</span>;
+    <span class="kw">for </span>course_id <span class="kw">in </span>course_ids {
+        <span class="kw">let </span>default_module = course_modules::get_default_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if let </span>CompletionPolicy::Automatic(requirements) = <span class="kw-2">&amp;</span>default_module.completion_policy {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = settings.iter().find(|x| x.current_course_id == course_id) {
+                <span class="kw">let </span>eligible = user_passes_automatic_completion_exercise_tresholds(
+                    conn,
+                    s.user_id,
+                    requirements,
+                    s.current_course_instance_id,
+                )
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">if </span>eligible {
+                    <span class="comment">// Only one current instance needs to pass the tresholds.
+                    </span>can_take_exam = <span class="bool-val">true</span>;
+                    <span class="kw">break</span>;
+                }
+            }
+            <span class="comment">// If there is at least one associated course with requirements, make sure that the user
+            // passes one of them.
+            </span>can_take_exam = <span class="bool-val">false</span>;
         }
     }
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(points_treshold) = course_module.automatic_completion_number_of_points_treshold {
-        <span class="kw">if </span>user_course_instance_metrics.score_given.unwrap_or(<span class="number">0.0</span>) &gt;= points_treshold <span class="kw">as </span>f32 {
-            flags += <span class="number">1</span>;
-        } <span class="kw">else </span>{
-            <span class="kw">return </span><span class="bool-val">false</span>;
+    <span class="prelude-val">Ok</span>(can_take_exam)
+}
+
+<span class="doccomment">/// Returns true if there is at least one exam associated with the course, that has ended and the
+/// user has received enough points from it.
+</span><span class="kw">async fn </span>user_has_passed_exam_for_the_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>now = Utc::now();
+    <span class="kw">let </span>exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">for </span>exam_id <span class="kw">in </span>exam_ids {
+        <span class="kw">let </span>exam = exams::get(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if </span>exam.ended_at_or(now, <span class="bool-val">false</span>) {
+            <span class="kw">let </span>points =
+                user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">if </span>points &gt;= exam.minimum_points_treshold <span class="kw">as </span>f32 {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+            }
         }
     }
-    flags &gt; <span class="number">0
-</span>}
+    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
+}
+
+<span class="kw">async fn </span>user_passes_automatic_completion_exercise_tresholds(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    requirements: <span class="kw-2">&amp;</span>AutomaticCompletionRequirements,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+        conn,
+        course_instance_id,
+        requirements.course_module_id,
+        user_id,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>attempted_exercises: i32 = user_metrics.attempted_exercises.unwrap_or(<span class="number">0</span>) <span class="kw">as </span>i32;
+    <span class="kw">let </span>exercise_points = user_metrics.score_given.unwrap_or(<span class="number">0.0</span>) <span class="kw">as </span>i32;
+    <span class="kw">let </span>eligible = requirements.passes_exercise_tresholds(attempted_exercises, exercise_points);
+    <span class="prelude-val">Ok</span>(eligible)
+}
 
 <span class="doccomment">/// Fetches all course module completions for the given user on the given course and updates the
 /// prerequisite module completion statuses for any completions that are missing them.
@@ -1637,7 +1741,9 @@
     <span class="kw">mod </span>grant_automatic_completion_if_eligible {
         <span class="kw">use crate</span>::{
             chapters::NewChapter,
-            course_modules::{<span class="self">self</span>, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+            course_modules::{
+                <span class="self">self</span>, AutomaticCompletionRequirements, CompletionPolicy, NewCourseModule,
+            },
             exercises::{<span class="self">self</span>, ActivityProgress, GradingProgress},
             library::content_management,
             user_exercise_states::{<span class="self">self</span>, ReviewingStage, UserExerciseStateUpdate},
@@ -1747,21 +1853,21 @@
         <span class="kw">async fn </span>create_test_data(
             <span class="kw-2">mut </span>tx: Tx&lt;<span class="lifetime">&#39;_</span>&gt;,
         ) -&gt; (Tx&lt;<span class="lifetime">&#39;_</span>&gt;, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
+            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             <span class="kw">let </span>automatic_completion_policy =
-                AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+                CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: course_module.id,
                     number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">0</span>),
                     number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">0</span>),
+                    requires_exam: <span class="bool-val">false</span>,
                 });
-            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, <span class="number">1</span>)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>course_module_2 = course_modules::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
-                course,
-                <span class="prelude-val">Some</span>(<span class="string">&quot;Module 2&quot;</span>),
-                <span class="number">1</span>,
+                <span class="kw-2">&amp;</span>NewCourseModule::new(course, <span class="prelude-val">Some</span>(<span class="string">&quot;Module 2&quot;</span>.to_string()), <span class="number">1</span>),
             )
             .<span class="kw">await
             </span>.unwrap();
@@ -1872,79 +1978,7 @@
         }
     }
 
-    <span class="kw">mod </span>automatic_completion_validation {
-        <span class="kw">use </span>chrono::TimeZone;
-
-        <span class="kw">use super</span>::<span class="kw-2">*</span>;
-
-        <span class="attribute">#[test]
-        </span><span class="kw">fn </span>doesnt_give_completion_if_automatic_completions_are_not_enabled() {
-            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(!user_is_eligible_for_automatic_completion(
-                <span class="kw-2">&amp;</span>course_module,
-                <span class="kw-2">&amp;</span>user_metrics
-            ));
-        }
-
-        <span class="attribute">#[test]
-        </span><span class="kw">fn </span>doesnt_give_completion_if_no_tresholds_are_defined() {
-            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">true</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
-            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(!user_is_eligible_for_automatic_completion(
-                <span class="kw-2">&amp;</span>course_module,
-                <span class="kw-2">&amp;</span>user_metrics
-            ));
-        }
-
-        <span class="attribute">#[test]
-        </span><span class="kw">fn </span>gives_completion_if_exercises_attempted_treshold_is_met() {
-            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
-            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(user_is_eligible_for_automatic_completion(
-                <span class="kw-2">&amp;</span>course_module,
-                <span class="kw-2">&amp;</span>user_metrics
-            ));
-        }
-
-        <span class="attribute">#[test]
-        </span><span class="kw">fn </span>gives_completion_if_points_treshold_is_met() {
-            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">true</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(user_is_eligible_for_automatic_completion(
-                <span class="kw-2">&amp;</span>course_module,
-                <span class="kw-2">&amp;</span>user_metrics
-            ));
-        }
-
-        <span class="kw">fn </span>create_course_module(
-            automatic_completion: bool,
-            exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-            number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-        ) -&gt; CourseModule {
-            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).unwrap();
-            <span class="kw">let </span>timestamp = Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">27</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
-            <span class="kw">let </span><span class="kw-2">mut </span>course_module =
-                CourseModule::new(id, id).set_timestamps(timestamp, timestamp, <span class="prelude-val">None</span>);
-            course_module.automatic_completion = automatic_completion;
-            course_module.automatic_completion_number_of_exercises_attempted_treshold =
-                exercises_attempted_treshold;
-            course_module.automatic_completion_number_of_points_treshold =
-                number_of_points_treshold;
-            course_module
-        }
-
-        <span class="kw">fn </span>create_user_course_instance_metrics(
-            score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
-            attempted_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
-        ) -&gt; UserCourseInstanceMetrics {
-            UserCourseInstanceMetrics {
-                course_module_id: Uuid::parse_str(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).unwrap(),
-                score_given,
-                attempted_exercises,
-            }
-        }
-    }
-}
+    <span class="comment">// TODO: New automatic completion tests?
+</span>}
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

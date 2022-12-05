@@ -587,9 +587,116 @@
 <span id="587">587</span>
 <span id="588">588</span>
 <span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{chapters, prelude::<span class="kw-2">*</span>};
+
+<span class="kw">struct </span>CourseModulesSchema {
+    id: Uuid,
+    created_at: DateTime&lt;Utc&gt;,
+    updated_at: DateTime&lt;Utc&gt;,
+    deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    course_id: Uuid,
+    order_number: i32,
+    copied_from: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    automatic_completion: bool,
+    automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    automatic_completion_number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    automatic_completion_requires_exam: bool,
+    completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+}
 
 <span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -603,9 +710,7 @@
     <span class="kw">pub </span>order_number: i32,
     <span class="kw">pub </span>copied_from: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     <span class="kw">pub </span>uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>automatic_completion: bool,
-    <span class="kw">pub </span>automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    <span class="kw">pub </span>automatic_completion_number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>completion_policy: CompletionPolicy,
     <span class="doccomment">/// If set, use this link rather than the default one when registering course completions.
     </span><span class="kw">pub </span>completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
@@ -623,9 +728,7 @@
             order_number: <span class="number">0</span>,
             copied_from: <span class="prelude-val">None</span>,
             uh_course_code: <span class="prelude-val">None</span>,
-            automatic_completion: <span class="bool-val">false</span>,
-            automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-val">None</span>,
-            automatic_completion_number_of_points_treshold: <span class="prelude-val">None</span>,
+            completion_policy: CompletionPolicy::Manual,
             completion_registration_link_override: <span class="prelude-val">None</span>,
             ects_credits: <span class="prelude-val">None</span>,
         }
@@ -649,15 +752,8 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>set_completion_policy(
-        <span class="kw-2">mut </span><span class="self">self</span>,
-        automatic_completion_policy: <span class="kw-2">&amp;</span>AutomaticCompletionPolicy,
-    ) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>(automatic_completion, exercises_treshold, points_treshold) =
-            automatic_completion_policy.to_database_fields();
-        <span class="self">self</span>.automatic_completion = automatic_completion;
-        <span class="self">self</span>.automatic_completion_number_of_exercises_attempted_treshold = exercises_treshold;
-        <span class="self">self</span>.automatic_completion_number_of_points_treshold = points_treshold;
+    <span class="kw">pub fn </span>set_completion_policy(<span class="kw-2">mut </span><span class="self">self</span>, completion_policy: CompletionPolicy) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.completion_policy = completion_policy;
         <span class="self">self
     </span>}
 
@@ -678,73 +774,125 @@
     }
 }
 
-<span class="kw">pub struct </span>AutomaticCompletionRequirements {
-    <span class="kw">pub </span>uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="kw">pub </span>automatic_completion: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    <span class="kw">pub </span>automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    <span class="kw">pub </span>automatic_completion_number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+<span class="kw">impl </span>From&lt;CourseModulesSchema&gt; <span class="kw">for </span>CourseModule {
+    <span class="kw">fn </span>from(schema: CourseModulesSchema) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>completion_policy = <span class="kw">if </span>schema.automatic_completion {
+            CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                course_module_id: schema.id,
+                number_of_exercises_attempted_treshold: schema
+                    .automatic_completion_number_of_exercises_attempted_treshold,
+                number_of_points_treshold: schema.automatic_completion_number_of_points_treshold,
+                requires_exam: schema.automatic_completion_requires_exam,
+            })
+        } <span class="kw">else </span>{
+            CompletionPolicy::Manual
+        };
+        <span class="self">Self </span>{
+            id: schema.id,
+            created_at: schema.created_at,
+            updated_at: schema.updated_at,
+            deleted_at: schema.deleted_at,
+            name: schema.name,
+            course_id: schema.course_id,
+            order_number: schema.order_number,
+            copied_from: schema.copied_from,
+            uh_course_code: schema.uh_course_code,
+            completion_policy,
+            completion_registration_link_override: schema.completion_registration_link_override,
+            ects_credits: schema.ects_credits,
+        }
+    }
+}
+
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewCourseModule {
+    completion_policy: CompletionPolicy,
+    completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    course_id: Uuid,
+    ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    order_number: i32,
+    uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
+}
+
+<span class="kw">impl </span>NewCourseModule {
+    <span class="kw">pub fn </span>new(course_id: Uuid, name: <span class="prelude-ty">Option</span>&lt;String&gt;, order_number: i32) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            completion_policy: CompletionPolicy::Manual,
+            completion_registration_link_override: <span class="prelude-val">None</span>,
+            course_id,
+            ects_credits: <span class="prelude-val">None</span>,
+            name,
+            order_number,
+            uh_course_code: <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">pub fn </span>new_course_default(course_id: Uuid) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(course_id, <span class="prelude-val">None</span>, <span class="number">0</span>)
+    }
+
+    <span class="kw">pub fn </span>set_uh_course_code(<span class="kw-2">mut </span><span class="self">self</span>, uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.uh_course_code = uh_course_code;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>set_completion_policy(<span class="kw-2">mut </span><span class="self">self</span>, completion_policy: CompletionPolicy) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.completion_policy = completion_policy;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>set_completion_registration_link_override(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.completion_registration_link_override = completion_registration_link_override;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>set_ects_credits(<span class="kw-2">mut </span><span class="self">self</span>, ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.ects_credits = ects_credits;
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">pub async fn </span>insert(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     pkey_policy: PKeyPolicy&lt;Uuid&gt;,
-    course_id: Uuid,
-    name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-    order_number: i32,
+    new_course_module: <span class="kw-2">&amp;</span>NewCourseModule,
 ) -&gt; ModelResult&lt;CourseModule&gt; {
+    <span class="kw">let </span>(automatic_completion, exercises_treshold, points_treshold, requires_exam) =
+        new_course_module.completion_policy.to_database_fields();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+        CourseModulesSchema,
         <span class="string">&quot;
-INSERT INTO course_modules (id, course_id, name, order_number)
-VALUES ($1, $2, $3, $4)
+INSERT INTO course_modules (
+    id,
+    course_id,
+    name,
+    order_number,
+    automatic_completion,
+    automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_number_of_points_treshold,
+    automatic_completion_requires_exam
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
         &quot;</span>,
         pkey_policy.into_uuid(),
-        course_id,
-        name,
-        order_number,
+        new_course_module.course_id,
+        new_course_module.name,
+        new_course_module.order_number,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        requires_exam,
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="prelude-val">Ok</span>(res.into())
 }
-
-<span class="kw">pub async fn </span>insert_with_automatic_completion(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    course_id: Uuid,
-    name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-    order_number: i32,
-    completion_requirements: AutomaticCompletionRequirements,
-) -&gt; ModelResult&lt;CourseModule&gt; {
-    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
-        <span class="string">&quot;
-INSERT INTO course_modules (course_id, name, order_number, uh_course_code, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING *
-&quot;</span>,
-        course_id,
-        name,
-        order_number,
-        completion_requirements.uh_course_code,
-        completion_requirements.ects_credits,
-        completion_requirements.automatic_completion,
-        completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
-        completion_requirements.automatic_completion_number_of_points_treshold,
-    )
-    .fetch_one(conn)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
-}
-
-<span class="kw">pub async fn </span>insert_default_for_course(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
-    course_id: Uuid,
-) -&gt; ModelResult&lt;CourseModule&gt; {
-    insert(conn, pkey_policy, course_id, <span class="prelude-val">None</span>, <span class="number">0</span>).<span class="kw">await
-</span>}
 
 <span class="kw">pub async fn </span>rename(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid, name: <span class="kw-2">&amp;</span>str) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
@@ -788,7 +936,7 @@ WHERE id = $1
 
 <span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;CourseModule&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+        CourseModulesSchema,
         <span class="string">&quot;
 SELECT *
 FROM course_modules
@@ -799,15 +947,15 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="prelude-val">Ok</span>(res.into())
 }
 
 <span class="kw">pub async fn </span>get_by_course_id(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
 ) -&gt; ModelResult&lt;Vec&lt;CourseModule&gt;&gt; {
-    <span class="kw">let </span>modules = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModulesSchema,
         <span class="string">&quot;
 SELECT *
 FROM course_modules
@@ -816,9 +964,10 @@ AND deleted_at IS NULL
 &quot;</span>,
         course_id
     )
+    .map(|x| x.into())
     .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(modules)
+    <span class="prelude-val">Ok</span>(res)
 }
 
 <span class="doccomment">/// Gets course module where the given exercise belongs to. This will result in an error in the case
@@ -828,7 +977,7 @@ AND deleted_at IS NULL
     exercise_id: Uuid,
 ) -&gt; ModelResult&lt;CourseModule&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+        CourseModulesSchema,
         <span class="string">&quot;
 SELECT course_modules.*
 FROM exercises
@@ -842,7 +991,7 @@ AND course_modules.deleted_at IS NULL
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="prelude-val">Ok</span>(res.into())
 }
 
 <span class="kw">pub async fn </span>get_default_by_course_id(
@@ -850,7 +999,7 @@ AND course_modules.deleted_at IS NULL
     course_id: Uuid,
 ) -&gt; ModelResult&lt;CourseModule&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+        CourseModulesSchema,
         <span class="string">&quot;
 SELECT *
 FROM course_modules
@@ -863,7 +1012,7 @@ WHERE course_id = $1
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="prelude-val">Ok</span>(res.into())
 }
 
 <span class="doccomment">/// Gets all course modules with a matching `uh_course_code` or course `slug`.
@@ -923,25 +1072,71 @@ WHERE uh_course_code IS NOT NULL
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub struct </span>AutomaticCompletionCriteria {
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>AutomaticCompletionRequirements {
+    <span class="doccomment">/// Course module associated with these requirements.
+    </span><span class="kw">pub </span>course_module_id: Uuid,
     <span class="kw">pub </span>number_of_exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>requires_exam: bool,
 }
 
-<span class="kw">pub enum </span>AutomaticCompletionPolicy {
-    AutomaticCompletion(AutomaticCompletionCriteria),
-    NoAutomaticCompletion,
+<span class="kw">impl </span>AutomaticCompletionRequirements {
+    <span class="doccomment">/// Shorthand for checking whether the given exercise related values pass their respective
+    /// tresholds.
+    </span><span class="kw">pub fn </span>passes_exercise_tresholds(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        exercises_attempted: i32,
+        exercise_points: i32,
+    ) -&gt; bool {
+        <span class="self">self</span>.passes_number_of_exercises_attempted_treshold(exercises_attempted)
+            &amp;&amp; <span class="self">self</span>.passes_number_of_exercise_points_treshold(exercise_points)
+    }
+
+    <span class="doccomment">/// Whether the given number is higher than the exercises attempted treshold. Always returns
+    /// true if there is no treshold.
+    </span><span class="kw">pub fn </span>passes_number_of_exercises_attempted_treshold(<span class="kw-2">&amp;</span><span class="self">self</span>, exercises_attempted: i32) -&gt; bool {
+        <span class="self">self</span>.number_of_points_treshold
+            .map(|x| x &lt;= exercises_attempted)
+            .unwrap_or(<span class="bool-val">true</span>)
+    }
+
+    <span class="doccomment">/// Whether the given number is higher than the exercise points treshold. Always returns true
+    /// if there is no treshold.
+    </span><span class="kw">pub fn </span>passes_number_of_exercise_points_treshold(<span class="kw-2">&amp;</span><span class="self">self</span>, exercise_points: i32) -&gt; bool {
+        <span class="self">self</span>.number_of_points_treshold
+            .map(|x| x &lt;= exercise_points)
+            .unwrap_or(<span class="bool-val">true</span>)
+    }
 }
 
-<span class="kw">impl </span>AutomaticCompletionPolicy {
-    <span class="kw">fn </span>to_database_fields(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (bool, <span class="prelude-ty">Option</span>&lt;i32&gt;, <span class="prelude-ty">Option</span>&lt;i32&gt;) {
+<span class="attribute">#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[serde(tag = <span class="string">&quot;policy&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub enum </span>CompletionPolicy {
+    Automatic(AutomaticCompletionRequirements),
+    Manual,
+}
+
+<span class="kw">impl </span>CompletionPolicy {
+    <span class="doccomment">/// Returns associated data for `Automatic` variant, if matches.
+    </span><span class="kw">pub fn </span>automatic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>AutomaticCompletionRequirements&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            AutomaticCompletionPolicy::AutomaticCompletion(criteria) =&gt; (
+            CompletionPolicy::Automatic(requirements) =&gt; <span class="prelude-val">Some</span>(requirements),
+            CompletionPolicy::Manual =&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">fn </span>to_database_fields(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (bool, <span class="prelude-ty">Option</span>&lt;i32&gt;, <span class="prelude-ty">Option</span>&lt;i32&gt;, bool) {
+        <span class="kw">match </span><span class="self">self </span>{
+            CompletionPolicy::Automatic(requirements) =&gt; (
                 <span class="bool-val">true</span>,
-                criteria.number_of_exercises_attempted_treshold,
-                criteria.number_of_points_treshold,
+                requirements.number_of_exercises_attempted_treshold,
+                requirements.number_of_points_treshold,
+                requirements.requires_exam,
             ),
-            AutomaticCompletionPolicy::NoAutomaticCompletion =&gt; (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
+            CompletionPolicy::Manual =&gt; (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
         }
     }
 }
@@ -949,29 +1144,31 @@ WHERE uh_course_code IS NOT NULL
 <span class="kw">pub async fn </span>update_automatic_completion_status(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     id: Uuid,
-    automatic_completion_policy: <span class="kw-2">&amp;</span>AutomaticCompletionPolicy,
+    automatic_completion_policy: <span class="kw-2">&amp;</span>CompletionPolicy,
 ) -&gt; ModelResult&lt;CourseModule&gt; {
-    <span class="kw">let </span>(automatic_completion, exercises_treshold, points_treshold) =
+    <span class="kw">let </span>(automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         automatic_completion_policy.to_database_fields();
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+        CourseModulesSchema,
         <span class="string">&quot;
 UPDATE course_modules
 SET automatic_completion = $1,
   automatic_completion_number_of_exercises_attempted_treshold = $2,
-  automatic_completion_number_of_points_treshold = $3
-WHERE id = $4
+  automatic_completion_number_of_points_treshold = $3,
+  automatic_completion_requires_exam = $4
+WHERE id = $5
   AND deleted_at IS NULL
 RETURNING *
         &quot;</span>,
         automatic_completion,
         exercises_treshold,
         points_treshold,
+        requires_exam,
         id,
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="prelude-val">Ok</span>(res.into())
 }
 
 <span class="kw">pub async fn </span>update_uh_course_code(
@@ -980,7 +1177,7 @@ RETURNING *
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
 ) -&gt; ModelResult&lt;CourseModule&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
-        CourseModule,
+        CourseModulesSchema,
         <span class="string">&quot;
 UPDATE course_modules
 SET uh_course_code = $1
@@ -993,7 +1190,7 @@ RETURNING *
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="prelude-val">Ok</span>(res.into())
 }
 
 <span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -1004,9 +1201,7 @@ RETURNING *
     chapters: Vec&lt;Uuid&gt;,
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
     ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    automatic_completion: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    automatic_completion_number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -1018,9 +1213,7 @@ RETURNING *
     order_number: i32,
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
     ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    automatic_completion: <span class="prelude-ty">Option</span>&lt;bool&gt;,
-    automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    automatic_completion_number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -1058,33 +1251,34 @@ WHERE id = $3
 <span class="kw">pub async fn </span>update(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     id: Uuid,
-    name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
-    order_number: i32,
-    completion_requirements: AutomaticCompletionRequirements,
-    completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    updated_course_module: <span class="kw-2">&amp;</span>NewCourseModule,
 ) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span>(automatic_completion, exercises_treshold, points_treshold, requires_exam) =
+        updated_course_module.completion_policy.to_database_fields();
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE course_modules
-SET name = COALESCE($1, name),
-  order_number = $2,
+SET name = COALESCE($2, name),
+  order_number = $3,
   uh_course_code = $4,
   ects_credits = $5,
   automatic_completion = $6,
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
-  completion_registration_link_override = $9
-WHERE id = $3
-&quot;</span>,
-        name,
-        order_number,
+  automatic_completion_requires_exam = $9,
+  completion_registration_link_override = $10
+WHERE id = $1
+        &quot;</span>,
         id,
-        completion_requirements.uh_course_code,
-        completion_requirements.ects_credits,
-        completion_requirements.automatic_completion,
-        completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
-        completion_requirements.automatic_completion_number_of_points_treshold,
-        completion_registration_link_override,
+        updated_course_module.name,
+        updated_course_module.order_number,
+        updated_course_module.uh_course_code,
+        updated_course_module.ects_credits,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        requires_exam,
+        updated_course_module.completion_registration_link_override,
     )
     .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1112,22 +1306,15 @@ WHERE id = $3
     <span class="kw">let </span><span class="kw-2">mut </span>modified_and_new_modules = updates.modified_modules;
     <span class="kw">for </span>new <span class="kw">in </span>updates.new_modules {
         <span class="comment">// insert with a random order number to avoid conflicts
-        </span><span class="kw">let </span>module = insert_with_automatic_completion(
-            <span class="kw-2">&amp;mut </span>tx,
-            course_id,
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>new.name),
-            rand::random(),
-            AutomaticCompletionRequirements {
-                uh_course_code: new.uh_course_code,
-                ects_credits: new.ects_credits,
-                automatic_completion: new.automatic_completion,
-                automatic_completion_number_of_exercises_attempted_treshold: new
-                    .automatic_completion_number_of_exercises_attempted_treshold,
-                automatic_completion_number_of_points_treshold: new
-                    .automatic_completion_number_of_points_treshold,
-            },
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        </span><span class="kw">let </span>new_course_module =
+            NewCourseModule::new(course_id, <span class="prelude-val">Some</span>(new.name.clone()), rand::random())
+                .set_completion_policy(new.completion_policy.clone())
+                .set_completion_registration_link_override(
+                    new.completion_registration_link_override,
+                )
+                .set_ects_credits(new.ects_credits)
+                .set_uh_course_code(new.uh_course_code);
+        <span class="kw">let </span>module = insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, <span class="kw-2">&amp;</span>new_course_module).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">for </span>chapter <span class="kw">in </span>new.chapters {
             chapters::set_module(<span class="kw-2">&amp;mut </span>tx, chapter, module.id).<span class="kw">await</span><span class="question-mark">?</span>;
         }
@@ -1138,11 +1325,7 @@ WHERE id = $3
             order_number: new.order_number,
             uh_course_code: module.uh_course_code,
             ects_credits: new.ects_credits,
-            automatic_completion: new.automatic_completion,
-            automatic_completion_number_of_exercises_attempted_treshold: new
-                .automatic_completion_number_of_exercises_attempted_treshold,
-            automatic_completion_number_of_points_treshold: new
-                .automatic_completion_number_of_points_treshold,
+            completion_policy: new.completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
         })
     }
@@ -1151,18 +1334,13 @@ WHERE id = $3
         update(
             <span class="kw-2">&amp;mut </span>tx,
             module.id,
-            module.name.as_deref(),
-            module.order_number,
-            AutomaticCompletionRequirements {
-                uh_course_code: module.uh_course_code,
-                ects_credits: module.ects_credits,
-                automatic_completion: module.automatic_completion,
-                automatic_completion_number_of_exercises_attempted_treshold: module
-                    .automatic_completion_number_of_exercises_attempted_treshold,
-                automatic_completion_number_of_points_treshold: module
-                    .automatic_completion_number_of_points_treshold,
-            },
-            module.completion_registration_link_override,
+            <span class="kw-2">&amp;</span>NewCourseModule::new(course_id, module.name.clone(), module.order_number)
+                .set_completion_policy(module.completion_policy)
+                .set_completion_registration_link_override(
+                    module.completion_registration_link_override,
+                )
+                .set_ects_credits(module.ects_credits)
+                .set_uh_course_code(module.uh_course_code),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }

@@ -207,6 +207,16 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Duration, Utc};
 <span class="kw">use </span>models::{
     exams::{<span class="self">self</span>, ExamEnrollment},
@@ -246,23 +256,29 @@ POST /api/v0/course-material/exams/:id/enroll
 
     <span class="comment">// check that the exam is not over
     </span><span class="kw">let </span>now = Utc::now();
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(ends_at) = exam.ends_at {
-        <span class="kw">if </span>ends_at &lt; now {
+    <span class="kw">if </span>exam.ended_at_or(now, <span class="bool-val">false</span>) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            <span class="string">&quot;Exam is over&quot;</span>.to_string(),
+            <span class="prelude-val">None</span>,
+        ));
+    }
+
+    <span class="kw">if </span>exam.started_at_or(now, <span class="bool-val">false</span>) {
+        <span class="comment">// This check should probably be handled in the authorize function but I&#39;m not sure of
+        // the proper action type.
+        </span><span class="kw">let </span>can_start =
+            models::library::progressing::user_can_take_exam(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if </span>!can_start {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Forbidden,
-                <span class="string">&quot;Exam is over&quot;</span>.to_string(),
+                <span class="string">&quot;User is not allowed to enroll to the exam.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
-    }
-
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(starts_at) = exam.starts_at {
-        <span class="kw">if </span>now &gt; starts_at {
-            exams::enroll(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="comment">// Anyone should be able to start an exam.
-            </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
-            <span class="kw">return </span>token.authorized_ok(web::Json(()));
-        }
+        exams::enroll(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+        <span class="kw">return </span>token.authorized_ok(web::Json(()));
     }
 
     <span class="comment">// no start time defined or it&#39;s still upcoming
@@ -295,7 +311,9 @@ POST /api/v0/course-material/exams/:id/enroll
         page: Box&lt;Page&gt;,
         enrollment: ExamEnrollment,
     },
-    NotEnrolled,
+    NotEnrolled {
+        can_enroll: bool,
+    },
     NotYetStarted,
     StudentTimeUp,
 }
@@ -373,6 +391,8 @@ GET /api/v0/course-material/exams/:id
     } <span class="kw">else </span>{
         <span class="comment">// user has not started the exam
         </span><span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>can_enroll =
+            models::library::progressing::user_can_take_exam(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">return </span>token.authorized_ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
@@ -381,7 +401,7 @@ GET /api/v0/course-material/exams/:id
             ends_at,
             ended,
             time_minutes: exam.time_minutes,
-            enrollment_data: ExamEnrollmentData::NotEnrolled,
+            enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll },
         }));
     };
 

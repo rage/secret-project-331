@@ -228,9 +228,15 @@
 <span id="228">228</span>
 <span id="229">229</span>
 <span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><pre class="rust"><code><span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>chrono::Utc;
-<span class="kw">use </span>models::exams::{<span class="self">self</span>, Exam, NewExam};
+<span class="kw">use </span>models::{
+    course_exams,
+    exams::{<span class="self">self</span>, Exam, NewExam},
+};
 <span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
 
 <span class="kw">use crate</span>::{
@@ -276,7 +282,7 @@ POST `/api/v0/main-frontend/exams/:id/set`
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    exams::set_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, exam.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    course_exams::upsert(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, exam.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(()))
 }
@@ -295,7 +301,7 @@ POST `/api/v0/main-frontend/exams/:id/unset`
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    exams::unset_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, exam.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    course_exams::delete(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, exam.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(()))
 }

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { downloadToString } from "../../utils/download"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -114,4 +115,14 @@ test("test", async ({ headless, page }) => {
     page,
     beforeScreenshot: () => page.locator("text=User1").scrollIntoViewIfNeeded(),
   })
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Export completions as CSV)" }).click(),
+  ])
+
+  const completionsCsvContents = await downloadToString(download)
+  expect(completionsCsvContents).toContain("user_id,first_name,last_name,email")
+  expect(completionsCsvContents).toContain("user_2@example.com,4,false,-,,-,")
+  expect(completionsCsvContents).toContain("user_3@example.com,4,false,pass,false,-,")
 })

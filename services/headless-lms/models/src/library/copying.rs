@@ -158,8 +158,14 @@ pub async fn copy_exam(
 
     let mut tx = conn.begin().await?;
 
-    let parent_exam_org_and_lang = sqlx::query!(
-        "SELECT language, organization_id FROM exams WHERE id = $1",
+    let parent_exam_fields = sqlx::query!(
+        "
+SELECT language,
+  organization_id,
+  minimum_points_treshold
+FROM exams
+WHERE id = $1
+        ",
         parent_exam.id
     )
     .fetch_one(&mut tx)
@@ -168,25 +174,27 @@ pub async fn copy_exam(
     // create new exam
     let copied_exam = sqlx::query!(
         "
-    INSERT INTO exams(
-        name,
-        organization_id,
-        instructions,
-        starts_at,
-        ends_at,
-        language,
-        time_minutes
-      )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    RETURNING *;
+INSERT INTO exams(
+    name,
+    organization_id,
+    instructions,
+    starts_at,
+    ends_at,
+    language,
+    time_minutes,
+    minimum_points_treshold
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING *
         ",
         new_exam.name,
-        parent_exam_org_and_lang.organization_id,
+        parent_exam_fields.organization_id,
         parent_exam.instructions,
         new_exam.starts_at,
         new_exam.ends_at,
-        parent_exam_org_and_lang.language,
-        new_exam.time_minutes
+        parent_exam_fields.language,
+        new_exam.time_minutes,
+        parent_exam_fields.minimum_points_treshold,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -255,6 +263,7 @@ WHERE id = $2;
         name: copied_exam.name,
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
+        minimum_points_treshold: copied_exam.minimum_points_treshold,
     })
 }
 

@@ -7,6 +7,7 @@ import { baseTheme } from "../../shared-module/styles"
 
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>
+  canStartExam: boolean
   examHasStarted: boolean
   examHasEnded: boolean
   timeMinutes: number
@@ -14,6 +15,7 @@ export interface ExamInstructionsProps {
 
 const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> = ({
   onStart,
+  canStartExam,
   examHasStarted,
   examHasEnded,
   timeMinutes,
@@ -67,6 +69,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
         >
           {children}
         </p>
+        {!canStartExam && <p>{t("you-are-not-eligible-for-taking-this-exam")}</p>}
         <div
           className={css`
             text-align: center;
@@ -74,7 +77,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
         >
           <Button
             onClick={handleStart}
-            disabled={!examHasStarted || examHasEnded || disabled}
+            disabled={!examHasStarted || examHasEnded || !canStartExam || disabled}
             variant="primary"
             size="medium"
           >

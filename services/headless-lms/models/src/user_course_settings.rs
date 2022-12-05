@@ -96,6 +96,38 @@ WHERE c.id = $1
     Ok(user_course_settings)
 }
 
+/// Gets all of the user's course settings that have their current course id included in the provided
+/// list.
+///
+/// The distinction for current courses is stated, because multiple courses can share the same
+/// course settings if they are different language versions of each other. Course settings that may
+/// exist for inactive courses will be omited. This behavior can be desireable in some cases, and
+/// should not be changed.
+///
+/// Note that this function doesn't create any settings that are missing for the user, so the amount
+/// of results may be less than the amount of courses provided.
+pub async fn get_all_by_user_and_multiple_current_courses(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+    user_id: Uuid,
+) -> ModelResult<Vec<UserCourseSettings>> {
+    let res = sqlx::query_as!(
+        UserCourseSettings,
+        "
+SELECT *
+FROM user_course_settings
+WHERE current_course_id = ANY($1)
+  AND user_id = $2
+  AND deleted_at IS NULL
+        ",
+        course_ids,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

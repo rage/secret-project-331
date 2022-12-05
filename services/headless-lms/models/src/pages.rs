@@ -3109,6 +3109,7 @@ mod test {
                 ends_at: None,
                 time_minutes: 120,
                 organization_id: org,
+                minimum_points_treshold: 24,
             },
         )
         .await

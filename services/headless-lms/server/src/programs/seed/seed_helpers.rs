@@ -3,6 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
+    course_exams,
     exams::{self, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -390,8 +391,9 @@ pub async fn create_exam(
     course_id: Uuid,
     exam_id: Uuid,
     teacher: Uuid,
+    minimum_points_treshold: i32,
     jwt_key: Arc<JwtKey>,
-) -> Result<()> {
+) -> Result<Uuid> {
     let new_exam_id = exams::insert(
         conn,
         PKeyPolicy::Fixed(exam_id),
@@ -401,6 +403,7 @@ pub async fn create_exam(
             ends_at,
             time_minutes,
             organization_id,
+            minimum_points_treshold,
         },
     )
     .await?;
@@ -462,6 +465,6 @@ pub async fn create_exam(
         models_requests::fetch_service_info,
     )
     .await?;
-    exams::set_course(conn, new_exam_id, course_id).await?;
-    Ok(())
+    course_exams::upsert(conn, new_exam_id, course_id).await?;
+    Ok(new_exam_id)
 }

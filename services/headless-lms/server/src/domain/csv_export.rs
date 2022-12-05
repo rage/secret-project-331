@@ -5,7 +5,10 @@ use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
 use headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
-use models::library::progressing;
+
+use models::{
+    course_module_completions::CourseModuleCompletionWithRegistrationInfo, library::progressing,
+};
 use serde::Serialize;
 use sqlx::PgConnection;
 use std::{
@@ -255,44 +258,77 @@ where
     // prepare headers
     let mut headers = vec![
         "user_id".to_string(),
-        "student_name".to_string(),
+        "first_name".to_string(),
+        "last_name".to_string(),
         "email".to_string(),
     ];
     for module in &modules {
-        let module_name = module.name.as_deref().unwrap_or("default");
-        headers.push(format!("{module_name}-grade"));
-        headers.push(format!("{module_name}-registered"));
+        let module_name = module.name.as_deref().unwrap_or("default_module");
+        headers.push(format!("{module_name}_grade"));
+        headers.push(format!("{module_name}_registered"));
     }
 
     // write rows
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     for user in summary.users_with_course_module_completions {
-        let name = match (user.first_name, user.last_name) {
-            (Some(first_name), Some(last_name)) => format!("{first_name} {last_name}"),
-            (Some(first_name), None) => first_name,
-            (None, Some(last_name)) => last_name,
-            (None, None) => "".to_string(),
-        };
-        let mut csv_row = vec![user.user_id.to_string(), name, user.email];
+        let mut has_completed_some_module = false;
+
+        let mut csv_row = vec![
+            user.user_id.to_string(),
+            user.first_name.unwrap_or_default(),
+            user.last_name.unwrap_or_default(),
+            user.email,
+        ];
         for module in &modules {
             let user_completion = user
                 .completed_modules
                 .iter()
                 .find(|cm| cm.course_module_id == module.id);
-            let grade = user_completion
-                .and_then(|cm| cm.grade)
-                .map(|g| g.to_string())
-                .unwrap_or_else(|| "-".to_string());
+            if user_completion.is_some() {
+                has_completed_some_module = true;
+            }
+            let grade = course_module_completion_info_to_grade_string(user_completion);
             csv_row.push(grade);
             let registered = user_completion
                 .map(|cm| cm.registered.to_string())
-                .unwrap_or_else(|| "-".to_string());
+                .unwrap_or_default();
             csv_row.push(registered);
         }
-        writer.write_record(csv_row);
+        // To avoid confusion with some people potentially not understanding that '-' means not completed,
+        // we'll skip the users that don't have any completions from any modules. The confusion is less likely in cases where there are more than one module, and only in those cases the teachers would see the '-' entries in this file.
+        if has_completed_some_module {
+            writer.write_record(csv_row);
+        }
     }
     let writer = writer.finish().await?;
     Ok(writer)
+}
+
+/**
+ * For csv export. Return the grade as a number if there is a numeric grade. If the grade is not numeric, returns pass/fail/
+ * If course module has not been completed yet, returns "-".
+ */
+fn course_module_completion_info_to_grade_string(
+    input: Option<&CourseModuleCompletionWithRegistrationInfo>,
+) -> String {
+    let grade_string = input.map(|info| {
+        if let Some(grade) = info.grade {
+            return grade.to_string();
+        }
+        if info.passed {
+            return "pass".to_string();
+        };
+        "fail".to_string()
+    });
+    if let Some(grade_string) = grade_string {
+        if let Some(info) = input {
+            if !info.prerequisite_modules_completed {
+                return format!("{grade_string}*");
+            }
+        }
+        return grade_string;
+    }
+    "-".to_string()
 }
 
 pub struct CSVExportAdapter {

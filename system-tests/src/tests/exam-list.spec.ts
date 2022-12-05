@@ -18,7 +18,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     ),
   ])
 
-  await page.click("text=Exams")
+  await page.locator("text=Exams").nth(1).click()
 
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
@@ -26,11 +26,11 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     headless,
     snapshotName: "exam-listing",
     waitForThisToBeVisibleAndStable: ["text=Exams"],
-    beforeScreenshot: () => page.locator("text=Exams").scrollIntoViewIfNeeded(),
+    beforeScreenshot: () => page.locator("text=Exams").nth(1).scrollIntoViewIfNeeded(),
   })
 
   // Click text=Ongoing ends soonManageOngoing short timerManageStarting soonManageOverManageCre >> button
-  await page.locator("text=OverManageCre >> button").click()
+  await page.locator("text=ManageCre >> button").click()
 
   await expectScreenshotsToMatchSnapshots({
     page,

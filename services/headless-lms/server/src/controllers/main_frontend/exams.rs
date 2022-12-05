@@ -1,6 +1,9 @@
 use bytes::Bytes;
 use chrono::Utc;
-use models::exams::{self, Exam, NewExam};
+use models::{
+    course_exams,
+    exams::{self, Exam, NewExam},
+};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -46,7 +49,7 @@ pub async fn set_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
+    course_exams::upsert(&mut conn, *exam_id, exam.course_id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -65,7 +68,7 @@ pub async fn unset_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
+    course_exams::delete(&mut conn, *exam_id, exam.course_id).await?;
 
     token.authorized_ok(web::Json(()))
 }

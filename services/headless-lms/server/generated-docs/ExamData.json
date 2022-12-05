@@ -7,6 +7,7 @@
   "ended": false,
   "time_minutes": 120,
   "enrollment_data": {
-    "tag": "NotEnrolled"
+    "tag": "NotEnrolled",
+    "can_enroll": true
   }
 }

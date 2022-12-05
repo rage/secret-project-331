@@ -140,7 +140,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               grid-template-areas:
                 "a b"
                 "c c"
-                "d e";
+                "d e"
+                "f g";
               column-gap: 10px;
             `}
           >

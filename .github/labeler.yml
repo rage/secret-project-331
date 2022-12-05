@@ -1,5 +1,5 @@
 root:
-- '*'
+  - "*"
 
 docs:
   - docs/**/*
@@ -34,18 +34,21 @@ quizzes:
 tmc:
   - services/tmc/**/*
 
+sqlx-data:
+  - services/headless-lms/models/sqlx-data.json
+
 deployments:
   - skaffold.yaml
   - skaffold.production.yaml
-  - '**/Dockerfile'
-  - '**/*.dockerfile'
+  - "**/Dockerfile"
+  - "**/*.dockerfile"
   - kubernetes/**/*
 
 scripts:
   - bin/**/*
 
 dependencies:
-  - '**/package.json'
-  - '**/package.lock.json'
-  - '**/Cargo.lock'
-  - '**/Cargo.toml'
+  - "**/package.json"
+  - "**/package.lock.json"
+  - "**/Cargo.lock"
+  - "**/Cargo.toml"

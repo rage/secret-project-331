@@ -124,7 +124,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
   }
 
   return (
-    <EditorCard title={t("quiz-multiple-choice-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-multiple-choice-name")}>
       <ParsedTextField
         value={selected.title}
         onChange={(title) => {

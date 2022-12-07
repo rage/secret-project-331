@@ -13,7 +13,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
 
   return (
-    <EditorCard title={t("quiz-timeline-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-timeline-name")}>
       <TimelineContent quizItemId={quizItemId} />
     </EditorCard>
   )

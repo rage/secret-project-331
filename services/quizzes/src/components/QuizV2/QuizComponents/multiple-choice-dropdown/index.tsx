@@ -78,7 +78,7 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
   const { t } = useTranslation()
 
   return (
-    <EditorCard title={t("quiz-multiple-choice-dropdown-name")}>
+    <EditorCard quizItemId={quizItem.id} title={t("quiz-multiple-choice-dropdown-name")}>
       {/* <ParsedTextField label={t("title")} /> */}
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>

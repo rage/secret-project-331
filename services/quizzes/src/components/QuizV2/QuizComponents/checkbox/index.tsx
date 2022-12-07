@@ -53,7 +53,7 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
   }
 
   return (
-    <EditorCard title={t("quiz-checkbox-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-checkbox-name")}>
       <OptionCreationWrapper>
         <OptionCheckBoxContainer>
           <CheckBox label="" />

@@ -36,7 +36,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
   }
 
   return (
-    <EditorCard title={t("quiz-essay-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-essay-name")}>
       <TextFieldContainer>
         <TextFieldWrapper>
           <TextField

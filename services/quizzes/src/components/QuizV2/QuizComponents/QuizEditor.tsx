@@ -9,7 +9,6 @@ import MultipleChoiceEditor from "./multiple-choice"
 import MultipleChoiceDropdownEditor from "./multiple-choice-dropdown"
 import ScaleEditor from "./scale"
 import TimelineEditor from "./timeline"
-import UnsupportedExercise from "./unsupported"
 
 interface QuizEditor {
   quizItem: PrivateSpecQuizItem
@@ -35,8 +34,6 @@ const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
       return <MatrixEditor quizItemId={quizItem.id} />
     case "timeline":
       return <TimelineEditor quizItemId={quizItem.id} />
-    default:
-      return <UnsupportedExercise />
   }
 }
 

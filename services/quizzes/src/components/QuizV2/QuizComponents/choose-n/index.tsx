@@ -76,7 +76,7 @@ const ChooseNEditor: React.FC<ChooseNEditorProps> = ({ quizItem }) => {
   const { t } = useTranslation()
 
   return (
-    <EditorCard title={t("quiz-clickable-multiple-choice-name")}>
+    <EditorCard quizItemId={quizItem.id} title={t("quiz-clickable-multiple-choice-name")}>
       {/* <ParsedTextField label={t("title")} /> */}
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>

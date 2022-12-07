@@ -220,7 +220,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   }
 
   return (
-    <EditorCard title={t("quiz-open-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-open-name")}>
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton

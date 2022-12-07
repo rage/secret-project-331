@@ -13,7 +13,7 @@ const MatrixEditor: React.FC<MatrixEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
 
   return (
-    <EditorCard title={t("quiz-matrix-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-matrix-name")}>
       <TableContent quizItemId={quizItemId} />
     </EditorCard>
   )

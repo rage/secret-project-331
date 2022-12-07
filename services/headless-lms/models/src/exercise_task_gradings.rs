@@ -53,6 +53,7 @@ pub struct ExerciseTaskGradingResult {
     pub score_maximum: i32,
     pub feedback_text: Option<String>,
     pub feedback_json: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")] // Allows us to omit the field in typescript
     pub set_user_variables: Option<HashMap<String, serde_json::Value>>,
 }
 
@@ -304,6 +305,7 @@ WHERE id = $2
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn grade_submission(
     conn: &mut PgConnection,
     submission: &ExerciseTaskSubmission,

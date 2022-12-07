@@ -140,3 +140,7 @@ system-tests/src/states/
 hidden/
 
 .idea
+
+# skaffold
+skaffold-build-output.json
+skaffold-images

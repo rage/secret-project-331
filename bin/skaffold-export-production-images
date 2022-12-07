@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+path_to_input=$(relativize_path "../skaffold-build-output.json")
+path_to_ouput_folder=$(relativize_path "../skaffold-images")
+
+ensure_program_in_path jq
+
+if [ -z ${CI+x} ]
+then
+  point_docker_cli_to_minikube_docker
+else
+  echo "In CI, not using minikube docker because builds in ci happen without minikube"
+fi
+
+images_to_export=$(jq --raw-output '.builds[].tag' < "$path_to_input" | grep --invert-match cache| xargs echo)
+
+if [ -d "$path_to_ouput_folder" ]; then
+  run_command rm -r "$path_to_ouput_folder"
+fi
+
+run_command mkdir -p "$path_to_ouput_folder"
+
+output_path="$path_to_ouput_folder/slim-images.tar.zst"
+echo "> docker save $images_to_export | zstd > \"$output_path\""
+# shellcheck disable=SC2086 # intentionally splitting on the variable output
+docker save $images_to_export | zstd > "$output_path"

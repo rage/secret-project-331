@@ -4,6 +4,7 @@ set -euo pipefail
 
 export BLUE='\033[0;34m'
 export RED='\033[0;31m'
+export GREEN='\033[0;32m'
 export BOLD='\e[1m'
 export RESET_EVERYTHING='\e[0m'
 
@@ -96,4 +97,34 @@ function check_sqlx_cli_version() {
 function fail_sqlx_cli_version() {
   echo "Your sqlx-cli needs to be updated. Minimum acceptable version: $2, installed: $1. Please run: cargo install sqlx-cli --force"
   exit 255
+}
+
+function disallow_running_as_root() {
+  if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    # Windows: NOP
+    true
+  else
+    if [ "$(id -u)" = "0" ]; then
+      echo "Please don't try to run this command as root."
+      exit 255
+    fi
+  fi
+}
+
+# Makes the command work no matter which directory it's called from. Converts a path that is relative to the bin folder to be relative to the current directory the script caller is in.
+function relativize_path() {
+  local basedir
+  local path_to_target
+  local relative_path
+  basedir="$(dirname "${BASH_SOURCE[0]}")"
+  path_to_target="$basedir/$1"
+  relative_path=$(realpath --relative-to="$(pwd)" "$path_to_target")
+  echo "$relative_path"
+}
+
+function point_docker_cli_to_minikube_docker() {
+  echo "Making docker cli to use the minikube docker"
+  echo "> eval \"\$(minikube -p minikube docker-env --shell bash)\""
+  eval "$(minikube -p minikube docker-env --shell bash)"
+  echo ""
 }

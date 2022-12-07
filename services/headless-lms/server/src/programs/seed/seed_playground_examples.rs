@@ -385,7 +385,7 @@ pub async fn seed_playground_examples(db_pool: Pool<Postgres>) -> anyhow::Result
               "items": [
                   {
                       "id": "371b59cb-735d-4202-b8cb-bed967945ffd",
-                      "body": "Which colour did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colours colourname, hexadecimal colour code and in RGB colour code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.",
+                      "body": "Which color did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colors colorname, hexadecimal color code and in RGB color code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.",
                       "direction": "row",
                       "maxLabel": null,
                       "maxValue": null,

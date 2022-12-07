@@ -29,7 +29,7 @@ const TableWrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) 
               font-weight: 600;
               font-size: 16px;
               line-height: 16px;
-              color: ${baseTheme.colors.grey[500]};
+              color: ${baseTheme.colors.gray[500]};
             }
           }
         `}

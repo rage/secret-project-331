@@ -158,8 +158,14 @@ pub async fn copy_exam(
 
     let mut tx = conn.begin().await?;
 
-    let parent_exam_org_and_lang = sqlx::query!(
-        "SELECT language, organization_id FROM exams WHERE id = $1",
+    let parent_exam_fields = sqlx::query!(
+        "
+SELECT language,
+  organization_id,
+  minimum_points_treshold
+FROM exams
+WHERE id = $1
+        ",
         parent_exam.id
     )
     .fetch_one(&mut tx)
@@ -168,25 +174,27 @@ pub async fn copy_exam(
     // create new exam
     let copied_exam = sqlx::query!(
         "
-    INSERT INTO exams(
-        name,
-        organization_id,
-        instructions,
-        starts_at,
-        ends_at,
-        language,
-        time_minutes
-      )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    RETURNING *;
+INSERT INTO exams(
+    name,
+    organization_id,
+    instructions,
+    starts_at,
+    ends_at,
+    language,
+    time_minutes,
+    minimum_points_treshold
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING *
         ",
         new_exam.name,
-        parent_exam_org_and_lang.organization_id,
+        parent_exam_fields.organization_id,
         parent_exam.instructions,
         new_exam.starts_at,
         new_exam.ends_at,
-        parent_exam_org_and_lang.language,
-        new_exam.time_minutes
+        parent_exam_fields.language,
+        new_exam.time_minutes,
+        parent_exam_fields.minimum_points_treshold,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -255,6 +263,7 @@ WHERE id = $2;
         name: copied_exam.name,
         time_minutes: copied_exam.time_minutes,
         page_id: get_page_id.page_id,
+        minimum_points_treshold: copied_exam.minimum_points_treshold,
     })
 }
 
@@ -400,6 +409,7 @@ WHERE course_id = $2
     Ok(())
 }
 
+/// After this one `set_chapter_front_pages` needs to be called to get these to point to the correct front pages.
 async fn copy_course_chapters(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
@@ -465,7 +475,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE course_id = $2
@@ -524,7 +534,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
           uuid_generate_v5($1, page_id::text),
           score_maximum,
           order_number,
-          chapter_id,
+          uuid_generate_v5($1, chapter_id::text),
           id
         FROM exercises
         WHERE exam_id = $2
@@ -881,7 +891,17 @@ mod tests {
                 .unwrap();
             assert_eq!(copied_tasks.len(), 1);
             let copied_task = copied_tasks.first().unwrap();
-            assert_eq!(copied_task.copied_from, Some(task))
+            assert_eq!(copied_task.copied_from, Some(task));
+
+            // Make sure we don't have the bug where the chapter id pointed to the old chapter in the exercises.
+            let original_course_chapters = crate::chapters::course_chapters(tx.as_mut(), course.id)
+                .await
+                .unwrap();
+            for original_chapter in original_course_chapters {
+                for copied_exercise in &copied_exercises {
+                    assert_ne!(original_chapter.id, copied_exercise.id);
+                }
+            }
         }
 
         fn create_new_course(organization_id: Uuid) -> NewCourse {

@@ -7,7 +7,7 @@ import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
-import ColoursIdentifier from "./ColoursIdentifier"
+import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
 
@@ -44,10 +44,12 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
     <>
       <h2
         className={css`
-          font-size: clamp(30px, 2vw, 2.4rem);
+          font-size: clamp(30px, 3.5vw, 46px);
           margin: 1rem;
-          font-weight: 500;
+          font-weight: 700;
+          color: #1a2333;
           text-align: center;
+          opacity: 0.9;
         `}
       >
         {t("track-your-progress")}
@@ -86,7 +88,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   required={courseModuleProgress.attempted_exercises_required ?? undefined}
                   label={t("exercises-attempted")}
                 />
-                <ColoursIdentifier />
+                <ColorsIdentifier />
               </div>
             </TotalWrapper>
             <Wrapper>

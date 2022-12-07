@@ -18,6 +18,7 @@ export type Action =
   | { type: "edit_role"; variant: UserRole }
   | { type: "create_courses_or_exams" }
   | { type: "usually_unacceptable_deletion" }
+  | { type: "upload_file" }
 
 export interface ActionOnResource {
   action: Action
@@ -52,6 +53,11 @@ export interface ErrorResponse {
   message: string
   source: string | null
   data: ErrorData | null
+}
+
+export interface SpecRequest {
+  private_spec: unknown | null
+  upload_url: string | null
 }
 
 export interface Chapter {
@@ -238,6 +244,17 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   user_id: string
 }
 
+export interface AutomaticCompletionRequirements {
+  course_module_id: string
+  number_of_exercises_attempted_treshold: number | null
+  number_of_points_treshold: number | null
+  requires_exam: boolean
+}
+
+export type CompletionPolicy =
+  | ({ policy: "automatic" } & AutomaticCompletionRequirements)
+  | { policy: "manual" }
+
 export interface CourseModule {
   id: string
   created_at: Date
@@ -248,11 +265,19 @@ export interface CourseModule {
   order_number: number
   copied_from: string | null
   uh_course_code: string | null
-  automatic_completion: boolean
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
+  completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
   ects_credits: number | null
+}
+
+export interface NewCourseModule {
+  completion_policy: CompletionPolicy
+  completion_registration_link_override: string | null
+  course_id: string
+  ects_credits: number | null
+  name: string | null
+  order_number: number
+  uh_course_code: string | null
 }
 
 export interface ModifiedModule {
@@ -261,9 +286,7 @@ export interface ModifiedModule {
   order_number: number
   uh_course_code: string | null
   ects_credits: number | null
-  automatic_completion: boolean | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
+  completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
 }
 
@@ -280,9 +303,7 @@ export interface NewModule {
   chapters: Array<string>
   uh_course_code: string | null
   ects_credits: number | null
-  automatic_completion: boolean | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
+  completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
 }
 
@@ -375,6 +396,7 @@ export interface Exam {
   starts_at: Date | null
   ends_at: Date | null
   time_minutes: number
+  minimum_points_treshold: number
 }
 
 export interface ExamEnrollment {
@@ -398,6 +420,7 @@ export interface NewExam {
   ends_at: Date | null
   time_minutes: number
   organization_id: string
+  minimum_points_treshold: number
 }
 
 export interface OrgExam {
@@ -408,6 +431,7 @@ export interface OrgExam {
   ends_at: Date | null
   time_minutes: number
   organization_id: string
+  minimum_points_treshold: number
 }
 
 export interface ExerciseRepository {
@@ -560,7 +584,7 @@ export interface ExerciseTaskGradingResult {
   score_maximum: number
   feedback_text: string | null
   feedback_json: unknown | null
-  set_user_variables: Record<string, unknown> | null
+  set_user_variables?: Record<string, unknown>
 }
 
 export type UserPointsUpdateStrategy =
@@ -802,6 +826,8 @@ export interface UserModuleCompletionStatus {
   name: string
   order_number: number
   prerequisite_modules_completed: boolean
+  grade: number | null
+  passed: boolean | null
 }
 
 export interface UserWithModuleCompletions {
@@ -1398,7 +1424,7 @@ export interface ExamData {
 
 export type ExamEnrollmentData =
   | { tag: "EnrolledAndStarted"; page_id: string; page: Page; enrollment: ExamEnrollment }
-  | { tag: "NotEnrolled" }
+  | { tag: "NotEnrolled"; can_enroll: boolean }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
 

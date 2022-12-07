@@ -110,7 +110,7 @@ const SelectCourseInstanceForm: React.FC<
           className={css`
             margin-top: -0.5rem;
             margin-bottom: 1rem;
-            color: ${baseTheme.colors.grey[600]};
+            color: ${baseTheme.colors.gray[600]};
           `}
         >
           <GreenText>*</GreenText> {t("select-course-instance-explanation")}

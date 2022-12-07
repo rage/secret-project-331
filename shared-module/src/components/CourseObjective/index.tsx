@@ -3,6 +3,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 interface StyledObjectiveProps {
@@ -23,12 +24,18 @@ const Wrapper = styled.div`
 
   h2 {
     z-index: 20;
-    font-size: clamp(30px, 3vw, 3rem);
+    width: 250px;
+    font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     text-align: left;
+    color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
-    line-height: 1.1;
+    line-height: 120%;
+
+    ${respondToOrLarger.md} {
+      width: 400px;
+    }
   }
 `
 
@@ -63,12 +70,11 @@ const TextBox = styled.div`
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
   min-height: 100%;
-  background: ${({ index }) => index === 1 && `#1a2333`};
+  background: ${({ index }) => (index === 1 ? `#1a2333` : `#f7f8f9`)};
   position: relative;
   overflow: hidden;
   display: grid;
-  border: ${({ index }) => (index === 1 ? `none` : `1px solid #babdc2 `)};
-  border-radius: 4px;
+  border: ${({ index }) => (index === 1 ? `none` : `2px solid #edf0f2`)};
   color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {
@@ -132,14 +138,19 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
             ) : (
               <Objective key={item.clientId} index={index}>
                 {innerBlocks && innerBlocks[0].name === "core/heading" && (
-                  <h2
+                  <h3
                     className={css`
                       font-size: 20px !important;
                       margin: 2rem 2rem 0 2rem;
+                      z-index: 20;
+                      font-style: normal;
+                      font-weight: 600;
+                      text-align: left;
+                      padding-bottom: 1em;
                     `}
                   >
                     {innerBlocks[0].attributes.content}
-                  </h2>
+                  </h3>
                 )}
                 <span className="paragraph">
                   {innerBlocks && innerBlocks.length > 1

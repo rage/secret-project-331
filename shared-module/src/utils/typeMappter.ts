@@ -12,6 +12,5 @@ export function exerciseTaskGradingToExerciseTaskGradingResult(
     score_maximum: input.unscaled_score_maximum ?? 0,
     feedback_text: input.feedback_text,
     feedback_json: input.feedback_json,
-    set_user_variables: null,
   }
 }

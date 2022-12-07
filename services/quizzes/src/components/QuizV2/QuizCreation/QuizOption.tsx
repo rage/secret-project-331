@@ -12,6 +12,7 @@ export interface QuizOption {
   type: QuizItemType
   name: string
   description: string
+  category: string
   disabled: boolean
 }
 

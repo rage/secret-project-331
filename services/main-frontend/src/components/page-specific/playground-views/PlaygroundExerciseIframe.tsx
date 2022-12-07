@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
-import axios from "axios"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
@@ -76,7 +75,7 @@ const PlaygroundExerciseIframe: React.FC<
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
               // eslint-disable-next-line i18next/no-literal-string
-              await onUploadFileMessage("playground", msg.data, responsePort)
+              await onUploadFileMessage("playground", msg.files, responsePort)
             }
           }
         }}

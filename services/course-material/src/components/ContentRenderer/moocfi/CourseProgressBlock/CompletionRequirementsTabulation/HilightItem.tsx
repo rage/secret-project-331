@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 
 import { baseTheme, headingFont } from "../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../shared-module/styles/respond"
 
 const highlightItemStyle = css`
   align-items: center;
@@ -15,7 +16,7 @@ const highlightItemStyle = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const highlightItemLeftBorder = css`
-  border-left: 2px solid ${baseTheme.colors.grey[100]};
+  border-left: 2px solid ${baseTheme.colors.gray[100]};
 `
 
 interface HighlightItemProps {
@@ -39,11 +40,13 @@ const HighlightItem: React.FC<React.PropsWithChildren<HighlightItemProps>> = ({
       <div
         className={css`
           font-family: ${headingFont};
-          color: ${highlightColor};
+          background: ${highlightColor};
           flex: 2;
           font-size: 2.5em;
           font-weight: bold;
           text-align: center;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
         `}
       >
         {highlightText}
@@ -52,12 +55,17 @@ const HighlightItem: React.FC<React.PropsWithChildren<HighlightItemProps>> = ({
         className={css`
           display: flex;
           line-height: 1.3;
-          font-size: 1.1rem;
+          font-size: 15px;
           font-weight: 500;
           flex: 1 0 auto;
           font-family: ${headingFont};
           justify-content: middle;
           text-align: center;
+          opacity: 0.8;
+
+          ${respondToOrLarger.md} {
+            font-size: 18px;
+          }
         `}
       >
         {highlightDescription}

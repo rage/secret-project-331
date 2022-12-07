@@ -142,6 +142,7 @@ test("test", async ({ page, headless }) => {
 
   // Click text=Manage change requests
   await Promise.all([page.waitForNavigation(), page.click("text=Change requests")])
+  await page.locator("text=Accept").first().waitFor({ state: "visible" })
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",
   )
@@ -202,7 +203,7 @@ test("test", async ({ page, headless }) => {
 
   // Wait for the exercise to load because otherwise it might mess up the screenshot
   await page1
-    .frameLocator(`[title="Exercise 1, task 0 content"]`)
+    .frameLocator(`[title="Exercise 1, task 1 content"]`)
     .locator(`button:text-is("a")`)
     .waitFor()
 

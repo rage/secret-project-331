@@ -8,7 +8,7 @@ import Progress from "../../../../shared-module/components/CourseProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import ColoursIdentifier from "../CourseProgressBlock/ColoursIdentifier"
+import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
 
 interface ChapterProgressProps {
   chapterId: string
@@ -36,7 +36,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
           className={css`
             width: 100%;
             text-align: center;
-            padding: 2em 0;
+            padding: 1em 0 2em 0;
             margin: 5em auto;
             background: rgba(242, 245, 247, 0.8);
           `}
@@ -63,7 +63,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
               exercisesTotal={getUserChapterProgress.data.total_exercises}
               label={t("exercises-attempted")}
             />
-            <ColoursIdentifier />
+            <ColorsIdentifier />
           </div>
         </div>
       )}

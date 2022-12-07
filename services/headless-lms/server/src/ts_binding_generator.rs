@@ -32,6 +32,7 @@ fn domain(target: &mut File) {
         authorization::Resource,
         error::ErrorData,
         error::ErrorResponse,
+        models_requests::SpecRequest,
     };
 }
 
@@ -64,10 +65,14 @@ fn models(target: &mut File) {
 
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
 
+        course_modules::AutomaticCompletionRequirements,
+        course_modules::CompletionPolicy,
         course_modules::CourseModule,
+        course_modules::NewCourseModule,
         course_modules::ModifiedModule,
         course_modules::ModuleUpdates,
         course_modules::NewModule,
+
         courses::Course,
         courses::CourseCount,
         courses::CourseStructure,

@@ -107,7 +107,6 @@ async fn get_exercise_answers_requiring_attention(
         }
     };
     let exercise = get_exercise_by_id(&mut conn, *exercise_id).await?;
-    let mut conn = pool.acquire().await?;
     let answer_requiring_attention_count =
         models::exercise_slide_submissions::answer_requiring_attention_count(
             &mut conn,

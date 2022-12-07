@@ -69,6 +69,8 @@ test("test", async ({ headless, page }) => {
   // Click button:has-text("Submit")
   await page.locator('button:has-text("Submit")').click()
 
+  await page.getByText(`Operation successful!`).waitFor()
+
   // Click text=Manually add completions
   await page.locator("text=Manually add completions").click()
 

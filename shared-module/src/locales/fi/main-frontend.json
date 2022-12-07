@@ -407,7 +407,7 @@
   "tick-the-box-if-you-want-email-after-credits-have-been-registered": "Jos haluat sähköpostiviestin kun suoritus on kirjattu, täytä ruutu 'Opintosuorituksista lähetetään ilmoitus sähköpostiini (sisältää arvosanan)'.",
   "title-all-course-instances": "Kaikki kurssin versiot",
   "title-all-course-language-versions": "Kaikki kurssin kieliversiot",
-  "title-all-exercises": "Kaikki tehtävät",
+  "title-all-exercises": "Kurssin tehtävät",
   "title-change-request": "Vaihda pyyntö",
   "title-change-requests": "Vaihda pyynnöt",
   "title-chapter": "Luku {{chapter-number}}: {{chapter-name}}",

@@ -34,7 +34,7 @@ const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
     case "matrix":
       return <MatrixEditor quizItemId={quizItem.id} />
     case "timeline":
-      return <TimelineEditor quizItem={quizItem} />
+      return <TimelineEditor quizItemId={quizItem.id} />
     default:
       return <UnsupportedExercise />
   }

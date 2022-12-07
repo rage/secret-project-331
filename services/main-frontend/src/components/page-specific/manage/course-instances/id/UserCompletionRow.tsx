@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { times } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -60,9 +61,19 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
   //   maxCompletions = Math.max(bucket.length, maxCompletions)
   // }
 
+  const anyCompletions = sortedCourseModules.some((module) => {
+    const completion = user.moduleCompletions.get(module.id)?.[0]
+    return Boolean(completion)
+  })
+  console.log({ anyCompletions })
+
   return (
     <>
-      <FullWidthTableRow>
+      <FullWidthTableRow
+        className={css`
+          ${!anyCompletions && `filter: opacity(0.60);`}
+        `}
+      >
         <td rowSpan={maxCompletions}>{user.userId}</td>
         <td rowSpan={maxCompletions}>
           {user.firstName} {user.lastName}
@@ -79,20 +90,27 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
         })}
       </FullWidthTableRow>
       {/* Render extra rows if there are any. */}
-      {times(maxCompletions - 1, (i) => (
-        <FullWidthTableRow key={i}>
-          {sortedCourseModules.map((module) => {
-            // First index we want is 1 but iteration starts from 0.
-            const completion = user.moduleCompletions.get(module.id)?.[i + 1]
-            return (
-              <React.Fragment key={module.id}>
-                <td>{completion ? mapGradeToText(completion) : "-"}</td>
-                <td>{completion ? mapRegistration(completion) : ""}</td>
-              </React.Fragment>
-            )
-          })}
-        </FullWidthTableRow>
-      ))}
+      {times(maxCompletions - 1, (i) => {
+        return (
+          <FullWidthTableRow
+            className={css`
+              ${!anyCompletions && `filter: opacity(0.55);`}
+            `}
+            key={i}
+          >
+            {sortedCourseModules.map((module) => {
+              // First index we want is 1 but iteration starts from 0.
+              const completion = user.moduleCompletions.get(module.id)?.[i + 1]
+              return (
+                <React.Fragment key={module.id}>
+                  <td>{completion ? mapGradeToText(completion) : "-"}</td>
+                  <td>{completion ? mapRegistration(completion) : ""}</td>
+                </React.Fragment>
+              )
+            })}
+          </FullWidthTableRow>
+        )
+      })}
     </>
   )
 }

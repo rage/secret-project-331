@@ -11,6 +11,7 @@ import CompletionRegistrationPreview from "../../../../components/page-specific/
 import UserCompletionRow, {
   UserCompletionRowUser,
 } from "../../../../components/page-specific/manage/course-instances/id/UserCompletionRow"
+import CompletionsExportButton from "../../../../components/page-specific/manage/course-instances/id/completions/CompletionsExportButton"
 import FullWidthTable from "../../../../components/tables/FullWidthTable"
 import {
   getCompletions,
@@ -236,6 +237,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
           <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
         </>
       )}
+      <CompletionsExportButton courseInstanceId={courseInstanceId} />
     </Layout>
   )
 }

@@ -309,6 +309,62 @@ async fn delete(
 }
 
 /**
+GET /course-instances/:id/export-completions - gets CSV of course completion based on course_instance ID.
+*/
+#[instrument(skip(pool))]
+pub async fn completions_export(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let course_instance_id = *course_instance_id;
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    let mut handle_conn = pool.acquire().await?;
+    let _handle = tokio::spawn(async move {
+        let res = csv_export::export_completions(
+            &mut handle_conn,
+            course_instance_id,
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
+        )
+        .await;
+        if let Err(err) = res {
+            tracing::error!("Failed to export completion points: {}", err);
+        }
+    });
+
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let course = courses::get_course(&mut conn, course_instance.course_id).await?;
+
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"{} - {} - Completions export {}.csv\"",
+                    course.name,
+                    course_instance.name.as_deref().unwrap_or("unnamed"),
+                    Utc::today().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -334,6 +390,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/completions",
             web::get().to(completions),
+        )
+        .route(
+            "/{course_instance_id}/export-completions",
+            web::get().to(completions_export),
         )
         .route(
             "/{course_instance_id}/completions",

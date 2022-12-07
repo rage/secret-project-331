@@ -519,12 +519,114 @@
 <span id="519">519</span>
 <span id="520">520</span>
 <span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>csv::Writer;
 <span class="kw">use </span>futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
 <span class="kw">use </span>headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
+};
+
+<span class="kw">use </span>models::{
+    course_module_completions::CourseModuleCompletionWithRegistrationInfo, library::progressing,
 };
 <span class="kw">use </span>serde::Serialize;
 <span class="kw">use </span>sqlx::PgConnection;
@@ -752,6 +854,100 @@
     }
     <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(writer)
+}
+
+<span class="comment">// Writes the submissions as csv into the writer
+</span><span class="kw">pub async fn </span>export_completions&lt;W&gt;(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    writer: W,
+) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
+<span class="kw">where
+    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
+{
+    <span class="comment">// fetch summary
+    </span><span class="kw">let </span>course_instance = course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>summary =
+        progressing::get_course_instance_completion_summary(conn, <span class="kw-2">&amp;</span>course_instance).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// sort modules
+    </span><span class="kw">let </span><span class="kw-2">mut </span>modules = summary.course_modules;
+    modules.sort_by_key(|m| m.order_number);
+
+    <span class="comment">// prepare headers
+    </span><span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="macro">vec!</span>[
+        <span class="string">&quot;user_id&quot;</span>.to_string(),
+        <span class="string">&quot;first_name&quot;</span>.to_string(),
+        <span class="string">&quot;last_name&quot;</span>.to_string(),
+        <span class="string">&quot;email&quot;</span>.to_string(),
+    ];
+    <span class="kw">for </span>module <span class="kw">in </span><span class="kw-2">&amp;</span>modules {
+        <span class="kw">let </span>module_name = module.name.as_deref().unwrap_or(<span class="string">&quot;default_module&quot;</span>);
+        headers.push(<span class="macro">format!</span>(<span class="string">&quot;{module_name}_grade&quot;</span>));
+        headers.push(<span class="macro">format!</span>(<span class="string">&quot;{module_name}_registered&quot;</span>));
+    }
+
+    <span class="comment">// write rows
+    </span><span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">for </span>user <span class="kw">in </span>summary.users_with_course_module_completions {
+        <span class="kw">let </span><span class="kw-2">mut </span>has_completed_some_module = <span class="bool-val">false</span>;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>csv_row = <span class="macro">vec!</span>[
+            user.user_id.to_string(),
+            user.first_name.unwrap_or_default(),
+            user.last_name.unwrap_or_default(),
+            user.email,
+        ];
+        <span class="kw">for </span>module <span class="kw">in </span><span class="kw-2">&amp;</span>modules {
+            <span class="kw">let </span>user_completion = user
+                .completed_modules
+                .iter()
+                .find(|cm| cm.course_module_id == module.id);
+            <span class="kw">if </span>user_completion.is_some() {
+                has_completed_some_module = <span class="bool-val">true</span>;
+            }
+            <span class="kw">let </span>grade = course_module_completion_info_to_grade_string(user_completion);
+            csv_row.push(grade);
+            <span class="kw">let </span>registered = user_completion
+                .map(|cm| cm.registered.to_string())
+                .unwrap_or_default();
+            csv_row.push(registered);
+        }
+        <span class="comment">// To avoid confusion with some people potentially not understanding that &#39;-&#39; means not completed,
+        // we&#39;ll skip the users that don&#39;t have any completions from any modules. The confusion is less likely in cases where there are more than one module, and only in those cases the teachers would see the &#39;-&#39; entries in this file.
+        </span><span class="kw">if </span>has_completed_some_module {
+            writer.write_record(csv_row);
+        }
+    }
+    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(writer)
+}
+
+<span class="doccomment">/**
+ * For csv export. Return the grade as a number if there is a numeric grade. If the grade is not numeric, returns pass/fail/
+ * If course module has not been completed yet, returns &quot;-&quot;.
+ */
+</span><span class="kw">fn </span>course_module_completion_info_to_grade_string(
+    input: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CourseModuleCompletionWithRegistrationInfo&gt;,
+) -&gt; String {
+    <span class="kw">let </span>grade_string = input.map(|info| {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(grade) = info.grade {
+            <span class="kw">return </span>grade.to_string();
+        }
+        <span class="kw">if </span>info.passed {
+            <span class="kw">return </span><span class="string">&quot;pass&quot;</span>.to_string();
+        };
+        <span class="string">&quot;fail&quot;</span>.to_string()
+    });
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(grade_string) = grade_string {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(info) = input {
+            <span class="kw">if </span>!info.prerequisite_modules_completed {
+                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{grade_string}*&quot;</span>);
+            }
+        }
+        <span class="kw">return </span>grade_string;
+    }
+    <span class="string">&quot;-&quot;</span>.to_string()
 }
 
 <span class="kw">pub struct </span>CSVExportAdapter {

@@ -18,9 +18,10 @@ const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesPro
       <h2
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
-          color: ${baseTheme.colors.gray[700]};
+          color: ${baseTheme.colors.gray["700"]};
           font-family: ${headingFont};
           font-weight: bold;
+          text-align: center;
         `}
       >
         {t("title-all-exercises")}

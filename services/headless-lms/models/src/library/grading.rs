@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+//! Collection of functions used for processing and evaluating user submissions for exercises.
 
 use futures::future::BoxFuture;
+use std::collections::HashMap;
 use url::Url;
 
 use crate::{
@@ -11,8 +12,8 @@ use crate::{
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{self, ExerciseTaskSubmission},
-    exercise_tasks::{self, ExerciseTask},
-    exercises::{Exercise, ExerciseStatus},
+    exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
+    exercises::{self, Exercise, ExerciseStatus, GradingProgress},
     peer_review_configs::PeerReviewAcceptingStrategy,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     prelude::*,
@@ -478,4 +479,76 @@ pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_res
     )
     .await?;
     Ok(user_exercise_state)
+}
+
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswersRequiringAttention {
+    pub exercise_max_points: i32,
+    pub data: Vec<AnswerRequiringAttentionWithTasks>,
+    pub total_pages: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswerRequiringAttentionWithTasks {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub data_json: Option<serde_json::Value>,
+    pub grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
+    pub submission_id: Uuid,
+    pub exercise_id: Uuid,
+    pub tasks: Vec<CourseMaterialExerciseTask>,
+}
+
+/// Gets submissions that require input from the teacher to continue processing.
+pub async fn get_paginated_answers_requiring_attention_for_exercise(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+    viewer_user_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<AnswersRequiringAttention> {
+    let exercise = exercises::get_exercise_by_id(conn, exercise_id).await?;
+    let answer_requiring_attention_count =
+        exercise_slide_submissions::answer_requiring_attention_count(conn, exercise_id).await?;
+    let data = exercise_slide_submissions::get_all_answers_requiring_attention(
+        conn,
+        exercise.id,
+        pagination,
+    )
+    .await?;
+    let mut answers = Vec::with_capacity(data.len());
+    for answer in &data {
+        let tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
+            conn,
+            answer.submission_id,
+            viewer_user_id,
+            &fetch_service_info,
+        )
+        .await?;
+        let new_answer = AnswerRequiringAttentionWithTasks {
+            id: answer.id,
+            user_id: answer.user_id,
+            created_at: answer.created_at,
+            updated_at: answer.updated_at,
+            deleted_at: answer.deleted_at,
+            data_json: answer.data_json.to_owned(),
+            grading_progress: answer.grading_progress,
+            score_given: answer.score_given,
+            submission_id: answer.submission_id,
+            exercise_id: answer.exercise_id,
+            tasks,
+        };
+        answers.push(new_answer);
+    }
+    Ok(AnswersRequiringAttention {
+        exercise_max_points: exercise.score_maximum,
+        data: answers,
+        total_pages: pagination.total_pages(answer_requiring_attention_count),
+    })
 }

@@ -721,6 +721,26 @@ export interface TermUpdate {
   definition: string
 }
 
+export interface AnswerRequiringAttentionWithTasks {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+  tasks: Array<CourseMaterialExerciseTask>
+}
+
+export interface AnswersRequiringAttention {
+  exercise_max_points: number
+  data: Array<AnswerRequiringAttentionWithTasks>
+  total_pages: number
+}
+
 export interface StudentExerciseSlideSubmission {
   exercise_slide_id: string
   exercise_task_submissions: Array<StudentExerciseTaskSubmission>
@@ -1430,26 +1450,6 @@ export interface NewExerciseRepository {
   exam_id: string | null
   git_url: string
   deploy_key: string | null
-}
-
-export interface AnswerRequiringAttentionWithTasks {
-  id: string
-  user_id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  data_json: unknown | null
-  grading_progress: GradingProgress
-  score_given: number | null
-  submission_id: string
-  exercise_id: string
-  tasks: Array<CourseMaterialExerciseTask>
-}
-
-export interface AnswersRequiringAttention {
-  exercise_max_points: number
-  data: Array<AnswerRequiringAttentionWithTasks>
-  total_pages: number
 }
 
 export interface ExerciseSubmissions {

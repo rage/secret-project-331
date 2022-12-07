@@ -272,9 +272,7 @@ fn controllers() {
             courses::{ChaptersWithStatus, CourseMaterialCourseModule},
             exams::{ExamData, ExamEnrollmentData},
         },
-        main_frontend::exercises::{
-            AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, ExerciseSubmissions,
-        },
+        main_frontend::exercises::ExerciseSubmissions,
         UploadResult,
     };
 
@@ -284,19 +282,6 @@ fn controllers() {
         is_default: true,
         name: None,
         order_number: 0
-    });
-    example!(AnswerRequiringAttentionWithTasks {
-        id,
-        user_id: Uuid::parse_str("7115806b-07c4-4079-8444-6dd248d3b9e7").unwrap(),
-        created_at,
-        updated_at,
-        deleted_at: None,
-        data_json: Some(serde_json::json! {{"choice": "a"}}),
-        grading_progress,
-        score_given: Some(0.0),
-        submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
-        exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
-        tasks,
     });
 
     doc!(UploadResult {
@@ -326,11 +311,6 @@ fn controllers() {
             user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
         }
     );
-    doc!(AnswersRequiringAttention {
-        exercise_max_points: 1,
-        data,
-        total_pages: 10,
-    });
 }
 
 fn models() {
@@ -365,7 +345,10 @@ fn models() {
         feedback::{Feedback, FeedbackBlock, FeedbackCount},
         glossary::Term,
         library::{
-            grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+            grading::{
+                AnswerRequiringAttentionWithTasks, AnswersRequiringAttention,
+                StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult,
+            },
             peer_reviewing::{
                 CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
                 CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
@@ -407,6 +390,24 @@ fn models() {
         users::User,
     };
 
+    example!(AnswerRequiringAttentionWithTasks {
+        id,
+        user_id: Uuid::parse_str("7115806b-07c4-4079-8444-6dd248d3b9e7").unwrap(),
+        created_at,
+        updated_at,
+        deleted_at: None,
+        data_json: Some(serde_json::json! {{"choice": "a"}}),
+        grading_progress,
+        score_given: Some(0.0),
+        submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
+        exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
+        tasks,
+    });
+    doc!(AnswersRequiringAttention {
+        exercise_max_points: 1,
+        data,
+        total_pages: 10,
+    });
     example!(ExerciseSlideSubmission {
         id,
         created_at,

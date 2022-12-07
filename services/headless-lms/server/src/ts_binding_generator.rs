@@ -126,6 +126,8 @@ fn models(target: &mut File) {
         glossary::Term,
         glossary::TermUpdate,
 
+        library::grading::AnswerRequiringAttentionWithTasks,
+        library::grading::AnswersRequiringAttention,
         library::grading::StudentExerciseSlideSubmission,
         library::grading::StudentExerciseSlideSubmissionResult,
         library::grading::StudentExerciseTaskSubmission,
@@ -261,8 +263,6 @@ fn controllers(target: &mut File) {
             courses::GetFeedbackQuery,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,
-            exercises::AnswerRequiringAttentionWithTasks,
-            exercises::AnswersRequiringAttention,
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
             proposed_edits::GetEditProposalsQuery,

@@ -11,6 +11,7 @@ use crate::{
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     prelude::*,
+    teacher_grading_decisions::TeacherDecisionType,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
@@ -41,13 +42,14 @@ pub struct Exercise {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExerciseStatusForUser {
+pub struct ExercisePointsForUser {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
     pub score_maximum: i32,
     pub score_given: Option<f32>,
+    pub teacher_decision: Option<TeacherDecisionType>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -59,6 +61,16 @@ pub struct ExercisePeerReviewDataForUser {
     pub name: String,
     pub text_data: Option<String>,
     pub number_data: Option<f32>,
+    pub received_enough_peer_reviews: bool,
+    pub peer_review_priority: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseStatusForUser {
+    pub exercise_points: Vec<ExercisePointsForUser>,
+    pub given_peer_review_data: Vec<ExercisePeerReviewDataForUser>,
+    pub received_peer_review_data: Vec<ExercisePeerReviewDataForUser>,
 }
 
 impl Exercise {
@@ -278,16 +290,18 @@ ORDER BY order_number ASC
 pub async fn get_exercises_and_exercise_status_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> ModelResult<Vec<ExerciseStatusForUser>> {
+    user_id: Uuid,
+) -> ModelResult<Vec<ExercisePointsForUser>> {
     let exercises = sqlx::query_as!(
-        ExerciseStatusForUser,
+        ExercisePointsForUser,
         r#"
         SELECT
         e.id,
         e.created_at,
         e.updated_at,
         e.name,e.score_maximum,
-        ues.score_given
+        ues.score_given,
+        tgd.teacher_decision as "teacher_decision: _"
         FROM exercises e
         LEFT JOIN user_exercise_states ues on e.id = ues.exercise_id
         LEFT JOIN teacher_grading_decisions tgd on tgd.user_exercise_state_id = ues.id
@@ -297,20 +311,24 @@ pub async fn get_exercises_and_exercise_status_by_course_instance_id(
             WHERE id = $1
           )
           AND e.deleted_at IS NULL
+          AND ues.user_id = $2
         ORDER BY e.order_number ASC;
 "#,
-        course_instance_id
+        course_instance_id,
+        user_id
     )
     .fetch_all(conn)
     .await?;
     Ok(exercises)
 }
 
-pub async fn get_peer_review_data_for_exercise_by_course_instance_id(
+/** Given peer reviews */
+pub async fn get_given_peer_review_data_for_exercise_by_course_instance_id(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<Vec<ExercisePeerReviewDataForUser>> {
-    let exercises = sqlx::query_as!(
+    let peer_review_data = sqlx::query_as!(
         ExercisePeerReviewDataForUser,
         r#"
         SELECT
@@ -319,7 +337,9 @@ pub async fn get_peer_review_data_for_exercise_by_course_instance_id(
         e.updated_at,
         e.name,
         prqs.text_data,
-        prqs.number_data
+        prqs.number_data,
+        prqe.received_enough_peer_reviews,
+        prqe.peer_review_priority
         FROM exercises e
         LEFT JOIN peer_review_queue_entries prqe on e.id = prqe.exercise_id
         LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
@@ -330,13 +350,57 @@ pub async fn get_peer_review_data_for_exercise_by_course_instance_id(
             WHERE id = $1
           )
           AND e.deleted_at IS NULL
+          AND prs.user_id = $2
         ORDER BY e.order_number ASC;
 "#,
-        course_id
+        course_instance_id,
+        user_id
     )
     .fetch_all(conn)
     .await?;
-    Ok(exercises)
+    Ok(peer_review_data)
+}
+
+/** Received peer reviews */
+pub async fn get_received_peer_review_data_for_exercise_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<ExercisePeerReviewDataForUser>> {
+    let peer_review_data = sqlx::query_as!(
+        ExercisePeerReviewDataForUser,
+        r#"
+        SELECT
+        e.id,
+        e.created_at,
+        e.updated_at,
+        e.name,
+        prqs.text_data,
+        prqs.number_data,
+        prqe.received_enough_peer_reviews,
+        prqe.peer_review_priority
+        FROM exercises e
+        LEFT JOIN peer_review_queue_entries prqe on e.id = prqe.exercise_id
+        LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
+        LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id
+        LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id
+        WHERE e.course_id = (
+            SELECT course_id
+            FROM course_instances
+            WHERE id = $1
+          )
+          AND e.deleted_at IS NULL
+          AND prqs.peer_review_submission_id = prs.id
+          AND ess.id = prs.exercise_slide_submission_id
+            AND ess.user_id = $2
+        ORDER BY e.order_number ASC;
+"#,
+        course_instance_id,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(peer_review_data)
 }
 
 pub async fn get_exercises_by_chapter_id(

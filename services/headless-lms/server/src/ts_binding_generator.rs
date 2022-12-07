@@ -112,6 +112,9 @@ fn models(target: &mut File) {
         exercises::CourseMaterialExercise,
         exercises::Exercise,
         exercises::ExerciseStatus,
+        exercises::ExercisePointsForUser,
+        exercises::ExercisePeerReviewDataForUser,
+        exercises::ExerciseStatusForUser,
         exercises::GradingProgress,
 
         feedback::Feedback,

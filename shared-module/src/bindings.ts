@@ -658,6 +658,33 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
+export interface ExercisePointsForUser {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  score_maximum: number
+  score_given: number | null
+  teacher_decision: TeacherDecisionType | null
+}
+
+export interface ExercisePeerReviewDataForUser {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  text_data: string | null
+  number_data: number | null
+  received_enough_peer_reviews: boolean
+  peer_review_priority: number
+}
+
+export interface ExerciseStatusForUser {
+  exercise_points: Array<ExercisePointsForUser>
+  given_peer_review_data: Array<ExercisePeerReviewDataForUser>
+  received_peer_review_data: Array<ExercisePeerReviewDataForUser>
+}
+
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
 export interface Feedback {

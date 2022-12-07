@@ -310,10 +310,51 @@ async fn delete(
 }
 
 /**
-POST /course-instances/:id/get-exercises
+GET /course-instances/:id/exercise-status/:user_id
 */
 #[instrument(skip(pool))]
 async fn get_exercises_by_course_instance_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ExerciseStatusForUser>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(params.0),
+    )
+    .await?;
+    let exercises = models::exercises::get_exercises_and_exercise_status_by_course_instance_id(
+        &mut conn, params.0, params.1,
+    )
+    .await?;
+    let given_peer_review_data =
+        models::exercises::get_given_peer_review_data_for_exercise_by_course_instance_id(
+            &mut conn, params.0, params.1,
+        )
+        .await?;
+
+    let received_peer_review_data =
+        models::exercises::get_received_peer_review_data_for_exercise_by_course_instance_id(
+            &mut conn, params.0, params.1,
+        )
+        .await?;
+    let exercise_status = ExerciseStatusForUser {
+        exercise_points: exercises,
+        given_peer_review_data,
+        received_peer_review_data,
+    };
+
+    token.authorized_ok(web::Json(exercise_status))
+}
+/*
+/**
+GET /course-instances/:id/get-exercises
+*/
+#[instrument(skip(pool))]
+async fn get_peer_reviews_by_exercise_course_instance_id(
     id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -331,6 +372,7 @@ async fn get_exercises_by_course_instance_id(
             .await?;
     token.authorized_ok(web::Json(exercises))
 }
+*/
 
 /**
 Add a route for each controller in this module.
@@ -369,7 +411,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(
-            "/{course_instance_id}/exercise-status",
+            "/{course_instance_id}/exercise-status/{user_id}",
             web::get().to(get_exercises_by_course_instance_id),
         )
         .route(

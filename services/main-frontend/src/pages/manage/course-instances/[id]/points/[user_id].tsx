@@ -17,18 +17,18 @@ import dontRenderUntilQueryParametersReady, {
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 export interface CourseInstancePointsListProps {
-  courseInstanceId: SimplifiedUrlQuery<"id">
+  query: SimplifiedUrlQuery<string>
 }
 
 const CourseInstanceExerciseStatusList: React.FC<
   React.PropsWithChildren<CourseInstancePointsListProps>
-> = ({ courseInstanceId }) => {
+> = ({ query }) => {
   const { t } = useTranslation()
 
-  const exerciseStatusList = useQuery([`exercise-status-${courseInstanceId.id}`], () =>
-    getExerciseStatus(courseInstanceId.id),
+  const exerciseStatusList = useQuery([`${query.id}-exercise-status-${query.user_id}`], () =>
+    getExerciseStatus(query.id, query.user_id),
   )
-
+  console.log(query)
   console.log(exerciseStatusList)
   return (
     <Layout navVariant="simple">

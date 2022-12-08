@@ -317,7 +317,7 @@ async fn get_exercises_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<ExerciseStatusForUser>> {
+) -> ControllerResult<web::Json<Vec<ExerciseStatusForUser>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -341,13 +341,29 @@ async fn get_exercises_by_course_instance_id(
             &mut conn, params.0, params.1,
         )
         .await?;
-    let exercise_status = ExerciseStatusForUser {
-        exercise_points: exercises,
-        given_peer_review_data,
-        received_peer_review_data,
-    };
+    let mut exercise_and_peer_review_data: Vec<ExerciseStatusForUser> = vec![];
+    for exercise in exercises {
+        let mut temp_given_peer_review = vec![];
+        for given_review in &given_peer_review_data {
+            if given_review.id == exercise.id {
+                temp_given_peer_review.push(given_review.clone())
+            }
+        }
+        let mut temp_received_peer_review = vec![];
+        for received_review in &received_peer_review_data {
+            if received_review.id == exercise.id {
+                temp_received_peer_review.push(received_review.clone())
+            }
+        }
+        let exercise_status = ExerciseStatusForUser {
+            exercise_points: exercise,
+            given_peer_review_data: temp_given_peer_review,
+            received_peer_review_data: temp_received_peer_review,
+        };
+        exercise_and_peer_review_data.push(exercise_status)
+    }
 
-    token.authorized_ok(web::Json(exercise_status))
+    token.authorized_ok(web::Json(exercise_and_peer_review_data))
 }
 /*
 /**

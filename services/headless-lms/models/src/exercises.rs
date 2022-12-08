@@ -68,7 +68,7 @@ pub struct ExercisePeerReviewDataForUser {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatusForUser {
-    pub exercise_points: Vec<ExercisePointsForUser>,
+    pub exercise_points: ExercisePointsForUser,
     pub given_peer_review_data: Vec<ExercisePeerReviewDataForUser>,
     pub received_peer_review_data: Vec<ExercisePeerReviewDataForUser>,
 }

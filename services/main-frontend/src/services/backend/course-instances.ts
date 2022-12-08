@@ -108,14 +108,14 @@ export const getPoints = async (courseInstanceId: string): Promise<Points> => {
 export const getExerciseStatus = async (
   courseInstanceId: string,
   userId: string,
-): Promise<ExerciseStatusForUser> => {
+): Promise<ExerciseStatusForUser[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/exercise-status/${userId}`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isExerciseStatusForUser)
+  return validateResponse(response, isArray(isExerciseStatusForUser))
 }
 
 export const editCourseInstance = async (

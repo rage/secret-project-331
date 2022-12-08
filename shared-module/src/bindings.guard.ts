@@ -1284,8 +1284,7 @@ export function isExerciseStatusForUser(obj: unknown): obj is ExerciseStatusForU
   const typedObj = obj as ExerciseStatusForUser
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    Array.isArray(typedObj["exercise_points"]) &&
-    typedObj["exercise_points"].every((e: any) => isExercisePointsForUser(e) as boolean) &&
+    (isExercisePointsForUser(typedObj["exercise_points"]) as boolean) &&
     Array.isArray(typedObj["given_peer_review_data"]) &&
     typedObj["given_peer_review_data"].every(
       (e: any) => isExercisePeerReviewDataForUser(e) as boolean,

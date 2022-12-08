@@ -680,7 +680,7 @@ export interface ExercisePeerReviewDataForUser {
 }
 
 export interface ExerciseStatusForUser {
-  exercise_points: Array<ExercisePointsForUser>
+  exercise_points: ExercisePointsForUser
   given_peer_review_data: Array<ExercisePeerReviewDataForUser>
   received_peer_review_data: Array<ExercisePeerReviewDataForUser>
 }

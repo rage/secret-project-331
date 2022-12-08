@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
@@ -27,9 +28,7 @@ const CourseInstanceExerciseStatusList: React.FC<
 
   const exerciseStatusList = useQuery([`${query.id}-exercise-status-${query.user_id}`], () =>
     getExerciseStatus(query.id, query.user_id),
-  )
-  console.log(query)
-  console.log(exerciseStatusList)
+  ).data
   return (
     <Layout navVariant="simple">
       <div
@@ -45,7 +44,36 @@ const CourseInstanceExerciseStatusList: React.FC<
             margin-top: 80px;
           }
         `}
-      ></div>
+      >
+        {exerciseStatusList?.map((exercise) => {
+          return (
+            <div key={exercise.exercise_points.id}>
+              <h2>Exercise name: {exercise.exercise_points.name}</h2>
+              <p>Score given: {exercise.exercise_points.score_given}</p>
+              <p>Teacher decision: {exercise.exercise_points.teacher_decision}</p>
+              <h2>Peer reviews received</h2>
+              {exercise.received_peer_review_data.map((received) => {
+                return (
+                  <div key={received.id}>
+                    <p>Received number data: {received.number_data}</p>
+                    <p>Received text data: {received.text_data}</p>
+                    <p>Received enough peer reviews: {received.received_enough_peer_reviews}</p>
+                  </div>
+                )
+              })}
+              <h2>Peer reviews given</h2>
+              {exercise.given_peer_review_data.map((given) => {
+                return (
+                  <div key={given.id}>
+                    <p>Given number data: {given.number_data}</p>
+                    <p>Given text data: {given.text_data}</p>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
     </Layout>
   )
 }

@@ -38,6 +38,10 @@ const CardContentWrapper = styled.div`
   position: relative;
   ${BackgroundStyles}
 
+  &:hover {
+    filter: brightness(1.1) contrast(0.9);
+  }
+
   h2 {
     z-index: 20;
     color: #fff;

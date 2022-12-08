@@ -310,7 +310,7 @@ fn controllers() {
         ends_at,
         ended: false,
         time_minutes: 120,
-        enrollment_data: ExamEnrollmentData::NotEnrolled
+        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true }
     });
     doc!(ExerciseSubmissions {
         data,
@@ -342,7 +342,9 @@ fn models() {
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
-        course_modules::CourseModule,
+        course_modules::{
+            AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
+        },
         courses::{Course, CourseCount, CourseStructure},
         email_templates::EmailTemplate,
         exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
@@ -554,9 +556,7 @@ fn models() {
         order_number: 0,
         copied_from: None,
         uh_course_code: None,
-        automatic_completion: false,
-        automatic_completion_number_of_exercises_attempted_treshold: None,
-        automatic_completion_number_of_points_treshold: None,
+        completion_policy: CompletionPolicy::Manual,
         ects_credits: None,
         completion_registration_link_override: None,
     });
@@ -941,7 +941,8 @@ fn models() {
         courses,
         starts_at,
         ends_at,
-        time_minutes: 120
+        time_minutes: 120,
+        minimum_points_treshold: 24,
     });
     doc!(
         T,
@@ -990,7 +991,8 @@ fn models() {
             instructions: Page::example().content,
             time_minutes: 120,
             starts_at,
-            ends_at
+            ends_at,
+            minimum_points_treshold: 24,
         }
     );
     doc!(
@@ -1177,6 +1179,8 @@ fn models() {
                 module_id: Uuid::parse_str("299eba99-9aa2-4023-bd64-bd4b5d7578ba").unwrap(),
                 name: "Course".to_string(),
                 order_number: 0,
+                passed: Some(true),
+                grade: Some(4),
                 prerequisite_modules_completed: false,
             },
             UserModuleCompletionStatus {
@@ -1185,6 +1189,8 @@ fn models() {
                 module_id: Uuid::parse_str("c6c89368-c05d-498f-a2e3-10d7c327752c").unwrap(),
                 name: "Module".to_string(),
                 order_number: 1,
+                passed: Some(true),
+                grade: Some(4),
                 prerequisite_modules_completed: false,
             }
         ]

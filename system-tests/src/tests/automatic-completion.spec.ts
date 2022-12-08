@@ -39,6 +39,9 @@ test("Registers automatic completion", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=b").click()
   // Click text=Submit
   await page.locator('button:has-text("Submit")').click()
+  // Have to wait until the submit is done
+  await page.getByText(`Good job!`).waitFor()
+
   // Click text=Automatic Completions
   await page.locator("text=Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
@@ -54,10 +57,10 @@ test("Registers automatic completion", async ({ headless, page }) => {
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: () => page.locator("text=Congratulations!").scrollIntoViewIfNeeded(),
   })
-  // Click text=Automatic CompletionsRegisterGenerate certificate >> button
+  // Click text=Automatic CompletionsRegister >> button
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/completion-registration/878b7205-0e13-42be-90b9-3571bb6626c9' }*/),
-    page.locator("text=Automatic CompletionsRegisterGenerate certificate >> button").click(),
+    page.locator("text=Automatic CompletionsRegister >> button").click(),
   ])
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -126,10 +129,10 @@ test("Registers automatic completion", async ({ headless, page }) => {
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.waitForSelector("text=Congratulations!")
-  // Click text=Automatic CompletionsRegisterGenerate certificate >> button
+  // Click text=Automatic CompletionsRegister >> button
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/completion-registration/878b7205-0e13-42be-90b9-3571bb6626c9' }*/),
-    page.locator("text=Automatic CompletionsRegisterGenerate certificate >> button").click(),
+    page.locator("text=Automatic CompletionsRegister >> button").click(),
   ])
   // Click text=To the registration form
   await Promise.all([

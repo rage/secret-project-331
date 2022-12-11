@@ -73,7 +73,6 @@ import {
   ExamInstructionsUpdate,
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
-  ExercisePeerReviewDataForUser,
   ExercisePointsForUser,
   ExerciseRepository,
   ExerciseRepositoryStatus,
@@ -89,6 +88,7 @@ import {
   ExerciseSlideSubmissionInfo,
   ExerciseStatus,
   ExerciseStatusForUser,
+  ExerciseSubmissionId,
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskGrading,
@@ -141,6 +141,7 @@ import {
   Pagination,
   PeerReviewAcceptingStrategy,
   PeerReviewConfig,
+  PeerReviewDataForUser,
   PeerReviewQuestion,
   PeerReviewQuestionSubmission,
   PeerReviewQuestionType,
@@ -1263,10 +1264,8 @@ export function isExercisePointsForUser(obj: unknown): obj is ExercisePointsForU
   )
 }
 
-export function isExercisePeerReviewDataForUser(
-  obj: unknown,
-): obj is ExercisePeerReviewDataForUser {
-  const typedObj = obj as ExercisePeerReviewDataForUser
+export function isPeerReviewDataForUser(obj: unknown): obj is PeerReviewDataForUser {
+  const typedObj = obj as PeerReviewDataForUser
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
@@ -1286,13 +1285,23 @@ export function isExerciseStatusForUser(obj: unknown): obj is ExerciseStatusForU
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isExercisePointsForUser(typedObj["exercise_points"]) as boolean) &&
     Array.isArray(typedObj["given_peer_review_data"]) &&
-    typedObj["given_peer_review_data"].every(
-      (e: any) => isExercisePeerReviewDataForUser(e) as boolean,
-    ) &&
+    typedObj["given_peer_review_data"].every((e: any) => isPeerReviewDataForUser(e) as boolean) &&
     Array.isArray(typedObj["received_peer_review_data"]) &&
     typedObj["received_peer_review_data"].every(
-      (e: any) => isExercisePeerReviewDataForUser(e) as boolean,
-    )
+      (e: any) => isPeerReviewDataForUser(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["submission_ids"]) &&
+    typedObj["submission_ids"].every((e: any) => isExerciseSubmissionId(e) as boolean)
+  )
+}
+
+export function isExerciseSubmissionId(obj: unknown): obj is ExerciseSubmissionId {
+  const typedObj = obj as ExerciseSubmissionId
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["submission_id"] === "string" &&
+    typedObj["updated_at"] instanceof Date
   )
 }
 

@@ -668,7 +668,7 @@ export interface ExercisePointsForUser {
   teacher_decision: TeacherDecisionType | null
 }
 
-export interface ExercisePeerReviewDataForUser {
+export interface PeerReviewDataForUser {
   id: string
   created_at: Date
   updated_at: Date
@@ -681,8 +681,15 @@ export interface ExercisePeerReviewDataForUser {
 
 export interface ExerciseStatusForUser {
   exercise_points: ExercisePointsForUser
-  given_peer_review_data: Array<ExercisePeerReviewDataForUser>
-  received_peer_review_data: Array<ExercisePeerReviewDataForUser>
+  given_peer_review_data: Array<PeerReviewDataForUser>
+  received_peer_review_data: Array<PeerReviewDataForUser>
+  submission_ids: Array<ExerciseSubmissionId>
+}
+
+export interface ExerciseSubmissionId {
+  id: string
+  submission_id: string
+  updated_at: Date
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"

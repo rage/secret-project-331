@@ -51,10 +51,9 @@ pub struct ExercisePointsForUser {
     pub score_given: Option<f32>,
     pub teacher_decision: Option<TeacherDecisionType>,
 }
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExercisePeerReviewDataForUser {
+pub struct PeerReviewDataForUser {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -65,12 +64,21 @@ pub struct ExercisePeerReviewDataForUser {
     pub peer_review_priority: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSubmissionId {
+    pub id: Uuid,
+    pub submission_id: Uuid,
+    pub updated_at: DateTime<Utc>,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatusForUser {
     pub exercise_points: ExercisePointsForUser,
-    pub given_peer_review_data: Vec<ExercisePeerReviewDataForUser>,
-    pub received_peer_review_data: Vec<ExercisePeerReviewDataForUser>,
+    pub given_peer_review_data: Vec<PeerReviewDataForUser>,
+    pub received_peer_review_data: Vec<PeerReviewDataForUser>,
+    pub submission_ids: Vec<ExerciseSubmissionId>,
 }
 
 impl Exercise {
@@ -322,14 +330,45 @@ pub async fn get_exercises_and_exercise_status_by_course_instance_id(
     Ok(exercises)
 }
 
+pub async fn get_exercise_submissions_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<ExerciseSubmissionId>> {
+    let exercises = sqlx::query_as!(
+        ExerciseSubmissionId,
+        r#"
+        SELECT
+        e.id,
+        ess.id as submission_id,
+        ess.updated_at
+        FROM exercises e
+        LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id
+        WHERE e.course_id = (
+            SELECT course_id
+            FROM course_instances
+            WHERE id = $1
+          )
+          AND e.deleted_at IS NULL
+          AND ess.user_id = $2
+        ORDER BY e.order_number ASC;
+"#,
+        course_instance_id,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
 /** Given peer reviews */
 pub async fn get_given_peer_review_data_for_exercise_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Vec<ExercisePeerReviewDataForUser>> {
+) -> ModelResult<Vec<PeerReviewDataForUser>> {
     let peer_review_data = sqlx::query_as!(
-        ExercisePeerReviewDataForUser,
+        PeerReviewDataForUser,
         r#"
         SELECT
         e.id,
@@ -366,9 +405,9 @@ pub async fn get_received_peer_review_data_for_exercise_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Vec<ExercisePeerReviewDataForUser>> {
+) -> ModelResult<Vec<PeerReviewDataForUser>> {
     let peer_review_data = sqlx::query_as!(
-        ExercisePeerReviewDataForUser,
+        PeerReviewDataForUser,
         r#"
         SELECT
         e.id,

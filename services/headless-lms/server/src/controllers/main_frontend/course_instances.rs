@@ -341,6 +341,11 @@ async fn get_exercises_by_course_instance_id(
             &mut conn, params.0, params.1,
         )
         .await?;
+
+    let submission_id_list = models::exercises::get_exercise_submissions_by_course_instance_id(
+        &mut conn, params.0, params.1,
+    )
+    .await?;
     let mut exercise_and_peer_review_data: Vec<ExerciseStatusForUser> = vec![];
     for exercise in exercises {
         let mut temp_given_peer_review = vec![];
@@ -355,40 +360,23 @@ async fn get_exercises_by_course_instance_id(
                 temp_received_peer_review.push(received_review.clone())
             }
         }
+        let mut temp_submission_id = vec![];
+        for submission_ids in &submission_id_list {
+            if submission_ids.id == exercise.id {
+                temp_submission_id.push(submission_ids.clone())
+            }
+        }
         let exercise_status = ExerciseStatusForUser {
             exercise_points: exercise,
             given_peer_review_data: temp_given_peer_review,
             received_peer_review_data: temp_received_peer_review,
+            submission_ids: temp_submission_id,
         };
         exercise_and_peer_review_data.push(exercise_status)
     }
 
     token.authorized_ok(web::Json(exercise_and_peer_review_data))
 }
-/*
-/**
-GET /course-instances/:id/get-exercises
-*/
-#[instrument(skip(pool))]
-async fn get_peer_reviews_by_exercise_course_instance_id(
-    id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ExerciseStatusForUser>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::CourseInstance(*id),
-    )
-    .await?;
-    let exercises =
-        models::exercises::get_exercises_and_exercise_status_by_course_instance_id(&mut conn, *id)
-            .await?;
-    token.authorized_ok(web::Json(exercises))
-}
-*/
 
 /**
 Add a route for each controller in this module.

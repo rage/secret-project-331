@@ -32,6 +32,7 @@ export interface EditCourseModuleFormFields {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_requires_exam: boolean
   override_completion_link: boolean
   completion_registration_link_override: string
 }
@@ -48,6 +49,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
       Number(module.automatic_completion_number_of_points_treshold) ?? null,
     automatic_completion_number_of_exercises_attempted_treshold:
       Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
+    automatic_completion_requires_exam: module.automatic_completion_requires_exam,
     override_completion_link: module.completion_registration_link_override !== null,
     completion_registration_link_override: module.completion_registration_link_override ?? "",
   }
@@ -276,6 +278,26 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 })}
                 error={errors["name"]?.message}
               />
+              {/* Only for default module */}
+              {!module.name && (
+                <div
+                  className={css`
+                    flex: 1;
+                  `}
+                >
+                  <Checkbox
+                    label={t("automatic-completion-requires-exam")}
+                    register={register("automatic_completion_requires_exam", {
+                      disabled: !isChecked,
+                    })}
+                    className={css`
+                      label {
+                        color: #fff !important;
+                      }
+                    `}
+                  />
+                </div>
+              )}
             </div>
             <Checkbox
               label={t("override-completion-registration-link")}

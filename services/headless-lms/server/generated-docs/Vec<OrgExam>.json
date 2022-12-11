@@ -25,6 +25,7 @@
     "starts_at": "2021-12-31T22:00:00Z",
     "ends_at": "2021-12-31T22:00:00Z",
     "time_minutes": 120,
-    "organization_id": "307fa56f-9853-4f5c-afb9-a6736c232f32"
+    "organization_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+    "minimum_points_treshold": 24
   }
 ]

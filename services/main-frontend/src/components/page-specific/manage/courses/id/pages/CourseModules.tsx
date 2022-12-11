@@ -6,7 +6,11 @@ import { v4 } from "uuid"
 
 import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-import { ModifiedModule, NewModule } from "../../../../../../shared-module/bindings"
+import {
+  CompletionPolicy,
+  ModifiedModule,
+  NewModule,
+} from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
@@ -16,6 +20,9 @@ import BottomPanel from "../../../../../BottomPanel"
 
 import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
 import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
+
+const AUTOMATIC = "automatic"
+const MANUAL = "manual"
 
 interface Props {
   courseId: string
@@ -33,6 +40,7 @@ export type ModuleView = {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
 }
 
@@ -193,21 +201,40 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             })
           const modules = courseStructure.modules.map<ModuleView>((m) => {
             const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-            return {
-              id: m.id,
-              name: m.name,
-              order_number: m.order_number,
-              firstChapter,
-              lastChapter,
-              isNew: false,
-              uh_course_code: m.uh_course_code,
-              ects_credits: m.ects_credits,
-              automatic_completion: m.automatic_completion,
-              automatic_completion_number_of_points_treshold:
-                m.automatic_completion_number_of_points_treshold,
-              automatic_completion_number_of_exercises_attempted_treshold:
-                m.automatic_completion_number_of_exercises_attempted_treshold,
-              completion_registration_link_override: m.completion_registration_link_override,
+            if (m.completion_policy.policy === "automatic") {
+              return {
+                id: m.id,
+                name: m.name,
+                order_number: m.order_number,
+                firstChapter,
+                lastChapter,
+                isNew: false,
+                uh_course_code: m.uh_course_code,
+                ects_credits: m.ects_credits,
+                automatic_completion: true,
+                automatic_completion_number_of_points_treshold:
+                  m.completion_policy.number_of_points_treshold,
+                automatic_completion_number_of_exercises_attempted_treshold:
+                  m.completion_policy.number_of_exercises_attempted_treshold,
+                automatic_completion_requires_exam: m.completion_policy.requires_exam,
+                completion_registration_link_override: m.completion_registration_link_override,
+              }
+            } else {
+              return {
+                id: m.id,
+                name: m.name,
+                order_number: m.order_number,
+                firstChapter,
+                lastChapter,
+                isNew: false,
+                uh_course_code: m.uh_course_code,
+                ects_credits: m.ects_credits,
+                automatic_completion: false,
+                automatic_completion_number_of_points_treshold: null,
+                automatic_completion_number_of_exercises_attempted_treshold: null,
+                automatic_completion_requires_exam: false,
+                completion_registration_link_override: m.completion_registration_link_override,
+              }
             }
           })
           const error = validateModuleList(modules, chapters)
@@ -242,11 +269,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
             uh_course_code: module.uh_course_code,
             ects_credits: module.ects_credits,
-            automatic_completion: module.automatic_completion,
-            automatic_completion_number_of_points_treshold:
-              module.automatic_completion_number_of_points_treshold,
-            automatic_completion_number_of_exercises_attempted_treshold:
-              module.automatic_completion_number_of_exercises_attempted_treshold,
+            completion_policy: mapFieldsToCompletionPolicy(module),
             completion_registration_link_override: module.completion_registration_link_override,
           })
         } else if (initialModule !== undefined) {
@@ -260,7 +283,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               initialModule.automatic_completion_number_of_points_treshold ||
             module.ects_credits !== initialModule.ects_credits ||
             module.automatic_completion_number_of_exercises_attempted_treshold !==
-              initialModule.automatic_completion_number_of_exercises_attempted_treshold
+              initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
+            module.automatic_completion_requires_exam !==
+              initialModule.automatic_completion_requires_exam
           ) {
             modifiedModules.push({
               id: module.id,
@@ -268,11 +293,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               order_number: module.order_number,
               uh_course_code: module.uh_course_code,
               ects_credits: module.ects_credits,
-              automatic_completion: module.automatic_completion,
-              automatic_completion_number_of_points_treshold:
-                module.automatic_completion_number_of_points_treshold,
-              automatic_completion_number_of_exercises_attempted_treshold:
-                module.automatic_completion_number_of_exercises_attempted_treshold,
+              completion_policy: mapFieldsToCompletionPolicy(module),
               completion_registration_link_override: module.completion_registration_link_override,
             })
           }
@@ -342,40 +363,45 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       automatic_completion,
       automatic_completion_number_of_points_treshold,
       automatic_completion_number_of_exercises_attempted_treshold,
+      automatic_completion_requires_exam,
       completion_registration_link_override,
       override_completion_link,
     }: EditCourseModuleFormFields,
   ) => {
     setEdited(true)
     setModuleList((old) => {
-      const chapters = [...old.chapters]
-      chapters.forEach((c) => {
+      const chapters = old.chapters.map((c) => {
         if (starts <= c.chapter_number && c.chapter_number <= ends) {
-          c.module = id
+          return { ...c, module: id }
         } else if (c.module === id) {
-          c.module = null
+          return { ...c, module: null }
+        } else {
+          return c
         }
       })
-      const modules = [...old.modules]
-      modules.forEach((m) => {
-        if (m.id === id) {
-          return (
-            (m.name = name),
-            (m.ects_credits = ects_credits),
-            (m.uh_course_code = uh_course_code),
-            (m.automatic_completion = automatic_completion),
-            (m.automatic_completion_number_of_points_treshold =
-              automatic_completion_number_of_points_treshold),
-            (m.automatic_completion_number_of_exercises_attempted_treshold =
-              automatic_completion_number_of_exercises_attempted_treshold),
-            (m.completion_registration_link_override = override_completion_link
+      const modules = old.modules.map((m) => {
+        if (m.id !== id) {
+          return m
+        } else {
+          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+          return {
+            id,
+            name,
+            order_number: m.order_number,
+            ects_credits,
+            uh_course_code,
+            automatic_completion,
+            automatic_completion_number_of_points_treshold,
+            automatic_completion_number_of_exercises_attempted_treshold,
+            automatic_completion_requires_exam,
+            completion_registration_link_override: override_completion_link
               ? completion_registration_link_override
-              : null)
-          )
+              : null,
+            firstChapter,
+            lastChapter,
+            isNew: m.isNew,
+          }
         }
-        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
-        m.firstChapter = first
-        m.lastChapter = last
       })
       return {
         modules: sortAndUpdateOrderNumbers(modules),
@@ -447,6 +473,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           automatic_completion,
           automatic_completion_number_of_points_treshold,
           automatic_completion_number_of_exercises_attempted_treshold,
+          automatic_completion_requires_exam: false,
           completion_registration_link_override: override_completion_link
             ? completion_registration_link_override
             : null,
@@ -557,3 +584,18 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 }
 
 export default CourseModules
+
+function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
+  if (fields.automatic_completion) {
+    return {
+      policy: AUTOMATIC,
+      course_module_id: fields.id,
+      number_of_exercises_attempted_treshold:
+        fields.automatic_completion_number_of_exercises_attempted_treshold,
+      number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
+      requires_exam: fields.automatic_completion_requires_exam,
+    }
+  } else {
+    return { policy: MANUAL }
+  }
+}

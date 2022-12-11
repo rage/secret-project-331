@@ -24,19 +24,21 @@ export interface NextSectionLinkExtraProps {
 // eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled(Link)`
   border: 1px solid ${baseTheme.colors.blue[200]};
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 1rem;
   background: #fff;
+  display: inline-block;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
+  margin-bottom: 2.4rem;
 
   span {
     font-size: 15px;
     font-weight: 500;
     padding-left: 8px;
-    color: ${baseTheme.colors.blue[500]};
+    color: ${baseTheme.colors.blue[700]};
   }
 
   .arrow {
@@ -79,32 +81,18 @@ const NextSectionLink: React.FC<
       `}
     >
       {chapterFrontPageURL && (
-        <Link
-          className={css`
-            text-decoration: none;
-          `}
-          href={chapterFrontPageURL}
-          passHref
-        >
-          <div
-            className={css`
-              margin-bottom: 2.4rem;
-            `}
-          >
-            <StyledLink href="replace">
-              <ArrowSVGIcon
-                id="up-svg-icon"
-                role="presentation"
-                alt=""
-                width="12"
-                height="12"
-                viewBox="0 0 39 39"
-                transform="rotate(270)"
-              />
-              <span>{t("chapter-front-page")}</span>
-            </StyledLink>
-          </div>
-        </Link>
+        <StyledLink href={chapterFrontPageURL}>
+          <ArrowSVGIcon
+            id="up-svg-icon"
+            role="presentation"
+            alt=""
+            width="12"
+            height="12"
+            viewBox="0 0 39 39"
+            transform="rotate(270)"
+          />
+          <span>{t("chapter-front-page")}</span>
+        </StyledLink>
       )}
 
       <Fragment>

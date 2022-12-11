@@ -9,7 +9,12 @@ import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
 import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
-import { headingFont, monospaceFont } from "../../../../../../shared-module/styles"
+import {
+  baseTheme,
+  fontWeights,
+  headingFont,
+  monospaceFont,
+} from "../../../../../../shared-module/styles"
 
 export interface ExerciseListProps {
   courseId: string
@@ -54,11 +59,11 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
             <h2
               className={css`
                 font-style: normal;
-                font-weight: 600;
+                font-weight: ${fontWeights.semibold};
                 font-size: 40px;
                 line-height: 140%;
                 text-align: center;
-                color: #000000;
+                color: ${baseTheme.colors.primary[200]};
               `}
             >
               {chapter.name}
@@ -89,18 +94,18 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                     >
                       <h3
                         className={css`
-                          font-weight: 600;
+                          font-weight: ${fontWeights.semibold};
                         `}
                       >
                         {page.title}
                       </h3>
                       <p
                         className={css`
-                          font-weight: 400;
+                          font-weight: ${fontWeights.normal};
                           font-size: 18px;
                           line-height: 24px;
 
-                          color: #44827e;
+                          color: ${baseTheme.colors.green[600]};
                         `}
                         // PAGE should be replaced with {t("page-number")}, once I know how
                         // adding translations work
@@ -136,7 +141,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                               a:link,
                               a:visited {
                                 text-decoration: none;
-                                color: #313947;
+                                color: ${baseTheme.colors.gray[600]};
                               }
                             `}
                           >
@@ -144,7 +149,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                               className={css`
                                 font-family: ${headingFont};
                                 font-style: normal;
-                                font-weight: 500;
+                                font-weight: ${fontWeights.medium};
                                 font-size: 22px;
                                 line-height: 26px;
                               `}
@@ -166,7 +171,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                                   className={css`
                                     font-family: ${monospaceFont};
                                     font-style: normal;
-                                    font-weight: 400;
+                                    font-weight: ${fontWeights.normal};
                                     font-size: 15px;
                                     line-height: 22px;
                                     color: #1a2333;

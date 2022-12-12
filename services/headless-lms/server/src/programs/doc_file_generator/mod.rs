@@ -399,6 +399,7 @@ fn models() {
         regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
         repository_exercises::RepositoryExercise,
         roles::{RoleUser, UserRole},
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_exercise_states::{
             ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -627,6 +628,18 @@ fn models() {
         text_data: Some("I think that the answer was well written.".to_string()),
         number_data: None,
     });
+    example!(UserCourseInstanceExerciseServiceVariable {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_service_slug: "quizzes".to_string(),
+        user_id,
+        course_instance_id,
+        exam_id: None,
+        variable_key: "dog-name".to_string(),
+        variable_value: serde_json::Value::String("Dog".to_string()),
+    });
 
     doc!(
         T,
@@ -820,7 +833,8 @@ fn models() {
             )
         ]),
         peer_review_config,
-        previous_exercise_slide_submission
+        previous_exercise_slide_submission,
+        user_course_instance_exercise_service_variables,
     });
     doc!(CourseMaterialPeerReviewSubmission {
         exercise_slide_submission_id,
@@ -834,11 +848,13 @@ fn models() {
             submission,
             grading,
             model_solution_spec: None,
+            exercise_task_exercise_service_slug: "quizzes".to_string(),
         }
     );
     doc!(StudentExerciseSlideSubmissionResult {
         exercise_task_submission_results,
         exercise_status,
+        user_course_instance_exercise_service_variables,
     });
     doc!(Chapter {
         id,

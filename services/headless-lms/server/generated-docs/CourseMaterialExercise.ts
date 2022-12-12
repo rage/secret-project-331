@@ -6,4 +6,5 @@ type CourseMaterialExercise = {
   exercise_slide_submission_counts: Record<string, number>
   peer_review_config: CourseMaterialPeerReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
+  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }

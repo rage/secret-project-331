@@ -1,12 +1,15 @@
 /* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
+import {
+  GradingRequest,
+  GradingResult,
+} from "../../shared-module/exercise-service-protocol-types-2"
 import { Alternative, Answer, ClientErrorResponse } from "../../util/stateInterfaces"
 
 export default (
   req: NextApiRequest,
-  res: NextApiResponse<GradingResult | ClientErrorResponse>,
+  res: NextApiResponse<ExampleExerciseGradingResult | ClientErrorResponse>,
 ): void => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
@@ -15,14 +18,7 @@ export default (
   return handlePost(req, res)
 }
 
-interface GradingResult {
-  grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
-  score_given: number
-  score_maximum: number
-  feedback_text: string | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  feedback_json: ExerciseFeedback | null
-}
+type ExampleExerciseGradingResult = GradingResult<ExerciseFeedback | null>
 
 export interface ExerciseFeedback {
   selectedOptionIsCorrect: boolean
@@ -30,7 +26,7 @@ export interface ExerciseFeedback {
 
 type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
-const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
+const handlePost = (req: NextApiRequest, res: NextApiResponse<ExampleExerciseGradingResult>) => {
   const gradingRequest: ServiceGradingRequest = req.body
 
   if (!gradingRequest?.submission_data?.selectedOptionId) {

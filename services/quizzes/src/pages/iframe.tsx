@@ -9,11 +9,11 @@ import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/typ
 import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import {
-  isSetLanguageMessage,
-  isSetStateMessage,
-} from "../shared-module/exercise-service-protocol-types.guard"
+  forgivingIsSetStateMessage,
+  UserInformation,
+} from "../shared-module/exercise-service-protocol-types"
+import { isSetLanguageMessage } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { COLUMN } from "../util/constants"
@@ -55,7 +55,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   const port = useExerciseServiceParentConnection((messageData) => {
-    if (isSetStateMessage(messageData)) {
+    if (forgivingIsSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
           setState({

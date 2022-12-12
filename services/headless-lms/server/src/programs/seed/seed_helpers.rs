@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
@@ -19,6 +17,8 @@ use headless_lms_models::{
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
 use sqlx::PgConnection;
+use std::collections::HashMap;
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
@@ -367,6 +367,7 @@ pub async fn submit_and_grade(
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: 100,
+        set_user_variables: Some(HashMap::new()),
     };
     headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,

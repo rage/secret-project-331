@@ -1560,7 +1560,9 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["module_id"] === "string" &&
     typeof typedObj["name"] === "string" &&
     typeof typedObj["order_number"] === "number" &&
-    typeof typedObj["prerequisite_modules_completed"] === "boolean"
+    typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true)
   )
 }
 

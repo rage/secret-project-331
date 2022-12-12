@@ -1,7 +1,7 @@
 // Utilities for implementing exercise services
 
 import { UploadResultMessage } from "../exercise-service-protocol-types"
-import { uploadFromExerciseService } from "../services/backend/files"
+import { uploadFromIframe } from "../services/backend/files"
 
 export const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER = "exercise-service-upload-claim"
 
@@ -12,7 +12,7 @@ export const onUploadFileMessage = async (
 ): Promise<void> => {
   let msg: UploadResultMessage
   try {
-    const urls = await uploadFromExerciseService(exerciseServiceSlug, files)
+    const urls = await uploadFromIframe(exerciseServiceSlug, files)
     msg = {
       // eslint-disable-next-line i18next/no-literal-string
       message: "upload-result",

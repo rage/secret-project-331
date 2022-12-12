@@ -7,14 +7,15 @@
  */
 import {
   CurrentStateMessage,
-  FileUploadMessage,
   HeightChangedMessage,
   IframeState,
   IframeViewType,
   MessageFromIframe,
   MessageToIframe,
+  SetFileUploadsMessage,
   SetLanguageMessage,
   SetStateMessage,
+  UploadFilesMessage,
   UploadResultMessage,
   UserInformation,
 } from "./exercise-service-protocol-types"
@@ -23,7 +24,8 @@ export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
   const typedObj = obj as MessageFromIframe
   return (
     (isCurrentStateMessage(typedObj) as boolean) ||
-    (isFileUploadMessage(typedObj) as boolean) ||
+    (isUploadFilesMessage(typedObj) as boolean) ||
+    (isSetFileUploadsMessage(typedObj) as boolean) ||
     (isHeightChangedMessage(typedObj) as boolean)
   )
 }
@@ -37,12 +39,20 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
   )
 }
 
-export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
-  const typedObj = obj as FileUploadMessage
+export function isSetFileUploadsMessage(obj: unknown): obj is SetFileUploadsMessage {
+  const typedObj = obj as SetFileUploadsMessage
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typedObj["message"] === "file-upload" &&
+    typedObj["message"] === "set-file-uploads" &&
     typedObj["files"] instanceof Map
+  )
+}
+
+export function isUploadFilesMessage(obj: unknown): obj is UploadFilesMessage {
+  const typedObj = obj as UploadFilesMessage
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typedObj["message"] === "upload-files"
   )
 }
 

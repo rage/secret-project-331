@@ -5,7 +5,11 @@ import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
  *
  * to: parent
  */
-export type MessageFromIframe = CurrentStateMessage | FileUploadMessage | HeightChangedMessage
+export type MessageFromIframe =
+  | CurrentStateMessage
+  | UploadFilesMessage
+  | SetFileUploadsMessage
+  | HeightChangedMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
@@ -13,9 +17,15 @@ export interface CurrentStateMessage {
   valid: boolean
 }
 
-export interface FileUploadMessage {
-  message: "file-upload"
+/// Informs the parent of files that the iframe may wish to upload later via UploadFilesMessage.
+export interface SetFileUploadsMessage {
+  message: "set-file-uploads"
   files: Map<string, string | Blob>
+}
+
+// Tells the parent to upload the files that have previously been sent via SetFileUploadsMessage.
+export interface UploadFilesMessage {
+  message: "upload-files"
 }
 
 export interface HeightChangedMessage {

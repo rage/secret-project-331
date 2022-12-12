@@ -1,5 +1,5 @@
 import { Alert } from "@mui/lab"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
@@ -23,6 +23,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   title,
 }) => {
   const { t } = useTranslation()
+  const [files, setFiles] = useState<Map<string, string | Blob>>(new Map())
   if (!url || url.trim() === "") {
     return <Alert severity="error">{t("cannot-render-exercise-task-missing-url")}</Alert>
   }
@@ -39,8 +40,10 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
             if (setAnswer) {
               setAnswer({ data, valid })
             }
-          } else if (messageContainer.message === "file-upload") {
-            await onUploadFileMessage(exerciseServiceSlug, messageContainer.files, responsePort)
+          } else if (messageContainer.message === "set-file-uploads") {
+            setFiles(messageContainer.files)
+          } else if (messageContainer.message === "upload-files") {
+            await onUploadFileMessage(exerciseServiceSlug, files, responsePort)
           }
         }
       }}

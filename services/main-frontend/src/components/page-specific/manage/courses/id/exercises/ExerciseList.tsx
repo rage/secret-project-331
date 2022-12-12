@@ -111,7 +111,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                         // adding translations work
                         // eslint-disable-next-line i18next/no-literal-string
                       >
-                        PAGE {page.order_number + 1}
+                        {t("page-number", { "page-number": page.order_number + 1 })}
                       </p>
                     </div>
                     <ul

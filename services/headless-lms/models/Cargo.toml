@@ -13,7 +13,7 @@ license = "Apache-2.0"
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.21.2", features = ["fs", "io-util"] }
+tokio = { version = "1.23.0", features = ["fs", "io-util"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.25"
 # A `dotenv` implementation for Rust
@@ -28,13 +28,13 @@ sqlx = { version = "0.6.2", features = [
   "offline"
 ] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.2.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.2.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.147", features = ["derive"] }
+serde = { version = "1.0.150", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.22", features = ["serde"] }
+chrono = { version = "0.4.23", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.87"
+serde_json = "1.0.89"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -73,7 +73,7 @@ tracing-error = "0.2.0"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 # HTTP mocking for Rust.
-mockito = "0.31.0"
+mockito = "0.31.1"
 
 [features]
 ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]

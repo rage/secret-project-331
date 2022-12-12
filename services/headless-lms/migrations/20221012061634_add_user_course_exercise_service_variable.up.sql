@@ -9,11 +9,13 @@ CREATE TABLE user_course_instance_exercise_service_variables (
   exam_id UUID references exams,
   variable_key varchar(255) NOT NULL,
   variable_value JSONB NOT NULL,
-  CHECK ((course_instance_id IS NULL) <> (exam_id IS NULL))
+  CHECK (
+    (course_instance_id IS NULL) <> (exam_id IS NULL)
+  )
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON user_course_instance_exercise_service_variables FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE user_course_instance_exercise_service_variables IS 'An example';
+COMMENT ON TABLE user_course_instance_exercise_service_variables IS 'A variable is a record that an exercise service can save for a specific user that will be available in all the exercises that use the same exercise service in the future. An exercise service could use this for example to remember some data that user has inputted later on -- for example it could remember the user''s name or it could remember a link to a picture that the user has uploaded.';
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -24,8 +26,21 @@ COMMENT ON COLUMN user_course_instance_exercise_service_variables.course_instanc
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.exam_id IS 'The variable can be alternatively scoped to an exam instead of the exercise service. Either course_instance_id or exam_id must be set.';
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.variable_key IS 'Key used to set or to access the variable.';
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.variable_value IS 'The thing being stored.';
-
 -- We don't have this yet in postgres 14: https://blog.rustprooflabs.com/2022/07/postgres-15-unique-improvement-with-null
 -- Either exam id or course instance id is always null, enforced with a constraint.
-CREATE UNIQUE INDEX no_duplicate_keys_instance ON user_course_instance_exercise_service_variables (variable_key, user_id, course_instance_id, exercise_service_slug) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL;
-CREATE UNIQUE INDEX no_duplicate_keys_exam ON user_course_instance_exercise_service_variables (variable_key, user_id, exam_id, exercise_service_slug) WHERE deleted_at IS NULL AND exam_id IS NOT NULL;
+CREATE UNIQUE INDEX no_duplicate_keys_instance ON user_course_instance_exercise_service_variables (
+  variable_key,
+  user_id,
+  course_instance_id,
+  exercise_service_slug
+)
+WHERE deleted_at IS NULL
+  AND course_instance_id IS NOT NULL;
+CREATE UNIQUE INDEX no_duplicate_keys_exam ON user_course_instance_exercise_service_variables (
+  variable_key,
+  user_id,
+  exam_id,
+  exercise_service_slug
+)
+WHERE deleted_at IS NULL
+  AND exam_id IS NOT NULL;

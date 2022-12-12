@@ -15,7 +15,9 @@ use crate::{
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
     peer_review_configs::PeerReviewAcceptingStrategy,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_question_submissions::{
+        self, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
+    },
     prelude::*,
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
@@ -503,6 +505,7 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub submission_id: Uuid,
     pub exercise_id: Uuid,
     pub tasks: Vec<CourseMaterialExerciseTask>,
+    pub received_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
 }
 
 /// Gets submissions that require input from the teacher to continue processing.
@@ -531,6 +534,10 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             &fetch_service_info,
         )
         .await?;
+        let received_peer_reviews = peer_review_question_submissions::get_peer_review_answers_with_questions_for_submission(
+            conn,
+            answer.submission_id,
+        ).await?;
         let new_answer = AnswerRequiringAttentionWithTasks {
             id: answer.id,
             user_id: answer.user_id,
@@ -543,6 +550,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             submission_id: answer.submission_id,
             exercise_id: answer.exercise_id,
             tasks,
+            received_peer_reviews,
         };
         answers.push(new_answer);
     }

@@ -120,7 +120,9 @@ use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_question_submissions::{
+        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+    },
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -372,6 +374,7 @@ fn models() {
             CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
             PeerReviewConfig,
         },
+        peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         peer_review_questions::{
             CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType,
         },
@@ -390,6 +393,21 @@ fn models() {
         users::User,
     };
 
+    example!(PeerReviewQuestionAndAnswer {
+        peer_review_config_id,
+        peer_review_question_id,
+        peer_review_question_submission_id,
+        peer_review_submission_id,
+        order_number: 0,
+        question: "Was the answer well thought out?".to_string(),
+        answer: PeerReviewAnswer::Essay {
+            answer: "I think that the answer was well thought out.".to_string()
+        }
+    });
+    example!(PeerReviewWithQuestionsAndAnswers {
+        peer_review_submission_id,
+        questions_and_answers,
+    });
     example!(AnswerRequiringAttentionWithTasks {
         id,
         user_id: Uuid::parse_str("7115806b-07c4-4079-8444-6dd248d3b9e7").unwrap(),
@@ -402,6 +420,7 @@ fn models() {
         submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
         exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
         tasks,
+        received_peer_reviews,
     });
     doc!(AnswersRequiringAttention {
         exercise_max_points: 1,

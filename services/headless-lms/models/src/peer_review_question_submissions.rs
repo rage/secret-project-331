@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use crate::peer_review_questions::PeerReviewQuestionType;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -99,4 +102,103 @@ WHERE prs.exercise_slide_submission_id = $1
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(tag = "type", rename_all = "kebab-case")]
+pub enum PeerReviewAnswer {
+    NoAnswer,
+    Essay { answer: String },
+    Scale { answer: f32 },
+}
+
+impl PeerReviewAnswer {
+    fn new(
+        question_type: PeerReviewQuestionType,
+        text_data: Option<String>,
+        number_data: Option<f32>,
+    ) -> Self {
+        match (question_type, text_data, number_data) {
+            (PeerReviewQuestionType::Essay, Some(answer), _) => Self::Essay { answer },
+            (PeerReviewQuestionType::Scale, _, Some(answer)) => Self::Scale { answer },
+            _ => Self::NoAnswer,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerReviewQuestionAndAnswer {
+    pub peer_review_config_id: Uuid,
+    pub peer_review_question_id: Uuid,
+    pub peer_review_submission_id: Uuid,
+    pub peer_review_question_submission_id: Uuid,
+    pub order_number: i32,
+    pub question: String,
+    pub answer: PeerReviewAnswer,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerReviewWithQuestionsAndAnswers {
+    pub peer_review_submission_id: Uuid,
+    pub questions_and_answers: Vec<PeerReviewQuestionAndAnswer>,
+}
+
+pub async fn get_peer_review_answers_with_questions_for_submission(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<PeerReviewWithQuestionsAndAnswers>> {
+    let res = sqlx::query!(
+        r#"
+SELECT answers.id AS peer_review_question_submission_id,
+  answers.text_data,
+  answers.number_data,
+  questions.peer_review_config_id,
+  questions.id AS peer_review_question_id,
+  questions.order_number,
+  questions.question,
+  questions.question_type AS "question_type: PeerReviewQuestionType",
+  submissions.id AS peer_review_submission_id
+FROM peer_review_question_submissions answers
+  JOIN peer_review_questions questions ON (
+    answers.peer_review_question_id = questions.id
+  )
+  JOIN peer_review_submissions submissions ON (
+    answers.peer_review_submission_id = submissions.id
+  )
+WHERE submissions.exercise_slide_submission_id = $1
+  AND questions.deleted_at IS NULL
+  AND answers.deleted_at IS NULL
+  AND submissions.deleted_at IS NULL
+        "#,
+        exercise_slide_submission_id,
+    )
+    .map(|x| PeerReviewQuestionAndAnswer {
+        peer_review_config_id: x.peer_review_config_id,
+        peer_review_question_id: x.peer_review_question_id,
+        peer_review_question_submission_id: x.peer_review_question_submission_id,
+        peer_review_submission_id: x.peer_review_submission_id,
+        order_number: x.order_number,
+        question: x.question,
+        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+    })
+    .fetch_all(conn)
+    .await?;
+    let mut mapped: HashMap<Uuid, Vec<PeerReviewQuestionAndAnswer>> = HashMap::new();
+    res.into_iter().for_each(|x| {
+        mapped
+            .entry(x.peer_review_submission_id)
+            .or_default()
+            .push(x)
+    });
+    let collected = mapped
+        .into_iter()
+        .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
+            peer_review_submission_id: id,
+            questions_and_answers: qa,
+        })
+        .collect();
+    Ok(collected)
 }

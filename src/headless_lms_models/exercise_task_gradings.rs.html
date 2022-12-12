@@ -522,6 +522,22 @@
 <span id="522">522</span>
 <span id="523">523</span>
 <span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -536,6 +552,7 @@
     exercise_tasks::{<span class="self">self</span>, ExerciseTask},
     exercises::{Exercise, GradingProgress},
     prelude::<span class="kw-2">*</span>,
+    user_exercise_states::UserExerciseState,
     CourseOrExamId,
 };
 
@@ -576,6 +593,8 @@
     <span class="kw">pub </span>score_maximum: i32,
     <span class="kw">pub </span>feedback_text: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>feedback_json: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)] </span><span class="comment">// Allows us to omit the field in typescript
+    </span><span class="kw">pub </span>set_user_variables: <span class="prelude-ty">Option</span>&lt;HashMap&lt;String, serde_json::Value&gt;&gt;,
 }
 
 <span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
@@ -826,12 +845,14 @@ WHERE id = $2
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub async fn </span>grade_submission(
+<span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub async fn </span>grade_submission(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
     exercise_task: <span class="kw-2">&amp;</span>ExerciseTask,
     exercise: <span class="kw-2">&amp;</span>Exercise,
     grading: <span class="kw-2">&amp;</span>ExerciseTaskGrading,
+    user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
     send_grading_request: <span class="kw">impl </span>Fn(
         Url,
@@ -845,8 +866,19 @@ WHERE id = $2
     <span class="kw">let </span>exercise_service =
         get_exercise_service_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>grade_url = get_internal_grade_url(<span class="kw-2">&amp;</span>exercise_service, <span class="kw-2">&amp;</span>exercise_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>obj = send_grading_request(grade_url, exercise_task, submission).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>updated_grading = update_grading(conn, grading, <span class="kw-2">&amp;</span>obj, exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise_task_grading_result =
+        send_grading_request(grade_url, exercise_task, submission).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>updated_grading =
+        update_grading(<span class="kw-2">&amp;mut </span>tx, grading, <span class="kw-2">&amp;</span>exercise_task_grading_result, exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">crate</span>::user_course_instance_exercise_service_variables::insert_after_exercise_task_graded(
+        <span class="kw-2">&amp;mut </span>tx,
+        <span class="kw-2">&amp;</span>exercise_task_grading_result.set_user_variables,
+        exercise_task,
+        user_exercise_state,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(updated_grading)
 }
 

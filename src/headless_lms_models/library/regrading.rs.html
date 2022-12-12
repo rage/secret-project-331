@@ -958,6 +958,16 @@
 <span id="958">958</span>
 <span id="959">959</span>
 <span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     convert::TryFrom,
@@ -1294,6 +1304,7 @@
             score_maximum: <span class="number">100</span>,
             feedback_text: <span class="prelude-val">None</span>,
             feedback_json: <span class="prelude-val">None</span>,
+            set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
         };
         <span class="kw">let </span>original_grading = create_initial_submission(
             tx.as_mut(),
@@ -1358,6 +1369,7 @@
                     score_maximum: <span class="number">1</span>,
                     feedback_text: <span class="prelude-val">None</span>,
                     feedback_json: <span class="prelude-val">None</span>,
+                    set_user_variables: <span class="prelude-val">None</span>,
                 })
             }
             .boxed()
@@ -1404,6 +1416,7 @@
             score_maximum: <span class="number">100</span>,
             feedback_text: <span class="prelude-val">None</span>,
             feedback_json: <span class="prelude-val">None</span>,
+            set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
         };
         <span class="kw">let </span>original_grading = create_initial_submission(
             tx.as_mut(),
@@ -1466,6 +1479,7 @@
                     score_maximum: <span class="number">1</span>,
                     feedback_text: <span class="prelude-val">None</span>,
                     feedback_json: <span class="prelude-val">None</span>,
+                    set_user_variables: <span class="prelude-val">None</span>,
                 })
             }
             .boxed()
@@ -1494,6 +1508,7 @@
             score_maximum: <span class="number">100</span>,
             feedback_text: <span class="prelude-val">None</span>,
             feedback_json: <span class="prelude-val">None</span>,
+            set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
         };
 
         <span class="kw">let </span>task_1 = models::exercise_tasks::insert(
@@ -1640,6 +1655,7 @@
                     score_maximum: <span class="number">1</span>,
                     feedback_text: <span class="prelude-val">None</span>,
                     feedback_json: <span class="prelude-val">None</span>,
+                    set_user_variables: <span class="prelude-val">None</span>,
                 })
             }
             .boxed()
@@ -1695,6 +1711,7 @@
                     score_maximum: <span class="number">100</span>,
                     feedback_text: <span class="prelude-val">None</span>,
                     feedback_json: <span class="prelude-val">None</span>,
+                    set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
                 },
             )]),
         )
@@ -1709,6 +1726,7 @@
                     score_maximum: <span class="number">100</span>,
                     feedback_text: <span class="prelude-val">None</span>,
                     feedback_json: <span class="prelude-val">None</span>,
+                    set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
                 })
                 .unwrap(),
             )
@@ -1762,6 +1780,7 @@
                     score_maximum: <span class="number">1</span>,
                     feedback_text: <span class="prelude-val">None</span>,
                     feedback_json: <span class="prelude-val">None</span>,
+                    set_user_variables: <span class="prelude-val">None</span>,
                 })
             }
             .boxed()
@@ -1796,6 +1815,7 @@
             score_maximum: <span class="number">100</span>,
             feedback_text: <span class="prelude-val">None</span>,
             feedback_json: <span class="prelude-val">None</span>,
+            set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
         };
         <span class="kw">let </span>original_grading = create_initial_submission(
             tx.as_mut(),

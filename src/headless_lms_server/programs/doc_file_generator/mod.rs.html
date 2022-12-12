@@ -1402,6 +1402,22 @@
 <span id="1402">1402</span>
 <span id="1403">1403</span>
 <span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1803,6 +1819,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
         regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
         repository_exercises::RepositoryExercise,
         roles::{RoleUser, UserRole},
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_exercise_states::{
             ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -2031,6 +2048,18 @@ This method is mainly useful for external/std types. For example, we cannot writ
         text_data: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.to_string()),
         number_data: <span class="prelude-val">None</span>,
     });
+    <span class="macro">example!</span>(UserCourseInstanceExerciseServiceVariable {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_service_slug: <span class="string">&quot;quizzes&quot;</span>.to_string(),
+        user_id,
+        course_instance_id,
+        exam_id: <span class="prelude-val">None</span>,
+        variable_key: <span class="string">&quot;dog-name&quot;</span>.to_string(),
+        variable_value: serde_json::Value::String(<span class="string">&quot;Dog&quot;</span>.to_string()),
+    });
 
     <span class="macro">doc!</span>(
         T,
@@ -2224,7 +2253,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
             </span>)
         ]),
         peer_review_config,
-        previous_exercise_slide_submission
+        previous_exercise_slide_submission,
+        user_course_instance_exercise_service_variables,
     });
     <span class="macro">doc!</span>(CourseMaterialPeerReviewSubmission {
         exercise_slide_submission_id,
@@ -2238,11 +2268,13 @@ This method is mainly useful for external/std types. For example, we cannot writ
             submission,
             grading,
             model_solution_spec: <span class="prelude-val">None</span>,
+            exercise_task_exercise_service_slug: <span class="string">&quot;quizzes&quot;</span>.to_string(),
         }
     );
     <span class="macro">doc!</span>(StudentExerciseSlideSubmissionResult {
         exercise_task_submission_results,
         exercise_status,
+        user_course_instance_exercise_service_variables,
     });
     <span class="macro">doc!</span>(Chapter {
         id,

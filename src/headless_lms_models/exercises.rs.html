@@ -734,6 +734,17 @@
 <span id="734">734</span>
 <span id="735">735</span>
 <span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
@@ -747,6 +758,7 @@
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     prelude::<span class="kw-2">*</span>,
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{<span class="self">self</span>, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
@@ -799,6 +811,8 @@
     </span><span class="kw">pub </span>exercise_slide_submission_counts: HashMap&lt;Uuid, i64&gt;,
     <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;CourseMaterialPeerReviewConfig&gt;,
     <span class="kw">pub </span>previous_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
+    <span class="kw">pub </span>user_course_instance_exercise_service_variables:
+        Vec&lt;UserCourseInstanceExerciseServiceVariable&gt;,
 }
 
 <span class="kw">impl </span>CourseMaterialExercise {
@@ -1147,6 +1161,13 @@ WHERE id = $1
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     };
 
+    <span class="kw">let </span>user_course_instance_exercise_service_variables = <span class="kw">match </span>(user_id, instance_or_exam_id) {
+        (<span class="prelude-val">Some</span>(user_id), <span class="prelude-val">Some</span>(course_instance_or_exam_id)) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="kw">crate</span>::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_instance_or_exam_id).<span class="kw">await</span><span class="question-mark">?</span>)
+        }
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    }.unwrap_or_default();
+
     <span class="prelude-val">Ok</span>(CourseMaterialExercise {
         exercise,
         can_post_submission,
@@ -1154,6 +1175,7 @@ WHERE id = $1
         exercise_status,
         exercise_slide_submission_counts,
         peer_review_config,
+        user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
     })
 }

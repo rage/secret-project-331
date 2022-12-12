@@ -479,6 +479,25 @@
 <span id="479">479</span>
 <span id="480">480</span>
 <span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -498,8 +517,11 @@
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     prelude::<span class="kw-2">*</span>,
     regradings,
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_exercise_slide_states::{<span class="self">self</span>, UserExerciseSlideState},
-    user_exercise_states::{<span class="self">self</span>, ExerciseWithUserState, UserExerciseState},
+    user_exercise_states::{
+        <span class="self">self</span>, CourseInstanceOrExamId, ExerciseWithUserState, UserExerciseState,
+    },
     user_exercise_task_states,
 };
 
@@ -518,6 +540,8 @@
 </span><span class="kw">pub struct </span>StudentExerciseSlideSubmissionResult {
     <span class="kw">pub </span>exercise_status: <span class="prelude-ty">Option</span>&lt;ExerciseStatus&gt;,
     <span class="kw">pub </span>exercise_task_submission_results: Vec&lt;StudentExerciseTaskSubmissionResult&gt;,
+    <span class="kw">pub </span>user_course_instance_exercise_service_variables:
+        Vec&lt;UserCourseInstanceExerciseServiceVariable&gt;,
 }
 
 <span class="kw">impl </span>StudentExerciseSlideSubmissionResult {
@@ -553,6 +577,7 @@
     <span class="kw">pub </span>submission: ExerciseTaskSubmission,
     <span class="kw">pub </span>grading: <span class="prelude-ty">Option</span>&lt;ExerciseTaskGrading&gt;,
     <span class="kw">pub </span>model_solution_spec: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>exercise_task_exercise_service_slug: String,
 }
 
 <span class="attribute">#[derive(Debug)]
@@ -724,9 +749,10 @@
         user_exercise_slide_submission,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_exercise_state = exercise_with_user_state.user_exercise_state();
     <span class="kw">let </span>user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         <span class="kw-2">&amp;mut </span>tx,
-        exercise_with_user_state.user_exercise_state().id,
+        user_exercise_state.id,
         exercise_slide_submission.exercise_slide_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -739,6 +765,7 @@
                     <span class="kw-2">&amp;</span>task_submission,
                     exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
+                    user_exercise_state,
                     <span class="kw-2">&amp;</span>fetch_service_info,
                     <span class="kw-2">&amp;</span>send_grading_request,
                 )
@@ -779,6 +806,14 @@
         exercise_slide_submission.user_points_update_strategy,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(
+        user_exercise_state.course_instance_id,
+        user_exercise_state.exam_id,
+    )<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>user_course_instance_exercise_service_variables  = <span class="kw">crate</span>::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(<span class="kw-2">&amp;mut </span>tx, user_exercise_state.user_id, course_instance_or_exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>result = StudentExerciseSlideSubmissionResult {
         exercise_status: <span class="prelude-val">Some</span>(ExerciseStatus {
             score_given: user_exercise_state.score_given,
@@ -787,6 +822,7 @@
             reviewing_stage: user_exercise_state.reviewing_stage,
         }),
         exercise_task_submission_results: results,
+        user_course_instance_exercise_service_variables,
     };
     exercise_with_user_state.set_user_exercise_state(user_exercise_state)<span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -798,6 +834,7 @@
     submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
     exercise: <span class="kw-2">&amp;</span>Exercise,
     user_exercise_slide_state_id: Uuid,
+    user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
     send_grading_request: <span class="kw">impl </span>Fn(
         Url,
@@ -816,6 +853,7 @@
         <span class="kw-2">&amp;</span>exercise_task,
         exercise,
         <span class="kw-2">&amp;</span>grading,
+        user_exercise_state,
         fetch_service_info,
         send_grading_request,
     )
@@ -832,6 +870,7 @@
         submission: updated_submission,
         grading: <span class="prelude-val">Some</span>(grading),
         model_solution_spec,
+        exercise_task_exercise_service_slug: exercise_task.exercise_type,
     })
 }
 
@@ -853,16 +892,15 @@
         <span class="kw-2">&amp;</span>updated_grading,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>model_solution_spec = exercise_tasks::get_exercise_task_model_solution_spec_by_id(
-        conn,
-        submission.exercise_task_id,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise_task =
+        exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>model_solution_spec = exercise_task.model_solution_spec;
 
     <span class="prelude-val">Ok</span>(StudentExerciseTaskSubmissionResult {
         submission: updated_submission,
         grading: <span class="prelude-val">Some</span>(grading),
         model_solution_spec,
+        exercise_task_exercise_service_slug: exercise_task.exercise_type,
     })
 }
 

@@ -468,9 +468,8 @@
 <span id="468">468</span>
 <span id="469">469</span>
 <span id="470">470</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
-
-<span class="kw">use </span>anyhow::Result;
+<span id="471">471</span>
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
     course_exams,
@@ -489,6 +488,8 @@
 <span class="kw">use </span>headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 <span class="kw">use </span>serde_json::Value;
 <span class="kw">use </span>sqlx::PgConnection;
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -837,6 +838,7 @@
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: <span class="number">100</span>,
+        set_user_variables: <span class="prelude-val">Some</span>(HashMap::new()),
     };
     headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,

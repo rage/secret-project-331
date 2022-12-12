@@ -706,6 +706,20 @@ mod tests {
                 number_of_points_treshold: Some(0),
                 requires_exam: false,
             };
+
+            let requirements4 = AutomaticCompletionRequirements {
+                course_module_id: Uuid::parse_str("66d98fc6-784a-4b39-a494-24ae9b1c9b14").unwrap(),
+                number_of_exercises_attempted_treshold: Some(10),
+                number_of_points_treshold: None,
+                requires_exam: false,
+            };
+
+            let requirements5 = AutomaticCompletionRequirements {
+                course_module_id: Uuid::parse_str("66d98fc6-784a-4b39-a494-24ae9b1c9b14").unwrap(),
+                number_of_exercises_attempted_treshold: None,
+                number_of_points_treshold: Some(10),
+                requires_exam: false,
+            };
             assert!(requirements1.passes_exercise_tresholds(10, 50));
             assert!(requirements2.passes_exercise_tresholds(50, 10));
 
@@ -717,6 +731,12 @@ mod tests {
 
             assert!(requirements3.passes_exercise_tresholds(1, 1));
             assert!(requirements3.passes_exercise_tresholds(0, 0));
+
+            assert!(requirements4.passes_exercise_tresholds(10, 1));
+            assert!(!requirements4.passes_exercise_tresholds(1, 10));
+
+            assert!(requirements5.passes_exercise_tresholds(0, 10));
+            assert!(!requirements5.passes_exercise_tresholds(10, 0));
         }
     }
 }

@@ -107,7 +107,7 @@ pub async fn seed_sample_course(
         name: "The Basics".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
+        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
         course_module_id: Some(default_module.id),
     };
     let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
@@ -531,7 +531,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -593,7 +593,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -674,7 +674,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -776,7 +776,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -861,7 +861,7 @@ pub async fn seed_sample_course(
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -880,7 +880,7 @@ pub async fn seed_sample_course(
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -897,7 +897,7 @@ pub async fn seed_sample_course(
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
         serde_json::from_str(include_str!("../../assets/scale.json"))?,
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1587,7 +1587,7 @@ pub async fn create_glossary_course(
         name: "Glossary".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
+        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
         course_module_id: Some(default_module.id),
     };
     let (chapter, _front_page) = library::content_management::create_new_chapter(
@@ -1747,7 +1747,7 @@ pub async fn seed_cs_course_material(
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1766,7 +1766,7 @@ pub async fn seed_cs_course_material(
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1844,7 +1844,7 @@ pub async fn seed_cs_course_material(
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1922,7 +1922,7 @@ pub async fn seed_cs_course_material(
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     pages::update_page(

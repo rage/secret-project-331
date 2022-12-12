@@ -17,6 +17,7 @@ import {
   SetStateMessage,
   UploadResultMessage,
   UserInformation,
+  UserVariablesMap,
 } from "./exercise-service-protocol-types"
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
@@ -73,6 +74,9 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
       typedObj["view_type"] === "answer-exercise" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["user_variables"] === "undefined" ||
+        typedObj["user_variables"] === null ||
+        (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function")) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -81,6 +85,9 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
       typedObj["view_type"] === "view-submission" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["user_variables"] === "undefined" ||
+        typedObj["user_variables"] === null ||
+        (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function") &&
       (typedObj["data"]["grading"] === null ||
@@ -95,7 +102,14 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
           typeof typedObj["data"]["grading"]["score_given"] === "number" &&
           typeof typedObj["data"]["grading"]["score_maximum"] === "number" &&
           (typedObj["data"]["grading"]["feedback_text"] === null ||
-            typeof typedObj["data"]["grading"]["feedback_text"] === "string")))) ||
+            typeof typedObj["data"]["grading"]["feedback_text"] === "string") &&
+          (typeof typedObj["data"]["grading"]["set_user_variables"] === "undefined" ||
+            (((typedObj["data"]["grading"]["set_user_variables"] !== null &&
+              typeof typedObj["data"]["grading"]["set_user_variables"] === "object") ||
+              typeof typedObj["data"]["grading"]["set_user_variables"] === "function") &&
+              Object.entries<any>(typedObj["data"]["grading"]["set_user_variables"]).every(
+                ([key, _value]) => typeof key === "string",
+              )))))) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "set-state" &&
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -153,6 +167,9 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       typedObj["view_type"] === "answer-exercise" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["user_variables"] === "undefined" ||
+        typedObj["user_variables"] === null ||
+        (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function")) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -161,6 +178,9 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       typedObj["view_type"] === "view-submission" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["user_variables"] === "undefined" ||
+        typedObj["user_variables"] === null ||
+        (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function") &&
       (typedObj["data"]["grading"] === null ||
@@ -175,7 +195,14 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
           typeof typedObj["data"]["grading"]["score_given"] === "number" &&
           typeof typedObj["data"]["grading"]["score_maximum"] === "number" &&
           (typedObj["data"]["grading"]["feedback_text"] === null ||
-            typeof typedObj["data"]["grading"]["feedback_text"] === "string")))) ||
+            typeof typedObj["data"]["grading"]["feedback_text"] === "string") &&
+          (typeof typedObj["data"]["grading"]["set_user_variables"] === "undefined" ||
+            (((typedObj["data"]["grading"]["set_user_variables"] !== null &&
+              typeof typedObj["data"]["grading"]["set_user_variables"] === "object") ||
+              typeof typedObj["data"]["grading"]["set_user_variables"] === "function") &&
+              Object.entries<any>(typedObj["data"]["grading"]["set_user_variables"]).every(
+                ([key, _value]) => typeof key === "string",
+              )))))) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "set-state" &&
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -210,6 +237,14 @@ export function isUserInformation(obj: unknown): obj is UserInformation {
   )
 }
 
+export function isUserVariablesMap(obj: unknown): obj is UserVariablesMap {
+  const typedObj = obj as UserVariablesMap
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Object.entries<any>(typedObj).every(([key, _value]) => typeof key === "string")
+  )
+}
+
 export function isIframeState(obj: unknown): obj is IframeState {
   const typedObj = obj as IframeState
   return (
@@ -217,12 +252,18 @@ export function isIframeState(obj: unknown): obj is IframeState {
       typedObj["view_type"] === "answer-exercise" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["user_variables"] === "undefined" ||
+        typedObj["user_variables"] === null ||
+        (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function")) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["view_type"] === "view-submission" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["user_variables"] === "undefined" ||
+        typedObj["user_variables"] === null ||
+        (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function") &&
       (typedObj["data"]["grading"] === null ||
@@ -237,7 +278,14 @@ export function isIframeState(obj: unknown): obj is IframeState {
           typeof typedObj["data"]["grading"]["score_given"] === "number" &&
           typeof typedObj["data"]["grading"]["score_maximum"] === "number" &&
           (typedObj["data"]["grading"]["feedback_text"] === null ||
-            typeof typedObj["data"]["grading"]["feedback_text"] === "string")))) ||
+            typeof typedObj["data"]["grading"]["feedback_text"] === "string") &&
+          (typeof typedObj["data"]["grading"]["set_user_variables"] === "undefined" ||
+            (((typedObj["data"]["grading"]["set_user_variables"] !== null &&
+              typeof typedObj["data"]["grading"]["set_user_variables"] === "object") ||
+              typeof typedObj["data"]["grading"]["set_user_variables"] === "function") &&
+              Object.entries<any>(typedObj["data"]["grading"]["set_user_variables"]).every(
+                ([key, _value]) => typeof key === "string",
+              )))))) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["view_type"] === "exercise-editor" &&
       typeof typedObj["exercise_task_id"] === "string" &&

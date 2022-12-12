@@ -50,6 +50,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       submission: coursematerialExerciseTask.previous_submission,
       grading: coursematerialExerciseTask.previous_submission_grading,
       model_solution_spec: coursematerialExerciseTask.model_solution_spec,
+      exercise_task_exercise_service_slug: coursematerialExerciseTask.exercise_service_slug,
     },
     user_answer: coursematerialExerciseTask.previous_submission.data_json,
   }

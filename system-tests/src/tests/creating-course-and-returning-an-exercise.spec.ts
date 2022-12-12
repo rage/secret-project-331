@@ -50,7 +50,7 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Add new chapter")
-  await page.locator(`button:has-text("New")`).last().click()
+  await page.locator(`button:has-text("New chapter")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of testing")

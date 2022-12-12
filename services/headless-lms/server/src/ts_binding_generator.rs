@@ -218,6 +218,8 @@ fn models(target: &mut File) {
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
+
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     };
 }
 

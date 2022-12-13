@@ -5,27 +5,12 @@ import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
  *
  * to: parent
  */
-export type MessageFromIframe =
-  | CurrentStateMessage
-  | UploadFilesMessage
-  | SetFileUploadsMessage
-  | HeightChangedMessage
+export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
   data: unknown
   valid: boolean
-}
-
-/// Informs the parent of files that the iframe may wish to upload later via UploadFilesMessage.
-export interface SetFileUploadsMessage {
-  message: "set-file-uploads"
-  files: Map<string, string | Blob>
-}
-
-// Tells the parent to upload the files that have previously been sent via SetFileUploadsMessage.
-export interface UploadFilesMessage {
-  message: "upload-files"
 }
 
 export interface HeightChangedMessage {
@@ -38,25 +23,13 @@ export interface HeightChangedMessage {
  *
  * to: IFrame
  */
-export type MessageToIframe = SetLanguageMessage | UploadResultMessage | SetStateMessage
+export type MessageToIframe = SetLanguageMessage | SetStateMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
   // e.g. "en" or "fi"
   data: string
 }
-
-export type UploadResultMessage =
-  | {
-      message: "upload-result"
-      success: true
-      urls: Map<string, string>
-    }
-  | {
-      message: "upload-result"
-      success: false
-      error: string
-    }
 
 export type SetStateMessage = { message: "set-state" } & IframeState
 
@@ -70,6 +43,8 @@ export type IframeState =
       view_type: "answer-exercise"
       exercise_task_id: string
       user_information: UserInformation
+      files_to_upload?: Map<string, string | Blob>
+      uploaded_files?: Map<string, string>
       data: {
         public_spec: unknown
         previous_submission: unknown | null
@@ -79,6 +54,8 @@ export type IframeState =
       view_type: "view-submission"
       exercise_task_id: string
       user_information: UserInformation
+      files_to_upload?: Map<string, string | Blob>
+      uploaded_files?: Map<string, string>
       data: {
         grading: ExerciseTaskGradingResult | null
         user_answer: unknown
@@ -90,6 +67,8 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
+      files_to_upload?: Map<string, string | Blob>
+      uploaded_files?: Map<string, string>
       repository_exercises?: Array<RepositoryExercise>
       data: { private_spec: unknown }
     }

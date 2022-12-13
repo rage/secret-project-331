@@ -12,21 +12,15 @@ import {
   IframeViewType,
   MessageFromIframe,
   MessageToIframe,
-  SetFileUploadsMessage,
   SetLanguageMessage,
   SetStateMessage,
-  UploadFilesMessage,
-  UploadResultMessage,
   UserInformation,
 } from "./exercise-service-protocol-types"
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
   const typedObj = obj as MessageFromIframe
   return (
-    (isCurrentStateMessage(typedObj) as boolean) ||
-    (isUploadFilesMessage(typedObj) as boolean) ||
-    (isSetFileUploadsMessage(typedObj) as boolean) ||
-    (isHeightChangedMessage(typedObj) as boolean)
+    (isCurrentStateMessage(typedObj) as boolean) || (isHeightChangedMessage(typedObj) as boolean)
   )
 }
 
@@ -36,23 +30,6 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typedObj["message"] === "current-state" &&
     typeof typedObj["valid"] === "boolean"
-  )
-}
-
-export function isSetFileUploadsMessage(obj: unknown): obj is SetFileUploadsMessage {
-  const typedObj = obj as SetFileUploadsMessage
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typedObj["message"] === "set-file-uploads" &&
-    typedObj["files"] instanceof Map
-  )
-}
-
-export function isUploadFilesMessage(obj: unknown): obj is UploadFilesMessage {
-  const typedObj = obj as UploadFilesMessage
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typedObj["message"] === "upload-files"
   )
 }
 
@@ -70,19 +47,15 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
   return (
     (isSetLanguageMessage(typedObj) as boolean) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === true &&
-      typedObj["urls"] instanceof Map) ||
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === false &&
-      typeof typedObj["error"] === "string") ||
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "set-state" &&
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["view_type"] === "answer-exercise" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function")) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -91,6 +64,10 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
       typedObj["view_type"] === "view-submission" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function") &&
       (typedObj["data"]["grading"] === null ||
@@ -112,6 +89,10 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
       typedObj["view_type"] === "exercise-editor" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       (typeof typedObj["repository_exercises"] === "undefined" ||
         (Array.isArray(typedObj["repository_exercises"]) &&
           typedObj["repository_exercises"].every(
@@ -140,20 +121,6 @@ export function isSetLanguageMessage(obj: unknown): obj is SetLanguageMessage {
   )
 }
 
-export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage {
-  const typedObj = obj as UploadResultMessage
-  return (
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === true &&
-      typedObj["urls"] instanceof Map) ||
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === false &&
-      typeof typedObj["error"] === "string")
-  )
-}
-
 export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
   const typedObj = obj as SetStateMessage
   return (
@@ -163,6 +130,10 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       typedObj["view_type"] === "answer-exercise" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function")) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -171,6 +142,10 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       typedObj["view_type"] === "view-submission" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function") &&
       (typedObj["data"]["grading"] === null ||
@@ -192,6 +167,10 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       typedObj["view_type"] === "exercise-editor" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       (typeof typedObj["repository_exercises"] === "undefined" ||
         (Array.isArray(typedObj["repository_exercises"]) &&
           typedObj["repository_exercises"].every(
@@ -227,12 +206,20 @@ export function isIframeState(obj: unknown): obj is IframeState {
       typedObj["view_type"] === "answer-exercise" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function")) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["view_type"] === "view-submission" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function") &&
       (typedObj["data"]["grading"] === null ||
@@ -252,6 +239,10 @@ export function isIframeState(obj: unknown): obj is IframeState {
       typedObj["view_type"] === "exercise-editor" &&
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
+      (typeof typedObj["files_to_upload"] === "undefined" ||
+        typedObj["files_to_upload"] instanceof Map) &&
+      (typeof typedObj["uploaded_files"] === "undefined" ||
+        typedObj["uploaded_files"] instanceof Map) &&
       (typeof typedObj["repository_exercises"] === "undefined" ||
         (Array.isArray(typedObj["repository_exercises"]) &&
           typedObj["repository_exercises"].every(

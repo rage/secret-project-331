@@ -146,15 +146,22 @@ async fn upload_file_to_storage(
 ) -> anyhow::Result<()> {
     // TODO: convert archives into a uniform format
     let mime_type = field.content_type().to_string();
-    let correct_type = field;
+    let name = field.name();
     let path_string = path.to_str().context("invalid path")?.to_string();
 
     let mut tx = conn.begin().await?;
-    models::file_uploads::insert(&mut tx, &path_string, &mime_type, uploader.map(|u| u.id)).await?;
+    models::file_uploads::insert(
+        &mut tx,
+        name,
+        &path_string,
+        &mime_type,
+        uploader.map(|u| u.id),
+    )
+    .await?;
     file_store
         .upload_stream(
             path,
-            Box::pin(correct_type.map_err(anyhow::Error::msg)),
+            Box::pin(field.map_err(anyhow::Error::msg)),
             &mime_type,
         )
         .await?;

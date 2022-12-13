@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { useState } from "react"
 
 import { RepositoryExercise } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
@@ -8,7 +7,6 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
-import { onUploadFileMessage } from "../../../shared-module/utils/exerciseServices"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -36,7 +34,6 @@ const PlaygroundExerciseEditorIframe: React.FC<
   userInformation,
   repositoryExercises,
 }) => {
-  const [files, setFiles] = useState<Map<string, string | Blob>>(new Map())
   // Makes sure the iframe renders again when the data changes
   const iframeKey = url + JSON.stringify(privateSpec) + disableSandbox
   return (
@@ -58,16 +55,10 @@ const PlaygroundExerciseEditorIframe: React.FC<
           user_information: userInformation,
           repository_exercises: repositoryExercises,
         }}
-        onMessageFromIframe={async (msg, responsePort) => {
+        onMessageFromIframe={async (msg, _responsePort) => {
           if (isMessageFromIframe(msg)) {
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
-            } else if (msg.message === "set-file-uploads") {
-              // eslint-disable-next-line i18next/no-literal-string
-              setFiles(msg.files)
-            } else if (msg.message === "upload-files") {
-              // eslint-disable-next-line i18next/no-literal-string
-              await onUploadFileMessage("playground", files, responsePort)
             }
           }
         }}

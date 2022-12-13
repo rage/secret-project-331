@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
@@ -9,7 +8,6 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
-import { onUploadFileMessage } from "../../../shared-module/utils/exerciseServices"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -38,7 +36,6 @@ const PlaygroundExerciseIframe: React.FC<
   userAnswer,
 }) => {
   const { t } = useTranslation()
-  const [files, setFiles] = useState<Map<string, string | Blob>>(new Map())
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
@@ -68,15 +65,10 @@ const PlaygroundExerciseIframe: React.FC<
             previous_submission: userAnswer,
           },
         }}
-        onMessageFromIframe={async (msg, responsePort) => {
+        onMessageFromIframe={async (msg, _responsePort) => {
           if (isMessageFromIframe(msg)) {
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
-            } else if (msg.message === "set-file-uploads") {
-              setFiles(msg.files)
-            } else if (msg.message === "upload-files") {
-              // eslint-disable-next-line i18next/no-literal-string
-              await onUploadFileMessage("playground", files, responsePort)
             }
           }
         }}

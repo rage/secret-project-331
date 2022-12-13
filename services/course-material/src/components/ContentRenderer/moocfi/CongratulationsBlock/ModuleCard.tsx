@@ -59,6 +59,7 @@ const BadgeWrapper = styled.div`
     font-family: ${monospaceFont};
     font-size: 10px;
     color: #535a66;
+    text-transform: lowercase;
   }
   .points {
     position: absolute;

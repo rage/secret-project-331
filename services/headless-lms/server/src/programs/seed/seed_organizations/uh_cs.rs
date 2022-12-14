@@ -158,7 +158,7 @@ pub async fn seed_organization_uh_cs(
             new_completions: vec![TeacherManualCompletion {
                 user_id: *example_normal_user_ids.first().unwrap(),
                 grade: Some(4),
-                completion_date: Some(Utc.ymd(2022, 9, 1).and_hms(0, 0, 0)),
+                completion_date: Some(Utc.with_ymd_and_hms(2022, 9, 1, 0, 0, 0).unwrap()),
             }],
             skip_duplicate_completions: true,
         },

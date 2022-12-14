@@ -5,7 +5,7 @@ import BreakFromCentered from "../../../shared-module/components/Centering/Break
 import Sponsor, { SponsorProps } from "../../../shared-module/components/Sponsor"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
-const SponsorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SponsorProps>>> = (
+const PartnersBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SponsorProps>>> = (
   props,
 ) => {
   return (
@@ -15,4 +15,4 @@ const SponsorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SponsorP
     </BreakFromCentered>
   )
 }
-export default withErrorBoundary(SponsorBlock)
+export default withErrorBoundary(PartnersBlock)

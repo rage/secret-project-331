@@ -115,6 +115,7 @@ const RegexTableCorrectCell = styled.td`
   color: #065853;
   padding: 4px;
   text-align: center;
+  text-transform: uppercase;
 `
 
 const RegexTableFailedCell = styled.td`
@@ -122,6 +123,7 @@ const RegexTableFailedCell = styled.td`
   color: #a84835;
   padding: 4px;
   text-align: center;
+  text-transform: uppercase;
 `
 
 const CircleButton = styled(FontAwesomeIcon)`

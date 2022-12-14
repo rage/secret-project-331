@@ -65,19 +65,19 @@ const Likert: React.FC<LinkertProps> = ({ question, content, index }) => {
   const { t } = useTranslation()
   const arr = [
     {
-      text: t("strongly-disagree"),
+      text: t("likert-scale-strongly-disagree"),
     },
     {
-      text: t("disagree"),
+      text: t("likert-scale-disagree"),
     },
     {
-      text: t("neutral"),
+      text: t("likert-scale-neither-agree-nor-disagree"),
     },
     {
-      text: t("agree"),
+      text: t("likert-scale-agree"),
     },
     {
-      text: t("strongly-agree"),
+      text: t("likert-scale-strongly-agree"),
     },
   ]
 

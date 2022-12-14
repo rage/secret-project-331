@@ -25,9 +25,6 @@ test("test", async ({ page, headless }) => {
     page.click("text=Introduction to edit proposals"),
   ])
 
-  // Click label:has-text("default")
-  await page.click('label:has-text("default")')
-
   // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 

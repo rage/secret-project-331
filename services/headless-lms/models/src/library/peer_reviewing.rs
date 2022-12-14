@@ -599,8 +599,8 @@ mod tests {
         ) -> ModelResult<PeerReviewQuestion> {
             Ok(PeerReviewQuestion {
                 id,
-                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 deleted_at: None,
                 peer_review_config_id,
                 order_number: 0,

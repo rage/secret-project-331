@@ -50,7 +50,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         reference: data.reference,
         citation_key: editedReference.id,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error)
       setErrorMessage(t("reference-parsing-error"))
       setTimeout(() => {
@@ -63,7 +63,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
   try {
     const cite = new Cite(reference.reference)
     defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error)
   }
 

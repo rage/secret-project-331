@@ -627,6 +627,7 @@ export interface AudioDeprecated1Attributes {
 }
 
 export interface ButtonAttributes {
+  textAlign?: string
   url?: string
   title?: string
   text?: string
@@ -637,7 +638,6 @@ export interface ButtonAttributes {
   textColor?: string
   gradient?: string
   width?: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }

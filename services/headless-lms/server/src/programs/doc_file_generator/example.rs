@@ -29,13 +29,13 @@ impl Example for Uuid {
 
 impl Example for DateTime<Utc> {
     fn example() -> Self {
-        Utc.timestamp(1640988000, 0)
+        Utc.timestamp_opt(1640988000, 0).unwrap()
     }
 }
 
 impl Example for NaiveDate {
     fn example() -> Self {
-        NaiveDate::from_ymd(2022, 1, 1)
+        NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()
     }
 }
 

@@ -24,7 +24,7 @@ const SponsorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<stri
             font-family: ${headingFont};
           `}
         >
-          <h4>{t("sponsor-block")}</h4>
+          <h4>{t("partners-block")}</h4>
           <span
             className={css`
               color: ${baseTheme.colors.green[600]};
@@ -33,7 +33,7 @@ const SponsorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<stri
               font-family: ${headingFont};
             `}
           >
-            {t("sponsor-block-description")}
+            {t("partners-block-description")}
           </span>
         </div>
         <div>

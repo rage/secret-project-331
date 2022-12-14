@@ -655,8 +655,8 @@ mod tests {
             let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
             Exercise {
                 id,
-                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 name: "".to_string(),
                 course_id,
                 exam_id,
@@ -680,8 +680,8 @@ mod tests {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             PeerReviewConfig {
                 id,
-                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 deleted_at: None,
                 course_id: id,
                 exercise_id: None,
@@ -754,8 +754,8 @@ mod tests {
                 exercise_id: exercise.id,
                 course_instance_id: exercise.course_id,
                 exam_id: exercise.exam_id,
-                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 deleted_at: None,
                 score_given,
                 grading_progress: GradingProgress::NotReady,

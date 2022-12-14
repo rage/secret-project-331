@@ -368,7 +368,7 @@ pub async fn completions_export(
 GET /course-instances/:id/exercise-status/:user_id
 */
 #[instrument(skip(pool))]
-async fn get_exercises_by_course_instance_id(
+async fn get_exercise_status_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -381,10 +381,8 @@ async fn get_exercises_by_course_instance_id(
         Res::CourseInstance(params.0),
     )
     .await?;
-    let exercises = models::exercises::get_exercises_and_exercise_status_by_course_instance_id(
-        &mut conn, params.0, params.1,
-    )
-    .await?;
+    let exercises =
+        models::exercises::get_exercises_by_course_instance_id(&mut conn, params.0).await?;
     let given_peer_review_data =
         models::exercises::get_given_peer_review_data_for_exercise_by_course_instance_id(
             &mut conn, params.0, params.1,
@@ -397,10 +395,11 @@ async fn get_exercises_by_course_instance_id(
         )
         .await?;
 
-    let submission_id_list = models::exercises::get_exercise_submissions_by_course_instance_id(
-        &mut conn, params.0, params.1,
-    )
-    .await?;
+    let submission_id_list =
+        models::exercises::get_exercise_submissions_and_status_by_course_instance_id(
+            &mut conn, params.0, params.1,
+        )
+        .await?;
     let mut exercise_and_peer_review_data: Vec<ExerciseStatusForUser> = vec![];
     for exercise in exercises {
         let mut temp_given_peer_review = vec![];
@@ -475,7 +474,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(
             "/{course_instance_id}/exercise-status/{user_id}",
-            web::get().to(get_exercises_by_course_instance_id),
+            web::get().to(get_exercise_status_by_course_instance_id),
         )
         .route(
             "/{course_instance_id}/reprocess-completions",

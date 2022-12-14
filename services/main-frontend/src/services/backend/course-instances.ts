@@ -105,7 +105,7 @@ export const getPoints = async (courseInstanceId: string): Promise<Points> => {
   return validateResponse(response, isPoints)
 }
 
-export const getExerciseStatus = async (
+export const getAllExerciseStatuses = async (
   courseInstanceId: string,
   userId: string,
 ): Promise<ExerciseStatusForUser[]> => {

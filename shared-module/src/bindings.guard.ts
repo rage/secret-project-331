@@ -75,7 +75,6 @@ import {
   ExamInstructionsUpdate,
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
-  ExercisePointsForUser,
   ExerciseRepository,
   ExerciseRepositoryStatus,
   ExerciseService,
@@ -89,8 +88,8 @@ import {
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseSlideSubmissionInfo,
   ExerciseStatus,
+  ExerciseStatusForSubmission,
   ExerciseStatusForUser,
-  ExerciseSubmissionId,
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskGrading,
@@ -1274,21 +1273,19 @@ export function isExerciseStatus(obj: unknown): obj is ExerciseStatus {
   )
 }
 
-export function isExercisePointsForUser(obj: unknown): obj is ExercisePointsForUser {
-  const typedObj = obj as ExercisePointsForUser
+export function isExerciseStatusForUser(obj: unknown): obj is ExerciseStatusForUser {
+  const typedObj = obj as ExerciseStatusForUser
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["id"] === "string" &&
-    typedObj["created_at"] instanceof Date &&
-    typedObj["updated_at"] instanceof Date &&
-    typeof typedObj["name"] === "string" &&
-    typeof typedObj["score_maximum"] === "number" &&
-    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
-    (typedObj["teacher_decision"] === null ||
-      typedObj["teacher_decision"] === "FullPoints" ||
-      typedObj["teacher_decision"] === "ZeroPoints" ||
-      typedObj["teacher_decision"] === "CustomPoints" ||
-      typedObj["teacher_decision"] === "SuspectedPlagiarism")
+    (isExercise(typedObj["exercise_points"]) as boolean) &&
+    Array.isArray(typedObj["given_peer_review_data"]) &&
+    typedObj["given_peer_review_data"].every((e: any) => isPeerReviewDataForUser(e) as boolean) &&
+    Array.isArray(typedObj["received_peer_review_data"]) &&
+    typedObj["received_peer_review_data"].every(
+      (e: any) => isPeerReviewDataForUser(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["submission_ids"]) &&
+    typedObj["submission_ids"].every((e: any) => isExerciseStatusForSubmission(e) as boolean)
   )
 }
 
@@ -1302,32 +1299,25 @@ export function isPeerReviewDataForUser(obj: unknown): obj is PeerReviewDataForU
     typeof typedObj["name"] === "string" &&
     (typedObj["text_data"] === null || typeof typedObj["text_data"] === "string") &&
     (typedObj["number_data"] === null || typeof typedObj["number_data"] === "number") &&
+    typeof typedObj["pr_submission_id"] === "string" &&
     typeof typedObj["received_enough_peer_reviews"] === "boolean" &&
     typeof typedObj["peer_review_priority"] === "number"
   )
 }
 
-export function isExerciseStatusForUser(obj: unknown): obj is ExerciseStatusForUser {
-  const typedObj = obj as ExerciseStatusForUser
+export function isExerciseStatusForSubmission(obj: unknown): obj is ExerciseStatusForSubmission {
+  const typedObj = obj as ExerciseStatusForSubmission
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (isExercisePointsForUser(typedObj["exercise_points"]) as boolean) &&
-    Array.isArray(typedObj["given_peer_review_data"]) &&
-    typedObj["given_peer_review_data"].every((e: any) => isPeerReviewDataForUser(e) as boolean) &&
-    Array.isArray(typedObj["received_peer_review_data"]) &&
-    typedObj["received_peer_review_data"].every(
-      (e: any) => isPeerReviewDataForUser(e) as boolean,
-    ) &&
-    Array.isArray(typedObj["submission_ids"]) &&
-    typedObj["submission_ids"].every((e: any) => isExerciseSubmissionId(e) as boolean)
-  )
-}
-
-export function isExerciseSubmissionId(obj: unknown): obj is ExerciseSubmissionId {
-  const typedObj = obj as ExerciseSubmissionId
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
     typeof typedObj["id"] === "string" &&
+    typeof typedObj["score_maximum"] === "number" &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    (typedObj["teacher_decision"] === null ||
+      typedObj["teacher_decision"] === "FullPoints" ||
+      typedObj["teacher_decision"] === "ZeroPoints" ||
+      typedObj["teacher_decision"] === "CustomPoints" ||
+      typedObj["teacher_decision"] === "SuspectedPlagiarism") &&
     typeof typedObj["submission_id"] === "string" &&
     typedObj["updated_at"] instanceof Date
   )

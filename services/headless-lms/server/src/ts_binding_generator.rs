@@ -116,10 +116,9 @@ fn models(target: &mut File) {
         exercises::CourseMaterialExercise,
         exercises::Exercise,
         exercises::ExerciseStatus,
-        exercises::ExercisePointsForUser,
-        exercises::PeerReviewDataForUser,
         exercises::ExerciseStatusForUser,
-        exercises::ExerciseSubmissionId,
+        exercises::PeerReviewDataForUser,
+        exercises::ExerciseStatusForSubmission,
         exercises::GradingProgress,
 
         feedback::Feedback,

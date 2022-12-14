@@ -676,14 +676,11 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
-export interface ExercisePointsForUser {
-  id: string
-  created_at: Date
-  updated_at: Date
-  name: string
-  score_maximum: number
-  score_given: number | null
-  teacher_decision: TeacherDecisionType | null
+export interface ExerciseStatusForUser {
+  exercise_points: Exercise
+  given_peer_review_data: Array<PeerReviewDataForUser>
+  received_peer_review_data: Array<PeerReviewDataForUser>
+  submission_ids: Array<ExerciseStatusForSubmission>
 }
 
 export interface PeerReviewDataForUser {
@@ -693,19 +690,17 @@ export interface PeerReviewDataForUser {
   name: string
   text_data: string | null
   number_data: number | null
+  pr_submission_id: string
   received_enough_peer_reviews: boolean
   peer_review_priority: number
 }
 
-export interface ExerciseStatusForUser {
-  exercise_points: ExercisePointsForUser
-  given_peer_review_data: Array<PeerReviewDataForUser>
-  received_peer_review_data: Array<PeerReviewDataForUser>
-  submission_ids: Array<ExerciseSubmissionId>
-}
-
-export interface ExerciseSubmissionId {
+export interface ExerciseStatusForSubmission {
+  name: string
   id: string
+  score_maximum: number
+  score_given: number | null
+  teacher_decision: TeacherDecisionType | null
   submission_id: string
   updated_at: Date
 }

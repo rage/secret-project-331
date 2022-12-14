@@ -85,9 +85,9 @@ UPDATE ON peer_review_queue_entries FOR EACH ROW EXECUTE PROCEDURE trigger_set_t
 CREATE INDEX peer_review_priority ON peer_review_queue_entries (peer_review_priority);
 CREATE UNIQUE INDEX peer_review_queue_entry_user_exercise_and_course_instance_uniqueness ON peer_review_queue_entries (user_id, exercise_id, course_instance_id)
 WHERE deleted_at IS NULL;
-COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews. Once user posts their first peer review, they will get added to the queue where additional peer reviews given will increase their own priority of receiving peer reviews.';
+COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews. Once user has given enough peer reviews, they will get added to this queue where additional peer reviews given will increase their own priority of receiving peer reviews.';
 COMMENT ON COLUMN peer_review_queue_entries.id IS 'A unique, stable identifier for the record.';
-COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created. In this table this is the moment when the user has given enough peer reviews';
 COMMENT ON COLUMN peer_review_queue_entries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN peer_review_queue_entries.user_id IS 'The user who is in queue.';

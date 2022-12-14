@@ -137,6 +137,7 @@ pub struct PeerReviewQuestionAndAnswer {
     pub order_number: i32,
     pub question: String,
     pub answer: PeerReviewAnswer,
+    pub answer_required: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -160,6 +161,7 @@ SELECT answers.id AS peer_review_question_submission_id,
   questions.order_number,
   questions.question,
   questions.question_type AS "question_type: PeerReviewQuestionType",
+  questions.answer_required,
   submissions.id AS peer_review_submission_id
 FROM peer_review_question_submissions answers
   JOIN peer_review_questions questions ON (
@@ -183,6 +185,7 @@ WHERE submissions.exercise_slide_submission_id = $1
         order_number: x.order_number,
         question: x.question,
         answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer_required: x.answer_required,
     })
     .fetch_all(conn)
     .await?;
@@ -204,6 +207,7 @@ SELECT answers.id AS peer_review_question_submission_id,
   questions.order_number,
   questions.question,
   questions.question_type AS "question_type: PeerReviewQuestionType",
+  questions.answer_required,
   submissions.id AS peer_review_submission_id
 FROM peer_review_question_submissions answers
   JOIN peer_review_questions questions ON (
@@ -229,6 +233,7 @@ WHERE submissions.user_id = $1
         order_number: x.order_number,
         question: x.question,
         answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer_required: x.answer_required,
     })
     .fetch_all(conn)
     .await?;

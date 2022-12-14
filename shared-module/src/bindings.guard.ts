@@ -2085,7 +2085,8 @@ export function isPeerReviewQuestionAndAnswer(obj: unknown): obj is PeerReviewQu
     typeof typedObj["peer_review_question_submission_id"] === "string" &&
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
-    (isPeerReviewAnswer(typedObj["answer"]) as boolean)
+    (isPeerReviewAnswer(typedObj["answer"]) as boolean) &&
+    typeof typedObj["answer_required"] === "boolean"
   )
 }
 

@@ -403,7 +403,8 @@ fn models() {
         question: "Was the answer well thought out?".to_string(),
         answer: PeerReviewAnswer::Essay {
             value: "I think that the answer was well thought out.".to_string()
-        }
+        },
+        answer_required: true,
     });
     example!(PeerReviewWithQuestionsAndAnswers {
         peer_review_submission_id,

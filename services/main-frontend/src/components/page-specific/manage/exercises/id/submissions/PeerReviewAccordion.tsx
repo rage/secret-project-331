@@ -38,15 +38,17 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
         )
       case "scale":
         return (
-          <LikertScale
-            question={question}
-            disabled={true}
-            answerRequired={false}
-            selectedOption={answer.value}
-            setSelectedOption={() => {
-              // No-op
-            }}
-          />
+          <div>
+            <LikertScale
+              question={question}
+              disabled={true}
+              answerRequired={false}
+              selectedOption={answer.value}
+              setSelectedOption={() => {
+                // No-op
+              }}
+            />
+          </div>
         )
       default:
         return (
@@ -98,14 +100,19 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
               >
                 {t("peer-review-n", { n: i + 1 })}
               </h5>
-              {peerReview.questions_and_answers.map((y, i) => (
+              {peerReview.questions_and_answers.map((x, i) => (
                 <div
-                  key={y.peer_review_question_id}
+                  key={x.peer_review_question_id}
                   className={css`
                     margin: 2rem 1.5rem 0rem;
                   `}
                 >
-                  {mapToAnswer(`${t("question-n", { n: i + 1 })}: ${y.question}`, y.answer)}
+                  {mapToAnswer(
+                    `${t("question-n", { n: i + 1 })}: ${x.question}${
+                      x.answer_required ? " *" : ""
+                    }`,
+                    x.answer,
+                  )}
                 </div>
               ))}
             </div>

@@ -97,7 +97,8 @@
               "answer": {
                 "type": "essay",
                 "value": "I think that the answer was well thought out."
-              }
+              },
+              "answer_required": true
             }
           ]
         }
@@ -116,7 +117,8 @@
               "answer": {
                 "type": "essay",
                 "value": "I think that the answer was well thought out."
-              }
+              },
+              "answer_required": true
             }
           ]
         }

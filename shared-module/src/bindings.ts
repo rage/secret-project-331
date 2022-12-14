@@ -1147,6 +1147,7 @@ export interface PeerReviewQuestionAndAnswer {
   order_number: number
   question: string
   answer: PeerReviewAnswer
+  answer_required: boolean
 }
 
 export interface PeerReviewQuestionSubmission {

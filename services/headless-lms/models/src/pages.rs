@@ -3148,7 +3148,7 @@ mod test {
             score_maximum: 1,
             max_tries_per_slide: None,
             limit_number_of_tries: false,
-            deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+            deadline: Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
             needs_peer_review: false,
             peer_review_config: None,
             peer_review_questions: None,

@@ -55,7 +55,7 @@ const generateRandomOrder = (n: number, seed: number) => {
  * @param seed Seed for randomizer
  * @returns Array sorted with the randomizer
  */
-const orderArrayBySeed = (array: any[], seed: number) => {
+const orderArrayBySeed = <T>(array: T[], seed: number): T[] => {
   const randomOrder = generateRandomOrder(array.length, seed)
   return randomOrder.map((index) => array[index])
 }
@@ -67,7 +67,7 @@ const orderArrayBySeed = (array: any[], seed: number) => {
  * @param pseudonymId Pseudonymous ID
  * @returns Array sorted with the randomizer
  */
-const orderArrayWithId = (array: any[], pseudonymId: string) => {
+const orderArrayWithId = <T>(array: T[], pseudonymId: string): T[] => {
   const seed = pseudonymId
     .split("")
     .map((chr, idx) => {

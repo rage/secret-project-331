@@ -45,7 +45,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         }
       })
       onCreateNewReference(references)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error)
       setErrorMessage(t("reference-parsing-error"))
       setTimeout(() => {

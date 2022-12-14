@@ -1169,7 +1169,7 @@ fn models() {
         T,
         Vec,
         StudyRegistryCompletion {
-            completion_date: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             completion_language: "en-US".to_string(),
             completion_registration_attempt_date: None,
             email: "student@example.com".to_string(),
@@ -1376,8 +1376,8 @@ fn models() {
     doc!(CourseBackgroundQuestionsAndAnswers {
         background_questions: vec![CourseBackgroundQuestion {
             id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
-            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            created_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             deleted_at: None,
             course_instance_id: Some(Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap()),
             course_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
@@ -1386,8 +1386,8 @@ fn models() {
         }],
         answers: vec![CourseBackgroundQuestionAnswer {
             id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
-            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            created_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             deleted_at: None,
             user_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
             answer_value: Some("yes".to_string()),

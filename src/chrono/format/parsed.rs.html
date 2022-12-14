@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.22/src/format/parsed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parsed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.23/src/format/parsed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parsed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1258,6 +1258,36 @@
 <span id="1258">1258</span>
 <span id="1259">1259</span>
 <span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
 </pre><pre class="rust"><code><span class="comment">// This is a part of Chrono.
 // See README.md and LICENSE.txt for details.
 
@@ -1485,7 +1515,7 @@
     /// (`false` for AM, `true` for PM)
     </span><span class="attribute">#[inline]
     </span><span class="kw">pub fn </span>set_ampm(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) -&gt; ParseResult&lt;()&gt; {
-        set_if_consistent(<span class="kw-2">&amp;mut </span><span class="self">self</span>.hour_div_12, <span class="kw">if </span>value { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>})
+        set_if_consistent(<span class="kw-2">&amp;mut </span><span class="self">self</span>.hour_div_12, u32::from(value))
     }
 
     <span class="doccomment">/// Tries to set the [`hour_mod_12`](#structfield.hour_mod_12) field from
@@ -2042,7 +2072,7 @@
             )
         }
 
-        <span class="kw">let </span>ymd = |y, m, d| <span class="prelude-val">Ok</span>(NaiveDate::from_ymd(y, m, d));
+        <span class="kw">let </span>ymd = |y, m, d| <span class="prelude-val">Ok</span>(NaiveDate::from_ymd_opt(y, m, d).unwrap());
 
         <span class="comment">// ymd: omission of fields
         </span><span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(), <span class="prelude-val">Err</span>(NOT_ENOUGH));
@@ -2229,8 +2259,8 @@
             )
         }
 
-        <span class="kw">let </span>hms = |h, m, s| <span class="prelude-val">Ok</span>(NaiveTime::from_hms(h, m, s));
-        <span class="kw">let </span>hmsn = |h, m, s, n| <span class="prelude-val">Ok</span>(NaiveTime::from_hms_nano(h, m, s, n));
+        <span class="kw">let </span>hms = |h, m, s| <span class="prelude-val">Ok</span>(NaiveTime::from_hms_opt(h, m, s).unwrap());
+        <span class="kw">let </span>hmsn = |h, m, s, n| <span class="prelude-val">Ok</span>(NaiveTime::from_hms_nano_opt(h, m, s, n).unwrap());
 
         <span class="comment">// omission of fields
         </span><span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(), <span class="prelude-val">Err</span>(NOT_ENOUGH));
@@ -2285,9 +2315,12 @@
             ($(<span class="macro-nonterminal">$k</span>:ident: <span class="macro-nonterminal">$v</span>:expr),<span class="kw-2">*</span>) =&gt; (<span class="macro">parse!</span>(offset = <span class="number">0</span>; $(<span class="macro-nonterminal">$k</span>: <span class="macro-nonterminal">$v</span>),<span class="kw-2">*</span>))
         }
 
-        <span class="kw">let </span>ymdhms = |y, m, d, h, n, s| <span class="prelude-val">Ok</span>(NaiveDate::from_ymd(y, m, d).and_hms(h, n, s));
-        <span class="kw">let </span>ymdhmsn =
-            |y, m, d, h, n, s, nano| <span class="prelude-val">Ok</span>(NaiveDate::from_ymd(y, m, d).and_hms_nano(h, n, s, nano));
+        <span class="kw">let </span>ymdhms = |y, m, d, h, n, s| {
+            <span class="prelude-val">Ok</span>(NaiveDate::from_ymd_opt(y, m, d).unwrap().and_hms_opt(h, n, s).unwrap())
+        };
+        <span class="kw">let </span>ymdhmsn = |y, m, d, h, n, s, nano| {
+            <span class="prelude-val">Ok</span>(NaiveDate::from_ymd_opt(y, m, d).unwrap().and_hms_nano_opt(h, n, s, nano).unwrap())
+        };
 
         <span class="comment">// omission of fields
         </span><span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(), <span class="prelude-val">Err</span>(NOT_ENOUGH));
@@ -2341,11 +2374,12 @@
 
         <span class="comment">// more timestamps
         </span><span class="kw">let </span>max_days_from_year_1970 =
-            NaiveDate::MAX.signed_duration_since(NaiveDate::from_ymd(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>));
-        <span class="kw">let </span>year_0_from_year_1970 =
-            NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).signed_duration_since(NaiveDate::from_ymd(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>));
+            NaiveDate::MAX.signed_duration_since(NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap());
+        <span class="kw">let </span>year_0_from_year_1970 = NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>)
+            .unwrap()
+            .signed_duration_since(NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap());
         <span class="kw">let </span>min_days_from_year_1970 =
-            NaiveDate::MIN.signed_duration_since(NaiveDate::from_ymd(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>));
+            NaiveDate::MIN.signed_duration_since(NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap());
         <span class="macro">assert_eq!</span>(
             <span class="macro">parse!</span>(timestamp: min_days_from_year_1970.num_seconds()),
             ymdhms(NaiveDate::MIN.year(), <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
@@ -2435,7 +2469,15 @@
         }
 
         <span class="kw">let </span>ymdhmsn = |y, m, d, h, n, s, nano, off| {
-            <span class="prelude-val">Ok</span>(FixedOffset::east(off).ymd(y, m, d).and_hms_nano(h, n, s, nano))
+            <span class="prelude-val">Ok</span>(FixedOffset::east_opt(off)
+                .unwrap()
+                .from_local_datetime(
+                    <span class="kw-2">&amp;</span>NaiveDate::from_ymd_opt(y, m, d)
+                        .unwrap()
+                        .and_hms_nano_opt(h, n, s, nano)
+                        .unwrap(),
+                )
+                .unwrap())
         };
 
         <span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(offset: <span class="number">0</span>), <span class="prelude-val">Err</span>(NOT_ENOUGH));
@@ -2479,7 +2521,14 @@
             <span class="macro">parse!</span>(Utc;
                           year: <span class="number">2014</span>, ordinal: <span class="number">365</span>, hour_div_12: <span class="number">0</span>, hour_mod_12: <span class="number">4</span>,
                           minute: <span class="number">26</span>, second: <span class="number">40</span>, nanosecond: <span class="number">12_345_678</span>, offset: <span class="number">0</span>),
-            <span class="prelude-val">Ok</span>(Utc.ymd(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>).and_hms_nano(<span class="number">4</span>, <span class="number">26</span>, <span class="number">40</span>, <span class="number">12_345_678</span>))
+            <span class="prelude-val">Ok</span>(Utc
+                .from_local_datetime(
+                    <span class="kw-2">&amp;</span>NaiveDate::from_ymd_opt(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>)
+                        .unwrap()
+                        .and_hms_nano_opt(<span class="number">4</span>, <span class="number">26</span>, <span class="number">40</span>, <span class="number">12_345_678</span>)
+                        .unwrap()
+                )
+                .unwrap())
         );
         <span class="macro">assert_eq!</span>(
             <span class="macro">parse!</span>(Utc;
@@ -2488,31 +2537,42 @@
             <span class="prelude-val">Err</span>(IMPOSSIBLE)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="macro">parse!</span>(FixedOffset::east(<span class="number">32400</span>);
+            <span class="macro">parse!</span>(FixedOffset::east_opt(<span class="number">32400</span>).unwrap();
                           year: <span class="number">2014</span>, ordinal: <span class="number">365</span>, hour_div_12: <span class="number">0</span>, hour_mod_12: <span class="number">4</span>,
                           minute: <span class="number">26</span>, second: <span class="number">40</span>, nanosecond: <span class="number">12_345_678</span>, offset: <span class="number">0</span>),
             <span class="prelude-val">Err</span>(IMPOSSIBLE)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="macro">parse!</span>(FixedOffset::east(<span class="number">32400</span>);
+            <span class="macro">parse!</span>(FixedOffset::east_opt(<span class="number">32400</span>).unwrap();
                           year: <span class="number">2014</span>, ordinal: <span class="number">365</span>, hour_div_12: <span class="number">1</span>, hour_mod_12: <span class="number">1</span>,
                           minute: <span class="number">26</span>, second: <span class="number">40</span>, nanosecond: <span class="number">12_345_678</span>, offset: <span class="number">32400</span>),
-            <span class="prelude-val">Ok</span>(FixedOffset::east(<span class="number">32400</span>).ymd(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>).and_hms_nano(<span class="number">13</span>, <span class="number">26</span>, <span class="number">40</span>, <span class="number">12_345_678</span>))
+            <span class="prelude-val">Ok</span>(FixedOffset::east_opt(<span class="number">32400</span>)
+                .unwrap()
+                .from_local_datetime(
+                    <span class="kw-2">&amp;</span>NaiveDate::from_ymd_opt(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>)
+                        .unwrap()
+                        .and_hms_nano_opt(<span class="number">13</span>, <span class="number">26</span>, <span class="number">40</span>, <span class="number">12_345_678</span>)
+                        .unwrap()
+                )
+                .unwrap())
         );
 
         <span class="comment">// single result from timestamp
         </span><span class="macro">assert_eq!</span>(
             <span class="macro">parse!</span>(Utc; timestamp: <span class="number">1_420_000_000</span>, offset: <span class="number">0</span>),
-            <span class="prelude-val">Ok</span>(Utc.ymd(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>).and_hms(<span class="number">4</span>, <span class="number">26</span>, <span class="number">40</span>))
+            <span class="prelude-val">Ok</span>(Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>, <span class="number">4</span>, <span class="number">26</span>, <span class="number">40</span>).unwrap())
         );
         <span class="macro">assert_eq!</span>(<span class="macro">parse!</span>(Utc; timestamp: <span class="number">1_420_000_000</span>, offset: <span class="number">32400</span>), <span class="prelude-val">Err</span>(IMPOSSIBLE));
         <span class="macro">assert_eq!</span>(
-            <span class="macro">parse!</span>(FixedOffset::east(<span class="number">32400</span>); timestamp: <span class="number">1_420_000_000</span>, offset: <span class="number">0</span>),
+            <span class="macro">parse!</span>(FixedOffset::east_opt(<span class="number">32400</span>).unwrap(); timestamp: <span class="number">1_420_000_000</span>, offset: <span class="number">0</span>),
             <span class="prelude-val">Err</span>(IMPOSSIBLE)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="macro">parse!</span>(FixedOffset::east(<span class="number">32400</span>); timestamp: <span class="number">1_420_000_000</span>, offset: <span class="number">32400</span>),
-            <span class="prelude-val">Ok</span>(FixedOffset::east(<span class="number">32400</span>).ymd(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>).and_hms(<span class="number">13</span>, <span class="number">26</span>, <span class="number">40</span>))
+            <span class="macro">parse!</span>(FixedOffset::east_opt(<span class="number">32400</span>).unwrap(); timestamp: <span class="number">1_420_000_000</span>, offset: <span class="number">32400</span>),
+            <span class="prelude-val">Ok</span>(FixedOffset::east_opt(<span class="number">32400</span>)
+                .unwrap()
+                .with_ymd_and_hms(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>, <span class="number">13</span>, <span class="number">26</span>, <span class="number">40</span>)
+                .unwrap())
         );
 
         <span class="comment">// TODO test with a variable time zone (for None and Ambiguous cases)

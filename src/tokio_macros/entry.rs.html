@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-macros-1.8.0/src/entry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>entry.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tokio_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tokio_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../tokio_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-macros-1.8.2/src/entry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>entry.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tokio_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tokio_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../tokio_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -459,6 +459,39 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
 </pre><pre class="rust"><code><span class="kw">use </span>proc_macro::TokenStream;
 <span class="kw">use </span>proc_macro2::{Ident, Span};
 <span class="kw">use </span>quote::{quote, quote_spanned, ToTokens};
@@ -844,17 +877,50 @@
 
     <span class="kw">let </span>body = <span class="kw-2">&amp;</span>input.block;
     <span class="kw">let </span>brace_token = input.block.brace_token;
-    input.block = syn::parse2(<span class="macro">quote_spanned! </span>{last_stmt_end_span=&gt;
-        {
+    <span class="kw">let </span>body_ident = <span class="macro">quote! </span>{ body };
+    <span class="kw">let </span>block_expr = <span class="macro">quote_spanned! </span>{last_stmt_end_span=&gt;
+        <span class="attribute">#[allow(clippy::expect_used, clippy::diverging_sub_expression)]
+        </span>{
+            <span class="kw">return </span>#rt
+                .enable_all()
+                .build()
+                .expect(<span class="string">&quot;Failed building the Runtime&quot;</span>)
+                .block_on(#body_ident);
+        }
+    };
+
+    <span class="comment">// For test functions pin the body to the stack and use `Pin&lt;&amp;mut dyn
+    // Future&gt;` to reduce the amount of `Runtime::block_on` (and related
+    // functions) copies we generate during compilation due to the generic
+    // parameter `F` (the future to block on). This could have an impact on
+    // performance, but because it&#39;s only for testing it&#39;s unlikely to be very
+    // large.
+    //
+    // We don&#39;t do this for the main function as it should only be used once so
+    // there will be no benefit.
+    </span><span class="kw">let </span>body = <span class="kw">if </span>is_test {
+        <span class="kw">let </span>output_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.sig.output {
+            <span class="comment">// For functions with no return value syn doesn&#39;t print anything,
+            // but that doesn&#39;t work as `Output` for our boxed `Future`, so
+            // default to `()` (the same type as the function output).
+            </span>syn::ReturnType::Default =&gt; <span class="macro">quote! </span>{ () },
+            syn::ReturnType::Type(<span class="kw">_</span>, ret_type) =&gt; <span class="macro">quote! </span>{ #ret_type },
+        };
+        <span class="macro">quote! </span>{
             <span class="kw">let </span>body = <span class="kw">async </span>#body;
-            <span class="attribute">#[allow(clippy::expect_used, clippy::diverging_sub_expression)]
-            </span>{
-                <span class="kw">return </span>#rt
-                    .enable_all()
-                    .build()
-                    .expect(<span class="string">&quot;Failed building the Runtime&quot;</span>)
-                    .block_on(body);
-            }
+            #<span class="macro">crate_ident::pin!</span>(body);
+            <span class="kw">let </span>body: ::std::pin::Pin&lt;<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>::std::future::Future&lt;Output = #output_type&gt;&gt; = body;
+        }
+    } <span class="kw">else </span>{
+        <span class="macro">quote! </span>{
+            <span class="kw">let </span>body = <span class="kw">async </span>#body;
+        }
+    };
+
+    input.block = syn::parse2(<span class="macro">quote! </span>{
+        {
+            #body
+            #block_expr
         }
     })
     .expect(<span class="string">&quot;Parsing failure&quot;</span>);
@@ -908,7 +974,7 @@
     };
     <span class="kw">let </span>config = <span class="kw">if let </span><span class="prelude-val">Some</span>(attr) = input.attrs.iter().find(|attr| attr.path.is_ident(<span class="string">&quot;test&quot;</span>)) {
         <span class="kw">let </span>msg = <span class="string">&quot;second test attribute is supplied&quot;</span>;
-        <span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="kw-2">&amp;</span>attr, msg))
+        <span class="prelude-val">Err</span>(syn::Error::new_spanned(attr, msg))
     } <span class="kw">else </span>{
         AttributeArgs::parse_terminated
             .parse(args)

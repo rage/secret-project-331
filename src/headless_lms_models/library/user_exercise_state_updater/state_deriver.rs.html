@@ -1423,8 +1423,8 @@
             <span class="kw">let </span>(course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
             Exercise {
                 id,
-                created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                created_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
                 name: <span class="string">&quot;&quot;</span>.to_string(),
                 course_id,
                 exam_id,
@@ -1448,8 +1448,8 @@
             <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
             PeerReviewConfig {
                 id,
-                created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                created_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
                 deleted_at: <span class="prelude-val">None</span>,
                 course_id: id,
                 exercise_id: <span class="prelude-val">None</span>,
@@ -1522,8 +1522,8 @@
                 exercise_id: exercise.id,
                 course_instance_id: exercise.course_id,
                 exam_id: exercise.exam_id,
-                created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                created_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+                updated_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
                 deleted_at: <span class="prelude-val">None</span>,
                 score_given,
                 grading_progress: GradingProgress::NotReady,

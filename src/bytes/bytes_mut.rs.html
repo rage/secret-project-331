@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bytes-1.2.1/src/bytes_mut.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bytes_mut.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../bytes/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../bytes/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../bytes/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bytes-1.3.0/src/bytes_mut.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bytes_mut.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../bytes/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../bytes/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../bytes/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1772,8 +1772,46 @@
 <span id="1772">1772</span>
 <span id="1773">1773</span>
 <span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
+<span id="1781">1781</span>
+<span id="1782">1782</span>
+<span id="1783">1783</span>
+<span id="1784">1784</span>
+<span id="1785">1785</span>
+<span id="1786">1786</span>
+<span id="1787">1787</span>
+<span id="1788">1788</span>
+<span id="1789">1789</span>
+<span id="1790">1790</span>
+<span id="1791">1791</span>
+<span id="1792">1792</span>
+<span id="1793">1793</span>
+<span id="1794">1794</span>
+<span id="1795">1795</span>
+<span id="1796">1796</span>
+<span id="1797">1797</span>
+<span id="1798">1798</span>
+<span id="1799">1799</span>
+<span id="1800">1800</span>
+<span id="1801">1801</span>
+<span id="1802">1802</span>
+<span id="1803">1803</span>
+<span id="1804">1804</span>
+<span id="1805">1805</span>
+<span id="1806">1806</span>
+<span id="1807">1807</span>
+<span id="1808">1808</span>
+<span id="1809">1809</span>
+<span id="1810">1810</span>
+<span id="1811">1811</span>
+<span id="1812">1812</span>
 </pre><pre class="rust"><code><span class="kw">use </span>core::iter::{FromIterator, Iterator};
-<span class="kw">use </span>core::mem::{<span class="self">self</span>, ManuallyDrop};
+<span class="kw">use </span>core::mem::{<span class="self">self</span>, ManuallyDrop, MaybeUninit};
 <span class="kw">use </span>core::ops::{Deref, DerefMut};
 <span class="kw">use </span>core::ptr::{<span class="self">self</span>, NonNull};
 <span class="kw">use </span>core::{cmp, fmt, hash, isize, slice, usize};
@@ -2479,7 +2517,16 @@
                     new_cap = cmp::max(double, new_cap);
 
                     <span class="comment">// No space - allocate more
-                    </span>v.reserve(new_cap - v.len());
+                    //
+                    // The length field of `Shared::vec` is not used by the `BytesMut`;
+                    // instead we use the `len` field in the `BytesMut` itself. However,
+                    // when calling `reserve`, it doesn&#39;t guarantee that data stored in
+                    // the unused capacity of the vector is copied over to the new
+                    // allocation, so we need to ensure that we don&#39;t have any data we
+                    // care about in the unused capacity before calling `reserve`.
+                    </span><span class="macro">debug_assert!</span>(off + len &lt;= v.capacity());
+                    v.set_len(off + len);
+                    v.reserve(new_cap - v.len());
 
                     <span class="comment">// Update the info
                     </span><span class="self">self</span>.ptr = vptr(v.as_mut_ptr().add(off));
@@ -2531,11 +2578,11 @@
         <span class="self">self</span>.reserve(cnt);
 
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>dst = <span class="self">self</span>.uninit_slice();
+            <span class="kw">let </span>dst = <span class="self">self</span>.spare_capacity_mut();
             <span class="comment">// Reserved above
             </span><span class="macro">debug_assert!</span>(dst.len() &gt;= cnt);
 
-            ptr::copy_nonoverlapping(extend.as_ptr(), dst.as_mut_ptr(), cnt);
+            ptr::copy_nonoverlapping(extend.as_ptr(), dst.as_mut_ptr().cast(), cnt);
         }
 
         <span class="kw">unsafe </span>{
@@ -2757,13 +2804,42 @@
         <span class="self">self</span>.data = invalid_ptr((pos &lt;&lt; VEC_POS_OFFSET) | (prev &amp; NOT_VEC_POS_MASK));
     }
 
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>uninit_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>UninitSlice {
+    <span class="doccomment">/// Returns the remaining spare capacity of the buffer as a slice of `MaybeUninit&lt;u8&gt;`.
+    ///
+    /// The returned slice can be used to fill the buffer with data (e.g. by
+    /// reading from a file) before marking the data as initialized using the
+    /// [`set_len`] method.
+    ///
+    /// [`set_len`]: BytesMut::set_len
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bytes::BytesMut;
+    ///
+    /// // Allocate buffer big enough for 10 bytes.
+    /// let mut buf = BytesMut::with_capacity(10);
+    ///
+    /// // Fill in the first 3 elements.
+    /// let uninit = buf.spare_capacity_mut();
+    /// uninit[0].write(0);
+    /// uninit[1].write(1);
+    /// uninit[2].write(2);
+    ///
+    /// // Mark the first 3 bytes of the buffer as being initialized.
+    /// unsafe {
+    ///     buf.set_len(3);
+    /// }
+    ///
+    /// assert_eq!(&amp;buf[..], &amp;[0, 1, 2]);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>spare_capacity_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;u8&gt;] {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ptr = <span class="self">self</span>.ptr.as_ptr().add(<span class="self">self</span>.len);
             <span class="kw">let </span>len = <span class="self">self</span>.cap - <span class="self">self</span>.len;
 
-            UninitSlice::from_raw_parts_mut(ptr, len)
+            slice::from_raw_parts_mut(ptr.cast(), len)
         }
     }
 }
@@ -2837,7 +2913,7 @@
         <span class="kw">if </span><span class="self">self</span>.capacity() == <span class="self">self</span>.len() {
             <span class="self">self</span>.reserve(<span class="number">64</span>);
         }
-        <span class="self">self</span>.uninit_slice()
+        UninitSlice::from_slice(<span class="self">self</span>.spare_capacity_mut())
     }
 
     <span class="comment">// Specialize these methods so they can skip checking `remaining_mut`
@@ -2862,7 +2938,7 @@
     <span class="kw">fn </span>put_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u8, cnt: usize) {
         <span class="self">self</span>.reserve(cnt);
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>dst = <span class="self">self</span>.uninit_slice();
+            <span class="kw">let </span>dst = <span class="self">self</span>.spare_capacity_mut();
             <span class="comment">// Reserved above
             </span><span class="macro">debug_assert!</span>(dst.len() &gt;= cnt);
 

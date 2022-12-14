@@ -2470,7 +2470,7 @@
         name: <span class="string">&quot;The Basics&quot;</span>.to_string(),
         color: <span class="prelude-val">None</span>,
         opens_at: <span class="prelude-val">None</span>,
-        deadline: <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        deadline: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
         course_module_id: <span class="prelude-val">Some</span>(default_module.id),
     };
     <span class="kw">let </span>(chapter_1, _front_page_1) = library::content_management::create_new_chapter(
@@ -2894,7 +2894,7 @@
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -2956,7 +2956,7 @@
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -3037,7 +3037,7 @@
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -3139,7 +3139,7 @@
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -3224,7 +3224,7 @@
           <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
           <span class="string">&quot;updatedAt&quot;</span>: <span class="string">&quot;2022-05-04T09:03:06.271Z&quot;
         </span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -3243,7 +3243,7 @@
         serde_json::from_str(<span class="macro">include_str!</span>(
             <span class="string">&quot;../../assets/quizzes-multiple-choice-feedback.json&quot;
         </span>))<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -3260,7 +3260,7 @@
         Uuid::new_v5(<span class="kw-2">&amp;</span>course.id, <span class="string">b&quot;05fa1188-4653-4904-bf1c-a93363225841&quot;</span>),
         <span class="bool-val">false</span>,
         serde_json::from_str(<span class="macro">include_str!</span>(<span class="string">&quot;../../assets/scale.json&quot;</span>))<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -3950,7 +3950,7 @@
         name: <span class="string">&quot;Glossary&quot;</span>.to_string(),
         color: <span class="prelude-val">None</span>,
         opens_at: <span class="prelude-val">None</span>,
-        deadline: <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        deadline: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
         course_module_id: <span class="prelude-val">Some</span>(default_module.id),
     };
     <span class="kw">let </span>(chapter, _front_page) = library::content_management::create_new_chapter(
@@ -4110,7 +4110,7 @@
                 <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
                 <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -4129,7 +4129,7 @@
         serde_json::from_str(<span class="macro">include_str!</span>(
             <span class="string">&quot;../../assets/quizzes-multiple-choice-additional-feedback.json&quot;
         </span>))<span class="question-mark">?</span>,
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -4207,7 +4207,7 @@
                 <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
                 <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     <span class="kw">let </span>(
@@ -4285,7 +4285,7 @@
                 <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
                 <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
-        <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
     );
 
     pages::update_page(

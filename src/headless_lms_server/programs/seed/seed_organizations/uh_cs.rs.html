@@ -747,7 +747,7 @@
             new_completions: <span class="macro">vec!</span>[TeacherManualCompletion {
                 user_id: <span class="kw-2">*</span>example_normal_user_ids.first().unwrap(),
                 grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-                completion_date: <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)),
+                completion_date: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap()),
             }],
             skip_duplicate_completions: <span class="bool-val">true</span>,
         },

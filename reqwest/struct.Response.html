@@ -17,7 +17,7 @@ the actual decoded length).</li>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.text" class="method has-srclink"><a class="srclink rightside" href="../src/reqwest/async_impl/response.rs.html#146-148">source</a><h4 class="code-header">pub async fn <a href="#method.text" class="fnname">text</a>(self) -&gt; <a class="type" href="type.Result.html" title="type reqwest::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.65.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</h4></section></summary><div class="docblock"><p>Get the full response text.</p>
 <p>This method decodes the response body with BOM sniffing
 and with malformed sequences replaced with the REPLACEMENT CHARACTER.
-Encoding is determinated from the <code>charset</code> parameter of <code>Content-Type</code> header,
+Encoding is determined from the <code>charset</code> parameter of <code>Content-Type</code> header,
 and defaults to <code>utf-8</code> if not presented.</p>
 <h5 id="example"><a href="#example">Example</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>content = reqwest::get(<span class="string">&quot;http://httpbin.org/range/26&quot;</span>)

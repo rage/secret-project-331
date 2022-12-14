@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/runtime/scheduler/multi_thread/worker.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>worker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../tokio/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.23.0/src/runtime/scheduler/multi_thread/worker.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>worker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../tokio/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -879,6 +879,26 @@
 <span id="879">879</span>
 <span id="880">880</span>
 <span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A scheduler is initialized with a fixed number of workers. Each worker is
 //! driven by a thread. Each worker has a &quot;core&quot; which contains data such as the
 //! run queue and other state. When `block_in_place` is called, the worker&#39;s
@@ -937,26 +957,24 @@
 //! the inject queue indefinitely. This would be a ref-count cycle and a memory
 //! leak.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::coop;
-<span class="kw">use </span><span class="kw">crate</span>::future::Future;
-<span class="kw">use </span><span class="kw">crate</span>::loom::rand::seed;
-<span class="kw">use </span><span class="kw">crate</span>::loom::sync::{Arc, Mutex};
-<span class="kw">use </span><span class="kw">crate</span>::park::{Park, Unpark};
+</span><span class="kw">use </span><span class="kw">crate</span>::loom::sync::{Arc, Mutex};
 <span class="kw">use </span><span class="kw">crate</span>::runtime;
-<span class="kw">use </span><span class="kw">crate</span>::runtime::enter::EnterContext;
-<span class="kw">use </span><span class="kw">crate</span>::runtime::scheduler::multi_thread::{queue, Idle, Parker, Unparker};
-<span class="kw">use </span><span class="kw">crate</span>::runtime::task::{Inject, JoinHandle, OwnedTasks};
-<span class="kw">use </span><span class="kw">crate</span>::runtime::{task, Config, HandleInner, MetricsBatch, SchedulerMetrics, WorkerMetrics};
+<span class="kw">use </span><span class="kw">crate</span>::runtime::context;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::scheduler::multi_thread::{queue, Handle, Idle, Parker, Unparker};
+<span class="kw">use </span><span class="kw">crate</span>::runtime::task::{Inject, OwnedTasks};
+<span class="kw">use </span><span class="kw">crate</span>::runtime::{
+    blocking, coop, driver, scheduler, task, Config, MetricsBatch, SchedulerMetrics, WorkerMetrics,
+};
 <span class="kw">use </span><span class="kw">crate</span>::util::atomic_cell::AtomicCell;
-<span class="kw">use </span><span class="kw">crate</span>::util::FastRand;
+<span class="kw">use </span><span class="kw">crate</span>::util::rand::{FastRand, RngSeedGenerator};
 
 <span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::time::Duration;
 
 <span class="doccomment">/// A scheduler worker
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Worker {
-    <span class="doccomment">/// Reference to shared state
-    </span>shared: Arc&lt;Shared&gt;,
+    <span class="doccomment">/// Reference to scheduler&#39;s handle
+    </span>handle: Arc&lt;Handle&gt;,
 
     <span class="doccomment">/// Index holding this worker&#39;s remote state
     </span>index: usize,
@@ -978,7 +996,7 @@
     </span>lifo_slot: <span class="prelude-ty">Option</span>&lt;Notified&gt;,
 
     <span class="doccomment">/// The worker-local run queue.
-    </span>run_queue: queue::Local&lt;Arc&lt;Shared&gt;&gt;,
+    </span>run_queue: queue::Local&lt;Arc&lt;Handle&gt;&gt;,
 
     <span class="doccomment">/// True if the worker is currently searching for more work. Searching
     /// involves attempting to steal from other workers.
@@ -1002,9 +1020,6 @@
 
 <span class="doccomment">/// State shared across all workers
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Shared {
-    <span class="doccomment">/// Handle to the I/O driver, timer, blocking spawner, ...
-    </span>handle_inner: HandleInner,
-
     <span class="doccomment">/// Per-worker remote state. All other workers have access to this and is
     /// how they communicate between each other.
     </span>remotes: Box&lt;[Remote]&gt;,
@@ -1012,13 +1027,13 @@
     <span class="doccomment">/// Global task queue used for:
     ///  1. Submit work to the scheduler while **not** currently on a worker thread.
     ///  2. Submit work to the scheduler when a worker run queue is saturated
-    </span>inject: Inject&lt;Arc&lt;Shared&gt;&gt;,
+    </span>inject: Inject&lt;Arc&lt;Handle&gt;&gt;,
 
     <span class="doccomment">/// Coordinates idle workers
     </span>idle: Idle,
 
     <span class="doccomment">/// Collection of all active tasks spawned onto this executor.
-    </span>owned: OwnedTasks&lt;Arc&lt;Shared&gt;&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) owned: OwnedTasks&lt;Arc&lt;Handle&gt;&gt;,
 
     <span class="doccomment">/// Cores that have observed the shutdown signal
     ///
@@ -1039,7 +1054,7 @@
 <span class="doccomment">/// Used to communicate with a worker from other threads.
 </span><span class="kw">struct </span>Remote {
     <span class="doccomment">/// Steals tasks from this worker.
-    </span>steal: queue::Steal&lt;Arc&lt;Shared&gt;&gt;,
+    </span>steal: queue::Steal&lt;Arc&lt;Handle&gt;&gt;,
 
     <span class="doccomment">/// Unparks the associated worker thread
     </span>unpark: Unparker,
@@ -1063,10 +1078,10 @@
 </span><span class="kw">type </span>RunResult = <span class="prelude-ty">Result</span>&lt;Box&lt;Core&gt;, ()&gt;;
 
 <span class="doccomment">/// A task handle
-</span><span class="kw">type </span>Task = task::Task&lt;Arc&lt;Shared&gt;&gt;;
+</span><span class="kw">type </span>Task = task::Task&lt;Arc&lt;Handle&gt;&gt;;
 
 <span class="doccomment">/// A notified task handle
-</span><span class="kw">type </span>Notified = task::Notified&lt;Arc&lt;Shared&gt;&gt;;
+</span><span class="kw">type </span>Notified = task::Notified&lt;Arc&lt;Handle&gt;&gt;;
 
 <span class="comment">// Tracks thread-local state
 </span><span class="macro">scoped_thread_local!</span>(<span class="kw">static </span>CURRENT: Context);
@@ -1074,9 +1089,11 @@
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>create(
     size: usize,
     park: Parker,
-    handle_inner: HandleInner,
+    driver_handle: driver::Handle,
+    blocking_spawner: blocking::Spawner,
+    seed_generator: RngSeedGenerator,
     config: Config,
-) -&gt; (Arc&lt;Shared&gt;, Launch) {
+) -&gt; (Arc&lt;Handle&gt;, Launch) {
     <span class="kw">let </span><span class="kw-2">mut </span>cores = Vec::with_capacity(size);
     <span class="kw">let </span><span class="kw-2">mut </span>remotes = Vec::with_capacity(size);
     <span class="kw">let </span><span class="kw-2">mut </span>worker_metrics = Vec::with_capacity(size);
@@ -1096,39 +1113,44 @@
             is_shutdown: <span class="bool-val">false</span>,
             park: <span class="prelude-val">Some</span>(park),
             metrics: MetricsBatch::new(),
-            rand: FastRand::new(seed()),
+            rand: FastRand::new(config.seed_generator.next_seed()),
         }));
 
         remotes.push(Remote { steal, unpark });
         worker_metrics.push(WorkerMetrics::new());
     }
 
-    <span class="kw">let </span>shared = Arc::new(Shared {
-        handle_inner,
-        remotes: remotes.into_boxed_slice(),
-        inject: Inject::new(),
-        idle: Idle::new(size),
-        owned: OwnedTasks::new(),
-        shutdown_cores: Mutex::new(<span class="macro">vec!</span>[]),
-        config,
-        scheduler_metrics: SchedulerMetrics::new(),
-        worker_metrics: worker_metrics.into_boxed_slice(),
+    <span class="kw">let </span>handle = Arc::new(Handle {
+        shared: Shared {
+            remotes: remotes.into_boxed_slice(),
+            inject: Inject::new(),
+            idle: Idle::new(size),
+            owned: OwnedTasks::new(),
+            shutdown_cores: Mutex::new(<span class="macro">vec!</span>[]),
+            config,
+            scheduler_metrics: SchedulerMetrics::new(),
+            worker_metrics: worker_metrics.into_boxed_slice(),
+        },
+        driver: driver_handle,
+        blocking_spawner,
+        seed_generator,
     });
 
     <span class="kw">let </span><span class="kw-2">mut </span>launch = Launch(<span class="macro">vec!</span>[]);
 
     <span class="kw">for </span>(index, core) <span class="kw">in </span>cores.drain(..).enumerate() {
         launch.<span class="number">0</span>.push(Arc::new(Worker {
-            shared: shared.clone(),
+            handle: handle.clone(),
             index,
             core: AtomicCell::new(<span class="prelude-val">Some</span>(core)),
         }));
     }
 
-    (shared, launch)
+    (handle, launch)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>block_in_place&lt;F, R&gt;(f: F) -&gt; R
+<span class="attribute">#[track_caller]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>block_in_place&lt;F, R&gt;(f: F) -&gt; R
 <span class="kw">where
     </span>F: FnOnce() -&gt; R,
 {
@@ -1154,35 +1176,45 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>had_entered = <span class="bool-val">false</span>;
 
-    CURRENT.with(|maybe_cx| {
-        <span class="kw">match </span>(<span class="kw">crate</span>::runtime::enter::context(), maybe_cx.is_some()) {
-            (EnterContext::Entered { .. }, <span class="bool-val">true</span>) =&gt; {
+    <span class="kw">let </span>setup_result = CURRENT.with(|maybe_cx| {
+        <span class="kw">match </span>(
+            <span class="kw">crate</span>::runtime::context::current_enter_context(),
+            maybe_cx.is_some(),
+        ) {
+            (context::EnterRuntime::Entered { .. }, <span class="bool-val">true</span>) =&gt; {
                 <span class="comment">// We are on a thread pool runtime thread, so we just need to
                 // set up blocking.
                 </span>had_entered = <span class="bool-val">true</span>;
             }
-            (EnterContext::Entered { allow_blocking }, <span class="bool-val">false</span>) =&gt; {
+            (
+                context::EnterRuntime::Entered {
+                    allow_block_in_place,
+                },
+                <span class="bool-val">false</span>,
+            ) =&gt; {
                 <span class="comment">// We are on an executor, but _not_ on the thread pool.  That is
                 // _only_ okay if we are in a thread pool runtime&#39;s block_on
                 // method:
-                </span><span class="kw">if </span>allow_blocking {
+                </span><span class="kw">if </span>allow_block_in_place {
                     had_entered = <span class="bool-val">true</span>;
-                    <span class="kw">return</span>;
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 } <span class="kw">else </span>{
                     <span class="comment">// This probably means we are on the current_thread runtime or in a
                     // LocalSet, where it is _not_ okay to block.
-                    </span><span class="macro">panic!</span>(<span class="string">&quot;can call blocking only when running on the multi-threaded runtime&quot;</span>);
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(
+                        <span class="string">&quot;can call blocking only when running on the multi-threaded runtime&quot;</span>,
+                    );
                 }
             }
-            (EnterContext::NotEntered, <span class="bool-val">true</span>) =&gt; {
+            (context::EnterRuntime::NotEntered, <span class="bool-val">true</span>) =&gt; {
                 <span class="comment">// This is a nested call to block_in_place (we already exited).
                 // All the necessary setup has already been done.
-                </span><span class="kw">return</span>;
+                </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
-            (EnterContext::NotEntered, <span class="bool-val">false</span>) =&gt; {
+            (context::EnterRuntime::NotEntered, <span class="bool-val">false</span>) =&gt; {
                 <span class="comment">// We are outside of the tokio runtime, so blocking is fine.
                 // We can also skip all of the thread pool blocking setup steps.
-                </span><span class="kw">return</span>;
+                </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
         }
 
@@ -1191,7 +1223,7 @@
         <span class="comment">// Get the worker core. If none is set, then blocking is fine!
         </span><span class="kw">let </span>core = <span class="kw">match </span>cx.core.borrow_mut().take() {
             <span class="prelude-val">Some</span>(core) =&gt; core,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
         };
 
         <span class="comment">// The parker should be set here
@@ -1210,14 +1242,19 @@
         // steal the core back.
         </span><span class="kw">let </span>worker = cx.worker.clone();
         runtime::spawn_blocking(<span class="kw">move </span>|| run(worker));
+        <span class="prelude-val">Ok</span>(())
     });
+
+    <span class="kw">if let </span><span class="prelude-val">Err</span>(panic_message) = setup_result {
+        <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, panic_message);
+    }
 
     <span class="kw">if </span>had_entered {
         <span class="comment">// Unset the current task&#39;s budget. Blocking sections are not
         // constrained by task budgets.
         </span><span class="kw">let </span>_reset = Reset(coop::stop());
 
-        <span class="kw">crate</span>::runtime::enter::exit(f)
+        <span class="kw">crate</span>::runtime::context::exit_runtime(f)
     } <span class="kw">else </span>{
         f()
     }
@@ -1232,6 +1269,22 @@
 }
 
 <span class="kw">fn </span>run(worker: Arc&lt;Worker&gt;) {
+    <span class="kw">struct </span>AbortOnPanic;
+
+    <span class="kw">impl </span>Drop <span class="kw">for </span>AbortOnPanic {
+        <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="kw">if </span>std::thread::panicking() {
+                <span class="macro">eprintln!</span>(<span class="string">&quot;worker thread panicking; aborting process&quot;</span>);
+                std::process::abort();
+            }
+        }
+    }
+
+    <span class="comment">// Catching panics on worker threads in tests is quite tricky. Instead, when
+    // debug assertions are enabled, we just abort the process.
+    </span><span class="attribute">#[cfg(debug_assertions)]
+    </span><span class="kw">let </span>_abort_on_panic = AbortOnPanic;
+
     <span class="comment">// Acquire a core. If this fails, then another thread is running this
     // worker and there is nothing further to do.
     </span><span class="kw">let </span>core = <span class="kw">match </span>worker.core.take() {
@@ -1239,18 +1292,24 @@
         <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
     };
 
+    <span class="kw">let </span>handle = scheduler::Handle::MultiThread(worker.handle.clone());
+    <span class="kw">let </span>_enter = <span class="kw">crate</span>::runtime::context::enter_runtime(<span class="kw-2">&amp;</span>handle, <span class="bool-val">true</span>);
+
     <span class="comment">// Set the worker context.
     </span><span class="kw">let </span>cx = Context {
         worker,
         core: RefCell::new(<span class="prelude-val">None</span>),
     };
 
-    <span class="kw">let </span>_enter = <span class="kw">crate</span>::runtime::enter(<span class="bool-val">true</span>);
-
     CURRENT.set(<span class="kw-2">&amp;</span>cx, || {
         <span class="comment">// This should always be an error. It only returns a `Result` to support
         // using `?` to short circuit.
         </span><span class="macro">assert!</span>(cx.run(core).is_err());
+
+        <span class="comment">// Check if there are any deferred tasks to notify. This can happen when
+        // the worker core is lost due to `block_in_place()` being called from
+        // within the task.
+        </span>wake_deferred_tasks();
     });
 }
 
@@ -1275,19 +1334,23 @@
                 core = <span class="self">self</span>.run_task(task, core)<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="comment">// Wait for work
-                </span>core = <span class="self">self</span>.park(core);
+                </span>core = <span class="kw">if </span>did_defer_tasks() {
+                    <span class="self">self</span>.park_timeout(core, <span class="prelude-val">Some</span>(Duration::from_millis(<span class="number">0</span>)))
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.park(core)
+                };
             }
         }
 
         core.pre_shutdown(<span class="kw-2">&amp;</span><span class="self">self</span>.worker);
 
         <span class="comment">// Signal shutdown
-        </span><span class="self">self</span>.worker.shared.shutdown(core);
+        </span><span class="self">self</span>.worker.handle.shutdown_core(core);
         <span class="prelude-val">Err</span>(())
     }
 
     <span class="kw">fn </span>run_task(<span class="kw-2">&amp;</span><span class="self">self</span>, task: Notified, <span class="kw-2">mut </span>core: Box&lt;Core&gt;) -&gt; RunResult {
-        <span class="kw">let </span>task = <span class="self">self</span>.worker.shared.owned.assert_owner(task);
+        <span class="kw">let </span>task = <span class="self">self</span>.worker.handle.shared.owned.assert_owner(task);
 
         <span class="comment">// Make sure the worker is not in the **searching** state. This enables
         // another idle worker to try to steal work.
@@ -1321,7 +1384,7 @@
                     <span class="comment">// Run the LIFO task, then loop
                     </span>core.metrics.incr_poll_count();
                     <span class="kw-2">*</span><span class="self">self</span>.core.borrow_mut() = <span class="prelude-val">Some</span>(core);
-                    <span class="kw">let </span>task = <span class="self">self</span>.worker.shared.owned.assert_owner(task);
+                    <span class="kw">let </span>task = <span class="self">self</span>.worker.handle.shared.owned.assert_owner(task);
                     task.run();
                 } <span class="kw">else </span>{
                     <span class="comment">// Not enough budget left to run the LIFO task, push it to
@@ -1335,7 +1398,7 @@
     }
 
     <span class="kw">fn </span>maintenance(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>core: Box&lt;Core&gt;) -&gt; Box&lt;Core&gt; {
-        <span class="kw">if </span>core.tick % <span class="self">self</span>.worker.shared.config.event_interval == <span class="number">0 </span>{
+        <span class="kw">if </span>core.tick % <span class="self">self</span>.worker.handle.shared.config.event_interval == <span class="number">0 </span>{
             <span class="comment">// Call `park` with a 0 timeout. This enables the I/O driver, timer, ...
             // to run without actually putting the thread to sleep.
             </span>core = <span class="self">self</span>.park_timeout(core, <span class="prelude-val">Some</span>(Duration::from_millis(<span class="number">0</span>)));
@@ -1359,7 +1422,7 @@
     /// Also, we rely on the workstealing algorithm to spread the tasks amongst workers
     /// after all the IOs get dispatched
     </span><span class="kw">fn </span>park(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>core: Box&lt;Core&gt;) -&gt; Box&lt;Core&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.worker.shared.config.before_park {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.worker.handle.shared.config.before_park {
             f();
         }
 
@@ -1378,7 +1441,7 @@
             }
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.worker.shared.config.after_unpark {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.worker.handle.shared.config.after_unpark {
             f();
         }
         core
@@ -1393,10 +1456,12 @@
 
         <span class="comment">// Park thread
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(timeout) = duration {
-            park.park_timeout(timeout).expect(<span class="string">&quot;park failed&quot;</span>);
+            park.park_timeout(<span class="kw-2">&amp;</span><span class="self">self</span>.worker.handle.driver, timeout);
         } <span class="kw">else </span>{
-            park.park().expect(<span class="string">&quot;park failed&quot;</span>);
+            park.park(<span class="kw-2">&amp;</span><span class="self">self</span>.worker.handle.driver);
         }
+
+        wake_deferred_tasks();
 
         <span class="comment">// Remove `core` from context
         </span>core = <span class="self">self</span>.core.borrow_mut().take().expect(<span class="string">&quot;core missing&quot;</span>);
@@ -1407,7 +1472,7 @@
         <span class="comment">// If there are tasks available to steal, but this worker is not
         // looking for tasks to steal, notify another worker.
         </span><span class="kw">if </span>!core.is_searching &amp;&amp; core.run_queue.is_stealable() {
-            <span class="self">self</span>.worker.shared.notify_parked();
+            <span class="self">self</span>.worker.handle.notify_parked();
         }
 
         core
@@ -1422,7 +1487,7 @@
 
     <span class="doccomment">/// Return the next notified task available to this worker.
     </span><span class="kw">fn </span>next_task(<span class="kw-2">&amp;mut </span><span class="self">self</span>, worker: <span class="kw-2">&amp;</span>Worker) -&gt; <span class="prelude-ty">Option</span>&lt;Notified&gt; {
-        <span class="kw">if </span><span class="self">self</span>.tick % worker.shared.config.global_queue_interval == <span class="number">0 </span>{
+        <span class="kw">if </span><span class="self">self</span>.tick % worker.handle.shared.config.global_queue_interval == <span class="number">0 </span>{
             worker.inject().pop().or_else(|| <span class="self">self</span>.next_local_task())
         } <span class="kw">else </span>{
             <span class="self">self</span>.next_local_task().or_else(|| worker.inject().pop())
@@ -1443,7 +1508,7 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let </span>num = worker.shared.remotes.len();
+        <span class="kw">let </span>num = worker.handle.shared.remotes.len();
         <span class="comment">// Start from a random worker
         </span><span class="kw">let </span>start = <span class="self">self</span>.rand.fastrand_n(num <span class="kw">as </span>u32) <span class="kw">as </span>usize;
 
@@ -1455,7 +1520,7 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let </span>target = <span class="kw-2">&amp;</span>worker.shared.remotes[i];
+            <span class="kw">let </span>target = <span class="kw-2">&amp;</span>worker.handle.shared.remotes[i];
             <span class="kw">if let </span><span class="prelude-val">Some</span>(task) = target
                 .steal
                 .steal_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.run_queue, <span class="kw-2">&amp;mut </span><span class="self">self</span>.metrics)
@@ -1465,12 +1530,12 @@
         }
 
         <span class="comment">// Fallback on checking the global queue
-        </span>worker.shared.inject.pop()
+        </span>worker.handle.shared.inject.pop()
     }
 
     <span class="kw">fn </span>transition_to_searching(<span class="kw-2">&amp;mut </span><span class="self">self</span>, worker: <span class="kw-2">&amp;</span>Worker) -&gt; bool {
         <span class="kw">if </span>!<span class="self">self</span>.is_searching {
-            <span class="self">self</span>.is_searching = worker.shared.idle.transition_worker_to_searching();
+            <span class="self">self</span>.is_searching = worker.handle.shared.idle.transition_worker_to_searching();
         }
 
         <span class="self">self</span>.is_searching
@@ -1482,7 +1547,7 @@
         }
 
         <span class="self">self</span>.is_searching = <span class="bool-val">false</span>;
-        worker.shared.transition_worker_from_searching();
+        worker.handle.transition_worker_from_searching();
     }
 
     <span class="doccomment">/// Prepares the worker state for parking.
@@ -1498,6 +1563,7 @@
         // must check all the queues one last time in case work materialized
         // between the last work scan and transitioning out of searching.
         </span><span class="kw">let </span>is_last_searcher = worker
+            .handle
             .shared
             .idle
             .transition_worker_to_parked(worker.index, <span class="self">self</span>.is_searching);
@@ -1507,7 +1573,7 @@
         </span><span class="self">self</span>.is_searching = <span class="bool-val">false</span>;
 
         <span class="kw">if </span>is_last_searcher {
-            worker.shared.notify_if_work_pending();
+            worker.handle.notify_if_work_pending();
         }
 
         <span class="bool-val">true
@@ -1522,11 +1588,11 @@
             // state when the wake originates from another worker *or* a new task
             // is pushed. We do *not* want the worker to transition to &quot;searching&quot;
             // when it wakes when the I/O driver receives new events.
-            </span><span class="self">self</span>.is_searching = !worker.shared.idle.unpark_worker_by_id(worker.index);
+            </span><span class="self">self</span>.is_searching = !worker.handle.shared.idle.unpark_worker_by_id(worker.index);
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
 
-        <span class="kw">if </span>worker.shared.idle.is_parked(worker.index) {
+        <span class="kw">if </span>worker.handle.shared.idle.is_parked(worker.index) {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
@@ -1538,7 +1604,7 @@
     <span class="doccomment">/// Runs maintenance work such as checking the pool&#39;s state.
     </span><span class="kw">fn </span>maintenance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, worker: <span class="kw-2">&amp;</span>Worker) {
         <span class="self">self</span>.metrics
-            .submit(<span class="kw-2">&amp;</span>worker.shared.worker_metrics[worker.index]);
+            .submit(<span class="kw-2">&amp;</span>worker.handle.shared.worker_metrics[worker.index]);
 
         <span class="kw">if </span>!<span class="self">self</span>.is_shutdown {
             <span class="comment">// Check if the scheduler has been shutdown
@@ -1550,73 +1616,52 @@
     /// before we enter the single-threaded phase of shutdown processing.
     </span><span class="kw">fn </span>pre_shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>, worker: <span class="kw-2">&amp;</span>Worker) {
         <span class="comment">// Signal to all tasks to shut down.
-        </span>worker.shared.owned.close_and_shutdown_all();
+        </span>worker.handle.shared.owned.close_and_shutdown_all();
 
         <span class="self">self</span>.metrics
-            .submit(<span class="kw-2">&amp;</span>worker.shared.worker_metrics[worker.index]);
+            .submit(<span class="kw-2">&amp;</span>worker.handle.shared.worker_metrics[worker.index]);
     }
 
     <span class="doccomment">/// Shuts down the core.
-    </span><span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    </span><span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>, handle: <span class="kw-2">&amp;</span>Handle) {
         <span class="comment">// Take the core
         </span><span class="kw">let </span><span class="kw-2">mut </span>park = <span class="self">self</span>.park.take().expect(<span class="string">&quot;park missing&quot;</span>);
 
         <span class="comment">// Drain the queue
         </span><span class="kw">while </span><span class="self">self</span>.next_local_task().is_some() {}
 
-        park.shutdown();
+        park.shutdown(<span class="kw-2">&amp;</span>handle.driver);
     }
 }
 
 <span class="kw">impl </span>Worker {
     <span class="doccomment">/// Returns a reference to the scheduler&#39;s injection queue.
-    </span><span class="kw">fn </span>inject(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Inject&lt;Arc&lt;Shared&gt;&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.shared.inject
+    </span><span class="kw">fn </span>inject(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Inject&lt;Arc&lt;Handle&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.handle.shared.inject
     }
 }
 
-<span class="kw">impl </span>task::Schedule <span class="kw">for </span>Arc&lt;Shared&gt; {
+<span class="comment">// TODO: Move `Handle` impls into handle.rs
+</span><span class="kw">impl </span>task::Schedule <span class="kw">for </span>Arc&lt;Handle&gt; {
     <span class="kw">fn </span>release(<span class="kw-2">&amp;</span><span class="self">self</span>, task: <span class="kw-2">&amp;</span>Task) -&gt; <span class="prelude-ty">Option</span>&lt;Task&gt; {
-        <span class="self">self</span>.owned.remove(task)
+        <span class="self">self</span>.shared.owned.remove(task)
     }
 
     <span class="kw">fn </span>schedule(<span class="kw-2">&amp;</span><span class="self">self</span>, task: Notified) {
-        (<span class="kw-2">**</span><span class="self">self</span>).schedule(task, <span class="bool-val">false</span>);
+        <span class="self">self</span>.schedule_task(task, <span class="bool-val">false</span>);
     }
 
     <span class="kw">fn </span>yield_now(<span class="kw-2">&amp;</span><span class="self">self</span>, task: Notified) {
-        (<span class="kw-2">**</span><span class="self">self</span>).schedule(task, <span class="bool-val">true</span>);
+        <span class="self">self</span>.schedule_task(task, <span class="bool-val">true</span>);
     }
 }
 
-<span class="kw">impl </span>Shared {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_handle_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HandleInner {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.handle_inner
-    }
-
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>bind_new_task&lt;T&gt;(
-        me: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;,
-        future: T,
-        id: <span class="kw">crate</span>::runtime::task::Id,
-    ) -&gt; JoinHandle&lt;T::Output&gt;
-    <span class="kw">where
-        </span>T: Future + Send + <span class="lifetime">&#39;static</span>,
-        T::Output: Send + <span class="lifetime">&#39;static</span>,
-    {
-        <span class="kw">let </span>(handle, notified) = me.owned.bind(future, me.clone(), id);
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(notified) = notified {
-            me.schedule(notified, <span class="bool-val">false</span>);
-        }
-
-        handle
-    }
-
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>schedule(<span class="kw-2">&amp;</span><span class="self">self</span>, task: Notified, is_yield: bool) {
+<span class="kw">impl </span>Handle {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>schedule_task(<span class="kw-2">&amp;</span><span class="self">self</span>, task: Notified, is_yield: bool) {
         CURRENT.with(|maybe_cx| {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(cx) = maybe_cx {
                 <span class="comment">// Make sure the task is part of the **current** scheduler.
-                </span><span class="kw">if </span><span class="self">self</span>.ptr_eq(<span class="kw-2">&amp;</span>cx.worker.shared) {
+                </span><span class="kw">if </span><span class="self">self</span>.ptr_eq(<span class="kw-2">&amp;</span>cx.worker.handle) {
                     <span class="comment">// And the current thread still holds a core
                     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core) = cx.core.borrow_mut().as_mut() {
                         <span class="self">self</span>.schedule_local(core, task, is_yield);
@@ -1626,8 +1671,8 @@
             }
 
             <span class="comment">// Otherwise, use the inject queue.
-            </span><span class="self">self</span>.inject.push(task);
-            <span class="self">self</span>.scheduler_metrics.inc_remote_schedule_count();
+            </span><span class="self">self</span>.shared.inject.push(task);
+            <span class="self">self</span>.shared.scheduler_metrics.inc_remote_schedule_count();
             <span class="self">self</span>.notify_parked();
         })
     }
@@ -1639,9 +1684,9 @@
         // task must always be pushed to the back of the queue, enabling other
         // tasks to be executed. If **not** a yield, then there is more
         // flexibility and the task may go to the front of the queue.
-        </span><span class="kw">let </span>should_notify = <span class="kw">if </span>is_yield || <span class="self">self</span>.config.disable_lifo_slot {
+        </span><span class="kw">let </span>should_notify = <span class="kw">if </span>is_yield || <span class="self">self</span>.shared.config.disable_lifo_slot {
             core.run_queue
-                .push_back(task, <span class="kw-2">&amp;</span><span class="self">self</span>.inject, <span class="kw-2">&amp;mut </span>core.metrics);
+                .push_back(task, <span class="kw-2">&amp;</span><span class="self">self</span>.shared.inject, <span class="kw-2">&amp;mut </span>core.metrics);
             <span class="bool-val">true
         </span>} <span class="kw">else </span>{
             <span class="comment">// Push to the LIFO slot
@@ -1650,7 +1695,7 @@
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = prev {
                 core.run_queue
-                    .push_back(prev, <span class="kw-2">&amp;</span><span class="self">self</span>.inject, <span class="kw-2">&amp;mut </span>core.metrics);
+                    .push_back(prev, <span class="kw-2">&amp;</span><span class="self">self</span>.shared.inject, <span class="kw-2">&amp;mut </span>core.metrics);
             }
 
             core.lifo_slot = <span class="prelude-val">Some</span>(task);
@@ -1667,38 +1712,38 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if </span><span class="self">self</span>.inject.close() {
+        <span class="kw">if </span><span class="self">self</span>.shared.inject.close() {
             <span class="self">self</span>.notify_all();
         }
     }
 
     <span class="kw">fn </span>notify_parked(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = <span class="self">self</span>.idle.worker_to_notify() {
-            <span class="self">self</span>.remotes[index].unpark.unpark();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = <span class="self">self</span>.shared.idle.worker_to_notify() {
+            <span class="self">self</span>.shared.remotes[index].unpark.unpark(<span class="kw-2">&amp;</span><span class="self">self</span>.driver);
         }
     }
 
     <span class="kw">fn </span>notify_all(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">for </span>remote <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.remotes[..] {
-            remote.unpark.unpark();
+        <span class="kw">for </span>remote <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.shared.remotes[..] {
+            remote.unpark.unpark(<span class="kw-2">&amp;</span><span class="self">self</span>.driver);
         }
     }
 
     <span class="kw">fn </span>notify_if_work_pending(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">for </span>remote <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.remotes[..] {
+        <span class="kw">for </span>remote <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.shared.remotes[..] {
             <span class="kw">if </span>!remote.steal.is_empty() {
                 <span class="self">self</span>.notify_parked();
                 <span class="kw">return</span>;
             }
         }
 
-        <span class="kw">if </span>!<span class="self">self</span>.inject.is_empty() {
+        <span class="kw">if </span>!<span class="self">self</span>.shared.inject.is_empty() {
             <span class="self">self</span>.notify_parked();
         }
     }
 
     <span class="kw">fn </span>transition_worker_from_searching(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if </span><span class="self">self</span>.idle.transition_worker_from_searching() {
+        <span class="kw">if </span><span class="self">self</span>.shared.idle.transition_worker_from_searching() {
             <span class="comment">// We are the final searching worker. Because work was found, we
             // need to notify another worker.
             </span><span class="self">self</span>.notify_parked();
@@ -1709,44 +1754,39 @@
     /// its core back into its handle.
     ///
     /// If all workers have reached this point, the final cleanup is performed.
-    </span><span class="kw">fn </span>shutdown(<span class="kw-2">&amp;</span><span class="self">self</span>, core: Box&lt;Core&gt;) {
-        <span class="kw">let </span><span class="kw-2">mut </span>cores = <span class="self">self</span>.shutdown_cores.lock();
+    </span><span class="kw">fn </span>shutdown_core(<span class="kw-2">&amp;</span><span class="self">self</span>, core: Box&lt;Core&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>cores = <span class="self">self</span>.shared.shutdown_cores.lock();
         cores.push(core);
 
-        <span class="kw">if </span>cores.len() != <span class="self">self</span>.remotes.len() {
+        <span class="kw">if </span>cores.len() != <span class="self">self</span>.shared.remotes.len() {
             <span class="kw">return</span>;
         }
 
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.owned.is_empty());
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.shared.owned.is_empty());
 
         <span class="kw">for </span><span class="kw-2">mut </span>core <span class="kw">in </span>cores.drain(..) {
-            core.shutdown();
+            core.shutdown(<span class="self">self</span>);
         }
 
         <span class="comment">// Drain the injection queue
         //
         // We already shut down every task, so we can simply drop the tasks.
-        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(task) = <span class="self">self</span>.inject.pop() {
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(task) = <span class="self">self</span>.shared.inject.pop() {
             drop(task);
         }
     }
 
-    <span class="kw">fn </span>ptr_eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Shared) -&gt; bool {
+    <span class="kw">fn </span>ptr_eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Handle) -&gt; bool {
         std::ptr::eq(<span class="self">self</span>, other)
     }
 }
 
-<span class="kw">impl </span><span class="kw">crate</span>::runtime::ToHandle <span class="kw">for </span>Arc&lt;Shared&gt; {
-    <span class="kw">fn </span>to_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::runtime::Handle {
-        <span class="kw">use </span><span class="kw">crate</span>::runtime::scheduler::multi_thread::Spawner;
-        <span class="kw">use </span><span class="kw">crate</span>::runtime::{<span class="self">self</span>, Handle};
+<span class="kw">fn </span>did_defer_tasks() -&gt; bool {
+    context::with_defer(|deferred| !deferred.is_empty()).unwrap()
+}
 
-        Handle {
-            spawner: runtime::Spawner::MultiThread(Spawner {
-                shared: <span class="self">self</span>.clone(),
-            }),
-        }
-    }
+<span class="kw">fn </span>wake_deferred_tasks() {
+    context::with_defer(|deferred| deferred.wake());
 }
 
 <span class="macro">cfg_metrics! </span>{

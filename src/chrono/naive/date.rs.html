@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.22/src/naive/date.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>date.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.23/src/naive/date.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>date.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -2772,6 +2772,106 @@
 <span id="2772">2772</span>
 <span id="2773">2773</span>
 <span id="2774">2774</span>
+<span id="2775">2775</span>
+<span id="2776">2776</span>
+<span id="2777">2777</span>
+<span id="2778">2778</span>
+<span id="2779">2779</span>
+<span id="2780">2780</span>
+<span id="2781">2781</span>
+<span id="2782">2782</span>
+<span id="2783">2783</span>
+<span id="2784">2784</span>
+<span id="2785">2785</span>
+<span id="2786">2786</span>
+<span id="2787">2787</span>
+<span id="2788">2788</span>
+<span id="2789">2789</span>
+<span id="2790">2790</span>
+<span id="2791">2791</span>
+<span id="2792">2792</span>
+<span id="2793">2793</span>
+<span id="2794">2794</span>
+<span id="2795">2795</span>
+<span id="2796">2796</span>
+<span id="2797">2797</span>
+<span id="2798">2798</span>
+<span id="2799">2799</span>
+<span id="2800">2800</span>
+<span id="2801">2801</span>
+<span id="2802">2802</span>
+<span id="2803">2803</span>
+<span id="2804">2804</span>
+<span id="2805">2805</span>
+<span id="2806">2806</span>
+<span id="2807">2807</span>
+<span id="2808">2808</span>
+<span id="2809">2809</span>
+<span id="2810">2810</span>
+<span id="2811">2811</span>
+<span id="2812">2812</span>
+<span id="2813">2813</span>
+<span id="2814">2814</span>
+<span id="2815">2815</span>
+<span id="2816">2816</span>
+<span id="2817">2817</span>
+<span id="2818">2818</span>
+<span id="2819">2819</span>
+<span id="2820">2820</span>
+<span id="2821">2821</span>
+<span id="2822">2822</span>
+<span id="2823">2823</span>
+<span id="2824">2824</span>
+<span id="2825">2825</span>
+<span id="2826">2826</span>
+<span id="2827">2827</span>
+<span id="2828">2828</span>
+<span id="2829">2829</span>
+<span id="2830">2830</span>
+<span id="2831">2831</span>
+<span id="2832">2832</span>
+<span id="2833">2833</span>
+<span id="2834">2834</span>
+<span id="2835">2835</span>
+<span id="2836">2836</span>
+<span id="2837">2837</span>
+<span id="2838">2838</span>
+<span id="2839">2839</span>
+<span id="2840">2840</span>
+<span id="2841">2841</span>
+<span id="2842">2842</span>
+<span id="2843">2843</span>
+<span id="2844">2844</span>
+<span id="2845">2845</span>
+<span id="2846">2846</span>
+<span id="2847">2847</span>
+<span id="2848">2848</span>
+<span id="2849">2849</span>
+<span id="2850">2850</span>
+<span id="2851">2851</span>
+<span id="2852">2852</span>
+<span id="2853">2853</span>
+<span id="2854">2854</span>
+<span id="2855">2855</span>
+<span id="2856">2856</span>
+<span id="2857">2857</span>
+<span id="2858">2858</span>
+<span id="2859">2859</span>
+<span id="2860">2860</span>
+<span id="2861">2861</span>
+<span id="2862">2862</span>
+<span id="2863">2863</span>
+<span id="2864">2864</span>
+<span id="2865">2865</span>
+<span id="2866">2866</span>
+<span id="2867">2867</span>
+<span id="2868">2868</span>
+<span id="2869">2869</span>
+<span id="2870">2870</span>
+<span id="2871">2871</span>
+<span id="2872">2872</span>
+<span id="2873">2873</span>
+<span id="2874">2874</span>
 </pre><pre class="rust"><code><span class="comment">// This is a part of Chrono.
 // See README.md and LICENSE.txt for details.
 
@@ -2779,6 +2879,7 @@
 
 </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">use </span>core::borrow::Borrow;
+<span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>core::ops::{Add, AddAssign, RangeInclusive, Sub, SubAssign};
 <span class="kw">use </span>core::{fmt, str};
 
@@ -2789,7 +2890,7 @@
 
 <span class="attribute">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">use </span><span class="kw">crate</span>::format::DelayedFormat;
-<span class="kw">use </span><span class="kw">crate</span>::format::{parse, ParseError, ParseResult, Parsed, StrftimeItems};
+<span class="kw">use </span><span class="kw">crate</span>::format::{parse, write_hundreds, ParseError, ParseResult, Parsed, StrftimeItems};
 <span class="kw">use </span><span class="kw">crate</span>::format::{Item, Numeric, Pad};
 <span class="kw">use </span><span class="kw">crate</span>::month::Months;
 <span class="kw">use </span><span class="kw">crate</span>::naive::{IsoWeek, NaiveDateTime, NaiveTime};
@@ -2841,7 +2942,7 @@
     /// ```
     /// use chrono::{NaiveDate, Weekday};
     ///
-    /// let date = NaiveDate::from_ymd(2022, 4, 18);
+    /// let date = NaiveDate::from_ymd_opt(2022, 4, 18).unwrap();
     /// let week = date.week(Weekday::Mon);
     /// assert!(week.first_day() &lt;= date);
     /// ```
@@ -2860,7 +2961,7 @@
     /// ```
     /// use chrono::{NaiveDate, Weekday};
     ///
-    /// let date = NaiveDate::from_ymd(2022, 4, 18);
+    /// let date = NaiveDate::from_ymd_opt(2022, 4, 18).unwrap();
     /// let week = date.week(Weekday::Mon);
     /// assert!(week.last_day() &gt;= date);
     /// ```
@@ -2878,7 +2979,7 @@
     /// ```
     /// use chrono::{NaiveDate, Weekday};
     ///
-    /// let date = NaiveDate::from_ymd(2022, 4, 18);
+    /// let date = NaiveDate::from_ymd_opt(2022, 4, 18).unwrap();
     /// let week = date.week(Weekday::Mon);
     /// let days = week.days();
     /// assert!(days.contains(&amp;date));
@@ -2886,6 +2987,22 @@
     </span><span class="attribute">#[inline]
     </span><span class="kw">pub fn </span>days(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RangeInclusive&lt;NaiveDate&gt; {
         <span class="self">self</span>.first_day()..=<span class="self">self</span>.last_day()
+    }
+}
+
+<span class="doccomment">/// A duration in calendar days.
+///
+/// This is useful becuase when using `Duration` it is possible
+/// that adding `Duration::days(1)` doesn&#39;t increment the day value as expected due to it being a
+/// fixed number of seconds. This difference applies only when dealing with `DateTime&lt;TimeZone&gt;` data types
+/// and in other cases `Duration::days(n)` and `Days::new(n)` are equivalent.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
+</span><span class="kw">pub struct </span>Days(<span class="kw">pub</span>(<span class="kw">crate</span>) u64);
+
+<span class="kw">impl </span>Days {
+    <span class="doccomment">/// Construct a new `Days` from a number of months
+    </span><span class="kw">pub fn </span>new(num: u64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(num)
     }
 }
 
@@ -2950,12 +3067,22 @@
 </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.20&quot;</span>, note = <span class="string">&quot;Use NaiveDate::MAX instead&quot;</span>)]
 </span><span class="kw">pub const </span>MAX_DATE: NaiveDate = NaiveDate::MAX;
 
+<span class="attribute">#[cfg(feature = <span class="string">&quot;arbitrary&quot;</span>)]
+</span><span class="kw">impl </span>arbitrary::Arbitrary&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>NaiveDate {
+    <span class="kw">fn </span>arbitrary(u: <span class="kw-2">&amp;mut </span>arbitrary::Unstructured) -&gt; arbitrary::Result&lt;NaiveDate&gt; {
+        <span class="kw">let </span>year = u.int_in_range(MIN_YEAR..=MAX_YEAR)<span class="question-mark">?</span>;
+        <span class="kw">let </span>max_days = YearFlags::from_year(year).ndays();
+        <span class="kw">let </span>ord = u.int_in_range(<span class="number">1</span>..=max_days)<span class="question-mark">?</span>;
+        NaiveDate::from_yo_opt(year, ord).ok_or(arbitrary::Error::IncorrectFormat)
+    }
+}
+
 <span class="comment">// as it is hard to verify year flags in `NaiveDate::MIN` and `NaiveDate::MAX`,
 // we use a separate run-time test.
 </span><span class="attribute">#[test]
 </span><span class="kw">fn </span>test_date_bounds() {
-    <span class="kw">let </span>calculated_min = NaiveDate::from_ymd(MIN_YEAR, <span class="number">1</span>, <span class="number">1</span>);
-    <span class="kw">let </span>calculated_max = NaiveDate::from_ymd(MAX_YEAR, <span class="number">12</span>, <span class="number">31</span>);
+    <span class="kw">let </span>calculated_min = NaiveDate::from_ymd_opt(MIN_YEAR, <span class="number">1</span>, <span class="number">1</span>).unwrap();
+    <span class="kw">let </span>calculated_max = NaiveDate::from_ymd_opt(MAX_YEAR, <span class="number">12</span>, <span class="number">31</span>).unwrap();
     <span class="macro">assert!</span>(
         NaiveDate::MIN == calculated_min,
         <span class="string">&quot;`NaiveDate::MIN` should have a year flag {:?}&quot;</span>,
@@ -2998,22 +3125,7 @@
     /// (year, month and day).
     ///
     /// Panics on the out-of-range date, invalid month and/or day.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, Datelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_ymd(2015, 3, 14);
-    /// assert_eq!(d.year(), 2015);
-    /// assert_eq!(d.month(), 3);
-    /// assert_eq!(d.day(), 14);
-    /// assert_eq!(d.ordinal(), 73); // day of year
-    /// assert_eq!(d.iso_week().year(), 2015);
-    /// assert_eq!(d.iso_week().week(), 11);
-    /// assert_eq!(d.weekday(), Weekday::Sat);
-    /// assert_eq!(d.num_days_from_ce(), 735671); // days since January 1, 1 CE
-    /// ```
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `from_ymd_opt()` instead&quot;</span>)]
     </span><span class="kw">pub fn </span>from_ymd(year: i32, month: u32, day: u32) -&gt; NaiveDate {
         NaiveDate::from_ymd_opt(year, month, day).expect(<span class="string">&quot;invalid or out-of-range date&quot;</span>)
     }
@@ -3039,29 +3151,14 @@
     /// ```
     </span><span class="kw">pub fn </span>from_ymd_opt(year: i32, month: u32, day: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
         <span class="kw">let </span>flags = YearFlags::from_year(year);
-        NaiveDate::from_mdf(year, Mdf::new(month, day, flags))
+        NaiveDate::from_mdf(year, Mdf::new(month, day, flags)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` from the [ordinal date](#ordinal-date)
     /// (year and day of the year).
     ///
     /// Panics on the out-of-range date and/or invalid day of year.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, Datelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_yo(2015, 73);
-    /// assert_eq!(d.ordinal(), 73);
-    /// assert_eq!(d.year(), 2015);
-    /// assert_eq!(d.month(), 3);
-    /// assert_eq!(d.day(), 14);
-    /// assert_eq!(d.iso_week().year(), 2015);
-    /// assert_eq!(d.iso_week().week(), 11);
-    /// assert_eq!(d.weekday(), Weekday::Sat);
-    /// assert_eq!(d.num_days_from_ce(), 735671); // days since January 1, 1 CE
-    /// ```
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `from_yo_opt()` instead&quot;</span>)]
     </span><span class="kw">pub fn </span>from_yo(year: i32, ordinal: u32) -&gt; NaiveDate {
         NaiveDate::from_yo_opt(year, ordinal).expect(<span class="string">&quot;invalid or out-of-range date&quot;</span>)
     }
@@ -3088,7 +3185,7 @@
     /// ```
     </span><span class="kw">pub fn </span>from_yo_opt(year: i32, ordinal: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
         <span class="kw">let </span>flags = YearFlags::from_year(year);
-        NaiveDate::from_of(year, Of::new(ordinal, flags))
+        NaiveDate::from_of(year, Of::new(ordinal, flags)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` from the [ISO week date](#week-date)
@@ -3096,22 +3193,7 @@
     /// The resulting `NaiveDate` may have a different year from the input year.
     ///
     /// Panics on the out-of-range date and/or invalid week number.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, Datelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_isoywd(2015, 11, Weekday::Sat);
-    /// assert_eq!(d.iso_week().year(), 2015);
-    /// assert_eq!(d.iso_week().week(), 11);
-    /// assert_eq!(d.weekday(), Weekday::Sat);
-    /// assert_eq!(d.year(), 2015);
-    /// assert_eq!(d.month(), 3);
-    /// assert_eq!(d.day(), 14);
-    /// assert_eq!(d.ordinal(), 73); // day of year
-    /// assert_eq!(d.num_days_from_ce(), 735671); // days since January 1, 1 CE
-    /// ```
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `from_isoywd_opt()` instead&quot;</span>)]
     </span><span class="kw">pub fn </span>from_isoywd(year: i32, week: u32, weekday: Weekday) -&gt; NaiveDate {
         NaiveDate::from_isoywd_opt(year, week, weekday).expect(<span class="string">&quot;invalid or out-of-range date&quot;</span>)
     }
@@ -3172,18 +3254,18 @@
                 </span><span class="kw">let </span>prevflags = YearFlags::from_year(year - <span class="number">1</span>);
                 NaiveDate::from_of(
                     year - <span class="number">1</span>,
-                    Of::new(weekord + prevflags.ndays() - delta, prevflags),
+                    Of::new(weekord + prevflags.ndays() - delta, prevflags)<span class="question-mark">?</span>,
                 )
             } <span class="kw">else </span>{
                 <span class="kw">let </span>ordinal = weekord - delta;
                 <span class="kw">let </span>ndays = flags.ndays();
                 <span class="kw">if </span>ordinal &lt;= ndays {
                     <span class="comment">// this year
-                    </span>NaiveDate::from_of(year, Of::new(ordinal, flags))
+                    </span>NaiveDate::from_of(year, Of::new(ordinal, flags)<span class="question-mark">?</span>)
                 } <span class="kw">else </span>{
                     <span class="comment">// ordinal &gt; ndays, next year
                     </span><span class="kw">let </span>nextflags = YearFlags::from_year(year + <span class="number">1</span>);
-                    NaiveDate::from_of(year + <span class="number">1</span>, Of::new(ordinal - ndays, nextflags))
+                    NaiveDate::from_of(year + <span class="number">1</span>, Of::new(ordinal - ndays, nextflags)<span class="question-mark">?</span>)
                 }
             }
         } <span class="kw">else </span>{
@@ -3195,46 +3277,8 @@
     /// January 1, 1 being day 1.
     ///
     /// Panics if the date is out of range.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, Datelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_num_days_from_ce(735671);
-    /// assert_eq!(d.num_days_from_ce(), 735671); // days since January 1, 1 CE
-    /// assert_eq!(d.year(), 2015);
-    /// assert_eq!(d.month(), 3);
-    /// assert_eq!(d.day(), 14);
-    /// assert_eq!(d.ordinal(), 73); // day of year
-    /// assert_eq!(d.iso_week().year(), 2015);
-    /// assert_eq!(d.iso_week().week(), 11);
-    /// assert_eq!(d.weekday(), Weekday::Sat);
-    /// ```
-    ///
-    /// While not directly supported by Chrono,
-    /// it is easy to convert from the Julian day number
-    /// (January 1, 4713 BCE in the *Julian* calendar being Day 0)
-    /// to Gregorian with this method.
-    /// (Note that this panics when `jd` is out of range.)
-    ///
-    /// ```
-    /// use chrono::NaiveDate;
-    ///
-    /// fn jd_to_date(jd: i32) -&gt; NaiveDate {
-    ///     // keep in mind that the Julian day number is 0-based
-    ///     // while this method requires an 1-based number.
-    ///     NaiveDate::from_num_days_from_ce(jd - 1721425)
-    /// }
-    ///
-    /// // January 1, 4713 BCE in Julian = November 24, 4714 BCE in Gregorian
-    /// assert_eq!(jd_to_date(0), NaiveDate::from_ymd(-4713, 11, 24));
-    ///
-    /// assert_eq!(jd_to_date(1721426), NaiveDate::from_ymd(1, 1, 1));
-    /// assert_eq!(jd_to_date(2450000), NaiveDate::from_ymd(1995, 10, 9));
-    /// assert_eq!(jd_to_date(2451545), NaiveDate::from_ymd(2000, 1, 1));
-    /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `from_num_days_from_ce_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>from_num_days_from_ce(days: i32) -&gt; NaiveDate {
         NaiveDate::from_num_days_from_ce_opt(days).expect(<span class="string">&quot;out-of-range date&quot;</span>)
     }
@@ -3250,7 +3294,7 @@
     /// use chrono::NaiveDate;
     ///
     /// let from_ndays_opt = NaiveDate::from_num_days_from_ce_opt;
-    /// let from_ymd = NaiveDate::from_ymd;
+    /// let from_ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
     ///
     /// assert_eq!(from_ndays_opt(730_000),      Some(from_ymd(1999, 9, 3)));
     /// assert_eq!(from_ndays_opt(1),            Some(from_ymd(1, 1, 1)));
@@ -3264,7 +3308,7 @@
         </span><span class="kw">let </span>(year_div_400, cycle) = div_mod_floor(days, <span class="number">146_097</span>);
         <span class="kw">let </span>(year_mod_400, ordinal) = internals::cycle_to_yo(cycle <span class="kw">as </span>u32);
         <span class="kw">let </span>flags = YearFlags::from_year_mod_400(year_mod_400 <span class="kw">as </span>i32);
-        NaiveDate::from_of(year_div_400 * <span class="number">400 </span>+ year_mod_400 <span class="kw">as </span>i32, Of::new(ordinal, flags))
+        NaiveDate::from_of(year_div_400 * <span class="number">400 </span>+ year_mod_400 <span class="kw">as </span>i32, Of::new(ordinal, flags)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` by counting the number of occurrences of a particular day-of-week
@@ -3277,21 +3321,7 @@
     /// of `weekday` in `month` (eg. the 6th Friday of March 2017) then this function will panic.
     ///
     /// `n` is 1-indexed.  Passing `n=0` will cause a panic.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, Weekday};
-    ///
-    /// let from_weekday_of_month = NaiveDate::from_weekday_of_month;
-    /// let from_ymd = NaiveDate::from_ymd;
-    ///
-    /// assert_eq!(from_weekday_of_month(2018, 8, Weekday::Wed, 1), from_ymd(2018, 8, 1));
-    /// assert_eq!(from_weekday_of_month(2018, 8, Weekday::Fri, 1), from_ymd(2018, 8, 3));
-    /// assert_eq!(from_weekday_of_month(2018, 8, Weekday::Tue, 2), from_ymd(2018, 8, 14));
-    /// assert_eq!(from_weekday_of_month(2018, 8, Weekday::Fri, 4), from_ymd(2018, 8, 24));
-    /// assert_eq!(from_weekday_of_month(2018, 8, Weekday::Fri, 5), from_ymd(2018, 8, 31));
-    /// ```
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `from_weekday_of_month_opt()` instead&quot;</span>)]
     </span><span class="kw">pub fn </span>from_weekday_of_month(year: i32, month: u32, weekday: Weekday, n: u8) -&gt; NaiveDate {
         NaiveDate::from_weekday_of_month_opt(year, month, weekday, n).expect(<span class="string">&quot;out-of-range date&quot;</span>)
     }
@@ -3317,7 +3347,7 @@
         <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let </span>first = NaiveDate::from_ymd(year, month, <span class="number">1</span>).weekday();
+        <span class="kw">let </span>first = NaiveDate::from_ymd_opt(year, month, <span class="number">1</span>)<span class="question-mark">?</span>.weekday();
         <span class="kw">let </span>first_to_dow = (<span class="number">7 </span>+ weekday.number_from_monday() - first.number_from_monday()) % <span class="number">7</span>;
         <span class="kw">let </span>day = (u32::from(n) - <span class="number">1</span>) * <span class="number">7 </span>+ first_to_dow + <span class="number">1</span>;
         NaiveDate::from_ymd_opt(year, month, day)
@@ -3335,9 +3365,9 @@
     /// let parse_from_str = NaiveDate::parse_from_str;
     ///
     /// assert_eq!(parse_from_str(&quot;2015-09-05&quot;, &quot;%Y-%m-%d&quot;),
-    ///            Ok(NaiveDate::from_ymd(2015, 9, 5)));
+    ///            Ok(NaiveDate::from_ymd_opt(2015, 9, 5).unwrap()));
     /// assert_eq!(parse_from_str(&quot;5sep2015&quot;, &quot;%d%b%Y&quot;),
-    ///            Ok(NaiveDate::from_ymd(2015, 9, 5)));
+    ///            Ok(NaiveDate::from_ymd_opt(2015, 9, 5).unwrap()));
     /// ```
     ///
     /// Time and offset is ignored for the purpose of parsing.
@@ -3346,7 +3376,7 @@
     /// # use chrono::NaiveDate;
     /// # let parse_from_str = NaiveDate::parse_from_str;
     /// assert_eq!(parse_from_str(&quot;2014-5-17T12:34:56+09:30&quot;, &quot;%Y-%m-%dT%H:%M:%S%z&quot;),
-    ///            Ok(NaiveDate::from_ymd(2014, 5, 17)));
+    ///            Ok(NaiveDate::from_ymd_opt(2014, 5, 17).unwrap()));
     /// ```
     ///
     /// Out-of-bound dates or insufficient fields are errors.
@@ -3380,12 +3410,12 @@
     /// ```
     /// # use chrono::{NaiveDate, Months};
     /// assert_eq!(
-    ///     NaiveDate::from_ymd(2022, 2, 20).checked_add_months(Months::new(6)),
-    ///     Some(NaiveDate::from_ymd(2022, 8, 20))
+    ///     NaiveDate::from_ymd_opt(2022, 2, 20).unwrap().checked_add_months(Months::new(6)),
+    ///     Some(NaiveDate::from_ymd_opt(2022, 8, 20).unwrap())
     /// );
     /// assert_eq!(
-    ///     NaiveDate::from_ymd(2022, 7, 31).checked_add_months(Months::new(2)),
-    ///     Some(NaiveDate::from_ymd(2022, 9, 30))
+    ///     NaiveDate::from_ymd_opt(2022, 7, 31).unwrap().checked_add_months(Months::new(2)),
+    ///     Some(NaiveDate::from_ymd_opt(2022, 9, 30).unwrap())
     /// );
     /// ```
     </span><span class="kw">pub fn </span>checked_add_months(<span class="self">self</span>, months: Months) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
@@ -3408,8 +3438,14 @@
     /// ```
     /// # use chrono::{NaiveDate, Months};
     /// assert_eq!(
-    ///     NaiveDate::from_ymd(2022, 2, 20).checked_sub_months(Months::new(6)),
-    ///     Some(NaiveDate::from_ymd(2021, 8, 20))
+    ///     NaiveDate::from_ymd_opt(2022, 2, 20).unwrap().checked_sub_months(Months::new(6)),
+    ///     Some(NaiveDate::from_ymd_opt(2021, 8, 20).unwrap())
+    /// );
+    ///
+    /// assert_eq!(
+    ///     NaiveDate::from_ymd_opt(2014, 1, 1).unwrap()
+    ///         .checked_sub_months(Months::new(core::i32::MAX as u32 + 1)),
+    ///     None
     /// );
     /// ```
     </span><span class="kw">pub fn </span>checked_sub_months(<span class="self">self</span>, months: Months) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
@@ -3417,8 +3453,8 @@
             <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>);
         }
 
-        <span class="comment">// Copy `i32::MIN` here so we don&#39;t have to do a complicated cast
-        </span><span class="kw">match </span>months.<span class="number">0 </span>&lt;= <span class="number">2_147_483_648 </span>{
+        <span class="comment">// Copy `i32::MAX` here so we don&#39;t have to do a complicated cast
+        </span><span class="kw">match </span>months.<span class="number">0 </span>&lt;= <span class="number">2_147_483_647 </span>{
             <span class="bool-val">true </span>=&gt; <span class="self">self</span>.diff_months(-(months.<span class="number">0 </span><span class="kw">as </span>i32)),
             <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
         }
@@ -3463,7 +3499,53 @@
         <span class="kw">let </span>days = [<span class="number">31</span>, feb_days, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">30</span>, <span class="number">31</span>];
         <span class="kw">let </span>day = Ord::min(<span class="self">self</span>.day(), days[(month - <span class="number">1</span>) <span class="kw">as </span>usize]);
 
-        NaiveDate::from_mdf(year, Mdf::new(month <span class="kw">as </span>u32, day, flags))
+        NaiveDate::from_mdf(year, Mdf::new(month <span class="kw">as </span>u32, day, flags)<span class="question-mark">?</span>)
+    }
+
+    <span class="doccomment">/// Add a duration in [`Days`] to the date
+    ///
+    /// Returns `None` if the resulting date would be out of range.
+    ///
+    /// ```
+    /// # use chrono::{NaiveDate, Days};
+    /// assert_eq!(
+    ///     NaiveDate::from_ymd_opt(2022, 2, 20).unwrap().checked_add_days(Days::new(9)),
+    ///     Some(NaiveDate::from_ymd_opt(2022, 3, 1).unwrap())
+    /// );
+    /// assert_eq!(
+    ///     NaiveDate::from_ymd_opt(2022, 7, 31).unwrap().checked_add_days(Days::new(2)),
+    ///     Some(NaiveDate::from_ymd_opt(2022, 8, 2).unwrap())
+    /// );
+    /// ```
+    </span><span class="kw">pub fn </span>checked_add_days(<span class="self">self</span>, days: Days) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>days.<span class="number">0 </span>== <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>);
+        }
+
+        i64::try_from(days.<span class="number">0</span>).ok().and_then(|d| <span class="self">self</span>.diff_days(d))
+    }
+
+    <span class="doccomment">/// Subtract a duration in [`Days`] from the date
+    ///
+    /// Returns `None` if the resulting date would be out of range.
+    ///
+    /// ```
+    /// # use chrono::{NaiveDate, Days};
+    /// assert_eq!(
+    ///     NaiveDate::from_ymd_opt(2022, 2, 20).unwrap().checked_sub_days(Days::new(6)),
+    ///     Some(NaiveDate::from_ymd_opt(2022, 2, 14).unwrap())
+    /// );
+    /// ```
+    </span><span class="kw">pub fn </span>checked_sub_days(<span class="self">self</span>, days: Days) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>days.<span class="number">0 </span>== <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>);
+        }
+
+        i64::try_from(days.<span class="number">0</span>).ok().and_then(|d| <span class="self">self</span>.diff_days(-d))
+    }
+
+    <span class="kw">fn </span>diff_days(<span class="self">self</span>, days: i64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="self">self</span>.checked_add_signed(Duration::days(days))
     }
 
     <span class="doccomment">/// Makes a new `NaiveDateTime` from the current date and given `NaiveTime`.
@@ -3473,8 +3555,8 @@
     /// ```
     /// use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
     ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
-    /// let t = NaiveTime::from_hms_milli(12, 34, 56, 789);
+    /// let d = NaiveDate::from_ymd_opt(2015, 6, 3).unwrap();
+    /// let t = NaiveTime::from_hms_milli_opt(12, 34, 56, 789).unwrap();
     ///
     /// let dt: NaiveDateTime = d.and_time(t);
     /// assert_eq!(dt.date(), d);
@@ -3491,20 +3573,8 @@
     /// use `NaiveDate::and_hms_*` methods with a subsecond parameter instead.
     ///
     /// Panics on invalid hour, minute and/or second.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, NaiveDateTime, Datelike, Timelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
-    ///
-    /// let dt: NaiveDateTime = d.and_hms(12, 34, 56);
-    /// assert_eq!(dt.year(), 2015);
-    /// assert_eq!(dt.weekday(), Weekday::Wed);
-    /// assert_eq!(dt.second(), 56);
-    /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `and_hms_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>and_hms(<span class="kw-2">&amp;</span><span class="self">self</span>, hour: u32, min: u32, sec: u32) -&gt; NaiveDateTime {
         <span class="self">self</span>.and_hms_opt(hour, min, sec).expect(<span class="string">&quot;invalid time&quot;</span>)
     }
@@ -3521,7 +3591,7 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
+    /// let d = NaiveDate::from_ymd_opt(2015, 6, 3).unwrap();
     /// assert!(d.and_hms_opt(12, 34, 56).is_some());
     /// assert!(d.and_hms_opt(12, 34, 60).is_none()); // use `and_hms_milli_opt` instead
     /// assert!(d.and_hms_opt(12, 60, 56).is_none());
@@ -3538,21 +3608,8 @@
     /// in order to represent the [leap second](./struct.NaiveTime.html#leap-second-handling).
     ///
     /// Panics on invalid hour, minute, second and/or millisecond.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, NaiveDateTime, Datelike, Timelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
-    ///
-    /// let dt: NaiveDateTime = d.and_hms_milli(12, 34, 56, 789);
-    /// assert_eq!(dt.year(), 2015);
-    /// assert_eq!(dt.weekday(), Weekday::Wed);
-    /// assert_eq!(dt.second(), 56);
-    /// assert_eq!(dt.nanosecond(), 789_000_000);
-    /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `and_hms_milli_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>and_hms_milli(<span class="kw-2">&amp;</span><span class="self">self</span>, hour: u32, min: u32, sec: u32, milli: u32) -&gt; NaiveDateTime {
         <span class="self">self</span>.and_hms_milli_opt(hour, min, sec, milli).expect(<span class="string">&quot;invalid time&quot;</span>)
     }
@@ -3569,7 +3626,7 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
+    /// let d = NaiveDate::from_ymd_opt(2015, 6, 3).unwrap();
     /// assert!(d.and_hms_milli_opt(12, 34, 56,   789).is_some());
     /// assert!(d.and_hms_milli_opt(12, 34, 59, 1_789).is_some()); // leap second
     /// assert!(d.and_hms_milli_opt(12, 34, 59, 2_789).is_none());
@@ -3600,7 +3657,7 @@
     /// ```
     /// use chrono::{NaiveDate, NaiveDateTime, Datelike, Timelike, Weekday};
     ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
+    /// let d = NaiveDate::from_ymd_opt(2015, 6, 3).unwrap();
     ///
     /// let dt: NaiveDateTime = d.and_hms_micro(12, 34, 56, 789_012);
     /// assert_eq!(dt.year(), 2015);
@@ -3608,7 +3665,8 @@
     /// assert_eq!(dt.second(), 56);
     /// assert_eq!(dt.nanosecond(), 789_012_000);
     /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `and_hms_micro_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>and_hms_micro(<span class="kw-2">&amp;</span><span class="self">self</span>, hour: u32, min: u32, sec: u32, micro: u32) -&gt; NaiveDateTime {
         <span class="self">self</span>.and_hms_micro_opt(hour, min, sec, micro).expect(<span class="string">&quot;invalid time&quot;</span>)
     }
@@ -3625,7 +3683,7 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
+    /// let d = NaiveDate::from_ymd_opt(2015, 6, 3).unwrap();
     /// assert!(d.and_hms_micro_opt(12, 34, 56,   789_012).is_some());
     /// assert!(d.and_hms_micro_opt(12, 34, 59, 1_789_012).is_some()); // leap second
     /// assert!(d.and_hms_micro_opt(12, 34, 59, 2_789_012).is_none());
@@ -3650,21 +3708,8 @@
     /// in order to represent the [leap second](./struct.NaiveTime.html#leap-second-handling).
     ///
     /// Panics on invalid hour, minute, second and/or nanosecond.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::{NaiveDate, NaiveDateTime, Datelike, Timelike, Weekday};
-    ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
-    ///
-    /// let dt: NaiveDateTime = d.and_hms_nano(12, 34, 56, 789_012_345);
-    /// assert_eq!(dt.year(), 2015);
-    /// assert_eq!(dt.weekday(), Weekday::Wed);
-    /// assert_eq!(dt.second(), 56);
-    /// assert_eq!(dt.nanosecond(), 789_012_345);
-    /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `and_hms_nano_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>and_hms_nano(<span class="kw-2">&amp;</span><span class="self">self</span>, hour: u32, min: u32, sec: u32, nano: u32) -&gt; NaiveDateTime {
         <span class="self">self</span>.and_hms_nano_opt(hour, min, sec, nano).expect(<span class="string">&quot;invalid time&quot;</span>)
     }
@@ -3681,7 +3726,7 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// let d = NaiveDate::from_ymd(2015, 6, 3);
+    /// let d = NaiveDate::from_ymd_opt(2015, 6, 3).unwrap();
     /// assert!(d.and_hms_nano_opt(12, 34, 56,   789_012_345).is_some());
     /// assert!(d.and_hms_nano_opt(12, 34, 59, 1_789_012_345).is_some()); // leap second
     /// assert!(d.and_hms_nano_opt(12, 34, 59, 2_789_012_345).is_none());
@@ -3736,17 +3781,8 @@
     <span class="doccomment">/// Makes a new `NaiveDate` for the next calendar date.
     ///
     /// Panics when `self` is the last representable date.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::NaiveDate;
-    ///
-    /// assert_eq!(NaiveDate::from_ymd(2015,  6,  3).succ(), NaiveDate::from_ymd(2015, 6, 4));
-    /// assert_eq!(NaiveDate::from_ymd(2015,  6, 30).succ(), NaiveDate::from_ymd(2015, 7, 1));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 12, 31).succ(), NaiveDate::from_ymd(2016, 1, 1));
-    /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `succ_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>succ(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NaiveDate {
         <span class="self">self</span>.succ_opt().expect(<span class="string">&quot;out of bound&quot;</span>)
     }
@@ -3760,8 +3796,8 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 6, 3).succ_opt(),
-    ///            Some(NaiveDate::from_ymd(2015, 6, 4)));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 6, 3).unwrap().succ_opt(),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 6, 4).unwrap()));
     /// assert_eq!(NaiveDate::MAX.succ_opt(), None);
     /// ```
     </span><span class="attribute">#[inline]
@@ -3772,17 +3808,8 @@
     <span class="doccomment">/// Makes a new `NaiveDate` for the previous calendar date.
     ///
     /// Panics when `self` is the first representable date.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::NaiveDate;
-    ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 6, 3).pred(), NaiveDate::from_ymd(2015,  6,  2));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 6, 1).pred(), NaiveDate::from_ymd(2015,  5, 31));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 1, 1).pred(), NaiveDate::from_ymd(2014, 12, 31));
-    /// ```
-    </span><span class="attribute">#[inline]
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `pred_opt()` instead&quot;</span>)]
+    #[inline]
     </span><span class="kw">pub fn </span>pred(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NaiveDate {
         <span class="self">self</span>.pred_opt().expect(<span class="string">&quot;out of bound&quot;</span>)
     }
@@ -3796,8 +3823,8 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 6, 3).pred_opt(),
-    ///            Some(NaiveDate::from_ymd(2015, 6, 2)));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 6, 3).unwrap().pred_opt(),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 6, 2).unwrap()));
     /// assert_eq!(NaiveDate::MIN.pred_opt(), None);
     /// ```
     </span><span class="attribute">#[inline]
@@ -3814,11 +3841,11 @@
     /// ```
     /// use chrono::{Duration, NaiveDate};
     ///
-    /// let d = NaiveDate::from_ymd(2015, 9, 5);
+    /// let d = NaiveDate::from_ymd_opt(2015, 9, 5).unwrap();
     /// assert_eq!(d.checked_add_signed(Duration::days(40)),
-    ///            Some(NaiveDate::from_ymd(2015, 10, 15)));
+    ///            Some(NaiveDate::from_ymd_opt(2015, 10, 15).unwrap()));
     /// assert_eq!(d.checked_add_signed(Duration::days(-40)),
-    ///            Some(NaiveDate::from_ymd(2015, 7, 27)));
+    ///            Some(NaiveDate::from_ymd_opt(2015, 7, 27).unwrap()));
     /// assert_eq!(d.checked_add_signed(Duration::days(1_000_000_000)), None);
     /// assert_eq!(d.checked_add_signed(Duration::days(-1_000_000_000)), None);
     /// assert_eq!(NaiveDate::MAX.checked_add_signed(Duration::days(1)), None);
@@ -3833,7 +3860,7 @@
 
         <span class="kw">let </span>(year_mod_400, ordinal) = internals::cycle_to_yo(cycle <span class="kw">as </span>u32);
         <span class="kw">let </span>flags = YearFlags::from_year_mod_400(year_mod_400 <span class="kw">as </span>i32);
-        NaiveDate::from_of(year_div_400 * <span class="number">400 </span>+ year_mod_400 <span class="kw">as </span>i32, Of::new(ordinal, flags))
+        NaiveDate::from_of(year_div_400 * <span class="number">400 </span>+ year_mod_400 <span class="kw">as </span>i32, Of::new(ordinal, flags)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Subtracts the `days` part of given `Duration` from the current date.
@@ -3845,11 +3872,11 @@
     /// ```
     /// use chrono::{Duration, NaiveDate};
     ///
-    /// let d = NaiveDate::from_ymd(2015, 9, 5);
+    /// let d = NaiveDate::from_ymd_opt(2015, 9, 5).unwrap();
     /// assert_eq!(d.checked_sub_signed(Duration::days(40)),
-    ///            Some(NaiveDate::from_ymd(2015, 7, 27)));
+    ///            Some(NaiveDate::from_ymd_opt(2015, 7, 27).unwrap()));
     /// assert_eq!(d.checked_sub_signed(Duration::days(-40)),
-    ///            Some(NaiveDate::from_ymd(2015, 10, 15)));
+    ///            Some(NaiveDate::from_ymd_opt(2015, 10, 15).unwrap()));
     /// assert_eq!(d.checked_sub_signed(Duration::days(1_000_000_000)), None);
     /// assert_eq!(d.checked_sub_signed(Duration::days(-1_000_000_000)), None);
     /// assert_eq!(NaiveDate::MIN.checked_sub_signed(Duration::days(1)), None);
@@ -3864,7 +3891,7 @@
 
         <span class="kw">let </span>(year_mod_400, ordinal) = internals::cycle_to_yo(cycle <span class="kw">as </span>u32);
         <span class="kw">let </span>flags = YearFlags::from_year_mod_400(year_mod_400 <span class="kw">as </span>i32);
-        NaiveDate::from_of(year_div_400 * <span class="number">400 </span>+ year_mod_400 <span class="kw">as </span>i32, Of::new(ordinal, flags))
+        NaiveDate::from_of(year_div_400 * <span class="number">400 </span>+ year_mod_400 <span class="kw">as </span>i32, Of::new(ordinal, flags)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Subtracts another `NaiveDate` from the current date.
@@ -3901,6 +3928,19 @@
         )
     }
 
+    <span class="doccomment">/// Returns the number of whole years from the given `base` until `self`.
+    </span><span class="kw">pub fn </span>years_since(<span class="kw-2">&amp;</span><span class="self">self</span>, base: <span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>years = <span class="self">self</span>.year() - base.year();
+        <span class="kw">if </span>(<span class="self">self</span>.month(), <span class="self">self</span>.day()) &lt; (base.month(), base.day()) {
+            years -= <span class="number">1</span>;
+        }
+
+        <span class="kw">match </span>years &gt;= <span class="number">0 </span>{
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(years <span class="kw">as </span>u32),
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
+
     <span class="doccomment">/// Formats the date with the specified formatting items.
     /// Otherwise it is the same as the ordinary `format` method.
     ///
@@ -3914,7 +3954,7 @@
     /// use chrono::format::strftime::StrftimeItems;
     ///
     /// let fmt = StrftimeItems::new(&quot;%Y-%m-%d&quot;);
-    /// let d = NaiveDate::from_ymd(2015, 9, 5);
+    /// let d = NaiveDate::from_ymd_opt(2015, 9, 5).unwrap();
     /// assert_eq!(d.format_with_items(fmt.clone()).to_string(), &quot;2015-09-05&quot;);
     /// assert_eq!(d.format(&quot;%Y-%m-%d&quot;).to_string(),             &quot;2015-09-05&quot;);
     /// ```
@@ -3925,10 +3965,11 @@
     /// # use chrono::NaiveDate;
     /// # use chrono::format::strftime::StrftimeItems;
     /// # let fmt = StrftimeItems::new(&quot;%Y-%m-%d&quot;).clone();
-    /// # let d = NaiveDate::from_ymd(2015, 9, 5);
+    /// # let d = NaiveDate::from_ymd_opt(2015, 9, 5).unwrap();
     /// assert_eq!(format!(&quot;{}&quot;, d.format_with_items(fmt)), &quot;2015-09-05&quot;);
     /// ```
     </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
     #[inline]
     </span><span class="kw">pub fn </span>format_with_items&lt;<span class="lifetime">&#39;a</span>, I, B&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, items: I) -&gt; DelayedFormat&lt;I&gt;
     <span class="kw">where
@@ -3957,7 +3998,7 @@
     /// ```
     /// use chrono::NaiveDate;
     ///
-    /// let d = NaiveDate::from_ymd(2015, 9, 5);
+    /// let d = NaiveDate::from_ymd_opt(2015, 9, 5).unwrap();
     /// assert_eq!(d.format(&quot;%Y-%m-%d&quot;).to_string(), &quot;2015-09-05&quot;);
     /// assert_eq!(d.format(&quot;%A, %-d %B, %C%y&quot;).to_string(), &quot;Saturday, 5 September, 2015&quot;);
     /// ```
@@ -3966,11 +4007,12 @@
     ///
     /// ```
     /// # use chrono::NaiveDate;
-    /// # let d = NaiveDate::from_ymd(2015, 9, 5);
+    /// # let d = NaiveDate::from_ymd_opt(2015, 9, 5).unwrap();
     /// assert_eq!(format!(&quot;{}&quot;, d.format(&quot;%Y-%m-%d&quot;)), &quot;2015-09-05&quot;);
     /// assert_eq!(format!(&quot;{}&quot;, d.format(&quot;%A, %-d %B, %C%y&quot;)), &quot;Saturday, 5 September, 2015&quot;);
     /// ```
     </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))))]
     #[inline]
     </span><span class="kw">pub fn </span>format&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; DelayedFormat&lt;StrftimeItems&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="self">self</span>.format_with_items(StrftimeItems::new(fmt))
@@ -3984,20 +4026,20 @@
     /// # use chrono::NaiveDate;
     ///
     /// let expected = [
-    ///     NaiveDate::from_ymd(2016, 2, 27),
-    ///     NaiveDate::from_ymd(2016, 2, 28),
-    ///     NaiveDate::from_ymd(2016, 2, 29),
-    ///     NaiveDate::from_ymd(2016, 3, 1),
+    ///     NaiveDate::from_ymd_opt(2016, 2, 27).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2016, 2, 28).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2016, 2, 29).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2016, 3, 1).unwrap(),
     /// ];
     ///
     /// let mut count = 0;
-    /// for (idx, d) in NaiveDate::from_ymd(2016, 2, 27).iter_days().take(4).enumerate() {
+    /// for (idx, d) in NaiveDate::from_ymd_opt(2016, 2, 27).unwrap().iter_days().take(4).enumerate() {
     ///    assert_eq!(d, expected[idx]);
     ///    count += 1;
     /// }
     /// assert_eq!(count, 4);
     ///
-    /// for d in NaiveDate::from_ymd(2016, 3, 1).iter_days().rev().take(4) {
+    /// for d in NaiveDate::from_ymd_opt(2016, 3, 1).unwrap().iter_days().rev().take(4) {
     ///     count -= 1;
     ///     assert_eq!(d, expected[count]);
     /// }
@@ -4015,20 +4057,20 @@
     /// # use chrono::NaiveDate;
     ///
     /// let expected = [
-    ///     NaiveDate::from_ymd(2016, 2, 27),
-    ///     NaiveDate::from_ymd(2016, 3, 5),
-    ///     NaiveDate::from_ymd(2016, 3, 12),
-    ///     NaiveDate::from_ymd(2016, 3, 19),
+    ///     NaiveDate::from_ymd_opt(2016, 2, 27).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2016, 3, 5).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2016, 3, 12).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2016, 3, 19).unwrap(),
     /// ];
     ///
     /// let mut count = 0;
-    /// for (idx, d) in NaiveDate::from_ymd(2016, 2, 27).iter_weeks().take(4).enumerate() {
+    /// for (idx, d) in NaiveDate::from_ymd_opt(2016, 2, 27).unwrap().iter_weeks().take(4).enumerate() {
     ///    assert_eq!(d, expected[idx]);
     ///    count += 1;
     /// }
     /// assert_eq!(count, 4);
     ///
-    /// for d in NaiveDate::from_ymd(2016, 3, 19).iter_weeks().rev().take(4) {
+    /// for d in NaiveDate::from_ymd_opt(2016, 3, 19).unwrap().iter_weeks().rev().take(4) {
     ///     count -= 1;
     ///     assert_eq!(d, expected[count]);
     /// }
@@ -4059,8 +4101,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).year(), 2015);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).year(), -308); // 309 BCE
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().year(), 2015);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().year(), -308); // 309 BCE
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
@@ -4076,8 +4118,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).month(), 9);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).month(), 3);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().month(), 9);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().month(), 3);
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
@@ -4093,8 +4135,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).month0(), 8);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).month0(), 2);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().month0(), 8);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().month0(), 2);
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>month0(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
@@ -4110,8 +4152,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).day(), 8);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).day(), 14);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().day(), 8);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().day(), 14);
     /// ```
     ///
     /// Combined with [`NaiveDate::pred`](#method.pred),
@@ -4124,7 +4166,7 @@
     /// fn ndays_in_month(year: i32, month: u32) -&gt; u32 {
     ///     // the first day of the next month...
     ///     let (y, m) = if month == 12 { (year + 1, 1) } else { (year, month + 1) };
-    ///     let d = NaiveDate::from_ymd(y, m, 1);
+    ///     let d = NaiveDate::from_ymd_opt(y, m, 1).unwrap();
     ///
     ///     // ...is preceded by the last day of the original month
     ///     d.pred().day()
@@ -4150,8 +4192,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).day0(), 7);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).day0(), 13);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().day0(), 7);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().day0(), 13);
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>day0(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
@@ -4167,8 +4209,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).ordinal(), 251);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).ordinal(), 74);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().ordinal(), 251);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().ordinal(), 74);
     /// ```
     ///
     /// Combined with [`NaiveDate::pred`](#method.pred),
@@ -4180,7 +4222,7 @@
     ///
     /// fn ndays_in_year(year: i32) -&gt; u32 {
     ///     // the first day of the next year...
-    ///     let d = NaiveDate::from_ymd(year + 1, 1, 1);
+    ///     let d = NaiveDate::from_ymd_opt(year + 1, 1, 1).unwrap();
     ///
     ///     // ...is preceded by the last day of the original year
     ///     d.pred().ordinal()
@@ -4206,8 +4248,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).ordinal0(), 250);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).ordinal0(), 73);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().ordinal0(), 250);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().ordinal0(), 73);
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>ordinal0(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
@@ -4221,8 +4263,8 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike, Weekday};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).weekday(), Weekday::Tue);
-    /// assert_eq!(NaiveDate::from_ymd(-308, 3, 14).weekday(), Weekday::Fri);
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().weekday(), Weekday::Tue);
+    /// assert_eq!(NaiveDate::from_ymd_opt(-308, 3, 14).unwrap().weekday(), Weekday::Fri);
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>weekday(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Weekday {
@@ -4243,18 +4285,18 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_year(2016),
-    ///            Some(NaiveDate::from_ymd(2016, 9, 8)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_year(-308),
-    ///            Some(NaiveDate::from_ymd(-308, 9, 8)));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_year(2016),
+    ///            Some(NaiveDate::from_ymd_opt(2016, 9, 8).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_year(-308),
+    ///            Some(NaiveDate::from_ymd_opt(-308, 9, 8).unwrap()));
     /// ```
     ///
     /// A leap day (February 29) is a good example that this method can return `None`.
     ///
     /// ```
     /// # use chrono::{NaiveDate, Datelike};
-    /// assert!(NaiveDate::from_ymd(2016, 2, 29).with_year(2015).is_none());
-    /// assert!(NaiveDate::from_ymd(2016, 2, 29).with_year(2020).is_some());
+    /// assert!(NaiveDate::from_ymd_opt(2016, 2, 29).unwrap().with_year(2015).is_none());
+    /// assert!(NaiveDate::from_ymd_opt(2016, 2, 29).unwrap().with_year(2020).is_some());
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_year(<span class="kw-2">&amp;</span><span class="self">self</span>, year: i32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
@@ -4277,14 +4319,14 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_month(10),
-    ///            Some(NaiveDate::from_ymd(2015, 10, 8)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_month(13), None); // no month 13
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 30).with_month(2), None); // no February 30
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_month(10),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 10, 8).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_month(13), None); // no month 13
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 30).unwrap().with_month(2), None); // no February 30
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_month(<span class="kw-2">&amp;</span><span class="self">self</span>, month: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
-        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_month(month))
+        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_month(month)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` with the month number (starting from 0) changed.
@@ -4296,14 +4338,14 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_month0(9),
-    ///            Some(NaiveDate::from_ymd(2015, 10, 8)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_month0(12), None); // no month 13
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 30).with_month0(1), None); // no February 30
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_month0(9),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 10, 8).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_month0(12), None); // no month 13
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 30).unwrap().with_month0(1), None); // no February 30
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_month0(<span class="kw-2">&amp;</span><span class="self">self</span>, month0: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
-        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_month(month0 + <span class="number">1</span>))
+        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_month(month0 + <span class="number">1</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` with the day of month (starting from 1) changed.
@@ -4315,14 +4357,14 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_day(30),
-    ///            Some(NaiveDate::from_ymd(2015, 9, 30)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_day(31),
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_day(30),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 9, 30).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_day(31),
     ///            None); // no September 31
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_day(<span class="kw-2">&amp;</span><span class="self">self</span>, day: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
-        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_day(day))
+        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_day(day)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` with the day of month (starting from 0) changed.
@@ -4334,14 +4376,14 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_day0(29),
-    ///            Some(NaiveDate::from_ymd(2015, 9, 30)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 9, 8).with_day0(30),
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_day0(29),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 9, 30).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 9, 8).unwrap().with_day0(30),
     ///            None); // no September 31
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_day0(<span class="kw-2">&amp;</span><span class="self">self</span>, day0: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
-        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_day(day0 + <span class="number">1</span>))
+        <span class="self">self</span>.with_mdf(<span class="self">self</span>.mdf().with_day(day0 + <span class="number">1</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` with the day of year (starting from 1) changed.
@@ -4353,19 +4395,19 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 1, 1).with_ordinal(60),
-    ///            Some(NaiveDate::from_ymd(2015, 3, 1)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 1, 1).with_ordinal(366),
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 1, 1).unwrap().with_ordinal(60),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 3, 1).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 1, 1).unwrap().with_ordinal(366),
     ///            None); // 2015 had only 365 days
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2016, 1, 1).with_ordinal(60),
-    ///            Some(NaiveDate::from_ymd(2016, 2, 29)));
-    /// assert_eq!(NaiveDate::from_ymd(2016, 1, 1).with_ordinal(366),
-    ///            Some(NaiveDate::from_ymd(2016, 12, 31)));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2016, 1, 1).unwrap().with_ordinal(60),
+    ///            Some(NaiveDate::from_ymd_opt(2016, 2, 29).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2016, 1, 1).unwrap().with_ordinal(366),
+    ///            Some(NaiveDate::from_ymd_opt(2016, 12, 31).unwrap()));
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_ordinal(<span class="kw-2">&amp;</span><span class="self">self</span>, ordinal: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
-        <span class="self">self</span>.with_of(<span class="self">self</span>.of().with_ordinal(ordinal))
+        <span class="self">self</span>.with_of(<span class="self">self</span>.of().with_ordinal(ordinal)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Makes a new `NaiveDate` with the day of year (starting from 0) changed.
@@ -4377,19 +4419,19 @@
     /// ```
     /// use chrono::{NaiveDate, Datelike};
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2015, 1, 1).with_ordinal0(59),
-    ///            Some(NaiveDate::from_ymd(2015, 3, 1)));
-    /// assert_eq!(NaiveDate::from_ymd(2015, 1, 1).with_ordinal0(365),
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 1, 1).unwrap().with_ordinal0(59),
+    ///            Some(NaiveDate::from_ymd_opt(2015, 3, 1).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2015, 1, 1).unwrap().with_ordinal0(365),
     ///            None); // 2015 had only 365 days
     ///
-    /// assert_eq!(NaiveDate::from_ymd(2016, 1, 1).with_ordinal0(59),
-    ///            Some(NaiveDate::from_ymd(2016, 2, 29)));
-    /// assert_eq!(NaiveDate::from_ymd(2016, 1, 1).with_ordinal0(365),
-    ///            Some(NaiveDate::from_ymd(2016, 12, 31)));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2016, 1, 1).unwrap().with_ordinal0(59),
+    ///            Some(NaiveDate::from_ymd_opt(2016, 2, 29).unwrap()));
+    /// assert_eq!(NaiveDate::from_ymd_opt(2016, 1, 1).unwrap().with_ordinal0(365),
+    ///            Some(NaiveDate::from_ymd_opt(2016, 12, 31).unwrap()));
     /// ```
     </span><span class="attribute">#[inline]
     </span><span class="kw">fn </span>with_ordinal0(<span class="kw-2">&amp;</span><span class="self">self</span>, ordinal0: u32) -&gt; <span class="prelude-ty">Option</span>&lt;NaiveDate&gt; {
-        <span class="self">self</span>.with_of(<span class="self">self</span>.of().with_ordinal(ordinal0 + <span class="number">1</span>))
+        <span class="self">self</span>.with_of(<span class="self">self</span>.of().with_ordinal(ordinal0 + <span class="number">1</span>)<span class="question-mark">?</span>)
     }
 }
 
@@ -4484,6 +4526,22 @@
     }
 }
 
+<span class="kw">impl </span>Add&lt;Days&gt; <span class="kw">for </span>NaiveDate {
+    <span class="kw">type </span>Output = NaiveDate;
+
+    <span class="kw">fn </span>add(<span class="self">self</span>, days: Days) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.checked_add_days(days).unwrap()
+    }
+}
+
+<span class="kw">impl </span>Sub&lt;Days&gt; <span class="kw">for </span>NaiveDate {
+    <span class="kw">type </span>Output = NaiveDate;
+
+    <span class="kw">fn </span>sub(<span class="self">self</span>, days: Days) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.checked_sub_days(days).unwrap()
+    }
+}
+
 <span class="doccomment">/// A subtraction of `Duration` from `NaiveDate` discards the fractional days,
 /// rounding to the closest integral number of days towards `Duration::zero()`.
 /// It is the same as the addition with a negated `Duration`.
@@ -4572,7 +4630,7 @@
         <span class="comment">// current &lt; NaiveDate::MAX from here on:
         </span><span class="kw">let </span>current = <span class="self">self</span>.value;
         <span class="comment">// This can&#39;t panic because current is &lt; NaiveDate::MAX:
-        </span><span class="self">self</span>.value = current.succ();
+        </span><span class="self">self</span>.value = current.succ_opt().unwrap();
         <span class="prelude-val">Some</span>(current)
     }
 
@@ -4590,7 +4648,7 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="kw">let </span>current = <span class="self">self</span>.value;
-        <span class="self">self</span>.value = current.pred();
+        <span class="self">self</span>.value = current.pred_opt().unwrap();
         <span class="prelude-val">Some</span>(current)
     }
 }
@@ -4645,28 +4703,36 @@
 /// ```
 /// use chrono::NaiveDate;
 ///
-/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd(2015,  9,  5)), &quot;2015-09-05&quot;);
-/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd(   0,  1,  1)), &quot;0000-01-01&quot;);
-/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd(9999, 12, 31)), &quot;9999-12-31&quot;);
+/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd_opt(2015,  9,  5).unwrap()), &quot;2015-09-05&quot;);
+/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd_opt(   0,  1,  1).unwrap()), &quot;0000-01-01&quot;);
+/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd_opt(9999, 12, 31).unwrap()), &quot;9999-12-31&quot;);
 /// ```
 ///
 /// ISO 8601 requires an explicit sign for years before 1 BCE or after 9999 CE.
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd(   -1,  1,  1)),  &quot;-0001-01-01&quot;);
-/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd(10000, 12, 31)), &quot;+10000-12-31&quot;);
+/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd_opt(   -1,  1,  1).unwrap()),  &quot;-0001-01-01&quot;);
+/// assert_eq!(format!(&quot;{:?}&quot;, NaiveDate::from_ymd_opt(10000, 12, 31).unwrap()), &quot;+10000-12-31&quot;);
 /// ```
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>NaiveDate {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">use </span>core::fmt::Write;
+
         <span class="kw">let </span>year = <span class="self">self</span>.year();
         <span class="kw">let </span>mdf = <span class="self">self</span>.mdf();
         <span class="kw">if </span>(<span class="number">0</span>..=<span class="number">9999</span>).contains(<span class="kw-2">&amp;</span>year) {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{:04}-{:02}-{:02}&quot;</span>, year, mdf.month(), mdf.day())
+            write_hundreds(f, (year / <span class="number">100</span>) <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+            write_hundreds(f, (year % <span class="number">100</span>) <span class="kw">as </span>u8)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="comment">// ISO 8601 requires the explicit sign for out-of-range years
-            </span><span class="macro">write!</span>(f, <span class="string">&quot;{:+05}-{:02}-{:02}&quot;</span>, year, mdf.month(), mdf.day())
+            </span><span class="macro">write!</span>(f, <span class="string">&quot;{:+05}&quot;</span>, year)<span class="question-mark">?</span>;
         }
+
+        f.write_char(<span class="string">&#39;-&#39;</span>)<span class="question-mark">?</span>;
+        write_hundreds(f, mdf.month() <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+        f.write_char(<span class="string">&#39;-&#39;</span>)<span class="question-mark">?</span>;
+        write_hundreds(f, mdf.day() <span class="kw">as </span>u8)
     }
 }
 
@@ -4680,17 +4746,17 @@
 /// ```
 /// use chrono::NaiveDate;
 ///
-/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd(2015,  9,  5)), &quot;2015-09-05&quot;);
-/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd(   0,  1,  1)), &quot;0000-01-01&quot;);
-/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd(9999, 12, 31)), &quot;9999-12-31&quot;);
+/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd_opt(2015,  9,  5).unwrap()), &quot;2015-09-05&quot;);
+/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd_opt(   0,  1,  1).unwrap()), &quot;0000-01-01&quot;);
+/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd_opt(9999, 12, 31).unwrap()), &quot;9999-12-31&quot;);
 /// ```
 ///
 /// ISO 8601 requires an explicit sign for years before 1 BCE or after 9999 CE.
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd(   -1,  1,  1)),  &quot;-0001-01-01&quot;);
-/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd(10000, 12, 31)), &quot;+10000-12-31&quot;);
+/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd_opt(   -1,  1,  1).unwrap()),  &quot;-0001-01-01&quot;);
+/// assert_eq!(format!(&quot;{}&quot;, NaiveDate::from_ymd_opt(10000, 12, 31).unwrap()), &quot;+10000-12-31&quot;);
 /// ```
 </span><span class="kw">impl </span>fmt::Display <span class="kw">for </span>NaiveDate {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
@@ -4706,10 +4772,10 @@
 /// ```
 /// use chrono::NaiveDate;
 ///
-/// let d = NaiveDate::from_ymd(2015, 9, 18);
+/// let d = NaiveDate::from_ymd_opt(2015, 9, 18).unwrap();
 /// assert_eq!(&quot;2015-09-18&quot;.parse::&lt;NaiveDate&gt;(), Ok(d));
 ///
-/// let d = NaiveDate::from_ymd(12345, 6, 7);
+/// let d = NaiveDate::from_ymd_opt(12345, 6, 7).unwrap();
 /// assert_eq!(&quot;+12345-6-7&quot;.parse::&lt;NaiveDate&gt;(), Ok(d));
 ///
 /// assert!(&quot;foo&quot;.parse::&lt;NaiveDate&gt;().is_err());
@@ -4743,11 +4809,11 @@
 /// use chrono::NaiveDate;
 ///
 /// let default_date = NaiveDate::default();
-/// assert_eq!(default_date, NaiveDate::from_ymd(1970, 1, 1));
+/// assert_eq!(default_date, NaiveDate::from_ymd_opt(1970, 1, 1).unwrap());
 /// ```
 </span><span class="kw">impl </span>Default <span class="kw">for </span>NaiveDate {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        NaiveDate::from_ymd(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>)
+        NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()
     }
 }
 
@@ -4757,9 +4823,18 @@
     </span>F: Fn(<span class="kw-2">&amp;</span>NaiveDate) -&gt; <span class="prelude-ty">Result</span>&lt;String, E&gt;,
     E: ::std::fmt::Debug,
 {
-    <span class="macro">assert_eq!</span>(to_string(<span class="kw-2">&amp;</span>NaiveDate::from_ymd(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>)).ok(), <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;2014-07-24&quot;&quot;#</span>.into()));
-    <span class="macro">assert_eq!</span>(to_string(<span class="kw-2">&amp;</span>NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>)).ok(), <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;0000-01-01&quot;&quot;#</span>.into()));
-    <span class="macro">assert_eq!</span>(to_string(<span class="kw-2">&amp;</span>NaiveDate::from_ymd(-<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>)).ok(), <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;-0001-12-31&quot;&quot;#</span>.into()));
+    <span class="macro">assert_eq!</span>(
+        to_string(<span class="kw-2">&amp;</span>NaiveDate::from_ymd_opt(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>).unwrap()).ok(),
+        <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;2014-07-24&quot;&quot;#</span>.into())
+    );
+    <span class="macro">assert_eq!</span>(
+        to_string(<span class="kw-2">&amp;</span>NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()).ok(),
+        <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;0000-01-01&quot;&quot;#</span>.into())
+    );
+    <span class="macro">assert_eq!</span>(
+        to_string(<span class="kw-2">&amp;</span>NaiveDate::from_ymd_opt(-<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap()).ok(),
+        <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;-0001-12-31&quot;&quot;#</span>.into())
+    );
     <span class="macro">assert_eq!</span>(to_string(<span class="kw-2">&amp;</span>NaiveDate::MIN).ok(), <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;-262144-01-01&quot;&quot;#</span>.into()));
     <span class="macro">assert_eq!</span>(to_string(<span class="kw-2">&amp;</span>NaiveDate::MAX).ok(), <span class="prelude-val">Some</span>(<span class="string">r#&quot;&quot;+262143-12-31&quot;&quot;#</span>.into()));
 }
@@ -4772,12 +4847,18 @@
 {
     <span class="kw">use </span>std::{i32, i64};
 
-    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;2016-07-08&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2016</span>, <span class="number">7</span>, <span class="number">8</span>)));
-    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;2016-7-8&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2016</span>, <span class="number">7</span>, <span class="number">8</span>)));
-    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;+002016-07-08&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2016</span>, <span class="number">7</span>, <span class="number">8</span>)));
-    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;0000-01-01&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>)));
-    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;0-1-1&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>)));
-    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;-0001-12-31&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(-<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>)));
+    <span class="macro">assert_eq!</span>(
+        from_str(<span class="string">r#&quot;&quot;2016-07-08&quot;&quot;#</span>).ok(),
+        <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2016</span>, <span class="number">7</span>, <span class="number">8</span>).unwrap())
+    );
+    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;2016-7-8&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2016</span>, <span class="number">7</span>, <span class="number">8</span>).unwrap()));
+    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;+002016-07-08&quot;&quot;#</span>).ok(), NaiveDate::from_ymd_opt(<span class="number">2016</span>, <span class="number">7</span>, <span class="number">8</span>));
+    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;0000-01-01&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+    <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;0-1-1&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+    <span class="macro">assert_eq!</span>(
+        from_str(<span class="string">r#&quot;&quot;-0001-12-31&quot;&quot;#</span>).ok(),
+        <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(-<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap())
+    );
     <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;-262144-01-01&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::MIN));
     <span class="macro">assert_eq!</span>(from_str(<span class="string">r#&quot;&quot;+262143-12-31&quot;&quot;#</span>).ok(), <span class="prelude-val">Some</span>(NaiveDate::MAX));
 
@@ -4802,6 +4883,7 @@
 }
 
 <span class="attribute">#[cfg(feature = <span class="string">&quot;rustc-serialize&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustc-serialize&quot;</span>)))]
 </span><span class="kw">mod </span>rustc_serialize {
     <span class="kw">use </span><span class="kw">super</span>::NaiveDate;
     <span class="kw">use </span>rustc_serialize::{Decodable, Decoder, Encodable, Encoder};
@@ -4833,6 +4915,7 @@
 }
 
 <span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;serde&quot;</span>)))]
 </span><span class="kw">mod </span>serde {
     <span class="kw">use </span><span class="kw">super</span>::NaiveDate;
     <span class="kw">use </span>core::fmt;
@@ -4910,7 +4993,7 @@
         // it is not self-describing.
         </span><span class="kw">use </span>bincode::{deserialize, serialize};
 
-        <span class="kw">let </span>d = NaiveDate::from_ymd(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>);
+        <span class="kw">let </span>d = NaiveDate::from_ymd_opt(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>).unwrap();
         <span class="kw">let </span>encoded = serialize(<span class="kw-2">&amp;</span>d).unwrap();
         <span class="kw">let </span>decoded: NaiveDate = deserialize(<span class="kw-2">&amp;</span>encoded).unwrap();
         <span class="macro">assert_eq!</span>(d, decoded);
@@ -4920,29 +5003,35 @@
 <span class="attribute">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::{
-        Months, NaiveDate, MAX_DAYS_FROM_YEAR_0, MAX_YEAR, MIN_DAYS_FROM_YEAR_0, MIN_YEAR,
+        Days, Months, NaiveDate, MAX_DAYS_FROM_YEAR_0, MAX_YEAR, MIN_DAYS_FROM_YEAR_0, MIN_YEAR,
     };
     <span class="kw">use </span><span class="kw">crate</span>::oldtime::Duration;
     <span class="kw">use crate</span>::{Datelike, Weekday};
-    <span class="kw">use </span>std::{i32, u32};
+    <span class="kw">use </span>std::{
+        convert::{TryFrom, TryInto},
+        i32, u32,
+    };
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>diff_months() {
         <span class="comment">// identity
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_add_months(Months::new(<span class="number">0</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap().checked_add_months(Months::new(<span class="number">0</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap())
         );
 
         <span class="comment">// add with months exceeding `i32::MAX`
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_add_months(Months::new(i32::MAX <span class="kw">as </span>u32 + <span class="number">1</span>)),
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>)
+                .unwrap()
+                .checked_add_months(Months::new(i32::MAX <span class="kw">as </span>u32 + <span class="number">1</span>)),
             <span class="prelude-val">None
         </span>);
 
         <span class="comment">// sub with months exceeindg `i32::MIN`
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>)
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>)
+                .unwrap()
                 .checked_sub_months(Months::new((i32::MIN <span class="kw">as </span>i64).abs() <span class="kw">as </span>u32 + <span class="number">1</span>)),
             <span class="prelude-val">None
         </span>);
@@ -4955,56 +5044,56 @@
 
         <span class="comment">// sub crossing year 0 boundary
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_sub_months(Months::new(<span class="number">2050 </span>* <span class="number">12</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(-<span class="number">28</span>, <span class="number">8</span>, <span class="number">3</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap().checked_sub_months(Months::new(<span class="number">2050 </span>* <span class="number">12</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(-<span class="number">28</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap())
         );
 
         <span class="comment">// add crossing year boundary
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_add_months(Months::new(<span class="number">6</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2023</span>, <span class="number">2</span>, <span class="number">3</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap().checked_add_months(Months::new(<span class="number">6</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2023</span>, <span class="number">2</span>, <span class="number">3</span>).unwrap())
         );
 
         <span class="comment">// sub crossing year boundary
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_sub_months(Months::new(<span class="number">10</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2021</span>, <span class="number">10</span>, <span class="number">3</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap().checked_sub_months(Months::new(<span class="number">10</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2021</span>, <span class="number">10</span>, <span class="number">3</span>).unwrap())
         );
 
         <span class="comment">// add clamping day, non-leap year
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">29</span>).checked_add_months(Months::new(<span class="number">1</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">2</span>, <span class="number">28</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">29</span>).unwrap().checked_add_months(Months::new(<span class="number">1</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">2</span>, <span class="number">28</span>).unwrap())
         );
 
         <span class="comment">// add to leap day
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">29</span>).checked_add_months(Months::new(<span class="number">16</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2024</span>, <span class="number">2</span>, <span class="number">29</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">29</span>).unwrap().checked_add_months(Months::new(<span class="number">16</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2024</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap())
         );
 
         <span class="comment">// add into december
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">31</span>).checked_add_months(Months::new(<span class="number">2</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">12</span>, <span class="number">31</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">31</span>).unwrap().checked_add_months(Months::new(<span class="number">2</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap())
         );
 
         <span class="comment">// sub into december
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">31</span>).checked_sub_months(Months::new(<span class="number">10</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2021</span>, <span class="number">12</span>, <span class="number">31</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">31</span>).unwrap().checked_sub_months(Months::new(<span class="number">10</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2021</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap())
         );
 
         <span class="comment">// add into january
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_add_months(Months::new(<span class="number">5</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2023</span>, <span class="number">1</span>, <span class="number">3</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap().checked_add_months(Months::new(<span class="number">5</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2023</span>, <span class="number">1</span>, <span class="number">3</span>).unwrap())
         );
 
         <span class="comment">// sub into january
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).checked_sub_months(Months::new(<span class="number">7</span>)),
-            <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">3</span>))
+            NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">3</span>).unwrap().checked_sub_months(Months::new(<span class="number">7</span>)),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">3</span>).unwrap())
         );
     }
 
@@ -5014,20 +5103,20 @@
 
         <span class="kw">for </span>y <span class="kw">in </span>range_inclusive(NaiveDate::MIN.year(), NaiveDate::MAX.year()) {
             <span class="comment">// even months
-            </span><span class="kw">let </span>d4 = NaiveDate::from_ymd(y, <span class="number">4</span>, <span class="number">4</span>);
-            <span class="kw">let </span>d6 = NaiveDate::from_ymd(y, <span class="number">6</span>, <span class="number">6</span>);
-            <span class="kw">let </span>d8 = NaiveDate::from_ymd(y, <span class="number">8</span>, <span class="number">8</span>);
-            <span class="kw">let </span>d10 = NaiveDate::from_ymd(y, <span class="number">10</span>, <span class="number">10</span>);
-            <span class="kw">let </span>d12 = NaiveDate::from_ymd(y, <span class="number">12</span>, <span class="number">12</span>);
+            </span><span class="kw">let </span>d4 = NaiveDate::from_ymd_opt(y, <span class="number">4</span>, <span class="number">4</span>).unwrap();
+            <span class="kw">let </span>d6 = NaiveDate::from_ymd_opt(y, <span class="number">6</span>, <span class="number">6</span>).unwrap();
+            <span class="kw">let </span>d8 = NaiveDate::from_ymd_opt(y, <span class="number">8</span>, <span class="number">8</span>).unwrap();
+            <span class="kw">let </span>d10 = NaiveDate::from_ymd_opt(y, <span class="number">10</span>, <span class="number">10</span>).unwrap();
+            <span class="kw">let </span>d12 = NaiveDate::from_ymd_opt(y, <span class="number">12</span>, <span class="number">12</span>).unwrap();
 
             <span class="comment">// nine to five, seven-eleven
-            </span><span class="kw">let </span>d59 = NaiveDate::from_ymd(y, <span class="number">5</span>, <span class="number">9</span>);
-            <span class="kw">let </span>d95 = NaiveDate::from_ymd(y, <span class="number">9</span>, <span class="number">5</span>);
-            <span class="kw">let </span>d711 = NaiveDate::from_ymd(y, <span class="number">7</span>, <span class="number">11</span>);
-            <span class="kw">let </span>d117 = NaiveDate::from_ymd(y, <span class="number">11</span>, <span class="number">7</span>);
+            </span><span class="kw">let </span>d59 = NaiveDate::from_ymd_opt(y, <span class="number">5</span>, <span class="number">9</span>).unwrap();
+            <span class="kw">let </span>d95 = NaiveDate::from_ymd_opt(y, <span class="number">9</span>, <span class="number">5</span>).unwrap();
+            <span class="kw">let </span>d711 = NaiveDate::from_ymd_opt(y, <span class="number">7</span>, <span class="number">11</span>).unwrap();
+            <span class="kw">let </span>d117 = NaiveDate::from_ymd_opt(y, <span class="number">11</span>, <span class="number">7</span>).unwrap();
 
             <span class="comment">// &quot;March 0&quot;
-            </span><span class="kw">let </span>d30 = NaiveDate::from_ymd(y, <span class="number">3</span>, <span class="number">1</span>).pred();
+            </span><span class="kw">let </span>d30 = NaiveDate::from_ymd_opt(y, <span class="number">3</span>, <span class="number">1</span>).unwrap().pred_opt().unwrap();
 
             <span class="kw">let </span>weekday = d30.weekday();
             <span class="kw">let </span>other_dates = [d4, d6, d8, d10, d12, d59, d95, d711, d117];
@@ -5054,7 +5143,7 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_from_yo() {
         <span class="kw">let </span>yo_opt = NaiveDate::from_yo_opt;
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
 
         <span class="macro">assert_eq!</span>(yo_opt(<span class="number">2012</span>, <span class="number">0</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(yo_opt(<span class="number">2012</span>, <span class="number">1</span>), <span class="prelude-val">Some</span>(ymd(<span class="number">2012</span>, <span class="number">1</span>, <span class="number">1</span>)));
@@ -5084,7 +5173,7 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_from_isoywd() {
         <span class="kw">let </span>isoywd_opt = NaiveDate::from_isoywd_opt;
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
 
         <span class="macro">assert_eq!</span>(isoywd_opt(<span class="number">2004</span>, <span class="number">0</span>, Weekday::Sun), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(isoywd_opt(<span class="number">2004</span>, <span class="number">1</span>, Weekday::Mon), <span class="prelude-val">Some</span>(ymd(<span class="number">2003</span>, <span class="number">12</span>, <span class="number">29</span>)));
@@ -5142,8 +5231,8 @@
                     <span class="kw">let </span>d = NaiveDate::from_ymd_opt(year, month, day);
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = d {
                         <span class="kw">let </span>w = d.iso_week();
-                        <span class="kw">let </span>d_ = NaiveDate::from_isoywd(w.year(), w.week(), d.weekday());
-                        <span class="macro">assert_eq!</span>(d, d_);
+                        <span class="kw">let </span>d_ = NaiveDate::from_isoywd_opt(w.year(), w.week(), d.weekday());
+                        <span class="macro">assert_eq!</span>(d, d_.unwrap());
                     }
                 }
             }
@@ -5153,23 +5242,38 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_from_num_days_from_ce() {
         <span class="kw">let </span>from_ndays_from_ce = NaiveDate::from_num_days_from_ce_opt;
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">2</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">31</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">1</span>, <span class="number">31</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">32</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">59</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">2</span>, <span class="number">28</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">60</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365 </span>* <span class="number">2 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365 </span>* <span class="number">3 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">4</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365 </span>* <span class="number">4 </span>+ <span class="number">2</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">5</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">146097 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">401</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">146097 </span>* <span class="number">5 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2001</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">719163</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">0</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">12</span>, <span class="number">31</span>))); <span class="comment">// 1 BCE
-        </span><span class="macro">assert_eq!</span>(from_ndays_from_ce(-<span class="number">365</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(from_ndays_from_ce(-<span class="number">366</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(-<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>))); <span class="comment">// 2 BCE
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">2</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">31</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">1</span>, <span class="number">31</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">32</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">59</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">2</span>, <span class="number">28</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">60</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">365 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(
+            from_ndays_from_ce(<span class="number">365 </span>* <span class="number">2 </span>+ <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            from_ndays_from_ce(<span class="number">365 </span>* <span class="number">3 </span>+ <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">4</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            from_ndays_from_ce(<span class="number">365 </span>* <span class="number">4 </span>+ <span class="number">2</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">5</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            from_ndays_from_ce(<span class="number">146097 </span>+ <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">401</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            from_ndays_from_ce(<span class="number">146097 </span>* <span class="number">5 </span>+ <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2001</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">719163</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(<span class="number">0</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap())); <span class="comment">// 1 BCE
+        </span><span class="macro">assert_eq!</span>(from_ndays_from_ce(-<span class="number">365</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(from_ndays_from_ce(-<span class="number">366</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(-<span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap())); <span class="comment">// 2 BCE
 
         </span><span class="kw">for </span>days <span class="kw">in </span>(-<span class="number">9999</span>..<span class="number">10001</span>).map(|x| x * <span class="number">100</span>) {
             <span class="macro">assert_eq!</span>(from_ndays_from_ce(days).map(|d| d.num_days_from_ce()), <span class="prelude-val">Some</span>(days));
@@ -5185,30 +5289,63 @@
     </span><span class="kw">fn </span>test_date_from_weekday_of_month_opt() {
         <span class="kw">let </span>ymwd = NaiveDate::from_weekday_of_month_opt;
         <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Tue, <span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Wed, <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">2</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Sun, <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">5</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Mon, <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">6</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Tue, <span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">7</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Wed, <span class="number">2</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">8</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Sun, <span class="number">2</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">12</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">3</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">16</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">4</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">23</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">5</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">30</span>)));
-        <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Fri, <span class="number">5</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">31</span>)));
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Wed, <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">1</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">2</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Sun, <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">5</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Mon, <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">6</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Tue, <span class="number">1</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">7</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Wed, <span class="number">2</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">8</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Sun, <span class="number">2</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">12</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">3</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">16</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">4</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">23</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Thu, <span class="number">5</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">30</span>).unwrap())
+        );
+        <span class="macro">assert_eq!</span>(
+            ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Fri, <span class="number">5</span>),
+            <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2018</span>, <span class="number">8</span>, <span class="number">31</span>).unwrap())
+        );
         <span class="macro">assert_eq!</span>(ymwd(<span class="number">2018</span>, <span class="number">8</span>, Weekday::Sat, <span class="number">5</span>), <span class="prelude-val">None</span>);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_fields() {
         <span class="kw">fn </span>check(year: i32, month: u32, day: u32, ordinal: u32) {
-            <span class="kw">let </span>d1 = NaiveDate::from_ymd(year, month, day);
+            <span class="kw">let </span>d1 = NaiveDate::from_ymd_opt(year, month, day).unwrap();
             <span class="macro">assert_eq!</span>(d1.year(), year);
             <span class="macro">assert_eq!</span>(d1.month(), month);
             <span class="macro">assert_eq!</span>(d1.day(), day);
             <span class="macro">assert_eq!</span>(d1.ordinal(), ordinal);
 
-            <span class="kw">let </span>d2 = NaiveDate::from_yo(year, ordinal);
+            <span class="kw">let </span>d2 = NaiveDate::from_yo_opt(year, ordinal).unwrap();
             <span class="macro">assert_eq!</span>(d2.year(), year);
             <span class="macro">assert_eq!</span>(d2.month(), month);
             <span class="macro">assert_eq!</span>(d2.day(), day);
@@ -5240,66 +5377,66 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_weekday() {
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">1582</span>, <span class="number">10</span>, <span class="number">15</span>).weekday(), Weekday::Fri);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">1582</span>, <span class="number">10</span>, <span class="number">15</span>).unwrap().weekday(), Weekday::Fri);
         <span class="comment">// May 20, 1875 = ISO 8601 reference date
-        </span><span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">1875</span>, <span class="number">5</span>, <span class="number">20</span>).weekday(), Weekday::Thu);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">1</span>, <span class="number">1</span>).weekday(), Weekday::Sat);
+        </span><span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">1875</span>, <span class="number">5</span>, <span class="number">20</span>).unwrap().weekday(), Weekday::Thu);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().weekday(), Weekday::Sat);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_with_fields() {
-        <span class="kw">let </span>d = NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>);
-        <span class="macro">assert_eq!</span>(d.with_year(-<span class="number">400</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(-<span class="number">400</span>, <span class="number">2</span>, <span class="number">29</span>)));
+        <span class="kw">let </span>d = NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap();
+        <span class="macro">assert_eq!</span>(d.with_year(-<span class="number">400</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(-<span class="number">400</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_year(-<span class="number">100</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_year(<span class="number">1600</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">1600</span>, <span class="number">2</span>, <span class="number">29</span>)));
+        <span class="macro">assert_eq!</span>(d.with_year(<span class="number">1600</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">1600</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_year(<span class="number">1900</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_year(<span class="number">2000</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>)));
+        <span class="macro">assert_eq!</span>(d.with_year(<span class="number">2000</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_year(<span class="number">2001</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_year(<span class="number">2004</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2004</span>, <span class="number">2</span>, <span class="number">29</span>)));
+        <span class="macro">assert_eq!</span>(d.with_year(<span class="number">2004</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2004</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_year(i32::MAX), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>d = NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">4</span>, <span class="number">30</span>);
+        <span class="kw">let </span>d = NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">4</span>, <span class="number">30</span>).unwrap();
         <span class="macro">assert_eq!</span>(d.with_month(<span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">1</span>, <span class="number">30</span>)));
+        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">1</span>, <span class="number">30</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_month(<span class="number">2</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">3</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">3</span>, <span class="number">30</span>)));
-        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">4</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">4</span>, <span class="number">30</span>)));
-        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">12</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">12</span>, <span class="number">30</span>)));
+        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">3</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">3</span>, <span class="number">30</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">4</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">4</span>, <span class="number">30</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(d.with_month(<span class="number">12</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">12</span>, <span class="number">30</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_month(<span class="number">13</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(d.with_month(u32::MAX), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>d = NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">8</span>);
+        <span class="kw">let </span>d = NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">8</span>).unwrap();
         <span class="macro">assert_eq!</span>(d.with_day(<span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_day(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(d.with_day(<span class="number">29</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>)));
+        <span class="macro">assert_eq!</span>(d.with_day(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(d.with_day(<span class="number">29</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_day(<span class="number">30</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(d.with_day(u32::MAX), <span class="prelude-val">None</span>);
 
-        <span class="kw">let </span>d = NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">5</span>, <span class="number">5</span>);
+        <span class="kw">let </span>d = NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">5</span>, <span class="number">5</span>).unwrap();
         <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">1</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">60</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>)));
-        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">61</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">3</span>, <span class="number">1</span>)));
-        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">366</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd(<span class="number">2000</span>, <span class="number">12</span>, <span class="number">31</span>)));
+        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">1</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">60</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">2</span>, <span class="number">29</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">61</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">3</span>, <span class="number">1</span>).unwrap()));
+        <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">366</span>), <span class="prelude-val">Some</span>(NaiveDate::from_ymd_opt(<span class="number">2000</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap()));
         <span class="macro">assert_eq!</span>(d.with_ordinal(<span class="number">367</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(d.with_ordinal(u32::MAX), <span class="prelude-val">None</span>);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_num_days_from_ce() {
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).num_days_from_ce(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().num_days_from_ce(), <span class="number">1</span>);
 
         <span class="kw">for </span>year <span class="kw">in </span>-<span class="number">9999</span>..<span class="number">10001 </span>{
             <span class="macro">assert_eq!</span>(
-                NaiveDate::from_ymd(year, <span class="number">1</span>, <span class="number">1</span>).num_days_from_ce(),
-                NaiveDate::from_ymd(year - <span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>).num_days_from_ce() + <span class="number">1
+                NaiveDate::from_ymd_opt(year, <span class="number">1</span>, <span class="number">1</span>).unwrap().num_days_from_ce(),
+                NaiveDate::from_ymd_opt(year - <span class="number">1</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap().num_days_from_ce() + <span class="number">1
             </span>);
         }
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_succ() {
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
         <span class="macro">assert_eq!</span>(ymd(<span class="number">2014</span>, <span class="number">5</span>, <span class="number">6</span>).succ_opt(), <span class="prelude-val">Some</span>(ymd(<span class="number">2014</span>, <span class="number">5</span>, <span class="number">7</span>)));
         <span class="macro">assert_eq!</span>(ymd(<span class="number">2014</span>, <span class="number">5</span>, <span class="number">31</span>).succ_opt(), <span class="prelude-val">Some</span>(ymd(<span class="number">2014</span>, <span class="number">6</span>, <span class="number">1</span>)));
         <span class="macro">assert_eq!</span>(ymd(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>).succ_opt(), <span class="prelude-val">Some</span>(ymd(<span class="number">2015</span>, <span class="number">1</span>, <span class="number">1</span>)));
@@ -5309,7 +5446,7 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_pred() {
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
         <span class="macro">assert_eq!</span>(ymd(<span class="number">2016</span>, <span class="number">3</span>, <span class="number">1</span>).pred_opt(), <span class="prelude-val">Some</span>(ymd(<span class="number">2016</span>, <span class="number">2</span>, <span class="number">29</span>)));
         <span class="macro">assert_eq!</span>(ymd(<span class="number">2015</span>, <span class="number">1</span>, <span class="number">1</span>).pred_opt(), <span class="prelude-val">Some</span>(ymd(<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>)));
         <span class="macro">assert_eq!</span>(ymd(<span class="number">2014</span>, <span class="number">6</span>, <span class="number">1</span>).pred_opt(), <span class="prelude-val">Some</span>(ymd(<span class="number">2014</span>, <span class="number">5</span>, <span class="number">31</span>)));
@@ -5320,8 +5457,8 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_add() {
         <span class="kw">fn </span>check((y1, m1, d1): (i32, u32, u32), rhs: Duration, ymd: <span class="prelude-ty">Option</span>&lt;(i32, u32, u32)&gt;) {
-            <span class="kw">let </span>lhs = NaiveDate::from_ymd(y1, m1, d1);
-            <span class="kw">let </span>sum = ymd.map(|(y, m, d)| NaiveDate::from_ymd(y, m, d));
+            <span class="kw">let </span>lhs = NaiveDate::from_ymd_opt(y1, m1, d1).unwrap();
+            <span class="kw">let </span>sum = ymd.map(|(y, m, d)| NaiveDate::from_ymd_opt(y, m, d).unwrap());
             <span class="macro">assert_eq!</span>(lhs.checked_add_signed(rhs), sum);
             <span class="macro">assert_eq!</span>(lhs.checked_sub_signed(-rhs), sum);
         }
@@ -5350,8 +5487,8 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_sub() {
         <span class="kw">fn </span>check((y1, m1, d1): (i32, u32, u32), (y2, m2, d2): (i32, u32, u32), diff: Duration) {
-            <span class="kw">let </span>lhs = NaiveDate::from_ymd(y1, m1, d1);
-            <span class="kw">let </span>rhs = NaiveDate::from_ymd(y2, m2, d2);
+            <span class="kw">let </span>lhs = NaiveDate::from_ymd_opt(y1, m1, d1).unwrap();
+            <span class="kw">let </span>rhs = NaiveDate::from_ymd_opt(y2, m2, d2).unwrap();
             <span class="macro">assert_eq!</span>(lhs.signed_duration_since(rhs), diff);
             <span class="macro">assert_eq!</span>(rhs.signed_duration_since(lhs), -diff);
         }
@@ -5368,8 +5505,53 @@
     }
 
     <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_date_add_days() {
+        <span class="kw">fn </span>check((y1, m1, d1): (i32, u32, u32), rhs: Days, ymd: <span class="prelude-ty">Option</span>&lt;(i32, u32, u32)&gt;) {
+            <span class="kw">let </span>lhs = NaiveDate::from_ymd_opt(y1, m1, d1).unwrap();
+            <span class="kw">let </span>sum = ymd.map(|(y, m, d)| NaiveDate::from_ymd_opt(y, m, d).unwrap());
+            <span class="macro">assert_eq!</span>(lhs.checked_add_days(rhs), sum);
+        }
+
+        check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">0</span>), <span class="prelude-val">Some</span>((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>)));
+        <span class="comment">// always round towards zero
+        </span>check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">1</span>), <span class="prelude-val">Some</span>((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">2</span>)));
+        check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">364</span>), <span class="prelude-val">Some</span>((<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>)));
+        check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">365 </span>* <span class="number">4 </span>+ <span class="number">1</span>), <span class="prelude-val">Some</span>((<span class="number">2018</span>, <span class="number">1</span>, <span class="number">1</span>)));
+        check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">365 </span>* <span class="number">400 </span>+ <span class="number">97</span>), <span class="prelude-val">Some</span>((<span class="number">2414</span>, <span class="number">1</span>, <span class="number">1</span>)));
+
+        check((-<span class="number">7</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">365 </span>* <span class="number">12 </span>+ <span class="number">3</span>), <span class="prelude-val">Some</span>((<span class="number">5</span>, <span class="number">1</span>, <span class="number">1</span>)));
+
+        <span class="comment">// overflow check
+        </span>check(
+            (<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>),
+            Days::new(MAX_DAYS_FROM_YEAR_0.try_into().unwrap()),
+            <span class="prelude-val">Some</span>((MAX_YEAR, <span class="number">12</span>, <span class="number">31</span>)),
+        );
+        check((<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(u64::try_from(MAX_DAYS_FROM_YEAR_0).unwrap() + <span class="number">1</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_date_sub_days() {
+        <span class="kw">fn </span>check((y1, m1, d1): (i32, u32, u32), (y2, m2, d2): (i32, u32, u32), diff: Days) {
+            <span class="kw">let </span>lhs = NaiveDate::from_ymd_opt(y1, m1, d1).unwrap();
+            <span class="kw">let </span>rhs = NaiveDate::from_ymd_opt(y2, m2, d2).unwrap();
+            <span class="macro">assert_eq!</span>(lhs - diff, rhs);
+        }
+
+        check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">0</span>));
+        check((<span class="number">2014</span>, <span class="number">1</span>, <span class="number">2</span>), (<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">1</span>));
+        check((<span class="number">2014</span>, <span class="number">12</span>, <span class="number">31</span>), (<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">364</span>));
+        check((<span class="number">2015</span>, <span class="number">1</span>, <span class="number">3</span>), (<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">365 </span>+ <span class="number">2</span>));
+        check((<span class="number">2018</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">365 </span>* <span class="number">4 </span>+ <span class="number">1</span>));
+        check((<span class="number">2414</span>, <span class="number">1</span>, <span class="number">1</span>), (<span class="number">2014</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(<span class="number">365 </span>* <span class="number">400 </span>+ <span class="number">97</span>));
+
+        check((MAX_YEAR, <span class="number">12</span>, <span class="number">31</span>), (<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>), Days::new(MAX_DAYS_FROM_YEAR_0.try_into().unwrap()));
+        check((<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>), (MIN_YEAR, <span class="number">1</span>, <span class="number">1</span>), Days::new((-MIN_DAYS_FROM_YEAR_0).try_into().unwrap()));
+    }
+
+    <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_addassignment() {
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>date = ymd(<span class="number">2016</span>, <span class="number">10</span>, <span class="number">1</span>);
         date += Duration::days(<span class="number">10</span>);
         <span class="macro">assert_eq!</span>(date, ymd(<span class="number">2016</span>, <span class="number">10</span>, <span class="number">11</span>));
@@ -5379,7 +5561,7 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_subassignment() {
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>date = ymd(<span class="number">2016</span>, <span class="number">10</span>, <span class="number">11</span>);
         date -= Duration::days(<span class="number">10</span>);
         <span class="macro">assert_eq!</span>(date, ymd(<span class="number">2016</span>, <span class="number">10</span>, <span class="number">1</span>));
@@ -5389,19 +5571,22 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_fmt() {
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>)), <span class="string">&quot;2012-03-04&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>)), <span class="string">&quot;0000-03-04&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd(-<span class="number">307</span>, <span class="number">3</span>, <span class="number">4</span>)), <span class="string">&quot;-0307-03-04&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd(<span class="number">12345</span>, <span class="number">3</span>, <span class="number">4</span>)), <span class="string">&quot;+12345-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd_opt(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap()), <span class="string">&quot;2012-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap()), <span class="string">&quot;0000-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd_opt(-<span class="number">307</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap()), <span class="string">&quot;-0307-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, NaiveDate::from_ymd_opt(<span class="number">12345</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap()), <span class="string">&quot;+12345-03-04&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>).to_string(), <span class="string">&quot;2012-03-04&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>).to_string(), <span class="string">&quot;0000-03-04&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">307</span>, <span class="number">3</span>, <span class="number">4</span>).to_string(), <span class="string">&quot;-0307-03-04&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">12345</span>, <span class="number">3</span>, <span class="number">4</span>).to_string(), <span class="string">&quot;+12345-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap().to_string(), <span class="string">&quot;2012-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap().to_string(), <span class="string">&quot;0000-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(-<span class="number">307</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap().to_string(), <span class="string">&quot;-0307-03-04&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">12345</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap().to_string(), <span class="string">&quot;+12345-03-04&quot;</span>);
 
         <span class="comment">// the format specifier should have no effect on `NaiveTime`
-        </span><span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:+30?}&quot;</span>, NaiveDate::from_ymd(<span class="number">1234</span>, <span class="number">5</span>, <span class="number">6</span>)), <span class="string">&quot;1234-05-06&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:30?}&quot;</span>, NaiveDate::from_ymd(<span class="number">12345</span>, <span class="number">6</span>, <span class="number">7</span>)), <span class="string">&quot;+12345-06-07&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:+30?}&quot;</span>, NaiveDate::from_ymd_opt(<span class="number">1234</span>, <span class="number">5</span>, <span class="number">6</span>).unwrap()), <span class="string">&quot;1234-05-06&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">format!</span>(<span class="string">&quot;{:30?}&quot;</span>, NaiveDate::from_ymd_opt(<span class="number">12345</span>, <span class="number">6</span>, <span class="number">7</span>).unwrap()),
+            <span class="string">&quot;+12345-06-07&quot;
+        </span>);
     }
 
     <span class="attribute">#[test]
@@ -5457,7 +5642,7 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_parse_from_str() {
-        <span class="kw">let </span>ymd = NaiveDate::from_ymd;
+        <span class="kw">let </span>ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
         <span class="macro">assert_eq!</span>(
             NaiveDate::parse_from_str(<span class="string">&quot;2014-5-7T12:34:56+09:30&quot;</span>, <span class="string">&quot;%Y-%m-%dT%H:%M:%S%z&quot;</span>),
             <span class="prelude-val">Ok</span>(ymd(<span class="number">2014</span>, <span class="number">5</span>, <span class="number">7</span>))
@@ -5477,7 +5662,7 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_date_format() {
-        <span class="kw">let </span>d = NaiveDate::from_ymd(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>);
+        <span class="kw">let </span>d = NaiveDate::from_ymd_opt(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>).unwrap();
         <span class="macro">assert_eq!</span>(d.format(<span class="string">&quot;%Y,%C,%y,%G,%g&quot;</span>).to_string(), <span class="string">&quot;2012,20,12,2012,12&quot;</span>);
         <span class="macro">assert_eq!</span>(d.format(<span class="string">&quot;%m,%b,%h,%B&quot;</span>).to_string(), <span class="string">&quot;03,Mar,Mar,March&quot;</span>);
         <span class="macro">assert_eq!</span>(d.format(<span class="string">&quot;%d,%e&quot;</span>).to_string(), <span class="string">&quot;04, 4&quot;</span>);
@@ -5490,44 +5675,59 @@
         <span class="macro">assert_eq!</span>(d.format(<span class="string">&quot;%t%n%%%n%t&quot;</span>).to_string(), <span class="string">&quot;\t\n%\n\t&quot;</span>);
 
         <span class="comment">// non-four-digit years
-        </span><span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">12345</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;+12345&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">1234</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;1234&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">123</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0123&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">12</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0012&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0001&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0000&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-0001&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">12</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-0012&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">123</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-0123&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">1234</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-1234&quot;</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">12345</span>, <span class="number">1</span>, <span class="number">1</span>).format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-12345&quot;</span>);
+        </span><span class="macro">assert_eq!</span>(
+            NaiveDate::from_ymd_opt(<span class="number">12345</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(),
+            <span class="string">&quot;+12345&quot;
+        </span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">1234</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;1234&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">123</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0123&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">12</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0012&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;0000&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(-<span class="number">12</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-0012&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(-<span class="number">123</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-0123&quot;</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(-<span class="number">1234</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(), <span class="string">&quot;-1234&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            NaiveDate::from_ymd_opt(-<span class="number">12345</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap().format(<span class="string">&quot;%Y&quot;</span>).to_string(),
+            <span class="string">&quot;-12345&quot;
+        </span>);
 
         <span class="comment">// corner cases
         </span><span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2007</span>, <span class="number">12</span>, <span class="number">31</span>).format(<span class="string">&quot;%G,%g,%U,%W,%V&quot;</span>).to_string(),
+            NaiveDate::from_ymd_opt(<span class="number">2007</span>, <span class="number">12</span>, <span class="number">31</span>).unwrap().format(<span class="string">&quot;%G,%g,%U,%W,%V&quot;</span>).to_string(),
             <span class="string">&quot;2008,08,53,53,01&quot;
         </span>);
         <span class="macro">assert_eq!</span>(
-            NaiveDate::from_ymd(<span class="number">2010</span>, <span class="number">1</span>, <span class="number">3</span>).format(<span class="string">&quot;%G,%g,%U,%W,%V&quot;</span>).to_string(),
+            NaiveDate::from_ymd_opt(<span class="number">2010</span>, <span class="number">1</span>, <span class="number">3</span>).unwrap().format(<span class="string">&quot;%G,%g,%U,%W,%V&quot;</span>).to_string(),
             <span class="string">&quot;2009,09,01,00,53&quot;
         </span>);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_day_iterator_limit() {
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">262143</span>, <span class="number">12</span>, <span class="number">29</span>).iter_days().take(<span class="number">4</span>).count(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">262144</span>, <span class="number">1</span>, <span class="number">3</span>).iter_days().rev().take(<span class="number">4</span>).count(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd_opt(<span class="number">262143</span>, <span class="number">12</span>, <span class="number">29</span>).unwrap().iter_days().take(<span class="number">4</span>).count(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(
+            NaiveDate::from_ymd_opt(-<span class="number">262144</span>, <span class="number">1</span>, <span class="number">3</span>).unwrap().iter_days().rev().take(<span class="number">4</span>).count(),
+            <span class="number">2
+        </span>);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_week_iterator_limit() {
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(<span class="number">262143</span>, <span class="number">12</span>, <span class="number">12</span>).iter_weeks().take(<span class="number">4</span>).count(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(NaiveDate::from_ymd(-<span class="number">262144</span>, <span class="number">1</span>, <span class="number">15</span>).iter_weeks().rev().take(<span class="number">4</span>).count(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(
+            NaiveDate::from_ymd_opt(<span class="number">262143</span>, <span class="number">12</span>, <span class="number">12</span>).unwrap().iter_weeks().take(<span class="number">4</span>).count(),
+            <span class="number">2
+        </span>);
+        <span class="macro">assert_eq!</span>(
+            NaiveDate::from_ymd_opt(-<span class="number">262144</span>, <span class="number">1</span>, <span class="number">15</span>).unwrap().iter_weeks().rev().take(<span class="number">4</span>).count(),
+            <span class="number">2
+        </span>);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_naiveweek() {
-        <span class="kw">let </span>date = NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">5</span>, <span class="number">18</span>);
+        <span class="kw">let </span>date = NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">5</span>, <span class="number">18</span>).unwrap();
         <span class="kw">let </span>asserts = <span class="macro">vec!</span>[
             (Weekday::Mon, <span class="string">&quot;2022-05-16&quot;</span>, <span class="string">&quot;2022-05-22&quot;</span>),
             (Weekday::Tue, <span class="string">&quot;2022-05-17&quot;</span>, <span class="string">&quot;2022-05-23&quot;</span>),

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/runtime/task/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.23.0/src/runtime/task/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -529,6 +529,94 @@
 <span id="529">529</span>
 <span id="530">530</span>
 <span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The task module.
 //!
 //! The task module contains the code that manages spawned tasks and provides a
@@ -578,7 +666,8 @@
 //!
 //!  * JOIN_INTEREST - Is set to one if there exists a JoinHandle.
 //!
-//!  * JOIN_WAKER - Is set to one if the JoinHandle has set a waker.
+//!  * JOIN_WAKER - Acts as an access control bit for the join handle waker. The
+//!    protocol for its usage is described below.
 //!
 //! The rest of the bits are used for the ref-count.
 //!
@@ -602,10 +691,38 @@
 //!    a lock for the stage field, and it can be accessed only by the thread
 //!    that set RUNNING to one.
 //!
-//!  * If JOIN_WAKER is zero, then the JoinHandle has exclusive access to the
-//!    join handle waker. If JOIN_WAKER and COMPLETE are both one, then the
-//!    thread that set COMPLETE to one has exclusive access to the join handle
-//!    waker.
+//!  * The waker field may be concurrently accessed by different threads: in one
+//!    thread the runtime may complete a task and *read* the waker field to
+//!    invoke the waker, and in another thread the task&#39;s JoinHandle may be
+//!    polled, and if the task hasn&#39;t yet completed, the JoinHandle may *write*
+//!    a waker to the waker field. The JOIN_WAKER bit ensures safe access by
+//!    multiple threads to the waker field using the following rules:
+//!
+//!    1. JOIN_WAKER is initialized to zero.
+//!
+//!    2. If JOIN_WAKER is zero, then the JoinHandle has exclusive (mutable)
+//!       access to the waker field.
+//!
+//!    3. If JOIN_WAKER is one, then the JoinHandle has shared (read-only)
+//!       access to the waker field.
+//!
+//!    4. If JOIN_WAKER is one and COMPLETE is one, then the runtime has shared
+//!       (read-only) access to the waker field.
+//!
+//!    5. If the JoinHandle needs to write to the waker field, then the
+//!       JoinHandle needs to (i) successfully set JOIN_WAKER to zero if it is
+//!       not already zero to gain exclusive access to the waker field per rule
+//!       2, (ii) write a waker, and (iii) successfully set JOIN_WAKER to one.
+//!
+//!    6. The JoinHandle can change JOIN_WAKER only if COMPLETE is zero (i.e.
+//!       the task hasn&#39;t yet completed).
+//!
+//!    Rule 6 implies that the steps (i) or (iii) of rule 5 may fail due to a
+//!    race. If step (i) fails, then the attempt to write a waker is aborted. If
+//!    step (iii) fails because COMPLETE is set to one by another thread after
+//!    step (i), then the waker field is cleared. Once COMPLETE is one (i.e.
+//!    task has completed), the JoinHandle will not modify JOIN_WAKER. After the
+//!    runtime sets COMPLETE to one, it invokes the waker if there is one.
 //!
 //! All other fields are immutable and can be accessed immutably without
 //! synchronization by anyone.
@@ -652,7 +769,7 @@
 //!  1. The output is created on the thread that the future was polled on. Since
 //!     only non-Send futures can have non-Send output, the future was polled on
 //!     the thread that the future was spawned from.
-//!  2. Since JoinHandle&lt;Output&gt; is not Send if Output is not Send, the
+//!  2. Since `JoinHandle&lt;Output&gt;` is not Send if Output is not Send, the
 //!     JoinHandle is also on the thread that the future was spawned from.
 //!  3. Thus, the JoinHandle will not move the output across threads when it
 //!     takes or drops the output.
@@ -670,7 +787,9 @@
 // unstable. This should be removed once `JoinSet` is stabilized.
 </span><span class="attribute">#![cfg_attr(not(tokio_unstable), allow(dead_code))]
 
-</span><span class="kw">mod </span>core;
+</span><span class="kw">use </span><span class="kw">crate</span>::runtime::context;
+
+<span class="kw">mod </span>core;
 <span class="kw">use </span><span class="self">self</span>::core::Cell;
 <span class="kw">use </span><span class="self">self</span>::core::Header;
 
@@ -724,6 +843,10 @@
 ///   task completes, the same ID may be used for another task.
 /// - Task IDs are *not* sequential, and do not indicate the order in which
 ///   tasks are spawned, what runtime a task is spawned on, or any other data.
+/// - The task ID of the currently running task can be obtained from inside the
+///   task via the [`task::try_id()`](crate::task::try_id()) and
+///   [`task::id()`](crate::task::id()) functions and from outside the task via
+///   the [`JoinHandle::id()`](crate::task::JoinHandle::id()) function.
 ///
 /// **Note**: This is an [unstable API][unstable]. The public API of this type
 /// may break in 1.x releases. See [the documentation on unstable
@@ -732,9 +855,48 @@
 /// [unstable]: crate#unstable-features
 </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;rt&quot;</span>, tokio_unstable))))]
 #[cfg_attr(not(tokio_unstable), allow(unreachable_pub))]
-</span><span class="comment">// TODO(eliza): there&#39;s almost certainly no reason not to make this `Copy` as well...
-</span><span class="attribute">#[derive(Clone, Debug, Hash, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
 </span><span class="kw">pub struct </span>Id(u64);
+
+<span class="doccomment">/// Returns the [`Id`] of the currently running task.
+///
+/// # Panics
+///
+/// This function panics if called from outside a task. Please note that calls
+/// to `block_on` do not have task IDs, so the method will panic if called from
+/// within a call to `block_on`. For a version of this function that doesn&#39;t
+/// panic, see [`task::try_id()`](crate::runtime::task::try_id()).
+///
+/// **Note**: This is an [unstable API][unstable]. The public API of this type
+/// may break in 1.x releases. See [the documentation on unstable
+/// features][unstable] for details.
+///
+/// [task ID]: crate::task::Id
+/// [unstable]: crate#unstable-features
+</span><span class="attribute">#[cfg_attr(not(tokio_unstable), allow(unreachable_pub))]
+#[track_caller]
+</span><span class="kw">pub fn </span>id() -&gt; Id {
+    context::current_task_id().expect(<span class="string">&quot;Can&#39;t get a task id when not inside a task&quot;</span>)
+}
+
+<span class="doccomment">/// Returns the [`Id`] of the currently running task, or `None` if called outside
+/// of a task.
+///
+/// This function is similar to  [`task::id()`](crate::runtime::task::id()), except
+/// that it returns `None` rather than panicking if called outside of a task
+/// context.
+///
+/// **Note**: This is an [unstable API][unstable]. The public API of this type
+/// may break in 1.x releases. See [the documentation on unstable
+/// features][unstable] for details.
+///
+/// [task ID]: crate::task::Id
+/// [unstable]: crate#unstable-features
+</span><span class="attribute">#[cfg_attr(not(tokio_unstable), allow(unreachable_pub))]
+#[track_caller]
+</span><span class="kw">pub fn </span>try_id() -&gt; <span class="prelude-ty">Option</span>&lt;Id&gt; {
+    context::current_task_id()
+}
 
 <span class="doccomment">/// An owned handle to the task, tracked by ref count.
 </span><span class="attribute">#[repr(transparent)]
@@ -815,7 +977,7 @@
         T: Future + <span class="lifetime">&#39;static</span>,
         T::Output: <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">let </span>raw = RawTask::new::&lt;T, S&gt;(task, scheduler, id.clone());
+        <span class="kw">let </span>raw = RawTask::new::&lt;T, S&gt;(task, scheduler, id);
         <span class="kw">let </span>task = Task {
             raw,
             _p: PhantomData,
@@ -824,7 +986,7 @@
             raw,
             _p: PhantomData,
         });
-        <span class="kw">let </span>join = JoinHandle::new(raw, id);
+        <span class="kw">let </span>join = JoinHandle::new(raw);
 
         (task, notified, join)
     }
@@ -1038,21 +1200,35 @@
     }
 
     <span class="macro">cfg_not_has_atomic_u64! </span>{
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>next() -&gt; <span class="self">Self </span>{
-            <span class="kw">use </span><span class="kw">crate</span>::util::once_cell::OnceCell;
-            <span class="kw">use </span><span class="kw">crate</span>::loom::sync::Mutex;
+        <span class="macro">cfg_has_const_mutex_new! </span>{
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>next() -&gt; <span class="self">Self </span>{
+                <span class="kw">use </span><span class="kw">crate</span>::loom::sync::Mutex;
+                <span class="kw">static </span>NEXT_ID: Mutex&lt;u64&gt; = Mutex::const_new(<span class="number">1</span>);
 
-            <span class="kw">fn </span>init_next_id() -&gt; Mutex&lt;u64&gt; {
-                Mutex::new(<span class="number">1</span>)
+                <span class="kw">let </span><span class="kw-2">mut </span>lock = NEXT_ID.lock();
+                <span class="kw">let </span>id = <span class="kw-2">*</span>lock;
+                <span class="kw-2">*</span>lock += <span class="number">1</span>;
+                <span class="self">Self</span>(id)
             }
+        }
 
-            <span class="kw">static </span>NEXT_ID: OnceCell&lt;Mutex&lt;u64&gt;&gt; = OnceCell::new();
+        <span class="macro">cfg_not_has_const_mutex_new! </span>{
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>next() -&gt; <span class="self">Self </span>{
+                <span class="kw">use </span><span class="kw">crate</span>::util::once_cell::OnceCell;
+                <span class="kw">use </span><span class="kw">crate</span>::loom::sync::Mutex;
 
-            <span class="kw">let </span>next_id = NEXT_ID.get(init_next_id);
-            <span class="kw">let </span><span class="kw-2">mut </span>lock = next_id.lock();
-            <span class="kw">let </span>id = <span class="kw-2">*</span>lock;
-            <span class="kw-2">*</span>lock += <span class="number">1</span>;
-            <span class="self">Self</span>(id)
+                <span class="kw">fn </span>init_next_id() -&gt; Mutex&lt;u64&gt; {
+                    Mutex::new(<span class="number">1</span>)
+                }
+
+                <span class="kw">static </span>NEXT_ID: OnceCell&lt;Mutex&lt;u64&gt;&gt; = OnceCell::new();
+
+                <span class="kw">let </span>next_id = NEXT_ID.get(init_next_id);
+                <span class="kw">let </span><span class="kw-2">mut </span>lock = next_id.lock();
+                <span class="kw">let </span>id = <span class="kw-2">*</span>lock;
+                <span class="kw-2">*</span>lock += <span class="number">1</span>;
+                <span class="self">Self</span>(id)
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/blake3-1.3.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../blake3/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/blake3-1.3.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../blake3/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1461,6 +1461,16 @@
 <span id="1461">1461</span>
 <span id="1462">1462</span>
 <span id="1463">1463</span>
+<span id="1464">1464</span>
+<span id="1465">1465</span>
+<span id="1466">1466</span>
+<span id="1467">1467</span>
+<span id="1468">1468</span>
+<span id="1469">1469</span>
+<span id="1470">1470</span>
+<span id="1471">1471</span>
+<span id="1472">1472</span>
+<span id="1473">1473</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The official Rust implementation of the [BLAKE3] cryptographic hash
 //! function.
 //!
@@ -1484,7 +1494,7 @@
 //! let mut output = [0; 1000];
 //! let mut output_reader = hasher.finalize_xof();
 //! output_reader.fill(&amp;mut output);
-//! assert_eq!(&amp;output[..32], hash1.as_bytes());
+//! assert_eq!(hash1, output[..32]);
 //! # }
 //!
 //! // Print a hash as hex.
@@ -2122,7 +2132,7 @@
 
 <span class="comment">// The wide helper function returns (writes out) an array of chaining values
 // and returns the length of that array. The number of chaining values returned
-// is the dyanmically detected SIMD degree, at most MAX_SIMD_DEGREE. Or fewer,
+// is the dynamically detected SIMD degree, at most MAX_SIMD_DEGREE. Or fewer,
 // if the input is shorter than that many chunks. The reason for maintaining a
 // wide array of chaining values going back up the tree, is to allow the
 // implementation to hash as many parents in parallel as possible.
@@ -2130,7 +2140,7 @@
 // As a special case when the SIMD degree is 1, this function will still return
 // at least 2 outputs. This guarantees that this function doesn&#39;t perform the
 // root compression. (If it did, it would use the wrong flags, and also we
-// wouldn&#39;t be able to implement exendable ouput.) Note that this function is
+// wouldn&#39;t be able to implement exendable output.) Note that this function is
 // not used when the whole input is only 1 chunk long; that&#39;s a different
 // codepath.
 //
@@ -2803,16 +2813,26 @@
 <span class="doccomment">/// An incremental reader for extended output, returned by
 /// [`Hasher::finalize_xof`](struct.Hasher.html#method.finalize_xof).
 ///
-/// Outputs shorter than the default length of 32 bytes (256 bits)
-/// provide less security. An N-bit BLAKE3 output is intended to provide
-/// N bits of first and second preimage resistance and N/2 bits of
-/// collision resistance, for any N up to 256. Longer outputs don&#39;t
-/// provide any additional security.
+/// Shorter BLAKE3 outputs are prefixes of longer ones, and explicitly requesting a short output is
+/// equivalent to truncating the default-length output. Note that this is a difference between
+/// BLAKE2 and BLAKE3.
 ///
-/// Shorter BLAKE3 outputs are prefixes of longer ones. Explicitly
-/// requesting a short output is equivalent to truncating the
-/// default-length output. (Note that this is different between BLAKE2
-/// and BLAKE3.)
+/// # Security notes
+///
+/// Outputs shorter than the default length of 32 bytes (256 bits) provide less security. An N-bit
+/// BLAKE3 output is intended to provide N bits of first and second preimage resistance and N/2
+/// bits of collision resistance, for any N up to 256. Longer outputs don&#39;t provide any additional
+/// security.
+///
+/// Avoid relying on the secrecy of the output offset, that is, the number of output bytes read or
+/// the arguments to [`seek`](struct.OutputReader.html#method.seek) or
+/// [`set_position`](struct.OutputReader.html#method.set_position). [_Block-Cipher-Based Tree
+/// Hashing_ by Aldo Gunsing](https://eprint.iacr.org/2022/283) shows that an attacker who knows
+/// both the message and the key (if any) can easily determine the offset of an extended output.
+/// For comparison, AES-CTR has a similar property: if you know the key, you can decrypt a block
+/// from an unknown position in the output stream to recover its block index. Callers with strong
+/// secret keys aren&#39;t affected in practice, but secret offsets are a [design
+/// smell](https://en.wikipedia.org/wiki/Design_smell) in any case.
 </span><span class="attribute">#[derive(Clone)]
 </span><span class="kw">pub struct </span>OutputReader {
     inner: Output,

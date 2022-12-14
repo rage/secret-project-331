@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/quoted_printable-0.4.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../quoted_printable/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../quoted_printable/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../quoted_printable/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/quoted_printable-0.4.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../quoted_printable/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../quoted_printable/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../quoted_printable/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -574,6 +574,53 @@
 <span id="574">574</span>
 <span id="575">575</span>
 <span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
 </pre><pre class="rust"><code><span class="attribute">#![forbid(unsafe_code)]
 #![no_std]
 
@@ -833,6 +880,33 @@
     <span class="kw-2">*</span>backup_pos = result.len() - to_append.len();
 }
 
+<span class="kw">fn </span>encode_trailing_space_tab(
+    result: <span class="kw-2">&amp;mut </span>lib::String,
+    bytes_on_line: <span class="kw-2">&amp;mut </span>usize,
+    backup_pos: <span class="kw-2">&amp;mut </span>usize,
+) {
+    <span class="comment">// If the last character before a CRLF was a space or tab, then encode it
+    // since &quot;Octets with values of 9 and 32 ... MUST NOT be so represented
+    // at the end of an encoded line.&quot; We can just pop it off the end of the
+    // result and append the encoded version. The encoded version may end up
+    // getting bumped to a new line, but in that case we know that the soft
+    // line break &#39;=&#39; will always fit because we&#39;re removing one char before
+    // calling append.
+    </span><span class="kw">match </span>result.chars().last() {
+        <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) =&gt; {
+            <span class="kw-2">*</span>bytes_on_line -= <span class="number">1</span>;
+            result.pop();
+            append(result, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;2&#39;</span>, <span class="string">&#39;0&#39;</span>], bytes_on_line, backup_pos);
+        }
+        <span class="prelude-val">Some</span>(<span class="string">&#39;\t&#39;</span>) =&gt; {
+            <span class="kw-2">*</span>bytes_on_line -= <span class="number">1</span>;
+            result.pop();
+            append(result, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;9&#39;</span>], bytes_on_line, backup_pos);
+        }
+        <span class="kw">_ </span>=&gt; (),
+    };
+}
+
 <span class="doccomment">/// Encodes some bytes into quoted-printable format.
 ///
 /// The quoted-printable transfer-encoding is defined in IETF RFC 2045, section
@@ -863,6 +937,7 @@
     <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>byte) = it.next() {
         <span class="kw">if </span>was_cr {
             <span class="kw">if </span>byte == <span class="string">b&#39;\n&#39; </span>{
+                encode_trailing_space_tab(<span class="kw-2">&amp;mut </span>result, <span class="kw-2">&amp;mut </span>on_line, <span class="kw-2">&amp;mut </span>backup_pos);
                 result.push_str(<span class="string">&quot;\r\n&quot;</span>);
                 on_line = <span class="number">0</span>;
                 was_cr = <span class="bool-val">false</span>;
@@ -884,6 +959,8 @@
     <span class="comment">// we haven&#39;t yet encoded the last CR (&#39;\r&#39;) so do it now
     </span><span class="kw">if </span>was_cr {
         append(<span class="kw-2">&amp;mut </span>result, <span class="kw-2">&amp;</span>[<span class="string">&#39;=&#39;</span>, <span class="string">&#39;0&#39;</span>, <span class="string">&#39;D&#39;</span>], <span class="kw-2">&amp;mut </span>on_line, <span class="kw-2">&amp;mut </span>backup_pos);
+    } <span class="kw">else </span>{
+        encode_trailing_space_tab(<span class="kw-2">&amp;mut </span>result, <span class="kw-2">&amp;mut </span>on_line, <span class="kw-2">&amp;mut </span>backup_pos);
     }
 
     result
@@ -1076,7 +1153,7 @@
             )
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;this \r\nhas linebreaks\r\n built right in.&quot;</span>,
+            <span class="string">&quot;this=20\r\nhas linebreaks\r\n built right in.&quot;</span>,
             encode_to_str(<span class="string">&quot;this \r\nhas linebreaks\r\n built right in.&quot;</span>)
         );
         <span class="comment">// Test that soft line breaks get inserted at the right place
@@ -1128,6 +1205,23 @@
         <span class="macro">assert_eq!</span>(<span class="string">&quot;a=0D\r\nb&quot;</span>, encode_to_str(<span class="string">&quot;a\r\r\nb&quot;</span>));
         <span class="macro">assert_eq!</span>(<span class="string">&quot;=0D&quot;</span>, encode_to_str(<span class="string">&quot;\r&quot;</span>));
         <span class="macro">assert_eq!</span>(<span class="string">&quot;=0D=0D&quot;</span>, encode_to_str(<span class="string">&quot;\r\r&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;\r\n&quot;</span>, encode_to_str(<span class="string">&quot;\r\n&quot;</span>));
+
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;trailing spaces =20&quot;</span>, encode_to_str(<span class="string">&quot;trailing spaces  &quot;</span>),);
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;trailing spaces and crlf =20\r\n&quot;</span>,
+            encode_to_str(<span class="string">&quot;trailing spaces and crlf  \r\n&quot;</span>),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=09&quot;</span>,
+            encode_to_str(
+                <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\t&quot;
+            </span>),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=\r\n=20\r\n&quot;</span>,
+            encode_to_str(<span class="string">&quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \r\n&quot;</span>),
+        );
     }
 
     <span class="attribute">#[test]

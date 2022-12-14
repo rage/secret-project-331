@@ -117,13 +117,13 @@
 
 <span class="kw">impl </span>Example <span class="kw">for </span>DateTime&lt;Utc&gt; {
     <span class="kw">fn </span>example() -&gt; <span class="self">Self </span>{
-        Utc.timestamp(<span class="number">1640988000</span>, <span class="number">0</span>)
+        Utc.timestamp_opt(<span class="number">1640988000</span>, <span class="number">0</span>).unwrap()
     }
 }
 
 <span class="kw">impl </span>Example <span class="kw">for </span>NaiveDate {
     <span class="kw">fn </span>example() -&gt; <span class="self">Self </span>{
-        NaiveDate::from_ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>)
+        NaiveDate::from_ymd_opt(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()
     }
 }
 

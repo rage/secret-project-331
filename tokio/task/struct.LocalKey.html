@@ -34,7 +34,7 @@ NUMBER.scope(<span class="number">1</span>, <span class="kw">async move </span>{
     <span class="macro">println!</span>(<span class="string">&quot;task local value: {}&quot;</span>, NUMBER.get());
 }).<span class="kw">await</span>;</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.sync_scope" class="method has-srclink"><a class="srclink rightside" href="../../src/tokio/task/task_local.rs.html#184-193">source</a><h4 class="code-header">pub fn <a href="#method.sync_scope" class="fnname">sync_scope</a>&lt;F, R&gt;(&amp;'static self, value: T, f: F) -&gt; R<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/1.65.0/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; R,</span></h4></section></summary><div class="docblock"><p>Sets a value <code>T</code> as the task-local value for the closure <code>F</code>.</p>
-<p>On completion of <code>scope</code>, the task-local will be dropped.</p>
+<p>On completion of <code>sync_scope</code>, the task-local will be dropped.</p>
 <h6 id="panics-1"><a href="#panics-1">Panics</a></h6>
 <p>This method panics if called inside a call to <a href="struct.LocalKey.html#method.with"><code>with</code></a> or <a href="struct.LocalKey.html#method.try_with"><code>try_with</code></a>
 on the same <code>LocalKey</code>.</p>

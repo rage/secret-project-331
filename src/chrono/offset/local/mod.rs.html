@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.22/src/offset/local/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../chrono/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.23/src/offset/local/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../chrono/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -258,68 +258,6 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
 </pre><pre class="rust"><code><span class="comment">// This is a part of Chrono.
 // See README.md and LICENSE.txt for details.
 
@@ -331,7 +269,8 @@
 <span class="kw">use </span><span class="kw">super</span>::fixed::FixedOffset;
 <span class="kw">use super</span>::{LocalResult, TimeZone};
 <span class="kw">use </span><span class="kw">crate</span>::naive::{NaiveDate, NaiveDateTime};
-<span class="kw">use crate</span>::{Date, DateTime};
+<span class="attribute">#[allow(deprecated)]
+</span><span class="kw">use crate</span>::{Date, DateTime};
 
 <span class="comment">// we don&#39;t want `stub.rs` when the target_os is not wasi or emscripten
 // as we use js-sys to get the date instead
@@ -374,10 +313,13 @@
 /// ```
 </span><span class="attribute">#[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = <span class="string">&quot;rkyv&quot;</span>, derive(Archive, Deserialize, Serialize))]
+#[cfg_attr(feature = <span class="string">&quot;arbitrary&quot;</span>, derive(arbitrary::Arbitrary))]
 </span><span class="kw">pub struct </span>Local;
 
 <span class="kw">impl </span>Local {
     <span class="doccomment">/// Returns a `Date` which corresponds to the current date.
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.4.23&quot;</span>, note = <span class="string">&quot;use `Local::now()` instead&quot;</span>)]
+    #[allow(deprecated)]
     </span><span class="kw">pub fn </span>today() -&gt; Date&lt;Local&gt; {
         Local::now().date()
     }
@@ -403,7 +345,9 @@
         <span class="kw">let </span>now: DateTime&lt;Utc&gt; = <span class="kw">super</span>::Utc::now();
 
         <span class="comment">// Workaround missing timezone logic in `time` crate
-        </span><span class="kw">let </span>offset = FixedOffset::west((js_sys::Date::new_0().get_timezone_offset() <span class="kw">as </span>i32) * <span class="number">60</span>);
+        </span><span class="kw">let </span>offset =
+            FixedOffset::west_opt((js_sys::Date::new_0().get_timezone_offset() <span class="kw">as </span>i32) * <span class="number">60</span>)
+                .unwrap();
         DateTime::from_utc(now.naive_utc(), offset)
     }
 }
@@ -416,6 +360,7 @@
     }
 
     <span class="comment">// they are easier to define in terms of the finished date and time unlike other offsets
+    </span><span class="attribute">#[allow(deprecated)]
     </span><span class="kw">fn </span>offset_from_local_date(<span class="kw-2">&amp;</span><span class="self">self</span>, local: <span class="kw-2">&amp;</span>NaiveDate) -&gt; LocalResult&lt;FixedOffset&gt; {
         <span class="self">self</span>.from_local_date(local).map(|date| <span class="kw-2">*</span>date.offset())
     }
@@ -424,7 +369,8 @@
         <span class="self">self</span>.from_local_datetime(local).map(|datetime| <span class="kw-2">*</span>datetime.offset())
     }
 
-    <span class="kw">fn </span>offset_from_utc_date(<span class="kw-2">&amp;</span><span class="self">self</span>, utc: <span class="kw-2">&amp;</span>NaiveDate) -&gt; FixedOffset {
+    <span class="attribute">#[allow(deprecated)]
+    </span><span class="kw">fn </span>offset_from_utc_date(<span class="kw-2">&amp;</span><span class="self">self</span>, utc: <span class="kw-2">&amp;</span>NaiveDate) -&gt; FixedOffset {
         <span class="kw-2">*</span><span class="self">self</span>.from_utc_date(utc).offset()
     }
 
@@ -433,11 +379,12 @@
     }
 
     <span class="comment">// override them for avoiding redundant works
+    </span><span class="attribute">#[allow(deprecated)]
     </span><span class="kw">fn </span>from_local_date(<span class="kw-2">&amp;</span><span class="self">self</span>, local: <span class="kw-2">&amp;</span>NaiveDate) -&gt; LocalResult&lt;Date&lt;Local&gt;&gt; {
         <span class="comment">// this sounds very strange, but required for keeping `TimeZone::ymd` sane.
         // in the other words, we use the offset at the local midnight
         // but keep the actual date unaltered (much like `FixedOffset`).
-        </span><span class="kw">let </span>midnight = <span class="self">self</span>.from_local_datetime(<span class="kw-2">&amp;</span>local.and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>));
+        </span><span class="kw">let </span>midnight = <span class="self">self</span>.from_local_datetime(<span class="kw-2">&amp;</span>local.and_hms_opt(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap());
         midnight.map(|datetime| Date::from_utc(<span class="kw-2">*</span>local, <span class="kw-2">*</span>datetime.offset()))
     }
 
@@ -449,7 +396,9 @@
     </span><span class="kw">fn </span>from_local_datetime(<span class="kw-2">&amp;</span><span class="self">self</span>, local: <span class="kw-2">&amp;</span>NaiveDateTime) -&gt; LocalResult&lt;DateTime&lt;Local&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>local = local.clone();
         <span class="comment">// Get the offset from the js runtime
-        </span><span class="kw">let </span>offset = FixedOffset::west((js_sys::Date::new_0().get_timezone_offset() <span class="kw">as </span>i32) * <span class="number">60</span>);
+        </span><span class="kw">let </span>offset =
+            FixedOffset::west_opt((js_sys::Date::new_0().get_timezone_offset() <span class="kw">as </span>i32) * <span class="number">60</span>)
+                .unwrap();
         local -= <span class="kw">crate</span>::Duration::seconds(offset.local_minus_utc() <span class="kw">as </span>i64);
         LocalResult::Single(DateTime::from_utc(local, offset))
     }
@@ -463,8 +412,9 @@
         inner::naive_to_local(local, <span class="bool-val">true</span>)
     }
 
-    <span class="kw">fn </span>from_utc_date(<span class="kw-2">&amp;</span><span class="self">self</span>, utc: <span class="kw-2">&amp;</span>NaiveDate) -&gt; Date&lt;Local&gt; {
-        <span class="kw">let </span>midnight = <span class="self">self</span>.from_utc_datetime(<span class="kw-2">&amp;</span>utc.and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>));
+    <span class="attribute">#[allow(deprecated)]
+    </span><span class="kw">fn </span>from_utc_date(<span class="kw-2">&amp;</span><span class="self">self</span>, utc: <span class="kw-2">&amp;</span>NaiveDate) -&gt; Date&lt;Local&gt; {
+        <span class="kw">let </span>midnight = <span class="self">self</span>.from_utc_datetime(<span class="kw-2">&amp;</span>utc.and_hms_opt(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap());
         Date::from_utc(<span class="kw-2">*</span>utc, <span class="kw-2">*</span>midnight.offset())
     }
 
@@ -475,7 +425,9 @@
     ))]
     </span><span class="kw">fn </span>from_utc_datetime(<span class="kw-2">&amp;</span><span class="self">self</span>, utc: <span class="kw-2">&amp;</span>NaiveDateTime) -&gt; DateTime&lt;Local&gt; {
         <span class="comment">// Get the offset from the js runtime
-        </span><span class="kw">let </span>offset = FixedOffset::west((js_sys::Date::new_0().get_timezone_offset() <span class="kw">as </span>i32) * <span class="number">60</span>);
+        </span><span class="kw">let </span>offset =
+            FixedOffset::west_opt((js_sys::Date::new_0().get_timezone_offset() <span class="kw">as </span>i32) * <span class="number">60</span>)
+                .unwrap();
         DateTime::from_utc(<span class="kw-2">*</span>utc, offset)
     }
 
@@ -495,83 +447,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">super</span>::Local;
     <span class="kw">use </span><span class="kw">crate</span>::offset::TimeZone;
-    <span class="kw">use crate</span>::{Datelike, Duration, NaiveDate, NaiveDateTime, Timelike};
-
-    <span class="kw">use </span>std::{path, process};
-
-    <span class="attribute">#[cfg(unix)]
-    </span><span class="kw">fn </span>verify_against_date_command_local(path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, dt: NaiveDateTime) {
-        <span class="kw">let </span>output = process::Command::new(path)
-            .arg(<span class="string">&quot;-d&quot;</span>)
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;{}-{:02}-{:02} {:02}:05:01&quot;</span>, dt.year(), dt.month(), dt.day(), dt.hour()))
-            .arg(<span class="string">&quot;+%Y-%m-%d %H:%M:%S %:z&quot;</span>)
-            .output()
-            .unwrap();
-
-        <span class="kw">let </span>date_command_str = String::from_utf8(output.stdout).unwrap();
-
-        <span class="comment">// The below would be preferred. At this stage neither earliest() or latest()
-        // seems to be consistent with the output of the `date` command, so we simply
-        // compare both.
-        // let local = Local
-        //     .from_local_datetime(&amp;NaiveDate::from_ymd(year, month, day).and_hms(hour, 5, 1))
-        //     // looks like the &quot;date&quot; command always returns a given time when it is ambiguous
-        //     .earliest();
-
-        // if let Some(local) = local {
-        //     assert_eq!(format!(&quot;{}\n&quot;, local), date_command_str);
-        // } else {
-        //     // we are in a &quot;Spring forward gap&quot; due to DST, and so date also returns &quot;&quot;
-        //     assert_eq!(&quot;&quot;, date_command_str);
-        // }
-
-        // This is used while a decision is made wheter the `date` output needs to
-        // be exactly matched, or whether LocalResult::Ambigious should be handled
-        // differently
-        </span><span class="kw">match </span>Local.from_local_datetime(
-            <span class="kw-2">&amp;</span>NaiveDate::from_ymd(dt.year(), dt.month(), dt.day()).and_hms(dt.hour(), <span class="number">5</span>, <span class="number">1</span>),
-        ) {
-            <span class="kw">crate</span>::LocalResult::Ambiguous(a, b) =&gt; {
-                <span class="macro">assert!</span>(
-                    <span class="macro">format!</span>(<span class="string">&quot;{}\n&quot;</span>, a) == date_command_str
-                        || <span class="macro">format!</span>(<span class="string">&quot;{}\n&quot;</span>, b) == date_command_str
-                )
-            }
-            <span class="kw">crate</span>::LocalResult::Single(a) =&gt; {
-                <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}\n&quot;</span>, a), date_command_str);
-            }
-            <span class="kw">crate</span>::LocalResult::None =&gt; {
-                <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>, date_command_str);
-            }
-        }
-    }
-
-    <span class="attribute">#[test]
-    #[cfg(unix)]
-    </span><span class="kw">fn </span>try_verify_against_date_command() {
-        <span class="kw">let </span>date_path = <span class="string">&quot;/usr/bin/date&quot;</span>;
-
-        <span class="kw">if </span>!path::Path::new(date_path).exists() {
-            <span class="comment">// date command not found, skipping
-            // avoid running this on macOS, which has path /bin/date
-            // as the required CLI arguments are not present in the
-            // macOS build.
-            </span><span class="kw">return</span>;
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>date = NaiveDate::from_ymd(<span class="number">1975</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
-
-        <span class="kw">while </span>date.year() &lt; <span class="number">2078 </span>{
-            <span class="kw">if </span>(<span class="number">1975</span>..=<span class="number">1977</span>).contains(<span class="kw-2">&amp;</span>date.year())
-                || (<span class="number">2020</span>..=<span class="number">2022</span>).contains(<span class="kw-2">&amp;</span>date.year())
-                || (<span class="number">2073</span>..=<span class="number">2077</span>).contains(<span class="kw-2">&amp;</span>date.year())
-            {
-                verify_against_date_command_local(date_path, date);
-            }
-
-            date += <span class="kw">crate</span>::Duration::hours(<span class="number">1</span>);
-        }
-    }
+    <span class="kw">use crate</span>::{Datelike, Duration, Utc};
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>verify_correct_offsets() {
@@ -619,21 +495,21 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_local_date_sanity_check() {
         <span class="comment">// issue #27
-        </span><span class="macro">assert_eq!</span>(Local.ymd(<span class="number">2999</span>, <span class="number">12</span>, <span class="number">28</span>).day(), <span class="number">28</span>);
+        </span><span class="macro">assert_eq!</span>(Local.with_ymd_and_hms(<span class="number">2999</span>, <span class="number">12</span>, <span class="number">28</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap().day(), <span class="number">28</span>);
     }
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_leap_second() {
         <span class="comment">// issue #123
-        </span><span class="kw">let </span>today = Local::today();
+        </span><span class="kw">let </span>today = Utc::now().date_naive();
 
-        <span class="kw">let </span>dt = today.and_hms_milli(<span class="number">1</span>, <span class="number">2</span>, <span class="number">59</span>, <span class="number">1000</span>);
+        <span class="kw">let </span>dt = today.and_hms_milli_opt(<span class="number">1</span>, <span class="number">2</span>, <span class="number">59</span>, <span class="number">1000</span>).unwrap();
         <span class="kw">let </span>timestr = dt.time().to_string();
         <span class="comment">// the OS API may or may not support the leap second,
         // but there are only two sensible options.
         </span><span class="macro">assert!</span>(timestr == <span class="string">&quot;01:02:60&quot; </span>|| timestr == <span class="string">&quot;01:03:00&quot;</span>, <span class="string">&quot;unexpected timestr {:?}&quot;</span>, timestr);
 
-        <span class="kw">let </span>dt = today.and_hms_milli(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1234</span>);
+        <span class="kw">let </span>dt = today.and_hms_milli_opt(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1234</span>).unwrap();
         <span class="kw">let </span>timestr = dt.time().to_string();
         <span class="macro">assert!</span>(
             timestr == <span class="string">&quot;01:02:03.234&quot; </span>|| timestr == <span class="string">&quot;01:02:04.234&quot;</span>,

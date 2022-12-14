@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/constant_time_eq-0.1.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../constant_time_eq/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../constant_time_eq/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../constant_time_eq/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/constant_time_eq-0.2.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../constant_time_eq/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../constant_time_eq/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../constant_time_eq/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -103,10 +103,99 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><pre class="rust"><code><span class="attribute">#![no_std]
 
-</span><span class="comment">// This function is non-inline to prevent the optimizer from looking inside it.
-</span><span class="attribute">#[inline(never)]
+#[cfg(any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>))]
+#[inline]
+</span><span class="kw">fn </span>optimizer_hide(<span class="kw-2">mut </span>value: u8) -&gt; u8 {
+    <span class="comment">// SAFETY: the input value is passed unchanged to the output, the inline assembly does nothing.
+    </span><span class="kw">unsafe </span>{
+        <span class="macro">core::arch::asm!</span>(<span class="string">&quot;/* {0} */&quot;</span>, inout(reg_byte) value, options(pure, nomem, nostack, preserves_flags));
+        value
+    }
+}
+
+<span class="attribute">#[cfg(any(
+    target_arch = <span class="string">&quot;arm&quot;</span>,
+    target_arch = <span class="string">&quot;aarch64&quot;</span>,
+    target_arch = <span class="string">&quot;riscv32&quot;</span>,
+    target_arch = <span class="string">&quot;riscv64&quot;
+</span>))]
+#[allow(asm_sub_register)]
+#[inline]
+</span><span class="kw">fn </span>optimizer_hide(<span class="kw-2">mut </span>value: u8) -&gt; u8 {
+    <span class="comment">// SAFETY: the input value is passed unchanged to the output, the inline assembly does nothing.
+    </span><span class="kw">unsafe </span>{
+        <span class="macro">core::arch::asm!</span>(<span class="string">&quot;/* {0} */&quot;</span>, inout(reg) value, options(pure, nomem, nostack, preserves_flags));
+        value
+    }
+}
+
+<span class="attribute">#[cfg(not(any(
+    target_arch = <span class="string">&quot;x86&quot;</span>,
+    target_arch = <span class="string">&quot;x86_64&quot;</span>,
+    target_arch = <span class="string">&quot;arm&quot;</span>,
+    target_arch = <span class="string">&quot;aarch64&quot;</span>,
+    target_arch = <span class="string">&quot;riscv32&quot;</span>,
+    target_arch = <span class="string">&quot;riscv64&quot;
+</span>)))]
+#[inline(never)] </span><span class="comment">// This function is non-inline to prevent the optimizer from looking inside it.
+</span><span class="kw">fn </span>optimizer_hide(value: u8) -&gt; u8 {
+    <span class="comment">// SAFETY: the result of casting a reference to a pointer is valid; the type is Copy.
+    </span><span class="kw">unsafe </span>{ core::ptr::read_volatile(<span class="kw-2">&amp;</span>value) }
+}
+
+<span class="attribute">#[inline]
 </span><span class="kw">fn </span>constant_time_ne(a: <span class="kw-2">&amp;</span>[u8], b: <span class="kw-2">&amp;</span>[u8]) -&gt; u8 {
     <span class="macro">assert!</span>(a.len() == b.len());
 
@@ -120,8 +209,10 @@
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..len {
         tmp |= a[i] ^ b[i];
     }
-    tmp <span class="comment">// The compare with 0 must happen outside this function.
-</span>}
+
+    <span class="comment">// The compare with 0 must happen outside this function.
+    </span>optimizer_hide(tmp)
+}
 
 <span class="doccomment">/// Compares two equal-sized byte strings in constant time.
 ///
@@ -139,32 +230,41 @@
 /// assert!(!constant_time_eq(b&quot;foo&quot;, b&quot;&quot;));
 /// assert!(!constant_time_eq(b&quot;foo&quot;, b&quot;quux&quot;));
 /// ```
-</span><span class="attribute">#[inline]
 </span><span class="kw">pub fn </span>constant_time_eq(a: <span class="kw-2">&amp;</span>[u8], b: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
     a.len() == b.len() &amp;&amp; constant_time_ne(a, b) == <span class="number">0
 </span>}
 
-<span class="comment">// Fixed-size variants for the most common sizes.
+<span class="comment">// Fixed-size array variant.
 
-</span><span class="macro">macro_rules! </span>constant_time_ne_n {
-    (<span class="macro-nonterminal">$ne</span>:ident, <span class="macro-nonterminal">$n</span>:expr) =&gt; {
-        <span class="comment">// This function is non-inline to prevent the optimizer from looking inside it.
-        </span><span class="attribute">#[inline(never)]
-        </span><span class="kw">fn </span><span class="macro-nonterminal">$ne</span>(a: <span class="kw-2">&amp;</span>[u8; <span class="macro-nonterminal">$n</span>], b: <span class="kw-2">&amp;</span>[u8; <span class="macro-nonterminal">$n</span>]) -&gt; u8 {
-            <span class="kw">let </span><span class="kw-2">mut </span>tmp = <span class="number">0</span>;
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="macro-nonterminal">$n </span>{
-                tmp |= a[i] ^ b[i];
-            }
-            tmp <span class="comment">// The compare with 0 must happen outside this function.
-        </span>}
-    };
+</span><span class="attribute">#[inline]
+</span><span class="kw">fn </span>constant_time_ne_n&lt;<span class="kw">const </span>N: usize&gt;(a: <span class="kw-2">&amp;</span>[u8; N], b: <span class="kw-2">&amp;</span>[u8; N]) -&gt; u8 {
+    <span class="kw">let </span><span class="kw-2">mut </span>tmp = <span class="number">0</span>;
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..N {
+        tmp |= a[i] ^ b[i];
+    }
+
+    <span class="comment">// The compare with 0 must happen outside this function.
+    </span>optimizer_hide(tmp)
 }
 
-<span class="macro">constant_time_ne_n!</span>(constant_time_ne_16, <span class="number">16</span>);
-<span class="macro">constant_time_ne_n!</span>(constant_time_ne_32, <span class="number">32</span>);
-<span class="macro">constant_time_ne_n!</span>(constant_time_ne_64, <span class="number">64</span>);
+<span class="doccomment">/// Compares two fixed-size byte strings in constant time.
+///
+/// # Examples
+///
+/// ```
+/// use constant_time_eq::constant_time_eq_n;
+///
+/// assert!(constant_time_eq_n(&amp;[3; 20], &amp;[3; 20]));
+/// assert!(!constant_time_eq_n(&amp;[3; 20], &amp;[7; 20]));
+/// ```
+</span><span class="attribute">#[inline]
+</span><span class="kw">pub fn </span>constant_time_eq_n&lt;<span class="kw">const </span>N: usize&gt;(a: <span class="kw-2">&amp;</span>[u8; N], b: <span class="kw-2">&amp;</span>[u8; N]) -&gt; bool {
+    constant_time_ne_n(a, b) == <span class="number">0
+</span>}
 
-<span class="doccomment">/// Compares two 128-bit byte strings in constant time.
+<span class="comment">// Fixed-size variants for the most common sizes.
+
+</span><span class="doccomment">/// Compares two 128-bit byte strings in constant time.
 ///
 /// # Examples
 ///
@@ -176,8 +276,8 @@
 /// ```
 </span><span class="attribute">#[inline]
 </span><span class="kw">pub fn </span>constant_time_eq_16(a: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>], b: <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>]) -&gt; bool {
-    constant_time_ne_16(a, b) == <span class="number">0
-</span>}
+    constant_time_eq_n(a, b)
+}
 
 <span class="doccomment">/// Compares two 256-bit byte strings in constant time.
 ///
@@ -191,8 +291,8 @@
 /// ```
 </span><span class="attribute">#[inline]
 </span><span class="kw">pub fn </span>constant_time_eq_32(a: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>], b: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>]) -&gt; bool {
-    constant_time_ne_32(a, b) == <span class="number">0
-</span>}
+    constant_time_eq_n(a, b)
+}
 
 <span class="doccomment">/// Compares two 512-bit byte strings in constant time.
 ///
@@ -206,7 +306,7 @@
 /// ```
 </span><span class="attribute">#[inline]
 </span><span class="kw">pub fn </span>constant_time_eq_64(a: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>], b: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>]) -&gt; bool {
-    constant_time_ne_64(a, b) == <span class="number">0
-</span>}
+    constant_time_eq_n(a, b)
+}
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="constant_time_eq" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

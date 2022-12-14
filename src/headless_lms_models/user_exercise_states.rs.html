@@ -2268,7 +2268,7 @@ WHERE exercises.deleted_at IS NULL
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>merges_course_modules_with_metrics() {
-        <span class="kw">let </span>timestamp = Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+        <span class="kw">let </span>timestamp = Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
         <span class="kw">let </span>module_id = Uuid::parse_str(<span class="string">&quot;9e831ecc-9751-42f1-ae7e-9b2f06e523e8&quot;</span>).unwrap();
         <span class="kw">let </span>course_modules = <span class="macro">vec!</span>[CourseModule::new(
             module_id,

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/runtime/scheduler/multi_thread/park.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>park.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../tokio/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.23.0/src/runtime/scheduler/multi_thread/park.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>park.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../tokio/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -235,26 +235,6 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Parks the runtime.
 //!
 //! A combination of the various resource driver park handles.
@@ -262,8 +242,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::loom::sync::atomic::AtomicUsize;
 <span class="kw">use </span><span class="kw">crate</span>::loom::sync::{Arc, Condvar, Mutex};
 <span class="kw">use </span><span class="kw">crate</span>::loom::thread;
-<span class="kw">use </span><span class="kw">crate</span>::park::{Park, Unpark};
-<span class="kw">use </span><span class="kw">crate</span>::runtime::driver::Driver;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::driver::{<span class="self">self</span>, Driver};
 <span class="kw">use </span><span class="kw">crate</span>::util::TryLock;
 
 <span class="kw">use </span>std::sync::atomic::Ordering::SeqCst;
@@ -300,15 +279,10 @@
 </span><span class="kw">struct </span>Shared {
     <span class="doccomment">/// Shared driver. Only one thread at a time can use this
     </span>driver: TryLock&lt;Driver&gt;,
-
-    <span class="doccomment">/// Unpark handle
-    </span>handle: &lt;Driver <span class="kw">as </span>Park&gt;::Unpark,
 }
 
 <span class="kw">impl </span>Parker {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(driver: Driver) -&gt; Parker {
-        <span class="kw">let </span>handle = driver.unpark();
-
         Parker {
             inner: Arc::new(Inner {
                 state: AtomicUsize::new(EMPTY),
@@ -316,10 +290,32 @@
                 condvar: Condvar::new(),
                 shared: Arc::new(Shared {
                     driver: TryLock::new(driver),
-                    handle,
                 }),
             }),
         }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unpark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Unparker {
+        Unparker {
+            inner: <span class="self">self</span>.inner.clone(),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>park(<span class="kw-2">&amp;mut </span><span class="self">self</span>, handle: <span class="kw-2">&amp;</span>driver::Handle) {
+        <span class="self">self</span>.inner.park(handle);
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>park_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, handle: <span class="kw-2">&amp;</span>driver::Handle, duration: Duration) {
+        <span class="comment">// Only parking with zero is supported...
+        </span><span class="macro">assert_eq!</span>(duration, Duration::from_millis(<span class="number">0</span>));
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>driver) = <span class="self">self</span>.inner.shared.driver.try_lock() {
+            driver.park_timeout(handle, duration)
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>, handle: <span class="kw-2">&amp;</span>driver::Handle) {
+        <span class="self">self</span>.inner.shutdown(handle);
     }
 }
 
@@ -336,46 +332,15 @@
     }
 }
 
-<span class="kw">impl </span>Park <span class="kw">for </span>Parker {
-    <span class="kw">type </span>Unpark = Unparker;
-    <span class="kw">type </span>Error = ();
-
-    <span class="kw">fn </span>unpark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Unparker {
-        Unparker {
-            inner: <span class="self">self</span>.inner.clone(),
-        }
-    }
-
-    <span class="kw">fn </span>park(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="self">self</span>.inner.park();
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="kw">fn </span>park_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-        <span class="comment">// Only parking with zero is supported...
-        </span><span class="macro">assert_eq!</span>(duration, Duration::from_millis(<span class="number">0</span>));
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>driver) = <span class="self">self</span>.inner.shared.driver.try_lock() {
-            driver.park_timeout(duration).map_err(|<span class="kw">_</span>| ())
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(())
-        }
-    }
-
-    <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.inner.shutdown();
-    }
-}
-
-<span class="kw">impl </span>Unpark <span class="kw">for </span>Unparker {
-    <span class="kw">fn </span>unpark(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.inner.unpark();
+<span class="kw">impl </span>Unparker {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unpark(<span class="kw-2">&amp;</span><span class="self">self</span>, driver: <span class="kw-2">&amp;</span>driver::Handle) {
+        <span class="self">self</span>.inner.unpark(driver);
     }
 }
 
 <span class="kw">impl </span>Inner {
     <span class="doccomment">/// Parks the current thread for at most `dur`.
-    </span><span class="kw">fn </span>park(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+    </span><span class="kw">fn </span>park(<span class="kw-2">&amp;</span><span class="self">self</span>, handle: <span class="kw-2">&amp;</span>driver::Handle) {
         <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">3 </span>{
             <span class="comment">// If we were previously notified then we consume this notification and
             // return quickly.
@@ -391,7 +356,7 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>driver) = <span class="self">self</span>.shared.driver.try_lock() {
-            <span class="self">self</span>.park_driver(<span class="kw-2">&amp;mut </span>driver);
+            <span class="self">self</span>.park_driver(<span class="kw-2">&amp;mut </span>driver, handle);
         } <span class="kw">else </span>{
             <span class="self">self</span>.park_condvar();
         }
@@ -437,7 +402,7 @@
         </span>}
     }
 
-    <span class="kw">fn </span>park_driver(<span class="kw-2">&amp;</span><span class="self">self</span>, driver: <span class="kw-2">&amp;mut </span>Driver) {
+    <span class="kw">fn </span>park_driver(<span class="kw-2">&amp;</span><span class="self">self</span>, driver: <span class="kw-2">&amp;mut </span>Driver, handle: <span class="kw-2">&amp;</span>driver::Handle) {
         <span class="kw">match </span><span class="self">self
             </span>.state
             .compare_exchange(EMPTY, PARKED_DRIVER, SeqCst, SeqCst)
@@ -458,8 +423,7 @@
             <span class="prelude-val">Err</span>(actual) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;inconsistent park state; actual = {}&quot;</span>, actual),
         }
 
-        <span class="comment">// TODO: don&#39;t unwrap
-        </span>driver.park().unwrap();
+        driver.park(handle);
 
         <span class="kw">match </span><span class="self">self</span>.state.swap(EMPTY, SeqCst) {
             NOTIFIED =&gt; {}      <span class="comment">// got a notification, hurray!
@@ -468,7 +432,7 @@
         }
     }
 
-    <span class="kw">fn </span>unpark(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+    <span class="kw">fn </span>unpark(<span class="kw-2">&amp;</span><span class="self">self</span>, driver: <span class="kw-2">&amp;</span>driver::Handle) {
         <span class="comment">// To ensure the unparked thread will observe any writes we made before
         // this call, we must perform a release operation that `park` can
         // synchronize with. To do that we must write `NOTIFIED` even if `state`
@@ -478,7 +442,7 @@
             EMPTY =&gt; {}    <span class="comment">// no one was waiting
             </span>NOTIFIED =&gt; {} <span class="comment">// already unparked
             </span>PARKED_CONDVAR =&gt; <span class="self">self</span>.unpark_condvar(),
-            PARKED_DRIVER =&gt; <span class="self">self</span>.unpark_driver(),
+            PARKED_DRIVER =&gt; driver.unpark(),
             actual =&gt; <span class="macro">panic!</span>(<span class="string">&quot;inconsistent state in unpark; actual = {}&quot;</span>, actual),
         }
     }
@@ -500,13 +464,9 @@
         <span class="self">self</span>.condvar.notify_one()
     }
 
-    <span class="kw">fn </span>unpark_driver(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.shared.handle.unpark();
-    }
-
-    <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+    <span class="kw">fn </span>shutdown(<span class="kw-2">&amp;</span><span class="self">self</span>, handle: <span class="kw-2">&amp;</span>driver::Handle) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>driver) = <span class="self">self</span>.shared.driver.try_lock() {
-            driver.shutdown();
+            driver.shutdown(handle);
         }
 
         <span class="self">self</span>.condvar.notify_all();

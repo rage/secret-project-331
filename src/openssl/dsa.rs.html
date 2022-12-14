@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.42/src/dsa.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dsa.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.44/src/dsa.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dsa.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -451,6 +451,200 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Digital Signatures
 //!
 //! DSA ensures a message originated from a known sender, and was not modified.
@@ -797,6 +991,159 @@
     }
 }
 
+<span class="macro">foreign_type_and_impl_send_sync! </span>{
+    <span class="kw">type </span>CType = ffi::DSA_SIG;
+    <span class="kw">fn </span>drop = ffi::DSA_SIG_free;
+
+    <span class="doccomment">/// Object representing DSA signature.
+    ///
+    /// DSA signatures consist of two components: `r` and `s`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::convert::TryInto;
+    ///
+    /// use openssl::bn::BigNum;
+    /// use openssl::dsa::{Dsa, DsaSig};
+    /// use openssl::hash::MessageDigest;
+    /// use openssl::pkey::PKey;
+    /// use openssl::sign::{Signer, Verifier};
+    ///
+    /// const TEST_DATA: &amp;[u8] = &amp;[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    /// let dsa_ref = Dsa::generate(1024).unwrap();
+    ///
+    /// let pub_key: PKey&lt;_&gt; = dsa_ref.clone().try_into().unwrap();
+    /// let priv_key: PKey&lt;_&gt; = dsa_ref.try_into().unwrap();
+    ///
+    /// let mut signer = if let Ok(signer) = Signer::new(MessageDigest::sha256(), &amp;priv_key) {
+    ///     signer
+    /// } else {
+    ///     // DSA signing is not supported (eg. BoringSSL)
+    ///     return;
+    /// };
+    ///
+    /// signer.update(TEST_DATA).unwrap();
+    ///
+    /// let signature = signer.sign_to_vec().unwrap();
+    /// // Parse DER-encoded DSA signature
+    /// let signature = DsaSig::from_der(&amp;signature).unwrap();
+    ///
+    /// // Extract components `r` and `s`
+    /// let r = BigNum::from_slice(&amp;signature.r().to_vec()).unwrap();
+    /// let s = BigNum::from_slice(&amp;signature.s().to_vec()).unwrap();
+    ///
+    /// // Construct new DSA signature from components
+    /// let signature = DsaSig::from_private_components(r, s).unwrap();
+    ///
+    /// // Serialize DSA signature to DER
+    /// let signature = signature.to_der().unwrap();
+    ///
+    /// let mut verifier = Verifier::new(MessageDigest::sha256(), &amp;pub_key).unwrap();
+    /// verifier.update(TEST_DATA).unwrap();
+    /// assert!(verifier.verify(&amp;signature[..]).unwrap());
+    /// ```
+    </span><span class="kw">pub struct </span>DsaSig;
+
+    <span class="doccomment">/// Reference to a [`DsaSig`].
+    </span><span class="kw">pub struct </span>DsaSigRef;
+}
+
+<span class="kw">impl </span>DsaSig {
+    <span class="doccomment">/// Returns a new `DsaSig` by setting the `r` and `s` values associated with an DSA signature.
+    </span><span class="attribute">#[corresponds(DSA_SIG_set0)]
+    </span><span class="kw">pub fn </span>from_private_components(r: BigNum, s: BigNum) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ErrorStack&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>sig = cvt_p(ffi::DSA_SIG_new())<span class="question-mark">?</span>;
+            DSA_SIG_set0(sig, r.as_ptr(), s.as_ptr());
+            mem::forget((r, s));
+            <span class="prelude-val">Ok</span>(DsaSig::from_ptr(sig))
+        }
+    }
+
+    <span class="macro">from_der! </span>{
+        <span class="doccomment">/// Decodes a DER-encoded DSA signature.
+        </span><span class="attribute">#[corresponds(d2i_DSA_SIG)]
+        </span>from_der,
+        DsaSig,
+        ffi::d2i_DSA_SIG
+    }
+}
+
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>DsaSig {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;DsaSig&quot;</span>)
+            .field(<span class="string">&quot;r&quot;</span>, <span class="self">self</span>.r())
+            .field(<span class="string">&quot;s&quot;</span>, <span class="self">self</span>.s())
+            .finish()
+    }
+}
+
+<span class="kw">impl </span>DsaSigRef {
+    <span class="macro">to_der! </span>{
+        <span class="doccomment">/// Serializes the DSA signature into a DER-encoded `DSASignature` structure.
+        </span><span class="attribute">#[corresponds(i2d_DSA_SIG)]
+        </span>to_der,
+        ffi::i2d_DSA_SIG
+    }
+
+    <span class="doccomment">/// Returns internal component `r` of an `DsaSig`.
+    </span><span class="attribute">#[corresponds(DSA_SIG_get0)]
+    </span><span class="kw">pub fn </span>r(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BigNumRef {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>r = ptr::null();
+            DSA_SIG_get0(<span class="self">self</span>.as_ptr(), <span class="kw-2">&amp;mut </span>r, ptr::null_mut());
+            BigNumRef::from_const_ptr(r)
+        }
+    }
+
+    <span class="doccomment">/// Returns internal component `s` of an `DsaSig`.
+    </span><span class="attribute">#[corresponds(DSA_SIG_get0)]
+    </span><span class="kw">pub fn </span>s(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BigNumRef {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>s = ptr::null();
+            DSA_SIG_get0(<span class="self">self</span>.as_ptr(), ptr::null_mut(), <span class="kw-2">&amp;mut </span>s);
+            BigNumRef::from_const_ptr(s)
+        }
+    }
+}
+
+<span class="macro">cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(any(ossl110, libressl273))] </span>{
+        <span class="kw">use </span>ffi::{DSA_SIG_set0, DSA_SIG_get0};
+    } <span class="kw">else </span>{
+        <span class="attribute">#[allow(bad_style)]
+        </span><span class="kw">unsafe fn </span>DSA_SIG_set0(
+            sig: <span class="kw-2">*mut </span>ffi::DSA_SIG,
+            r: <span class="kw-2">*mut </span>ffi::BIGNUM,
+            s: <span class="kw-2">*mut </span>ffi::BIGNUM,
+        ) -&gt; c_int {
+            <span class="kw">if </span>r.is_null() || s.is_null() {
+                <span class="kw">return </span><span class="number">0</span>;
+            }
+            ffi::BN_clear_free((<span class="kw-2">*</span>sig).r);
+            ffi::BN_clear_free((<span class="kw-2">*</span>sig).s);
+            (<span class="kw-2">*</span>sig).r = r;
+            (<span class="kw-2">*</span>sig).s = s;
+            <span class="number">1
+        </span>}
+
+        <span class="attribute">#[allow(bad_style)]
+        </span><span class="kw">unsafe fn </span>DSA_SIG_get0(
+            sig: <span class="kw-2">*const </span>ffi::DSA_SIG,
+            pr: <span class="kw-2">*mut *const </span>ffi::BIGNUM,
+            ps: <span class="kw-2">*mut *const </span>ffi::BIGNUM)
+        {
+            <span class="kw">if </span>!pr.is_null() {
+                (<span class="kw-2">*</span>pr) = (<span class="kw-2">*</span>sig).r;
+            }
+            <span class="kw">if </span>!ps.is_null() {
+                (<span class="kw-2">*</span>ps) = (<span class="kw-2">*</span>sig).s;
+            }
+        }
+    }
+}
+
 <span class="attribute">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -898,10 +1245,51 @@
     }
 
     <span class="attribute">#[test]
+    #[cfg(not(boringssl))]
+    </span><span class="kw">fn </span>test_signature_der() {
+        <span class="kw">use </span>std::convert::TryInto;
+
+        <span class="kw">const </span>TEST_DATA: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
+        <span class="kw">let </span>dsa_ref = Dsa::generate(<span class="number">1024</span>).unwrap();
+
+        <span class="kw">let </span>pub_key: PKey&lt;<span class="kw">_</span>&gt; = dsa_ref.clone().try_into().unwrap();
+        <span class="kw">let </span>priv_key: PKey&lt;<span class="kw">_</span>&gt; = dsa_ref.try_into().unwrap();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>signer = Signer::new(MessageDigest::sha256(), <span class="kw-2">&amp;</span>priv_key).unwrap();
+        signer.update(TEST_DATA).unwrap();
+
+        <span class="kw">let </span>signature = signer.sign_to_vec().unwrap();
+        <span class="macro">eprintln!</span>(<span class="string">&quot;{:?}&quot;</span>, signature);
+        <span class="kw">let </span>signature = DsaSig::from_der(<span class="kw-2">&amp;</span>signature).unwrap();
+
+        <span class="kw">let </span>r = BigNum::from_slice(<span class="kw-2">&amp;</span>signature.r().to_vec()).unwrap();
+        <span class="kw">let </span>s = BigNum::from_slice(<span class="kw-2">&amp;</span>signature.s().to_vec()).unwrap();
+
+        <span class="kw">let </span>signature = DsaSig::from_private_components(r, s).unwrap();
+        <span class="kw">let </span>signature = signature.to_der().unwrap();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>verifier = Verifier::new(MessageDigest::sha256(), <span class="kw-2">&amp;</span>pub_key).unwrap();
+        verifier.update(TEST_DATA).unwrap();
+        <span class="macro">assert!</span>(verifier.verify(<span class="kw-2">&amp;</span>signature[..]).unwrap());
+    }
+
+    <span class="attribute">#[test]
     #[allow(clippy::redundant_clone)]
     </span><span class="kw">fn </span>clone() {
         <span class="kw">let </span>key = Dsa::generate(<span class="number">2048</span>).unwrap();
         drop(key.clone());
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>dsa_sig_debug() {
+        <span class="kw">let </span>sig = DsaSig::from_der(<span class="kw-2">&amp;</span>[
+            <span class="number">48</span>, <span class="number">46</span>, <span class="number">2</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">135</span>, <span class="number">169</span>, <span class="number">24</span>, <span class="number">58</span>, <span class="number">153</span>, <span class="number">37</span>, <span class="number">175</span>, <span class="number">248</span>, <span class="number">200</span>, <span class="number">45</span>, <span class="number">251</span>, <span class="number">112</span>, <span class="number">238</span>, <span class="number">238</span>, <span class="number">89</span>,
+            <span class="number">172</span>, <span class="number">177</span>, <span class="number">182</span>, <span class="number">166</span>, <span class="number">237</span>, <span class="number">2</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">159</span>, <span class="number">146</span>, <span class="number">151</span>, <span class="number">237</span>, <span class="number">187</span>, <span class="number">8</span>, <span class="number">82</span>, <span class="number">115</span>, <span class="number">14</span>, <span class="number">183</span>, <span class="number">103</span>,
+            <span class="number">12</span>, <span class="number">203</span>, <span class="number">46</span>, <span class="number">161</span>, <span class="number">208</span>, <span class="number">251</span>, <span class="number">167</span>, <span class="number">123</span>, <span class="number">131</span>,
+        ])
+        .unwrap();
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, sig);
+        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;DsaSig { r: 774484690634577222213819810519929266740561094381, s: 910998676210681457251421818099943952372231273347 }&quot;</span>);
     }
 }
 </code></pre></div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.22/src/datetime/serde.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.23/src/datetime/serde.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>serde.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1145,7 +1145,12 @@
 <span id="1145">1145</span>
 <span id="1146">1146</span>
 <span id="1147">1147</span>
-</pre><pre class="rust"><code><span class="kw">use </span>core::fmt;
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;serde&quot;</span>)))]
+
+</span><span class="kw">use </span>core::fmt;
 <span class="kw">use </span>serde::{de, ser};
 
 <span class="kw">use </span><span class="kw">super</span>::DateTime;
@@ -1250,6 +1255,7 @@
 /// See [the `serde` module](./serde/index.html) for alternate
 /// serialization formats.
 </span><span class="attribute">#[cfg(feature = <span class="string">&quot;clock&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;clock&quot;</span>)))]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>DateTime&lt;Local&gt; {
     <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
     <span class="kw">where
@@ -1266,7 +1272,7 @@
 /// # Example:
 ///
 /// ```rust
-/// # use chrono::{TimeZone, DateTime, Utc};
+/// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
 /// # use serde_derive::{Deserialize, Serialize};
 /// use chrono::serde::ts_nanoseconds;
 /// #[derive(Deserialize, Serialize)]
@@ -1275,7 +1281,7 @@
 ///     time: DateTime&lt;Utc&gt;
 /// }
 ///
-/// let time = Utc.ymd(2018, 5, 17).and_hms_nano(02, 04, 59, 918355733);
+/// let time = NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_nano_opt(02, 04, 59, 918355733).unwrap().and_local_timezone(Utc).unwrap();
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -1302,7 +1308,7 @@
     /// # Example:
     ///
     /// ```rust
-    /// # use chrono::{TimeZone, DateTime, Utc};
+    /// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
     /// # use serde_derive::Serialize;
     /// use chrono::serde::ts_nanoseconds::serialize as to_nano_ts;
     /// #[derive(Serialize)]
@@ -1312,7 +1318,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Utc.ymd(2018, 5, 17).and_hms_nano(02, 04, 59, 918355733),
+    ///     time: NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_nano_opt(02, 04, 59, 918355733).unwrap().and_local_timezone(Utc).unwrap(),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1526522699918355733}&quot;#);
@@ -1389,7 +1395,7 @@
 /// # Example:
 ///
 /// ```rust
-/// # use chrono::{TimeZone, DateTime, Utc};
+/// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
 /// # use serde_derive::{Deserialize, Serialize};
 /// use chrono::serde::ts_nanoseconds_option;
 /// #[derive(Deserialize, Serialize)]
@@ -1398,7 +1404,7 @@
 ///     time: Option&lt;DateTime&lt;Utc&gt;&gt;
 /// }
 ///
-/// let time = Some(Utc.ymd(2018, 5, 17).and_hms_nano(02, 04, 59, 918355733));
+/// let time = Some(NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_nano_opt(02, 04, 59, 918355733).unwrap().and_local_timezone(Utc).unwrap());
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -1424,7 +1430,7 @@
     /// # Example:
     ///
     /// ```rust
-    /// # use chrono::{TimeZone, DateTime, Utc};
+    /// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
     /// # use serde_derive::Serialize;
     /// use chrono::serde::ts_nanoseconds_option::serialize as to_nano_tsopt;
     /// #[derive(Serialize)]
@@ -1434,7 +1440,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Some(Utc.ymd(2018, 5, 17).and_hms_nano(02, 04, 59, 918355733)),
+    ///     time: Some(NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_nano_opt(02, 04, 59, 918355733).unwrap().and_local_timezone(Utc).unwrap()),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1526522699918355733}&quot;#);
@@ -1518,7 +1524,7 @@
 /// # Example:
 ///
 /// ```rust
-/// # use chrono::{TimeZone, DateTime, Utc};
+/// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
 /// # use serde_derive::{Deserialize, Serialize};
 /// use chrono::serde::ts_microseconds;
 /// #[derive(Deserialize, Serialize)]
@@ -1527,7 +1533,7 @@
 ///     time: DateTime&lt;Utc&gt;
 /// }
 ///
-/// let time = Utc.ymd(2018, 5, 17).and_hms_micro(02, 04, 59, 918355);
+/// let time = NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_micro_opt(02, 04, 59, 918355).unwrap().and_local_timezone(Utc).unwrap();
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -1553,7 +1559,7 @@
     /// # Example:
     ///
     /// ```rust
-    /// # use chrono::{TimeZone, DateTime, Utc};
+    /// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
     /// # use serde_derive::Serialize;
     /// use chrono::serde::ts_microseconds::serialize as to_micro_ts;
     /// #[derive(Serialize)]
@@ -1563,7 +1569,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Utc.ymd(2018, 5, 17).and_hms_micro(02, 04, 59, 918355),
+    ///     time: NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_micro_opt(02, 04, 59, 918355).unwrap().and_local_timezone(Utc).unwrap(),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1526522699918355}&quot;#);
@@ -1640,7 +1646,7 @@
 /// # Example:
 ///
 /// ```rust
-/// # use chrono::{TimeZone, DateTime, Utc};
+/// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
 /// # use serde_derive::{Deserialize, Serialize};
 /// use chrono::serde::ts_microseconds_option;
 /// #[derive(Deserialize, Serialize)]
@@ -1649,7 +1655,7 @@
 ///     time: Option&lt;DateTime&lt;Utc&gt;&gt;
 /// }
 ///
-/// let time = Some(Utc.ymd(2018, 5, 17).and_hms_micro(02, 04, 59, 918355));
+/// let time = Some(NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_micro_opt(02, 04, 59, 918355).unwrap().and_local_timezone(Utc).unwrap());
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -1674,7 +1680,7 @@
     /// # Example:
     ///
     /// ```rust
-    /// # use chrono::{TimeZone, DateTime, Utc};
+    /// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
     /// # use serde_derive::Serialize;
     /// use chrono::serde::ts_microseconds_option::serialize as to_micro_tsopt;
     /// #[derive(Serialize)]
@@ -1684,7 +1690,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Some(Utc.ymd(2018, 5, 17).and_hms_micro(02, 04, 59, 918355)),
+    ///     time: Some(NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_micro_opt(02, 04, 59, 918355).unwrap().and_local_timezone(Utc).unwrap()),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1526522699918355}&quot;#);
@@ -1768,7 +1774,7 @@
 /// # Example
 ///
 /// ```rust
-/// # use chrono::{TimeZone, DateTime, Utc};
+/// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
 /// # use serde_derive::{Deserialize, Serialize};
 /// use chrono::serde::ts_milliseconds;
 /// #[derive(Deserialize, Serialize)]
@@ -1777,7 +1783,7 @@
 ///     time: DateTime&lt;Utc&gt;
 /// }
 ///
-/// let time = Utc.ymd(2018, 5, 17).and_hms_milli(02, 04, 59, 918);
+/// let time = NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_milli_opt(02, 04, 59, 918).unwrap().and_local_timezone(Utc).unwrap();
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -1803,7 +1809,7 @@
     /// # Example:
     ///
     /// ```rust
-    /// # use chrono::{TimeZone, DateTime, Utc};
+    /// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
     /// # use serde_derive::Serialize;
     /// use chrono::serde::ts_milliseconds::serialize as to_milli_ts;
     /// #[derive(Serialize)]
@@ -1813,7 +1819,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Utc.ymd(2018, 5, 17).and_hms_milli(02, 04, 59, 918),
+    ///     time: NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_milli_opt(02, 04, 59, 918).unwrap().and_local_timezone(Utc).unwrap(),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1526522699918}&quot;#);
@@ -1887,7 +1893,7 @@
 /// # Example
 ///
 /// ```rust
-/// # use chrono::{TimeZone, DateTime, Utc};
+/// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
 /// # use serde_derive::{Deserialize, Serialize};
 /// use chrono::serde::ts_milliseconds_option;
 /// #[derive(Deserialize, Serialize)]
@@ -1896,7 +1902,7 @@
 ///     time: Option&lt;DateTime&lt;Utc&gt;&gt;
 /// }
 ///
-/// let time = Some(Utc.ymd(2018, 5, 17).and_hms_milli(02, 04, 59, 918));
+/// let time = Some(NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_milli_opt(02, 04, 59, 918).unwrap().and_local_timezone(Utc).unwrap());
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -1921,7 +1927,7 @@
     /// # Example:
     ///
     /// ```rust
-    /// # use chrono::{TimeZone, DateTime, Utc};
+    /// # use chrono::{TimeZone, DateTime, Utc, NaiveDate};
     /// # use serde_derive::Serialize;
     /// use chrono::serde::ts_milliseconds_option::serialize as to_milli_tsopt;
     /// #[derive(Serialize)]
@@ -1931,7 +1937,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Some(Utc.ymd(2018, 5, 17).and_hms_milli(02, 04, 59, 918)),
+    ///     time: Some(NaiveDate::from_ymd_opt(2018, 5, 17).unwrap().and_hms_milli_opt(02, 04, 59, 918).unwrap().and_local_timezone(Utc).unwrap()),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1526522699918}&quot;#);
@@ -2037,7 +2043,7 @@
 ///     time: DateTime&lt;Utc&gt;
 /// }
 ///
-/// let time = Utc.ymd(2015, 5, 15).and_hms(10, 0, 0);
+/// let time = Utc.with_ymd_and_hms(2015, 5, 15, 10, 0, 0).unwrap();
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -2073,7 +2079,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Utc.ymd(2015, 5, 15).and_hms(10, 0, 0),
+    ///     time: Utc.with_ymd_and_hms(2015, 5, 15, 10, 0, 0).unwrap(),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1431684000}&quot;#);
@@ -2153,7 +2159,7 @@
 ///     time: Option&lt;DateTime&lt;Utc&gt;&gt;
 /// }
 ///
-/// let time = Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0));
+/// let time = Some(Utc.with_ymd_and_hms(2015, 5, 15, 10, 0, 0).unwrap());
 /// let my_s = S {
 ///     time: time.clone(),
 /// };
@@ -2188,7 +2194,7 @@
     /// }
     ///
     /// let my_s = S {
-    ///     time: Some(Utc.ymd(2015, 5, 15).and_hms(10, 0, 0)),
+    ///     time: Some(Utc.with_ymd_and_hms(2015, 5, 15, 10, 0, 0).unwrap()),
     /// };
     /// let as_string = serde_json::to_string(&amp;my_s)?;
     /// assert_eq!(as_string, r#&quot;{&quot;time&quot;:1431684000}&quot;#);
@@ -2286,7 +2292,7 @@
     // it is not self-describing.
     </span><span class="kw">use </span>bincode::{deserialize, serialize};
 
-    <span class="kw">let </span>dt = Utc.ymd(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>).and_hms(<span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>);
+    <span class="kw">let </span>dt = Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap();
     <span class="kw">let </span>encoded = serialize(<span class="kw-2">&amp;</span>dt).unwrap();
     <span class="kw">let </span>decoded: DateTime&lt;Utc&gt; = deserialize(<span class="kw-2">&amp;</span>encoded).unwrap();
     <span class="macro">assert_eq!</span>(dt, decoded);

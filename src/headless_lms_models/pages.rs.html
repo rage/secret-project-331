@@ -6461,7 +6461,7 @@ WHERE pages.order_number = $1
             score_maximum: <span class="number">1</span>,
             max_tries_per_slide: <span class="prelude-val">None</span>,
             limit_number_of_tries: <span class="bool-val">false</span>,
-            deadline: <span class="prelude-val">Some</span>(Utc.ymd(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+            deadline: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
             needs_peer_review: <span class="bool-val">false</span>,
             peer_review_config: <span class="prelude-val">None</span>,
             peer_review_questions: <span class="prelude-val">None</span>,

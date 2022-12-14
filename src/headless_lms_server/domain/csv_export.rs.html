@@ -979,7 +979,7 @@ HttpResponse::Ok()
         format!(
             &quot;attachment; filename=\&quot;Exam: {} - Submissions {}.csv\&quot;&quot;,
             exam.name,
-            Utc::today().format(&quot;%Y-%m-%d&quot;)
+            Utc::now().format(&quot;%Y-%m-%d&quot;)
         ),
     ))
     .streaming(make_authorized_streamable(UnboundedReceiverStream::new(

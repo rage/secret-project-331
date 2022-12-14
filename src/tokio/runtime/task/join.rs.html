@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/runtime/task/join.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>join.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.23.0/src/runtime/task/join.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>join.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -330,24 +330,7 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::runtime::task::{Id, RawTask};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::runtime::task::{Header, RawTask};
 
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
@@ -359,8 +342,10 @@
 <span class="macro">cfg_rt! </span>{
     <span class="doccomment">/// An owned permission to join on a task (await its termination).
     ///
-    /// This can be thought of as the equivalent of [`std::thread::JoinHandle`] for
-    /// a task rather than a thread.
+    /// This can be thought of as the equivalent of [`std::thread::JoinHandle`]
+    /// for a Tokio task rather than a thread. You do not need to `.await` the
+    /// `JoinHandle` to make the task execute — it will start running in the
+    /// background immediately.
     ///
     /// A `JoinHandle` *detaches* the associated task when it is dropped, which
     /// means that there is no longer any handle to the task, and no way to `join`
@@ -501,8 +486,7 @@
     /// [`std::thread::JoinHandle`]: std::thread::JoinHandle
     /// [`JoinError`]: crate::task::JoinError
     </span><span class="kw">pub struct </span>JoinHandle&lt;T&gt; {
-        raw: <span class="prelude-ty">Option</span>&lt;RawTask&gt;,
-        id: Id,
+        raw: RawTask,
         _p: PhantomData&lt;T&gt;,
     }
 }
@@ -514,10 +498,9 @@
 <span class="kw">impl</span>&lt;T&gt; RefUnwindSafe <span class="kw">for </span>JoinHandle&lt;T&gt; {}
 
 <span class="kw">impl</span>&lt;T&gt; JoinHandle&lt;T&gt; {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(raw: RawTask, id: Id) -&gt; JoinHandle&lt;T&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(raw: RawTask) -&gt; JoinHandle&lt;T&gt; {
         JoinHandle {
-            raw: <span class="prelude-val">Some</span>(raw),
-            id,
+            raw,
             _p: PhantomData,
         }
     }
@@ -556,9 +539,7 @@
     /// ```
     /// [cancelled]: method@super::error::JoinError::is_cancelled
     </span><span class="kw">pub fn </span>abort(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(raw) = <span class="self">self</span>.raw {
-            raw.remote_abort();
-        }
+        <span class="self">self</span>.raw.remote_abort();
     }
 
     <span class="doccomment">/// Checks if the task associated with this `JoinHandle` has finished.
@@ -590,31 +571,22 @@
     /// ```
     /// [`abort`]: method@JoinHandle::abort
     </span><span class="kw">pub fn </span>is_finished(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(raw) = <span class="self">self</span>.raw {
-            <span class="kw">let </span>state = raw.header().state.load();
-            state.is_complete()
-        } <span class="kw">else </span>{
-            <span class="bool-val">true
-        </span>}
+        <span class="kw">let </span>state = <span class="self">self</span>.raw.header().state.load();
+        state.is_complete()
     }
 
     <span class="doccomment">/// Set the waker that is notified when the task completes.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_join_waker(<span class="kw-2">&amp;mut </span><span class="self">self</span>, waker: <span class="kw-2">&amp;</span>Waker) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(raw) = <span class="self">self</span>.raw {
-            <span class="kw">if </span>raw.try_set_join_waker(waker) {
-                <span class="comment">// In this case the task has already completed. We wake the waker immediately.
-                </span>waker.wake_by_ref();
-            }
+        <span class="kw">if </span><span class="self">self</span>.raw.try_set_join_waker(waker) {
+            <span class="comment">// In this case the task has already completed. We wake the waker immediately.
+            </span>waker.wake_by_ref();
         }
     }
 
     <span class="doccomment">/// Returns a new `AbortHandle` that can be used to remotely abort this task.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>abort_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::AbortHandle {
-        <span class="kw">let </span>raw = <span class="self">self</span>.raw.map(|raw| {
-            raw.ref_inc();
-            raw
-        });
-        <span class="kw">super</span>::AbortHandle::new(raw, <span class="self">self</span>.id.clone())
+        <span class="self">self</span>.raw.ref_inc();
+        <span class="kw">super</span>::AbortHandle::new(<span class="self">self</span>.raw)
     }
 
     <span class="doccomment">/// Returns a [task ID] that uniquely identifies this task relative to other
@@ -629,7 +601,8 @@
     </span><span class="attribute">#[cfg(tokio_unstable)]
     #[cfg_attr(docsrs, doc(cfg(tokio_unstable)))]
     </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::Id {
-        <span class="self">self</span>.id.clone()
+        <span class="comment">// Safety: The header pointer is valid.
+        </span><span class="kw">unsafe </span>{ Header::get_id(<span class="self">self</span>.raw.header_ptr()) }
     }
 }
 
@@ -642,14 +615,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ret = Poll::Pending;
 
         <span class="comment">// Keep track of task budget
-        </span><span class="kw">let </span>coop = <span class="macro">ready!</span>(<span class="kw">crate</span>::coop::poll_proceed(cx));
-
-        <span class="comment">// Raw should always be set. If it is not, this is due to polling after
-        // completion
-        </span><span class="kw">let </span>raw = <span class="self">self
-            </span>.raw
-            .as_ref()
-            .expect(<span class="string">&quot;polling after `JoinHandle` already completed&quot;</span>);
+        </span><span class="kw">let </span>coop = <span class="macro">ready!</span>(<span class="kw">crate</span>::runtime::coop::poll_proceed(cx));
 
         <span class="comment">// Try to read the task output. If the task is not yet complete, the
         // waker is stored and is notified once the task does complete.
@@ -663,7 +629,8 @@
         //
         // The type of `T` must match the task&#39;s output type.
         </span><span class="kw">unsafe </span>{
-            raw.try_read_output(<span class="kw-2">&amp;mut </span>ret <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span>(), cx.waker());
+            <span class="self">self</span>.raw
+                .try_read_output(<span class="kw-2">&amp;mut </span>ret <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span>(), cx.waker());
         }
 
         <span class="kw">if </span>ret.is_ready() {
@@ -676,13 +643,11 @@
 
 <span class="kw">impl</span>&lt;T&gt; Drop <span class="kw">for </span>JoinHandle&lt;T&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(raw) = <span class="self">self</span>.raw.take() {
-            <span class="kw">if </span>raw.header().state.drop_join_handle_fast().is_ok() {
-                <span class="kw">return</span>;
-            }
-
-            raw.drop_join_handle_slow();
+        <span class="kw">if </span><span class="self">self</span>.raw.state().drop_join_handle_fast().is_ok() {
+            <span class="kw">return</span>;
         }
+
+        <span class="self">self</span>.raw.drop_join_handle_slow();
     }
 }
 
@@ -691,9 +656,10 @@
     </span>T: fmt::Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        fmt.debug_struct(<span class="string">&quot;JoinHandle&quot;</span>)
-            .field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id)
-            .finish()
+        <span class="comment">// Safety: The header pointer is valid.
+        </span><span class="kw">let </span>id_ptr = <span class="kw">unsafe </span>{ Header::get_id_ptr(<span class="self">self</span>.raw.header_ptr()) };
+        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ id_ptr.as_ref() };
+        fmt.debug_struct(<span class="string">&quot;JoinHandle&quot;</span>).field(<span class="string">&quot;id&quot;</span>, id).finish()
     }
 }
 </code></pre></div>

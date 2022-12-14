@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/async_impl/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.13/src/async_impl/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -2085,6 +2085,51 @@
 <span id="2085">2085</span>
 <span id="2086">2086</span>
 <span id="2087">2087</span>
+<span id="2088">2088</span>
+<span id="2089">2089</span>
+<span id="2090">2090</span>
+<span id="2091">2091</span>
+<span id="2092">2092</span>
+<span id="2093">2093</span>
+<span id="2094">2094</span>
+<span id="2095">2095</span>
+<span id="2096">2096</span>
+<span id="2097">2097</span>
+<span id="2098">2098</span>
+<span id="2099">2099</span>
+<span id="2100">2100</span>
+<span id="2101">2101</span>
+<span id="2102">2102</span>
+<span id="2103">2103</span>
+<span id="2104">2104</span>
+<span id="2105">2105</span>
+<span id="2106">2106</span>
+<span id="2107">2107</span>
+<span id="2108">2108</span>
+<span id="2109">2109</span>
+<span id="2110">2110</span>
+<span id="2111">2111</span>
+<span id="2112">2112</span>
+<span id="2113">2113</span>
+<span id="2114">2114</span>
+<span id="2115">2115</span>
+<span id="2116">2116</span>
+<span id="2117">2117</span>
+<span id="2118">2118</span>
+<span id="2119">2119</span>
+<span id="2120">2120</span>
+<span id="2121">2121</span>
+<span id="2122">2122</span>
+<span id="2123">2123</span>
+<span id="2124">2124</span>
+<span id="2125">2125</span>
+<span id="2126">2126</span>
+<span id="2127">2127</span>
+<span id="2128">2128</span>
+<span id="2129">2129</span>
+<span id="2130">2130</span>
+<span id="2131">2131</span>
+<span id="2132">2132</span>
 </pre><pre class="rust"><code><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;__rustls&quot;</span>,))]
 </span><span class="kw">use </span>std::any::Any;
 <span class="kw">use </span>std::net::IpAddr;
@@ -2100,7 +2145,7 @@
 };
 <span class="kw">use </span>http::uri::Scheme;
 <span class="kw">use </span>http::Uri;
-<span class="kw">use </span>hyper::client::ResponseFuture;
+<span class="kw">use </span>hyper::client::{HttpConnector, ResponseFuture};
 <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls-crate&quot;</span>)]
 </span><span class="kw">use </span>native_tls_crate::TlsConnector;
 <span class="kw">use </span>pin_project_lite::pin_project;
@@ -2115,9 +2160,12 @@
 <span class="kw">use </span><span class="kw">super</span>::request::{Request, RequestBuilder};
 <span class="kw">use </span><span class="kw">super</span>::response::Response;
 <span class="kw">use </span><span class="kw">super</span>::Body;
-<span class="kw">use </span><span class="kw">crate</span>::connect::{Connector, HttpConnector};
+<span class="kw">use </span><span class="kw">crate</span>::connect::Connector;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cookie;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;trust-dns&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::dns::trust_dns::TrustDnsResolver;
+<span class="kw">use </span><span class="kw">crate</span>::dns::{gai::GaiResolver, DnsResolverWithOverrides, DynResolver, Resolve};
 <span class="kw">use </span><span class="kw">crate</span>::error;
 <span class="kw">use </span><span class="kw">crate</span>::into_url::{expect_uri, try_uri};
 <span class="kw">use </span><span class="kw">crate</span>::redirect::{<span class="self">self</span>, remove_sensitive_headers};
@@ -2167,6 +2215,8 @@
     </span>hostname_verification: bool,
     <span class="attribute">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
     </span>certs_verification: bool,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
+    </span>tls_sni: bool,
     connect_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     connection_verbose: bool,
     pool_idle_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
@@ -2208,6 +2258,7 @@
     error: <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::Error&gt;,
     https_only: bool,
     dns_overrides: HashMap&lt;String, Vec&lt;SocketAddr&gt;&gt;,
+    dns_resolver: <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>Resolve&gt;&gt;,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>ClientBuilder {
@@ -2233,6 +2284,8 @@
                 </span>hostname_verification: <span class="bool-val">true</span>,
                 <span class="attribute">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
                 </span>certs_verification: <span class="bool-val">true</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
+                </span>tls_sni: <span class="bool-val">true</span>,
                 connect_timeout: <span class="prelude-val">None</span>,
                 connection_verbose: <span class="bool-val">false</span>,
                 pool_idle_timeout: <span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">90</span>)),
@@ -2275,6 +2328,7 @@
                 </span>cookie_store: <span class="prelude-val">None</span>,
                 https_only: <span class="bool-val">false</span>,
                 dns_overrides: HashMap::new(),
+                dns_resolver: <span class="prelude-val">None</span>,
             },
         }
     }
@@ -2304,25 +2358,23 @@
                 headers.get(USER_AGENT).cloned()
             }
 
-            <span class="kw">let </span>http = <span class="kw">match </span>config.trust_dns {
-                <span class="bool-val">false </span>=&gt; {
-                    <span class="kw">if </span>config.dns_overrides.is_empty() {
-                        HttpConnector::new_gai()
-                    } <span class="kw">else </span>{
-                        HttpConnector::new_gai_with_overrides(config.dns_overrides)
-                    }
-                }
+            <span class="kw">let </span><span class="kw-2">mut </span>resolver: Arc&lt;<span class="kw">dyn </span>Resolve&gt; = <span class="kw">match </span>config.trust_dns {
+                <span class="bool-val">false </span>=&gt; Arc::new(GaiResolver::new()),
                 <span class="attribute">#[cfg(feature = <span class="string">&quot;trust-dns&quot;</span>)]
-                </span><span class="bool-val">true </span>=&gt; {
-                    <span class="kw">if </span>config.dns_overrides.is_empty() {
-                        HttpConnector::new_trust_dns()<span class="question-mark">?
-                    </span>} <span class="kw">else </span>{
-                        HttpConnector::new_trust_dns_with_overrides(config.dns_overrides)<span class="question-mark">?
-                    </span>}
-                }
+                </span><span class="bool-val">true </span>=&gt; Arc::new(TrustDnsResolver::new().map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?</span>),
                 <span class="attribute">#[cfg(not(feature = <span class="string">&quot;trust-dns&quot;</span>))]
                 </span><span class="bool-val">true </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;trust-dns shouldn&#39;t be enabled unless the feature is&quot;</span>),
             };
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(dns_resolver) = config.dns_resolver {
+                resolver = dns_resolver;
+            }
+            <span class="kw">if </span>!config.dns_overrides.is_empty() {
+                resolver = Arc::new(DnsResolverWithOverrides::new(
+                    resolver,
+                    config.dns_overrides,
+                ));
+            }
+            <span class="kw">let </span>http = HttpConnector::new_with_resolver(DynResolver::new(resolver));
 
             <span class="attribute">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
             </span><span class="kw">match </span>config.tls {
@@ -2351,6 +2403,8 @@
                     }
 
                     tls.danger_accept_invalid_certs(!config.certs_verification);
+
+                    tls.use_sni(config.tls_sni);
 
                     tls.disable_built_in_roots(!config.tls_built_in_root_certs);
 
@@ -2512,6 +2566,8 @@
                         tls.dangerous()
                             .set_certificate_verifier(Arc::new(NoVerifier));
                     }
+
+                    tls.enable_sni = config.tls_sni;
 
                     <span class="comment">// ALPN protocol
                     </span><span class="kw">match </span>config.http_version_pref {
@@ -3224,6 +3280,28 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Controls the use of TLS server name indication.
+    ///
+    /// Defaults to `true`.
+    ///
+    /// # Optional
+    ///
+    /// This requires the optional `default-tls`, `native-tls`, or `rustls-tls(-...)`
+    /// feature to be enabled.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(
+            feature = <span class="string">&quot;default-tls&quot;</span>,
+            feature = <span class="string">&quot;native-tls&quot;</span>,
+            feature = <span class="string">&quot;rustls-tls&quot;
+        </span>)))
+    )]
+    </span><span class="kw">pub fn </span>tls_sni(<span class="kw-2">mut </span><span class="self">self</span>, tls_sni: bool) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.tls_sni = tls_sni;
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Set the minimum required TLS version for connections.
     ///
     /// By default the TLS backend&#39;s own default is used.
@@ -3425,6 +3503,16 @@
         <span class="self">self</span>.config
             .dns_overrides
             .insert(domain.to_string(), addrs.to_vec());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Override the DNS resolver implementation.
+    ///
+    /// Pass an `Arc` wrapping a trait object implementing `Resolve`.
+    /// Overrides for specific names passed to `resolve` and `resolve_to_addrs` will
+    /// still be applied on top of this resolver.
+    </span><span class="kw">pub fn </span>dns_resolver&lt;R: Resolve + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, resolver: Arc&lt;R&gt;) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.dns_resolver = <span class="prelude-val">Some</span>(resolver <span class="kw">as _</span>);
         <span class="self">self
     </span>}
 }
@@ -3780,6 +3868,8 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>max_tls_version) = <span class="self">self</span>.max_tls_version {
                 f.field(<span class="string">&quot;max_tls_version&quot;</span>, max_tls_version);
             }
+
+            f.field(<span class="string">&quot;tls_sni&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tls_sni);
         }
 
         <span class="attribute">#[cfg(all(feature = <span class="string">&quot;native-tls-crate&quot;</span>, feature = <span class="string">&quot;__rustls&quot;</span>))]

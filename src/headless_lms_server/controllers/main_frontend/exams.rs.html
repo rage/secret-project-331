@@ -349,7 +349,7 @@ GET `/api/v0/main-frontend/exams/:id/export-points`
                 <span class="macro">format!</span>(
                     <span class="string">&quot;attachment; filename=\&quot;Exam: {} - Point export {}.csv\&quot;&quot;</span>,
                     exam.name,
-                    Utc::today().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+                    Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
@@ -401,7 +401,7 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
                 <span class="macro">format!</span>(
                     <span class="string">&quot;attachment; filename=\&quot;Exam: {} - Submissions {}.csv\&quot;&quot;</span>,
                     exam.name,
-                    Utc::today().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+                    Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(

@@ -2589,7 +2589,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
         T,
         Vec,
         StudyRegistryCompletion {
-            completion_date: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            completion_date: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
             completion_language: <span class="string">&quot;en-US&quot;</span>.to_string(),
             completion_registration_attempt_date: <span class="prelude-val">None</span>,
             email: <span class="string">&quot;student@example.com&quot;</span>.to_string(),
@@ -2796,8 +2796,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
     <span class="macro">doc!</span>(CourseBackgroundQuestionsAndAnswers {
         background_questions: <span class="macro">vec!</span>[CourseBackgroundQuestion {
             id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
-            created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            created_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
             deleted_at: <span class="prelude-val">None</span>,
             course_instance_id: <span class="prelude-val">Some</span>(Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap()),
             course_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
@@ -2806,8 +2806,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
         }],
         answers: <span class="macro">vec!</span>[CourseBackgroundQuestionAnswer {
             id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
-            created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            created_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
             deleted_at: <span class="prelude-val">None</span>,
             user_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
             answer_value: <span class="prelude-val">Some</span>(<span class="string">&quot;yes&quot;</span>.to_string()),

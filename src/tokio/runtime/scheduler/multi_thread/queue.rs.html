@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/runtime/scheduler/multi_thread/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../tokio/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.23.0/src/runtime/scheduler/multi_thread/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../tokio/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -509,17 +509,53 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Run-queue structures to support a work-stealing scheduler
 
 </span><span class="kw">use </span><span class="kw">crate</span>::loom::cell::UnsafeCell;
-<span class="kw">use </span><span class="kw">crate</span>::loom::sync::atomic::{AtomicU16, AtomicU32};
 <span class="kw">use </span><span class="kw">crate</span>::loom::sync::Arc;
 <span class="kw">use </span><span class="kw">crate</span>::runtime::task::{<span class="self">self</span>, Inject};
 <span class="kw">use </span><span class="kw">crate</span>::runtime::MetricsBatch;
 
-<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>std::mem::{<span class="self">self</span>, MaybeUninit};
 <span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release};
+
+<span class="comment">// Use wider integers when possible to increase ABA resilience.
+//
+// See issue #5041: &lt;https://github.com/tokio-rs/tokio/issues/5041&gt;.
+</span><span class="macro">cfg_has_atomic_u64! </span>{
+    <span class="kw">type </span>UnsignedShort = u32;
+    <span class="kw">type </span>UnsignedLong = u64;
+    <span class="kw">type </span>AtomicUnsignedShort = <span class="kw">crate</span>::loom::sync::atomic::AtomicU32;
+    <span class="kw">type </span>AtomicUnsignedLong = <span class="kw">crate</span>::loom::sync::atomic::AtomicU64;
+}
+<span class="macro">cfg_not_has_atomic_u64! </span>{
+    <span class="kw">type </span>UnsignedShort = u16;
+    <span class="kw">type </span>UnsignedLong = u32;
+    <span class="kw">type </span>AtomicUnsignedShort = <span class="kw">crate</span>::loom::sync::atomic::AtomicU16;
+    <span class="kw">type </span>AtomicUnsignedLong = <span class="kw">crate</span>::loom::sync::atomic::AtomicU32;
+}
 
 <span class="doccomment">/// Producer handle. May only be used from a single thread.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Local&lt;T: <span class="lifetime">&#39;static</span>&gt; {
@@ -532,19 +568,21 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Inner&lt;T: <span class="lifetime">&#39;static</span>&gt; {
     <span class="doccomment">/// Concurrently updated by many threads.
     ///
-    /// Contains two `u16` values. The LSB byte is the &quot;real&quot; head of the queue.
-    /// The `u16` in the MSB is set by a stealer in process of stealing values.
-    /// It represents the first value being stolen in the batch. `u16` is used
-    /// in order to distinguish between `head == tail` and `head == tail -
-    /// capacity`.
+    /// Contains two `UnsignedShort` values. The LSB byte is the &quot;real&quot; head of
+    /// the queue. The `UnsignedShort` in the MSB is set by a stealer in process
+    /// of stealing values. It represents the first value being stolen in the
+    /// batch. The `UnsignedShort` indices are intentionally wider than strictly
+    /// required for buffer indexing in order to provide ABA mitigation and make
+    /// it possible to distinguish between full and empty buffers.
     ///
-    /// When both `u16` values are the same, there is no active stealer.
+    /// When both `UnsignedShort` values are the same, there is no active
+    /// stealer.
     ///
     /// Tracking an in-progress stealer prevents a wrapping scenario.
-    </span>head: AtomicU32,
+    </span>head: AtomicUnsignedLong,
 
     <span class="doccomment">/// Only updated by producer thread but read by many threads.
-    </span>tail: AtomicU16,
+    </span>tail: AtomicUnsignedShort,
 
     <span class="doccomment">/// Elements
     </span>buffer: Box&lt;[UnsafeCell&lt;MaybeUninit&lt;task::Notified&lt;T&gt;&gt;&gt;; LOCAL_QUEUE_CAPACITY]&gt;,
@@ -584,8 +622,8 @@
     }
 
     <span class="kw">let </span>inner = Arc::new(Inner {
-        head: AtomicU32::new(<span class="number">0</span>),
-        tail: AtomicU16::new(<span class="number">0</span>),
+        head: AtomicUnsignedLong::new(<span class="number">0</span>),
+        tail: AtomicUnsignedShort::new(<span class="number">0</span>),
         buffer: make_fixed_size(buffer.into_boxed_slice()),
     });
 
@@ -626,7 +664,7 @@
             <span class="comment">// safety: this is the **only** thread that updates this cell.
             </span><span class="kw">let </span>tail = <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.tail.unsync_load() };
 
-            <span class="kw">if </span>tail.wrapping_sub(steal) &lt; LOCAL_QUEUE_CAPACITY <span class="kw">as </span>u16 {
+            <span class="kw">if </span>tail.wrapping_sub(steal) &lt; LOCAL_QUEUE_CAPACITY <span class="kw">as </span>UnsignedShort {
                 <span class="comment">// There is capacity for the task
                 </span><span class="kw">break </span>tail;
             } <span class="kw">else if </span>steal != real {
@@ -676,8 +714,8 @@
     </span><span class="kw">fn </span>push_overflow(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         task: task::Notified&lt;T&gt;,
-        head: u16,
-        tail: u16,
+        head: UnsignedShort,
+        tail: UnsignedShort,
         inject: <span class="kw-2">&amp;</span>Inject&lt;T&gt;,
         metrics: <span class="kw-2">&amp;mut </span>MetricsBatch,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), task::Notified&lt;T&gt;&gt; {
@@ -685,7 +723,7 @@
         ///
         /// This is one less than the number of tasks pushed to the inject
         /// queue as we are also inserting the `task` argument.
-        </span><span class="kw">const </span>NUM_TASKS_TAKEN: u16 = (LOCAL_QUEUE_CAPACITY / <span class="number">2</span>) <span class="kw">as </span>u16;
+        </span><span class="kw">const </span>NUM_TASKS_TAKEN: UnsignedShort = (LOCAL_QUEUE_CAPACITY / <span class="number">2</span>) <span class="kw">as </span>UnsignedShort;
 
         <span class="macro">assert_eq!</span>(
             tail.wrapping_sub(head) <span class="kw">as </span>usize,
@@ -730,15 +768,15 @@
         <span class="doccomment">/// An iterator that takes elements out of the run queue.
         </span><span class="kw">struct </span>BatchTaskIter&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static</span>&gt; {
             buffer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[UnsafeCell&lt;MaybeUninit&lt;task::Notified&lt;T&gt;&gt;&gt;; LOCAL_QUEUE_CAPACITY],
-            head: u32,
-            i: u32,
+            head: UnsignedLong,
+            i: UnsignedLong,
         }
         <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;static</span>&gt; Iterator <span class="kw">for </span>BatchTaskIter&lt;<span class="lifetime">&#39;a</span>, T&gt; {
             <span class="kw">type </span>Item = task::Notified&lt;T&gt;;
 
             <span class="attribute">#[inline]
             </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;task::Notified&lt;T&gt;&gt; {
-                <span class="kw">if </span><span class="self">self</span>.i == u32::from(NUM_TASKS_TAKEN) {
+                <span class="kw">if </span><span class="self">self</span>.i == UnsignedLong::from(NUM_TASKS_TAKEN) {
                     <span class="prelude-val">None
                 </span>} <span class="kw">else </span>{
                     <span class="kw">let </span>i_idx = <span class="self">self</span>.i.wrapping_add(<span class="self">self</span>.head) <span class="kw">as </span>usize &amp; MASK;
@@ -758,7 +796,7 @@
         // values again, and we are the only producer.
         </span><span class="kw">let </span>batch_iter = BatchTaskIter {
             buffer: <span class="kw-2">&amp;*</span><span class="self">self</span>.inner.buffer,
-            head: head <span class="kw">as </span>u32,
+            head: head <span class="kw">as </span>UnsignedLong,
             i: <span class="number">0</span>,
         };
         inject.push_batch(batch_iter.chain(std::iter::once(task)));
@@ -831,7 +869,7 @@
         // from `dst` there may not be enough capacity to steal.
         </span><span class="kw">let </span>(steal, <span class="kw">_</span>) = unpack(dst.inner.head.load(Acquire));
 
-        <span class="kw">if </span>dst_tail.wrapping_sub(steal) &gt; LOCAL_QUEUE_CAPACITY <span class="kw">as </span>u16 / <span class="number">2 </span>{
+        <span class="kw">if </span>dst_tail.wrapping_sub(steal) &gt; LOCAL_QUEUE_CAPACITY <span class="kw">as </span>UnsignedShort / <span class="number">2 </span>{
             <span class="comment">// we *could* try to steal less here, but for simplicity, we&#39;re just
             // going to abort.
             </span><span class="kw">return </span><span class="prelude-val">None</span>;
@@ -846,7 +884,7 @@
             </span><span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        dst_metrics.incr_steal_count(n);
+        dst_metrics.incr_steal_count(n <span class="kw">as </span>u16);
 
         <span class="comment">// We are returning a task here
         </span>n -= <span class="number">1</span>;
@@ -871,7 +909,7 @@
 
     <span class="comment">// Steal tasks from `self`, placing them into `dst`. Returns the number of
     // tasks that were stolen.
-    </span><span class="kw">fn </span>steal_into2(<span class="kw-2">&amp;</span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>Local&lt;T&gt;, dst_tail: u16) -&gt; u16 {
+    </span><span class="kw">fn </span>steal_into2(<span class="kw-2">&amp;</span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>Local&lt;T&gt;, dst_tail: UnsignedShort) -&gt; UnsignedShort {
         <span class="kw">let </span><span class="kw-2">mut </span>prev_packed = <span class="self">self</span>.<span class="number">0</span>.head.load(Acquire);
         <span class="kw">let </span><span class="kw-2">mut </span>next_packed;
 
@@ -913,7 +951,11 @@
             }
         };
 
-        <span class="macro">assert!</span>(n &lt;= LOCAL_QUEUE_CAPACITY <span class="kw">as </span>u16 / <span class="number">2</span>, <span class="string">&quot;actual = {}&quot;</span>, n);
+        <span class="macro">assert!</span>(
+            n &lt;= LOCAL_QUEUE_CAPACITY <span class="kw">as </span>UnsignedShort / <span class="number">2</span>,
+            <span class="string">&quot;actual = {}&quot;</span>,
+            n
+        );
 
         <span class="kw">let </span>(first, <span class="kw">_</span>) = unpack(next_packed);
 
@@ -990,7 +1032,7 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; Inner&lt;T&gt; {
-    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
+    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UnsignedShort {
         <span class="kw">let </span>(<span class="kw">_</span>, head) = unpack(<span class="self">self</span>.head.load(Acquire));
         <span class="kw">let </span>tail = <span class="self">self</span>.tail.load(Acquire);
 
@@ -1004,16 +1046,16 @@
 
 <span class="doccomment">/// Split the head value into the real head and the index a stealer is working
 /// on.
-</span><span class="kw">fn </span>unpack(n: u32) -&gt; (u16, u16) {
-    <span class="kw">let </span>real = n &amp; u16::MAX <span class="kw">as </span>u32;
-    <span class="kw">let </span>steal = n &gt;&gt; <span class="number">16</span>;
+</span><span class="kw">fn </span>unpack(n: UnsignedLong) -&gt; (UnsignedShort, UnsignedShort) {
+    <span class="kw">let </span>real = n &amp; UnsignedShort::MAX <span class="kw">as </span>UnsignedLong;
+    <span class="kw">let </span>steal = n &gt;&gt; (mem::size_of::&lt;UnsignedShort&gt;() * <span class="number">8</span>);
 
-    (steal <span class="kw">as </span>u16, real <span class="kw">as </span>u16)
+    (steal <span class="kw">as </span>UnsignedShort, real <span class="kw">as </span>UnsignedShort)
 }
 
 <span class="doccomment">/// Join the two head values
-</span><span class="kw">fn </span>pack(steal: u16, real: u16) -&gt; u32 {
-    (real <span class="kw">as </span>u32) | ((steal <span class="kw">as </span>u32) &lt;&lt; <span class="number">16</span>)
+</span><span class="kw">fn </span>pack(steal: UnsignedShort, real: UnsignedShort) -&gt; UnsignedLong {
+    (real <span class="kw">as </span>UnsignedLong) | ((steal <span class="kw">as </span>UnsignedLong) &lt;&lt; (mem::size_of::&lt;UnsignedShort&gt;() * <span class="number">8</span>))
 }
 
 <span class="attribute">#[test]

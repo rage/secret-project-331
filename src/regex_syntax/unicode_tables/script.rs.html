@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/regex-syntax-0.6.27/src/unicode_tables/script.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>script.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../regex_syntax/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../regex_syntax/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../regex_syntax/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/regex-syntax-0.6.28/src/unicode_tables/script.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>script.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../regex_syntax/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../regex_syntax/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../regex_syntax/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1242,13 +1242,32 @@
 <span id="1242">1242</span>
 <span id="1243">1243</span>
 <span id="1244">1244</span>
+<span id="1245">1245</span>
+<span id="1246">1246</span>
+<span id="1247">1247</span>
+<span id="1248">1248</span>
+<span id="1249">1249</span>
+<span id="1250">1250</span>
+<span id="1251">1251</span>
+<span id="1252">1252</span>
+<span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
 </pre><pre class="rust"><code><span class="comment">// DO NOT EDIT THIS FILE. IT WAS AUTOMATICALLY GENERATED BY:
 //
-//   ucd-generate script /tmp/ucd --chars
+//   ucd-generate script ucd-15.0.0 --chars
 //
-// Unicode version: 14.0.0.
+// Unicode version: 15.0.0.
 //
-// ucd-generate 0.2.11 is available on crates.io.
+// ucd-generate 0.2.14 is available on crates.io.
 
 </span><span class="kw">pub const </span>BY_NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)])] = <span class="kw-2">&amp;</span>[
     (<span class="string">&quot;Adlam&quot;</span>, ADLAM),
@@ -1313,6 +1332,7 @@
     (<span class="string">&quot;Kaithi&quot;</span>, KAITHI),
     (<span class="string">&quot;Kannada&quot;</span>, KANNADA),
     (<span class="string">&quot;Katakana&quot;</span>, KATAKANA),
+    (<span class="string">&quot;Kawi&quot;</span>, KAWI),
     (<span class="string">&quot;Kayah_Li&quot;</span>, KAYAH_LI),
     (<span class="string">&quot;Kharoshthi&quot;</span>, KHAROSHTHI),
     (<span class="string">&quot;Khitan_Small_Script&quot;</span>, KHITAN_SMALL_SCRIPT),
@@ -1347,6 +1367,7 @@
     (<span class="string">&quot;Multani&quot;</span>, MULTANI),
     (<span class="string">&quot;Myanmar&quot;</span>, MYANMAR),
     (<span class="string">&quot;Nabataean&quot;</span>, NABATAEAN),
+    (<span class="string">&quot;Nag_Mundari&quot;</span>, NAG_MUNDARI),
     (<span class="string">&quot;Nandinagari&quot;</span>, NANDINAGARI),
     (<span class="string">&quot;New_Tai_Lue&quot;</span>, NEW_TAI_LUE),
     (<span class="string">&quot;Newa&quot;</span>, NEWA),
@@ -1446,6 +1467,7 @@
     (<span class="string">&#39;ﹰ&#39;</span>, <span class="string">&#39;ﹴ&#39;</span>),
     (<span class="string">&#39;ﹶ&#39;</span>, <span class="string">&#39;ﻼ&#39;</span>),
     (<span class="string">&#39;𐹠&#39;</span>, <span class="string">&#39;𐹾&#39;</span>),
+    (<span class="string">&#39;\u{10efd}&#39;</span>, <span class="string">&#39;\u{10eff}&#39;</span>),
     (<span class="string">&#39;𞸀&#39;</span>, <span class="string">&#39;𞸃&#39;</span>),
     (<span class="string">&#39;𞸅&#39;</span>, <span class="string">&#39;𞸟&#39;</span>),
     (<span class="string">&#39;𞸡&#39;</span>, <span class="string">&#39;𞸢&#39;</span>),
@@ -1654,6 +1676,7 @@
     (<span class="string">&#39;𝆃&#39;</span>, <span class="string">&#39;𝆄&#39;</span>),
     (<span class="string">&#39;𝆌&#39;</span>, <span class="string">&#39;𝆩&#39;</span>),
     (<span class="string">&#39;𝆮&#39;</span>, <span class="string">&#39;𝇪&#39;</span>),
+    (<span class="string">&#39;𝋀&#39;</span>, <span class="string">&#39;𝋓&#39;</span>),
     (<span class="string">&#39;𝋠&#39;</span>, <span class="string">&#39;𝋳&#39;</span>),
     (<span class="string">&#39;𝌀&#39;</span>, <span class="string">&#39;𝍖&#39;</span>),
     (<span class="string">&#39;𝍠&#39;</span>, <span class="string">&#39;𝍸&#39;</span>),
@@ -1694,10 +1717,10 @@
     (<span class="string">&#39;🉐&#39;</span>, <span class="string">&#39;🉑&#39;</span>),
     (<span class="string">&#39;🉠&#39;</span>, <span class="string">&#39;🉥&#39;</span>),
     (<span class="string">&#39;🌀&#39;</span>, <span class="string">&#39;🛗&#39;</span>),
-    (<span class="string">&#39;🛝&#39;</span>, <span class="string">&#39;🛬&#39;</span>),
+    (<span class="string">&#39;🛜&#39;</span>, <span class="string">&#39;🛬&#39;</span>),
     (<span class="string">&#39;🛰&#39;</span>, <span class="string">&#39;🛼&#39;</span>),
-    (<span class="string">&#39;🜀&#39;</span>, <span class="string">&#39;🝳&#39;</span>),
-    (<span class="string">&#39;🞀&#39;</span>, <span class="string">&#39;🟘&#39;</span>),
+    (<span class="string">&#39;🜀&#39;</span>, <span class="string">&#39;🝶&#39;</span>),
+    (<span class="string">&#39;🝻&#39;</span>, <span class="string">&#39;🟙&#39;</span>),
     (<span class="string">&#39;🟠&#39;</span>, <span class="string">&#39;🟫&#39;</span>),
     (<span class="string">&#39;🟰&#39;</span>, <span class="string">&#39;🟰&#39;</span>),
     (<span class="string">&#39;🠀&#39;</span>, <span class="string">&#39;🠋&#39;</span>),
@@ -1708,15 +1731,13 @@
     (<span class="string">&#39;🢰&#39;</span>, <span class="string">&#39;🢱&#39;</span>),
     (<span class="string">&#39;🤀&#39;</span>, <span class="string">&#39;🩓&#39;</span>),
     (<span class="string">&#39;🩠&#39;</span>, <span class="string">&#39;🩭&#39;</span>),
-    (<span class="string">&#39;🩰&#39;</span>, <span class="string">&#39;🩴&#39;</span>),
-    (<span class="string">&#39;🩸&#39;</span>, <span class="string">&#39;🩼&#39;</span>),
-    (<span class="string">&#39;🪀&#39;</span>, <span class="string">&#39;🪆&#39;</span>),
-    (<span class="string">&#39;🪐&#39;</span>, <span class="string">&#39;🪬&#39;</span>),
-    (<span class="string">&#39;🪰&#39;</span>, <span class="string">&#39;🪺&#39;</span>),
-    (<span class="string">&#39;🫀&#39;</span>, <span class="string">&#39;🫅&#39;</span>),
-    (<span class="string">&#39;🫐&#39;</span>, <span class="string">&#39;🫙&#39;</span>),
-    (<span class="string">&#39;🫠&#39;</span>, <span class="string">&#39;🫧&#39;</span>),
-    (<span class="string">&#39;🫰&#39;</span>, <span class="string">&#39;🫶&#39;</span>),
+    (<span class="string">&#39;🩰&#39;</span>, <span class="string">&#39;🩼&#39;</span>),
+    (<span class="string">&#39;🪀&#39;</span>, <span class="string">&#39;🪈&#39;</span>),
+    (<span class="string">&#39;🪐&#39;</span>, <span class="string">&#39;🪽&#39;</span>),
+    (<span class="string">&#39;🪿&#39;</span>, <span class="string">&#39;🫅&#39;</span>),
+    (<span class="string">&#39;🫎&#39;</span>, <span class="string">&#39;🫛&#39;</span>),
+    (<span class="string">&#39;🫠&#39;</span>, <span class="string">&#39;🫨&#39;</span>),
+    (<span class="string">&#39;🫰&#39;</span>, <span class="string">&#39;🫸&#39;</span>),
     (<span class="string">&#39;🬀&#39;</span>, <span class="string">&#39;🮒&#39;</span>),
     (<span class="string">&#39;🮔&#39;</span>, <span class="string">&#39;🯊&#39;</span>),
     (<span class="string">&#39;🯰&#39;</span>, <span class="string">&#39;🯹&#39;</span>),
@@ -1744,6 +1765,8 @@
     (<span class="string">&#39;\u{2de0}&#39;</span>, <span class="string">&#39;\u{2dff}&#39;</span>),
     (<span class="string">&#39;Ꙁ&#39;</span>, <span class="string">&#39;\u{a69f}&#39;</span>),
     (<span class="string">&#39;\u{fe2e}&#39;</span>, <span class="string">&#39;\u{fe2f}&#39;</span>),
+    (<span class="string">&#39;𞀰&#39;</span>, <span class="string">&#39;𞁭&#39;</span>),
+    (<span class="string">&#39;\u{1e08f}&#39;</span>, <span class="string">&#39;\u{1e08f}&#39;</span>),
 ];
 
 <span class="kw">pub const </span>DESERET: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;𐐀&#39;</span>, <span class="string">&#39;𐑏&#39;</span>)];
@@ -1753,6 +1776,7 @@
     (<span class="string">&#39;\u{955}&#39;</span>, <span class="string">&#39;\u{963}&#39;</span>),
     (<span class="string">&#39;०&#39;</span>, <span class="string">&#39;ॿ&#39;</span>),
     (<span class="string">&#39;\u{a8e0}&#39;</span>, <span class="string">&#39;\u{a8ff}&#39;</span>),
+    (<span class="string">&#39;𑬀&#39;</span>, <span class="string">&#39;𑬉&#39;</span>),
 ];
 
 <span class="kw">pub const </span>DIVES_AKURU: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[
@@ -1772,7 +1796,7 @@
     <span class="kw-2">&amp;</span>[(<span class="string">&#39;𛰀&#39;</span>, <span class="string">&#39;𛱪&#39;</span>), (<span class="string">&#39;𛱰&#39;</span>, <span class="string">&#39;𛱼&#39;</span>), (<span class="string">&#39;𛲀&#39;</span>, <span class="string">&#39;𛲈&#39;</span>), (<span class="string">&#39;𛲐&#39;</span>, <span class="string">&#39;𛲙&#39;</span>), (<span class="string">&#39;𛲜&#39;</span>, <span class="string">&#39;𛲟&#39;</span>)];
 
 <span class="kw">pub const </span>EGYPTIAN_HIEROGLYPHS: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
-    <span class="kw-2">&amp;</span>[(<span class="string">&#39;𓀀&#39;</span>, <span class="string">&#39;𓐮&#39;</span>), (<span class="string">&#39;\u{13430}&#39;</span>, <span class="string">&#39;\u{13438}&#39;</span>)];
+    <span class="kw-2">&amp;</span>[(<span class="string">&#39;𓀀&#39;</span>, <span class="string">&#39;\u{13455}&#39;</span>)];
 
 <span class="kw">pub const </span>ELBASAN: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;𐔀&#39;</span>, <span class="string">&#39;𐔧&#39;</span>)];
 
@@ -1958,12 +1982,13 @@
     (<span class="string">&#39;𖿢&#39;</span>, <span class="string">&#39;𖿣&#39;</span>),
     (<span class="string">&#39;𖿰&#39;</span>, <span class="string">&#39;𖿱&#39;</span>),
     (<span class="string">&#39;𠀀&#39;</span>, <span class="string">&#39;𪛟&#39;</span>),
-    (<span class="string">&#39;𪜀&#39;</span>, <span class="string">&#39;𫜸&#39;</span>),
+    (<span class="string">&#39;𪜀&#39;</span>, <span class="string">&#39;𫜹&#39;</span>),
     (<span class="string">&#39;𫝀&#39;</span>, <span class="string">&#39;𫠝&#39;</span>),
     (<span class="string">&#39;𫠠&#39;</span>, <span class="string">&#39;𬺡&#39;</span>),
     (<span class="string">&#39;𬺰&#39;</span>, <span class="string">&#39;𮯠&#39;</span>),
     (<span class="string">&#39;丽&#39;</span>, <span class="string">&#39;𪘀&#39;</span>),
     (<span class="string">&#39;𰀀&#39;</span>, <span class="string">&#39;𱍊&#39;</span>),
+    (<span class="string">&#39;𱍐&#39;</span>, <span class="string">&#39;𲎯&#39;</span>),
 ];
 
 <span class="kw">pub const </span>HANGUL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[
@@ -2003,8 +2028,14 @@
     (<span class="string">&#39;צּ&#39;</span>, <span class="string">&#39;ﭏ&#39;</span>),
 ];
 
-<span class="kw">pub const </span>HIRAGANA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
-    <span class="kw-2">&amp;</span>[(<span class="string">&#39;ぁ&#39;</span>, <span class="string">&#39;ゖ&#39;</span>), (<span class="string">&#39;ゝ&#39;</span>, <span class="string">&#39;ゟ&#39;</span>), (<span class="string">&#39;𛀁&#39;</span>, <span class="string">&#39;𛄟&#39;</span>), (<span class="string">&#39;𛅐&#39;</span>, <span class="string">&#39;𛅒&#39;</span>), (<span class="string">&#39;🈀&#39;</span>, <span class="string">&#39;🈀&#39;</span>)];
+<span class="kw">pub const </span>HIRAGANA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[
+    (<span class="string">&#39;ぁ&#39;</span>, <span class="string">&#39;ゖ&#39;</span>),
+    (<span class="string">&#39;ゝ&#39;</span>, <span class="string">&#39;ゟ&#39;</span>),
+    (<span class="string">&#39;𛀁&#39;</span>, <span class="string">&#39;𛄟&#39;</span>),
+    (<span class="string">&#39;𛄲&#39;</span>, <span class="string">&#39;𛄲&#39;</span>),
+    (<span class="string">&#39;𛅐&#39;</span>, <span class="string">&#39;𛅒&#39;</span>),
+    (<span class="string">&#39;🈀&#39;</span>, <span class="string">&#39;🈀&#39;</span>),
+];
 
 <span class="kw">pub const </span>IMPERIAL_ARAMAIC: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
     <span class="kw-2">&amp;</span>[(<span class="string">&#39;𐡀&#39;</span>, <span class="string">&#39;𐡕&#39;</span>), (<span class="string">&#39;𐡗&#39;</span>, <span class="string">&#39;𐡟&#39;</span>)];
@@ -2066,7 +2097,7 @@
     (<span class="string">&#39;ೝ&#39;</span>, <span class="string">&#39;ೞ&#39;</span>),
     (<span class="string">&#39;ೠ&#39;</span>, <span class="string">&#39;\u{ce3}&#39;</span>),
     (<span class="string">&#39;೦&#39;</span>, <span class="string">&#39;೯&#39;</span>),
-    (<span class="string">&#39;ೱ&#39;</span>, <span class="string">&#39;ೲ&#39;</span>),
+    (<span class="string">&#39;ೱ&#39;</span>, <span class="string">&#39;ೳ&#39;</span>),
 ];
 
 <span class="kw">pub const </span>KATAKANA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[
@@ -2082,8 +2113,12 @@
     (<span class="string">&#39;𚿽&#39;</span>, <span class="string">&#39;𚿾&#39;</span>),
     (<span class="string">&#39;𛀀&#39;</span>, <span class="string">&#39;𛀀&#39;</span>),
     (<span class="string">&#39;𛄠&#39;</span>, <span class="string">&#39;𛄢&#39;</span>),
+    (<span class="string">&#39;𛅕&#39;</span>, <span class="string">&#39;𛅕&#39;</span>),
     (<span class="string">&#39;𛅤&#39;</span>, <span class="string">&#39;𛅧&#39;</span>),
 ];
+
+<span class="kw">pub const </span>KAWI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
+    <span class="kw-2">&amp;</span>[(<span class="string">&#39;\u{11f00}&#39;</span>, <span class="string">&#39;𑼐&#39;</span>), (<span class="string">&#39;𑼒&#39;</span>, <span class="string">&#39;\u{11f3a}&#39;</span>), (<span class="string">&#39;𑼾&#39;</span>, <span class="string">&#39;𑽙&#39;</span>)];
 
 <span class="kw">pub const </span>KAYAH_LI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;꤀&#39;</span>, <span class="string">&#39;\u{a92d}&#39;</span>), (<span class="string">&#39;꤯&#39;</span>, <span class="string">&#39;꤯&#39;</span>)];
 
@@ -2104,7 +2139,7 @@
 <span class="kw">pub const </span>KHMER: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
     <span class="kw-2">&amp;</span>[(<span class="string">&#39;ក&#39;</span>, <span class="string">&#39;\u{17dd}&#39;</span>), (<span class="string">&#39;០&#39;</span>, <span class="string">&#39;៩&#39;</span>), (<span class="string">&#39;៰&#39;</span>, <span class="string">&#39;៹&#39;</span>), (<span class="string">&#39;᧠&#39;</span>, <span class="string">&#39;᧿&#39;</span>)];
 
-<span class="kw">pub const </span>KHOJKI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;𑈀&#39;</span>, <span class="string">&#39;𑈑&#39;</span>), (<span class="string">&#39;𑈓&#39;</span>, <span class="string">&#39;\u{1123e}&#39;</span>)];
+<span class="kw">pub const </span>KHOJKI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;𑈀&#39;</span>, <span class="string">&#39;𑈑&#39;</span>), (<span class="string">&#39;𑈓&#39;</span>, <span class="string">&#39;\u{11241}&#39;</span>)];
 
 <span class="kw">pub const </span>KHUDAWADI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
     <span class="kw-2">&amp;</span>[(<span class="string">&#39;𑊰&#39;</span>, <span class="string">&#39;\u{112ea}&#39;</span>), (<span class="string">&#39;𑋰&#39;</span>, <span class="string">&#39;𑋹&#39;</span>)];
@@ -2118,7 +2153,7 @@
     (<span class="string">&#39;ວ&#39;</span>, <span class="string">&#39;ຽ&#39;</span>),
     (<span class="string">&#39;ເ&#39;</span>, <span class="string">&#39;ໄ&#39;</span>),
     (<span class="string">&#39;ໆ&#39;</span>, <span class="string">&#39;ໆ&#39;</span>),
-    (<span class="string">&#39;\u{ec8}&#39;</span>, <span class="string">&#39;\u{ecd}&#39;</span>),
+    (<span class="string">&#39;\u{ec8}&#39;</span>, <span class="string">&#39;\u{ece}&#39;</span>),
     (<span class="string">&#39;໐&#39;</span>, <span class="string">&#39;໙&#39;</span>),
     (<span class="string">&#39;ໜ&#39;</span>, <span class="string">&#39;ໟ&#39;</span>),
 ];
@@ -2162,6 +2197,7 @@
     (<span class="string">&#39;𐞇&#39;</span>, <span class="string">&#39;𐞰&#39;</span>),
     (<span class="string">&#39;𐞲&#39;</span>, <span class="string">&#39;𐞺&#39;</span>),
     (<span class="string">&#39;𝼀&#39;</span>, <span class="string">&#39;𝼞&#39;</span>),
+    (<span class="string">&#39;𝼥&#39;</span>, <span class="string">&#39;𝼪&#39;</span>),
 ];
 
 <span class="kw">pub const </span>LEPCHA: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
@@ -2256,6 +2292,8 @@
     <span class="kw-2">&amp;</span>[(<span class="string">&#39;က&#39;</span>, <span class="string">&#39;႟&#39;</span>), (<span class="string">&#39;ꧠ&#39;</span>, <span class="string">&#39;ꧾ&#39;</span>), (<span class="string">&#39;ꩠ&#39;</span>, <span class="string">&#39;ꩿ&#39;</span>)];
 
 <span class="kw">pub const </span>NABATAEAN: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;𐢀&#39;</span>, <span class="string">&#39;𐢞&#39;</span>), (<span class="string">&#39;𐢧&#39;</span>, <span class="string">&#39;𐢯&#39;</span>)];
+
+<span class="kw">pub const </span>NAG_MUNDARI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] = <span class="kw-2">&amp;</span>[(<span class="string">&#39;𞓐&#39;</span>, <span class="string">&#39;𞓹&#39;</span>)];
 
 <span class="kw">pub const </span>NANDINAGARI: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(char, char)] =
     <span class="kw-2">&amp;</span>[(<span class="string">&#39;𑦠&#39;</span>, <span class="string">&#39;𑦧&#39;</span>), (<span class="string">&#39;𑦪&#39;</span>, <span class="string">&#39;\u{119d7}&#39;</span>), (<span class="string">&#39;\u{119da}&#39;</span>, <span class="string">&#39;𑧤&#39;</span>)];

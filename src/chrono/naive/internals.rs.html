@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.22/src/naive/internals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>internals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/chrono-0.4.23/src/naive/internals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>internals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../chrono/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../chrono/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -802,6 +802,18 @@
 <span id="802">802</span>
 <span id="803">803</span>
 <span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
 </pre><pre class="rust"><code><span class="comment">// This is a part of Chrono.
 // See README.md and LICENSE.txt for details.
 
@@ -1074,18 +1086,11 @@
 
 <span class="kw">impl </span>Of {
     <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>clamp_ordinal(ordinal: u32) -&gt; u32 {
-        <span class="kw">if </span>ordinal &gt; <span class="number">366 </span>{
-            <span class="number">0
-        </span>} <span class="kw">else </span>{
-            ordinal
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(ordinal: u32, YearFlags(flags): YearFlags) -&gt; <span class="prelude-ty">Option</span>&lt;Of&gt; {
+        <span class="kw">match </span>ordinal &lt;= <span class="number">366 </span>{
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(Of((ordinal &lt;&lt; <span class="number">4</span>) | u32::from(flags))),
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
         }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(ordinal: u32, YearFlags(flags): YearFlags) -&gt; Of {
-        <span class="kw">let </span>ordinal = Of::clamp_ordinal(ordinal);
-        Of((ordinal &lt;&lt; <span class="number">4</span>) | u32::from(flags))
     }
 
     <span class="attribute">#[inline]
@@ -1111,10 +1116,13 @@
     </span>}
 
     <span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_ordinal(<span class="kw-2">&amp;</span><span class="self">self</span>, ordinal: u32) -&gt; Of {
-        <span class="kw">let </span>ordinal = Of::clamp_ordinal(ordinal);
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_ordinal(<span class="kw-2">&amp;</span><span class="self">self</span>, ordinal: u32) -&gt; <span class="prelude-ty">Option</span>&lt;Of&gt; {
+        <span class="kw">if </span>ordinal &gt; <span class="number">366 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
         <span class="kw">let </span>Of(of) = <span class="kw-2">*</span><span class="self">self</span>;
-        Of((of &amp; <span class="number">0b1111</span>) | (ordinal &lt;&lt; <span class="number">4</span>))
+        <span class="prelude-val">Some</span>(Of((of &amp; <span class="number">0b1111</span>) | (ordinal &lt;&lt; <span class="number">4</span>)))
     }
 
     <span class="attribute">#[inline]
@@ -1179,28 +1187,11 @@
 
 <span class="kw">impl </span>Mdf {
     <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>clamp_month(month: u32) -&gt; u32 {
-        <span class="kw">if </span>month &gt; <span class="number">12 </span>{
-            <span class="number">0
-        </span>} <span class="kw">else </span>{
-            month
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(month: u32, day: u32, YearFlags(flags): YearFlags) -&gt; <span class="prelude-ty">Option</span>&lt;Mdf&gt; {
+        <span class="kw">match </span>month &lt;= <span class="number">12 </span>&amp;&amp; day &lt;= <span class="number">31 </span>{
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(Mdf((month &lt;&lt; <span class="number">9</span>) | (day &lt;&lt; <span class="number">4</span>) | u32::from(flags))),
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
         }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>clamp_day(day: u32) -&gt; u32 {
-        <span class="kw">if </span>day &gt; <span class="number">31 </span>{
-            <span class="number">0
-        </span>} <span class="kw">else </span>{
-            day
-        }
-    }
-
-    <span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(month: u32, day: u32, YearFlags(flags): YearFlags) -&gt; Mdf {
-        <span class="kw">let </span>month = Mdf::clamp_month(month);
-        <span class="kw">let </span>day = Mdf::clamp_day(day);
-        Mdf((month &lt;&lt; <span class="number">9</span>) | (day &lt;&lt; <span class="number">4</span>) | u32::from(flags))
     }
 
     <span class="attribute">#[inline]
@@ -1229,10 +1220,13 @@
     </span>}
 
     <span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_month(<span class="kw-2">&amp;</span><span class="self">self</span>, month: u32) -&gt; Mdf {
-        <span class="kw">let </span>month = Mdf::clamp_month(month);
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_month(<span class="kw-2">&amp;</span><span class="self">self</span>, month: u32) -&gt; <span class="prelude-ty">Option</span>&lt;Mdf&gt; {
+        <span class="kw">if </span>month &gt; <span class="number">12 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
         <span class="kw">let </span>Mdf(mdf) = <span class="kw-2">*</span><span class="self">self</span>;
-        Mdf((mdf &amp; <span class="number">0b1_1111_1111</span>) | (month &lt;&lt; <span class="number">9</span>))
+        <span class="prelude-val">Some</span>(Mdf((mdf &amp; <span class="number">0b1_1111_1111</span>) | (month &lt;&lt; <span class="number">9</span>)))
     }
 
     <span class="attribute">#[inline]
@@ -1242,10 +1236,13 @@
     </span>}
 
     <span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_day(<span class="kw-2">&amp;</span><span class="self">self</span>, day: u32) -&gt; Mdf {
-        <span class="kw">let </span>day = Mdf::clamp_day(day);
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>with_day(<span class="kw-2">&amp;</span><span class="self">self</span>, day: u32) -&gt; <span class="prelude-ty">Option</span>&lt;Mdf&gt; {
+        <span class="kw">if </span>day &gt; <span class="number">31 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
         <span class="kw">let </span>Mdf(mdf) = <span class="kw-2">*</span><span class="self">self</span>;
-        Mdf((mdf &amp; !<span class="number">0b1_1111_0000</span>) | (day &lt;&lt; <span class="number">4</span>))
+        <span class="prelude-val">Some</span>(Mdf((mdf &amp; !<span class="number">0b1_1111_0000</span>) | (day &lt;&lt; <span class="number">4</span>)))
     }
 
     <span class="attribute">#[inline]
@@ -1327,7 +1324,12 @@
     </span><span class="kw">fn </span>test_of() {
         <span class="kw">fn </span>check(expected: bool, flags: YearFlags, ordinal1: u32, ordinal2: u32) {
             <span class="kw">for </span>ordinal <span class="kw">in </span>range_inclusive(ordinal1, ordinal2) {
-                <span class="kw">let </span>of = Of::new(ordinal, flags);
+                <span class="kw">let </span>of = <span class="kw">match </span>Of::new(ordinal, flags) {
+                    <span class="prelude-val">Some</span>(of) =&gt; of,
+                    <span class="prelude-val">None </span><span class="kw">if </span>!expected =&gt; <span class="kw">continue</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Of::new({}, {:?}) returned None&quot;</span>, ordinal, flags),
+                };
+
                 <span class="macro">assert!</span>(
                     of.valid() == expected,
                     <span class="string">&quot;ordinal {} = {:?} should be {} for dominical year {:?}&quot;</span>,
@@ -1359,7 +1361,12 @@
         <span class="kw">fn </span>check(expected: bool, flags: YearFlags, month1: u32, day1: u32, month2: u32, day2: u32) {
             <span class="kw">for </span>month <span class="kw">in </span>range_inclusive(month1, month2) {
                 <span class="kw">for </span>day <span class="kw">in </span>range_inclusive(day1, day2) {
-                    <span class="kw">let </span>mdf = Mdf::new(month, day, flags);
+                    <span class="kw">let </span>mdf = <span class="kw">match </span>Mdf::new(month, day, flags) {
+                        <span class="prelude-val">Some</span>(mdf) =&gt; mdf,
+                        <span class="prelude-val">None </span><span class="kw">if </span>!expected =&gt; <span class="kw">continue</span>,
+                        <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Mdf::new({}, {}, {:?}) returned None&quot;</span>, month, day, flags),
+                    };
+
                     <span class="macro">assert!</span>(
                         mdf.valid() == expected,
                         <span class="string">&quot;month {} day {} = {:?} should be {} for dominical year {:?}&quot;</span>,
@@ -1444,7 +1451,7 @@
     </span><span class="kw">fn </span>test_of_fields() {
         <span class="kw">for </span><span class="kw-2">&amp;</span>flags <span class="kw">in </span>FLAGS.iter() {
             <span class="kw">for </span>ordinal <span class="kw">in </span>range_inclusive(<span class="number">1u32</span>, <span class="number">366</span>) {
-                <span class="kw">let </span>of = Of::new(ordinal, flags);
+                <span class="kw">let </span>of = Of::new(ordinal, flags).unwrap();
                 <span class="kw">if </span>of.valid() {
                     <span class="macro">assert_eq!</span>(of.ordinal(), ordinal);
                 }
@@ -1455,11 +1462,16 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_of_with_fields() {
         <span class="kw">fn </span>check(flags: YearFlags, ordinal: u32) {
-            <span class="kw">let </span>of = Of::new(ordinal, flags);
+            <span class="kw">let </span>of = Of::new(ordinal, flags).unwrap();
 
             <span class="kw">for </span>ordinal <span class="kw">in </span>range_inclusive(<span class="number">0u32</span>, <span class="number">1024</span>) {
-                <span class="kw">let </span>of = of.with_ordinal(ordinal);
-                <span class="macro">assert_eq!</span>(of.valid(), Of::new(ordinal, flags).valid());
+                <span class="kw">let </span>of = <span class="kw">match </span>of.with_ordinal(ordinal) {
+                    <span class="prelude-val">Some</span>(of) =&gt; of,
+                    <span class="prelude-val">None </span><span class="kw">if </span>ordinal &gt; <span class="number">366 </span>=&gt; <span class="kw">continue</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;failed to create Of with ordinal {}&quot;</span>, ordinal),
+                };
+
+                <span class="macro">assert_eq!</span>(of.valid(), Of::new(ordinal, flags).unwrap().valid());
                 <span class="kw">if </span>of.valid() {
                     <span class="macro">assert_eq!</span>(of.ordinal(), ordinal);
                 }
@@ -1478,25 +1490,25 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_of_weekday() {
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, A).weekday(), Weekday::Sun);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, B).weekday(), Weekday::Sat);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, C).weekday(), Weekday::Fri);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, D).weekday(), Weekday::Thu);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, E).weekday(), Weekday::Wed);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, F).weekday(), Weekday::Tue);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, G).weekday(), Weekday::Mon);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, AG).weekday(), Weekday::Sun);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, BA).weekday(), Weekday::Sat);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, CB).weekday(), Weekday::Fri);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, DC).weekday(), Weekday::Thu);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, ED).weekday(), Weekday::Wed);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, FE).weekday(), Weekday::Tue);
-        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, GF).weekday(), Weekday::Mon);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, A).unwrap().weekday(), Weekday::Sun);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, B).unwrap().weekday(), Weekday::Sat);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, C).unwrap().weekday(), Weekday::Fri);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, D).unwrap().weekday(), Weekday::Thu);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, E).unwrap().weekday(), Weekday::Wed);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, F).unwrap().weekday(), Weekday::Tue);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, G).unwrap().weekday(), Weekday::Mon);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, AG).unwrap().weekday(), Weekday::Sun);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, BA).unwrap().weekday(), Weekday::Sat);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, CB).unwrap().weekday(), Weekday::Fri);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, DC).unwrap().weekday(), Weekday::Thu);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, ED).unwrap().weekday(), Weekday::Wed);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, FE).unwrap().weekday(), Weekday::Tue);
+        <span class="macro">assert_eq!</span>(Of::new(<span class="number">1</span>, GF).unwrap().weekday(), Weekday::Mon);
 
         <span class="kw">for </span><span class="kw-2">&amp;</span>flags <span class="kw">in </span>FLAGS.iter() {
-            <span class="kw">let </span><span class="kw-2">mut </span>prev = Of::new(<span class="number">1</span>, flags).weekday();
+            <span class="kw">let </span><span class="kw-2">mut </span>prev = Of::new(<span class="number">1</span>, flags).unwrap().weekday();
             <span class="kw">for </span>ordinal <span class="kw">in </span>range_inclusive(<span class="number">2u32</span>, flags.ndays()) {
-                <span class="kw">let </span>of = Of::new(ordinal, flags);
+                <span class="kw">let </span>of = Of::new(ordinal, flags).unwrap();
                 <span class="kw">let </span>expected = prev.succ();
                 <span class="macro">assert_eq!</span>(of.weekday(), expected);
                 prev = expected;
@@ -1509,7 +1521,11 @@
         <span class="kw">for </span><span class="kw-2">&amp;</span>flags <span class="kw">in </span>FLAGS.iter() {
             <span class="kw">for </span>month <span class="kw">in </span>range_inclusive(<span class="number">1u32</span>, <span class="number">12</span>) {
                 <span class="kw">for </span>day <span class="kw">in </span>range_inclusive(<span class="number">1u32</span>, <span class="number">31</span>) {
-                    <span class="kw">let </span>mdf = Mdf::new(month, day, flags);
+                    <span class="kw">let </span>mdf = <span class="kw">match </span>Mdf::new(month, day, flags) {
+                        <span class="prelude-val">Some</span>(mdf) =&gt; mdf,
+                        <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
+                    };
+
                     <span class="kw">if </span>mdf.valid() {
                         <span class="macro">assert_eq!</span>(mdf.month(), month);
                         <span class="macro">assert_eq!</span>(mdf.day(), day);
@@ -1522,11 +1538,15 @@
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_mdf_with_fields() {
         <span class="kw">fn </span>check(flags: YearFlags, month: u32, day: u32) {
-            <span class="kw">let </span>mdf = Mdf::new(month, day, flags);
+            <span class="kw">let </span>mdf = Mdf::new(month, day, flags).unwrap();
 
             <span class="kw">for </span>month <span class="kw">in </span>range_inclusive(<span class="number">0u32</span>, <span class="number">16</span>) {
-                <span class="kw">let </span>mdf = mdf.with_month(month);
-                <span class="macro">assert_eq!</span>(mdf.valid(), Mdf::new(month, day, flags).valid());
+                <span class="kw">let </span>mdf = <span class="kw">match </span>mdf.with_month(month) {
+                    <span class="prelude-val">Some</span>(mdf) =&gt; mdf,
+                    <span class="prelude-val">None </span><span class="kw">if </span>month &gt; <span class="number">12 </span>=&gt; <span class="kw">continue</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;failed to create Mdf with month {}&quot;</span>, month),
+                };
+
                 <span class="kw">if </span>mdf.valid() {
                     <span class="macro">assert_eq!</span>(mdf.month(), month);
                     <span class="macro">assert_eq!</span>(mdf.day(), day);
@@ -1534,8 +1554,12 @@
             }
 
             <span class="kw">for </span>day <span class="kw">in </span>range_inclusive(<span class="number">0u32</span>, <span class="number">1024</span>) {
-                <span class="kw">let </span>mdf = mdf.with_day(day);
-                <span class="macro">assert_eq!</span>(mdf.valid(), Mdf::new(month, day, flags).valid());
+                <span class="kw">let </span>mdf = <span class="kw">match </span>mdf.with_day(day) {
+                    <span class="prelude-val">Some</span>(mdf) =&gt; mdf,
+                    <span class="prelude-val">None </span><span class="kw">if </span>day &gt; <span class="number">31 </span>=&gt; <span class="kw">continue</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;failed to create Mdf with month {}&quot;</span>, month),
+                };
+
                 <span class="kw">if </span>mdf.valid() {
                     <span class="macro">assert_eq!</span>(mdf.month(), month);
                     <span class="macro">assert_eq!</span>(mdf.day(), day);
@@ -1565,7 +1589,7 @@
     </span><span class="kw">fn </span>test_of_isoweekdate_raw() {
         <span class="kw">for </span><span class="kw-2">&amp;</span>flags <span class="kw">in </span>FLAGS.iter() {
             <span class="comment">// January 4 should be in the first week
-            </span><span class="kw">let </span>(week, <span class="kw">_</span>) = Of::new(<span class="number">4 </span><span class="comment">/* January 4 */</span>, flags).isoweekdate_raw();
+            </span><span class="kw">let </span>(week, <span class="kw">_</span>) = Of::new(<span class="number">4 </span><span class="comment">/* January 4 */</span>, flags).unwrap().isoweekdate_raw();
             <span class="macro">assert_eq!</span>(week, <span class="number">1</span>);
         }
     }

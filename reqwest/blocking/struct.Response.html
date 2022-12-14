@@ -87,7 +87,7 @@ details please see <a href="https://docs.serde.rs/serde_json/fn.from_reader.html
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.text" class="method has-srclink"><a class="srclink rightside" href="../../src/reqwest/blocking/response.rs.html#282-284">source</a><h4 class="code-header">pub fn <a href="#method.text" class="fnname">text</a>(self) -&gt; <a class="type" href="../type.Result.html" title="type reqwest::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.65.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</h4></section></summary><div class="docblock"><p>Get the response text.</p>
 <p>This method decodes the response body with BOM sniffing
 and with malformed sequences replaced with the REPLACEMENT CHARACTER.
-Encoding is determinated from the <code>charset</code> parameter of <code>Content-Type</code> header,
+Encoding is determined from the <code>charset</code> parameter of <code>Content-Type</code> header,
 and defaults to <code>utf-8</code> if not presented.</p>
 <h5 id="example-4"><a href="#example-4">Example</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>content = reqwest::blocking::get(<span class="string">&quot;http://httpbin.org/range/26&quot;</span>)<span class="question-mark">?</span>.text()<span class="question-mark">?</span>;</code></pre></div>

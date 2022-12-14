@@ -890,6 +890,7 @@ export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
   const typedObj = obj as ButtonAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
     (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
     (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
     (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
@@ -902,13 +903,6 @@ export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
     (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
     (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&

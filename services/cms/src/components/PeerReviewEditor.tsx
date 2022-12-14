@@ -173,7 +173,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     },
   ]
 
-  const handlePeerReviewValueChange = (value: any, field: keyof CmsPeerReviewConfig) => {
+  const handlePeerReviewValueChange = (value: string, field: keyof CmsPeerReviewConfig) => {
     let peerReviewConfig
     switch (field) {
       case "accepting_strategy":

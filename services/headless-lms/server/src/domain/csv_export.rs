@@ -359,7 +359,7 @@ HttpResponse::Ok()
         format!(
             "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
             exam.name,
-            Utc::today().format("%Y-%m-%d")
+            Utc::now().format("%Y-%m-%d")
         ),
     ))
     .streaming(make_authorized_streamable(UnboundedReceiverStream::new(

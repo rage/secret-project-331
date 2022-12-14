@@ -202,3 +202,63 @@ WHERE submissions.exercise_slide_submission_id = $1
         .collect();
     Ok(collected)
 }
+
+pub async fn get_peer_review_answers_with_questions_for_user_and_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<PeerReviewWithQuestionsAndAnswers>> {
+    let res = sqlx::query!(
+        r#"
+SELECT answers.id AS peer_review_question_submission_id,
+  answers.text_data,
+  answers.number_data,
+  questions.peer_review_config_id,
+  questions.id AS peer_review_question_id,
+  questions.order_number,
+  questions.question,
+  questions.question_type AS "question_type: PeerReviewQuestionType",
+  submissions.id AS peer_review_submission_id
+FROM peer_review_question_submissions answers
+  JOIN peer_review_questions questions ON (
+    answers.peer_review_question_id = questions.id
+  )
+  JOIN peer_review_submissions submissions ON (
+    answers.peer_review_submission_id = submissions.id
+  )
+WHERE submissions.user_id = $1
+  AND submissions.exercise_id = $2
+  AND questions.deleted_at IS NULL
+  AND answers.deleted_at IS NULL
+  AND submissions.deleted_at IS NULL
+        "#,
+        user_id,
+        exercise_id
+    )
+    .map(|x| PeerReviewQuestionAndAnswer {
+        peer_review_config_id: x.peer_review_config_id,
+        peer_review_question_id: x.peer_review_question_id,
+        peer_review_question_submission_id: x.peer_review_question_submission_id,
+        peer_review_submission_id: x.peer_review_submission_id,
+        order_number: x.order_number,
+        question: x.question,
+        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+    })
+    .fetch_all(conn)
+    .await?;
+    let mut mapped: HashMap<Uuid, Vec<PeerReviewQuestionAndAnswer>> = HashMap::new();
+    res.into_iter().for_each(|x| {
+        mapped
+            .entry(x.peer_review_submission_id)
+            .or_default()
+            .push(x)
+    });
+    let collected = mapped
+        .into_iter()
+        .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
+            peer_review_submission_id: id,
+            questions_and_answers: qa,
+        })
+        .collect();
+    Ok(collected)
+}

@@ -421,6 +421,7 @@ fn models() {
         submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
         exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
         tasks,
+        given_peer_reviews,
         received_peer_reviews,
     });
     doc!(AnswersRequiringAttention {

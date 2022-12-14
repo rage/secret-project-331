@@ -735,6 +735,7 @@ export interface AnswerRequiringAttentionWithTasks {
   submission_id: string
   exercise_id: string
   tasks: Array<CourseMaterialExerciseTask>
+  given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
   received_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
 }
 

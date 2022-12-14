@@ -163,6 +163,7 @@
   "follow-these-instructions": "Noudata näitä ohjeita",
   "forgot-password": "Unohditko salasanasi?",
   "give-custom-points-confirmation": "Oletko varma että haluat antaa {{ custom-points }} pistettä?",
+  "given-peer-reviews-to-other-students": "Muille opiskelijoille annetut vertaisarviot",
   "global-permissions": "Globaalit oikeudet",
   "grading": "Arvostelu",
   "grading-description": "Käytä mukautettuja pisteitä, kun haluat antaa muuta kuin 0 tai täydet pisteet",

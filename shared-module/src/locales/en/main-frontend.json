@@ -163,6 +163,7 @@
   "follow-these-instructions": "Follow these instructions",
   "forgot-password": "Forgot your password?",
   "give-custom-points-confirmation": "Are you sure you want to give {{ custom-points }} points?",
+  "given-peer-reviews-to-other-students": "Given peer reviews to other students",
   "global-permissions": "Global permissions",
   "grading": "Grading",
   "grading-explanation": "The exercise service creates this data from the grade endpoint when the backend posts a submission to it to be graded.",

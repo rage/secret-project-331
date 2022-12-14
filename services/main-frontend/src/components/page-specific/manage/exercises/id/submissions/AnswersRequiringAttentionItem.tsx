@@ -414,10 +414,22 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         </div>
       ) : null}
 
-      <PeerReviewAccordion
-        peerReviews={answerRequiringAttention.received_peer_reviews}
-        title={t("received-peer-reviews-from-other-students")}
-      />
+      <div
+        className={css`
+          margin-bottom: 3rem;
+        `}
+      >
+        <PeerReviewAccordion
+          peerReviews={answerRequiringAttention.received_peer_reviews}
+          title={t("received-peer-reviews-from-other-students")}
+        />
+      </div>
+      <div>
+        <PeerReviewAccordion
+          peerReviews={answerRequiringAttention.given_peer_reviews}
+          title={t("given-peer-reviews-to-other-students")}
+        />
+      </div>
     </>
   )
 }

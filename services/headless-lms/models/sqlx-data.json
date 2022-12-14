@@ -7149,6 +7149,69 @@
     },
     "query": "\nSELECT id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\"\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n      "
   },
+  "6aae0374523b72d0a0a10188b0d3e10fde09dcbe595d60729b670af4728ec362": {
+    "describe": {
+      "columns": [
+        {
+          "name": "peer_review_question_submission_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "text_data",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "number_data",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "peer_review_config_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_question_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 5,
+          "type_info": "Int4"
+        },
+        {
+          "name": "question",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "question_type: PeerReviewQuestionType",
+          "ordinal": 7,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        },
+        {
+          "name": "peer_review_submission_id",
+          "ordinal": 8,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, true, true, false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT answers.id AS peer_review_question_submission_id,\n  answers.text_data,\n  answers.number_data,\n  questions.peer_review_config_id,\n  questions.id AS peer_review_question_id,\n  questions.order_number,\n  questions.question,\n  questions.question_type AS \"question_type: PeerReviewQuestionType\",\n  submissions.id AS peer_review_submission_id\nFROM peer_review_question_submissions answers\n  JOIN peer_review_questions questions ON (\n    answers.peer_review_question_id = questions.id\n  )\n  JOIN peer_review_submissions submissions ON (\n    answers.peer_review_submission_id = submissions.id\n  )\nWHERE submissions.user_id = $1\n  AND submissions.exercise_id = $2\n  AND questions.deleted_at IS NULL\n  AND answers.deleted_at IS NULL\n  AND submissions.deleted_at IS NULL\n        "
+  },
   "6abae7185ea5e131996a7792bce21e0e1f30b0bce4bae05061259a63cfc92a01": {
     "describe": {
       "columns": [

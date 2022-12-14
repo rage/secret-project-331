@@ -1382,6 +1382,10 @@ export function isAnswerRequiringAttentionWithTasks(
     typeof typedObj["exercise_id"] === "string" &&
     Array.isArray(typedObj["tasks"]) &&
     typedObj["tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
+    Array.isArray(typedObj["given_peer_reviews"]) &&
+    typedObj["given_peer_reviews"].every(
+      (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,
+    ) &&
     Array.isArray(typedObj["received_peer_reviews"]) &&
     typedObj["received_peer_reviews"].every(
       (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,

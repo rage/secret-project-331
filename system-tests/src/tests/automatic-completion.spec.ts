@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -16,15 +17,14 @@ test("Registers automatic completion", async ({ headless, page }) => {
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click(),
   ])
-  // Click text=Automatic CompletionsSample course.LanguageEnglish
+  // Click text=Automatic Completions
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/automatic-completions' }*/),
-    page.locator("text=Automatic CompletionsSample course.LanguageEnglish").click(),
+    page.locator("text=Automatic Completions").click(),
   ])
-  // Click label:has-text("Default") >> nth=0
-  await page.locator('label:has-text("Default")').first().click()
-  // Click button:has-text("Continue")
-  await page.locator('button:has-text("Continue")').click()
+
+  await selectCourseInstanceIfPrompted(page)
+
   // Click text=Chapter 1The Basics
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/automatic-completions/chapter-1' }*/),
@@ -122,10 +122,10 @@ test("Registers automatic completion", async ({ headless, page }) => {
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click(),
   ])
-  // Click text=Automatic CompletionsSample course.LanguageEnglish
+  // Click text=Automatic Completions
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/automatic-completions' }*/),
-    page.locator("text=Automatic CompletionsSample course.LanguageEnglish").click(),
+    page.locator("text=Automatic Completions").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.waitForSelector("text=Congratulations!")

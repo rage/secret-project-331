@@ -162,7 +162,7 @@ pub async fn point_export(
                     "attachment; filename=\"{} - {} - Point export {}.csv\"",
                     course.name,
                     course_instance.name.as_deref().unwrap_or("unnamed"),
-                    Utc::today().format("%Y-%m-%d")
+                    Utc::now().format("%Y-%m-%d")
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
@@ -356,7 +356,7 @@ pub async fn completions_export(
                     "attachment; filename=\"{} - {} - Completions export {}.csv\"",
                     course.name,
                     course_instance.name.as_deref().unwrap_or("unnamed"),
-                    Utc::today().format("%Y-%m-%d")
+                    Utc::now().format("%Y-%m-%d")
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(

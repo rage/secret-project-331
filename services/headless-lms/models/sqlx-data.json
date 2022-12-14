@@ -2004,6 +2004,67 @@
     },
     "query": "\nINSERT INTO peer_review_queue_entries (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    peer_review_priority,\n    receiving_peer_reviews_exercise_slide_submission_id,\n    received_enough_peer_reviews\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) WHERE deleted_at IS NULL DO\nUPDATE\nSET peer_review_priority = $4\nRETURNING *\n        "
   },
+  "21304d8b8bba276e607f2e196a90f42c849efb5dd2e961e368eaa4616667f6c1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "exercise_service_slug",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "variable_key",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "variable_value",
+          "ordinal": 9,
+          "type_info": "Jsonb"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, true, true, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_course_instance_exercise_service_variables\nWHERE deleted_at IS NULL\n  AND user_id = $1\n  AND (course_instance_id = $2 OR course_instance_id IS NULL)\n  AND (exam_id = $3 OR exam_id IS NULL);\n    "
+  },
   "21f873be8ae7d46b9aafa8b49f108fd8fadacc2334da674241ac2a6e221b2719": {
     "describe": {
       "columns": [
@@ -12361,6 +12422,16 @@
     },
     "query": "\nUPDATE repository_exercises\nSET checksum = $1\nWHERE id = $2\n"
   },
+  "a801b37c2eb91f887111f1253b34b13ad0099b69753a29b1b3e2563c100039f2": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Uuid", "Uuid", "Varchar", "Jsonb"]
+      }
+    },
+    "query": "\n    INSERT INTO user_course_instance_exercise_service_variables (\n        exercise_service_slug,\n        user_id,\n        exam_id,\n        variable_key,\n        variable_value\n      )\n    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (\n        variable_key,\n        user_id,\n        exam_id,\n        exercise_service_slug\n      ) WHERE deleted_at IS NULL AND exam_id IS NOT NULL DO\n    UPDATE\n    SET variable_value = $5;\n    "
+  },
   "a80adc88f16d5ce7df3ab0724d59ba485ee56323fef9d6e89cde588994a2ee63": {
     "describe": {
       "columns": [
@@ -19308,6 +19379,16 @@
       }
     },
     "query": "\nSELECT *\nFROM study_registry_registrars\nWHERE secret_key = $1\n  AND deleted_at IS NULL\n    "
+  },
+  "fe60f0cc357f9b63d3edf4b7a095f39ff3cfd5fde546872f7378663fdb4af6e4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Uuid", "Uuid", "Varchar", "Jsonb"]
+      }
+    },
+    "query": "\n    INSERT INTO user_course_instance_exercise_service_variables (\n        exercise_service_slug,\n        user_id,\n        course_instance_id,\n        variable_key,\n        variable_value\n      )\n    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (\n        variable_key,\n        user_id,\n        course_instance_id,\n        exercise_service_slug\n      ) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL DO\n    UPDATE\n    SET variable_value = $5;\n    "
   },
   "fefaaa5c5e1de08eb78712713351fe1623b3a9b9a9e416bfd8135c4d571cb4fb": {
     "describe": {

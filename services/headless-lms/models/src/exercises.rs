@@ -12,6 +12,7 @@ use crate::{
     peer_review_configs::CourseMaterialPeerReviewConfig,
     prelude::*,
     teacher_grading_decisions::TeacherDecisionType,
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
@@ -99,6 +100,8 @@ pub struct CourseMaterialExercise {
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
     pub peer_review_config: Option<CourseMaterialPeerReviewConfig>,
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
+    pub user_course_instance_exercise_service_variables:
+        Vec<UserCourseInstanceExerciseServiceVariable>,
 }
 
 impl CourseMaterialExercise {
@@ -568,6 +571,13 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
+    let user_course_instance_exercise_service_variables = match (user_id, instance_or_exam_id) {
+        (Some(user_id), Some(course_instance_or_exam_id)) => {
+            Some(crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_instance_or_exam_id).await?)
+        }
+        _ => None,
+    }.unwrap_or_default();
+
     Ok(CourseMaterialExercise {
         exercise,
         can_post_submission,
@@ -575,6 +585,7 @@ pub async fn get_course_material_exercise(
         exercise_status,
         exercise_slide_submission_counts,
         peer_review_config,
+        user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
     })
 }

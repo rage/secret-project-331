@@ -399,6 +399,7 @@ fn models() {
         regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
         repository_exercises::RepositoryExercise,
         roles::{RoleUser, UserRole},
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_exercise_states::{
             ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -627,6 +628,18 @@ fn models() {
         text_data: Some("I think that the answer was well written.".to_string()),
         number_data: None,
     });
+    example!(UserCourseInstanceExerciseServiceVariable {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_service_slug: "quizzes".to_string(),
+        user_id,
+        course_instance_id,
+        exam_id: None,
+        variable_key: "dog-name".to_string(),
+        variable_value: serde_json::Value::String("Dog".to_string()),
+    });
 
     doc!(
         T,
@@ -820,7 +833,8 @@ fn models() {
             )
         ]),
         peer_review_config,
-        previous_exercise_slide_submission
+        previous_exercise_slide_submission,
+        user_course_instance_exercise_service_variables,
     });
     doc!(CourseMaterialPeerReviewSubmission {
         exercise_slide_submission_id,
@@ -834,11 +848,13 @@ fn models() {
             submission,
             grading,
             model_solution_spec: None,
+            exercise_task_exercise_service_slug: "quizzes".to_string(),
         }
     );
     doc!(StudentExerciseSlideSubmissionResult {
         exercise_task_submission_results,
         exercise_status,
+        user_course_instance_exercise_service_variables,
     });
     doc!(Chapter {
         id,
@@ -1153,7 +1169,7 @@ fn models() {
         T,
         Vec,
         StudyRegistryCompletion {
-            completion_date: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             completion_language: "en-US".to_string(),
             completion_registration_attempt_date: None,
             email: "student@example.com".to_string(),
@@ -1360,8 +1376,8 @@ fn models() {
     doc!(CourseBackgroundQuestionsAndAnswers {
         background_questions: vec![CourseBackgroundQuestion {
             id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
-            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            created_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             deleted_at: None,
             course_instance_id: Some(Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap()),
             course_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
@@ -1370,8 +1386,8 @@ fn models() {
         }],
         answers: vec![CourseBackgroundQuestionAnswer {
             id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
-            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            created_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             deleted_at: None,
             user_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
             answer_value: Some("yes".to_string()),

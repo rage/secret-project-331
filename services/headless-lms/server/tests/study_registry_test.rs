@@ -86,7 +86,7 @@ async fn gets_and_registers_completions() {
         .map(|x| RegisteredCompletion {
             completion_id: x.id,
             student_number: "ABC123".to_string(),
-            registration_date: Utc.ymd(2022, 6, 17).and_hms(0, 0, 0),
+            registration_date: Utc.with_ymd_and_hms(2022, 6, 17, 0, 0, 0).unwrap(),
         })
         .collect();
     let req = test::TestRequest::with_uri(post_path)
@@ -172,7 +172,7 @@ async fn insert_data(
             course_instance_id: instance.id,
             course_module_id: course_module.id,
             user_id: user_1,
-            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,
@@ -199,7 +199,7 @@ async fn insert_data(
             course_instance_id: instance.id,
             course_module_id: course_module.id,
             user_id: user_2,
-            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,

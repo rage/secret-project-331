@@ -209,6 +209,8 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                           getGuestPseudonymousUserId(),
                         signed_in: Boolean(loginStateContext.signedIn),
                       },
+                      // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
+                      user_variables: {},
                       data: {
                         grading: exerciseTaskGradingToExerciseTaskGradingResult(
                           course_material_exercise_task.previous_submission_grading,

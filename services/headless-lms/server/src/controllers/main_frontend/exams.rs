@@ -116,7 +116,7 @@ pub async fn export_points(
                 format!(
                     "attachment; filename=\"Exam: {} - Point export {}.csv\"",
                     exam.name,
-                    Utc::today().format("%Y-%m-%d")
+                    Utc::now().format("%Y-%m-%d")
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
@@ -168,7 +168,7 @@ pub async fn export_submissions(
                 format!(
                     "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
                     exam.name,
-                    Utc::today().format("%Y-%m-%d")
+                    Utc::now().format("%Y-%m-%d")
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(

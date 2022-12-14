@@ -192,10 +192,11 @@ WHERE submissions.exercise_slide_submission_id = $1
     Ok(bundle_peer_review_questions_and_answers(res))
 }
 
-pub async fn get_peer_review_answers_with_questions_for_user_and_exercise(
+pub async fn get_peer_review_answers_with_questions_for_user_exercise_and_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewWithQuestionsAndAnswers>> {
     let res = sqlx::query!(
         r#"
@@ -218,12 +219,14 @@ FROM peer_review_question_submissions answers
   )
 WHERE submissions.user_id = $1
   AND submissions.exercise_id = $2
+  AND submissions.course_instance_id = $3
   AND questions.deleted_at IS NULL
   AND answers.deleted_at IS NULL
   AND submissions.deleted_at IS NULL
         "#,
         user_id,
-        exercise_id
+        exercise_id,
+        course_instance_id,
     )
     .map(|x| PeerReviewQuestionAndAnswer {
         peer_review_config_id: x.peer_review_config_id,

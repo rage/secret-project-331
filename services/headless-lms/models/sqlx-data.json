@@ -14165,6 +14165,74 @@
     },
     "query": "UPDATE chapters SET front_page_id = $1 WHERE id = $2"
   },
+  "b93dd0d1fc364bd30512ffeb2a8467fc2aac096dfd7a06cea12711d095afd98d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "peer_review_question_submission_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "text_data",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "number_data",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "peer_review_config_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_question_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 5,
+          "type_info": "Int4"
+        },
+        {
+          "name": "question",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "question_type: PeerReviewQuestionType",
+          "ordinal": 7,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        },
+        {
+          "name": "answer_required",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "peer_review_submission_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, true, true, false, false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT answers.id AS peer_review_question_submission_id,\n  answers.text_data,\n  answers.number_data,\n  questions.peer_review_config_id,\n  questions.id AS peer_review_question_id,\n  questions.order_number,\n  questions.question,\n  questions.question_type AS \"question_type: PeerReviewQuestionType\",\n  questions.answer_required,\n  submissions.id AS peer_review_submission_id\nFROM peer_review_question_submissions answers\n  JOIN peer_review_questions questions ON (\n    answers.peer_review_question_id = questions.id\n  )\n  JOIN peer_review_submissions submissions ON (\n    answers.peer_review_submission_id = submissions.id\n  )\nWHERE submissions.user_id = $1\n  AND submissions.exercise_id = $2\n  AND submissions.course_instance_id = $3\n  AND questions.deleted_at IS NULL\n  AND answers.deleted_at IS NULL\n  AND submissions.deleted_at IS NULL\n        "
+  },
   "ba33829b1fc5feebb473bd94cc0bbf3a79307d071a753213cf2a27f5333ac009": {
     "describe": {
       "columns": [
@@ -15863,74 +15931,6 @@
       }
     },
     "query": "\nUPDATE peer_review_queue_entries\nSET removed_from_queue_for_unusual_reason = TRUE\nWHERE id = $1\nRETURNING *\n    "
-  },
-  "ce1ea4fee8b46576d4f3dd14058c53955daa72a56625de434ddd2afdde9e49ac": {
-    "describe": {
-      "columns": [
-        {
-          "name": "peer_review_question_submission_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "text_data",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "number_data",
-          "ordinal": 2,
-          "type_info": "Float4"
-        },
-        {
-          "name": "peer_review_config_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_review_question_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 5,
-          "type_info": "Int4"
-        },
-        {
-          "name": "question",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "question_type: PeerReviewQuestionType",
-          "ordinal": 7,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": ["essay", "scale"]
-              },
-              "name": "peer_review_question_type"
-            }
-          }
-        },
-        {
-          "name": "answer_required",
-          "ordinal": 8,
-          "type_info": "Bool"
-        },
-        {
-          "name": "peer_review_submission_id",
-          "ordinal": 9,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, true, true, false, false, false, false, false, false, false],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\nSELECT answers.id AS peer_review_question_submission_id,\n  answers.text_data,\n  answers.number_data,\n  questions.peer_review_config_id,\n  questions.id AS peer_review_question_id,\n  questions.order_number,\n  questions.question,\n  questions.question_type AS \"question_type: PeerReviewQuestionType\",\n  questions.answer_required,\n  submissions.id AS peer_review_submission_id\nFROM peer_review_question_submissions answers\n  JOIN peer_review_questions questions ON (\n    answers.peer_review_question_id = questions.id\n  )\n  JOIN peer_review_submissions submissions ON (\n    answers.peer_review_submission_id = submissions.id\n  )\nWHERE submissions.user_id = $1\n  AND submissions.exercise_id = $2\n  AND questions.deleted_at IS NULL\n  AND answers.deleted_at IS NULL\n  AND submissions.deleted_at IS NULL\n        "
   },
   "cfbcaeb25e71b8cd1791ff95aa89e4fa44b627abc938c02650af5906ddf1f9e0": {
     "describe": {

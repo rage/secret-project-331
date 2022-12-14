@@ -1136,8 +1136,8 @@ export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export type PeerReviewAnswer =
   | { type: "no-answer" }
-  | { type: "essay"; answer: string }
-  | { type: "scale"; answer: number }
+  | { type: "essay"; value: string }
+  | { type: "scale"; value: number }
 
 export interface PeerReviewQuestionAndAnswer {
   peer_review_config_id: string

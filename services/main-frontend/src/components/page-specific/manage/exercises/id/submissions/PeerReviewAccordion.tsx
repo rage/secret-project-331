@@ -33,7 +33,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
         return (
           <div>
             <Question>{question}</Question>
-            <p>{answer.answer}</p>
+            <p>{answer.value}</p>
           </div>
         )
       case "scale":
@@ -42,7 +42,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
             question={question}
             disabled={true}
             answerRequired={false}
-            selectedOption={answer.answer}
+            selectedOption={answer.value}
             setSelectedOption={() => {
               // No-op
             }}

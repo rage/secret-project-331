@@ -402,7 +402,7 @@ fn models() {
         order_number: 0,
         question: "Was the answer well thought out?".to_string(),
         answer: PeerReviewAnswer::Essay {
-            answer: "I think that the answer was well thought out.".to_string()
+            value: "I think that the answer was well thought out.".to_string()
         }
     });
     example!(PeerReviewWithQuestionsAndAnswers {

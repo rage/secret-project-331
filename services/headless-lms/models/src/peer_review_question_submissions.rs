@@ -109,8 +109,8 @@ WHERE prs.exercise_slide_submission_id = $1
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum PeerReviewAnswer {
     NoAnswer,
-    Essay { answer: String },
-    Scale { answer: f32 },
+    Essay { value: String },
+    Scale { value: f32 },
 }
 
 impl PeerReviewAnswer {
@@ -120,8 +120,8 @@ impl PeerReviewAnswer {
         number_data: Option<f32>,
     ) -> Self {
         match (question_type, text_data, number_data) {
-            (PeerReviewQuestionType::Essay, Some(answer), _) => Self::Essay { answer },
-            (PeerReviewQuestionType::Scale, _, Some(answer)) => Self::Scale { answer },
+            (PeerReviewQuestionType::Essay, Some(value), _) => Self::Essay { value },
+            (PeerReviewQuestionType::Scale, _, Some(value)) => Self::Scale { value },
             _ => Self::NoAnswer,
         }
     }
@@ -186,21 +186,7 @@ WHERE submissions.exercise_slide_submission_id = $1
     })
     .fetch_all(conn)
     .await?;
-    let mut mapped: HashMap<Uuid, Vec<PeerReviewQuestionAndAnswer>> = HashMap::new();
-    res.into_iter().for_each(|x| {
-        mapped
-            .entry(x.peer_review_submission_id)
-            .or_default()
-            .push(x)
-    });
-    let collected = mapped
-        .into_iter()
-        .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
-            peer_review_submission_id: id,
-            questions_and_answers: qa,
-        })
-        .collect();
-    Ok(collected)
+    Ok(bundle_peer_review_questions_and_answers(res))
 }
 
 pub async fn get_peer_review_answers_with_questions_for_user_and_exercise(
@@ -246,19 +232,25 @@ WHERE submissions.user_id = $1
     })
     .fetch_all(conn)
     .await?;
+    Ok(bundle_peer_review_questions_and_answers(res))
+}
+
+/// Groups answers to peer reviews by peer review ids.
+fn bundle_peer_review_questions_and_answers(
+    questions_and_answers: Vec<PeerReviewQuestionAndAnswer>,
+) -> Vec<PeerReviewWithQuestionsAndAnswers> {
     let mut mapped: HashMap<Uuid, Vec<PeerReviewQuestionAndAnswer>> = HashMap::new();
-    res.into_iter().for_each(|x| {
+    questions_and_answers.into_iter().for_each(|x| {
         mapped
             .entry(x.peer_review_submission_id)
             .or_default()
             .push(x)
     });
-    let collected = mapped
+    mapped
         .into_iter()
         .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
             peer_review_submission_id: id,
             questions_and_answers: qa,
         })
-        .collect();
-    Ok(collected)
+        .collect()
 }

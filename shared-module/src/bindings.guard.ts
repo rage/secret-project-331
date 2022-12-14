@@ -2068,10 +2068,10 @@ export function isPeerReviewAnswer(obj: unknown): obj is PeerReviewAnswer {
       typedObj["type"] === "no-answer") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "essay" &&
-      typeof typedObj["answer"] === "string") ||
+      typeof typedObj["value"] === "string") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "scale" &&
-      typeof typedObj["answer"] === "number")
+      typeof typedObj["value"] === "number")
   )
 }
 

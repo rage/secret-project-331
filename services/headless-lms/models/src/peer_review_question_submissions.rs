@@ -147,7 +147,7 @@ pub struct PeerReviewWithQuestionsAndAnswers {
     pub questions_and_answers: Vec<PeerReviewQuestionAndAnswer>,
 }
 
-pub async fn get_peer_review_answers_with_questions_for_submission(
+pub async fn get_questions_and_answers_by_submission_id(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewWithQuestionsAndAnswers>> {
@@ -192,7 +192,7 @@ WHERE submissions.exercise_slide_submission_id = $1
     Ok(bundle_peer_review_questions_and_answers(res))
 }
 
-pub async fn get_peer_review_answers_with_questions_for_user_exercise_and_instance(
+pub async fn get_questions_and_answers_by_user_exercise_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,

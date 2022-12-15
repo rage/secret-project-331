@@ -21,7 +21,6 @@ use crate::{
     prelude::*,
     regradings,
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
-    user_course_settings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{
         self, CourseInstanceOrExamId, ExerciseWithUserState, UserExerciseState,
@@ -538,13 +537,6 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<AnswersRequiringAttention> {
     let exercise = exercises::get_exercise_by_id(conn, exercise_id).await?;
-    let course_id = exercise.course_id.ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::Generic,
-            "Exercise is not part of a course.".to_string(),
-            None,
-        )
-    })?;
     let answer_requiring_attention_count =
         exercise_slide_submissions::answer_requiring_attention_count(conn, exercise_id).await?;
     let data = exercise_slide_submissions::get_all_answers_requiring_attention(
@@ -562,24 +554,23 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             &fetch_service_info,
         )
         .await?;
-        let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
-            conn,
-            answer.user_id,
-            course_id,
-        )
-        .await?
-        .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::RecordNotFound,
-                "Missing course settings for user.".to_string(),
-                None,
+        let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
+            peer_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+                conn,
+                answer.user_id,
+                answer.exercise_id,
+                course_instance_id,
             )
-        })?;
-        let given_peer_reviews = peer_review_question_submissions::get_peer_review_answers_with_questions_for_user_exercise_and_instance(conn, answer.user_id, answer.exercise_id, user_course_settings.current_course_instance_id).await?;
-        let received_peer_reviews = peer_review_question_submissions::get_peer_review_answers_with_questions_for_submission(
-            conn,
-            answer.submission_id,
-        ).await?;
+            .await?
+        } else {
+            vec![]
+        };
+        let received_peer_reviews =
+            peer_review_question_submissions::get_questions_and_answers_by_submission_id(
+                conn,
+                answer.submission_id,
+            )
+            .await?;
         let new_answer = AnswerRequiringAttentionWithTasks {
             id: answer.id,
             user_id: answer.user_id,

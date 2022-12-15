@@ -481,14 +481,14 @@ pub async fn create_best_peer_review(
     accepting_strategy: peer_review_configs::PeerReviewAcceptingStrategy,
     accepting_threshold: f32,
 ) -> Result<()> {
-    let prc_id =
-        peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
-            .await?;
+    // let prc_id =
+    //     peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
+    //         .await?;
     let prc = peer_review_configs::upsert_with_id(
         conn,
-        PKeyPolicy::Fixed(prc_id),
+        PKeyPolicy::Generate,
         &CmsPeerReviewConfig {
-            id: prc_id,
+            id: Uuid::new_v4(),
             course_id,
             exercise_id: Some(exercise_id),
             peer_reviews_to_give: 2,
@@ -506,8 +506,36 @@ pub async fn create_best_peer_review(
             id: Uuid::new_v4(),
             peer_review_config_id: prc.id,
             order_number: 0,
-            question: "Was the answer good".to_string(),
+            question: "What are your thoughts on the answer".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
+            answer_required: true,
+        },
+    )
+    .await?;
+
+    peer_review_questions::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &CmsPeerReviewQuestion {
+            id: Uuid::new_v4(),
+            peer_review_config_id: prc.id,
+            order_number: 1,
+            question: "Was the answer correct?".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            answer_required: true,
+        },
+    )
+    .await?;
+
+    peer_review_questions::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &CmsPeerReviewQuestion {
+            id: Uuid::new_v4(),
+            peer_review_config_id: prc.id,
+            order_number: 2,
+            question: "Was the answer good?".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: true,
         },
     )

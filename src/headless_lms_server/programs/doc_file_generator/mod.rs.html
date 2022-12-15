@@ -1418,6 +1418,28 @@
 <span id="1418">1418</span>
 <span id="1419">1419</span>
 <span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
+<span id="1435">1435</span>
+<span id="1436">1436</span>
+<span id="1437">1437</span>
+<span id="1438">1438</span>
+<span id="1439">1439</span>
+<span id="1440">1440</span>
+<span id="1441">1441</span>
+<span id="1442">1442</span>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1540,7 +1562,9 @@ This method is mainly useful for external/std types. For example, we cannot writ
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_question_submissions::{
+        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+    },
 };
 <span class="kw">use </span>serde::Serialize;
 <span class="kw">use </span>serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -1692,9 +1716,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
             courses::{ChaptersWithStatus, CourseMaterialCourseModule},
             exams::{ExamData, ExamEnrollmentData},
         },
-        main_frontend::exercises::{
-            AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, ExerciseSubmissions,
-        },
+        main_frontend::exercises::ExerciseSubmissions,
         UploadResult,
     };
 
@@ -1705,19 +1727,6 @@ This method is mainly useful for external/std types. For example, we cannot writ
         name: <span class="prelude-val">None</span>,
         order_number: <span class="number">0
     </span>});
-    <span class="macro">example!</span>(AnswerRequiringAttentionWithTasks {
-        id,
-        user_id: Uuid::parse_str(<span class="string">&quot;7115806b-07c4-4079-8444-6dd248d3b9e7&quot;</span>).unwrap(),
-        created_at,
-        updated_at,
-        deleted_at: <span class="prelude-val">None</span>,
-        data_json: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json! </span>{{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
-        grading_progress,
-        score_given: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
-        submission_id: Uuid::parse_str(<span class="string">&quot;e2560477-0680-4573-abec-646440e294da&quot;</span>).unwrap(),
-        exercise_id: Uuid::parse_str(<span class="string">&quot;7f57619a-ad00-4116-958d-5d597437e6fb&quot;</span>).unwrap(),
-        tasks,
-    });
 
     <span class="macro">doc!</span>(UploadResult {
         url: <span class="string">&quot;http://project-331.local/api/v0/files/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png&quot;</span>.to_string()
@@ -1746,11 +1755,6 @@ This method is mainly useful for external/std types. For example, we cannot writ
             user_id: Uuid::parse_str(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).unwrap()
         }
     );
-    <span class="macro">doc!</span>(AnswersRequiringAttention {
-        exercise_max_points: <span class="number">1</span>,
-        data,
-        total_pages: <span class="number">10</span>,
-    });
 }
 
 <span class="kw">fn </span>models() {
@@ -1785,7 +1789,10 @@ This method is mainly useful for external/std types. For example, we cannot writ
         feedback::{Feedback, FeedbackBlock, FeedbackCount},
         glossary::Term,
         library::{
-            grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+            grading::{
+                AnswerRequiringAttentionWithTasks, AnswersRequiringAttention,
+                StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult,
+            },
             peer_reviewing::{
                 CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
                 CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
@@ -1809,6 +1816,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
             CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
             PeerReviewConfig,
         },
+        peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         peer_review_questions::{
             CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType,
         },
@@ -1828,6 +1836,42 @@ This method is mainly useful for external/std types. For example, we cannot writ
         users::User,
     };
 
+    <span class="macro">example!</span>(PeerReviewQuestionAndAnswer {
+        peer_review_config_id,
+        peer_review_question_id,
+        peer_review_question_submission_id,
+        peer_review_submission_id,
+        order_number: <span class="number">0</span>,
+        question: <span class="string">&quot;Was the answer well thought out?&quot;</span>.to_string(),
+        answer: PeerReviewAnswer::Essay {
+            value: <span class="string">&quot;I think that the answer was well thought out.&quot;</span>.to_string()
+        },
+        answer_required: <span class="bool-val">true</span>,
+    });
+    <span class="macro">example!</span>(PeerReviewWithQuestionsAndAnswers {
+        peer_review_submission_id,
+        questions_and_answers,
+    });
+    <span class="macro">example!</span>(AnswerRequiringAttentionWithTasks {
+        id,
+        user_id: Uuid::parse_str(<span class="string">&quot;7115806b-07c4-4079-8444-6dd248d3b9e7&quot;</span>).unwrap(),
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        data_json: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json! </span>{{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
+        grading_progress,
+        score_given: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+        submission_id: Uuid::parse_str(<span class="string">&quot;e2560477-0680-4573-abec-646440e294da&quot;</span>).unwrap(),
+        exercise_id: Uuid::parse_str(<span class="string">&quot;7f57619a-ad00-4116-958d-5d597437e6fb&quot;</span>).unwrap(),
+        tasks,
+        given_peer_reviews,
+        received_peer_reviews,
+    });
+    <span class="macro">doc!</span>(AnswersRequiringAttention {
+        exercise_max_points: <span class="number">1</span>,
+        data,
+        total_pages: <span class="number">10</span>,
+    });
     <span class="macro">example!</span>(ExerciseSlideSubmission {
         id,
         created_at,

@@ -498,9 +498,106 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Collection of functions used for processing and evaluating user submissions for exercises.
 
-<span class="kw">use </span>futures::future::BoxFuture;
+</span><span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
@@ -511,10 +608,12 @@
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{<span class="self">self</span>, ExerciseTaskSubmission},
-    exercise_tasks::{<span class="self">self</span>, ExerciseTask},
-    exercises::{Exercise, ExerciseStatus},
+    exercise_tasks::{<span class="self">self</span>, CourseMaterialExerciseTask, ExerciseTask},
+    exercises::{<span class="self">self</span>, Exercise, ExerciseStatus, GradingProgress},
     peer_review_configs::PeerReviewAcceptingStrategy,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_question_submissions::{
+        <span class="self">self</span>, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
+    },
     prelude::<span class="kw-2">*</span>,
     regradings,
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
@@ -997,6 +1096,99 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(user_exercise_state)
+}
+
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>AnswersRequiringAttention {
+    <span class="kw">pub </span>exercise_max_points: i32,
+    <span class="kw">pub </span>data: Vec&lt;AnswerRequiringAttentionWithTasks&gt;,
+    <span class="kw">pub </span>total_pages: u32,
+}
+
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>AnswerRequiringAttentionWithTasks {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>data_json: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>submission_id: Uuid,
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>tasks: Vec&lt;CourseMaterialExerciseTask&gt;,
+    <span class="kw">pub </span>given_peer_reviews: Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;,
+    <span class="kw">pub </span>received_peer_reviews: Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;,
+}
+
+<span class="doccomment">/// Gets submissions that require input from the teacher to continue processing.
+</span><span class="kw">pub async fn </span>get_paginated_answers_requiring_attention_for_exercise(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+    viewer_user_id: Uuid,
+    fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
+) -&gt; ModelResult&lt;AnswersRequiringAttention&gt; {
+    <span class="kw">let </span>exercise = exercises::get_exercise_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>answer_requiring_attention_count =
+        exercise_slide_submissions::answer_requiring_attention_count(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>data = exercise_slide_submissions::get_all_answers_requiring_attention(
+        conn,
+        exercise.id,
+        pagination,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>answers = Vec::with_capacity(data.len());
+    <span class="kw">for </span>answer <span class="kw">in </span><span class="kw-2">&amp;</span>data {
+        <span class="kw">let </span>tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
+            conn,
+            answer.submission_id,
+            viewer_user_id,
+            <span class="kw-2">&amp;</span>fetch_service_info,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>given_peer_reviews = <span class="kw">if let </span><span class="prelude-val">Some</span>(course_instance_id) = answer.course_instance_id {
+            peer_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+                conn,
+                answer.user_id,
+                answer.exercise_id,
+                course_instance_id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>} <span class="kw">else </span>{
+            <span class="macro">vec!</span>[]
+        };
+        <span class="kw">let </span>received_peer_reviews =
+            peer_review_question_submissions::get_questions_and_answers_by_submission_id(
+                conn,
+                answer.submission_id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>new_answer = AnswerRequiringAttentionWithTasks {
+            id: answer.id,
+            user_id: answer.user_id,
+            created_at: answer.created_at,
+            updated_at: answer.updated_at,
+            deleted_at: answer.deleted_at,
+            data_json: answer.data_json.to_owned(),
+            grading_progress: answer.grading_progress,
+            score_given: answer.score_given,
+            submission_id: answer.submission_id,
+            exercise_id: answer.exercise_id,
+            tasks,
+            given_peer_reviews,
+            received_peer_reviews,
+        };
+        answers.push(new_answer);
+    }
+    <span class="prelude-val">Ok</span>(AnswersRequiringAttention {
+        exercise_max_points: exercise.score_maximum,
+        data: answers,
+        total_pages: pagination.total_pages(answer_requiring_attention_count),
+    })
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

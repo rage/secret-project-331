@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["content_management",""],["copying",""],["grading",""],["peer_reviewing",""],["progressing",""],["regrading",""],["user_exercise_state_updater","Always update the user_exercise_state table though this module"]]};
+window.SIDEBAR_ITEMS = {"mod":[["content_management",""],["copying",""],["grading","Collection of functions used for processing and evaluating user submissions for exercises."],["peer_reviewing",""],["progressing",""],["regrading",""],["user_exercise_state_updater","Always update the user_exercise_state table though this module"]]};

@@ -100,7 +100,172 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+
+<span class="kw">use </span><span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -201,6 +366,165 @@ WHERE prs.exercise_slide_submission_id = $1
     .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res)
+}
+
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[serde(tag = <span class="string">&quot;type&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+</span><span class="kw">pub enum </span>PeerReviewAnswer {
+    NoAnswer,
+    Essay { value: String },
+    Scale { value: f32 },
+}
+
+<span class="kw">impl </span>PeerReviewAnswer {
+    <span class="kw">fn </span>new(
+        question_type: PeerReviewQuestionType,
+        text_data: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        number_data: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>(question_type, text_data, number_data) {
+            (PeerReviewQuestionType::Essay, <span class="prelude-val">Some</span>(value), <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Essay { value },
+            (PeerReviewQuestionType::Scale, <span class="kw">_</span>, <span class="prelude-val">Some</span>(value)) =&gt; <span class="self">Self</span>::Scale { value },
+            <span class="kw">_ </span>=&gt; <span class="self">Self</span>::NoAnswer,
+        }
+    }
+}
+
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PeerReviewQuestionAndAnswer {
+    <span class="kw">pub </span>peer_review_config_id: Uuid,
+    <span class="kw">pub </span>peer_review_question_id: Uuid,
+    <span class="kw">pub </span>peer_review_submission_id: Uuid,
+    <span class="kw">pub </span>peer_review_question_submission_id: Uuid,
+    <span class="kw">pub </span>order_number: i32,
+    <span class="kw">pub </span>question: String,
+    <span class="kw">pub </span>answer: PeerReviewAnswer,
+    <span class="kw">pub </span>answer_required: bool,
+}
+
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PeerReviewWithQuestionsAndAnswers {
+    <span class="kw">pub </span>peer_review_submission_id: Uuid,
+    <span class="kw">pub </span>questions_and_answers: Vec&lt;PeerReviewQuestionAndAnswer&gt;,
+}
+
+<span class="kw">pub async fn </span>get_questions_and_answers_by_submission_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+        <span class="string">r#&quot;
+SELECT answers.id AS peer_review_question_submission_id,
+  answers.text_data,
+  answers.number_data,
+  questions.peer_review_config_id,
+  questions.id AS peer_review_question_id,
+  questions.order_number,
+  questions.question,
+  questions.question_type AS &quot;question_type: PeerReviewQuestionType&quot;,
+  questions.answer_required,
+  submissions.id AS peer_review_submission_id
+FROM peer_review_question_submissions answers
+  JOIN peer_review_questions questions ON (
+    answers.peer_review_question_id = questions.id
+  )
+  JOIN peer_review_submissions submissions ON (
+    answers.peer_review_submission_id = submissions.id
+  )
+WHERE submissions.exercise_slide_submission_id = $1
+  AND questions.deleted_at IS NULL
+  AND answers.deleted_at IS NULL
+  AND submissions.deleted_at IS NULL
+        &quot;#</span>,
+        exercise_slide_submission_id,
+    )
+    .map(|x| PeerReviewQuestionAndAnswer {
+        peer_review_config_id: x.peer_review_config_id,
+        peer_review_question_id: x.peer_review_question_id,
+        peer_review_question_submission_id: x.peer_review_question_submission_id,
+        peer_review_submission_id: x.peer_review_submission_id,
+        order_number: x.order_number,
+        question: x.question,
+        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer_required: x.answer_required,
+    })
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(bundle_peer_review_questions_and_answers(res))
+}
+
+<span class="kw">pub async fn </span>get_questions_and_answers_by_user_exercise_instance(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+        <span class="string">r#&quot;
+SELECT answers.id AS peer_review_question_submission_id,
+  answers.text_data,
+  answers.number_data,
+  questions.peer_review_config_id,
+  questions.id AS peer_review_question_id,
+  questions.order_number,
+  questions.question,
+  questions.question_type AS &quot;question_type: PeerReviewQuestionType&quot;,
+  questions.answer_required,
+  submissions.id AS peer_review_submission_id
+FROM peer_review_question_submissions answers
+  JOIN peer_review_questions questions ON (
+    answers.peer_review_question_id = questions.id
+  )
+  JOIN peer_review_submissions submissions ON (
+    answers.peer_review_submission_id = submissions.id
+  )
+WHERE submissions.user_id = $1
+  AND submissions.exercise_id = $2
+  AND submissions.course_instance_id = $3
+  AND questions.deleted_at IS NULL
+  AND answers.deleted_at IS NULL
+  AND submissions.deleted_at IS NULL
+        &quot;#</span>,
+        user_id,
+        exercise_id,
+        course_instance_id,
+    )
+    .map(|x| PeerReviewQuestionAndAnswer {
+        peer_review_config_id: x.peer_review_config_id,
+        peer_review_question_id: x.peer_review_question_id,
+        peer_review_question_submission_id: x.peer_review_question_submission_id,
+        peer_review_submission_id: x.peer_review_submission_id,
+        order_number: x.order_number,
+        question: x.question,
+        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer_required: x.answer_required,
+    })
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(bundle_peer_review_questions_and_answers(res))
+}
+
+<span class="doccomment">/// Groups answers to peer reviews by peer review ids.
+</span><span class="kw">fn </span>bundle_peer_review_questions_and_answers(
+    questions_and_answers: Vec&lt;PeerReviewQuestionAndAnswer&gt;,
+) -&gt; Vec&lt;PeerReviewWithQuestionsAndAnswers&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>mapped: HashMap&lt;Uuid, Vec&lt;PeerReviewQuestionAndAnswer&gt;&gt; = HashMap::new();
+    questions_and_answers.into_iter().for_each(|x| {
+        mapped
+            .entry(x.peer_review_submission_id)
+            .or_default()
+            .push(x)
+    });
+    mapped
+        .into_iter()
+        .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
+            peer_review_submission_id: id,
+            questions_and_answers: qa,
+        })
+        .collect()
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

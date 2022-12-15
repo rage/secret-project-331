@@ -82,6 +82,46 @@
           },
           "order_number": 0
         }
+      ],
+      "given_peer_reviews": [
+        {
+          "peer_review_submission_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+          "questions_and_answers": [
+            {
+              "peer_review_config_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "peer_review_question_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "peer_review_submission_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "peer_review_question_submission_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "order_number": 0,
+              "question": "Was the answer well thought out?",
+              "answer": {
+                "type": "essay",
+                "value": "I think that the answer was well thought out."
+              },
+              "answer_required": true
+            }
+          ]
+        }
+      ],
+      "received_peer_reviews": [
+        {
+          "peer_review_submission_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+          "questions_and_answers": [
+            {
+              "peer_review_config_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "peer_review_question_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "peer_review_submission_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "peer_review_question_submission_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+              "order_number": 0,
+              "question": "Was the answer well thought out?",
+              "answer": {
+                "type": "essay",
+                "value": "I think that the answer was well thought out."
+              },
+              "answer_required": true
+            }
+          ]
+        }
       ]
     }
   ],

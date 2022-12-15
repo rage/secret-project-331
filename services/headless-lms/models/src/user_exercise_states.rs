@@ -1113,7 +1113,7 @@ mod tests {
 
     #[test]
     fn merges_course_modules_with_metrics() {
-        let timestamp = Utc.ymd(2022, 6, 22).and_hms(0, 0, 0);
+        let timestamp = Utc.with_ymd_and_hms(2022, 6, 22, 0, 0, 0).unwrap();
         let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
         let course_modules = vec![CourseModule::new(
             module_id,

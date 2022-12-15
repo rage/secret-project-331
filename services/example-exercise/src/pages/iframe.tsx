@@ -7,10 +7,8 @@ import { useTranslation } from "react-i18next"
 import Renderer from "../components/Renderer"
 import { ExerciseTaskGradingResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import {
-  isSetLanguageMessage,
-  isSetStateMessage,
-} from "../shared-module/exercise-service-protocol-types.guard"
+import { forgivingIsSetStateMessage } from "../shared-module/exercise-service-protocol-types"
+import { isSetLanguageMessage } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
@@ -52,7 +50,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   const port = useExerciseServiceParentConnection((messageData) => {
-    if (isSetStateMessage(messageData)) {
+    if (forgivingIsSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
           setState({

@@ -359,7 +359,7 @@ HttpResponse::Ok()
         format!(
             "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
             exam.name,
-            Utc::today().format("%Y-%m-%d")
+            Utc::now().format("%Y-%m-%d")
         ),
     ))
     .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
@@ -590,6 +590,7 @@ mod test {
                     grading_progress: GradingProgress::FullyGraded,
                     score_given,
                     score_maximum: 100,
+                    set_user_variables: Some(HashMap::new()),
                 },
             )])),
             models_requests::fetch_service_info,

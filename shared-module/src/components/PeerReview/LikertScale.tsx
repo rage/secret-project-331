@@ -66,6 +66,7 @@ const Likert = styled.div`
 `
 
 interface LikertScaleProps {
+  disabled?: boolean
   question: string
   answerRequired: boolean
   selectedOption: number | null
@@ -77,6 +78,7 @@ interface StyledProps {
 }
 
 const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<LikertScaleProps>>> = ({
+  disabled,
   question,
   answerRequired,
   selectedOption,
@@ -119,7 +121,9 @@ const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<Like
           <Likert
             key={n + 1}
             onClick={() => {
-              setSelectedOption(n + 1)
+              if (!disabled) {
+                setSelectedOption(n + 1)
+              }
             }}
             active={selectedOption === n + 1}
           >
@@ -131,5 +135,6 @@ const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<Like
     </Wrapper>
   )
 }
+LikertScale.defaultProps = { disabled: false }
 
 export default LikertScale

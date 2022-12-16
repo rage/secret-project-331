@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
@@ -22,6 +23,10 @@ const CourseInstanceExerciseStatusList: React.FC<
   React.PropsWithChildren<CourseInstancePointsListProps>
 > = ({ query }) => {
   const { t } = useTranslation()
+
+  const PeerReviewDiv = styled.div`
+    margin-bottom: 1.5rem;
+  `
 
   const exerciseStatusList = useQuery([`${query.id}-exercise-status-${query.user_id}`], () =>
     getAllExerciseStatuses(query.id, query.user_id),
@@ -65,47 +70,78 @@ const CourseInstanceExerciseStatusList: React.FC<
                           </p>
                         </div>
                       ) : null}
+                      {exercise.peer_review_queue_entry ? (
+                        <p>
+                          {`${t("received-enough-peer-reviews")}: ${
+                            exercise.peer_review_queue_entry
+                          }`}
+                        </p>
+                      ) : (
+                        <p>
+                          {t("received-enough-peer-reviews")}: {t("false")}
+                        </p>
+                      )}
+
                       {exercise.received_peer_review_data.length > 0 ? (
                         <>
                           <h2>{t("peer-reviews-received")}:</h2>
-                          {exercise.received_peer_review_data.map((received) => {
-                            return (
-                              <div key={received.pr_submission_id}>
-                                <p>
-                                  {t("received-number-data")}: {received.number_data}
-                                </p>
-                                <p>
-                                  {t("received-text-data")}: {received.text_data}
-                                </p>
-                                <p>
-                                  {t("received-enough-peer-reviews")}:{" "}
-                                  {received.received_enough_peer_reviews}
-                                </p>
-                              </div>
-                            )
-                          })}
+                          {exercise.received_peer_review_data.map((received) => (
+                            <div key={received.submission_id}>
+                              <Accordion variant="detail">
+                                <details>
+                                  <summary>
+                                    {t("peer-review-submission-id")}: {received.submission_id}
+                                  </summary>
+                                  {received.data.map((test) => (
+                                    <PeerReviewDiv key={test.pr_submission_id}>
+                                      <p>
+                                        {t("question")}: {test.question}
+                                      </p>
+                                      <p>
+                                        {t("received-number-data")}: {test.number_data}
+                                      </p>
+                                      <p>
+                                        {t("received-text-data")}: {test.text_data}
+                                      </p>
+                                    </PeerReviewDiv>
+                                  ))}
+                                </details>
+                              </Accordion>
+                            </div>
+                          ))}
                         </>
                       ) : (
                         <h2> {t("no-peer-reviews-received")} </h2>
                       )}
                       {exercise.given_peer_review_data.length > 0 ? (
                         <>
-                          <h2>{t("peer-reviews-given")}</h2>
-                          {exercise.given_peer_review_data.map((given) => {
-                            return (
-                              <div key={given.pr_submission_id}>
-                                <p>
-                                  {t("given-number-data")}: {given.number_data}
-                                </p>
-                                <p>
-                                  {t("given-text-data")}: {given.text_data}
-                                </p>
-                              </div>
-                            )
-                          })}
+                          <h2>{t("peer-reviews-given")}:</h2>
+                          <Accordion variant="detail">
+                            <details>
+                              <summary>
+                                {t("exercise")}: {exercise.exercise_points.name} (
+                                {exercise.submission_ids.length})
+                              </summary>
+                              {exercise.given_peer_review_data.map((given) =>
+                                given.data.map((test) => (
+                                  <PeerReviewDiv key={test.pr_submission_id}>
+                                    <p>
+                                      {t("question")}: {test.question}
+                                    </p>
+                                    <p>
+                                      {t("given-number-data")}: {test.number_data}
+                                    </p>
+                                    <p>
+                                      {t("given-text-data")}: {test.text_data}
+                                    </p>
+                                  </PeerReviewDiv>
+                                )),
+                              )}
+                            </details>
+                          </Accordion>
                         </>
                       ) : (
-                        <h2> {t("no-peer-reviews-given")}</h2>
+                        <h2> {t("no-peer-reviews-received")} </h2>
                       )}
 
                       {exercise.submission_ids.length > 0 ? (

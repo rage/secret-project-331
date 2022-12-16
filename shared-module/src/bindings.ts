@@ -680,9 +680,10 @@ export interface ExerciseStatus {
 
 export interface ExerciseStatusForUser {
   exercise_points: Exercise
-  given_peer_review_data: Array<PeerReviewDataForUser>
-  received_peer_review_data: Array<PeerReviewDataForUser>
+  given_peer_review_data: Array<PeerReviewDataBySubmission>
+  received_peer_review_data: Array<PeerReviewDataBySubmission>
   submission_ids: Array<ExerciseStatusForSubmission>
+  peer_review_queue_entry: PeerReviewQueueEntry | null
 }
 
 export interface PeerReviewDataForUser {
@@ -693,8 +694,14 @@ export interface PeerReviewDataForUser {
   text_data: string | null
   number_data: number | null
   pr_submission_id: string
-  received_enough_peer_reviews: boolean
-  peer_review_priority: number
+  question: string
+  reviewer: string
+  peer_review_submission_id: string
+}
+
+export interface PeerReviewDataBySubmission {
+  submission_id: string
+  data: Array<PeerReviewDataForUser>
 }
 
 export interface ExerciseStatusForSubmission {
@@ -1150,6 +1157,20 @@ export interface PeerReviewQuestionSubmission {
   peer_review_submission_id: string
   text_data: string | null
   number_data: number | null
+}
+
+export interface PeerReviewQueueEntry {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  exercise_id: string
+  course_instance_id: string
+  receiving_peer_reviews_exercise_slide_submission_id: string
+  received_enough_peer_reviews: boolean
+  peer_review_priority: number
+  removed_from_queue_for_unusual_reason: boolean
 }
 
 export interface PendingRole {

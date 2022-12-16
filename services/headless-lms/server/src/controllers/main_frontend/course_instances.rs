@@ -6,13 +6,16 @@ use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
-    exercises::ExerciseStatusForUser,
+    exercises::{ExerciseStatusForUser, PeerReviewDataBySubmission, PeerReviewDataForUser},
     library::{
         self,
         progressing::{
             CourseInstanceCompletionSummary, ManualCompletionPreview,
             TeacherManualCompletionRequest,
         },
+    },
+    peer_review_queue_entries::{
+        try_to_get_all_by_user_and_course_instance_ids, PeerReviewQueueEntry,
     },
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -400,18 +403,56 @@ async fn get_exercise_status_by_course_instance_id(
             &mut conn, params.0, params.1,
         )
         .await?;
+
+    let peer_review_queue_entries =
+        try_to_get_all_by_user_and_course_instance_ids(&mut conn, params.0, params.1)
+            .await?
+            .unwrap_or_default();
+
     let mut exercise_and_peer_review_data: Vec<ExerciseStatusForUser> = vec![];
     for exercise in exercises {
-        let mut temp_given_peer_review = vec![];
+        let mut temp_given_peer_review: Vec<PeerReviewDataBySubmission> = vec![];
+        let mut temp_given_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
         for given_review in &given_peer_review_data {
-            if given_review.id == exercise.id {
-                temp_given_peer_review.push(given_review.clone())
+            if !temp_given_peer_review_by_submission.is_empty()
+                && given_review.peer_review_submission_id
+                    != temp_given_peer_review_by_submission
+                        .last()
+                        .unwrap()
+                        .peer_review_submission_id
+            {
+                let data = PeerReviewDataBySubmission {
+                    submission_id: temp_given_peer_review_by_submission[0]
+                        .peer_review_submission_id,
+                    data: temp_given_peer_review_by_submission.clone(),
+                };
+                temp_given_peer_review.push(data.clone());
+                temp_given_peer_review_by_submission.truncate(0);
+            } else if given_review.id == exercise.id {
+                temp_given_peer_review_by_submission.push(given_review.clone())
             }
         }
-        let mut temp_received_peer_review = vec![];
+
+        let mut temp_received_peer_review: Vec<PeerReviewDataBySubmission> = vec![];
+        let mut temp_received_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
         for received_review in &received_peer_review_data {
+            if !temp_received_peer_review_by_submission.is_empty()
+                && received_review.peer_review_submission_id
+                    != temp_received_peer_review_by_submission
+                        .last()
+                        .unwrap()
+                        .peer_review_submission_id
+            {
+                let data = PeerReviewDataBySubmission {
+                    submission_id: temp_received_peer_review_by_submission[0]
+                        .peer_review_submission_id,
+                    data: temp_received_peer_review_by_submission.clone(),
+                };
+                temp_received_peer_review.push(data.clone());
+                temp_received_peer_review_by_submission.truncate(0)
+            }
             if received_review.id == exercise.id {
-                temp_received_peer_review.push(received_review.clone())
+                temp_received_peer_review_by_submission.push(received_review.clone())
             }
         }
         let mut temp_submission_id = vec![];
@@ -420,11 +461,20 @@ async fn get_exercise_status_by_course_instance_id(
                 temp_submission_id.push(submission_ids.clone())
             }
         }
+        let mut temp_peer_review_queue_entry: Option<PeerReviewQueueEntry> = None;
+        if !peer_review_queue_entries.is_empty() {
+            for queue_entry in &peer_review_queue_entries {
+                if queue_entry.exercise_id == exercise.id {
+                    temp_peer_review_queue_entry = Some(queue_entry.clone())
+                }
+            }
+        }
         let exercise_status = ExerciseStatusForUser {
             exercise_points: exercise,
             given_peer_review_data: temp_given_peer_review,
             received_peer_review_data: temp_received_peer_review,
             submission_ids: temp_submission_id,
+            peer_review_queue_entry: temp_peer_review_queue_entry,
         };
         exercise_and_peer_review_data.push(exercise_status)
     }

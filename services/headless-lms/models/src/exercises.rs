@@ -10,6 +10,7 @@ use crate::{
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
+    peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::TeacherDecisionType,
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
@@ -63,17 +64,26 @@ pub struct PeerReviewDataForUser {
     pub text_data: Option<String>,
     pub number_data: Option<f32>,
     pub pr_submission_id: Uuid,
-    pub received_enough_peer_reviews: bool,
-    pub peer_review_priority: i32,
+    pub question: String,
+    pub reviewer: Uuid,
+    pub peer_review_submission_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerReviewDataBySubmission {
+    pub submission_id: Uuid,
+    pub data: Vec<PeerReviewDataForUser>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatusForUser {
     pub exercise_points: Exercise,
-    pub given_peer_review_data: Vec<PeerReviewDataForUser>,
-    pub received_peer_review_data: Vec<PeerReviewDataForUser>,
+    pub given_peer_review_data: Vec<PeerReviewDataBySubmission>,
+    pub received_peer_review_data: Vec<PeerReviewDataBySubmission>,
     pub submission_ids: Vec<ExerciseStatusForSubmission>,
+    pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
 }
 
 impl Exercise {
@@ -330,7 +340,6 @@ pub async fn get_exercise_submissions_and_status_by_course_instance_id(
     Ok(exercises)
 }
 
-/** Given peer reviews */
 pub async fn get_given_peer_review_data_for_exercise_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -345,14 +354,15 @@ pub async fn get_given_peer_review_data_for_exercise_by_course_instance_id(
         e.updated_at,
         e.name,
         prqs.id AS pr_submission_id,
+        prqs.peer_review_submission_id,
         prqs.text_data,
         prqs.number_data,
-        prqe.received_enough_peer_reviews,
-        prqe.peer_review_priority
+        prq.question,
+        prs.user_id as reviewer
         FROM exercises e
-        RIGHT JOIN peer_review_queue_entries prqe on e.id = prqe.exercise_id
         LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
         LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id
+        LEFT JOIN peer_review_questions prq on prqs.peer_review_question_id = prq.id
         WHERE e.course_id = (
             SELECT course_id
             FROM course_instances
@@ -370,7 +380,6 @@ pub async fn get_given_peer_review_data_for_exercise_by_course_instance_id(
     Ok(peer_review_data)
 }
 
-/** Received peer reviews */
 pub async fn get_received_peer_review_data_for_exercise_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -385,15 +394,16 @@ pub async fn get_received_peer_review_data_for_exercise_by_course_instance_id(
         e.updated_at,
         e.name,
         prqs.id AS pr_submission_id,
+        prqs.peer_review_submission_id,
         prqs.text_data,
         prqs.number_data,
-        prqe.received_enough_peer_reviews,
-        prqe.peer_review_priority
+        prq.question,
+        prs.user_id as reviewer
         FROM exercises e
-        RIGHT JOIN peer_review_queue_entries prqe on e.id = prqe.exercise_id
         LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
         LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id
         LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id
+        LEFT JOIN peer_review_questions prq on prqs.peer_review_question_id = prq.id
         WHERE e.course_id = (
             SELECT course_id
             FROM course_instances

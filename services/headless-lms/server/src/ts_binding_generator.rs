@@ -118,6 +118,8 @@ fn models(target: &mut File) {
         exercises::ExerciseStatus,
         exercises::ExerciseStatusForUser,
         exercises::PeerReviewDataForUser,
+        exercises::PeerReviewDataBySubmission,
+
         exercises::ExerciseStatusForSubmission,
         exercises::GradingProgress,
 
@@ -182,6 +184,7 @@ fn models(target: &mut File) {
         peer_review_questions::PeerReviewQuestion,
         peer_review_questions::PeerReviewQuestionType,
         peer_review_question_submissions::PeerReviewQuestionSubmission,
+        peer_review_queue_entries::PeerReviewQueueEntry,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,

@@ -7,7 +7,7 @@ metadata:
     deploymentType: with-init-container-cronjob
     needs-db: "job"
 spec:
-  schedule: "* * * * *"
+  schedule: "30 0 * * *"
   startingDeadlineSeconds: 900
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1

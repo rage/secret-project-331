@@ -16,6 +16,7 @@ pub mod course_modules;
 pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
+pub mod ended_processed_exams;
 pub mod exams;
 pub mod exercise_repositories;
 pub mod exercise_service_info;

@@ -13842,6 +13842,22 @@
     },
     "query": "\nSELECT language,\n  organization_id,\n  minimum_points_treshold\nFROM exams\nWHERE id = $1\n        "
   },
+  "b7336ab75d3bb0066457bdff2f9f3506324004fcc44a1754c2eea93ebcdac888": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Timestamptz"]
+      }
+    },
+    "query": "\nSELECT exams.id\nFROM exams\n  LEFT JOIN ended_processed_exams ON (ended_processed_exams.exam_id = exams.id)\nWHERE exams.ends_at <= $1\n  AND ended_processed_exams.created_at IS NULL\n  AND exams.deleted_at IS NULL\n  AND ended_processed_exams.deleted_at IS NULL\n        "
+  },
   "b762efb77876e893abf712da8e1568b7406c5efd2cbe92e54520b6c93558794b": {
     "describe": {
       "columns": [
@@ -15627,6 +15643,22 @@
       }
     },
     "query": "\nINSERT INTO teacher_grading_decisions (\n    user_exercise_state_id,\n    teacher_decision,\n    score_given,\n    user_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\";\n      "
+  },
+  "cd0ffa9cef60a26a576c587901bca78792a9d6936bfb9d84c5a7199027c53c3b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exam_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO ended_processed_exams(exam_id)\nVALUES ($1) ON CONFLICT (exam_id) DO\nUPDATE\nSET deleted_at = NULL\nRETURNING exam_id\n        "
   },
   "cd3b491d6ba8e90f68bc92547628e63003efaf17d7d6df44778658e914427261": {
     "describe": {

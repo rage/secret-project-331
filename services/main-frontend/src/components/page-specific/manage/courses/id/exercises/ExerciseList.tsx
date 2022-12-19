@@ -104,12 +104,9 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                           font-weight: ${fontWeights.normal};
                           font-size: 18px;
                           line-height: 24px;
-
+                          text-transform: uppercase;
                           color: ${baseTheme.colors.green[600]};
                         `}
-                        // PAGE should be replaced with {t("page-number")}, once I know how
-                        // adding translations work
-                        // eslint-disable-next-line i18next/no-literal-string
                       >
                         {t("page-number", { "page-number": page.order_number + 1 })}
                       </p>
@@ -164,9 +161,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                               </Link>
                             </div>
                             <div>
-                              {exercise.count === null ? (
-                                <></>
-                              ) : (
+                              {exercise.count !== null && (
                                 <Link
                                   className={css`
                                     font-family: ${monospaceFont};

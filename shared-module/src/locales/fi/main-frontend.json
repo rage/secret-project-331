@@ -331,7 +331,7 @@
   "other-language": "muu",
   "override-completion-registration-link": "Käytä poikkeavaa suoritusten rekisteröimislinkkiä",
   "page-deletion-confirmation-message": "Oletko varma, että haluat poistaa sivun {{title}}?",
-  "page-number": "SIVU {{page-number}}",
+  "page-number": "sivu {{page-number}}",
   "pages": "Sivut",
   "passed": "Hyv.",
   "password": "Salasana",

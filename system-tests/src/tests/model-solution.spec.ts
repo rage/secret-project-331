@@ -32,7 +32,7 @@ test.describe("Model solutions", () => {
     //   page.click("text=view submissions"),
     // ])
     await page.click("text=Exercises")
-    await page.click("text=view submissions")
+    await page.click("text=Best exercise")
     await page.locator(`text="Submission time"`).waitFor()
     // Click a:has-text("link")
     await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])

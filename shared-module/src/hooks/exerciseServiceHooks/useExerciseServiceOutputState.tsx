@@ -12,12 +12,12 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
 ) => {
   const { outputState, port, _rawSetOutputState } = useContext(context)
 
-  const updateState = async (func: UpdateFunction<SelectorReturnType>) => {
+  const updateState = (func: UpdateFunction<SelectorReturnType>) => {
     if (!port) {
       return
     }
 
-    const nextState = await produce(outputState, (draft) => {
+    const nextState = produce(outputState, (draft) => {
       const selected = selector(draft as OutputType)
       func(selected)
     })

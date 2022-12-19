@@ -14,6 +14,11 @@ patches:
       version: v1
       kind: Deployment
       name: service-info-fetcher
+  - path: headless-lms/patch-ended-exams-processor.yml
+    target:
+      version: v1
+      kind: CronJob
+      name: ended-exams-processor
   - path: headless-lms/patch-open-university-registration-link-fetcher.yml
     target:
       version: v1

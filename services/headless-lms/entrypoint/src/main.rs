@@ -10,6 +10,7 @@ async fn main() -> anyhow::Result<()> {
     match program_name.as_str() {
         "doc-file-generator" => programs::doc_file_generator::main().await?,
         "email-deliver" => programs::email_deliver::main().await?,
+        "ended-exams-processor" => programs::ended_exams_processor::main().await?,
         "open-university-registration-link-fetcher" => {
             programs::open_university_registration_link_fetcher::main().await?
         }

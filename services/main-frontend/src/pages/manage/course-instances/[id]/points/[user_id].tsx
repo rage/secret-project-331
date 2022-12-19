@@ -25,7 +25,7 @@ const CourseInstanceExerciseStatusList: React.FC<
   const { t } = useTranslation()
 
   const PeerReviewDiv = styled.div`
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
   `
 
   const exerciseStatusList = useQuery([`${query.id}-exercise-status-${query.user_id}`], () =>
@@ -80,6 +80,28 @@ const CourseInstanceExerciseStatusList: React.FC<
                         <p>
                           {t("received-enough-peer-reviews")}: {t("false")}
                         </p>
+                      )}
+
+                      {exercise.submission_ids.length > 0 ? (
+                        <>
+                          <h2>{t("header-submissions")}</h2>
+                          {exercise.submission_ids.map((submissionIds) => {
+                            return (
+                              <div key={submissionIds.submission_id}>
+                                <Link
+                                  href={{
+                                    pathname: "/submissions/[submissionId]",
+                                    query: { submissionId: submissionIds.submission_id },
+                                  }}
+                                >
+                                  {submissionIds.submission_id}
+                                </Link>
+                              </div>
+                            )
+                          })}
+                        </>
+                      ) : (
+                        <h2>{t("no-submissions")}</h2>
                       )}
 
                       {exercise.received_peer_review_data.length > 0 ? (
@@ -142,28 +164,6 @@ const CourseInstanceExerciseStatusList: React.FC<
                         </>
                       ) : (
                         <h2> {t("no-peer-reviews-received")} </h2>
-                      )}
-
-                      {exercise.submission_ids.length > 0 ? (
-                        <>
-                          <h2>{t("header-submissions")}</h2>
-                          {exercise.submission_ids.map((submissionIds) => {
-                            return (
-                              <div key={submissionIds.submission_id}>
-                                <Link
-                                  href={{
-                                    pathname: "/submissions/[submissionId]",
-                                    query: { submissionId: submissionIds.submission_id },
-                                  }}
-                                >
-                                  {submissionIds.submission_id}
-                                </Link>
-                              </div>
-                            )
-                          })}
-                        </>
-                      ) : (
-                        <h2>{t("no-submissions")}</h2>
                       )}
                     </div>
                   ) : (

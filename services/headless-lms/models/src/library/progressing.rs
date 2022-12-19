@@ -283,6 +283,22 @@ async fn update_module_completion_prerequisite_statuses_for_user(
     Ok(())
 }
 
+/// Goes through all course instances on a course and grants completions to users on those courses
+/// where eligible.
+#[instrument(skip(conn))]
+pub async fn process_all_course_completions(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let course_instances =
+        course_instances::get_course_instances_for_course(conn, course_id).await?;
+    for course_instance in course_instances {
+        process_all_course_instance_completions(conn, course_instance.id).await?;
+    }
+    Ok(())
+}
+
+/// Goes through all users on the course instance and grants them completions where eligible.
 #[instrument(skip(conn))]
 pub async fn process_all_course_instance_completions(
     conn: &mut PgConnection,

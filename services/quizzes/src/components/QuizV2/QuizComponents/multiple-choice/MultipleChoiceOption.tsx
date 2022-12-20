@@ -1,12 +1,13 @@
 import styled from "@emotion/styled"
-import { faAngleDown, faAngleUp, faX } from "@fortawesome/free-solid-svg-icons"
+import { faAngleDown, faAngleUp, faCheck, faPen, faX } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../../../types/quizTypes"
+import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { primaryFont } from "../../../../shared-module/styles"
-import MessageDialog from "../common/MessageDialog"
 
 const OptionCard = styled.div`
   height: 50px;
@@ -56,6 +57,55 @@ const ExpandOptionButton = styled(FontAwesomeIcon)`
   }
 `
 
+const EditOptionButton = styled(FontAwesomeIcon)`
+  opacity: 0.3;
+  height: 16px;
+  width: 16px;
+  padding: 16px;
+  cursor: pointer;
+  color: #6d757b;
+  :hover {
+    opacity: 1;
+  }
+`
+
+const CenteredContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  margin-left: 6px;
+`
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+`
+
+const MessageDialogContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f8f9;
+`
+
+const MessageDialogTitle = styled.div`
+  background-color: #dae6e5;
+  color: #44827e;
+  font-size: 17px;
+  font-weight: bold;
+  width: 100%;
+  height: 40px;
+  padding: 8px 0px 0px 16px;
+`
+
+const MessageDialogDescription = styled.div`
+  color: #535a66;
+  padding: 16px;
+  height: 60px;
+`
+
 const DeleteOptionButton = styled(FontAwesomeIcon)`
   height: 16px;
   width: 16px;
@@ -75,41 +125,91 @@ interface MultipleChoiceOption {
   option: QuizItemOption
   onSuccessMessageChange: (value: string) => void
   onTitleChange: (value: string) => void
+  onUpdateValues: (title: string, message: string, correct: boolean) => void
   onDelete: () => void
 }
 
-const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option, onDelete }) => {
+const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
+  option,
+  onUpdateValues,
+  onDelete,
+}) => {
   const [visible, setVisible] = useState(true)
+  const [editMode, setEditMode] = useState(false)
+
+  const [title, setTitle] = useState(option.title)
+  const [message, setMessage] = useState(option.messageAfterSubmissionWhenSelected ?? "")
+  const [correct, setCorrect] = useState(option.correct)
 
   const { t } = useTranslation()
 
-  const handleClick = () => {
+  const handleVisibility = () => {
     setVisible(!visible)
+  }
+
+  const toggleEditMode = () => {
+    setEditMode(!editMode)
+  }
+
+  const startEditMode = () => {
+    setMessage(option.messageAfterSubmissionWhenSelected ?? "")
+    setTitle(option.title)
+    setCorrect(option.correct)
+    toggleEditMode()
+  }
+
+  const saveChanges = () => {
+    onUpdateValues(title, message, correct)
+    toggleEditMode()
   }
 
   return (
     <>
       <OptionCard>
-        <ChoiceTitle
-          onInput={() => {
-            // onTitleChange(event.target.innerText)
-          }}
-        >
-          {option.title}
-        </ChoiceTitle>
-
+        {editMode ? (
+          <CenteredContainer>
+            <TextField onChange={(value) => setTitle(value)} value={title} />
+            <CheckboxContainer>
+              <CheckBox
+                label={t("label-correct")}
+                onChange={(checked) => setCorrect(checked)}
+                checked={correct}
+              />
+            </CheckboxContainer>
+          </CenteredContainer>
+        ) : (
+          <>
+            <ChoiceTitle>{option.title}</ChoiceTitle>
+          </>
+        )}
         <OptionButtonGroup>
-          {option.correct && <CorrectTag> {t("label-correct")} </CorrectTag>}
-          <ExpandOptionButton onClick={handleClick} icon={visible ? faAngleDown : faAngleUp} />
+          {editMode ? (
+            <EditOptionButton onClick={saveChanges} icon={faCheck} />
+          ) : (
+            <EditOptionButton onClick={startEditMode} icon={faPen} />
+          )}
+          {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
+          <ExpandOptionButton onClick={handleVisibility} icon={visible ? faAngleDown : faAngleUp} />
           <DeleteOptionButton onClick={onDelete} icon={faX} />
         </OptionButtonGroup>
       </OptionCard>
-      {!visible && (
+      {!visible && !editMode ? (
         <MultipleChoiceMessageDialogContainer>
-          <MessageDialog
-            title={t("success-message")}
-            description={option.messageAfterSubmissionWhenSelected ?? ""}
-          />
+          <MessageDialogContainer>
+            <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
+            <MessageDialogDescription>
+              {option.messageAfterSubmissionWhenSelected}
+            </MessageDialogDescription>
+          </MessageDialogContainer>
+        </MultipleChoiceMessageDialogContainer>
+      ) : (
+        <MultipleChoiceMessageDialogContainer>
+          <MessageDialogContainer>
+            <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
+            <MessageDialogDescription>
+              <TextField onChange={(value) => setMessage(value)} value={message} />
+            </MessageDialogDescription>
+          </MessageDialogContainer>
         </MultipleChoiceMessageDialogContainer>
       )}
     </>

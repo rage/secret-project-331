@@ -90,6 +90,12 @@ const MessageDialogContainer = styled.div`
   background-color: #f7f8f9;
 `
 
+const MessageDialogTextFieldContainer = styled.div`
+  margin: 4px;
+  color: #535a66;
+  height: 60px;
+`
+
 const MessageDialogTitle = styled.div`
   background-color: #dae6e5;
   color: #44827e;
@@ -193,24 +199,28 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
           <DeleteOptionButton onClick={onDelete} icon={faX} />
         </OptionButtonGroup>
       </OptionCard>
-      {!visible && !editMode ? (
-        <MultipleChoiceMessageDialogContainer>
-          <MessageDialogContainer>
-            <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
-            <MessageDialogDescription>
-              {option.messageAfterSubmissionWhenSelected}
-            </MessageDialogDescription>
-          </MessageDialogContainer>
-        </MultipleChoiceMessageDialogContainer>
-      ) : (
-        <MultipleChoiceMessageDialogContainer>
-          <MessageDialogContainer>
-            <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
-            <MessageDialogDescription>
-              <TextField onChange={(value) => setMessage(value)} value={message} />
-            </MessageDialogDescription>
-          </MessageDialogContainer>
-        </MultipleChoiceMessageDialogContainer>
+      {!visible && (
+        <>
+          {!editMode ? (
+            <MultipleChoiceMessageDialogContainer>
+              <MessageDialogContainer>
+                <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
+                <MessageDialogDescription>
+                  {option.messageAfterSubmissionWhenSelected}
+                </MessageDialogDescription>
+              </MessageDialogContainer>
+            </MultipleChoiceMessageDialogContainer>
+          ) : (
+            <MultipleChoiceMessageDialogContainer>
+              <MessageDialogContainer>
+                <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
+                <MessageDialogTextFieldContainer>
+                  <TextField onChange={(value) => setMessage(value)} value={message} />
+                </MessageDialogTextFieldContainer>
+              </MessageDialogContainer>
+            </MultipleChoiceMessageDialogContainer>
+          )}
+        </>
       )}
     </>
   )

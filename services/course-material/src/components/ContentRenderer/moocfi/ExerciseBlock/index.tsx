@@ -90,7 +90,7 @@ const ExerciseBlock: React.FC<
       }
       dispatch({
         type: "exerciseDownloaded",
-        payload: data.current_exercise_slide.exercise_tasks,
+        payload: data,
         signedIn: Boolean(loginState.signedIn),
       })
     },
@@ -125,7 +125,7 @@ const ExerciseBlock: React.FC<
       }
       dispatch({
         type: "tryAgain",
-        payload: data.current_exercise_slide.exercise_tasks,
+        payload: data,
         signedIn: Boolean(loginState.signedIn),
       })
       postSubmissionMutation.reset()
@@ -452,68 +452,69 @@ const ExerciseBlock: React.FC<
                 reviewingStage === "ReviewedAndLocked") && (
                 <PeerReviewReceived id={id} submissionId={exerciseSlideSubmissionId} />
               )}
-            {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
-              <div>
-                {isExam && (
-                  <div
-                    className={css`
-                      background-color: ${baseTheme.colors.green[100]};
-                      color: ${baseTheme.colors.green[700]};
-                      padding: 0.7rem 1rem;
-                      margin: 1rem 0;
-                      border: 1px solid ${baseTheme.colors.green[300]};
+            {inSubmissionView &&
+              (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
+                <div>
+                  {isExam && (
+                    <div
+                      className={css`
+                        background-color: ${baseTheme.colors.green[100]};
+                        color: ${baseTheme.colors.green[700]};
+                        padding: 0.7rem 1rem;
+                        margin: 1rem 0;
+                        border: 1px solid ${baseTheme.colors.green[300]};
 
-                      display: flex;
+                        display: flex;
 
-                      svg {
-                        width: 80px;
-                        margin-right: 1rem;
+                        svg {
+                          width: 80px;
+                          margin-right: 1rem;
+                        }
+                      `}
+                    >
+                      <CheckIcon />
+                      <div>{t("exam-submission-has-been-saved-help-text")}</div>
+                    </div>
+                  )}
+                  {!ranOutOfTries && (
+                    <Button
+                      variant="primary"
+                      size="medium"
+                      onClick={() => {
+                        tryAgainMutation.mutate()
+                      }}
+                      disabled={
+                        getCourseMaterialExercise.isRefetching ||
+                        !getCourseMaterialExercise.data.can_post_submission ||
+                        tryAgainMutation.isLoading
                       }
-                    `}
-                  >
-                    <CheckIcon />
-                    <div>{t("exam-submission-has-been-saved-help-text")}</div>
-                  </div>
-                )}
-                {!ranOutOfTries && (
-                  <Button
-                    variant="primary"
-                    size="medium"
-                    onClick={() => {
-                      tryAgainMutation.mutate()
-                    }}
-                    disabled={
-                      getCourseMaterialExercise.isRefetching ||
-                      !getCourseMaterialExercise.data.can_post_submission ||
-                      tryAgainMutation.isLoading
-                    }
-                  >
-                    {t("try-again")}
-                  </Button>
-                )}
-                {needsPeerReview && (
-                  <Button
-                    variant="primary"
-                    size="medium"
-                    disabled={!needsPeerReview || !allowStartPeerReview}
-                    onClick={async () => {
-                      setAllowStartPeerReview(false)
-                      await postStartPeerReview(id).finally(() => setAllowStartPeerReview(true))
-                      await getCourseMaterialExercise.refetch()
-                    }}
-                  >
-                    {t("start-peer-review")}
-                  </Button>
-                )}
-              </div>
-            )}
+                    >
+                      {t("try-again")}
+                    </Button>
+                  )}
+                  {needsPeerReview && (
+                    <Button
+                      variant="primary"
+                      size="medium"
+                      disabled={!needsPeerReview || !allowStartPeerReview}
+                      onClick={async () => {
+                        setAllowStartPeerReview(false)
+                        await postStartPeerReview(id).finally(() => setAllowStartPeerReview(true))
+                        await getCourseMaterialExercise.refetch()
+                      }}
+                    >
+                      {t("start-peer-review")}
+                    </Button>
+                  )}
+                </div>
+              )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}
             {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
               <div
                 className={css`
-                  color: ${baseTheme.colors.grey[500]};
+                  color: ${baseTheme.colors.gray[500]};
                 `}
               >
                 {t("tries-remaining-n", { n: triesRemaining })}

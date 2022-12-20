@@ -370,6 +370,31 @@ pub async fn get_user_course_instance_progress(
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
 }
 
+/// Gets the total amount of points that the user has received from an exam.
+///
+/// The caller should take into consideration that for an ongoing exam the result will be volatile.
+pub async fn get_user_total_exam_points(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exam_id: Uuid,
+) -> ModelResult<f32> {
+    let res = sqlx::query!(
+        r#"
+SELECT COALESCE(SUM(score_given), 0) AS "points!"
+FROM user_exercise_states
+WHERE user_id = $2
+  AND exam_id = $1
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id,
+    )
+    .map(|x| x.points)
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 fn merge_modules_with_metrics(
     course_modules: Vec<CourseModule>,
     course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,
@@ -381,6 +406,7 @@ fn merge_modules_with_metrics(
         .map(|course_module| {
             let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
             let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
+            let requirements = course_module.completion_policy.automatic();
             let progress = UserCourseInstanceProgress {
                 course_module_id: course_module.id,
                 // Only default course module doesn't have a name.
@@ -391,7 +417,7 @@ fn merge_modules_with_metrics(
                 score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
                     user_metrics.and_then(|x| x.score_given),
                 ),
-                score_required: course_module.automatic_completion_number_of_points_treshold,
+                score_required: requirements.and_then(|x| x.number_of_points_treshold),
                 score_maximum: course_metrics
                     .and_then(|x| x.score_maximum)
                     .map(TryInto::try_into)
@@ -404,8 +430,8 @@ fn merge_modules_with_metrics(
                     .and_then(|x| x.attempted_exercises)
                     .map(TryInto::try_into)
                     .transpose()?,
-                attempted_exercises_required: course_module
-                    .automatic_completion_number_of_exercises_attempted_treshold,
+                attempted_exercises_required: requirements
+                    .and_then(|x| x.number_of_exercises_attempted_treshold),
             };
             Ok(progress)
         })
@@ -1087,7 +1113,7 @@ mod tests {
 
     #[test]
     fn merges_course_modules_with_metrics() {
-        let timestamp = Utc.ymd(2022, 6, 22).and_hms(0, 0, 0);
+        let timestamp = Utc.with_ymd_and_hms(2022, 6, 22, 0, 0, 0).unwrap();
         let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
         let course_modules = vec![CourseModule::new(
             module_id,

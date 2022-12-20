@@ -2,17 +2,17 @@ use itertools::Itertools;
 use std::collections::HashMap;
 
 use crate::{
+    course_exams,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_instances::{self, CourseInstance},
     course_module_completions::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    course_modules::{self, CourseModule},
-    courses, open_university_registration_links,
+    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
+    courses, exams, open_university_registration_links,
     prelude::*,
-    user_course_settings,
-    user_exercise_states::{self, UserCourseInstanceMetrics},
+    user_course_settings, user_exercise_states,
     users::{self, User},
 };
 
@@ -72,14 +72,14 @@ async fn create_automatic_course_module_completion_if_eligible(
         // If user already has a completion, do not attempt to create a new one.
         Ok(true)
     } else {
-        let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+        let eligible = user_is_eligible_for_automatic_completion(
             conn,
+            course_module,
             course_instance_id,
-            course_module.id,
             user_id,
         )
         .await?;
-        if user_is_eligible_for_automatic_completion(course_module, &user_metrics) {
+        if eligible {
             let course = courses::get_course(conn, course_module.course_id).await?;
             let user = users::get_by_id(conn, user_id).await?;
             let _completion_id = course_module_completions::insert(
@@ -110,36 +110,123 @@ async fn create_automatic_course_module_completion_if_eligible(
     }
 }
 
-fn user_is_eligible_for_automatic_completion(
+#[instrument(skip(conn))]
+async fn user_is_eligible_for_automatic_completion(
+    conn: &mut PgConnection,
     course_module: &CourseModule,
-    user_course_instance_metrics: &UserCourseInstanceMetrics,
-) -> bool {
-    // Count passes to make sure that at least one requirement exists.
-    let mut flags = 0;
-    if !course_module.automatic_completion {
-        return false;
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    match &course_module.completion_policy {
+        CompletionPolicy::Automatic(requirements) => {
+            let eligible = user_passes_automatic_completion_exercise_tresholds(
+                conn,
+                user_id,
+                requirements,
+                course_instance_id,
+            )
+            .await?;
+            if eligible {
+                if requirements.requires_exam {
+                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
+                        .await
+                } else {
+                    Ok(true)
+                }
+            } else {
+                Ok(false)
+            }
+        }
+        CompletionPolicy::Manual => Ok(false),
     }
-    if let Some(attepted_treshold) =
-        course_module.automatic_completion_number_of_exercises_attempted_treshold
-    {
-        if user_course_instance_metrics
-            .attempted_exercises
-            .unwrap_or(0)
-            >= attepted_treshold.into()
-        {
-            flags += 1;
-        } else {
-            return false;
+}
+
+/// Checks whether the student can partake in an exam.
+///
+/// The result of this process depends on the configuration for the exam. If the exam is not linked
+/// to any course, the user will always be able to take it by default. Otherwise the student
+/// progress in their current selected instances is compared against any of the linked courses, and
+/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses have
+/// automatic completion configuration, the exam is once again allowed to be taken by default.
+#[instrument(skip(conn))]
+pub async fn user_can_take_exam(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    let course_ids = course_exams::get_course_ids_by_exam_id(conn, exam_id).await?;
+    let settings = user_course_settings::get_all_by_user_and_multiple_current_courses(
+        conn,
+        &course_ids,
+        user_id,
+    )
+    .await?;
+    // User can take the exam by default if course_ids is an empty array.
+    let mut can_take_exam = true;
+    for course_id in course_ids {
+        let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
+        if let CompletionPolicy::Automatic(requirements) = &default_module.completion_policy {
+            if let Some(s) = settings.iter().find(|x| x.current_course_id == course_id) {
+                let eligible = user_passes_automatic_completion_exercise_tresholds(
+                    conn,
+                    s.user_id,
+                    requirements,
+                    s.current_course_instance_id,
+                )
+                .await?;
+                if eligible {
+                    // Only one current instance needs to pass the tresholds.
+                    can_take_exam = true;
+                    break;
+                }
+            }
+            // If there is at least one associated course with requirements, make sure that the user
+            // passes one of them.
+            can_take_exam = false;
         }
     }
-    if let Some(points_treshold) = course_module.automatic_completion_number_of_points_treshold {
-        if user_course_instance_metrics.score_given.unwrap_or(0.0) >= points_treshold as f32 {
-            flags += 1;
-        } else {
-            return false;
+    Ok(can_take_exam)
+}
+
+/// Returns true if there is at least one exam associated with the course, that has ended and the
+/// user has received enough points from it.
+async fn user_has_passed_exam_for_the_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<bool> {
+    let now = Utc::now();
+    let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
+    for exam_id in exam_ids {
+        let exam = exams::get(conn, exam_id).await?;
+        if exam.ended_at_or(now, false) {
+            let points =
+                user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
+            if points >= exam.minimum_points_treshold as f32 {
+                return Ok(true);
+            }
         }
     }
-    flags > 0
+    Ok(false)
+}
+
+async fn user_passes_automatic_completion_exercise_tresholds(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    requirements: &AutomaticCompletionRequirements,
+    course_instance_id: Uuid,
+) -> ModelResult<bool> {
+    let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+        conn,
+        course_instance_id,
+        requirements.course_module_id,
+        user_id,
+    )
+    .await?;
+    let attempted_exercises: i32 = user_metrics.attempted_exercises.unwrap_or(0) as i32;
+    let exercise_points = user_metrics.score_given.unwrap_or(0.0) as i32;
+    let eligible = requirements.passes_exercise_tresholds(attempted_exercises, exercise_points);
+    Ok(eligible)
 }
 
 /// Fetches all course module completions for the given user on the given course and updates the
@@ -196,6 +283,22 @@ async fn update_module_completion_prerequisite_statuses_for_user(
     Ok(())
 }
 
+/// Goes through all course instances on a course and grants completions to users on those courses
+/// where eligible.
+#[instrument(skip(conn))]
+pub async fn process_all_course_completions(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let course_instances =
+        course_instances::get_course_instances_for_course(conn, course_id).await?;
+    for course_instance in course_instances {
+        process_all_course_instance_completions(conn, course_instance.id).await?;
+    }
+    Ok(())
+}
+
+/// Goes through all users on the course instance and grants them completions where eligible.
 #[instrument(skip(conn))]
 pub async fn process_all_course_instance_completions(
     conn: &mut PgConnection,
@@ -554,6 +657,8 @@ pub struct UserModuleCompletionStatus {
     pub name: String,
     pub order_number: i32,
     pub prerequisite_modules_completed: bool,
+    pub grade: Option<i32>,
+    pub passed: Option<bool>,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -585,6 +690,8 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 module_id: module.id,
                 name: module.name.unwrap_or_else(|| course.name.clone()),
                 order_number: module.order_number,
+                passed: completion.map(|x| x.passed),
+                grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(false, |x| x.prerequisite_modules_completed),
             }
@@ -659,7 +766,9 @@ mod tests {
     mod grant_automatic_completion_if_eligible {
         use crate::{
             chapters::NewChapter,
-            course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+            course_modules::{
+                self, AutomaticCompletionRequirements, CompletionPolicy, NewCourseModule,
+            },
             exercises::{self, ActivityProgress, GradingProgress},
             library::content_management,
             user_exercise_states::{self, ReviewingStage, UserExerciseStateUpdate},
@@ -769,21 +878,21 @@ mod tests {
         async fn create_test_data(
             mut tx: Tx<'_>,
         ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
+            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             let automatic_completion_policy =
-                AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+                CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                    course_module_id: course_module.id,
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
+                    requires_exam: false,
                 });
-            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await
                 .unwrap();
             let course_module_2 = course_modules::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
-                course,
-                Some("Module 2"),
-                1,
+                &NewCourseModule::new(course, Some("Module 2".to_string()), 1),
             )
             .await
             .unwrap();
@@ -801,7 +910,7 @@ mod tests {
                     course_module_id: Some(course_module_2.id),
                 },
                 user,
-                |_, _| unimplemented!(),
+                |_, _, _| unimplemented!(),
                 |_| unimplemented!(),
             )
             .await
@@ -894,77 +1003,5 @@ mod tests {
         }
     }
 
-    mod automatic_completion_validation {
-        use chrono::TimeZone;
-
-        use super::*;
-
-        #[test]
-        fn doesnt_give_completion_if_automatic_completions_are_not_enabled() {
-            let course_module = create_course_module(false, Some(0), Some(0));
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(!user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        #[test]
-        fn doesnt_give_completion_if_no_tresholds_are_defined() {
-            let course_module = create_course_module(true, None, None);
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(!user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        #[test]
-        fn gives_completion_if_exercises_attempted_treshold_is_met() {
-            let course_module = create_course_module(true, Some(1), None);
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        #[test]
-        fn gives_completion_if_points_treshold_is_met() {
-            let course_module = create_course_module(true, None, Some(1));
-            let user_metrics = create_user_course_instance_metrics(Some(1.0), Some(1));
-            assert!(user_is_eligible_for_automatic_completion(
-                &course_module,
-                &user_metrics
-            ));
-        }
-
-        fn create_course_module(
-            automatic_completion: bool,
-            exercises_attempted_treshold: Option<i32>,
-            number_of_points_treshold: Option<i32>,
-        ) -> CourseModule {
-            let id = Uuid::parse_str("f2cd5971-444f-4b1b-9ef9-4d283fecf6f8").unwrap();
-            let timestamp = Utc.ymd(2022, 6, 27).and_hms(0, 0, 0);
-            let mut course_module =
-                CourseModule::new(id, id).set_timestamps(timestamp, timestamp, None);
-            course_module.automatic_completion = automatic_completion;
-            course_module.automatic_completion_number_of_exercises_attempted_treshold =
-                exercises_attempted_treshold;
-            course_module.automatic_completion_number_of_points_treshold =
-                number_of_points_treshold;
-            course_module
-        }
-
-        fn create_user_course_instance_metrics(
-            score_given: Option<f32>,
-            attempted_exercises: Option<i64>,
-        ) -> UserCourseInstanceMetrics {
-            UserCourseInstanceMetrics {
-                course_module_id: Uuid::parse_str("f2cd5971-444f-4b1b-9ef9-4d283fecf6f8").unwrap(),
-                score_given,
-                attempted_exercises,
-            }
-        }
-    }
+    // TODO: New automatic completion tests?
 }

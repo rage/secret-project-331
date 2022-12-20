@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+run_command skaffold build --filename ./skaffold.production.yaml --file-output=skaffold-build-output.json "$@"

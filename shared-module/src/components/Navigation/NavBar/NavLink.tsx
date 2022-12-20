@@ -4,7 +4,7 @@ import { baseTheme } from "../../../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const NavLinkStyles = css`
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.gray[700]};
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -26,7 +26,7 @@ const NavLinkStyles = css`
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: ${baseTheme.colors.grey[700]};
+    background-color: ${baseTheme.colors.gray[700]};
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
   }

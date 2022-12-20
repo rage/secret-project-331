@@ -1012,6 +1012,7 @@ pub async fn update_page(
     page_update: PageUpdateArgs,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -1412,6 +1413,7 @@ async fn upsert_exercise_tasks(
     retain_exercise_ids: bool,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -1822,6 +1824,7 @@ async fn fetch_derived_spec(
     urls_by_exercise_type: &HashMap<&String, Url>,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
     previous_spec: Option<serde_json::Value>,
@@ -1846,7 +1849,12 @@ async fn fetch_derived_spec(
                     )
                 })?
                 .clone();
-            let res = spec_fetcher(url, task_update.private_spec.as_ref()).await?;
+            let res = spec_fetcher(
+                url,
+                &task_update.exercise_type,
+                task_update.private_spec.as_ref(),
+            )
+            .await?;
             Some(res)
         }
     };
@@ -1859,6 +1867,7 @@ pub async fn insert_new_content_page(
     user: Uuid,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -1902,6 +1911,7 @@ pub async fn insert_page(
     author: Uuid,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -2746,6 +2756,7 @@ pub async fn restore(
     author: Uuid,
     spec_fetcher: impl Fn(
         Url,
+        &str,
         Option<&serde_json::Value>,
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
@@ -3098,6 +3109,7 @@ mod test {
                 ends_at: None,
                 time_minutes: 120,
                 organization_id: org,
+                minimum_points_treshold: 24,
             },
         )
         .await
@@ -3118,7 +3130,7 @@ mod test {
                 content_search_language: None,
             },
             user,
-            |_, _| unimplemented!(),
+            |_, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -3136,7 +3148,7 @@ mod test {
             score_maximum: 1,
             max_tries_per_slide: None,
             limit_number_of_tries: false,
-            deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+            deadline: Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
             needs_peer_review: false,
             peer_review_config: None,
             peer_review_questions: None,

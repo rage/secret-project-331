@@ -32,6 +32,7 @@ fn domain(target: &mut File) {
         authorization::Resource,
         error::ErrorData,
         error::ErrorResponse,
+        models_requests::SpecRequest,
     };
 }
 
@@ -64,10 +65,14 @@ fn models(target: &mut File) {
 
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
 
+        course_modules::AutomaticCompletionRequirements,
+        course_modules::CompletionPolicy,
         course_modules::CourseModule,
+        course_modules::NewCourseModule,
         course_modules::ModifiedModule,
         course_modules::ModuleUpdates,
         course_modules::NewModule,
+
         courses::Course,
         courses::CourseCount,
         courses::CourseStructure,
@@ -121,6 +126,8 @@ fn models(target: &mut File) {
         glossary::Term,
         glossary::TermUpdate,
 
+        library::grading::AnswerRequiringAttentionWithTasks,
+        library::grading::AnswersRequiringAttention,
         library::grading::StudentExerciseSlideSubmission,
         library::grading::StudentExerciseSlideSubmissionResult,
         library::grading::StudentExerciseTaskSubmission,
@@ -173,7 +180,10 @@ fn models(target: &mut File) {
         peer_review_questions::CmsPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,
         peer_review_questions::PeerReviewQuestionType,
+        peer_review_question_submissions::PeerReviewAnswer,
+        peer_review_question_submissions::PeerReviewQuestionAndAnswer,
         peer_review_question_submissions::PeerReviewQuestionSubmission,
+        peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -208,6 +218,8 @@ fn models(target: &mut File) {
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
+
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     };
 }
 
@@ -256,8 +268,6 @@ fn controllers(target: &mut File) {
             courses::GetFeedbackQuery,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,
-            exercises::AnswerRequiringAttentionWithTasks,
-            exercises::AnswersRequiringAttention,
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
             proposed_edits::GetEditProposalsQuery,

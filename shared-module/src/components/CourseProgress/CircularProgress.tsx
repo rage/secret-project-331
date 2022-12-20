@@ -117,9 +117,9 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
         className={cx(
           INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
           css`
-            padding-bottom: 10px;
+            padding-bottom: 14px;
             font-weight: 500;
-            font-size: 2rem;
+            font-size: 1.8rem;
             border-bottom: 3px solid #e2e4e6;
             color: ${baseTheme.colors.green[700]};
           `,

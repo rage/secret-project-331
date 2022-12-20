@@ -20,7 +20,7 @@ import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import LearningObjectives from "./LearningObjectives"
 import PagesInChapter from "./PagesInChapter"
-import SponsorBlock from "./Sponsor"
+import PartnersBlock from "./Partners"
 import TableBox from "./TableBox"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
@@ -58,7 +58,7 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/glossary", Glossary],
   ["moocfi/landing-page-hero-section", LandingPageHeroSection],
   ["moocfi/latex", Latex],
-  ["moocfi/sponsor", SponsorBlock],
+  ["moocfi/partners", PartnersBlock],
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/landing-page-copy-text", LandingPageCopyText],

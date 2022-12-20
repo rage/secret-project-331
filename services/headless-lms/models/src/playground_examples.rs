@@ -189,7 +189,7 @@ mod test {
             .await
             .unwrap();
 
-        assert!(res.deleted_at != None);
+        assert!(res.deleted_at.is_some());
 
         let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
 

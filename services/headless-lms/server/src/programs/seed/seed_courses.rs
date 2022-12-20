@@ -1,4 +1,6 @@
-use crate::domain::models_requests;
+use std::sync::Arc;
+
+use crate::domain::models_requests::{self, JwtKey};
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_page, example_exercise_flexible, paragraph, quizzes_exercise,
     submit_and_grade,
@@ -13,7 +15,7 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
-    course_modules,
+    course_modules::{self, NewCourseModule},
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
@@ -45,7 +47,9 @@ pub async fn seed_sample_course(
     admin: Uuid,
     student: Uuid,
     users: &[Uuid],
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
+    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -71,7 +75,7 @@ pub async fn seed_sample_course(
             }),
             new_course,
             admin,
-            models_requests::spec_fetcher,
+            &spec_fetcher,
             models_requests::fetch_service_info,
         )
         .await?;
@@ -103,7 +107,7 @@ pub async fn seed_sample_course(
         name: "The Basics".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
+        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
         course_module_id: Some(default_module.id),
     };
     let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
@@ -114,7 +118,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -137,7 +141,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -165,7 +169,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -193,7 +197,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -208,9 +212,7 @@ pub async fn seed_sample_course(
     let second_module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        course.id,
-        Some("Another module"),
-        1,
+        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -231,7 +233,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -253,16 +255,14 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
     let module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        course.id,
-        Some("Bonus module"),
-        2,
+        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -283,7 +283,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -305,7 +305,7 @@ pub async fn seed_sample_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -373,6 +373,7 @@ pub async fn seed_sample_course(
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -459,6 +460,7 @@ pub async fn seed_sample_course(
                 exercise_block_4,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -529,7 +531,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -591,7 +593,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -672,7 +674,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -774,7 +776,7 @@ pub async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -859,7 +861,7 @@ pub async fn seed_sample_course(
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -878,7 +880,7 @@ pub async fn seed_sample_course(
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -895,7 +897,7 @@ pub async fn seed_sample_course(
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
         serde_json::from_str(include_str!("../../assets/scale.json"))?,
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -935,6 +937,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_1,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -958,6 +961,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_2
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -981,6 +985,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_3
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1004,6 +1009,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_4
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1027,6 +1033,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_5,
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1050,6 +1057,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_7
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1073,6 +1081,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_6
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1096,6 +1105,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_8
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1199,6 +1209,7 @@ pub async fn seed_sample_course(
                 multi_exercise_block_1
             ]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1236,6 +1247,7 @@ pub async fn seed_sample_course(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
     create_page(
@@ -1258,6 +1270,7 @@ pub async fn seed_sample_course(
                 inner_blocks: vec![]
             }]),
         },
+        jwt_key,
     )
     .await?;
 
@@ -1512,6 +1525,7 @@ pub async fn create_glossary_course(
     org_id: Uuid,
     admin: Uuid,
     course_id: Uuid,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
 
@@ -1540,7 +1554,7 @@ pub async fn create_glossary_course(
             }),
             new_course,
             admin,
-            models_requests::spec_fetcher,
+            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -1573,7 +1587,7 @@ pub async fn create_glossary_course(
         name: "Glossary".to_string(),
         color: None,
         opens_at: None,
-        deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
+        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
         course_module_id: Some(default_module.id),
     };
     let (chapter, _front_page) = library::content_management::create_new_chapter(
@@ -1584,7 +1598,7 @@ pub async fn create_glossary_course(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -1608,6 +1622,7 @@ pub async fn create_glossary_course(
                 Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2")
             ),]),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -1624,8 +1639,10 @@ pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
     org: Uuid,
     admin: Uuid,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
+    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
@@ -1649,7 +1666,7 @@ pub async fn seed_cs_course_material(
             }),
             new_course,
             admin,
-            models_requests::spec_fetcher,
+            &spec_fetcher,
             models_requests::fetch_service_info,
         )
         .await?;
@@ -1730,7 +1747,7 @@ pub async fn seed_cs_course_material(
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1749,7 +1766,7 @@ pub async fn seed_cs_course_material(
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1827,7 +1844,7 @@ pub async fn seed_cs_course_material(
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     let (
@@ -1905,7 +1922,7 @@ pub async fn seed_cs_course_material(
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
-        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
     );
 
     pages::update_page(
@@ -1936,7 +1953,7 @@ pub async fn seed_cs_course_material(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false
         },
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -1967,7 +1984,7 @@ pub async fn seed_cs_course_material(
         )),
         &new_chapter,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -2001,7 +2018,7 @@ pub async fn seed_cs_course_material(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false
         },
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -2068,6 +2085,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_1.id),
         design_content,
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2108,7 +2126,15 @@ pub async fn seed_cs_course_material(
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]),
     };
-    create_page(&mut conn, course.id, admin, Some(chapter_1.id), content_b).await?;
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        content_b,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -2129,7 +2155,7 @@ pub async fn seed_cs_course_material(
         )),
         &new_chapter_2,
         admin,
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -2163,7 +2189,7 @@ pub async fn seed_cs_course_material(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false
         },
-        models_requests::spec_fetcher,
+        &spec_fetcher,
         models_requests::fetch_service_info,
     )
     .await?;
@@ -2210,6 +2236,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_2.id),
         page_content,
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2229,6 +2256,7 @@ pub async fn seed_cs_course_material(
             title: "Content rendering".to_string(),
             chapter_id: Some(chapter_2.id),
         },
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2254,6 +2282,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_5,
             ]),
         },
+        jwt_key.clone(),
     )
     .await?;
 
@@ -2277,6 +2306,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_6,
             ]),
         },
+        jwt_key.clone(),
     )
     .await?;
 
@@ -2301,6 +2331,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_7,
             ]),
         },
+        jwt_key.clone(),
     )
     .await?;
 
@@ -2324,6 +2355,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_8,
             ]),
         },
+        jwt_key,
     )
     .await?;
 

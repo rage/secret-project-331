@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix_http::{body, Method};
 use actix_web::test;
 use chrono::{TimeZone, Utc};
@@ -10,7 +12,7 @@ use headless_lms_models::{
     library::content_management::CreateNewCourseFixedIds,
     PKeyPolicy,
 };
-use headless_lms_server::domain::models_requests;
+use headless_lms_server::domain::models_requests::{self, JwtKey};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -20,7 +22,9 @@ mod integration_test;
 async fn gets_and_registers_completions() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    let (_user, _org, course, module, _completion, _completion_2) = insert_data(&mut conn).await;
+    let jwt_key = Arc::new(integration_test::make_jwt_key());
+    let (_user, _org, course, module, _completion, _completion_2) =
+        insert_data(&mut conn, jwt_key).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);
 
     // Without header nor database entry
@@ -82,7 +86,7 @@ async fn gets_and_registers_completions() {
         .map(|x| RegisteredCompletion {
             completion_id: x.id,
             student_number: "ABC123".to_string(),
-            registration_date: Utc.ymd(2022, 6, 17).and_hms(0, 0, 0),
+            registration_date: Utc.with_ymd_and_hms(2022, 6, 17, 0, 0, 0).unwrap(),
         })
         .collect();
     let req = test::TestRequest::with_uri(post_path)
@@ -104,7 +108,10 @@ async fn gets_and_registers_completions() {
     assert!(res.status().is_success());
 }
 
-async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
+async fn insert_data(
+    conn: &mut PgConnection,
+    jwt_key: Arc<JwtKey>,
+) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
     let user_1 = headless_lms_models::users::insert(
         conn,
         PKeyPolicy::Fixed(Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap()),
@@ -152,7 +159,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
                 is_test_mode: false,
             },
             user_1,
-            models_requests::spec_fetcher,
+            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await
@@ -165,7 +172,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             course_instance_id: instance.id,
             course_module_id: course_module.id,
             user_id: user_1,
-            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,
@@ -192,7 +199,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             course_instance_id: instance.id,
             course_module_id: course_module.id,
             user_id: user_2,
-            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,

@@ -1,6 +1,9 @@
 use bytes::Bytes;
 use chrono::Utc;
-use models::exams::{self, Exam, NewExam};
+use models::{
+    course_exams,
+    exams::{self, Exam, NewExam},
+};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -46,7 +49,7 @@ pub async fn set_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
+    course_exams::upsert(&mut conn, *exam_id, exam.course_id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -65,7 +68,7 @@ pub async fn unset_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
+    course_exams::delete(&mut conn, *exam_id, exam.course_id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -113,7 +116,7 @@ pub async fn export_points(
                 format!(
                     "attachment; filename=\"Exam: {} - Point export {}.csv\"",
                     exam.name,
-                    Utc::today().format("%Y-%m-%d")
+                    Utc::now().format("%Y-%m-%d")
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
@@ -165,7 +168,7 @@ pub async fn export_submissions(
                 format!(
                     "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
                     exam.name,
-                    Utc::today().format("%Y-%m-%d")
+                    Utc::now().format("%Y-%m-%d")
                 ),
             ))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(

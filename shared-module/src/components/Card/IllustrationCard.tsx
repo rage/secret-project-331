@@ -29,6 +29,7 @@ const CardContentWrapper = styled.div`
   height: 100%;
   text-align: left;
   flex-direction: column;
+  overflow: hidden;
   overflow-wrap: break-word;
   ${BackgroundStyles}
 
@@ -36,7 +37,7 @@ const CardContentWrapper = styled.div`
     font-weight: 600;
     z-index: 20;
     line-height: 1.2;
-    color: ${baseTheme.colors.grey[700]};
+    color: ${baseTheme.colors.gray[700]};
     margin-top: 5px;
     font-size: clamp(26px, 2.2vw, 30px);
     opacity: 0.9;
@@ -74,14 +75,18 @@ const IllustrationCard: React.FC<React.PropsWithChildren<React.PropsWithChildren
           className={css`
             width: 100%;
             height: 370.6px;
+            transition: transform 0.2s;
             ${backgroundImage &&
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
-              background: ${bg};
+              background-color: ${bg};
               background-position: center center;
               background-size: contain;
-              background: ${bg};
               `}
+
+            &:hover {
+              transform: scale(1.1);
+            }
           `}
         ></div>
         <div

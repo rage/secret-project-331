@@ -49,16 +49,26 @@ test("material reference tests", async ({ page, headless }) => {
   await page.locator('textarea[name="references"]').click()
 
   // Fill textarea[name="references"]
-  await page
-    .locator('textarea[name="references"]')
-    .fill(
-      "@incollection{wang2003artificial,\n  title={Artificial neural network},\n  author={Wang, Sun-Chong},\n  booktitle={Interdisciplinary computing in java programming},\n  pages={81--100},\n  year={2003},\n  publisher={Springer}\n}\n",
-    )
+  await page.locator('textarea[name="references"]').fill(
+    `
+@incollection{wang2003artificial,
+  title={Artificial neural network},
+  author={Wang, Sun-Chong},
+  booktitle={Interdisciplinary computing in java programming},
+  pages={81--100},
+  year={2003},
+  publisher={Springer}
+}
+      `,
+  )
 
   // Click text=Submit
   await page.locator("text=Submit").click()
 
   await page.locator("text=Success").waitFor()
+
+  // If the bibtext fails to parse, an error will be displayed.
+  await page.locator("text=Error").first().waitFor({ state: "hidden" })
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],

@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+//! Collection of functions used for processing and evaluating user submissions for exercises.
 
 use futures::future::BoxFuture;
+use std::collections::HashMap;
 use url::Url;
 
 use crate::{
@@ -11,14 +12,19 @@ use crate::{
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{self, ExerciseTaskSubmission},
-    exercise_tasks::{self, ExerciseTask},
-    exercises::{Exercise, ExerciseStatus},
+    exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
+    exercises::{self, Exercise, ExerciseStatus, GradingProgress},
     peer_review_configs::PeerReviewAcceptingStrategy,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_question_submissions::{
+        self, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
+    },
     prelude::*,
     regradings,
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, ExerciseWithUserState, UserExerciseState},
+    user_exercise_states::{
+        self, CourseInstanceOrExamId, ExerciseWithUserState, UserExerciseState,
+    },
     user_exercise_task_states,
 };
 
@@ -37,6 +43,8 @@ pub struct StudentExerciseSlideSubmission {
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
+    pub user_course_instance_exercise_service_variables:
+        Vec<UserCourseInstanceExerciseServiceVariable>,
 }
 
 impl StudentExerciseSlideSubmissionResult {
@@ -72,6 +80,7 @@ pub struct StudentExerciseTaskSubmissionResult {
     pub submission: ExerciseTaskSubmission,
     pub grading: Option<ExerciseTaskGrading>,
     pub model_solution_spec: Option<serde_json::Value>,
+    pub exercise_task_exercise_service_slug: String,
 }
 
 #[derive(Debug)]
@@ -243,9 +252,10 @@ pub async fn grade_user_submission(
         user_exercise_slide_submission,
     )
     .await?;
+    let user_exercise_state = exercise_with_user_state.user_exercise_state();
     let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         &mut tx,
-        exercise_with_user_state.user_exercise_state().id,
+        user_exercise_state.id,
         exercise_slide_submission.exercise_slide_id,
     )
     .await?;
@@ -258,6 +268,7 @@ pub async fn grade_user_submission(
                     &task_submission,
                     exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
+                    user_exercise_state,
                     &fetch_service_info,
                     &send_grading_request,
                 )
@@ -298,6 +309,14 @@ pub async fn grade_user_submission(
         exercise_slide_submission.user_points_update_strategy,
     )
     .await?;
+
+    let course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(
+        user_exercise_state.course_instance_id,
+        user_exercise_state.exam_id,
+    )?;
+
+    let user_course_instance_exercise_service_variables  = crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_instance_or_exam_id).await?;
+
     let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {
             score_given: user_exercise_state.score_given,
@@ -306,6 +325,7 @@ pub async fn grade_user_submission(
             reviewing_stage: user_exercise_state.reviewing_stage,
         }),
         exercise_task_submission_results: results,
+        user_course_instance_exercise_service_variables,
     };
     exercise_with_user_state.set_user_exercise_state(user_exercise_state)?;
     tx.commit().await?;
@@ -317,6 +337,7 @@ async fn grade_user_submission_task(
     submission: &ExerciseTaskSubmission,
     exercise: &Exercise,
     user_exercise_slide_state_id: Uuid,
+    user_exercise_state: &UserExerciseState,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
         Url,
@@ -335,6 +356,7 @@ async fn grade_user_submission_task(
         &exercise_task,
         exercise,
         &grading,
+        user_exercise_state,
         fetch_service_info,
         send_grading_request,
     )
@@ -351,6 +373,7 @@ async fn grade_user_submission_task(
         submission: updated_submission,
         grading: Some(grading),
         model_solution_spec,
+        exercise_task_exercise_service_slug: exercise_task.exercise_type,
     })
 }
 
@@ -372,16 +395,15 @@ async fn create_fixed_grading_for_submission_task(
         &updated_grading,
     )
     .await?;
-    let model_solution_spec = exercise_tasks::get_exercise_task_model_solution_spec_by_id(
-        conn,
-        submission.exercise_task_id,
-    )
-    .await?;
+    let exercise_task =
+        exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
+    let model_solution_spec = exercise_task.model_solution_spec;
 
     Ok(StudentExerciseTaskSubmissionResult {
         submission: updated_submission,
         grading: Some(grading),
         model_solution_spec,
+        exercise_task_exercise_service_slug: exercise_task.exercise_type,
     })
 }
 
@@ -478,4 +500,97 @@ pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_res
     )
     .await?;
     Ok(user_exercise_state)
+}
+
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswersRequiringAttention {
+    pub exercise_max_points: i32,
+    pub data: Vec<AnswerRequiringAttentionWithTasks>,
+    pub total_pages: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswerRequiringAttentionWithTasks {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub data_json: Option<serde_json::Value>,
+    pub grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
+    pub submission_id: Uuid,
+    pub exercise_id: Uuid,
+    pub tasks: Vec<CourseMaterialExerciseTask>,
+    pub given_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
+    pub received_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
+}
+
+/// Gets submissions that require input from the teacher to continue processing.
+pub async fn get_paginated_answers_requiring_attention_for_exercise(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+    viewer_user_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<AnswersRequiringAttention> {
+    let exercise = exercises::get_exercise_by_id(conn, exercise_id).await?;
+    let answer_requiring_attention_count =
+        exercise_slide_submissions::answer_requiring_attention_count(conn, exercise_id).await?;
+    let data = exercise_slide_submissions::get_all_answers_requiring_attention(
+        conn,
+        exercise.id,
+        pagination,
+    )
+    .await?;
+    let mut answers = Vec::with_capacity(data.len());
+    for answer in &data {
+        let tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
+            conn,
+            answer.submission_id,
+            viewer_user_id,
+            &fetch_service_info,
+        )
+        .await?;
+        let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
+            peer_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+                conn,
+                answer.user_id,
+                answer.exercise_id,
+                course_instance_id,
+            )
+            .await?
+        } else {
+            vec![]
+        };
+        let received_peer_reviews =
+            peer_review_question_submissions::get_questions_and_answers_by_submission_id(
+                conn,
+                answer.submission_id,
+            )
+            .await?;
+        let new_answer = AnswerRequiringAttentionWithTasks {
+            id: answer.id,
+            user_id: answer.user_id,
+            created_at: answer.created_at,
+            updated_at: answer.updated_at,
+            deleted_at: answer.deleted_at,
+            data_json: answer.data_json.to_owned(),
+            grading_progress: answer.grading_progress,
+            score_given: answer.score_given,
+            submission_id: answer.submission_id,
+            exercise_id: answer.exercise_id,
+            tasks,
+            given_peer_reviews,
+            received_peer_reviews,
+        };
+        answers.push(new_answer);
+    }
+    Ok(AnswersRequiringAttention {
+        exercise_max_points: exercise.score_maximum,
+        data: answers,
+        total_pages: pagination.total_pages(answer_requiring_attention_count),
+    })
 }

@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+echo -e "${BLUE}Note: please git add all your changes before running this."
+echo -e "That way you can easily see what this command changed with git add -p"
+echo -e "$RESET_EVERYTHING"
+
+run_command cargo clippy --fix --allow-staged "$@"

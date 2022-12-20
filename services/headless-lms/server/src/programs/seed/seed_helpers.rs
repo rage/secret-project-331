@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
+    course_exams,
     exams::{self, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -16,9 +17,11 @@ use headless_lms_models::{
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
 use sqlx::PgConnection;
+use std::collections::HashMap;
+use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::domain::models_requests;
+use crate::domain::models_requests::{self, JwtKey};
 
 #[allow(clippy::too_many_arguments)]
 pub async fn create_page(
@@ -27,6 +30,7 @@ pub async fn create_page(
     author: Uuid,
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
+    jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_page = NewPage {
         content: Value::Array(vec![]),
@@ -45,7 +49,7 @@ pub async fn create_page(
         conn,
         new_page,
         author,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -67,7 +71,7 @@ pub async fn create_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false,
         },
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -363,6 +367,7 @@ pub async fn submit_and_grade(
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: 100,
+        set_user_variables: Some(HashMap::new()),
     };
     headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
@@ -387,7 +392,9 @@ pub async fn create_exam(
     course_id: Uuid,
     exam_id: Uuid,
     teacher: Uuid,
-) -> Result<()> {
+    minimum_points_treshold: i32,
+    jwt_key: Arc<JwtKey>,
+) -> Result<Uuid> {
     let new_exam_id = exams::insert(
         conn,
         PKeyPolicy::Fixed(exam_id),
@@ -397,6 +404,7 @@ pub async fn create_exam(
             ends_at,
             time_minutes,
             organization_id,
+            minimum_points_treshold,
         },
     )
     .await?;
@@ -454,10 +462,10 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
-        models_requests::spec_fetcher,
+        models_requests::make_spec_fetcher(jwt_key),
         models_requests::fetch_service_info,
     )
     .await?;
-    exams::set_course(conn, new_exam_id, course_id).await?;
-    Ok(())
+    course_exams::upsert(conn, new_exam_id, course_id).await?;
+    Ok(new_exam_id)
 }

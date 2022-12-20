@@ -5,4 +5,6 @@ type Vec<UserModuleCompletionStatus> = Array<{
   name: string
   order_number: number
   prerequisite_modules_completed: boolean
+  grade: number | null
+  passed: boolean | null
 }>

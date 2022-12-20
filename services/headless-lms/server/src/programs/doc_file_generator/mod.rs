@@ -120,7 +120,9 @@ use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_question_submissions::{
+        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+    },
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -272,9 +274,7 @@ fn controllers() {
             courses::{ChaptersWithStatus, CourseMaterialCourseModule},
             exams::{ExamData, ExamEnrollmentData},
         },
-        main_frontend::exercises::{
-            AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, ExerciseSubmissions,
-        },
+        main_frontend::exercises::ExerciseSubmissions,
         UploadResult,
     };
 
@@ -284,19 +284,6 @@ fn controllers() {
         is_default: true,
         name: None,
         order_number: 0
-    });
-    example!(AnswerRequiringAttentionWithTasks {
-        id,
-        user_id: Uuid::parse_str("7115806b-07c4-4079-8444-6dd248d3b9e7").unwrap(),
-        created_at,
-        updated_at,
-        deleted_at: None,
-        data_json: Some(serde_json::json! {{"choice": "a"}}),
-        grading_progress,
-        score_given: Some(0.0),
-        submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
-        exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
-        tasks,
     });
 
     doc!(UploadResult {
@@ -310,7 +297,7 @@ fn controllers() {
         ends_at,
         ended: false,
         time_minutes: 120,
-        enrollment_data: ExamEnrollmentData::NotEnrolled
+        enrollment_data: ExamEnrollmentData::NotEnrolled { can_enroll: true }
     });
     doc!(ExerciseSubmissions {
         data,
@@ -326,11 +313,6 @@ fn controllers() {
             user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
         }
     );
-    doc!(AnswersRequiringAttention {
-        exercise_max_points: 1,
-        data,
-        total_pages: 10,
-    });
 }
 
 fn models() {
@@ -342,7 +324,9 @@ fn models() {
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
-        course_modules::CourseModule,
+        course_modules::{
+            AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
+        },
         courses::{Course, CourseCount, CourseStructure},
         email_templates::EmailTemplate,
         exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
@@ -363,7 +347,10 @@ fn models() {
         feedback::{Feedback, FeedbackBlock, FeedbackCount},
         glossary::Term,
         library::{
-            grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+            grading::{
+                AnswerRequiringAttentionWithTasks, AnswersRequiringAttention,
+                StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult,
+            },
             peer_reviewing::{
                 CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
                 CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
@@ -387,6 +374,7 @@ fn models() {
             CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
             PeerReviewConfig,
         },
+        peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
         peer_review_questions::{
             CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType,
         },
@@ -397,6 +385,7 @@ fn models() {
         regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
         repository_exercises::RepositoryExercise,
         roles::{RoleUser, UserRole},
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
         user_exercise_states::{
             ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -405,6 +394,42 @@ fn models() {
         users::User,
     };
 
+    example!(PeerReviewQuestionAndAnswer {
+        peer_review_config_id,
+        peer_review_question_id,
+        peer_review_question_submission_id,
+        peer_review_submission_id,
+        order_number: 0,
+        question: "Was the answer well thought out?".to_string(),
+        answer: PeerReviewAnswer::Essay {
+            value: "I think that the answer was well thought out.".to_string()
+        },
+        answer_required: true,
+    });
+    example!(PeerReviewWithQuestionsAndAnswers {
+        peer_review_submission_id,
+        questions_and_answers,
+    });
+    example!(AnswerRequiringAttentionWithTasks {
+        id,
+        user_id: Uuid::parse_str("7115806b-07c4-4079-8444-6dd248d3b9e7").unwrap(),
+        created_at,
+        updated_at,
+        deleted_at: None,
+        data_json: Some(serde_json::json! {{"choice": "a"}}),
+        grading_progress,
+        score_given: Some(0.0),
+        submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
+        exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
+        tasks,
+        given_peer_reviews,
+        received_peer_reviews,
+    });
+    doc!(AnswersRequiringAttention {
+        exercise_max_points: 1,
+        data,
+        total_pages: 10,
+    });
     example!(ExerciseSlideSubmission {
         id,
         created_at,
@@ -554,9 +579,7 @@ fn models() {
         order_number: 0,
         copied_from: None,
         uh_course_code: None,
-        automatic_completion: false,
-        automatic_completion_number_of_exercises_attempted_treshold: None,
-        automatic_completion_number_of_points_treshold: None,
+        completion_policy: CompletionPolicy::Manual,
         ects_credits: None,
         completion_registration_link_override: None,
     });
@@ -626,6 +649,18 @@ fn models() {
         peer_review_submission_id,
         text_data: Some("I think that the answer was well written.".to_string()),
         number_data: None,
+    });
+    example!(UserCourseInstanceExerciseServiceVariable {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_service_slug: "quizzes".to_string(),
+        user_id,
+        course_instance_id,
+        exam_id: None,
+        variable_key: "dog-name".to_string(),
+        variable_value: serde_json::Value::String("Dog".to_string()),
     });
 
     doc!(
@@ -820,7 +855,8 @@ fn models() {
             )
         ]),
         peer_review_config,
-        previous_exercise_slide_submission
+        previous_exercise_slide_submission,
+        user_course_instance_exercise_service_variables,
     });
     doc!(CourseMaterialPeerReviewSubmission {
         exercise_slide_submission_id,
@@ -834,11 +870,13 @@ fn models() {
             submission,
             grading,
             model_solution_spec: None,
+            exercise_task_exercise_service_slug: "quizzes".to_string(),
         }
     );
     doc!(StudentExerciseSlideSubmissionResult {
         exercise_task_submission_results,
         exercise_status,
+        user_course_instance_exercise_service_variables,
     });
     doc!(Chapter {
         id,
@@ -941,7 +979,8 @@ fn models() {
         courses,
         starts_at,
         ends_at,
-        time_minutes: 120
+        time_minutes: 120,
+        minimum_points_treshold: 24,
     });
     doc!(
         T,
@@ -990,7 +1029,8 @@ fn models() {
             instructions: Page::example().content,
             time_minutes: 120,
             starts_at,
-            ends_at
+            ends_at,
+            minimum_points_treshold: 24,
         }
     );
     doc!(
@@ -1151,7 +1191,7 @@ fn models() {
         T,
         Vec,
         StudyRegistryCompletion {
-            completion_date: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             completion_language: "en-US".to_string(),
             completion_registration_attempt_date: None,
             email: "student@example.com".to_string(),
@@ -1177,6 +1217,8 @@ fn models() {
                 module_id: Uuid::parse_str("299eba99-9aa2-4023-bd64-bd4b5d7578ba").unwrap(),
                 name: "Course".to_string(),
                 order_number: 0,
+                passed: Some(true),
+                grade: Some(4),
                 prerequisite_modules_completed: false,
             },
             UserModuleCompletionStatus {
@@ -1185,6 +1227,8 @@ fn models() {
                 module_id: Uuid::parse_str("c6c89368-c05d-498f-a2e3-10d7c327752c").unwrap(),
                 name: "Module".to_string(),
                 order_number: 1,
+                passed: Some(true),
+                grade: Some(4),
                 prerequisite_modules_completed: false,
             }
         ]
@@ -1354,8 +1398,8 @@ fn models() {
     doc!(CourseBackgroundQuestionsAndAnswers {
         background_questions: vec![CourseBackgroundQuestion {
             id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
-            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            created_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             deleted_at: None,
             course_instance_id: Some(Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap()),
             course_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
@@ -1364,14 +1408,20 @@ fn models() {
         }],
         answers: vec![CourseBackgroundQuestionAnswer {
             id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
-            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            created_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            updated_at: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
             deleted_at: None,
             user_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
             answer_value: Some("yes".to_string()),
             course_background_question_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df")
                 .unwrap()
         }],
+    });
+    doc!(HashMap<String, String>, {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), "val1".to_string());
+        map.insert("key2".to_string(), "val2".to_string());
+        map
     });
 }
 

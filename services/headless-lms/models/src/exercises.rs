@@ -45,8 +45,8 @@ pub struct Exercise {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatusForSubmission {
-    pub name: String,
-    pub id: Uuid,
+    pub exercise_id: Uuid,
+    pub exercise_name: String,
     pub score_maximum: i32,
     pub score_given: Option<f32>,
     pub teacher_decision: Option<TeacherDecisionType>,
@@ -311,8 +311,8 @@ pub async fn get_exercise_submissions_and_status_by_course_instance_id(
         ExerciseStatusForSubmission,
         r#"
         SELECT
-        e.id,
-        e.name,
+        e.id as exercise_id,
+        e.name as exercise_name,
         e.score_maximum,
         ues.score_given,
         tgd.teacher_decision as "teacher_decision: _",

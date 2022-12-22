@@ -12,15 +12,16 @@ import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchAnswersRequiringAttention = async (
   exerciseId: string,
-  _page = 1,
+  page: number,
+  limit: number,
 ): Promise<AnswersRequiringAttention> => {
   const response = await mainFrontendClient.get(
     `/exercises/${exerciseId}/answers-requiring-attention`,
     {
       responseType: "json",
+      params: { page, limit },
     },
   )
-
   return validateResponse(response, isAnswersRequiringAttention)
 }
 

@@ -457,7 +457,7 @@ async fn get_exercise_status_by_course_instance_id(
         }
         let mut temp_submission_id = vec![];
         for submission_ids in &submission_id_list {
-            if submission_ids.id == exercise.id {
+            if submission_ids.exercise_id == exercise.id {
                 temp_submission_id.push(submission_ids.clone())
             }
         }

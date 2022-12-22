@@ -34,11 +34,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page
-    .frameLocator("iframe")
-    .locator("text=Your answer was partially correct.")
-    .first()
-    .waitFor()
+  await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -68,11 +64,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
 
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page
-    .frameLocator("iframe")
-    .locator("text=Your answer was partially correct.")
-    .first()
-    .waitFor()
+  await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,

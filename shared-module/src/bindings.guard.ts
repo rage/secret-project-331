@@ -75,6 +75,8 @@ import {
   ExamInstructionsUpdate,
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
+  ExerciseDataForUser,
+  ExerciseGradingStatus,
   ExerciseRepository,
   ExerciseRepositoryStatus,
   ExerciseService,
@@ -88,8 +90,6 @@ import {
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseSlideSubmissionInfo,
   ExerciseStatus,
-  ExerciseStatusForSubmission,
-  ExerciseStatusForUser,
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskGrading,
@@ -144,7 +144,7 @@ import {
   PeerReviewAcceptingStrategy,
   PeerReviewAnswer,
   PeerReviewConfig,
-  PeerReviewDataBySubmission,
+  PeerReviewDataForSubmission,
   PeerReviewDataForUser,
   PeerReviewQuestion,
   PeerReviewQuestionAndAnswer,
@@ -1292,21 +1292,21 @@ export function isExerciseStatus(obj: unknown): obj is ExerciseStatus {
   )
 }
 
-export function isExerciseStatusForUser(obj: unknown): obj is ExerciseStatusForUser {
-  const typedObj = obj as ExerciseStatusForUser
+export function isExerciseDataForUser(obj: unknown): obj is ExerciseDataForUser {
+  const typedObj = obj as ExerciseDataForUser
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isExercise(typedObj["exercise_points"]) as boolean) &&
     Array.isArray(typedObj["given_peer_review_data"]) &&
     typedObj["given_peer_review_data"].every(
-      (e: any) => isPeerReviewDataBySubmission(e) as boolean,
+      (e: any) => isPeerReviewDataForSubmission(e) as boolean,
     ) &&
     Array.isArray(typedObj["received_peer_review_data"]) &&
     typedObj["received_peer_review_data"].every(
-      (e: any) => isPeerReviewDataBySubmission(e) as boolean,
+      (e: any) => isPeerReviewDataForSubmission(e) as boolean,
     ) &&
     Array.isArray(typedObj["submission_ids"]) &&
-    typedObj["submission_ids"].every((e: any) => isExerciseStatusForSubmission(e) as boolean) &&
+    typedObj["submission_ids"].every((e: any) => isExerciseGradingStatus(e) as boolean) &&
     (typedObj["peer_review_queue_entry"] === null ||
       (isPeerReviewQueueEntry(typedObj["peer_review_queue_entry"]) as boolean))
   )
@@ -1329,8 +1329,8 @@ export function isPeerReviewDataForUser(obj: unknown): obj is PeerReviewDataForU
   )
 }
 
-export function isPeerReviewDataBySubmission(obj: unknown): obj is PeerReviewDataBySubmission {
-  const typedObj = obj as PeerReviewDataBySubmission
+export function isPeerReviewDataForSubmission(obj: unknown): obj is PeerReviewDataForSubmission {
+  const typedObj = obj as PeerReviewDataForSubmission
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["submission_id"] === "string" &&
@@ -1339,8 +1339,8 @@ export function isPeerReviewDataBySubmission(obj: unknown): obj is PeerReviewDat
   )
 }
 
-export function isExerciseStatusForSubmission(obj: unknown): obj is ExerciseStatusForSubmission {
-  const typedObj = obj as ExerciseStatusForSubmission
+export function isExerciseGradingStatus(obj: unknown): obj is ExerciseGradingStatus {
+  const typedObj = obj as ExerciseGradingStatus
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["exercise_id"] === "string" &&

@@ -6,7 +6,7 @@ use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
-    exercises::{ExerciseStatusForUser, PeerReviewDataBySubmission, PeerReviewDataForUser},
+    exercises::{ExerciseDataForUser, PeerReviewDataForSubmission, PeerReviewDataForUser},
     library::{
         self,
         progressing::{
@@ -375,7 +375,7 @@ async fn get_exercise_status_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ExerciseStatusForUser>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseDataForUser>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -409,9 +409,9 @@ async fn get_exercise_status_by_course_instance_id(
             .await?
             .unwrap_or_default();
 
-    let mut exercise_and_peer_review_data: Vec<ExerciseStatusForUser> = vec![];
+    let mut exercise_and_peer_review_data: Vec<ExerciseDataForUser> = vec![];
     for exercise in exercises {
-        let mut temp_given_peer_review: Vec<PeerReviewDataBySubmission> = vec![];
+        let mut temp_given_peer_review: Vec<PeerReviewDataForSubmission> = vec![];
         let mut temp_given_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
         for given_review in &given_peer_review_data {
             if !temp_given_peer_review_by_submission.is_empty()
@@ -421,7 +421,7 @@ async fn get_exercise_status_by_course_instance_id(
                         .unwrap()
                         .peer_review_submission_id
             {
-                let data = PeerReviewDataBySubmission {
+                let data = PeerReviewDataForSubmission {
                     submission_id: temp_given_peer_review_by_submission[0]
                         .peer_review_submission_id,
                     data: temp_given_peer_review_by_submission.clone(),
@@ -433,7 +433,7 @@ async fn get_exercise_status_by_course_instance_id(
             }
         }
 
-        let mut temp_received_peer_review: Vec<PeerReviewDataBySubmission> = vec![];
+        let mut temp_received_peer_review: Vec<PeerReviewDataForSubmission> = vec![];
         let mut temp_received_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
         for received_review in &received_peer_review_data {
             if !temp_received_peer_review_by_submission.is_empty()
@@ -443,7 +443,7 @@ async fn get_exercise_status_by_course_instance_id(
                         .unwrap()
                         .peer_review_submission_id
             {
-                let data = PeerReviewDataBySubmission {
+                let data = PeerReviewDataForSubmission {
                     submission_id: temp_received_peer_review_by_submission[0]
                         .peer_review_submission_id,
                     data: temp_received_peer_review_by_submission.clone(),
@@ -469,7 +469,7 @@ async fn get_exercise_status_by_course_instance_id(
                 }
             }
         }
-        let exercise_status = ExerciseStatusForUser {
+        let exercise_status = ExerciseDataForUser {
             exercise_points: exercise,
             given_peer_review_data: temp_given_peer_review,
             received_peer_review_data: temp_received_peer_review,

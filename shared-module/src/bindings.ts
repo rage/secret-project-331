@@ -679,11 +679,11 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
-export interface ExerciseStatusForUser {
+export interface ExerciseDataForUser {
   exercise_points: Exercise
-  given_peer_review_data: Array<PeerReviewDataBySubmission>
-  received_peer_review_data: Array<PeerReviewDataBySubmission>
-  submission_ids: Array<ExerciseStatusForSubmission>
+  given_peer_review_data: Array<PeerReviewDataForSubmission>
+  received_peer_review_data: Array<PeerReviewDataForSubmission>
+  submission_ids: Array<ExerciseGradingStatus>
   peer_review_queue_entry: PeerReviewQueueEntry | null
 }
 
@@ -700,12 +700,12 @@ export interface PeerReviewDataForUser {
   peer_review_submission_id: string
 }
 
-export interface PeerReviewDataBySubmission {
+export interface PeerReviewDataForSubmission {
   submission_id: string
   data: Array<PeerReviewDataForUser>
 }
 
-export interface ExerciseStatusForSubmission {
+export interface ExerciseGradingStatus {
   exercise_id: string
   exercise_name: string
   score_maximum: number

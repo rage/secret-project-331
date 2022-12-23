@@ -6,7 +6,7 @@ import {
   CourseInstanceForm,
   EmailTemplate,
   EmailTemplateNew,
-  ExerciseStatusForUser,
+  ExerciseDataForUser,
   ManualCompletionPreview,
   Points,
   TeacherManualCompletionRequest,
@@ -15,7 +15,7 @@ import {
   isCourseInstance,
   isCourseInstanceCompletionSummary,
   isEmailTemplate,
-  isExerciseStatusForUser,
+  isExerciseDataForUser,
   isManualCompletionPreview,
   isPoints,
 } from "../../shared-module/bindings.guard"
@@ -108,14 +108,14 @@ export const getPoints = async (courseInstanceId: string): Promise<Points> => {
 export const getAllExerciseStatuses = async (
   courseInstanceId: string,
   userId: string,
-): Promise<ExerciseStatusForUser[]> => {
+): Promise<ExerciseDataForUser[]> => {
   const response = await mainFrontendClient.get(
     `/course-instances/${courseInstanceId}/exercise-status/${userId}`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isArray(isExerciseStatusForUser))
+  return validateResponse(response, isArray(isExerciseDataForUser))
 }
 
 export const editCourseInstance = async (

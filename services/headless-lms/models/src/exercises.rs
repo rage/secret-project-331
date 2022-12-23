@@ -44,7 +44,7 @@ pub struct Exercise {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExerciseStatusForSubmission {
+pub struct ExerciseGradingStatus {
     pub exercise_id: Uuid,
     pub exercise_name: String,
     pub score_maximum: i32,
@@ -71,18 +71,18 @@ pub struct PeerReviewDataForUser {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewDataBySubmission {
+pub struct PeerReviewDataForSubmission {
     pub submission_id: Uuid,
     pub data: Vec<PeerReviewDataForUser>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExerciseStatusForUser {
+pub struct ExerciseDataForUser {
     pub exercise_points: Exercise,
-    pub given_peer_review_data: Vec<PeerReviewDataBySubmission>,
-    pub received_peer_review_data: Vec<PeerReviewDataBySubmission>,
-    pub submission_ids: Vec<ExerciseStatusForSubmission>,
+    pub given_peer_review_data: Vec<PeerReviewDataForSubmission>,
+    pub received_peer_review_data: Vec<PeerReviewDataForSubmission>,
+    pub submission_ids: Vec<ExerciseGradingStatus>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
 }
 
@@ -306,9 +306,9 @@ pub async fn get_exercise_submissions_and_status_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Vec<ExerciseStatusForSubmission>> {
+) -> ModelResult<Vec<ExerciseGradingStatus>> {
     let exercises = sqlx::query_as!(
-        ExerciseStatusForSubmission,
+        ExerciseGradingStatus,
         r#"
         SELECT
         e.id as exercise_id,

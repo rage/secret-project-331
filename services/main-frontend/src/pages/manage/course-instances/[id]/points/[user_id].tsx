@@ -63,10 +63,16 @@ const CourseInstanceExerciseStatusList: React.FC<
                         <div>
                           <p>
                             {" "}
-                            {t("score-given")}: {exercise.submission_ids[0].score_given}
+                            {t("score-given")}: {exercise.submission_ids[0].score_given}{" "}
+                            {exercise.submission_ids[0].score_given
+                              ? `/${exercise.submission_ids[0].score_maximum}`
+                              : null}
                           </p>
                           <p>
                             {t("teacher-decision")}: {exercise.submission_ids[0].teacher_decision}
+                            {exercise.submission_ids[0].teacher_decision
+                              ? `/${exercise.submission_ids[0].score_maximum}`
+                              : null}
                           </p>
                         </div>
                       ) : null}

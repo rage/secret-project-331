@@ -41,6 +41,7 @@
     "next": "^13.1.1",
     "nodemon": "^2.0.20",
     "postcss": "^8.4.20",
+    "postcss-styled-components": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "storybook-a11y-report": "^0.0.19",

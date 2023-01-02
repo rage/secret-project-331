@@ -1,7 +1,16 @@
 {
   "extends": "stylelint-config-recommended",
   "rules": {
-    "function-no-unknown": null
+    "font-family-no-missing-generic-family-keyword": null,
+    "no-duplicate-selectors": null,
+    "selector-type-no-unknown": [
+      true,
+      {
+        "ignoreTypes": [
+          "/POSTCSS_.*/"
+        ]
+      }
+    ]
   },
   "overrides": [
     {
@@ -11,7 +20,7 @@
         "**/*.js",
         "**/*.jsx"
       ],
-      "customSyntax": "@stylelint/postcss-css-in-js"
+      "customSyntax": "postcss-styled-components"
     }
   ]
 }

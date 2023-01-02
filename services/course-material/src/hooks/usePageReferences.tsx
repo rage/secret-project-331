@@ -1,15 +1,26 @@
 import { useQuery } from "@tanstack/react-query"
-import { fromPairs } from "lodash"
+// @ts-expect-error: No type definitions
+import cite from "citation-js"
+import { compact } from "lodash"
 import { useContext, useEffect, useState } from "react"
 
 import PageContext from "../contexts/PageContext"
 import { fetchCourseReferences } from "../services/backend"
-import { MaterialReference } from "../shared-module/bindings"
+
+const BIBLIOGRAPHY = "bibliography"
+const EN_US = "en-US"
+const STRING = "string"
+const VANCOUVER = "vancouver"
+
+export interface Citations {
+  citation: string
+  citationKey: string
+  citationNumber: number
+}
 
 const useReferences = (courseId: string) => {
   const page = useContext(PageContext)
-  const [pageRefs, setPageRefs] =
-    useState<{ reference: MaterialReference; referenceNumber: number }[]>()
+  const [pageRefs, setPageRefs] = useState<ReadonlyArray<Citations>>()
 
   const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
     fetchCourseReferences(courseId),
@@ -21,7 +32,9 @@ const useReferences = (courseId: string) => {
     }
     let attempt = 0
     const callback = () => {
-      const numReferences = document.querySelectorAll("sup.reference").length
+      // eslint-disable-next-line i18next/no-literal-string
+      const refs = document.querySelectorAll<HTMLElement>("sup.reference")
+      const numReferences = refs.length
       if (numReferences === 0 && attempt < 10) {
         attempt = attempt + 1
         setTimeout(callback, 100)
@@ -31,32 +44,33 @@ const useReferences = (courseId: string) => {
         throw "Error while loading course references"
       }
       if (getCourseReferences.data) {
-        // eslint-disable-next-line i18next/no-literal-string
-        const refs = document.querySelectorAll<HTMLElement>("sup.reference")
+        const textCitations = new Set(compact(Array.from(refs).map((x) => x.dataset.citationId)))
+        const citations = getCourseReferences.data
+          .filter((x) => textCitations.has(x.citation_key))
+          .map((x) => ({
+            citationKey: x.citation_key,
+            text: cite(x.reference).format(BIBLIOGRAPHY, {
+              type: STRING,
+              style: VANCOUVER,
+              lang: EN_US,
+            }),
+          }))
+          .sort((a, b) => a.text.localeCompare(b.text))
+          .map((x, i) => ({
+            citationKey: x.citationKey,
+            citationNumber: i + 1,
+            citation: x.text,
+          }))
 
-        const citationIds = Array.from(refs).map((ref) => ref.dataset.citationId)
+        setPageRefs(citations)
 
-        const filteredRefs = getCourseReferences.data.filter(
-          (r) => citationIds.indexOf(r.citation_key) !== -1,
-        )
-        const res = filteredRefs.map((r, idx) => {
-          return { reference: r, referenceNumber: idx + 1 }
-        })
-
-        setPageRefs(res)
-
-        const refToNum = fromPairs(
-          filteredRefs.map((r, idx) => {
-            return [r.citation_key, idx + 1]
-          }),
-        )
-
+        const citationsMap = new Map(citations.map((x) => [x.citationKey, x]))
         Array.from(refs).forEach((r) => {
           // eslint-disable-next-line i18next/no-literal-string
           r.style.position = "relative"
           // eslint-disable-next-line i18next/no-literal-string
           r.innerHTML = `<span style="color: #46749B;"}>[${
-            refToNum[r.dataset.citationId ? r.dataset.citationId : "citationId"]
+            citationsMap.get(r.dataset.citationId ?? "")?.citationNumber
           }]</span>`
         })
       }

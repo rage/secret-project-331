@@ -1,5 +1,3 @@
-// @ts-expect-error: No type definitions
-import cite from "citation-js"
 import React from "react"
 
 import usePageReferences from "../hooks/usePageReferences"
@@ -10,11 +8,6 @@ interface ReferencesProps {
   courseId: string
 }
 
-const TYPE = "string"
-const STYLE = "vancouver"
-const LANG = "en-US"
-const BIBLIOGRAPHY = "bibliography"
-
 const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ courseId }) => {
   const pageRefs = usePageReferences(courseId)
 
@@ -22,21 +15,11 @@ const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ cou
     return null
   }
 
-  const refs: { id: string; text: string }[] = pageRefs
-    .map((r) => {
-      const c = cite(r.reference.reference)
-      return {
-        id: r.reference.citation_key,
-        text: c.format(BIBLIOGRAPHY, {
-          type: TYPE,
-          style: STYLE,
-          lang: LANG,
-        }),
-      }
-    })
-    .sort((a, b) => {
-      return a.text.localeCompare(b.text)
-    })
+  // NB! Don't sort these references or it can cause a mismatch!
+  const refs: { id: string; text: string }[] = pageRefs.map((r) => ({
+    id: r.citationKey,
+    text: r.citation,
+  }))
   return <Reference data={refs} />
 }
 

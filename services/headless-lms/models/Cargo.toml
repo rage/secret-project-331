@@ -30,11 +30,11 @@ sqlx = { version = "0.6.2", features = [
 # A library to generate and parse UUIDs.
 uuid = { version = "1.2.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.150", features = ["derive"] }
+serde = { version = "1.0.152", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.23", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.89"
+serde_json = "1.0.91"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -46,9 +46,9 @@ tracing = "0.1.37"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.66"
+backtrace = "0.3.67"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.37"
+thiserror = "1.0.38"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "54263034d33818c292b9470cd61e2a2c8dff6097", features = [
   "chrono-impl",
@@ -61,7 +61,7 @@ lettre = "0.10.1"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

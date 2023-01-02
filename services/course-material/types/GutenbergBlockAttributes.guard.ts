@@ -45,6 +45,7 @@ import {
   HeadingDeprecated2Attributes,
   HeadingDeprecated3Attributes,
   HeadingDeprecated4Attributes,
+  HeadingDeprecated5Attributes,
   HtmlAttributes,
   ImageAttributes,
   ImageDeprecated1Attributes,
@@ -528,6 +529,41 @@ export function isHeadingDeprecated1Attributes(obj: unknown): obj is HeadingDepr
   const typedObj = obj as HeadingDeprecated1Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+        typeof typedObj["lock"] === "function") &&
+        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+        typeof typedObj["style"] === "function") &&
+        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
+  )
+}
+
+export function isHeadingDeprecated2Attributes(obj: unknown): obj is HeadingDeprecated2Attributes {
+  const typedObj = obj as HeadingDeprecated2Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
     typeof typedObj["content"] === "string" &&
     typeof typedObj["level"] === "number" &&
@@ -546,27 +582,6 @@ export function isHeadingDeprecated1Attributes(obj: unknown): obj is HeadingDepr
       (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
         typeof typedObj["style"] === "function") &&
         Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
-  )
-}
-
-export function isHeadingDeprecated2Attributes(obj: unknown): obj is HeadingDeprecated2Attributes {
-  const typedObj = obj as HeadingDeprecated2Attributes
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
-    typeof typedObj["content"] === "string" &&
-    typeof typedObj["level"] === "number" &&
-    (typeof typedObj["placeholder"] === "undefined" ||
-      typeof typedObj["placeholder"] === "string") &&
-    (typeof typedObj["customTextColor"] === "undefined" ||
-      typeof typedObj["customTextColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
@@ -593,6 +608,27 @@ export function isHeadingDeprecated3Attributes(obj: unknown): obj is HeadingDepr
 
 export function isHeadingDeprecated4Attributes(obj: unknown): obj is HeadingDeprecated4Attributes {
   const typedObj = obj as HeadingDeprecated4Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+        typeof typedObj["lock"] === "function") &&
+        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+  )
+}
+
+export function isHeadingDeprecated5Attributes(obj: unknown): obj is HeadingDeprecated5Attributes {
+  const typedObj = obj as HeadingDeprecated5Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
@@ -2088,7 +2124,8 @@ export function isCellAttributes(obj: unknown): obj is CellAttributes {
     (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     (typeof typedObj["tag"] === "undefined" || typeof typedObj["tag"] === "string") &&
     (typeof typedObj["scope"] === "undefined" || typeof typedObj["scope"] === "string") &&
-    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string")
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["colspan"] === "undefined" || typeof typedObj["colspan"] === "string")
   )
 }
 

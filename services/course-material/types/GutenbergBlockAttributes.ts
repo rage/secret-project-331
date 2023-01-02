@@ -350,10 +350,11 @@ export interface HeadingAttributes {
  */
 
 export interface HeadingDeprecated1Attributes {
-  align?: string
+  textAlign?: string
   content: string
   level: number
   placeholder?: string
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
@@ -361,6 +362,9 @@ export interface HeadingDeprecated1Attributes {
   className?: string
   backgroundColor?: string
   textColor?: string
+  gradient?: string
+  fontFamily?: string
+  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -375,13 +379,16 @@ export interface HeadingDeprecated2Attributes {
   content: string
   level: number
   placeholder?: string
-  customTextColor?: string
-  textColor?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
+  backgroundColor?: string
+  textColor?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -407,6 +414,24 @@ export interface HeadingDeprecated3Attributes {
  */
 
 export interface HeadingDeprecated4Attributes {
+  align?: string
+  content: string
+  level: number
+  placeholder?: string
+  customTextColor?: string
+  textColor?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of HeadingAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface HeadingDeprecated5Attributes {
   align?: string
   content: string
   level: number
@@ -1463,6 +1488,7 @@ export interface CellAttributes {
   tag?: string
   scope?: string
   align?: string
+  colspan?: string
 }
 
 export interface VerseAttributes {

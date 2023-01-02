@@ -37,12 +37,9 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await page1.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
     await selectCourseInstanceIfPrompted(page1)
     await page1.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await page1.getByRole("link", { name: "2 Page 2" }).click()
-    await page1
-      .frameLocator("iframe >> nth=0")
-      .getByRole("checkbox", { name: "a", exact: true })
-      .click()
-    await page1.getByRole("button", { name: "Submit" }).first().click()
+    await page1.getByRole("link", { name: "2 Page Two" }).click()
+    await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
+    await page1.getByRole("button", { name: "Submit" }).click()
 
     // Student 2 answers a question
     await page2.goto("http://project-331.local/")
@@ -52,36 +49,30 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await page2.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
     await selectCourseInstanceIfPrompted(page2)
     await page2.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await page2.getByRole("link", { name: "2 Page 2" }).click()
-    await page2
-      .frameLocator("iframe >> nth=0")
-      .getByRole("checkbox", { name: "b", exact: true })
-      .click()
-    await page2.getByRole("button", { name: "Submit" }).first().click()
+    await page2.getByRole("link", { name: "2 Page Two" }).click()
+    await page2.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
+    await page2.getByRole("button", { name: "Submit" }).click()
 
     // student 1 fills peerreviews
-    await fillPeerReview(page1, ["Disagree", "Disagree"])
+    await fillPeerReview(page1, ["Agree", "Agree"])
 
     // Student 2 fills peerreviews
-    await fillPeerReview(page2, ["Agree", "Agree"])
-
-    await page1.reload()
-    await page2.reload()
+    await fillPeerReview(page2, ["Disagree", "Disagree"])
 
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-seeing-score",
+      snapshotName: "student-1-not-seeing-score",
       page: page1,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-not-seeing-score",
+      snapshotName: "student-2-seeing-score",
       page: page2,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
 
     // Teacher reviews answers
@@ -104,24 +95,20 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await page3.getByRole("button", { name: "Give custom points" }).click()
     await page3.reload()
 
-    await page1.reload()
-    await page1.getByText("First chapters second page").waitFor()
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-seeing-score",
       page: page1,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
 
-    await page2.reload()
-    await page2.getByText("First chapters second page").waitFor()
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-seeing-score",
       page: page2,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
   })
 })

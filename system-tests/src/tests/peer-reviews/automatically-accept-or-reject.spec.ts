@@ -37,16 +37,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await page1.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
     await selectCourseInstanceIfPrompted(page1)
     await page1.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await page1.getByRole("link", { name: "2 Page 2" }).click()
-    await page1.frameLocator("iframe >> nth=1").getByRole("checkbox", { name: "a" }).click()
-    await page1.getByRole("button", { name: "Submit" }).nth(1).click()
+    await page1.getByRole("link", { name: "3 Page Three" }).click()
+    await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
+    await page1.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-submission",
       page: page1,
       clearNotifications: true,
-      axeSkip: true,
     })
 
     // User 2 neavigates to exercise and answers
@@ -57,38 +56,38 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await page2.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
     await selectCourseInstanceIfPrompted(page2)
     await page2.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await page2.getByRole("link", { name: "2 Page 2" }).click()
-    await page2.frameLocator("iframe >> nth=1").getByRole("checkbox", { name: "b" }).click()
-    await page2.getByRole("button", { name: "Submit" }).nth(1).click()
+    await page2.getByRole("link", { name: "3 Page Three" }).click()
+    await page2.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
+    await page2.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-submission",
       page: page2,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
 
     // User 1 writes reviews
-    await fillPeerReview(page1, ["Disagree", "Disagree"])
+    await fillPeerReview(page1, ["Agree", "Agree"])
+
+    // User 2 writes reviews
+    await fillPeerReview(page2, ["Disagree", "Disagree"])
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-peer-review",
       page: page1,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
-
-    // User 2 writes reviews
-    await fillPeerReview(page2, ["Agree", "Agree"])
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-peer-review",
       page: page2,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
 
     await page1.reload()
@@ -99,7 +98,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       snapshotName: "student-1-seeing-score",
       page: page1,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -107,7 +106,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       snapshotName: "student-2-seeing-score",
       page: page2,
       clearNotifications: true,
-      axeSkip: true,
+      axeSkip: ["duplicate-id"],
     })
   })
 })

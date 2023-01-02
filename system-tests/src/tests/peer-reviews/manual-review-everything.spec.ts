@@ -33,6 +33,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await login("student2@example.com", "student.2", page2, true)
     await login("student3@example.com", "student.3", page3, true)
     await login("teacher@example.com", "teacher", page4, true)
+
     // Student 1 submits an answer
     await page1.goto("http://project-331.local/")
     await page1

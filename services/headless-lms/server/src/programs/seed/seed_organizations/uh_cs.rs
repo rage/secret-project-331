@@ -23,8 +23,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            create_glossary_course, seed_course_without_submissions, seed_cs_course_material,
-            seed_sample_course,
+            create_glossary_course, seed_cs_course_material,
+            seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_helpers::create_exam,
     },
@@ -109,8 +109,6 @@ pub async fn seed_organization_uh_cs(
             db_pool.clone(),
             uh_cs_organization_id,
             admin_user_id,
-            student_user_id,
-            example_normal_user_ids.clone(),
             Arc::clone(&jwt_key),
         ))
     )?;
@@ -603,18 +601,15 @@ async fn courses_group_5(
     db_pool: Pool<Postgres>,
     uh_cs_organization_id: Uuid,
     admin_user_id: Uuid,
-    student_user_id: Uuid,
-    _example_normal_user_ids: Vec<Uuid>,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<()> {
-    seed_course_without_submissions(
+    seed_peer_review_course_without_submissions(
         &db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0")?,
         "Peer review Course",
         "peer-review-course",
         admin_user_id,
-        student_user_id,
         Arc::clone(&jwt_key),
     )
     .await?;

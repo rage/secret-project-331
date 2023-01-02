@@ -3738,3 +3738,265 @@ pub async fn seed_course_without_submissions(
 
     Ok(course.id)
 }
+
+pub async fn seed_peer_review_course_without_submissions(
+    db_pool: &Pool<Postgres>,
+    org: Uuid,
+    course_id: Uuid,
+    course_name: &str,
+    course_slug: &str,
+    admin: Uuid,
+    jwt_key: Arc<JwtKey>,
+) -> Result<Uuid> {
+    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
+    info!("inserting sample course {}", course_name);
+    let mut conn = db_pool.acquire().await?;
+    let new_course = NewCourse {
+        name: course_name.to_string(),
+        organization_id: org,
+        slug: course_slug.to_string(),
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "Sample course.".to_string(),
+        is_draft: false,
+        is_test_mode: false,
+    };
+    let (course, _front_page, _, default_module) = library::content_management::create_new_course(
+        &mut conn,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id,
+            default_course_instance_id: Uuid::new_v5(
+                &course_id,
+                b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
+            ),
+        }),
+        new_course,
+        admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .await?;
+
+    course_instances::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(Uuid::new_v5(
+            &course_id,
+            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
+        )),
+        NewCourseInstance {
+            course_id: course.id,
+            name: Some("Non-default instance"),
+            description: Some("This is a non-default instance"),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
+    )
+    .await?;
+
+    // chapters and pages
+
+    let new_chapter = NewChapter {
+        chapter_number: 1,
+        course_id: course.id,
+        front_page_id: None,
+        name: "The Basics".to_string(),
+        color: None,
+        opens_at: None,
+        deadline: Some(Utc.with_ymd_and_hms(2025, 1, 1, 23, 59, 59).unwrap()),
+
+        course_module_id: Some(default_module.id),
+    };
+
+    let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"bfc557e1-0f8e-4f10-8e21-d7d8ffe50a3a"),
+            Uuid::new_v5(&course_id, b"b1e392db-482a-494e-9cbb-c87bbc70e340"),
+        )),
+        &new_chapter,
+        admin,
+        &spec_fetcher,
+        models_requests::fetch_service_info,
+    )
+    .await?;
+
+    chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
+
+    let welcome_page = NewCoursePage::new(
+        course.id,
+        1,
+        "/welcome",
+        "Welcome to Introduction to peer reviews",
+    );
+    let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
+    let hidden_page = welcome_page
+        .followed_by("/hidden", "Hidden Page")
+        .set_hidden(true)
+        .set_content(vec![GutenbergBlock::paragraph(
+            "You found the secret of the project 331!",
+        )]);
+    let (_page, _) = pages::insert_course_page(&mut conn, &hidden_page, admin).await?;
+
+    info!("sample exercises");
+    let block_id_1 = Uuid::new_v5(&course_id, b"4ef933d8-170f-4437-a5af-bc7690cfac5a");
+    let block_id_2 = Uuid::new_v5(&course_id, b"35510467-9a7b-46de-9878-d9d34a1821a4");
+    let exercise_1_id = Uuid::new_v5(&course_id, b"bae98f14-9ffd-4647-8f28-fe4a5967d6e9");
+    let exercise_1_slide_1_id = Uuid::new_v5(&course_id, b"6d3feb9c-fc95-4908-803f-1b0d0e3f2c18");
+    let exercise_1_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"47517fe6-d5e2-4b8f-8d94-541a4d849aed");
+    let exercise_1_slide_1_task_1_spec_1_id =
+        Uuid::new_v5(&course_id, b"847a2144-e55b-4c2f-a6a7-98bbe7927d10");
+    let exercise_1_slide_1_task_1_spec_2_id =
+        Uuid::new_v5(&course_id, b"979a00a7-2e8a-4294-9e46-3367c372864f");
+    let exercise_1_slide_1_task_1_spec_3_id =
+        Uuid::new_v5(&course_id, b"b354830c-38c7-4b83-8370-0e7222272c56");
+
+    let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
+        exercise_1_id,
+        exercise_1_slide_1_id,
+        exercise_1_slide_1_task_1_id,
+        block_id_1,
+        block_id_2,
+        exercise_1_slide_1_task_1_spec_1_id,
+        exercise_1_slide_1_task_1_spec_2_id,
+        exercise_1_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
+    );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-1".to_string(),
+            title: "Page One".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_1],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([exercise_block_1,]),
+        },
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_1_id,
+        ManualReviewEverything,
+        3.0,
+    )
+    .await?;
+
+    let block_id_3 = Uuid::new_v5(&course_id, b"4b57812a-6509-4783-a746-3e382adf5060");
+    let block_id_4 = Uuid::new_v5(&course_id, b"d315f5bb-306f-478b-846c-ca5f1407f2db");
+    let exercise_2_id = Uuid::new_v5(&course_id, b"39f23830-d2eb-4232-b6f7-78822f0e0fbd");
+    let exercise_2_slide_1_id = Uuid::new_v5(&course_id, b"cbbbee55-511b-45be-9d95-1fa9273497ee");
+    let exercise_2_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"a2ae64bd-9518-4c2b-88c1-49ba103f14ff");
+    let exercise_2_slide_1_task_1_spec_1_id =
+        Uuid::new_v5(&course_id, b"f1cd2f78-a489-4cae-a656-86aa574faf19");
+    let exercise_2_slide_1_task_1_spec_2_id =
+        Uuid::new_v5(&course_id, b"5435b9ae-d811-43b6-b208-23f64267eef1");
+    let exercise_2_slide_1_task_1_spec_3_id =
+        Uuid::new_v5(&course_id, b"9f6e4ad4-b9f5-40cf-b071-642da7058fec");
+
+    let (exercise_block_2, exercise_2, slide_1, task_1) = create_best_exercise(
+        exercise_2_id,
+        exercise_2_slide_1_id,
+        exercise_2_slide_1_task_1_id,
+        block_id_3,
+        block_id_4,
+        exercise_2_slide_1_task_1_spec_1_id,
+        exercise_2_slide_1_task_1_spec_2_id,
+        exercise_2_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
+    );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-2".to_string(),
+            title: "Page Two".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_2],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([exercise_block_2]),
+        },
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_2_id,
+        AutomaticallyAcceptOrManualReviewByAverage,
+        2.5,
+    )
+    .await?;
+
+    let block_id_5 = Uuid::new_v5(&course_id, b"591b1612-36c8-4f02-841b-d5f95be9b410");
+    let block_id_6 = Uuid::new_v5(&course_id, b"2adbaaef-6213-4b83-ba8f-827e5a4f084f");
+    let exercise_3_id = Uuid::new_v5(&course_id, b"3b4e964b-8992-4595-92ad-bdb1721e9352");
+    let exercise_3_slide_1_id = Uuid::new_v5(&course_id, b"d0596f5c-885b-483e-9f59-271b289e4220");
+    let exercise_3_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"170a97c9-2e75-4817-af17-5e45bd362260");
+    let exercise_3_slide_1_task_1_spec_1_id =
+        Uuid::new_v5(&course_id, b"b74450cf-e8a5-4689-b2a4-7a0ed491dcbc");
+    let exercise_3_slide_1_task_1_spec_2_id =
+        Uuid::new_v5(&course_id, b"f27a8e35-2d72-406d-9c99-fd8b7c1991a3");
+    let exercise_3_slide_1_task_1_spec_3_id =
+        Uuid::new_v5(&course_id, b"31443721-fc55-4ea6-9b2a-2da8a6a991df");
+
+    let (exercise_block_3, exercise_3, slide_1, task_1) = create_best_exercise(
+        exercise_3_id,
+        exercise_3_slide_1_id,
+        exercise_3_slide_1_task_1_id,
+        block_id_5,
+        block_id_6,
+        exercise_3_slide_1_task_1_spec_1_id,
+        exercise_3_slide_1_task_1_spec_2_id,
+        exercise_3_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
+    );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-3".to_string(),
+            title: "Page Three".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_3],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([exercise_block_3,]),
+        },
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_3_id,
+        AutomaticallyAcceptOrRejectByAverage,
+        2.0,
+    )
+    .await?;
+
+    Ok(course.id)
+}

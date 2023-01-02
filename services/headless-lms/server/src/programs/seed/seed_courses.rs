@@ -356,6 +356,7 @@ pub async fn seed_sample_course(
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -420,6 +421,7 @@ pub async fn seed_sample_course(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
         exercise_3_id,
@@ -430,6 +432,7 @@ pub async fn seed_sample_course(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
         exercise_4_id,
@@ -440,6 +443,7 @@ pub async fn seed_sample_course(
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
 
     let page2_id = create_page(
@@ -1236,6 +1240,7 @@ pub async fn seed_sample_course(
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     create_page(
         &mut conn,
@@ -2681,6 +2686,7 @@ pub async fn seed_course_without_submissions(
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -2753,6 +2759,7 @@ pub async fn seed_course_without_submissions(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
         exercise_3_id,
@@ -2763,6 +2770,7 @@ pub async fn seed_course_without_submissions(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
         exercise_4_id,
@@ -2773,6 +2781,7 @@ pub async fn seed_course_without_submissions(
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
 
     let page2_id = create_page(
@@ -3546,6 +3555,7 @@ pub async fn seed_course_without_submissions(
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
+        Some("Best exercise".to_string()),
     );
     create_page(
         &mut conn,

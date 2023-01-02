@@ -115,6 +115,7 @@ pub fn create_best_exercise(
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
+    exercise_name: Option<String>,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -123,7 +124,7 @@ pub fn create_best_exercise(
 ) {
     let (exercise_block, exercise, mut slides, mut tasks) = example_exercise_flexible(
         exercise_id,
-        "Best exercise".to_string(),
+        exercise_name.unwrap_or_else(|| "Best exercise".to_string()),
         vec![(
             exercise_slide_id,
             vec![(
@@ -437,6 +438,7 @@ pub async fn create_exam(
             Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
             Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
             Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
+            Some("Best exercise".to_string()),
         );
     pages::insert_page(
         conn,

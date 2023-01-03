@@ -3864,7 +3864,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
-        Some("Best exercise".to_string()),
+        Some("ManualReviewEverything".to_string()),
     );
 
     create_page(
@@ -3916,7 +3916,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
-        Some("Best exercise".to_string()),
+        Some("AutomaticallyAcceptOrManualReviewByAverage".to_string()),
     );
 
     create_page(
@@ -3968,7 +3968,7 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
-        Some("Best exercise".to_string()),
+        Some("AutomaticallyAcceptOrRejectByAverage".to_string()),
     );
 
     create_page(

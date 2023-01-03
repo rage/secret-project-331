@@ -46,6 +46,8 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       snapshotName: "student-1-after-submission",
       page: page1,
       clearNotifications: true,
+      scrollToYCoordinate: 0,
+      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
     })
 
     // User 2 neavigates to exercise and answers
@@ -66,6 +68,8 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page2,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
+      scrollToYCoordinate: 0,
+      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
     })
 
     // User 1 writes reviews
@@ -80,6 +84,8 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page1,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
+      scrollToYCoordinate: 0,
+      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -88,6 +94,8 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page2,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
+      scrollToYCoordinate: 0,
+      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
     })
 
     await page1.reload()
@@ -99,6 +107,8 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page1,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
+      scrollToYCoordinate: 0,
+      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -107,6 +117,8 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page2,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
+      scrollToYCoordinate: 0,
+      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
     })
   })
 })

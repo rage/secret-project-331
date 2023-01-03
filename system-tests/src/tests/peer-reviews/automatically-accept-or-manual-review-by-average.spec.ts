@@ -66,7 +66,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -76,7 +76,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
     })
 
     // Teacher reviews answers
@@ -90,7 +90,10 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await page3.getByRole("tab", { name: "Exercises" }).click()
     await page3
       .getByRole("listitem")
-      .filter({ hasText: "Best exercise View submissionsView answers requiring attention(1)" })
+      .filter({
+        hasText:
+          "AutomaticallyAcceptOrManualReviewByAverage View submissionsView answers requiring attention(1)",
+      })
       .getByRole("link", { name: "View answers requiring attention" })
       .click()
 
@@ -106,7 +109,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -116,7 +119,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
     })
   })
 })

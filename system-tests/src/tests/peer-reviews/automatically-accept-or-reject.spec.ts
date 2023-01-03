@@ -47,7 +47,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page1,
       clearNotifications: true,
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
     })
 
     // User 2 neavigates to exercise and answers
@@ -69,7 +69,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
     })
 
     // User 1 writes reviews
@@ -85,7 +85,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -95,7 +95,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
     })
 
     await page1.reload()
@@ -108,7 +108,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -118,7 +118,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       scrollToYCoordinate: 0,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
     })
   })
 })

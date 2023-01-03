@@ -80,7 +80,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
     })
     await fillPeerReview(page1, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
@@ -90,7 +90,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
     })
 
     // Student 2 starts peer review
@@ -101,7 +101,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
     })
     await fillPeerReview(page2, ["Disagree", "Disagree"])
     await expectScreenshotsToMatchSnapshots({
@@ -111,7 +111,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
     })
 
     // Teacher checks answers requiring attention
@@ -124,7 +124,9 @@ test.describe("test ManualReviewEverything behavior", () => {
     await page3.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await page3.getByRole("tab", { name: "Exercises" }).click()
     await page3
-      .locator('li:has-text("Best exercise View submissionsView answers requiring attention(2)")')
+      .locator(
+        'li:has-text("ManualReviewEverything View submissionsView answers requiring attention(2)")',
+      )
       .getByRole("link", { name: "View answers requiring attention" })
       .click()
 
@@ -144,7 +146,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
     })
 
     // Student 2 views his reviews and grading
@@ -157,7 +159,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="Best exercise"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
     })
   })
 })

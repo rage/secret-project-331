@@ -8,8 +8,9 @@ import {
 import accessibilityCheck from "./accessibilityCheck"
 
 const viewPorts = {
-  "small-desktop": { width: 1280, height: 720 },
-  mobile: { width: 411, height: 731 },
+  "desktop-regular": { width: 1920, height: 1080 },
+  // Taller than a regular mobile screen, otherwise the screenshots would not have enough content to be useful
+  "mobile-tall": { width: 411, height: 1080 },
 }
 
 /**
@@ -99,7 +100,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   if (!skipMobile) {
     await snapshotWithViewPort({
       snapshotName,
-      viewPortName: "mobile",
+      viewPortName: "mobile-tall",
       toMatchSnapshotOptions,
       waitForThisToBeStable: elementHandle,
       beforeScreenshot,
@@ -116,7 +117,7 @@ export default async function expectScreenshotsToMatchSnapshots({
 
   await snapshotWithViewPort({
     snapshotName,
-    viewPortName: "small-desktop",
+    viewPortName: "desktop-regular",
     toMatchSnapshotOptions,
     waitForThisToBeStable: elementHandle,
     beforeScreenshot,

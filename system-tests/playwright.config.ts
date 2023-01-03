@@ -1,4 +1,4 @@
-import { LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
+import { devices, LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
 
 function envToNumber(env: string, defaultNumber: number) {
   try {
@@ -17,6 +17,8 @@ const config: PlaywrightTestConfig = {
   retries: process.env.GITHUB_REF === "refs/heads/master" ? 2 : 0,
   // Please don't increase this. Instead, tag your slow test as slow: https://playwright.dev/docs/api/class-test#test-slow-1
   timeout: 100000,
+  testDir: "./src/tests",
+  snapshotPathTemplate: "./src/__screenshots__/{testFilePath}/{arg}{ext}",
   use: {
     navigationTimeout: 15000,
     actionTimeout: 15000,
@@ -30,6 +32,23 @@ const config: PlaywrightTestConfig = {
       timezoneId: "Europe/Helsinki",
     },
   },
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          // For fighting anti-aliasing from: https://github.com/microsoft/playwright/issues/8161#issuecomment-1369230603
+          args: [
+            "--font-render-hinting=none",
+            "--disable-skia-runtime-opts",
+            "--disable-font-subpixel-positioning",
+            "--disable-lcd-text",
+          ],
+        },
+      },
+    },
+  ],
 }
 
 if (!config.use) {

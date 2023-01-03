@@ -73,8 +73,14 @@ manifests:
   kustomize:
     paths:
     - kubernetes/dev
+
 deploy:
   kubeContext: minikube
+  kubectl:
+    hooks:
+      after:
+        - host:
+            command: ["bash", "-c", "bin/warm-routes &"]
 
 portForward:
 - resourceType: statefulset

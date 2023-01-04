@@ -13,7 +13,7 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
@@ -33,13 +33,15 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg"),
+    await page
+      .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
+      .click(),
   ])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
-    page.click("text=Pages"),
+    page.locator("text=Pages").click(),
   ])
 
   await page.locator(`button:has-text("New chapter")`).last().click()
@@ -101,21 +103,21 @@ test("test", async ({ page }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "What is system testing")
 
-  await page.click("text=Add slide")
+  await page.locator("text=Add slide").click()
 
   // The block needs to be focused for the button to work
   await page.waitForTimeout(100)
-  await page.click("text=Slide 1")
+  await page.locator("text=Slide 1").click()
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
-  await page.click("text=Type / to choose a block")
+  await page.locator("text=Type / to choose a block").click()
 
   await page.keyboard.type("Please select the most correct alternative.")
 
-  await page.click("text=Example Exercise")
+  await page.locator("text=Example Exercise").click()
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -174,20 +176,20 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing' }*/),
-    page.click("text=Introduction to System Level Testing"),
+    page.locator("text=Introduction to System Level Testing").click(),
   ])
 
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1' }*/),
-    page.click("text=The Levels of Testing"),
+    page.locator("text=The Levels of Testing").click(),
   ])
   await expectUrlPathWithRandomUuid(
     page,
@@ -196,7 +198,7 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
-    await page.click("text=System Testing"),
+    await page.locator("text=System Testing").click(),
   ])
   await expectUrlPathWithRandomUuid(
     page,
@@ -215,7 +217,7 @@ test("test", async ({ page }) => {
 
   await frame2.click("text=Automatically testing the whole system")
 
-  await page.click("#content >> text=Submit")
+  await page.locator("#content >> text=Submit").click()
 
   await page.waitForSelector("text=Points:1/1")
 })

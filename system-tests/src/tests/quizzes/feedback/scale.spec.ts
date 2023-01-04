@@ -12,7 +12,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -23,7 +23,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
 
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",

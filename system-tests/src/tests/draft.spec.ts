@@ -8,7 +8,7 @@ test.describe("anonymous user", () => {
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
@@ -25,7 +25,7 @@ test.describe("user", () => {
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
@@ -47,7 +47,7 @@ test.describe("admin", () => {
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
@@ -61,7 +61,7 @@ test.describe("admin", () => {
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await page.click(`button:text("Create")`)
@@ -80,7 +80,7 @@ test.describe("admin", () => {
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/265c83b6-7faf-40bf-90e9-40a4c28f826c' }*/),
-      page.click("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg"),
+      page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click(),
     ])
 
     await expectScreenshotsToMatchSnapshots({
@@ -90,7 +90,7 @@ test.describe("admin", () => {
       waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
     })
 
-    await page.click("text=Edit")
+    await page.locator("text=Edit").click()
     // Uncheck input[type="checkbox"]
     await page.uncheck('input[type="checkbox"]')
 

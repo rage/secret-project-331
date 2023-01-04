@@ -12,12 +12,12 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/glossary-course' }*/),
-    page.click("text=Glossary course"),
+    page.locator("text=Glossary course").click(),
   ])
 
   await selectCourseInstanceIfPrompted(page)
@@ -35,21 +35,21 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a' }*/),
-    page.click("[aria-label=\"Manage course 'Glossary course'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a/glossary' }*/),
-    page.click("text=Glossary"),
+    page.locator("text=Glossary").click(),
   ])
 
-  await page.click("text=Edit")
-  await page.click("text=Cancel")
+  await page.locator("text=Edit").click()
+  await page.locator("text=Cancel").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -58,7 +58,7 @@ test("test", async ({ page, headless }) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
   })
 
-  await page.click("text=Delete")
+  await page.locator("text=Delete").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -84,7 +84,7 @@ test("test", async ({ page, headless }) => {
     scrollToYCoordinate: 538,
   })
 
-  await page.click("text=Edit")
+  await page.locator("text=Edit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

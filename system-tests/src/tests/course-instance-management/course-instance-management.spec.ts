@@ -11,13 +11,15 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("[aria-label=\"Manage course 'Advanced course instance management'\"] svg"),
+    await page
+      .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
+      .click(),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
@@ -30,7 +32,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
   })
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Course instances")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Course instances").click()])
   await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
 
   await expectScreenshotsToMatchSnapshots({
@@ -47,7 +49,7 @@ test("test", async ({ page, headless }) => {
   await page.fill("#supportEmail", "support@example.com")
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2099-01-01T23:59")
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
   )
@@ -77,7 +79,7 @@ test("test", async ({ page, headless }) => {
     clearNotifications: true,
   })
 
-  await page.click("text=Edit")
+  await page.locator("text=Edit").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -94,7 +96,7 @@ test("test", async ({ page, headless }) => {
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2098-01-01T23:59")
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.evaluate(() => {
     window.scrollTo(0, 0)
@@ -124,7 +126,7 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),
-    page.click("text=Delete"),
+    page.locator("text=Delete").click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({

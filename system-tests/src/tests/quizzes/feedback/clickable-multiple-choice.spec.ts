@@ -13,7 +13,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -24,7 +24,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
@@ -50,7 +50,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await frame.click(`button:text("AC")`)
   await frame.click(`button:text("Jupiter")`)
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -61,7 +61,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
   // Unselect all the options
   await frame.waitForSelector("text=Pick all the programming languages from below")
   await frame.click(`button:text("AC")`)
@@ -71,7 +71,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await frame.click(`button:text("Erlang")`)
   await frame.click(`button:text("Rust")`)
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -82,7 +82,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
   // Unselect all the options
   await frame.waitForSelector("text=Pick all the programming languages from below")
   await frame.click(`button:text("Java")`)
@@ -92,7 +92,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await frame.click(`button:text("Jupiter")`)
   await frame.click(`button:text("Rust")`)
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

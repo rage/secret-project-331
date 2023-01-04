@@ -14,7 +14,7 @@ test("test", async ({ page, headless }) => {
     page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`),
   ])
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.evaluate(() => {

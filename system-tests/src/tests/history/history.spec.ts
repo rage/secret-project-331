@@ -14,16 +14,16 @@ test("history test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history' }*/),
-    page.click("text=Introduction to history"),
+    page.locator("text=Introduction to history").click(),
   ])
 
-  await page.click("text=default")
+  await page.locator("text=default").click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -34,7 +34,7 @@ test("history test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1/page-1' }*/),
-    page.click("text=1Page One"),
+    page.locator("text=1Page One").click(),
   ])
   await page.waitForLoadState("networkidle")
 
@@ -52,17 +52,17 @@ test("history test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await Promise.all([
@@ -124,17 +124,17 @@ test("history test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
@@ -190,7 +190,7 @@ screenshotTarget: page,
 
   await page.waitForTimeout(100)
 
-  await page.click("text=Compare")
+  await page.locator("text=Compare").click()
   await page.waitForSelector("text=core/paragraph")
 
   await page.click(':nth-match(:text("["), 3)')
@@ -228,9 +228,9 @@ screenshotTarget: page,
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad/history?page=1' }*/),
-    page.click("text=Restore"),
+    page.locator("text=Restore").click(),
   ])
-  await page.click("text=Page edit history") // deselect restore
+  await page.locator("text=Page edit history").click() // deselect restore
   await page.waitForSelector("[aria-label='Current page: 1']")
   await page.waitForTimeout(100)
   /*
@@ -252,12 +252,12 @@ screenshotTarget: page,
     page.click('[aria-label="Home page"]'),
   ])
 
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await page.locator("text=University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),
-    page.click("text=Introduction to history"),
+    page.locator("text=Introduction to history").click(),
   ])
 
   await Promise.all([
@@ -267,7 +267,7 @@ screenshotTarget: page,
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1/page-1' }*/),
-    page.click("text=1Page One"),
+    page.locator("text=1Page One").click(),
   ])
 
   await page.waitForLoadState("networkidle")

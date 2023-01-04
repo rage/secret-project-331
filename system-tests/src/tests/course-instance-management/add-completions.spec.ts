@@ -12,7 +12,7 @@ test("test", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 

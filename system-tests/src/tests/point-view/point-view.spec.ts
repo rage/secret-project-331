@@ -13,27 +13,27 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers' }*/),
-    page.click("text=Point view for teachers"),
+    page.locator("text=Point view for teachers").click(),
   ])
 
-  await page.click("text=default")
+  await page.locator("text=default").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.click("text=Start course")
+  await page.locator("text=Start course").click()
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers/chapter-1' }*/),
-    page.click("text=The Basics"),
+    page.locator("text=The Basics").click(),
   ])
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -45,14 +45,14 @@ test("test", async ({ page, headless }) => {
   }
   await frame.click("text=b")
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.goto("http://project-331.local/")
 
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await page.locator("text=University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await page.click("[aria-label=\"Manage course 'Point view for teachers'\"] svg")
+  await page.locator("[aria-label=\"Manage course 'Point view for teachers'\"] svg").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
   )
@@ -69,7 +69,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
   })
 
-  await page.click("text=user_4@example.com")
+  await page.locator("text=user_4@example.com").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

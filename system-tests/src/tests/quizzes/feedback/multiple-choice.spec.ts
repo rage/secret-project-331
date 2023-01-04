@@ -13,7 +13,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -24,14 +24,14 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), await page.locator("text=The Basics").click()])
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=Multiple choice with feedback"),
+    await page.locator("text=Multiple choice with feedback").click(),
   ])
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-multiple-choice-with-feedback",
@@ -44,7 +44,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
 
   await frame.locator("text=rustup").click()
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: frame,
@@ -55,13 +55,13 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
   await frame.locator("text=Which one is the Rust package manager?").waitFor()
 
   await frame.locator("text=cargo").click()
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: frame,
@@ -70,13 +70,13 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     waitForTheseToBeVisibleAndStable: [page.locator(`text=Your answer was `)],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
   await frame.locator("text=Which one is the Rust package manager?").waitFor()
 
   await frame.locator("text=rustup").click()
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: frame,

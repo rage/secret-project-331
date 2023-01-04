@@ -13,7 +13,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -24,7 +24,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
@@ -55,7 +55,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     "19999-01-01",
   )
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -66,7 +66,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
   await frame.waitForSelector(
     "text=When you started studying at the uni? Give the date in yyyy-mm-dd format.",
@@ -77,7 +77,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     "1999-01-01",
   )
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

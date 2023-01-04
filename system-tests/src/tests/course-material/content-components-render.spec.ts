@@ -24,12 +24,12 @@ test("blocks render correctly", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
-    page.click("text=User Experience"),
+    page.locator("text=User Experience").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cscourses/introduction-to-course-material/chapter-2/content-rendering' }*/),
-    page.click("text=Content rendering"),
+    page.locator("text=Content rendering").click(),
   ])
 
   await page.waitForSelector("text=100px wide")

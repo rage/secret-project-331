@@ -13,7 +13,7 @@ test("content search", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
@@ -31,7 +31,7 @@ test("content search", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/user-research' }*/),
-    page.click("text=User research"),
+    page.locator("text=User research").click(),
   ])
 
   await page.click('[aria-label="Search for pages"]')
@@ -51,7 +51,10 @@ test("content search", async ({ page, headless }) => {
     screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Human-machine interface")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.locator("text=Human-machine interface").click(),
+  ])
 
   await expectUrlPathWithRandomUuid(
     page,

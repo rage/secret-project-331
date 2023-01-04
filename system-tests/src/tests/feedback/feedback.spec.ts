@@ -17,20 +17,23 @@ test("feedback test", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.locator("text=Introduction to feedback").click(),
+  ])
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
   await page.locator(`text=Everything is a big topic`).waitFor()
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
@@ -62,7 +65,7 @@ test("feedback test", async ({ headless, page }) => {
 
   await page.click(':nth-match(:text("Give feedback"), 2)')
 
-  await page.click("textarea")
+  await page.locator("textarea").click()
 
   // Fill textarea
   await page.fill(
@@ -86,17 +89,17 @@ test("feedback test", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to feedback'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Feedback").click()])
   // await page.waitForURL((url) => url.searchParams.has("read"))
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
@@ -113,14 +116,14 @@ test("feedback test", async ({ headless, page }) => {
     ],
   })
 
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").click()
   // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
   await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").click()
   await page.waitForSelector("text=Anonymous unrelated feedback", { state: "hidden" })
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").click()
   await page.waitForSelector("text=Anonymous feedback", { state: "hidden" })
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").click()
   await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -138,7 +141,7 @@ test("feedback test", async ({ headless, page }) => {
   await page.click(':nth-match(:text("Read"), 2)')
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback?read=true")
 
-  await page.click("text=Mark as unread")
+  await page.locator("text=Mark as unread").click()
 
-  await page.click("text=Unread")
+  await page.locator("text=Unread").click()
 })

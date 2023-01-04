@@ -12,13 +12,13 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to localizing'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Introduction to localizing'\"] svg").click(),
   ])
   expect(page).toHaveURL(
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
@@ -47,13 +47,13 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin' }*/),
-    page.click("text=Johdatus lokalisointiin"),
+    page.locator("text=Johdatus lokalisointiin").click(),
   ])
 
   await selectCourseInstanceIfPrompted(page)
@@ -65,7 +65,7 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1/page-1' }*/),
-    page.click("text=1Page One"),
+    page.locator("text=1Page One").click(),
   ])
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
@@ -79,6 +79,6 @@ test("test", async ({ page, headless }) => {
     ],
   })
 
-  await page.click("text=Johdatus lokalisointiin")
+  await page.locator("text=Johdatus lokalisointiin").click()
   expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })

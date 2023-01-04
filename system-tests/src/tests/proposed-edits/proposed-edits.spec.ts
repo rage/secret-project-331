@@ -15,23 +15,23 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals' }*/),
-    page.click("text=Introduction to edit proposals"),
+    page.locator("text=Introduction to edit proposals").click(),
   ])
 
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals/chapter-1' }*/),
-    page.click("text=The Basics"),
+    page.locator("text=The Basics").click(),
   ])
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -45,9 +45,9 @@ test("test", async ({ page, headless }) => {
 
   await frame.waitForSelector("text=b")
 
-  await page.click("text=Give feedback")
+  await page.locator("text=Give feedback").click()
 
-  await page.click("text=Improve material")
+  await page.locator("text=Improve material").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -58,9 +58,9 @@ test("test", async ({ page, headless }) => {
     ],
   })
 
-  await page.click("text=At vero eos et")
+  await page.locator("text=At vero eos et").click()
 
-  await page.click("text=So big, that we need many paragraphs.")
+  await page.locator("text=So big, that we need many paragraphs.").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -69,14 +69,14 @@ test("test", async ({ page, headless }) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=You've selected material for editing")],
   })
 
-  await page.click("text=So big, that we need many paragraphs.")
+  await page.locator("text=So big, that we need many paragraphs.").click()
   await page.fill(
     "text=So big, that we need many paragraphs.",
     "So big, that we need many paragraphs...",
   )
 
-  await page.click("text=Like this.")
-  await page.click("text=Like this.")
+  await page.locator("text=Like this.").click()
+  await page.locator("text=Like this.").click()
   await page.fill("text=Like this.", "Like this!")
 
   await page.click(
@@ -94,7 +94,7 @@ test("test", async ({ page, headless }) => {
     "redacted",
   )
 
-  await page.click("text=So big,")
+  await page.locator("text=So big,").click()
 
   await page.click('button:has-text("Preview")')
 
@@ -117,19 +117,19 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click(),
   ])
 
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2",
   )
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Change requests")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Change requests").click()])
   await page.locator("text=Accept").first().waitFor({ state: "visible" })
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",

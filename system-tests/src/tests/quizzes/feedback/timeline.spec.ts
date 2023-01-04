@@ -58,7 +58,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     scrollToYCoordinate: 470,
   })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
@@ -69,7 +69,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     scrollToYCoordinate: 470,
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
   // Clear previous answers
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
@@ -90,7 +90,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .locator(`label:text("2002")`)
     .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.frameLocator("iframe").locator("text=Your answer was correct.").waitFor()
 
@@ -103,7 +103,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
 
   // Model solution is now visible since we got full points, so we can see what feedback looks like with the model solution
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
   // Clear previous answers
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
@@ -124,7 +124,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .locator(`label:text("2002")`)
     .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 

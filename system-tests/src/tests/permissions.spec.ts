@@ -11,17 +11,17 @@ test("test", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Permission management'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Permission management'\"] svg").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92/permissions' }*/),
-    page.click("text=Permissions"),
+    page.locator("text=Permissions").click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({
@@ -36,24 +36,24 @@ test("test", async ({ headless, page }) => {
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
 
-  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
+  await page.locator("text=RoleAdminAssistantReviewerTeacher >> div").click()
 
   // Select Admin
   await page.selectOption("select", "Admin")
 
-  await page.click("text=Add user")
+  await page.locator("text=Add user").click()
 
   await page.click('[placeholder="Enter email"]')
 
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
 
-  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
+  await page.locator("text=RoleAdminAssistantReviewerTeacher >> div").click()
 
   // Select Admin
   await page.selectOption("select", "Teacher")
 
-  await page.click("text=Add user")
+  await page.locator("text=Add user").click()
 
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(

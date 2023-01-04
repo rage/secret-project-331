@@ -14,23 +14,23 @@ test.describe("Model solutions", () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      await page.click("text=University of Helsinki, Department of Computer Science"),
+      await page.locator("text=University of Helsinki, Department of Computer Science").click(),
     ])
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await Promise.all([
       page.waitForNavigation(),
-      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+      page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click(),
     ])
 
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
     // await Promise.all([
     //   page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exercises/6460b318-254c-4b70-9e1f-9ff6b2c3d461/submissions' }*/),
-    //   page.click("text=view submissions"),
+    //   page.locator("text=view submissions").click(),
     // ])
-    await page.click("text=Exercises")
-    await page.click("text=Best exercise")
+    await page.locator("text=Exercises").click()
+    await page.locator("text=Best exercise").click()
     await page.locator(`text="Submission time"`).waitFor()
 
     await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])
@@ -75,24 +75,24 @@ test.describe("Model solutions", () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      await page.click("text=University of Helsinki, Department of Computer Science"),
+      await page.locator("text=University of Helsinki, Department of Computer Science").click(),
     ])
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything' }*/),
-      page.click("text=Introduction to Everything"),
+      page.locator("text=Introduction to Everything").click(),
     ])
 
     await selectCourseInstanceIfPrompted(page)
 
-    await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
+    await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
     await expectUrlPathWithRandomUuid(
       page,
       "/org/uh-cs/courses/introduction-to-everything/chapter-1",
     )
 
-    await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+    await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
     await expectUrlPathWithRandomUuid(
       page,
       "/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",

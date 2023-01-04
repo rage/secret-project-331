@@ -13,7 +13,7 @@ test("create quizzes test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
@@ -40,7 +40,7 @@ test("create quizzes test", async ({ page }) => {
 
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -84,17 +84,17 @@ test("create quizzes test", async ({ page }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-  await page.click("text=Add slide")
+  await page.locator("text=Add slide").click()
 
   // The block needs to be focused for the button to work
   await page.waitForTimeout(100)
-  await page.click("text=Slide 1")
+  await page.locator("text=Slide 1").click()
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
-  await page.click("text=Quizzes")
+  await page.locator("text=Quizzes").click()
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -112,7 +112,7 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.locator('[aria-label="Edit"]').nth(1).click()
 
@@ -135,7 +135,7 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.locator('[aria-label="Edit"]').nth(2).click()
 
@@ -165,7 +165,7 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.locator('[aria-label="Edit"]').nth(3).click()
 
@@ -205,7 +205,7 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.locator('[aria-label="Edit"]').nth(4).click()
 
@@ -226,7 +226,7 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
   await page.locator('[aria-label="Edit"]').nth(5).click()
 

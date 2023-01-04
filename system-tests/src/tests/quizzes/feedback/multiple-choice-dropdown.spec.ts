@@ -23,7 +23,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     .locator(`select:right-of(:text("Choose the right answer from given options."))`)
     .selectOption({ label: "The Wright answer" })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -34,7 +34,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
   await frame.locator("text=Choose the right answer from given options.").waitFor()
 
@@ -44,7 +44,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
       label: "The right answer",
     })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -55,7 +55,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
   await frame.locator("text=Choose the right answer from given options.").waitFor()
 
@@ -65,7 +65,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
       label: "The Wright answer",
     })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

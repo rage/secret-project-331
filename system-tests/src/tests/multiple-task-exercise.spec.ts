@@ -23,10 +23,10 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-exercise-states' }*/),
-    page.click("text=Advanced exercise states"),
+    page.locator("text=Advanced exercise states").click(),
   ])
 
-  await page.click("text=default")
+  await page.locator("text=default").click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -35,7 +35,10 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
     page.click('#content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)'),
   ])
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Complicated exercise page")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.locator("text=Complicated exercise page").click(),
+  ])
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",
   )

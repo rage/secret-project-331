@@ -22,7 +22,7 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c/edit' }*/),
-    page.click("text=Edit exam instructions"),
+    page.locator("text=Edit exam instructions").click(),
   ])
 
   await page.locator(`[aria-label="Add default block"]`).click()
@@ -45,7 +45,7 @@ test("test", async ({ page, headless }) => {
     "/",
   )
 
-  await page.click("text=List")
+  await page.locator("text=List").click()
 
   await page
     .locator('[aria-label="Block\\:\\ List item"]')
@@ -71,7 +71,7 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c' }*/),
-    page.click("text=Ongoing short timer"),
+    page.locator("text=Ongoing short timer").click(),
   ])
   await expectScreenshotsToMatchSnapshots({
     headless,

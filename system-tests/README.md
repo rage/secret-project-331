@@ -70,14 +70,14 @@ test("test with screenshots", async ({ headless, page }) => {
       // that need to be visible and not moving before taking the screenshot
       // it is important to choose this carefully, because otherwise we might take the screenshot
       // before the UI is ready for it
-      waitForThisToBeVisibleAndStable: "text=Welcome to the course",
+      waitForTheseToBeVisibleAndStable: "text=Welcome to the course",
     })
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice",
     // working with iframes
-    waitForThisToBeVisibleAndStable: await frame.frameElement(),
+    waitForTheseToBeVisibleAndStable: await frame.frameElement(),
     frame,
   })
 }

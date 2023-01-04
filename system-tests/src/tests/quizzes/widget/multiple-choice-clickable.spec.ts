@@ -1,7 +1,7 @@
 import { test } from "@playwright/test"
 
+import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -14,41 +14,33 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   // Click text=Quizzes example, multiple-choice
   await page.selectOption("select", { label: "Quizzes example, multiple-choice clickable" })
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
-    }),
-  )
-
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-clickable",
-    waitForThisToBeVisibleAndStable: [
-      `text="Choose your favorite colors"`,
-      `text=Cyan`,
-      `text=Sienna`,
-      `text=LawnGreen`,
+    waitForTheseToBeVisibleAndStable: [
+      frame.locator(`text="Choose your favorite colors"`),
+      frame.locator(`text=Cyan`),
+      frame.locator(`text=Sienna`),
+      frame.locator(`text=LawnGreen`),
     ],
-    frame,
+    screenshotTarget: frame,
   })
 
-  await frame.click(`button:text("Cyan")`)
-  await frame.click(`button:text("Sienna")`)
-  await frame.click(`button:text("LawnGreen")`)
+  await frame.locator(`button:text("Cyan")`).click()
+  await frame.locator(`button:text("Sienna")`).click()
+  await frame.locator(`button:text("LawnGreen")`).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-clickable-answered",
-    waitForThisToBeVisibleAndStable: [
-      `text="Choose your favorite colors"`,
-      `text=Cyan`,
-      `text=Sienna`,
-      `text=LawnGreen`,
+    waitForTheseToBeVisibleAndStable: [
+      frame.locator(`text="Choose your favorite colors"`),
+      frame.locator(`text=Cyan`),
+      frame.locator(`text=Sienna`),
+      frame.locator(`text=LawnGreen`),
     ],
-    frame,
+    screenshotTarget: frame,
   })
 })

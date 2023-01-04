@@ -30,8 +30,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-course-management-page",
-    waitForThisToBeVisibleAndStable: "text=Course instances",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instances")],
+    screenshotTarget: page,
   })
 
   await Promise.all([page.waitForNavigation(), page.click("text=Course instances")])
@@ -40,8 +40,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "new-course-instance-form",
-    waitForThisToBeVisibleAndStable: "text=New course instance",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=New course instance")],
+    screenshotTarget: page,
   })
 
   await page.fill("#name", "some name")
@@ -59,8 +59,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-management-page-with-new-instance",
-    waitForThisToBeVisibleAndStable: "text=Success",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
+    screenshotTarget: page,
   })
 
   // Click text=Default Manage Manage emails View Points Export points >> a
@@ -77,8 +77,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-management-page",
-    waitForThisToBeVisibleAndStable: "text=Course instance default",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instance default")],
+    screenshotTarget: page,
     clearNotifications: true,
   })
 
@@ -88,8 +88,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-management-page-editing",
-    waitForThisToBeVisibleAndStable: "text=Submit",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Submit")],
+    screenshotTarget: page,
   })
 
   await page.fill("#name", "new name")
@@ -124,8 +124,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "management-page-after-changes",
-    waitForThisToBeVisibleAndStable: "text=Success",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
+    screenshotTarget: page,
   })
 
   // Click text=Delete course instance
@@ -137,7 +137,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-management-page-after-delete",
-    waitForThisToBeVisibleAndStable: "text=Course instances",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instances")],
+    screenshotTarget: page,
   })
 })

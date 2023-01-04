@@ -48,10 +48,10 @@ test("test", async ({ page, headless }) => {
   await page.locator("text=Welcome to...").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "block-properties",
-    waitForThisToBeVisibleAndStable: "text=Landing page hero section",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Landing page hero section")],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
@@ -60,10 +60,10 @@ test("test", async ({ page, headless }) => {
   await page.locator("select").selectOption("block-list")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "block-list",
-    waitForThisToBeVisibleAndStable: "text=Course Objective Section",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course Objective Section")],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
@@ -72,10 +72,10 @@ test("test", async ({ page, headless }) => {
   await page.locator("select").selectOption("block-menu")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "block-menu",
-    waitForThisToBeVisibleAndStable: "text=Pullquote",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Pullquote")],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })

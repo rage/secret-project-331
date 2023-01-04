@@ -46,16 +46,14 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     snapshotName: "exercise-before-answering",
-    waitForThisToBeVisibleAndStable: [
-      `text=First question.`,
-      `text=Second question.`,
-      `text=Third question.`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=First question.`),
+      page.locator(`text=Second question.`),
+      page.locator(`text=Third question.`),
     ],
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
@@ -68,16 +66,14 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     snapshotName: "two-out-of-three",
-    waitForThisToBeVisibleAndStable: [
-      `text=First question.`,
-      `text=Second question.`,
-      `text=Third question.`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=First question.`),
+      page.locator(`text=Second question.`),
+      page.locator(`text=Third question.`),
     ],
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
   await page.locator('button:has-text("try again")').click()
@@ -91,17 +87,15 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     snapshotName: "only-third-correct-score-stays-same",
-    waitForThisToBeVisibleAndStable: [
-      `text=First question.`,
-      `text=Second question.`,
-      `text=Third question.`,
-      `text=Your answer was not correct`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=First question.`),
+      page.locator(`text=Second question.`),
+      page.locator(`text=Third question.`),
+      page.locator(`text=Your answer was not correct`),
     ],
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
   await page.locator('button:has-text("try again")').click()
@@ -115,15 +109,13 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     snapshotName: "correct-answer",
-    waitForThisToBeVisibleAndStable: [
-      `text=First question.`,
-      `text=Second question.`,
-      `text=Third question.`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=First question.`),
+      page.locator(`text=Second question.`),
+      page.locator(`text=Third question.`),
     ],
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 })

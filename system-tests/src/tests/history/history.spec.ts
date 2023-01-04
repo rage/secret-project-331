@@ -45,10 +45,13 @@ test("history test", async ({ page, headless }) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "initial-page",
-    waitForThisToBeVisibleAndStable: [`text="Best exercise"`, `text="Answer this question."`],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Best exercise"`),
+      page.locator(`text="Answer this question."`),
+    ],
   })
 
   // Go to http://project-331.local/
@@ -175,12 +178,12 @@ test("history test", async ({ page, headless }) => {
   /*
   const stableElement = await page.waitForSelector("text=core/paragraph")
   await expectScreenshotsToMatchSnapshots({
-    page,
+screenshotTarget: page,
     headless,
     axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
-    waitForThisToBeVisibleAndStable: stableElement,
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    waitForTheseToBeVisibleAndStable: stableElement,
+
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
     },
@@ -194,12 +197,12 @@ test("history test", async ({ page, headless }) => {
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+screenshotTarget: page,
     axeSkip: [`landmark-unique`],
     headless,
     snapshotName: "history-view-p4-before-compare",
-    waitForThisToBeVisibleAndStable: [stableElement2, "text=Compare"],
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    waitForTheseToBeVisibleAndStable: [stableElement2, "text=Compare"],
+
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
     },
@@ -229,12 +232,12 @@ test("history test", async ({ page, headless }) => {
 
   /*
   await expectScreenshotsToMatchSnapshots({
-    page,
+screenshotTarget: page,
     headless,
     axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
     // wait for the diff to show up
-    waitForThisToBeVisibleAndStable: [
+    waitForTheseToBeVisibleAndStable: [
       ".line-delete",
       ".line-insert",
       ".insert-sign",
@@ -256,12 +259,12 @@ test("history test", async ({ page, headless }) => {
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({
-    page,
+screenshotTarget: page,
     headless,
     axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
-    waitForThisToBeVisibleAndStable: "text=core/paragraph",
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=core/paragraph")],
+
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
     },
@@ -297,10 +300,13 @@ test("history test", async ({ page, headless }) => {
 
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "page-after-restore",
-    waitForThisToBeVisibleAndStable: [`text="Best exercise"`, `text="Answer this question."`],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Best exercise"`),
+      page.locator(`text="Answer this question."`),
+    ],
   })
 })
 

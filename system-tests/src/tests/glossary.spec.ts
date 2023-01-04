@@ -29,10 +29,10 @@ test("test", async ({ page, headless }) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "initial-glossary-page",
-    waitForThisToBeVisibleAndStable: "text=Glossary",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Glossary")],
   })
 
   await page.goto("http://project-331.local/")
@@ -60,20 +60,20 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Cancel")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "initial-glossary-management-page",
-    waitForThisToBeVisibleAndStable: "text=Manage glossary",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
   })
 
   // Click text=Delete
   await page.click("text=Delete")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "deleted-term",
-    waitForThisToBeVisibleAndStable: "text=Deleted",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Deleted")],
   })
 
   await page.fill('[placeholder="New term"]', "abcd")
@@ -87,10 +87,10 @@ test("test", async ({ page, headless }) => {
   await page.locator("text=efgh").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "added-new-term",
-    waitForThisToBeVisibleAndStable: "text=efgh",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=efgh")],
     scrollToYCoordinate: 538,
   })
 
@@ -98,10 +98,10 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Edit")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "editing-term",
-    waitForThisToBeVisibleAndStable: "text=updated term",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=updated term")],
     clearNotifications: true,
   })
 
@@ -115,20 +115,20 @@ test("test", async ({ page, headless }) => {
   await page.click(':nth-match(:text("Save"), 2)')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "edited-term",
-    waitForThisToBeVisibleAndStable: `div:text-is("Success")`,
+    waitForTheseToBeVisibleAndStable: [page.locator(`div:text-is("Success")`)],
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
   await page.locator("text=Give feedback").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "final-glossary-page",
-    waitForThisToBeVisibleAndStable: "text=Glossary",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Glossary")],
     clearNotifications: true,
   })
 })

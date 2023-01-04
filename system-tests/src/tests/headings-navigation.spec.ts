@@ -43,11 +43,11 @@ test("headings navigation works", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless: headless ?? false,
     snapshotName: "headings-navigation-open",
-    waitForThisToBeVisibleAndStable: [
-      `button:has-text("Design")`,
-      `button:has-text("First heading")`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`button:has-text("Design")`),
+      page.locator(`button:has-text("First heading")`),
     ],
-    page,
+    screenshotTarget: page,
     replaceSomePartsWithPlaceholders: false,
   })
 

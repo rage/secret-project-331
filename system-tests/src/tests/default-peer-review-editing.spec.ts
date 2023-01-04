@@ -36,10 +36,10 @@ test("default peer review editing", async ({ page, headless }) => {
   ])
 
   await expectScreenshotsToMatchSnapshots({
-    page: page1,
+    screenshotTarget: page1,
     headless,
     snapshotName: "default-peer-review-editor",
-    waitForThisToBeVisibleAndStable: ['text="Add peer review question"'],
+    waitForTheseToBeVisibleAndStable: [page.locator('text="Add peer review question"')],
   })
 
   // Click input[type="number"] >> nth=0
@@ -72,9 +72,9 @@ test("default peer review editing", async ({ page, headless }) => {
   await page1.locator("text=Save").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page: page1,
+    screenshotTarget: page1,
     headless,
     snapshotName: "default-peer-review-editor-after-save",
-    waitForThisToBeVisibleAndStable: ['text="Add peer review question"'],
+    waitForTheseToBeVisibleAndStable: [page.locator('text="Add peer review question"')],
   })
 })

@@ -56,11 +56,10 @@ test("feedback test", async ({ headless, page }) => {
   })
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "feedback-tooltip",
-    waitForThisToBeVisibleAndStable: `.${feedbackTooltipClass}`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [page.locator(`.${feedbackTooltipClass}`)],
   })
 
   // Click :nth-match(:text("Give feedback"), 2)
@@ -76,11 +75,10 @@ test("feedback test", async ({ headless, page }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "feedback-input",
-    waitForThisToBeVisibleAndStable: `text=I found this pretty confusing`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 
   // Click text=Submit
@@ -111,16 +109,17 @@ test("feedback test", async ({ headless, page }) => {
   // await page.waitForURL((url) => url.searchParams.has("read"))
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
-  // Makes sure the components have rendered so that the next waitForThisToBeVisibleAndStable always works with the placeholder
+  // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
   await page.waitForSelector(`text="Page: Page One"`)
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "feedback-unread",
-    waitForThisToBeVisibleAndStable: `text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`),
+    ],
   })
 
   // Click text=Mark as read
@@ -134,17 +133,16 @@ test("feedback test", async ({ headless, page }) => {
   await page.click("text=Mark as read")
   await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "feedback-empty",
-    waitForThisToBeVisibleAndStable: `text=No feedback`,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text=No feedback`)],
     beforeScreenshot: async () => {
       page.evaluate(() => {
         window.scrollTo({ top: 0, left: 0 })
       })
     },
     clearNotifications: true,
-    toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
   // Click :nth-match(:text("Read"), 2)

@@ -14,12 +14,11 @@ test("glossary-tooltip", async ({ page, headless }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "glossary-tooltips",
     beforeScreenshot: async () => {
       await page.locator("text=KBKeyboard.").hover()
     },
-    toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

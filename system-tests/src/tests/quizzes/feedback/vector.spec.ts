@@ -15,7 +15,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "vector-initial",
     scrollToYCoordinate: 270,
@@ -26,7 +26,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").getByLabel("Answer").nth(2).fill("5")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "vector-filled",
     scrollToYCoordinate: 270,
@@ -37,7 +37,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "vector-feedback-incorrect",
     scrollToYCoordinate: 270,
@@ -52,7 +52,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=Your answer was correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "vector-feedback-correct",
     scrollToYCoordinate: 270,
@@ -67,7 +67,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=Your answer was not correct.").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "vector-feedback-incorrect-with-model-solution",
     scrollToYCoordinate: 270,

@@ -18,9 +18,9 @@ test("test", async ({ page, headless }) => {
   // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "success-notification-test",
-    waitForThisToBeVisibleAndStable: "text=Success",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
   })
 })

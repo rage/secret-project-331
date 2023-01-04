@@ -91,10 +91,10 @@ test.describe("admin", () => {
     ])
 
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
       headless,
       snapshotName: "draft-course",
-      waitForThisToBeVisibleAndStable: "text=Advanced drafts (Draft)",
+      waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
     })
 
     // Click text=Edit
@@ -106,10 +106,10 @@ test.describe("admin", () => {
     await page.locator(`button:text-is("Update")`).waitFor({ state: "hidden" })
 
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
       headless,
       snapshotName: "non-draft-course",
-      waitForThisToBeVisibleAndStable: "text=Advanced drafts",
+      waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts")],
     })
   })
 })

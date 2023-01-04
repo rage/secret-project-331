@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
+import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -39,18 +39,13 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-3",
   )
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe")
-    }),
-  )
+  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-before-success-click-column-single",
-    waitForThisToBeVisibleAndStable: `text="This is first option"`,
-    frame,
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is first option"`)],
+    screenshotTarget: frame,
     clearNotifications: true,
   })
   // Click button:has-text("This is first option")
@@ -62,9 +57,10 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-after-success-click-column-single",
-    waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first answer"`,
-    frame,
-    page,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Correct! This is indeed the first answer"`),
+    ],
+    screenshotTarget: frame,
     clearNotifications: true,
   })
 
@@ -76,9 +72,9 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     axeSkip: ["color-contrast"],
     headless,
     snapshotName: "course-material-multiple-choice-before-failure-click-column-single",
-    waitForThisToBeVisibleAndStable: `text="This is second option"`,
-    frame,
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is second option"`)],
+
+    screenshotTarget: frame,
     clearNotifications: true,
   })
 
@@ -89,9 +85,11 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-single",
-    waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first answer"`,
-    frame,
-    page,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Incorrect. This is not the first answer"`),
+    ],
+
+    screenshotTarget: frame,
     clearNotifications: true,
   })
 
@@ -101,18 +99,14 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-4",
   )
 
-  const frame2 = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe")
-    }),
-  )
+  const frame2 = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-before-success-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="This is first option"`,
-    frame: frame2,
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is first option"`)],
+
+    screenshotTarget: frame2,
     clearNotifications: true,
   })
   // Click button:has-text("This is first option")
@@ -125,9 +119,10 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     axeSkip: ["color-contrast"],
     headless,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first option"`,
-    frame: frame2,
-    page,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Correct! This is indeed the first option"`),
+    ],
+    screenshotTarget: frame2,
     clearNotifications: true,
   })
 
@@ -139,9 +134,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     axeSkip: ["color-contrast"],
     headless,
     snapshotName: "course-material-multiple-choice-before-failure-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="This is second option"`,
-    frame: frame2,
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is second option"`)],
+    screenshotTarget: frame2,
     clearNotifications: true,
   })
 
@@ -152,9 +146,10 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first option"`,
-    frame: frame2,
-    page,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Incorrect. This is not the first option"`),
+    ],
+    screenshotTarget: frame2,
     clearNotifications: true,
   })
 })

@@ -45,7 +45,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
   await page.locator("text=Submit").click()
   await page.frameLocator("iframe").locator(`input[aria-label="3"]:disabled`).first().waitFor()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "scale-feedback",
   })

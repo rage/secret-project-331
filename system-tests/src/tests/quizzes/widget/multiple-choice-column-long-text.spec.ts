@@ -1,7 +1,10 @@
 import { test } from "@playwright/test"
 
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+} from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -16,26 +19,18 @@ test("widget, multiple-choice multi screenshot test with long text", async ({ pa
   // Click text=Quizzes example, multiple-choice
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, long text" })
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
-    }),
-  )
+  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 
-  await (await frame.frameElement()).scrollIntoViewIfNeeded()
+  await frame.locator(`text="short answer"`).click()
 
-  await frame.click(`text="short answer"`)
-
-  await frame.click(`text="short answer"`)
+  await frame.locator(`text="short answer"`).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-multi-long-answers",
-    waitForThisToBeVisibleAndStable: `text="short answer"`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="short answer"`)],
+    screenshotTarget: frame,
   })
 })

@@ -56,10 +56,12 @@ test("test", async ({ page, headless }) => {
   await page.click("text=Improve material")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "no-edits-yet",
-    waitForThisToBeVisibleAndStable: "text=Click on course material to make it editable!",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Click on course material to make it editable!"),
+    ],
   })
 
   await page.click("text=At vero eos et")
@@ -67,10 +69,10 @@ test("test", async ({ page, headless }) => {
   await page.click("text=So big, that we need many paragraphs.")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "currently-editing",
-    waitForThisToBeVisibleAndStable: "text=You've selected material for editing",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=You've selected material for editing")],
   })
 
   await page.click("text=So big, that we need many paragraphs.")
@@ -104,13 +106,13 @@ test("test", async ({ page, headless }) => {
   await page.click('button:has-text("Preview")')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "preview",
-    waitForThisToBeVisibleAndStable: [
-      `text="Send"`,
-      `text="You've made changes"`,
-      `text="Do you want to send your changes?"`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Send"`),
+      page.locator(`text="You've made changes"`),
+      page.locator(`text="Do you want to send your changes?"`),
     ],
   })
 
@@ -145,10 +147,10 @@ test("test", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "manage-initial",
-    waitForThisToBeVisibleAndStable: "text=Accept",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Accept")],
   })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -158,10 +160,10 @@ test("test", async ({ page, headless }) => {
   await page.click(':nth-match(:text("Reject"), 3)')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "manage-before-send",
-    waitForThisToBeVisibleAndStable: "text=Send",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Send")],
     beforeScreenshot: async () => {
       await page.evaluate(() => window.scrollTo(0, 0))
     },
@@ -172,20 +174,20 @@ test("test", async ({ page, headless }) => {
   await page.click('text="Change requests"')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "manage-after-send",
-    waitForThisToBeVisibleAndStable: "text=Reject",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Reject")],
     clearNotifications: true,
   })
 
   await page.click('text="Old"')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "manage-old-after-send",
-    waitForThisToBeVisibleAndStable: "text=Accepted",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Accepted")],
   })
 
   await page.locator("text=Pending 2").click()
@@ -207,9 +209,9 @@ test("test", async ({ page, headless }) => {
   await page1.locator(`text=Like this!!!!!`).scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
-    page: page1,
+    screenshotTarget: page1,
     headless,
     snapshotName: "after-changes",
-    waitForThisToBeVisibleAndStable: "text=Like this!!!!!",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Like this!!!!!")],
   })
 })

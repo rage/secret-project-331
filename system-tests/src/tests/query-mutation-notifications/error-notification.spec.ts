@@ -22,9 +22,9 @@ test("test", async ({ page, headless }) => {
     window.scrollTo(0, 0)
   })
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "error-notification-test",
-    waitForThisToBeVisibleAndStable: "text=Error",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Error")],
   })
 })

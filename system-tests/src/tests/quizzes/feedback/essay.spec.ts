@@ -62,13 +62,14 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
   await page.click(`button:text-is("Submit")`)
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "essay-feedback",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
     beforeScreenshot: async () => {
       await (await frame.frameElement()).scrollIntoViewIfNeeded()
     },
-    toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

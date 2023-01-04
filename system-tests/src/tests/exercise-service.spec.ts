@@ -52,11 +52,11 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.waitForSelector("text=New exercise service")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "exercise-service-page",
-    waitForThisToBeVisibleAndStable: "text=New exercise service",
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=New exercise service")],
+
     beforeScreenshot: async () => {
       await replaceTimeComponentDates(page)
     },

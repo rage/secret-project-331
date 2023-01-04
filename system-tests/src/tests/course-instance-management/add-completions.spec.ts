@@ -59,11 +59,11 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "manual-completion-default-module-preview",
-    waitForThisToBeVisibleAndStable: [
-      "text=Users receiving a completion for the first time",
-      "text=Submit",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Users receiving a completion for the first time"),
+      page.locator("text=Submit"),
     ],
-    page,
+    screenshotTarget: page,
   })
 
   // Click button:has-text("Submit")
@@ -94,11 +94,11 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "manual-completion-another-module-preview",
-    waitForThisToBeVisibleAndStable: [
-      "text=Users receiving a completion for the first time",
-      "text=Submit",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Users receiving a completion for the first time"),
+      page.locator("text=Submit"),
     ],
-    page,
+    screenshotTarget: page,
   })
 
   // Click button:has-text("Submit")
@@ -107,14 +107,14 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "manual-completion-after-posting-completions",
-    waitForThisToBeVisibleAndStable: [
-      "text=User1",
-      "text=User2",
-      "text=User3",
-      "text=User4",
-      "text=Completions submitted successfully.",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=User1"),
+      page.locator("text=User2"),
+      page.locator("text=User3"),
+      page.locator("text=User4"),
+      page.locator("text=Completions submitted successfully."),
     ],
-    page,
+    screenshotTarget: page,
     beforeScreenshot: () => page.locator("text=User1").scrollIntoViewIfNeeded(),
   })
 

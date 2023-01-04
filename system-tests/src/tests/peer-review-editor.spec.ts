@@ -42,8 +42,8 @@ test("create peer review", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "peer-review-editor-after-save",
-    waitForThisToBeVisibleAndStable: `text="Add peer review"`,
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="Add peer review"`)],
+    screenshotTarget: page,
     clearNotifications: true,
     axeSkip: ["aria-allowed-attr", "aria-allowed-role"],
   })
@@ -61,8 +61,8 @@ test("create peer review", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "peer-review-editor-question-deleted",
-    waitForThisToBeVisibleAndStable: `text="Add peer review"`,
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="Add peer review"`)],
+    screenshotTarget: page,
     clearNotifications: true,
     axeSkip: ["aria-allowed-attr", "aria-allowed-role"],
   })

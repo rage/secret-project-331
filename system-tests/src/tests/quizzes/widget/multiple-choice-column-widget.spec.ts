@@ -1,7 +1,7 @@
 import { test } from "@playwright/test"
 
+import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -16,40 +16,37 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   // Click text=Quizzes example, multiple-choice
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, column" })
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
-    }),
-  )
-
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-column-initial",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Which of the color codes represent the color"`),
+    ],
+    screenshotTarget: frame,
   })
 
   // Click text=#00ff00
-  await frame.click("text=#00ff00")
+  await frame.locator("text=#00ff00").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-column-#00ff00",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Which of the color codes represent the color"`),
+    ],
+    screenshotTarget: frame,
   })
 
-  // Click text=#ff0000
-  await frame.click("text=#ff0000")
+  await frame.locator("text=#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-column-#ff0000",
-    waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="Which of the color codes represent the color"`),
+    ],
+    screenshotTarget: frame,
   })
 })

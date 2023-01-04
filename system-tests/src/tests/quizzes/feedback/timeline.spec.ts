@@ -16,7 +16,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "timeline-initial",
     scrollToYCoordinate: 470,
@@ -53,7 +53,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .selectOption({ label: "Finland joins the European Union" })
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "timeline-filled",
     scrollToYCoordinate: 470,
@@ -64,7 +64,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "timeline-feedback-wrong",
     scrollToYCoordinate: 470,
@@ -96,7 +96,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=Your answer was correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "timeline-feedback-correct",
     scrollToYCoordinate: 470,
@@ -130,7 +130,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "timeline-feedback-incorrect-with-model-solution",
     scrollToYCoordinate: 600,

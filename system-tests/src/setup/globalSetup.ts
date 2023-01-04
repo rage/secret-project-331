@@ -35,6 +35,7 @@ async function createLoginStates() {
   await login("user@example.com", "user", page)
   await login("assistant@example.com", "assistant", page)
   await login("creator@example.com", "creator", page)
+  await browser.close()
 }
 
 // The setup system test db called by playwright to make the playwright vscode extension to work.

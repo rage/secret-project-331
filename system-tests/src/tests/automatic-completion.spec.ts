@@ -47,14 +47,14 @@ test("Registers automatic completion", async ({ headless, page }) => {
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.waitForSelector("text=Congratulations!")
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless: headless ?? false,
     snapshotName: "automatic-completion-congratulations-card",
-    waitForThisToBeVisibleAndStable: [
-      "text=Congratulations!",
-      "text=You have successfully completed the course!",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Congratulations!"),
+      page.locator("text=You have successfully completed the course!"),
     ],
-    toMatchSnapshotOptions: { threshold: 0.3 },
+
     beforeScreenshot: () => page.locator("text=Congratulations!").scrollIntoViewIfNeeded(),
   })
   // Click text=Automatic CompletionsRegister >> button
@@ -63,11 +63,10 @@ test("Registers automatic completion", async ({ headless, page }) => {
     page.locator("text=Automatic CompletionsRegister >> button").click(),
   ])
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless: headless ?? false,
     snapshotName: "automatic-completion-registration-page",
-    waitForThisToBeVisibleAndStable: "text=Register completion",
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Register completion")],
   })
   // Click text=To the registration form
   await Promise.all([

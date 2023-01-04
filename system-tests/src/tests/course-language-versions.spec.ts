@@ -85,11 +85,11 @@ test("test", async ({ page, headless }) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "wrong-course-banner",
-    waitForThisToBeVisibleAndStable: [
-      "text=Looks like you're already on a different language version",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Looks like you're already on a different language version"),
     ],
   })
 

@@ -29,7 +29,7 @@ test("find hidden page", async ({ page, headless }) => {
     beforeScreenshot: () => page.locator("text=Information pages").scrollIntoViewIfNeeded(),
     clearNotifications: true,
     headless,
-    page,
+    screenshotTarget: page,
     snapshotName: "top-level-pages-list",
   })
 
@@ -44,8 +44,10 @@ test("find hidden page", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     clearNotifications: true,
     headless,
-    page,
+    screenshotTarget: page,
     snapshotName: "hidden-page",
-    waitForThisToBeVisibleAndStable: [`text="You found the secret of the project 331!"`],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="You found the secret of the project 331!"`),
+    ],
   })
 })

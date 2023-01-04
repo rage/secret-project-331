@@ -28,10 +28,10 @@ test("test", async ({ headless, page }) => {
   ])
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "initial-permission-management-page",
-    waitForThisToBeVisibleAndStable: ["text=Roles for course"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Roles for course")],
   })
 
   // Click [placeholder="Enter email"]
@@ -71,7 +71,7 @@ test("test", async ({ headless, page }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "sorted-by-email",
     clearNotifications: true,
@@ -84,7 +84,7 @@ test("test", async ({ headless, page }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "sorted-by-role",
   })
@@ -93,10 +93,10 @@ test("test", async ({ headless, page }) => {
   await page.click('[aria-label="Edit role"]')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "editing-permission",
-    waitForThisToBeVisibleAndStable: ["#editing-role"],
+    waitForTheseToBeVisibleAndStable: [page.locator("#editing-role")],
   })
 
   // Select Reviewer
@@ -109,10 +109,10 @@ test("test", async ({ headless, page }) => {
   await page.click('[aria-label="Save edited role"]')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "edited-permission",
-    waitForThisToBeVisibleAndStable: 'text="Success"',
+    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
     clearNotifications: true,
   })
 
@@ -120,9 +120,9 @@ test("test", async ({ headless, page }) => {
   await page.click('[aria-label="Remove role"]')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "removed-permission",
-    waitForThisToBeVisibleAndStable: 'text="Success"',
+    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
   })
 })

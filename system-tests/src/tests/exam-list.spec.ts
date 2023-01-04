@@ -22,10 +22,10 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
 
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "exam-listing",
-    waitForThisToBeVisibleAndStable: ["text=Exams"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Exams")],
     beforeScreenshot: () => page.locator("text=Exams").nth(1).scrollIntoViewIfNeeded(),
   })
 
@@ -33,16 +33,15 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   await page.locator("text=ManageCre >> button").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=new-exam-dialog"),
     headless,
     snapshotName: "create-exam-dialog",
-    elementId: "#new-exam-dialog",
-    waitForThisToBeVisibleAndStable: [
-      "text=Name",
-      "text=Starts at",
-      "text=Ends at",
-      "text=Time in minutes",
-      "text=duplicate",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Name"),
+      page.locator("text=Starts at"),
+      page.locator("text=Ends at"),
+      page.locator("text=Time in minutes"),
+      page.locator("text=duplicate"),
     ],
   })
 
@@ -59,16 +58,15 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   await page.locator('[label="Time\\ in\\ minutes"]').fill("120")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=new-exam-dialog"),
     headless,
     snapshotName: "create-exam-dialog-filled",
-    elementId: "#new-exam-dialog",
-    waitForThisToBeVisibleAndStable: [
-      "text=Name",
-      "text=Starts at",
-      "text=Ends at",
-      "text=Time in minutes",
-      "text=duplicate",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Name"),
+      page.locator("text=Starts at"),
+      page.locator("text=Ends at"),
+      page.locator("text=Time in minutes"),
+      page.locator("text=duplicate"),
     ],
   })
 

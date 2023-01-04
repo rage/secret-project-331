@@ -55,11 +55,12 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await page.click("text=Submit")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "clickable-multiple-choice-incorrect-answer",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
   })
 
   await page.click("text=Try again")
@@ -75,11 +76,12 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await page.click("text=Submit")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "clickable-multiple-choice-correct-answer",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
   })
 
   await page.click("text=Try again")
@@ -95,10 +97,11 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await page.click("text=Submit")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "clickable-multiple-choice-incorrect-answer-after-correct",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
   })
 })

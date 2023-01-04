@@ -53,10 +53,10 @@ test("content search", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
     headless,
-    page,
+    screenshotTarget: page,
     snapshotName: "search-content-with-short-prefix",
-    waitForThisToBeVisibleAndStable: "text=Human-machine interface",
-    toMatchSnapshotOptions: { maxDiffPixelRatio: 0.05 },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Human-machine interface")],
+    screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 
   // Click text=Human-machine interface
@@ -81,10 +81,12 @@ test("content search", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
-    waitForThisToBeVisibleAndStable: "text=Welcome to Introduction to Course Material",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Welcome to Introduction to Course Material"),
+    ],
   })
 
   // phrases should be ranked higher than word matches
@@ -95,9 +97,9 @@ test("content search", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["landmark-one-main", "page-has-heading-one"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "search-continuous-phrases-ranked-higher-than-word-matches",
-    waitForThisToBeVisibleAndStable: "text=banana cat enim",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=banana cat enim")],
   })
 })

@@ -107,7 +107,7 @@ test("mange course structure works", async ({ headless, page }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "manage-course-structure-middle-of-the-page",
     clearNotifications: true,
@@ -118,7 +118,7 @@ test("mange course structure works", async ({ headless, page }) => {
   })
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "manage-course-structure-top-of-the-page",
     clearNotifications: true,

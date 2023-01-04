@@ -6,13 +6,13 @@ import { Page } from "playwright"
 export default async function accessibilityCheck(
   page: Page,
   contextName: string,
-  axeSkip: boolean | string[],
+  axeSkip: string[] | undefined,
 ): Promise<void> {
   // force all console.group output to stderr
   const stdErrConsole = new Console(process.stderr)
   const results = await new AxeBuilder({ page }).analyze()
   let resultsFiltered = []
-  if (typeof axeSkip === "object") {
+  if (Array.isArray(axeSkip)) {
     resultsFiltered = results.violations.filter((violation) => {
       if (axeSkip.find((skippable) => skippable === violation.id)) {
         return

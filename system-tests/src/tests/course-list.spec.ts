@@ -20,9 +20,9 @@ test("course list renders", async ({ headless, page }) => {
 
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
-    page,
     headless,
+    screenshotTarget: page,
     snapshotName: "course-listing",
-    waitForThisToBeVisibleAndStable: ["text=Courses:"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Courses:")],
   })
 })

@@ -36,12 +36,11 @@ test("blocks render correctly", async ({ page, headless }) => {
   await page.waitForSelector("text=100px wide")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true,
-    page,
+    axeSkip: [],
+    screenshotTarget: page,
     headless,
     snapshotName: "content-components-renderer-view",
-    waitForThisToBeVisibleAndStable: undefined,
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+    waitForTheseToBeVisibleAndStable: undefined,
+    screenshotOptions: { fullPage: true },
   })
 })

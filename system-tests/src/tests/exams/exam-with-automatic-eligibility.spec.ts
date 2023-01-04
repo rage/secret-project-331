@@ -12,13 +12,13 @@ test("Can take exam after enough course points", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    page,
+    screenshotTarget: page,
     snapshotName: "cant-take-exam-before-meeting-exercise-requirements",
-    waitForThisToBeVisibleAndStable: [
-      "text=Automatic course exam",
-      "text=Submissions are no longer accepted after",
-      "text=You have 1 minutes to complete the exam after starting",
-      "text=You are not eligible for taking this exam.",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Automatic course exam"),
+      page.locator("text=Submissions are no longer accepted after"),
+      page.locator("text=You have 1 minutes to complete the exam after starting"),
+      page.locator("text=You are not eligible for taking this exam."),
     ],
   })
 
@@ -40,12 +40,12 @@ test("Can take exam after enough course points", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    page,
+    screenshotTarget: page,
     snapshotName: "can-take-exam-after-meeting-exercise-requirements",
-    waitForThisToBeVisibleAndStable: [
-      "text=Automatic course exam",
-      "text=Submissions are no longer accepted after",
-      "text=You have 1 minutes to complete the exam after starting",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Automatic course exam"),
+      page.locator("text=Submissions are no longer accepted after"),
+      page.locator("text=You have 1 minutes to complete the exam after starting"),
     ],
   })
 

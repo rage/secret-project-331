@@ -1,7 +1,10 @@
 import { test } from "@playwright/test"
 
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+} from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -14,64 +17,59 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
   // Select Quizzes example, matrix
   await page.selectOption("select", { label: "Quizzes example, matrix" })
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
-    }),
-  )
+  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-
-  await (await frame.frameElement()).scrollIntoViewIfNeeded()
+  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-matrix-initial",
-    frame,
+    screenshotTarget: frame,
   })
 
   // Click [aria-label="row: 0, column: 0"]
-  await frame.click('[aria-label="row: 0, column: 0"]')
+  await frame.locator('[aria-label="row: 0, column: 0"]').click()
 
   // Fill [aria-label="row: 0, column: 0"]
-  await frame.fill('[aria-label="row: 0, column: 0"]', "1")
+  await frame.locator('[aria-label="row: 0, column: 0"]').fill("1")
 
   // Click [aria-label="row: 1, column: 1"]
-  await frame.click('[aria-label="row: 1, column: 1"]')
+  await frame.locator('[aria-label="row: 1, column: 1"]').click()
 
   // Fill [aria-label="row: 1, column: 1"]
-  await frame.fill('[aria-label="row: 1, column: 1"]', "2")
+  await frame.locator('[aria-label="row: 1, column: 1"]').fill("2")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-matrix-two-cells-filled",
-    waitForThisToBeVisibleAndStable: [`input[name="1"]`, `input[name="2"]`],
-    frame,
+    waitForTheseToBeVisibleAndStable: [
+      frame.locator(`input[name="1"]`),
+      frame.locator(`input[name="2"]`),
+    ],
+    screenshotTarget: frame,
   })
 
   // Click [aria-label="row: 0, column: 2"]
-  await frame.click('[aria-label="row: 0, column: 2"]')
+  await frame.locator('[aria-label="row: 0, column: 2"]').click()
 
   // Fill [aria-label="row: 0, column: 2"]
-  await frame.fill('[aria-label="row: 0, column: 2"]', "5")
+  await frame.locator('[aria-label="row: 0, column: 2"]').fill("5")
 
   // Click [aria-label="row: 5, column: 5"]
-  await frame.click('[aria-label="row: 5, column: 5"]')
+  await frame.locator('[aria-label="row: 5, column: 5"]').click()
 
   // Fill [aria-label="row: 5, column: 5"]
-  await frame.fill('[aria-label="row: 5, column: 5"]', "6")
+  await frame.locator('[aria-label="row: 5, column: 5"]').fill("6")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-matrix-whole-matrice-is-active",
-    waitForThisToBeVisibleAndStable: [
-      `input[name="1"]`,
-      `input[name="2"]`,
-      `input[name="5"]`,
-      `input[name="6"]`,
+    waitForTheseToBeVisibleAndStable: [
+      frame.locator(`input[name="1"]`),
+      frame.locator(`input[name="2"]`),
+      frame.locator(`input[name="5"]`),
+      frame.locator(`input[name="6"]`),
     ],
-    frame,
+    screenshotTarget: frame,
   })
 })

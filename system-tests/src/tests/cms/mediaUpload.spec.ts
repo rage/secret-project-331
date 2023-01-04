@@ -80,9 +80,9 @@ test.describe("Uploading media as admin", async () => {
         "page-has-heading-one",
         "region",
       ],
-      page: newPage,
+      screenshotTarget: newPage,
       snapshotName: "uploadMediaPicture.png",
-      toMatchSnapshotOptions: { threshold: 0.2 },
+
       headless,
     })
   })

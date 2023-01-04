@@ -28,10 +28,10 @@ test("material reference tests", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "material-reference-list",
-    waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
   })
 
   // Click text=Add new reference
@@ -39,10 +39,10 @@ test("material reference tests", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["page-has-heading-one"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "add-new-material-reference-dialog",
-    waitForThisToBeVisibleAndStable: ["text=Submit", "text=Close"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Submit"), page.locator("text=Close")],
   })
 
   // Click textarea[name="references"]
@@ -72,10 +72,10 @@ test("material reference tests", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "new-material-reference-added",
-    waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
     clearNotifications: true,
   })
 
@@ -83,10 +83,10 @@ test("material reference tests", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order", "page-has-heading-one"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "material-reference-editor",
-    waitForThisToBeVisibleAndStable: ["text=Edit reference"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Edit reference")],
   })
 
   // Fill textarea[name="references"]
@@ -102,10 +102,10 @@ test("material reference tests", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "material-reference-edited",
-    waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
     clearNotifications: true,
   })
 
@@ -138,7 +138,7 @@ test("material reference tests", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["region", "aria-allowed-attr"],
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "citation-in-editor",
     beforeScreenshot: async () => await page.locator(`text=${PARAGRAPH}`).scrollIntoViewIfNeeded(),
@@ -180,7 +180,7 @@ test("material reference tests", async ({ page, headless }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "citation-paragraph",
     beforeScreenshot: async () =>
@@ -190,10 +190,10 @@ test("material reference tests", async ({ page, headless }) => {
   await page.locator("text=Reference").scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "closed-course-material-reference-list",
-    waitForThisToBeVisibleAndStable: ["text=Reference"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Reference")],
     beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),
   })
 
@@ -201,10 +201,10 @@ test("material reference tests", async ({ page, headless }) => {
   await page.locator("text=Reference").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "open-course-material-reference-list",
-    waitForThisToBeVisibleAndStable: ["text=Reference", "text=Wang"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Reference"), page.locator("text=Wang")],
     beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),
   })
 })

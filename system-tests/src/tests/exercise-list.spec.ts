@@ -15,10 +15,10 @@ test("test", async ({ page, headless }) => {
   await page.getByRole("tab", { name: "Exercises" }).click()
   await page.getByRole("heading", { name: "Manage exercise repositories" }).click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "exercise-list-view",
 
-    waitForThisToBeVisibleAndStable: "text=Exercises in this course",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Exercises in this course")],
   })
 })

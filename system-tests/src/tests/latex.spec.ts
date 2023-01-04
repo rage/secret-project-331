@@ -153,9 +153,12 @@ test("latex-block renders", async ({ headless, page }) => {
   await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
     snapshotName: "latex",
-    waitForThisToBeVisibleAndStable: ["text=Inline latex", "text=Wubba Lubba Dub Dub"],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Inline latex"),
+      page.locator("text=Wubba Lubba Dub Dub"),
+    ],
   })
 })

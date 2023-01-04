@@ -77,9 +77,8 @@ test("test", async ({ page, headless }) => {
   ])
   await expectScreenshotsToMatchSnapshots({
     headless,
-    page,
-    elementId: "#exam-instructions",
+    screenshotTarget: page.locator("id=exam-instructions"),
     snapshotName: "exam-instructions",
-    waitForThisToBeVisibleAndStable: "text=These are the instructions",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=These are the instructions")],
   })
 })

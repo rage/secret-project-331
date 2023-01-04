@@ -78,8 +78,8 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "point-view-top",
-    waitForThisToBeVisibleAndStable: "text=TOTAL POINT DASHBOARD",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=TOTAL POINT DASHBOARD")],
+    screenshotTarget: page,
   })
 
   await page.click("text=user_4@example.com")
@@ -87,7 +87,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "point-view-bottom",
-    waitForThisToBeVisibleAndStable: "text=user_4@example.com",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=user_4@example.com")],
+    screenshotTarget: page,
   })
 })

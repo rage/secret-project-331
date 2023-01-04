@@ -49,14 +49,12 @@ test.describe("Model solutions", () => {
       throw new Error("Could not find frame")
     }
 
-    const stableElement = await frame.waitForSelector("text=a")
-
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
       headless,
       snapshotName: "model-solutions-in-submissions",
-      waitForThisToBeVisibleAndStable: stableElement,
-      toMatchSnapshotOptions: { threshold: 0.4 },
+      waitForTheseToBeVisibleAndStable: [frame.locator("text=a")],
+
       beforeScreenshot: async () => {
         await page.evaluate(() => {
           const divs = document.querySelectorAll("div")
@@ -116,14 +114,11 @@ test.describe("Model solutions", () => {
       throw new Error("Could not find frame")
     }
 
-    const stableElement = await frame.waitForSelector("text=a")
-
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
       headless,
       snapshotName: "model-solutions-in-exercises",
-      waitForThisToBeVisibleAndStable: stableElement,
-      toMatchSnapshotOptions: { threshold: 0.4 },
+      waitForTheseToBeVisibleAndStable: [frame.locator("text=a")],
     })
   })
 })

@@ -8,16 +8,13 @@ test.use({
 })
 
 test("find hidden page", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
 
-  // Click text=Introduction to everything
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-everything' }*/),
     page.click("text=Introduction to everything"),
@@ -33,7 +30,6 @@ test("find hidden page", async ({ page, headless }) => {
     snapshotName: "top-level-pages-list",
   })
 
-  // Click text=Welcome to Introduction to Everything
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-everything/welcome' }*/),
     page.click("text=Welcome to Introduction to Everything"),

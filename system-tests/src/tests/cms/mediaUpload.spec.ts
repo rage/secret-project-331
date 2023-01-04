@@ -55,7 +55,6 @@ test.describe("Uploading media as admin", async () => {
       .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
       .type(`/image`)
 
-    // Click :nth-match(:text("Image"), 2)
     await page.click('text="Image"')
 
     // Upload file with fileChooser
@@ -69,7 +68,6 @@ test.describe("Uploading media as admin", async () => {
     await page.click('img[alt="Add alt"]')
     await page.click("text=Replace")
 
-    // Click image direct link to open the uploaded image
     const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
 
     await expectScreenshotsToMatchSnapshots({

@@ -11,7 +11,6 @@ test.use({
 })
 
 test("widget, matrix screenshot test", async ({ page, headless }) => {
-  // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
   // Select Quizzes example, matrix
@@ -27,13 +26,11 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
     screenshotTarget: frame,
   })
 
-  // Click [aria-label="row: 0, column: 0"]
   await frame.locator('[aria-label="row: 0, column: 0"]').click()
 
   // Fill [aria-label="row: 0, column: 0"]
   await frame.locator('[aria-label="row: 0, column: 0"]').fill("1")
 
-  // Click [aria-label="row: 1, column: 1"]
   await frame.locator('[aria-label="row: 1, column: 1"]').click()
 
   // Fill [aria-label="row: 1, column: 1"]
@@ -49,13 +46,11 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
     screenshotTarget: frame,
   })
 
-  // Click [aria-label="row: 0, column: 2"]
   await frame.locator('[aria-label="row: 0, column: 2"]').click()
 
   // Fill [aria-label="row: 0, column: 2"]
   await frame.locator('[aria-label="row: 0, column: 2"]').fill("5")
 
-  // Click [aria-label="row: 5, column: 5"]
   await frame.locator('[aria-label="row: 5, column: 5"]').click()
 
   // Fill [aria-label="row: 5, column: 5"]

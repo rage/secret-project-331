@@ -8,10 +8,8 @@ test.use({
 })
 
 test("widget, multiple-choice-clickable screenshot test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/playground")
 
-  // Click text=Quizzes example, multiple-choice
   await page.selectOption("select", { label: "Quizzes example, multiple-choice clickable" })
 
   const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)

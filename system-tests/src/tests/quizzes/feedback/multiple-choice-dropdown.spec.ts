@@ -9,7 +9,6 @@ test.use({
 })
 
 test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
-  // Go to http://project-331.local/
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-5",
   )

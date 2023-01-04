@@ -6,7 +6,6 @@ test.use({
 })
 
 test("Can start an exam and can answer exercises", async ({ page, headless }) => {
-  // Go to http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c
   await page.goto("http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb")
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -34,7 +33,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
   await page.evaluate(() => {
     window.scrollTo(0, 500)
   })
-  // Click text=Answer this question. >> nth=0
+
   await page.locator("text=Answer this question.").first().scrollIntoViewIfNeeded()
   await page
     .frameLocator("iframe")
@@ -42,7 +41,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
     .locator("text=Which one is the Rust package manager?")
     .first()
     .waitFor()
-  // Click text=a
+
   await page.frameLocator("iframe").first().locator("text=cargo").click()
   await page.locator("button:text('Submit')").first().click()
   await expectScreenshotsToMatchSnapshots({

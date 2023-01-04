@@ -13,10 +13,8 @@ test.use({
 })
 
 test("feedback test", async ({ headless, page }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
@@ -62,10 +60,8 @@ test("feedback test", async ({ headless, page }) => {
     waitForTheseToBeVisibleAndStable: [page.locator(`.${feedbackTooltipClass}`)],
   })
 
-  // Click :nth-match(:text("Give feedback"), 2)
   await page.click(':nth-match(:text("Give feedback"), 2)')
 
-  // Click textarea
   await page.click("textarea")
 
   // Fill textarea
@@ -81,7 +77,6 @@ test("feedback test", async ({ headless, page }) => {
     waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 
-  // Click text=Submit
   await page.click(`button:text("Add comment")`)
   await page.click(`button:text("Send")`)
   await page.waitForSelector("text=Feedback submitted successfully")
@@ -89,21 +84,17 @@ test("feedback test", async ({ headless, page }) => {
   await logout(page)
   await login("admin@example.com", "admin", page, true)
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to feedback'\"] svg"),
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
-
-  // Click text=Manage feedback
 
   await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
   // await page.waitForURL((url) => url.searchParams.has("read"))
@@ -122,7 +113,6 @@ test("feedback test", async ({ headless, page }) => {
     ],
   })
 
-  // Click text=Mark as read
   await page.click("text=Mark as read")
   // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
   await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
@@ -145,13 +135,10 @@ test("feedback test", async ({ headless, page }) => {
     clearNotifications: true,
   })
 
-  // Click :nth-match(:text("Read"), 2)
   await page.click(':nth-match(:text("Read"), 2)')
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback?read=true")
 
-  // Click text=Mark as unread
   await page.click("text=Mark as unread")
 
-  // Click text=Unread
   await page.click("text=Unread")
 })

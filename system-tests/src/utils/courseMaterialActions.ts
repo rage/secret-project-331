@@ -23,7 +23,6 @@ export async function selectCourseInstanceIfPrompted(page: Page, courseVariantNa
   if (await isSelectCourseInstanceModalOpen(page)) {
     await page.click(`label:has-text("${courseVariantName}")`)
 
-    // Click button:has-text("Continue")
     await page.click('button:has-text("Continue")')
     await page.locator(`h2:has-text("Select course instance")`).waitFor({ state: "detached" })
   }

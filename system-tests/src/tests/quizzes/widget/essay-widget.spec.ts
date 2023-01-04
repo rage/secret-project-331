@@ -8,7 +8,6 @@ test.use({
 })
 
 test("widget, essay", async ({ page, headless }) => {
-  // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes example, essay" })

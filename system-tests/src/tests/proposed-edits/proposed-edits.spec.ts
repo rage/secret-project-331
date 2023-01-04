@@ -10,7 +10,7 @@ test.use({
 
 test("test", async ({ page, headless }) => {
   test.slow()
-  // Go to http://project-331.local/
+
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -19,22 +19,18 @@ test("test", async ({ page, headless }) => {
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Introduction to edit proposals
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals' }*/),
     page.click("text=Introduction to edit proposals"),
   ])
 
-  // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 
-  // Click text=The Basics
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals/chapter-1' }*/),
     page.click("text=The Basics"),
   ])
 
-  // Click text=Page One
   await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
 
   const frame = await waitForFunction(page, () =>
@@ -49,10 +45,8 @@ test("test", async ({ page, headless }) => {
 
   await frame.waitForSelector("text=b")
 
-  // Click text=Give feedback
   await page.click("text=Give feedback")
 
-  // Click text=Improve material
   await page.click("text=Improve material")
 
   await expectScreenshotsToMatchSnapshots({
@@ -102,7 +96,6 @@ test("test", async ({ page, headless }) => {
 
   await page.click("text=So big,")
 
-  // Click button:has-text("Send")
   await page.click('button:has-text("Preview")')
 
   await expectScreenshotsToMatchSnapshots({
@@ -116,12 +109,10 @@ test("test", async ({ page, headless }) => {
     ],
   })
 
-  // Click button:has-text("Send")
   await page.click('button:has-text("Send")')
 
   await page.waitForSelector("text=Feedback submitted successfully")
 
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -129,7 +120,6 @@ test("test", async ({ page, headless }) => {
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
 
-  // Click text=Introduction to edit proposals Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg"),
@@ -139,7 +129,6 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2",
   )
 
-  // Click text=Manage change requests
   await Promise.all([page.waitForNavigation(), page.click("text=Change requests")])
   await page.locator("text=Accept").first().waitFor({ state: "visible" })
   await expect(page).toHaveURL(
@@ -194,7 +183,7 @@ test("test", async ({ page, headless }) => {
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
   )
-  // Click text=Open page in new tab >> nth=0
+
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
     page.locator("text=Open page in new tab").first().click(),

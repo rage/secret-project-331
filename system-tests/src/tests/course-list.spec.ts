@@ -8,9 +8,8 @@ test.use({
 })
 
 test("course list renders", async ({ headless, page }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
-  // Click [aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click(

@@ -10,34 +10,28 @@ test.use({
 })
 
 test("history test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Introduction to history
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history' }*/),
     page.click("text=Introduction to history"),
   ])
 
-  // Click text=default
   await page.click("text=default")
-  // Click button:has-text("Continue")
+
   await selectCourseInstanceIfPrompted(page)
 
-  // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1' }*/),
     page.click('a:has-text("The Basics")'),
   ])
 
-  // Click text=1Page One
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1/page-1' }*/),
     page.click("text=1Page One"),
@@ -54,28 +48,23 @@ test("history test", async ({ page, headless }) => {
     ],
   })
 
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Manage
   await Promise.all([
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  // Click text=Page One
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad' }*/),
     page.click(`button:text("Edit page"):right-of(:text("Page One"))`),
@@ -84,7 +73,6 @@ test("history test", async ({ page, headless }) => {
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
 
-  // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   // TODO: wait for page saved notification
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
@@ -98,13 +86,11 @@ test("history test", async ({ page, headless }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
-  // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   // TODO: wait for page saved notification
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
-  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
   const frame = await waitForFunction(page, () =>
@@ -119,47 +105,40 @@ test("history test", async ({ page, headless }) => {
 
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
-  // Click [placeholder="Option text"]
   await frame.click('[placeholder="Option text"]')
-  // Press a with modifiers
+
   await frame.press('[placeholder="Option text"]', "Control+a")
   // Fill [placeholder="Option text"]
   await frame.fill('[placeholder="Option text"]', "Updated answer")
   // Check input[type="checkbox"]
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
-  // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
-  // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
     page.click('[aria-label="Home page"]'),
   ])
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Manage
   await Promise.all([
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
 
-  // Click text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad/history' }*/),
     page.click(`a:has-text("History")`),
@@ -189,7 +168,7 @@ screenshotTarget: page,
     },
   })
 */
-  // Click [aria-label="Go to page 4"]
+
   await page.click('[aria-label="Go to page 4"]')
   await expectUrlPathWithRandomUuid(page, "/manage/pages/[id]/history?page=4")
 
@@ -211,18 +190,16 @@ screenshotTarget: page,
 
   await page.waitForTimeout(100)
 
-  // Click text=Compare
   await page.click("text=Compare")
   await page.waitForSelector("text=core/paragraph")
 
-  // Click :nth-match(:text("["), 3)
   await page.click(':nth-match(:text("["), 3)')
-  // Press PageDown
+
   await page.press(
     ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
     "PageDown",
   )
-  // Press PageDown
+
   await page.press(
     ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
     "PageDown",
@@ -249,7 +226,6 @@ screenshotTarget: page,
   })
 */
 
-  // Click text=Restore
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad/history?page=1' }*/),
     page.click("text=Restore"),
@@ -270,29 +246,25 @@ screenshotTarget: page,
     },
   })
 */
-  // Click text=Home
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
     page.click('[aria-label="Home page"]'),
   ])
 
-  // Click text=University of Helsinki, Department of Computer Science
   await page.click("text=University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Introduction to history
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),
     page.click("text=Introduction to history"),
   ])
 
-  // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
     page.click('a:has-text("CHAPTER 1The Basics")'),
   ])
 
-  // Click text=1Page One
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1/page-1' }*/),
     page.click("text=1Page One"),

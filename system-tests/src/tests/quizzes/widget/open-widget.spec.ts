@@ -8,10 +8,8 @@ test.use({
 })
 
 test("widget, open", async ({ page, headless }) => {
-  // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
-  // Click text=Quizzes example, scale
   await page.selectOption("select", { label: "Quizzes example, open" })
 
   const iframeLocator = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)

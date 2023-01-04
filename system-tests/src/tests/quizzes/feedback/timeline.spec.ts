@@ -8,7 +8,6 @@ test.use({
 })
 
 test("test quizzes timeline feedback", async ({ headless, page }) => {
-  // Go to http://project-331.local/
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
   )

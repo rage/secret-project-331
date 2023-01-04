@@ -7,17 +7,13 @@ test.use({
 })
 
 test("test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
-
-  // Click text=Advanced course instance management Manage >> :nth-match(a, 2)
 
   await Promise.all([
     page.waitForNavigation(),
@@ -63,7 +59,6 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
   })
 
-  // Click text=Default Manage Manage emails View Points Export points >> a
   await Promise.all([
     page.waitForNavigation(),
     page.click(
@@ -82,7 +77,6 @@ test("test", async ({ page, headless }) => {
     clearNotifications: true,
   })
 
-  // Click text=Edit contact details
   await page.click("text=Edit")
 
   await expectScreenshotsToMatchSnapshots({
@@ -128,7 +122,6 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
   })
 
-  // Click text=Delete course instance
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),
     page.click("text=Delete"),

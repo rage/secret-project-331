@@ -8,12 +8,8 @@ test.use({
 })
 
 test("widget, multiple-choice column screenshot test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/playground")
 
-  // Click text=University of Helsinki, Department of Computer Science
-
-  // Click text=Quizzes example, multiple-choice
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, column" })
 
   const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
@@ -27,7 +23,6 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     screenshotTarget: frame,
   })
 
-  // Click text=#00ff00
   await frame.locator("text=#00ff00").click()
 
   await expectScreenshotsToMatchSnapshots({

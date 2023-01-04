@@ -9,20 +9,16 @@ test.use({
 })
 
 test("create quizzes test", async ({ page }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  // Click text=Add course
   await page.click(`button:text("Create")`)
 
-  // Click input[type="text"]
   await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
@@ -33,7 +29,6 @@ test("create quizzes test", async ({ page }) => {
 
   await page.fill('textarea:below(:text("Description"))', "Course description")
 
-  // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
   await page.waitForSelector("text=Operation successful!")
@@ -42,81 +37,63 @@ test("create quizzes test", async ({ page }) => {
     page.waitForNavigation(),
     page.click(`a[aria-label="Manage course 'exercise test'"]`),
   ])
-  // Click :nth-match(:text("Manage"), 4)
 
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  // Click text=Add new chapter
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
 
-  // Click input[type="text"]
   // await page.click('input[type="text"]')
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Name")`, "first")
 
-  // Click text=Create chapter
   await page.click(`button:text("Create")`)
 
   await page.waitForSelector(`text=Chapter 1`)
 
-  // Click :nth-match(:text("New page"), 2)
   await page.click(`:nth-match(button:text("New page"):below(:text("Chapter 1")), 1)`)
 
-  // Click input[type="text"]
   // await page.click('input[type="text"]')
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "first page")
 
-  // Click text=Create
   await page.click(`button:text("Create")`)
 
-  // Click text=first page
   await Promise.all([
     page.waitForNavigation(),
     page.click(`button:text("Edit page"):right-of(:text("first page"))`),
   ])
 
-  // Click :nth-match([aria-label="Add block"], 2)
   await page.click(':nth-match([aria-label="Add block"], 1)')
 
-  // Click [placeholder="Search"]
   await page.click('[placeholder="Search"]')
 
   // Fill [placeholder="Search"]
   await page.fill('[placeholder="Search"]', "exercise")
 
-  // Click button[role="option"]:has-text("Exercise")
   await page.click('button[role="option"]:has-text("Exercise")')
 
-  // Click [aria-label="Block: Exercise"] div:has-text("Exercise")
   await page.click('[aria-label="Block: Exercise"]')
 
-  // Click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]')
 
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "quizzes test")
 
-  // Click text=Add slide
   await page.click("text=Add slide")
 
   // The block needs to be focused for the button to work
   await page.waitForTimeout(100)
   await page.click("text=Slide 1")
 
-  // Click text=Add task
   await page.click("text=Add task")
 
-  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
-  // Click text=Quizzes
   await page.click("text=Quizzes")
 
   const frame = await waitForFunction(page, () =>
@@ -135,13 +112,10 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  // Click text=Add task
   await page.click("text=Add task")
 
-  // Click [aria-label="Edit"] >> nth=1
   await page.locator('[aria-label="Edit"]').nth(1).click()
 
-  // Click text=Quizzes
   await page.locator("text=Quizzes").click()
 
   const frame2 = await waitForFunction(page, () =>
@@ -161,13 +135,10 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  // Click text=Add task
   await page.click("text=Add task")
 
-  // Click [aria-label="Edit"] >> nth=1
   await page.locator('[aria-label="Edit"]').nth(2).click()
 
-  // Click text=Quizzes
   await page.locator("text=Quizzes").click()
 
   const frame3 = await waitForFunction(page, () =>
@@ -193,13 +164,11 @@ test("create quizzes test", async ({ page }) => {
   await closeModal(page, frame3)
 
   await page.click(`[aria-label="Close"]`)
-  // Click text=Add task
+
   await page.click("text=Add task")
 
-  // Click [aria-label="Edit"] >> nth=3
   await page.locator('[aria-label="Edit"]').nth(3).click()
 
-  // Click text=Quizzes
   await page.locator("text=Quizzes").click()
 
   const frame4 = await waitForFunction(page, () =>
@@ -236,13 +205,10 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`[aria-label="Close"]`)
 
-  // Click text=Add task
   await page.click("text=Add task")
 
-  // Click [aria-label="Edit"] >> nth=4
   await page.locator('[aria-label="Edit"]').nth(4).click()
 
-  // Click text=Quizzes
   await page.locator("text=Quizzes").click()
 
   const frame5 = await waitForFunction(page, () =>
@@ -259,13 +225,11 @@ test("create quizzes test", async ({ page }) => {
   await frame5.fill(`label:has-text("Title") input:below(h4:text("checkbox"))`, `Please check this`)
 
   await page.click(`[aria-label="Close"]`)
-  // Click text=Add task
+
   await page.click("text=Add task")
 
-  // Click [aria-label="Edit"] >> nth=5
   await page.locator('[aria-label="Edit"]').nth(5).click()
 
-  // Click text=Quizzes
   await page.locator("text=Quizzes").click()
 
   const frame6 = await waitForFunction(page, () =>
@@ -358,7 +322,6 @@ test("create quizzes test", async ({ page }) => {
     messageAfterSubmissionWhenSelected: `yes`,
   })
 
-  // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
 })
 

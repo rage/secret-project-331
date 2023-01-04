@@ -8,9 +8,8 @@ test.use({
 })
 
 test("exam list renders, can create exam", async ({ headless, page }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
-  // Click [aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click(
@@ -29,7 +28,6 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     beforeScreenshot: () => page.locator("text=Exams").nth(1).scrollIntoViewIfNeeded(),
   })
 
-  // Click text=Ongoing ends soonManageOngoing short timerManageStarting soonManageOverManageCre >> button
   await page.locator("text=ManageCre >> button").click()
 
   await expectScreenshotsToMatchSnapshots({
@@ -70,6 +68,5 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     ],
   })
 
-  // Click text=Submit
   await page.locator("text=Submit").click()
 })

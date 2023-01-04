@@ -8,16 +8,13 @@ test.use({
 })
 
 test("test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
 
-  // Click text=Glossary course
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/glossary-course' }*/),
     page.click("text=Glossary course"),
@@ -25,7 +22,6 @@ test("test", async ({ page, headless }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  // Go to http://project-331.local/org/uh-cs/courses/glossary-course/glossary
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
 
   await expectScreenshotsToMatchSnapshots({
@@ -37,19 +33,15 @@ test("test", async ({ page, headless }) => {
 
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
 
-  // Click [aria-label="Manage course 'Glossary course'"] svg
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a' }*/),
     page.click("[aria-label=\"Manage course 'Glossary course'\"] svg"),
   ])
-
-  // Click text=Manage glossary
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a/glossary' }*/),
@@ -66,7 +58,6 @@ test("test", async ({ page, headless }) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
   })
 
-  // Click text=Delete
   await page.click("text=Delete")
 
   await expectScreenshotsToMatchSnapshots({
@@ -79,7 +70,6 @@ test("test", async ({ page, headless }) => {
   await page.fill('[placeholder="New term"]', "abcd")
   await page.fill('textarea[name="New definition"]', "efgh")
 
-  // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.locator(`div:text-is("Success")`).waitFor()
   // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
@@ -94,7 +84,6 @@ test("test", async ({ page, headless }) => {
     scrollToYCoordinate: 538,
   })
 
-  // Click text=Edit
   await page.click("text=Edit")
 
   await expectScreenshotsToMatchSnapshots({
@@ -111,7 +100,6 @@ test("test", async ({ page, headless }) => {
   // Fill text=efgh
   await page.fill('[label="Updated definition"]', "EFGH")
 
-  // Click text=updated termupdated definitionEFGHSaveCancel >> button
   await page.click(':nth-match(:text("Save"), 2)')
 
   await expectScreenshotsToMatchSnapshots({

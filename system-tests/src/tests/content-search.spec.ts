@@ -9,41 +9,33 @@ test.use({
 })
 
 test("content search", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  // Click text=Introduction to Course Material
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
     page.click(`div:text-is("Introduction to Course Material")`),
   ])
 
-  // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 
-  // Click a:has-text("CHAPTER 2User Experience")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
     page.click('a:has-text("CHAPTER 2User Experience")'),
   ])
 
-  // Click text=User research
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/user-research' }*/),
     page.click("text=User research"),
   ])
 
-  // Click text=Search
   await page.click('[aria-label="Search for pages"]')
 
-  // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
 
   // Fill [placeholder="Search..."]
@@ -59,7 +51,6 @@ test("content search", async ({ page, headless }) => {
     screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 
-  // Click text=Human-machine interface
   await Promise.all([page.waitForNavigation(), page.click("text=Human-machine interface")])
 
   await expectUrlPathWithRandomUuid(
@@ -67,10 +58,8 @@ test("content search", async ({ page, headless }) => {
     "/org/uh-cs/courses/introduction-to-course-material/chapter-1/human-machine-interface",
   )
 
-  // Click text=Search
   await page.click('[aria-label="Search for pages"]')
 
-  // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
 
   // Fill [placeholder="Search..."]

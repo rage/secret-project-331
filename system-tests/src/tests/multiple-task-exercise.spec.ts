@@ -14,31 +14,27 @@ const CORRECT = `button:has-text("Correct") >> nth=0`
 const INCORRECT = `button:has-text("Incorrect")`
 
 test("Exercise score updates gradually", async ({ headless, page }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
-  // Click text=University of Helsinki, Department of Computer Science
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  // Click text=Advanced exercise states
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-exercise-states' }*/),
     page.click("text=Advanced exercise states"),
   ])
 
-  // Click text=default
   await page.click("text=default")
-  // Click button:has-text("Continue")
+
   await selectCourseInstanceIfPrompted(page)
 
-  // Click #content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1' }*/),
     page.click('#content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)'),
   ])
 
-  // Click text=Complicated exercise page >> nth=0
   await Promise.all([page.waitForNavigation(), page.click("text=Complicated exercise page")])
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",

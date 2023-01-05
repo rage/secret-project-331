@@ -184,9 +184,9 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expect(page1).toHaveURL(
       "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
     )
-    await page1.getByRole("link", { name: "1 Page One" }).click()
+    await page1.getByRole("link", { name: "4 Page Four" }).click()
     await expect(page1).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1",
+      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-4",
     )
     await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await page1.getByRole("button", { name: "Submit" }).click()
@@ -207,9 +207,9 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expect(page2).toHaveURL(
       "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
     )
-    await page2.getByRole("link", { name: "1 Page One" }).click()
+    await page2.getByRole("link", { name: "4 Page Four" }).click()
     await expect(page2).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1",
+      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-4",
     )
     await page2.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await page2.getByRole("button", { name: "Submit" }).click()
@@ -221,7 +221,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
     })
     await fillPeerReview(page2, ["Disagree", "Disagree"])
     await expectScreenshotsToMatchSnapshots({
@@ -231,7 +231,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -241,7 +241,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
     })
     await fillPeerReview(page1, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
@@ -251,7 +251,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
     })
 
     await page3.goto("http://project-331.local/")
@@ -262,7 +262,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expect(page3).toHaveURL("http://project-331.local/org/uh-cs")
     await page3.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await page3.getByRole("tab", { name: "Exercises" }).click()
-    await page3.getByText("ManualReviewEverything 3View answers requiring attention").click()
+    await page3.getByText("ManualReviewEverything2 3View answers requiring attention").click()
 
     await page3.getByRole("button", { name: "Zero points" }).first().click()
     await page3.reload()
@@ -279,7 +279,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
     })
 
     await page2.reload()
@@ -291,7 +291,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       scrollToYCoordinate: 0,
       skipMobile: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
     })
   })
 })

@@ -3998,5 +3998,57 @@ pub async fn seed_peer_review_course_without_submissions(
     )
     .await?;
 
+    let block_id_7 = Uuid::new_v5(&course_id, b"80e97fbc-ebc1-46f3-a19c-04cdb9f3d349");
+    let block_id_8 = Uuid::new_v5(&course_id, b"db818c1f-0667-4050-9289-7224a8ca3c5c");
+    let exercise_4_id = Uuid::new_v5(&course_id, b"65cde761-6ccd-4804-8343-c85b1d3d6fc4");
+    let exercise_4_slide_1_id = Uuid::new_v5(&course_id, b"b37771bc-37d0-4cae-b06d-c35256f289a5");
+    let exercise_4_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"0ecaff02-d8cf-44c3-be8c-ea2449c02d0f");
+    let exercise_4_slide_1_task_1_spec_1_id =
+        Uuid::new_v5(&course_id, b"caaf7ec5-fd2b-4e07-b185-58b8070b059e");
+    let exercise_4_slide_1_task_1_spec_2_id =
+        Uuid::new_v5(&course_id, b"f92ba66c-fe8a-4711-b25a-73a13c451543");
+    let exercise_4_slide_1_task_1_spec_3_id =
+        Uuid::new_v5(&course_id, b"c17f23ca-7daa-40dd-b390-1ac8531dd17d");
+
+    let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
+        exercise_4_id,
+        exercise_4_slide_1_id,
+        exercise_4_slide_1_task_1_id,
+        block_id_7,
+        block_id_8,
+        exercise_4_slide_1_task_1_spec_1_id,
+        exercise_4_slide_1_task_1_spec_2_id,
+        exercise_4_slide_1_task_1_spec_3_id,
+        Some("ManualReviewEverything2".to_string()),
+    );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-4".to_string(),
+            title: "Page Four".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_1],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([exercise_block_1,]),
+        },
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_4_id,
+        ManualReviewEverything,
+        3.0,
+    )
+    .await?;
+
     Ok(course.id)
 }

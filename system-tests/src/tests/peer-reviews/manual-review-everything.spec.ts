@@ -12,10 +12,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     storageState: "src/states/admin@example.com.json",
   })
 
-  test("ManualReviewEverything > That gets a perfect score gets sent to manual review", async ({
-    headless,
-    browser,
-  }) => {
+  test("ManualReviewEverything > Single submissions", async ({ headless, browser }) => {
     const context1 = await browser.newContext()
     const context2 = await browser.newContext()
     const context3 = await browser.newContext()
@@ -145,6 +142,146 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
 
     // Student 2 views his reviews and grading
+    await page2.reload()
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      snapshotName: "student-2-checking-their-peer-reviews",
+      page: page2,
+      axeSkip: ["heading-order", "duplicate-id"],
+      clearNotifications: true,
+      scrollToYCoordinate: 0,
+      skipMobile: true,
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+    })
+  })
+
+  test("ManualReviewEverything > Multiple submissions", async ({ browser, headless }) => {
+    const context1 = await browser.newContext()
+    const context2 = await browser.newContext()
+    const context3 = await browser.newContext()
+
+    const page1 = await context1.newPage()
+    const page2 = await context2.newPage()
+    const page3 = await context3.newPage()
+
+    await logout(page1)
+    await logout(page2)
+    await logout(page3)
+
+    await login("student1@example.com", "student.1", page1, true)
+    await login("student2@example.com", "student.2", page2, true)
+    await login("teacher@example.com", "teacher", page3, true)
+
+    await page1.goto("http://project-331.local/")
+    await page1
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click()
+    await expect(page1).toHaveURL("http://project-331.local/org/uh-cs")
+    await page1.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
+    await expect(page1).toHaveURL("http://project-331.local/org/uh-cs/courses/peer-review-course")
+    await selectCourseInstanceIfPrompted(page1)
+    await page1.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    await expect(page1).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
+    )
+    await page1.getByRole("link", { name: "1 Page One" }).click()
+    await expect(page1).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1",
+    )
+    await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
+    await page1.getByRole("button", { name: "Submit" }).click()
+
+    await page1.getByRole("button", { name: "try again" }).click()
+    await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
+    await page1.getByRole("button", { name: "Submit" }).click()
+
+    await page2.goto("http://project-331.local/")
+    await page2
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click()
+    await expect(page2).toHaveURL("http://project-331.local/org/uh-cs")
+    await page2.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
+    await expect(page2).toHaveURL("http://project-331.local/org/uh-cs/courses/peer-review-course")
+    await selectCourseInstanceIfPrompted(page2)
+    await page2.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    await expect(page2).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
+    )
+    await page2.getByRole("link", { name: "1 Page One" }).click()
+    await expect(page2).toHaveURL(
+      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1",
+    )
+    await page2.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
+    await page2.getByRole("button", { name: "Submit" }).click()
+
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      snapshotName: "student-2-before-filling-peer-review-1",
+      page: page2,
+      clearNotifications: true,
+      scrollToYCoordinate: 0,
+      skipMobile: true,
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+    })
+    await fillPeerReview(page2, ["Disagree", "Disagree"])
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      snapshotName: "student-2-after-filling-peer-review-1",
+      page: page2,
+      clearNotifications: true,
+      scrollToYCoordinate: 0,
+      skipMobile: true,
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+    })
+
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      snapshotName: "student-1-before-filling-peer-review",
+      page: page1,
+      clearNotifications: true,
+      scrollToYCoordinate: 0,
+      skipMobile: true,
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+    })
+    await fillPeerReview(page1, ["Agree", "Agree"])
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      snapshotName: "student-1-after-filling-peer-review",
+      page: page1,
+      clearNotifications: true,
+      scrollToYCoordinate: 0,
+      skipMobile: true,
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+    })
+
+    await page3.goto("http://project-331.local/")
+    await page3.waitForTimeout(1000)
+    await page3
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click()
+    await expect(page3).toHaveURL("http://project-331.local/org/uh-cs")
+    await page3.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
+    await page3.getByRole("tab", { name: "Exercises" }).click()
+    await page3.getByText("ManualReviewEverything 3View answers requiring attention").click()
+
+    await page3.getByRole("button", { name: "Zero points" }).first().click()
+    await page3.reload()
+
+    await page3.getByRole("button", { name: "Full points" }).first().click()
+    await page3.reload()
+
+    await page1.reload()
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      snapshotName: "student-1-checking-their-peer-reviews",
+      page: page1,
+      axeSkip: ["heading-order", "duplicate-id"],
+      clearNotifications: true,
+      scrollToYCoordinate: 0,
+      skipMobile: true,
+      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+    })
+
     await page2.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,

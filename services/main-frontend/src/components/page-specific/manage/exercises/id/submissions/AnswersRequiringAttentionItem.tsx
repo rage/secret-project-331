@@ -19,6 +19,8 @@ import { primaryFont } from "../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
 
+import PeerReviewAccordion from "./PeerReviewAccordion"
+
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
   exerciseMaxPoints: number
@@ -411,6 +413,23 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
           </div>
         </div>
       ) : null}
+
+      <div
+        className={css`
+          margin-bottom: 3rem;
+        `}
+      >
+        <PeerReviewAccordion
+          peerReviews={answerRequiringAttention.received_peer_reviews}
+          title={t("received-peer-reviews-from-other-students")}
+        />
+      </div>
+      <div>
+        <PeerReviewAccordion
+          peerReviews={answerRequiringAttention.given_peer_reviews}
+          title={t("given-peer-reviews-to-other-students")}
+        />
+      </div>
     </>
   )
 }

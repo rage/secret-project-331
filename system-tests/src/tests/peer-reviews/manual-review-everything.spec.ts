@@ -123,12 +123,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expect(page3).toHaveURL("http://project-331.local/org/uh-cs")
     await page3.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await page3.getByRole("tab", { name: "Exercises" }).click()
-    await page3
-      .locator(
-        'li:has-text("ManualReviewEverything View submissionsView answers requiring attention(2)")',
-      )
-      .getByRole("link", { name: "View answers requiring attention" })
-      .click()
+    await page3.getByText("ManualReviewEverything 2View answers requiring attention").click()
 
     await page3.getByRole("button", { name: "Zero points" }).first().click()
     await page3.reload()

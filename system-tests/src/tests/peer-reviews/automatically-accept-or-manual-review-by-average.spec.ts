@@ -89,12 +89,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await page3.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await page3.getByRole("tab", { name: "Exercises" }).click()
     await page3
-      .getByRole("listitem")
-      .filter({
-        hasText:
-          "AutomaticallyAcceptOrManualReviewByAverage View submissionsView answers requiring attention(1)",
-      })
-      .getByRole("link", { name: "View answers requiring attention" })
+      .getByText("AutomaticallyAcceptOrManualReviewByAverage 1View answers requiring attention")
       .click()
 
     await page3.getByRole("button", { name: "Custom points" }).first().click()

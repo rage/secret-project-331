@@ -58,7 +58,7 @@ const ExpandOptionButton = styled(FontAwesomeIcon)`
 `
 
 const EditOptionButton = styled(FontAwesomeIcon)`
-  opacity: 0.3;
+  opacity: 0.7;
   height: 16px;
   width: 16px;
   padding: 16px;
@@ -189,12 +189,12 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
           </>
         )}
         <OptionButtonGroup>
+          {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
           {editMode ? (
             <EditOptionButton onClick={saveChanges} icon={faCheck} />
           ) : (
             <EditOptionButton onClick={startEditMode} icon={faPen} />
           )}
-          {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
           <ExpandOptionButton onClick={handleVisibility} icon={visible ? faAngleDown : faAngleUp} />
           <DeleteOptionButton onClick={onDelete} icon={faX} />
         </OptionButtonGroup>

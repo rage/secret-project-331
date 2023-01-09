@@ -4,7 +4,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuiz } from "../../../../types/quizTypes"
-import { NormalizedQuizItem } from "../../../../types/types"
 import Button from "../../../shared-module/components/Button"
 import QuizEditor from "../QuizComponents/QuizEditor"
 
@@ -139,7 +138,7 @@ const QuizItemSelection: React.FC = () => {
 }
 
 interface AddQuizItemProps {
-  storeItems: NormalizedQuizItem[]
+  quiz: PrivateSpecQuiz
 }
 
 const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
@@ -150,6 +149,7 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
       <div
         className={css`
           text-align: center;
+          width: 100%;
         `}
       >
         <h3>{t("add-new-quiz-item")}</h3>
@@ -193,14 +193,8 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
   )
 }
 
-export const AddQuizItem: React.FC<AddQuizItemProps> = (storeItems) => (
-  <>
-    {storeItems.storeItems.length > 0 ? (
-      <QuizDuplicationMenu storeItems={storeItems.storeItems} />
-    ) : (
-      <QuizItemSelection />
-    )}
-  </>
+export const AddQuizItem: React.FC<AddQuizItemProps> = ({ quiz }) => (
+  <>{quiz.items.length > 0 ? <QuizDuplicationMenu quiz={quiz} /> : <QuizItemSelection />}</>
 )
 
 const ItemsTitleContainer = styled.div`
@@ -247,7 +241,7 @@ const QuizItems: React.FC<QuizItemProps> = ({ quiz }) => {
             </div>
           )
         })}
-        {/* <AddQuizItem storeItems={storeItems} /> */}
+        <AddQuizItem quiz={quiz} />
       </QuizItemContainer>
     </>
   )

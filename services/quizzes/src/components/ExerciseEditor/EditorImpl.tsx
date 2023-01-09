@@ -34,6 +34,11 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
     return null
   }
 
+  // Preload migrated quiz
+  if (state && !migratedQuiz) {
+    setMigratedQuiz(migrateQuiz(denormalizeData(state)))
+  }
+
   const toggleMode = () => {
     setMigratedQuiz(migrateQuiz(denormalizeData(state)))
     setExperimentalMode(!experimentalMode)

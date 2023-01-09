@@ -24,6 +24,8 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "error-notification-test",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Error")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Error 400: Bad Request" }),
+    ],
   })
 })

@@ -15,7 +15,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await frame.locator("text=Choose the right answer from given options.").waitFor()
 

@@ -15,7 +15,7 @@ test("widget, multiple-choice multi screenshot test with long text", async ({ pa
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, long text" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 

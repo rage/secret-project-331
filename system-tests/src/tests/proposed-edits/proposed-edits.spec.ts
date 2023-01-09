@@ -31,7 +31,10 @@ test("test", async ({ page, headless }) => {
     page.locator("text=The Basics").click(),
   ])
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.getByRole("link", { name: "1 Page One" }).click(),
+  ])
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -139,7 +142,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "manage-initial",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Accept")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Accept").first()],
   })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -152,7 +155,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "manage-before-send",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Send")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Send").first()],
     beforeScreenshot: async () => {
       await page.evaluate(() => window.scrollTo(0, 0))
     },
@@ -166,7 +169,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "manage-after-send",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Reject")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Reject").first()],
     clearNotifications: true,
   })
 
@@ -176,7 +179,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "manage-old-after-send",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Accepted")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Accepted").first()],
   })
 
   await page.locator("text=Pending 2").click()

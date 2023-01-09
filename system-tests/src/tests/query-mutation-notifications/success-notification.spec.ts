@@ -20,6 +20,6 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "success-notification-test",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first().first()],
   })
 })

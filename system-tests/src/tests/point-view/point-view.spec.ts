@@ -22,8 +22,6 @@ test("test", async ({ page, headless }) => {
     page.locator("text=Point view for teachers").click(),
   ])
 
-  await page.locator("text=default").click()
-
   await selectCourseInstanceIfPrompted(page)
 
   await page.locator("text=Start course").click()
@@ -33,7 +31,7 @@ test("test", async ({ page, headless }) => {
     page.locator("text=The Basics").click(),
   ])
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -74,7 +72,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "point-view-bottom",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=user_4@example.com")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Teacher Example")],
     screenshotTarget: page,
   })
 })

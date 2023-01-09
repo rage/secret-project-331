@@ -38,17 +38,17 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-3",
   )
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-before-success-click-column-single",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is first option"`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="This is first option"`)],
     screenshotTarget: frame,
     clearNotifications: true,
   })
 
-  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
+  await frame.locator('button:has-text("This is first option")').click()
 
   await page.locator("text=Submit").click()
 
@@ -94,7 +94,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-4",
   )
 
-  const frame2 = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame2 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,

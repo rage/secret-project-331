@@ -34,12 +34,12 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-5",
   )
 
-  const frame3 = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame3 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-before-success-click-row-single",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is first option"`)],
+    waitForTheseToBeVisibleAndStable: [frame3.locator(`text="This is first option"`)],
     screenshotTarget: frame3,
     clearNotifications: true,
   })
@@ -89,7 +89,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-6",
   )
 
-  const frame4 = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame4 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,

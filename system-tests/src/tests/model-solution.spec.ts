@@ -30,7 +30,7 @@ test.describe("Model solutions", () => {
     //   page.locator("text=view submissions").click(),
     // ])
     await page.locator("text=Exercises").click()
-    await page.locator("text=Best exercise").click()
+    await page.locator("text=Best exercise").first().click()
     await page.locator(`text="Submission time"`).waitFor()
 
     await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])
@@ -92,7 +92,7 @@ test.describe("Model solutions", () => {
       "/org/uh-cs/courses/introduction-to-everything/chapter-1",
     )
 
-    await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
+    await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
     await expectUrlPathWithRandomUuid(
       page,
       "/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",

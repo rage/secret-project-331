@@ -12,7 +12,7 @@ test("widget, scale", async ({ page, headless }) => {
 
   await page.selectOption("select", { label: "Quizzes example, scale" })
 
-  const iframeLocator = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,

@@ -33,7 +33,7 @@ test("feedback test", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").click()])
+  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
   await page.locator(`text=Everything is a big topic`).waitFor()
   expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
@@ -112,18 +112,18 @@ test("feedback test", async ({ headless, page }) => {
     headless,
     snapshotName: "feedback-unread",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`),
+      page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`).first(),
     ],
   })
 
-  await page.locator("text=Mark as read").click()
+  await page.locator("text=Mark as read").first().click()
   // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
   await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
-  await page.locator("text=Mark as read").click()
+  await page.locator("text=Mark as read").first().click()
   await page.waitForSelector("text=Anonymous unrelated feedback", { state: "hidden" })
-  await page.locator("text=Mark as read").click()
+  await page.locator("text=Mark as read").first().click()
   await page.waitForSelector("text=Anonymous feedback", { state: "hidden" })
-  await page.locator("text=Mark as read").click()
+  await page.locator("text=Mark as read").first().click()
   await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

@@ -60,7 +60,7 @@ test("material reference tests", async ({ page, headless }) => {
 
   await page.locator("text=Submit").click()
 
-  await page.locator("text=Success").waitFor()
+  await page.getByText("Success").first().waitFor()
 
   // If the bibtext fails to parse, an error will be displayed.
   await page.locator("text=Error").first().waitFor({ state: "hidden" })
@@ -81,7 +81,9 @@ test("material reference tests", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "material-reference-editor",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Edit reference")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByTitle("Edit reference").getByText("Edit reference"),
+    ],
   })
 
   // Fill textarea[name="references"]
@@ -93,7 +95,7 @@ test("material reference tests", async ({ page, headless }) => {
 
   await page.locator("text=Save").click()
 
-  await page.locator("text=Success").waitFor()
+  await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],

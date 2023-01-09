@@ -12,7 +12,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice clickable" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,

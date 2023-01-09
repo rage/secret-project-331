@@ -7,7 +7,7 @@ import { Locator, Page } from "playwright"
  * @param n Nth match to get selected
  * @returns Locator that can be used to find stuff inside iframes and also can be used to take a screenshot of the whole iframe.
  */
-export function getLocatorForNthExerciseServiceIframe(
+export async function getLocatorForNthExerciseServiceIframe(
   page: Page,
   exerciseServiceSlug: string,
   n: number,
@@ -18,6 +18,13 @@ export function getLocatorForNthExerciseServiceIframe(
 
   // Assuming all iframes have one body tag. This way we can use the same locator for a) finding stuff inside iframes and b) taking screenshots of the frames.
   const iframeBodyLocator = locatorForLocatingInsideIFrame.locator("body")
+  // Logic to make getting element handles from inside iframes that are offscreen to work
+  await expect(async () => {
+    const elementHandle = await iframeBodyLocator.elementHandle({ timeout: 500 })
+    if (elementHandle === null) {
+      throw new Error("Could not get element handle for locator")
+    }
+  }).toPass({ timeout: 10000 })
   return iframeBodyLocator
 }
 
@@ -26,12 +33,12 @@ export function getLocatorForNthExerciseServiceIframe(
  */
 export async function scrollLocatorOrLocatorsParentIframeToViewIfNeeded(locator: Locator) {
   // Logic to make getting element handles from inside iframes that are offscreen to work
-  expect(async () => {
-    const elementHandle = await locator.elementHandle({ timeout: 100 })
+  await expect(async () => {
+    const elementHandle = await locator.elementHandle({ timeout: 500 })
     if (elementHandle === null) {
       throw new Error("Could not get element handle for locator")
     }
-  }).toPass()
+  }).toPass({ timeout: 10000 })
   const elementHandle = await locator.elementHandle()
   const ownerFrame = await elementHandle?.ownerFrame()
   const parentFrame = ownerFrame?.parentFrame()

@@ -12,14 +12,16 @@ test("widget, open", async ({ page, headless }) => {
 
   await page.selectOption("select", { label: "Quizzes example, open" })
 
-  const iframeLocator = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-open-empty",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`),
-      page.locator(`text="Date formats"`),
+      iframeLocator.locator(
+        `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
+      ),
+      iframeLocator.locator(`text="Date formats"`),
     ],
     screenshotTarget: iframeLocator,
   })
@@ -39,11 +41,13 @@ test("widget, open", async ({ page, headless }) => {
     headless,
     snapshotName: "widget-open-invalid",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(
+      iframeLocator.locator(
         `text="The answer does not match the answer format specified for this exercise."`,
       ),
-      page.locator(`text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`),
-      page.locator(`text="Date formats"`),
+      iframeLocator.locator(
+        `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
+      ),
+      iframeLocator.locator(`text="Date formats"`),
     ],
     screenshotTarget: iframeLocator,
   })
@@ -59,8 +63,10 @@ test("widget, open", async ({ page, headless }) => {
     headless,
     snapshotName: "widget-open-valid",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`),
-      page.locator(`text="Date formats"`),
+      iframeLocator.locator(
+        `text="Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."`,
+      ),
+      iframeLocator.locator(`text="Date formats"`),
     ],
     screenshotTarget: iframeLocator,
   })

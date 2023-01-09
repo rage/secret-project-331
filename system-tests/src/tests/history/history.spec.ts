@@ -23,8 +23,6 @@ test("history test", async ({ page, headless }) => {
     page.locator("text=Introduction to history").click(),
   ])
 
-  await page.locator("text=default").click()
-
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([

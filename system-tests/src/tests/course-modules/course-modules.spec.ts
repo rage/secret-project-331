@@ -23,8 +23,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "initial-module-management-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Modules")],
-
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Modules" })],
     screenshotOptions: { fullPage: true },
   })
 
@@ -106,7 +105,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "after-saving",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
 
     screenshotOptions: { fullPage: true },
   })

@@ -12,7 +12,7 @@ test("widget, multiple-choice row screenshot test", async ({ page, headless }) =
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, row" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,

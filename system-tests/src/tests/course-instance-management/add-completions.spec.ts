@@ -53,8 +53,8 @@ test("test", async ({ headless, page }) => {
     headless,
     snapshotName: "manual-completion-default-module-preview",
     waitForTheseToBeVisibleAndStable: [
+      page.getByRole("button", { name: "Submit" }),
       page.locator("text=Users receiving a completion for the first time"),
-      page.locator("text=Submit"),
     ],
     screenshotTarget: page,
   })

@@ -35,7 +35,7 @@ test("default peer review editing", async ({ page, headless }) => {
     screenshotTarget: page1,
     headless,
     snapshotName: "default-peer-review-editor",
-    waitForTheseToBeVisibleAndStable: [page.locator('text="Add peer review question"')],
+    waitForTheseToBeVisibleAndStable: [page1.locator('text="Configure review answers option"')],
   })
 
   await page1.locator('input[type="number"]').first().click()
@@ -70,6 +70,6 @@ test("default peer review editing", async ({ page, headless }) => {
     screenshotTarget: page1,
     headless,
     snapshotName: "default-peer-review-editor-after-save",
-    waitForTheseToBeVisibleAndStable: [page.locator('text="Add peer review question"')],
+    waitForTheseToBeVisibleAndStable: [page1.locator('text="Add peer review question"')],
   })
 })

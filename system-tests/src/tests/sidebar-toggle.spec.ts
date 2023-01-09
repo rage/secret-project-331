@@ -45,7 +45,9 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "block-properties",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Landing page hero section")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Landing Page Hero Section" }),
+    ],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
@@ -57,7 +59,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "block-list",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Course Objective Section")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course Objective Section").first()],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })

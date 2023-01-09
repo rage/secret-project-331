@@ -84,7 +84,7 @@ test("test", async ({ headless, page }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "editing-permission",
-    waitForTheseToBeVisibleAndStable: [page.locator("#editing-role")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("teacher@example.com").first()],
   })
 
   // Select Reviewer
@@ -100,7 +100,7 @@ test("test", async ({ headless, page }) => {
     headless,
     snapshotName: "edited-permission",
     waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
-    clearNotifications: true,
+    clearNotifications: false,
   })
 
   await page.click('[aria-label="Remove role"]')

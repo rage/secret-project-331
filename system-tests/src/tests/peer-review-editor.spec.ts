@@ -37,7 +37,7 @@ test("create peer review", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "peer-review-editor-after-save",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="Add peer review"`)],
+    waitForTheseToBeVisibleAndStable: [page.locator(`text="Peer review question type"`)],
     screenshotTarget: page,
     clearNotifications: true,
     axeSkip: ["aria-allowed-attr", "aria-allowed-role"],

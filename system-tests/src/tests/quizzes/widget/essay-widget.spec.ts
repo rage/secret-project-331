@@ -12,7 +12,7 @@ test("widget, essay", async ({ page, headless }) => {
 
   await page.selectOption("select", { label: "Quizzes example, essay" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await frame
     .locator(`textarea:below(:text("Min words"))`)

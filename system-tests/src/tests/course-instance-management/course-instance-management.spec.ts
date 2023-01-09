@@ -28,11 +28,14 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-course-management-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instances")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("tab", { name: "Course instances" })],
     screenshotTarget: page,
   })
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Course instances").click()])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.getByRole("tab", { name: "Course instances" }).click(),
+  ])
   await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
 
   await expectScreenshotsToMatchSnapshots({
@@ -57,7 +60,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-management-page-with-new-instance",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
   })
 
@@ -79,12 +82,12 @@ test("test", async ({ page, headless }) => {
     clearNotifications: true,
   })
 
-  await page.locator("text=Edit").click()
+  await page.getByRole("button", { name: "Edit" }).first().click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-management-page-editing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Submit")],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Name").first()],
     screenshotTarget: page,
   })
 
@@ -120,7 +123,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "management-page-after-changes",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Success")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
   })
 
@@ -132,7 +135,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-management-page-after-delete",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instances")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "All course instances" })],
     screenshotTarget: page,
   })
 })

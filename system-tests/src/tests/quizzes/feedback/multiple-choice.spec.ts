@@ -38,7 +38,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
   )
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
   await frame.waitFor()
   await frame.locator("text=Which one is the Rust package manager?").waitFor()
 
@@ -51,7 +51,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     headless,
     snapshotName: "multiple-choice-feedback-incorrect-answer",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=Rustup is the installer program for Rust.`),
+      frame.locator(`text=Rustup is the installer program for Rust.`),
     ],
   })
 
@@ -67,7 +67,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     screenshotTarget: frame,
     headless,
     snapshotName: "multiple-choice-feedback-correct-answer",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text=Your answer was `)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text=Your answer was `)],
   })
 
   await page.locator("text=Try again").click()
@@ -83,7 +83,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     headless,
     snapshotName: "multiple-choice-feedback-incorrect-answer-after-correct",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=Rustup is the installer program for Rust.`),
+      frame.locator(`text=Rustup is the installer program for Rust.`),
     ],
   })
 })

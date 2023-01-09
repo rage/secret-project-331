@@ -31,7 +31,7 @@ test("content search", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/user-research' }*/),
-    page.locator("text=User research").click(),
+    page.locator("text=User research").first().click(),
   ])
 
   await page.click('[aria-label="Search for pages"]')

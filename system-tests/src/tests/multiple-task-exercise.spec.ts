@@ -26,8 +26,6 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
     page.locator("text=Advanced exercise states").click(),
   ])
 
-  await page.locator("text=default").click()
-
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([
@@ -93,7 +91,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
       page.locator(`text=First question.`),
       page.locator(`text=Second question.`),
       page.locator(`text=Third question.`),
-      page.locator(`text=Your answer was not correct`),
+      page.getByText("Your answer was not correct").first(),
     ],
   })
 

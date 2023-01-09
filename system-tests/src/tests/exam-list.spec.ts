@@ -24,8 +24,9 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "exam-listing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Exams")],
-    beforeScreenshot: () => page.locator("text=Exams").nth(1).scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("link", { name: "Automatic course exam" }).last(),
+    ],
   })
 
   await page.locator("text=ManageCre >> button").click()

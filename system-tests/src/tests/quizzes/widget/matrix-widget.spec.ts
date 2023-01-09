@@ -16,7 +16,7 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
   // Select Quizzes example, matrix
   await page.selectOption("select", { label: "Quizzes example, matrix" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 

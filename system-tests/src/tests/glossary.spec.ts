@@ -28,7 +28,7 @@ test("test", async ({ page, headless }) => {
     screenshotTarget: page,
     headless,
     snapshotName: "initial-glossary-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Glossary")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
   })
 
   await page.goto("http://project-331.local/")
@@ -45,10 +45,10 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a/glossary' }*/),
-    page.locator("text=Glossary").click(),
+    page.getByRole("tab", { name: "Glossary" }).click(),
   ])
 
-  await page.locator("text=Edit").click()
+  await page.getByRole("button", { name: "Edit" }).first().click()
   await page.locator("text=Cancel").click()
 
   await expectScreenshotsToMatchSnapshots({
@@ -84,7 +84,7 @@ test("test", async ({ page, headless }) => {
     scrollToYCoordinate: 538,
   })
 
-  await page.locator("text=Edit").click()
+  await page.getByRole("button", { name: "Edit" }).first().click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

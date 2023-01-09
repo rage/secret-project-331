@@ -12,17 +12,17 @@ test("widget, checkbox", async ({ page, headless }) => {
 
   await page.selectOption("select", { label: "Quizzes, example, checkbox" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-checkbox-initial",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="The s in https stands for secure."`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
     screenshotTarget: frame,
   })
 
   // Check input[type="checkbox"]
-  await frame.locator('input[type="checkbox"]').check()
+  await frame.locator('input[type="checkbox"]').first().check()
 
   // Check :nth-match(input[type="checkbox"], 2)
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
@@ -30,7 +30,7 @@ test("widget, checkbox", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-checkbox-both-checked",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="The s in https stands for secure."`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
     screenshotTarget: frame,
   })
 
@@ -40,7 +40,7 @@ test("widget, checkbox", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-checkbox-other-unchecked",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="The s in https stands for secure."`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
     screenshotTarget: frame,
   })
 })

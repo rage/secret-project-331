@@ -90,7 +90,7 @@ test.describe("admin", () => {
       waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
     })
 
-    await page.locator("text=Edit").click()
+    await page.getByRole("button", { name: "Edit" }).first().click()
     // Uncheck input[type="checkbox"]
     await page.uncheck('input[type="checkbox"]')
 
@@ -101,7 +101,7 @@ test.describe("admin", () => {
       screenshotTarget: page,
       headless,
       snapshotName: "non-draft-course",
-      waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts")],
+      waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Advanced drafts" })],
     })
   })
 })

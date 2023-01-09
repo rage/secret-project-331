@@ -48,7 +48,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
     headless,
     screenshotTarget: page,
     snapshotName: "exam-exercise-answered",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Try again")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("button", { name: "try again" })],
     // Only should happen in seeded data
     axeSkip: ["frame-title-unique"],
   })

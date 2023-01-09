@@ -15,7 +15,7 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless })
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, multi" })
 
-  const frame = getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 
@@ -27,7 +27,7 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless })
     headless,
     snapshotName: "widget-multiple-choice-multi-answered",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Which of the color codes represent the color"`),
+      frame.locator(`text="Which of the color codes represent the color"`),
     ],
     screenshotTarget: frame,
   })

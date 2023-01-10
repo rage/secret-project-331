@@ -72,43 +72,47 @@ test.describe("test ManualReviewEverything behavior", () => {
     // Student 1 starts peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-before-filling-peer-review",
+      snapshotName: "student-1-before-filling-peer-review-single-submission",
       page: page1,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      beforeScreenshot: async () =>
+        await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
     })
     await fillPeerReview(page1, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-after-filling-peer-review",
+      snapshotName: "student-1-after-filling-peer-review-single-submission",
       page: page1,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      beforeScreenshot: async () =>
+        await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
     })
 
     // Student 2 starts peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-before-filling-peer-review",
+      snapshotName: "student-2-before-filling-peer-review-single-submission",
       page: page2,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      beforeScreenshot: async () =>
+        await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
     })
     await fillPeerReview(page2, ["Disagree", "Disagree"])
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-after-filling-peer-review",
+      snapshotName: "student-2-after-filling-peer-review-single-submission",
       page: page2,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      beforeScreenshot: async () =>
+        await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
     })
 
     // Teacher checks answers requiring attention
@@ -132,26 +136,28 @@ test.describe("test ManualReviewEverything behavior", () => {
     await page1.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-checking-their-peer-reviews",
+      snapshotName: "student-1-checking-their-peer-reviews-single-submission",
       page: page1,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      beforeScreenshot: async () =>
+        await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
     })
 
     // Student 2 views his reviews and grading
     await page2.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-checking-their-peer-reviews",
+      snapshotName: "student-2-checking-their-peer-reviews-single-submission",
       page: page2,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      beforeScreenshot: async () =>
+        await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
     })
   })
 
@@ -216,42 +222,46 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-before-filling-peer-review-1",
+      snapshotName: "student-2-before-filling-peer-review-1-multiple-submission",
       page: page2,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
+      beforeScreenshot: async () =>
+        await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
     await fillPeerReview(page2, ["Disagree", "Disagree"])
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-after-filling-peer-review-1",
+      snapshotName: "student-2-after-filling-peer-review-1-multiple-submission",
       page: page2,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
+      beforeScreenshot: async () =>
+        await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-before-filling-peer-review",
+      snapshotName: "student-1-before-filling-peer-review-multiple-submission",
       page: page1,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
+      beforeScreenshot: async () =>
+        await page1.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
     await fillPeerReview(page1, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-after-filling-peer-review",
+      snapshotName: "student-1-after-filling-peer-review-multiple-submission",
       page: page1,
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
+      beforeScreenshot: async () =>
+        await page1.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
 
     await page3.goto("http://project-331.local/")
@@ -273,25 +283,27 @@ test.describe("test ManualReviewEverything behavior", () => {
     await page1.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-1-checking-their-peer-reviews",
+      snapshotName: "student-1-checking-their-peer-reviews-multiple-submission",
       page: page1,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
+      beforeScreenshot: async () =>
+        await page1.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
 
     await page2.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,
-      snapshotName: "student-2-checking-their-peer-reviews",
+      snapshotName: "student-2-checking-their-peer-reviews-multiple-submission",
       page: page2,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      scrollToYCoordinate: 0,
       skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
+      beforeScreenshot: async () =>
+        await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
   })
 })

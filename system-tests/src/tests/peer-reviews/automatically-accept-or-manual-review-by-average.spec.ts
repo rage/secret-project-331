@@ -65,8 +65,11 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       page: page1,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      scrollToYCoordinate: 0,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
+      beforeScreenshot: async () =>
+        await page1
+          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
+          .scrollIntoViewIfNeeded(),
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -75,8 +78,11 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       page: page2,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      scrollToYCoordinate: 0,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
+      beforeScreenshot: async () =>
+        await page2
+          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
+          .scrollIntoViewIfNeeded(),
     })
 
     // Teacher reviews answers
@@ -103,8 +109,11 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       page: page1,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      scrollToYCoordinate: 0,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
+      beforeScreenshot: async () =>
+        await page1
+          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
+          .scrollIntoViewIfNeeded(),
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -113,8 +122,11 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       page: page2,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      scrollToYCoordinate: 0,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
+      beforeScreenshot: async () =>
+        await page2
+          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
+          .scrollIntoViewIfNeeded(),
     })
   })
 })

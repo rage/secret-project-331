@@ -221,9 +221,9 @@ export async function takeScreenshotAndComparetoSnapshot(
 ): Promise<void> {
   try {
     if (isPage(screenshotTarget)) {
-      expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
+      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
-      expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
+      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   } catch (e: unknown) {
     // sometimes snapshots have wild race conditions, lets try again in a moment
@@ -232,10 +232,10 @@ export async function takeScreenshotAndComparetoSnapshot(
     )
     if (isPage(screenshotTarget)) {
       await screenshotTarget.waitForTimeout(600)
-      expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
+      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
       await screenshotTarget.page().waitForTimeout(600)
-      expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
+      await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   }
 }

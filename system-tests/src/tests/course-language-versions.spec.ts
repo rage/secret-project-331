@@ -14,13 +14,13 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
     page.locator("[aria-label=\"Manage course 'Introduction to localizing'\"] svg").click(),
   ])
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
   )
 
@@ -49,7 +49,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin' }*/),
@@ -80,5 +80,5 @@ test("test", async ({ page, headless }) => {
   })
 
   await page.locator("text=Johdatus lokalisointiin").click()
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })

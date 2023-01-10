@@ -23,10 +23,6 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
     screenshotTarget: frame,
   })
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-
   await frame
     .locator(`select:right-of(:text("How many different CSS hexadecimal color codes there are?"))`)
     .first()

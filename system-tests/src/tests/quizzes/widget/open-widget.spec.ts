@@ -26,10 +26,6 @@ test("widget, open", async ({ page, headless }) => {
     screenshotTarget: iframeLocator,
   })
 
-  if (!iframeLocator) {
-    throw new Error("Could not find frame")
-  }
-
   // Fill input[type="text"]
   await iframeLocator
     .locator(

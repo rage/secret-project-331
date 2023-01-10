@@ -36,6 +36,7 @@ test("mange course structure works", async ({ headless, page }) => {
 
   await page.waitForSelector("text=Operation successful!")
   // Check that the order is now right
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.waitForSelector(`:text("Page One"):below(:text("Page 2"))`)
   await page.waitForSelector(`:text("Page 5"):below(:text("Page 6"))`)
@@ -72,6 +73,7 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.locator("text=Update").click()
 
   await page.waitForSelector("text=Operation successful!")
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   // Check if the rename is visible on the page
   await page.waitForSelector(`:text("The intermediaries TEST change")`)

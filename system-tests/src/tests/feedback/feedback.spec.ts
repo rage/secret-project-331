@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test"
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -19,7 +19,7 @@ test("feedback test", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
@@ -29,28 +29,20 @@ test("feedback test", async ({ headless, page }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
   await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
   await page.locator(`text=Everything is a big topic`).waitFor()
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
   )
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-
-  await frame.waitForSelector("text=b")
+  await frame.locator("text=b").waitFor()
 
   await page.click("text=So big", {
     clickCount: 3,

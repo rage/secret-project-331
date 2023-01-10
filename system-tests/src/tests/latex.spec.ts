@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-wait-for-timeout */
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"

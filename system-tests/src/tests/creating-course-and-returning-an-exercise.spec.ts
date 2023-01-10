@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
-import waitForFunction from "../utils/waitForFunction"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+} from "../utils/iframeLocators"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -106,6 +109,7 @@ test("test", async ({ page }) => {
   await page.locator("text=Add slide").click()
 
   // The block needs to be focused for the button to work
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.locator("text=Slide 1").click()
 
@@ -119,48 +123,37 @@ test("test", async ({ page }) => {
 
   await page.locator("text=Example Exercise").click()
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  await frame.locator("text=New").first().click()
 
-  await frame.click("text=New")
-
-  await frame.click(':nth-match([placeholder="Option text"], 1)')
+  await frame.locator(':nth-match([placeholder="Option text"], 1)').first().click()
 
   // Fill :nth-match(input, 2)
-  await frame.fill(
-    ':nth-match([placeholder="Option text"], 1)',
-    "Manually reviewing the final system",
-  )
+  await frame
+    .locator(':nth-match([placeholder="Option text"], 1)')
+    .fill("Manually reviewing the final system")
 
-  await frame.click("text=New")
+  await frame.locator("text=New").first().click()
 
-  await frame.click(':nth-match([placeholder="Option text"], 2)')
+  await frame.locator(':nth-match([placeholder="Option text"], 2)').first().click()
 
   // Fill :nth-match(input, 4)
-  await frame.fill(
-    ':nth-match([placeholder="Option text"], 2)',
-    "Automatically testing the whole system",
-  )
+  await frame
+    .locator(':nth-match([placeholder="Option text"], 2)')
+    .fill("Automatically testing the whole system")
 
-  await frame.click("text=New")
+  await frame.locator("text=New").first().click()
 
-  await frame.click(':nth-match([placeholder="Option text"], 3)')
+  await frame.locator(':nth-match([placeholder="Option text"], 3)').first().click()
 
   // Fill div:nth-child(3) .css-16b3rht
-  await frame.fill(
-    ':nth-match([placeholder="Option text"], 3)',
-    "Testing one part of the system in isolation",
-  )
+  await frame
+    .locator(':nth-match([placeholder="Option text"], 3)')
+    .fill("Testing one part of the system in isolation")
 
   // Check :nth-match(input[type="checkbox"], 2)
-  await frame.check(':nth-match(input[type="checkbox"], 2)')
+  await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await page.click('button:text-is("Save") >> visible=true')
   await page.waitForSelector(`text="Operation successful!"`)
@@ -205,17 +198,10 @@ test("test", async ({ page }) => {
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing",
   )
 
-  const frame2 = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
-  if (!frame2) {
-    throw new Error("Could not find frame2")
-  }
-  await (await frame2.frameElement()).scrollIntoViewIfNeeded()
+  const frame2 = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
+  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame2)
 
-  await frame2.click("text=Automatically testing the whole system")
+  await frame2.locator("text=Automatically testing the whole system").first().click()
 
   await page.locator("#content >> text=Submit").click()
 

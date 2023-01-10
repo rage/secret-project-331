@@ -1,9 +1,13 @@
+/* eslint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+} from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -91,25 +95,16 @@ test("history test", async ({ page, headless }) => {
 
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
+  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  await frame.locator('[placeholder="Option text"]').click()
 
-  await (await frame.frameElement()).scrollIntoViewIfNeeded()
-
-  await frame.click('[placeholder="Option text"]')
-
-  await frame.press('[placeholder="Option text"]', "Control+a")
+  await frame.locator('[placeholder="Option text"]').press("Control+a")
   // Fill [placeholder="Option text"]
-  await frame.fill('[placeholder="Option text"]', "Updated answer")
+  await frame.locator('[placeholder="Option text"]').fill("Updated answer")
   // Check input[type="checkbox"]
-  await frame.check(':nth-match(input[type="checkbox"], 2)')
+  await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)

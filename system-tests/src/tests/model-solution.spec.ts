@@ -2,8 +2,8 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
+import { getLocatorForNthExerciseServiceIframe } from "../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-import waitForFunction from "../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -37,16 +37,7 @@ test.describe("Model solutions", () => {
     await expectUrlPathWithRandomUuid(page, "/submissions/[id]")
 
     // Wait for the frame to be visible
-    const frame = await waitForFunction(page, () =>
-      page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-      }),
-    )
-
-    if (!frame) {
-      throw new Error("Could not find frame")
-    }
-
+    const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
@@ -100,17 +91,7 @@ test.describe("Model solutions", () => {
     // Wait for the frame to be visible
     await page.waitForLoadState("networkidle")
 
-    // Wait for the frame to be visible
-    const frame = await waitForFunction(page, () =>
-      page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-      }),
-    )
-
-    if (!frame) {
-      throw new Error("Could not find frame")
-    }
-
+    const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,

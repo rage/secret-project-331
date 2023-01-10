@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -33,15 +33,8 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-  await frame.click("text=b")
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
+  await frame.locator("text=b").click()
 
   await page.locator("text=Submit").click()
 

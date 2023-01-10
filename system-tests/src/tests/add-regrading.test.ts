@@ -15,7 +15,7 @@ test("test", async ({ page }) => {
   await page.locator('button:has-text("Create")').click()
   await page.locator("text=Operation successful!").waitFor()
   await page.locator("text=/ 1 Submissions regraded").waitFor()
-  expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
+  await expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
 
   const firstRegradingPageUrl = page.url()
 

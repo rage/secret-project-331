@@ -1,3 +1,5 @@
+/* eslint-disable playwright/no-wait-for-timeout */
+/* eslint-disable playwright/no-conditional-in-test */
 import { expect, Locator, Page, test } from "@playwright/test"
 
 import {

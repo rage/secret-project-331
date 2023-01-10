@@ -1,4 +1,4 @@
-import { Frame, Page } from "@playwright/test"
+import { Locator, Page } from "@playwright/test"
 
 export interface QuizItemOptionMultipleChoiceProps {
   type: "multiple-choice"
@@ -14,31 +14,29 @@ export interface QuizItemOptionMultipleChoiceProps {
  */
 export async function fillQuizItemOptionModal(
   page: Page,
-  frame: Frame,
+  frame: Locator,
   props: QuizItemOptionMultipleChoiceProps,
 ) {
   switch (props.type) {
     // TODO: expand for other types of quiz items
     case "multiple-choice": {
       if (props.correct) {
-        await frame.check(`input[type="checkbox"]`)
+        await frame.locator(`input[type="checkbox"]`).check()
       } else {
-        await frame.uncheck(`input[type="checkbox"]`)
+        await frame.locator(`input[type="checkbox"]`).uncheck()
       }
       if (props.title) {
-        await frame.fill(`label:has-text("Option title") input`, props.title)
+        await frame.locator(`label:has-text("Option title") input`).fill(props.title)
       }
       if (props.messageAfterSubmissionWhenSelected) {
-        await frame.fill(
-          `label:has-text("Message after submission when selected") input`,
-          props.messageAfterSubmissionWhenSelected,
-        )
+        await frame
+          .locator(`label:has-text("Message after submission when selected") input`)
+          .fill(props.messageAfterSubmissionWhenSelected)
       }
       if (props.additionalCorrectnessExplanationOnModelSolution) {
-        await frame.fill(
-          `label:has-text("Additional correctness explanation on model solution") input`,
-          props.additionalCorrectnessExplanationOnModelSolution,
-        )
+        await frame
+          .locator(`label:has-text("Additional correctness explanation on model solution") input`)
+          .fill(props.additionalCorrectnessExplanationOnModelSolution)
       }
     }
   }
@@ -46,17 +44,8 @@ export async function fillQuizItemOptionModal(
 }
 
 // TODO: Only call this from `fillQuizItemOptionModal` and don't export.
-export async function closeModal(page: Page, frame: Frame) {
-  // We shouldn't need any scrolling tricks as the modal is already in the viewport
-  // const closeButtonLocator = frame.locator(`[aria-label="Close"]`)
-  // const handle = await closeButtonLocator.elementHandle()
-  // const boundingBox = await handle.boundingBox()
-  // const y = boundingBox.y
-  // await page.evaluate((y) => {
-  //   window.scrollTo(0, y)
-  // }, y)
-  // const frameElement = await frame.frameElement()
-  // frameElement.scrollIntoViewIfNeeded()
-  await frame.click(`[aria-label="Close"]`)
-  await frame.waitForTimeout(100)
+export async function closeModal(page: Page, frame: Locator) {
+  await frame.locator(`[aria-label="Close"]`).waitFor()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
 }

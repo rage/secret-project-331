@@ -1,6 +1,8 @@
+/* eslint-disable playwright/no-wait-for-timeout */
 import { Page } from "playwright"
 
 const isSelectCourseInstanceModalOpen = async (page: Page) => {
+  // eslint-disable-next-line playwright/no-element-handle
   const courseVariantSelector = await page.$$(`h2:has-text("Select course instance")`)
   return courseVariantSelector.length > 0
 }

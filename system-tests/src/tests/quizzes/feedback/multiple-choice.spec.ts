@@ -15,7 +15,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
@@ -25,7 +25,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), await page.locator("text=The Basics").click()])
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
@@ -33,7 +33,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.locator("text=Multiple choice with feedback").click(),
   ])
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-multiple-choice-with-feedback",
   )
 

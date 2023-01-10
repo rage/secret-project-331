@@ -37,6 +37,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .locator(`label:text("1998")`)
     .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.locator(`button:disabled:text("Submit")`).waitFor()
 

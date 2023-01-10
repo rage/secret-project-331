@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@playwright/test"
+import { expect, Locator, Page, test } from "@playwright/test"
 
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
@@ -64,71 +64,73 @@ export default async function expectScreenshotsToMatchSnapshots({
   replaceSomePartsWithPlaceholders = true,
   screenshotTarget,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
-  let page: Page
-  if (isPage(screenshotTarget)) {
-    page = screenshotTarget
-  } else {
-    page = screenshotTarget.page()
-  }
-
-  const originalViewPort = page.viewportSize()
-  try {
-    if (replaceSomePartsWithPlaceholders) {
-      await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  await test.step(`Expect screenshots to match snapshots "${snapshotName}"`, async () => {
+    let page: Page
+    if (isPage(screenshotTarget)) {
+      page = screenshotTarget
+    } else {
+      page = screenshotTarget.page()
     }
 
-    if (waitForTheseToBeVisibleAndStable) {
-      await waitToBeVisible({
-        waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
-      })
-    }
+    const originalViewPort = page.viewportSize()
+    try {
+      if (replaceSomePartsWithPlaceholders) {
+        await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+      }
 
-    if (clearNotifications) {
-      await page.evaluate(() => {
-        for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
-          notif.remove()
-        }
-        for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
-          notif.remove()
-        }
-      })
-    }
+      if (waitForTheseToBeVisibleAndStable) {
+        await waitToBeVisible({
+          waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
+        })
+      }
 
-    if (!skipMobile) {
+      if (clearNotifications) {
+        await page.evaluate(() => {
+          for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
+            notif.remove()
+          }
+          for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
+            notif.remove()
+          }
+        })
+      }
+
+      if (!skipMobile) {
+        await snapshotWithViewPort({
+          snapshotName,
+          viewPortName: "mobile-tall",
+          screenshotOptions,
+          waitForTheseToBeVisibleAndStable,
+          beforeScreenshot,
+          headless,
+          axeSkip,
+          scrollToYCoordinate,
+          replaceSomePartsWithPlaceholders,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          screenshotTarget: screenshotTarget as any,
+        })
+      }
+
       await snapshotWithViewPort({
         snapshotName,
-        viewPortName: "mobile-tall",
+        viewPortName: "desktop-regular",
         screenshotOptions,
-        waitForTheseToBeVisibleAndStable,
         beforeScreenshot,
         headless,
+        waitForTheseToBeVisibleAndStable,
         axeSkip,
         scrollToYCoordinate,
         replaceSomePartsWithPlaceholders,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         screenshotTarget: screenshotTarget as any,
       })
+    } finally {
+      if (originalViewPort) {
+        // always restore the original viewport
+        await page.setViewportSize(originalViewPort)
+      }
     }
-
-    await snapshotWithViewPort({
-      snapshotName,
-      viewPortName: "desktop-regular",
-      screenshotOptions,
-      beforeScreenshot,
-      headless,
-      waitForTheseToBeVisibleAndStable,
-      axeSkip,
-      scrollToYCoordinate,
-      replaceSomePartsWithPlaceholders,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      screenshotTarget: screenshotTarget as any,
-    })
-  } finally {
-    if (originalViewPort) {
-      // always restore the original viewport
-      await page.setViewportSize(originalViewPort)
-    }
-  }
+  })
 }
 
 type SnapshotWithViewPortProps = ExpectScreenshotsToMatchSnapshotsProps & SnapshotWithViewPortExtra

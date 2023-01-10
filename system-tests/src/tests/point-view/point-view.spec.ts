@@ -72,7 +72,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "point-view-bottom",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Teacher Example")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("User id").first()],
     screenshotTarget: page,
   })
 })

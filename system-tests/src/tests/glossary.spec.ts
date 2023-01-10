@@ -58,7 +58,7 @@ test("test", async ({ page, headless }) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
   })
 
-  await page.locator("text=Delete").click()
+  await page.getByRole("button", { name: "Delete" }).first().click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

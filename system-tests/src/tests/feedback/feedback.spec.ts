@@ -99,7 +99,10 @@ test("feedback test", async ({ headless, page }) => {
   ])
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Feedback").click()])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.getByRole("tab", { name: "Feedback 4" }).click(),
+  ])
   // await page.waitForURL((url) => url.searchParams.has("read"))
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 

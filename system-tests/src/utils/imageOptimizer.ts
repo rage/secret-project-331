@@ -11,7 +11,7 @@ export async function ensureImageHasBeenOptimized(pathToImage: string): Promise<
       console.error(`Error: Could not optimize image "${pathToImage}": ${res.error}`)
       throw res.error
     }
-    markImageAsOptimized(pathToImage)
+    await markImageAsOptimized(pathToImage)
   }
 }
 

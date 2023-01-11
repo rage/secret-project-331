@@ -27,7 +27,7 @@ test.describe("Uploading media as admin", async () => {
     },
   )
 
-  test("test", async ({ page, headless }) => {
+  test("test", async ({ page, headless }, testInfo) => {
     await Promise.all([
       page.waitForNavigation(),
       await page.locator("text=University of Helsinki, Department of Computer Science").click(),
@@ -85,6 +85,7 @@ test.describe("Uploading media as admin", async () => {
       snapshotName: "uploadMediaPicture.png",
 
       headless,
+      testInfo,
     })
   })
 })

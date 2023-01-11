@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes vector feedback", async ({ headless, page }) => {
+test("test quizzes vector feedback", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/vector",
   )
@@ -17,6 +17,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "vector-initial",
     scrollToYCoordinate: 270,
   })
@@ -28,6 +29,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "vector-filled",
     scrollToYCoordinate: 270,
   })
@@ -39,6 +41,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "vector-feedback-incorrect",
     scrollToYCoordinate: 270,
   })
@@ -54,6 +57,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "vector-feedback-correct",
     scrollToYCoordinate: 270,
   })
@@ -69,6 +73,7 @@ test("test quizzes vector feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "vector-feedback-incorrect-with-model-solution",
     scrollToYCoordinate: 270,
   })

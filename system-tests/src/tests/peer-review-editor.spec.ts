@@ -4,7 +4,7 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test("create peer review", async ({ page, headless }) => {
+test("create peer review", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -36,6 +36,7 @@ test("create peer review", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "peer-review-editor-after-save",
     waitForTheseToBeVisibleAndStable: [page.locator(`text="Peer review question type"`)],
     screenshotTarget: page,
@@ -55,6 +56,7 @@ test("create peer review", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "peer-review-editor-question-deleted",
     waitForTheseToBeVisibleAndStable: [page.locator(`text="Add peer review"`)],
     screenshotTarget: page,

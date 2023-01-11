@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test quizzes open feedback", async ({ headless, page }) => {
+test("test quizzes open feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -47,6 +47,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "scale-feedback",
   })
 })

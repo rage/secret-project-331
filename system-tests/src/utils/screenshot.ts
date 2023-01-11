@@ -1,6 +1,7 @@
 /* eslint-disable playwright/no-wait-for-timeout */
 /* eslint-disable playwright/no-conditional-in-test */
-import { expect, Locator, Page, test } from "@playwright/test"
+import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
+import { stat } from "fs/promises"
 
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
@@ -9,6 +10,7 @@ import {
 
 import accessibilityCheck from "./accessibilityCheck"
 import { scrollLocatorOrLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
+import { ensureImageHasBeenOptimized } from "./imageOptimizer"
 
 const viewPorts = {
   "desktop-regular": { width: 1920, height: 1080 },
@@ -36,6 +38,7 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   scrollToYCoordinate?: number
   /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
   replaceSomePartsWithPlaceholders?: boolean
+  testInfo: TestInfo
 }
 
 type ExpectScreenshotsToMatchSnapshotsPropsPage = ExpectScreenshotsToMatchSnapshotsPropsCommon & {
@@ -65,6 +68,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders = true,
   screenshotTarget,
+  testInfo,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   await test.step(`Expect screenshots to match snapshots "${snapshotName}"`, async () => {
     let page: Page
@@ -105,6 +109,7 @@ export default async function expectScreenshotsToMatchSnapshots({
           waitForTheseToBeVisibleAndStable,
           beforeScreenshot,
           headless,
+          testInfo,
           axeSkip,
           scrollToYCoordinate,
           replaceSomePartsWithPlaceholders,
@@ -119,6 +124,7 @@ export default async function expectScreenshotsToMatchSnapshots({
         screenshotOptions,
         beforeScreenshot,
         headless,
+        testInfo,
         waitForTheseToBeVisibleAndStable,
         axeSkip,
         scrollToYCoordinate,
@@ -148,6 +154,7 @@ async function snapshotWithViewPort({
   waitForTheseToBeVisibleAndStable,
   beforeScreenshot,
   headless,
+  testInfo,
   axeSkip,
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders,
@@ -200,7 +207,12 @@ async function snapshotWithViewPort({
   if (headless) {
     // To make sure the scrolling we may have done previously has completed
     await page.waitForTimeout(100)
-    await takeScreenshotAndComparetoSnapshot(screenshotTarget, screenshotName, screenshotOptions)
+    await takeScreenshotAndComparetoSnapshot(
+      screenshotTarget,
+      screenshotName,
+      screenshotOptions,
+      testInfo,
+    )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
   }
@@ -222,7 +234,16 @@ export async function takeScreenshotAndComparetoSnapshot(
   screenshotTarget: Locator | Page,
   screenshotName: string,
   screenshotOptions: ScreenshotOptions | PageScreenshotOptions,
+  testInfo: TestInfo,
 ): Promise<void> {
+  const pathToImage = testInfo.snapshotPath(screenshotName)
+  let newScreenshot = false
+  try {
+    const _statRes = await stat(pathToImage)
+  } catch (_e) {
+    newScreenshot = true
+  }
+
   try {
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
@@ -241,6 +262,10 @@ export async function takeScreenshotAndComparetoSnapshot(
       await screenshotTarget.page().waitForTimeout(600)
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
+  }
+  if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
+    // When updating snapshots, optimize the new image so that it does not take extra space in version control.
+    ensureImageHasBeenOptimized(pathToImage)
   }
 }
 

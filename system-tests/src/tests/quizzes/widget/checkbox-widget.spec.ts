@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, checkbox", async ({ page, headless }) => {
+test("widget, checkbox", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes, example, checkbox" })
@@ -16,6 +16,7 @@ test("widget, checkbox", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-checkbox-initial",
     waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
     screenshotTarget: frame,
@@ -29,6 +30,7 @@ test("widget, checkbox", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-checkbox-both-checked",
     waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
     screenshotTarget: frame,
@@ -39,6 +41,7 @@ test("widget, checkbox", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-checkbox-other-unchecked",
     waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
     screenshotTarget: frame,

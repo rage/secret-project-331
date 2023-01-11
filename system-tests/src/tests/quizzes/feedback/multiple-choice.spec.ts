@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
+test("test quizzes multiple-choice feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -49,6 +49,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: frame,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-feedback-incorrect-answer",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text=Rustup is the installer program for Rust.`),
@@ -66,6 +67,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: frame,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-feedback-correct-answer",
     waitForTheseToBeVisibleAndStable: [frame.locator(`text=Your answer was `)],
   })
@@ -81,6 +83,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: frame,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-feedback-incorrect-answer-after-correct",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text=Rustup is the installer program for Rust.`),

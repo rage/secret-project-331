@@ -16,7 +16,7 @@ const replaceTimeComponentDates = async (page: Page) => {
   })
 }
 
-test("can add and delete exercise service", async ({ page, headless }) => {
+test("can add and delete exercise service", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
   await page.evaluate(() => {
     window.scrollTo(0, 700)
@@ -47,6 +47,7 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "exercise-service-page",
     waitForTheseToBeVisibleAndStable: [page.locator("text=New exercise service")],
 

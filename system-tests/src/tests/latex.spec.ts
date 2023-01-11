@@ -9,7 +9,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("latex-block renders", async ({ headless, page }) => {
+test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -153,6 +153,7 @@ test("latex-block renders", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "latex",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Inline latex"),

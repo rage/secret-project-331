@@ -5,10 +5,11 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("Can start an exam and can answer exercises", async ({ page, headless }) => {
+test("Can start an exam and can answer exercises", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb")
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "exam-instructions-page",
     waitForTheseToBeVisibleAndStable: [
@@ -22,6 +23,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
   await page.locator(`button:text("Start the exam!")`).click()
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "exam-started",
     waitForTheseToBeVisibleAndStable: [
@@ -46,6 +48,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
   await page.locator("button:text('Submit')").first().click()
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "exam-exercise-answered",
     waitForTheseToBeVisibleAndStable: [page.getByRole("button", { name: "try again" })],

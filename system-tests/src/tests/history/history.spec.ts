@@ -13,7 +13,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("history test", async ({ page, headless }) => {
+test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -43,6 +43,7 @@ test("history test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-page",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="Best exercise"`),
@@ -151,8 +152,7 @@ test("history test", async ({ page, headless }) => {
   const stableElement = await page.waitForSelector("text=core/paragraph")
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
-    headless,
-    axeSkip: [`landmark-unique`],
+    headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
     waitForTheseToBeVisibleAndStable: stableElement,
 
@@ -171,8 +171,7 @@ screenshotTarget: page,
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
     axeSkip: [`landmark-unique`],
-    headless,
-    snapshotName: "history-view-p4-before-compare",
+    headless, testInfo,    snapshotName: "history-view-p4-before-compare",
     waitForTheseToBeVisibleAndStable: [stableElement2, "text=Compare"],
 
     beforeScreenshot: async () => {
@@ -203,8 +202,7 @@ screenshotTarget: page,
   /*
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
-    headless,
-    axeSkip: [`landmark-unique`],
+    headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
     // wait for the diff to show up
     waitForTheseToBeVisibleAndStable: [
@@ -229,8 +227,7 @@ screenshotTarget: page,
   /*
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
-    headless,
-    axeSkip: [`landmark-unique`],
+    headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
     waitForTheseToBeVisibleAndStable: [page.locator("text=core/paragraph")],
 
@@ -267,6 +264,7 @@ screenshotTarget: page,
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "page-after-restore",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="Best exercise"`),

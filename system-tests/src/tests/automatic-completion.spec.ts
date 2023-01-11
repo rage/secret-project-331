@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("Registers automatic completion", async ({ headless, page }) => {
+test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -45,7 +45,8 @@ test("Registers automatic completion", async ({ headless, page }) => {
   await page.waitForSelector("text=Congratulations!")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
-    headless: headless ?? false,
+    headless,
+    testInfo,
     snapshotName: "automatic-completion-congratulations-card",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Congratulations!"),
@@ -61,7 +62,8 @@ test("Registers automatic completion", async ({ headless, page }) => {
   ])
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
-    headless: headless ?? false,
+    headless,
+    testInfo,
     snapshotName: "automatic-completion-registration-page",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Register completion")],
   })

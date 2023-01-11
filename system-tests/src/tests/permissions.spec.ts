@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -27,6 +27,7 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-permission-management-page",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Roles for course")],
   })
@@ -63,6 +64,7 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "sorted-by-email",
     clearNotifications: true,
   })
@@ -75,6 +77,7 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "sorted-by-role",
   })
 
@@ -83,6 +86,7 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "editing-permission",
     waitForTheseToBeVisibleAndStable: [page.getByText("teacher@example.com").first()],
   })
@@ -98,6 +102,7 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "edited-permission",
     waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
     clearNotifications: false,
@@ -108,6 +113,7 @@ test("test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "removed-permission",
     waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
   })

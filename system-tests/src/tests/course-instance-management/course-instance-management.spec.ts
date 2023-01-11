@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -27,6 +27,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "initial-course-management-page",
     waitForTheseToBeVisibleAndStable: [page.getByRole("tab", { name: "Course instances" })],
     screenshotTarget: page,
@@ -40,6 +41,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "new-course-instance-form",
     waitForTheseToBeVisibleAndStable: [page.locator("text=New course instance")],
     screenshotTarget: page,
@@ -59,6 +61,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "course-management-page-with-new-instance",
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
@@ -76,6 +79,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "initial-management-page",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Course instance default")],
     screenshotTarget: page,
@@ -86,6 +90,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "initial-management-page-editing",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Name").first()],
     screenshotTarget: page,
@@ -122,6 +127,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "management-page-after-changes",
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
@@ -134,6 +140,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "course-management-page-after-delete",
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "All course instances" })],
     screenshotTarget: page,

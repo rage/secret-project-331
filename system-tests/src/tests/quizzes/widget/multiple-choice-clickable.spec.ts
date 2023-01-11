@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, multiple-choice-clickable screenshot test", async ({ page, headless }) => {
+test("widget, multiple-choice-clickable screenshot test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice clickable" })
@@ -16,6 +16,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-clickable",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text="Choose your favorite colors"`),
@@ -32,6 +33,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-clickable-answered",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text="Choose your favorite colors"`),

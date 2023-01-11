@@ -9,7 +9,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 test.describe("Model solutions", () => {
-  test("model-solutions are displayed in submissions", async ({ headless, page }) => {
+  test("model-solutions are displayed in submissions", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
@@ -41,6 +41,7 @@ test.describe("Model solutions", () => {
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
+      testInfo,
       snapshotName: "model-solutions-in-submissions",
       waitForTheseToBeVisibleAndStable: [frame.locator("text=a")],
 
@@ -61,7 +62,10 @@ test.describe("Model solutions", () => {
     })
   })
 
-  test("model-solutions are not displayed in the exercises", async ({ headless, page }) => {
+  test("model-solutions are not displayed in the exercises", async ({
+    page,
+    headless,
+  }, testInfo) => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
@@ -95,6 +99,7 @@ test.describe("Model solutions", () => {
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
+      testInfo,
       snapshotName: "model-solutions-in-exercises",
       waitForTheseToBeVisibleAndStable: [frame.locator("text=a")],
     })

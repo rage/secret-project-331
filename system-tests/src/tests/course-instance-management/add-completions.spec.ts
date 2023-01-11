@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -51,6 +51,7 @@ test("test", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "manual-completion-default-module-preview",
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("button", { name: "Submit" }),
@@ -82,6 +83,7 @@ test("test", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "manual-completion-another-module-preview",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Users receiving a completion for the first time"),
@@ -94,6 +96,7 @@ test("test", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "manual-completion-after-posting-completions",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=User1"),

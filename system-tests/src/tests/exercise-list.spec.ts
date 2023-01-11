@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
@@ -17,6 +17,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "exercise-list-view",
 
     waitForTheseToBeVisibleAndStable: [page.locator("text=Exercises in this course")],

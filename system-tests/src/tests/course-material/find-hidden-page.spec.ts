@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("find hidden page", async ({ page, headless }) => {
+test("find hidden page", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -26,6 +26,7 @@ test("find hidden page", async ({ page, headless }) => {
     beforeScreenshot: () => page.locator("text=Information pages").scrollIntoViewIfNeeded(),
     clearNotifications: true,
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "top-level-pages-list",
   })
@@ -40,6 +41,7 @@ test("find hidden page", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     clearNotifications: true,
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "hidden-page",
     waitForTheseToBeVisibleAndStable: [

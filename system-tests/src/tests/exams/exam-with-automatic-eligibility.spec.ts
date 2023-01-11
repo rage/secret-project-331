@@ -7,11 +7,12 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("Can take exam after enough course points", async ({ headless, page }) => {
+test("Can take exam after enough course points", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/exams/b2168b2f-f721-4771-a35d-ca75ca0937b1")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "cant-take-exam-before-meeting-exercise-requirements",
     waitForTheseToBeVisibleAndStable: [
@@ -40,6 +41,7 @@ test("Can take exam after enough course points", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "can-take-exam-after-meeting-exercise-requirements",
     waitForTheseToBeVisibleAndStable: [

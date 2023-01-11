@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -55,6 +55,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "point-view-top",
     waitForTheseToBeVisibleAndStable: [page.locator("text=TOTAL POINT DASHBOARD")],
     screenshotTarget: page,
@@ -64,6 +65,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "point-view-bottom",
     waitForTheseToBeVisibleAndStable: [page.getByText("User id").first()],
     screenshotTarget: page,

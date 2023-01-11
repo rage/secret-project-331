@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("mange course structure works", async ({ headless, page }) => {
+test("mange course structure works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -106,6 +106,7 @@ test("mange course structure works", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "manage-course-structure-middle-of-the-page",
     clearNotifications: true,
   })
@@ -117,6 +118,7 @@ test("mange course structure works", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "manage-course-structure-top-of-the-page",
     clearNotifications: true,
   })

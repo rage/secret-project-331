@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   // navigate to module page
   await page.goto("http://project-331.local/")
   await page.locator("text=University of Helsinki, Department of Computer Science").click()
@@ -22,6 +22,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-module-management-page",
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Modules" })],
     screenshotOptions: { fullPage: true },
@@ -32,6 +33,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-deletion",
 
     screenshotOptions: { fullPage: true },
@@ -42,6 +44,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-deletion-reset",
 
     screenshotOptions: { fullPage: true },
@@ -55,6 +58,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-creating-new-module",
     waitForTheseToBeVisibleAndStable: [page.locator("text=1: invalid module")],
 
@@ -69,6 +73,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-updating-new-module",
     waitForTheseToBeVisibleAndStable: [page.locator("text=1: valid module")],
 
@@ -80,6 +85,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-second-deletion",
 
     screenshotOptions: { fullPage: true },
@@ -93,6 +99,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-last-update",
     waitForTheseToBeVisibleAndStable: [page.locator("text=2: renamed module")],
 
@@ -104,6 +111,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-saving",
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
 

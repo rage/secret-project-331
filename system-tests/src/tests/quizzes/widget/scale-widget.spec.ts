@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, scale", async ({ page, headless }) => {
+test("widget, scale", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes example, scale" })
@@ -16,6 +16,7 @@ test("widget, scale", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-scale-initial",
     waitForTheseToBeVisibleAndStable: [
       iframeLocator.locator(`text="Regex is generally readable."`),
@@ -32,6 +33,7 @@ test("widget, scale", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-scale-leftmost",
     waitForTheseToBeVisibleAndStable: [
       iframeLocator.locator(`text="Regex is generally readable."`),
@@ -51,6 +53,7 @@ test("widget, scale", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-scale-mixed",
     waitForTheseToBeVisibleAndStable: [
       iframeLocator.locator(`text="Regex is generally readable."`),

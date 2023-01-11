@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("content search", async ({ page, headless }) => {
+test("content search", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -45,6 +45,7 @@ test("content search", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "search-content-with-short-prefix",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Human-machine interface")],
@@ -75,6 +76,7 @@ test("content search", async ({ page, headless }) => {
     axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Welcome to Introduction to Course Material"),
@@ -91,6 +93,7 @@ test("content search", async ({ page, headless }) => {
     axeSkip: ["landmark-one-main", "page-has-heading-one"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "search-continuous-phrases-ranked-higher-than-word-matches",
     waitForTheseToBeVisibleAndStable: [page.locator("text=banana cat enim")],
   })

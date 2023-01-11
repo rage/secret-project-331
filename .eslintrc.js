@@ -248,6 +248,9 @@ module.exports = {
     {
       files: ["system-tests/src/**/*"],
       extends: ["plugin:playwright/playwright-test"],
+      rules: {
+        "playwright/no-focused-test": "off",
+      },
     },
   ],
 }

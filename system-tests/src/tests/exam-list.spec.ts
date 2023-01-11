@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("exam list renders, can create exam", async ({ headless, page }) => {
+test("exam list renders, can create exam", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -23,6 +23,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "exam-listing",
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("link", { name: "Automatic course exam" }).last(),
@@ -34,6 +35,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=new-exam-dialog"),
     headless,
+    testInfo,
     snapshotName: "create-exam-dialog",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Name"),
@@ -59,6 +61,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=new-exam-dialog"),
     headless,
+    testInfo,
     snapshotName: "create-exam-dialog-filled",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Name"),

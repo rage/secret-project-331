@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -27,6 +27,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-glossary-page",
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
   })
@@ -54,6 +55,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-glossary-management-page",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
   })
@@ -63,6 +65,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "deleted-term",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Deleted")],
   })
@@ -79,6 +82,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "added-new-term",
     waitForTheseToBeVisibleAndStable: [page.locator("text=efgh")],
     scrollToYCoordinate: 538,
@@ -89,6 +93,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "editing-term",
     waitForTheseToBeVisibleAndStable: [page.locator("text=updated term")],
     clearNotifications: true,
@@ -105,6 +110,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "edited-term",
     waitForTheseToBeVisibleAndStable: [page.locator(`div:text-is("Success")`)],
   })
@@ -115,6 +121,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "final-glossary-page",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Glossary")],
     clearNotifications: true,

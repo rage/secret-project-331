@@ -4,7 +4,7 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test("default peer review editing", async ({ page, headless }) => {
+test("default peer review editing", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await page
@@ -34,6 +34,7 @@ test("default peer review editing", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page1,
     headless,
+    testInfo,
     snapshotName: "default-peer-review-editor",
     waitForTheseToBeVisibleAndStable: [page1.locator('text="Configure review answers option"')],
   })
@@ -69,6 +70,7 @@ test("default peer review editing", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page1,
     headless,
+    testInfo,
     snapshotName: "default-peer-review-editor-after-save",
     waitForTheseToBeVisibleAndStable: [page1.locator('text="Add peer review question"')],
   })

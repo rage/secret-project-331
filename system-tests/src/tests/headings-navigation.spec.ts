@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("headings navigation works", async ({ page, headless }) => {
+test("headings navigation works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -35,7 +35,8 @@ test("headings navigation works", async ({ page, headless }) => {
   await page.locator('[aria-label="Open heading navigation"]').click()
 
   await expectScreenshotsToMatchSnapshots({
-    headless: headless ?? false,
+    headless,
+    testInfo,
     snapshotName: "headings-navigation-open",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`button:has-text("Design")`),

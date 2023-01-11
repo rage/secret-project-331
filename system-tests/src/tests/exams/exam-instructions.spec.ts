@@ -5,7 +5,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -75,6 +75,7 @@ test("test", async ({ page, headless }) => {
   ])
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page.locator("id=exam-instructions"),
     snapshotName: "exam-instructions",
     waitForTheseToBeVisibleAndStable: [page.locator("text=These are the instructions")],

@@ -12,7 +12,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("feedback test", async ({ headless, page }) => {
+test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -51,6 +51,7 @@ test("feedback test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-tooltip",
     waitForTheseToBeVisibleAndStable: [page.locator(`.${feedbackTooltipClass}`)],
   })
@@ -68,6 +69,7 @@ test("feedback test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-input",
     waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
@@ -105,6 +107,7 @@ test("feedback test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-unread",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`).first(),
@@ -123,6 +126,7 @@ test("feedback test", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-empty",
     waitForTheseToBeVisibleAndStable: [page.locator(`text=No feedback`)],
     beforeScreenshot: async () => {

@@ -13,7 +13,7 @@ const THIRD_TASK = `[title="Exercise 1, task 3 content"]`
 const CORRECT = `button:has-text("Correct") >> nth=0`
 const INCORRECT = `button:has-text("Incorrect")`
 
-test("Exercise score updates gradually", async ({ headless, page }) => {
+test("Exercise score updates gradually", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -45,6 +45,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
+    testInfo,
     snapshotName: "exercise-before-answering",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),
@@ -65,6 +66,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
+    testInfo,
     snapshotName: "two-out-of-three",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),
@@ -86,6 +88,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
+    testInfo,
     snapshotName: "only-third-correct-score-stays-same",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),
@@ -108,6 +111,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
+    testInfo,
     snapshotName: "correct-answer",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),

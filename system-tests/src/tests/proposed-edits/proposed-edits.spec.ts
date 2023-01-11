@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   test.slow()
 
   await page.goto("http://project-331.local/")
@@ -47,6 +47,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "no-edits-yet",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Click on course material to make it editable!"),
@@ -60,6 +61,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "currently-editing",
     waitForTheseToBeVisibleAndStable: [page.locator("text=You've selected material for editing")],
   })
@@ -96,6 +98,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "preview",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="Send"`),
@@ -133,6 +136,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "manage-initial",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Accept").first()],
   })
@@ -146,6 +150,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "manage-before-send",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Send").first()],
     beforeScreenshot: async () => {
@@ -160,6 +165,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "manage-after-send",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Reject").first()],
     clearNotifications: true,
@@ -170,6 +176,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "manage-old-after-send",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Accepted").first()],
   })
@@ -195,6 +202,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page1,
     headless,
+    testInfo,
     snapshotName: "after-changes",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Like this!!!!!")],
   })

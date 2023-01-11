@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, open", async ({ page, headless }) => {
+test("widget, open", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes example, open" })
@@ -16,6 +16,7 @@ test("widget, open", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-open-empty",
     waitForTheseToBeVisibleAndStable: [
       iframeLocator.locator(
@@ -35,6 +36,7 @@ test("widget, open", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-open-invalid",
     waitForTheseToBeVisibleAndStable: [
       iframeLocator.locator(
@@ -57,6 +59,7 @@ test("widget, open", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-open-valid",
     waitForTheseToBeVisibleAndStable: [
       iframeLocator.locator(

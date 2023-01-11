@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless }) => {
+test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice dropdown" })
@@ -16,6 +16,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-dropdown",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text="How many different CSS hexadecimal color codes there are?"`),
@@ -35,6 +36,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-dropdown-answered",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text="How many different CSS hexadecimal color codes there are?"`),

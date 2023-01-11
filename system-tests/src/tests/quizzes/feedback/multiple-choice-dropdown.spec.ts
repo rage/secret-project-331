@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
+test("test quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-5",
   )
@@ -28,6 +28,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),
@@ -49,6 +50,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-dropdown-feedback-correct-answer",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),
@@ -70,6 +72,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),

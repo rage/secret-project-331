@@ -1,15 +1,27 @@
-import { chromium } from "@playwright/test"
+import { chromium, FullConfig } from "@playwright/test"
 import { spawnSync } from "child_process"
 import path from "path"
+import which from "which"
 
 import playWrightPackageJson from "../../node_modules/playwright/package.json"
 import systemTestsPackageLockJson from "../../package-lock.json"
 import { login } from "../utils/login"
 
-async function globalSetup(): Promise<void> {
+async function globalSetup(config: FullConfig): Promise<void> {
+  await makeSureNecessaryProgramsAreInstalled(config)
   await makeSureNpmCiHasBeenRan()
   await setupSystemTestDb()
   await createLoginStates()
+}
+
+async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
+  if (config.updateSnapshots === "all") {
+    if (which.sync("oxipng", { nothrow: true }) === null) {
+      throw new Error(
+        "oxipng is not installed or is not in the $PATH. Please install it (see https://github.com/shssoichiro/oxipng).",
+      )
+    }
+  }
 }
 
 async function makeSureNpmCiHasBeenRan() {

@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/language.teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -73,6 +73,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "wrong-course-banner",
     waitForTheseToBeVisibleAndStable: [
       page.locator("text=Looks like you're already on a different language version"),

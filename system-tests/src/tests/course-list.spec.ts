@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("course list renders", async ({ headless, page }) => {
+test("course list renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -20,6 +20,7 @@ test("course list renders", async ({ headless, page }) => {
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     screenshotTarget: page,
     snapshotName: "course-listing",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Courses:")],

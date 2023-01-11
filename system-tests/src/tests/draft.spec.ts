@@ -56,7 +56,7 @@ test.describe("admin", () => {
   test("can create a draft course and change it to a non-draft course", async ({
     page,
     headless,
-  }) => {
+  }, testInfo) => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
@@ -86,6 +86,7 @@ test.describe("admin", () => {
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
+      testInfo,
       snapshotName: "draft-course",
       waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
     })
@@ -100,6 +101,7 @@ test.describe("admin", () => {
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
       headless,
+      testInfo,
       snapshotName: "non-draft-course",
       waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Advanced drafts" })],
     })

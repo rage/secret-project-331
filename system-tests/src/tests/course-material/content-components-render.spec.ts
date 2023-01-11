@@ -5,7 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test("blocks render correctly", async ({ page, headless }) => {
+test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -38,6 +38,7 @@ test("blocks render correctly", async ({ page, headless }) => {
     axeSkip: [],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "content-components-renderer-view",
     waitForTheseToBeVisibleAndStable: undefined,
     screenshotOptions: { fullPage: true },

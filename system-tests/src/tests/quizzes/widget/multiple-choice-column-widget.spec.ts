@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, multiple-choice column screenshot test", async ({ page, headless }) => {
+test("widget, multiple-choice column screenshot test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   await page.selectOption("select", { label: "Quizzes example, multiple-choice, column" })
@@ -16,6 +16,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-column-initial",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="Which of the color codes represent the color"`),
@@ -27,6 +28,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-column-#00ff00",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="Which of the color codes represent the color"`),
@@ -38,6 +40,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-multiple-choice-column-#ff0000",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="Which of the color codes represent the color"`),

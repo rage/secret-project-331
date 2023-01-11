@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("material reference tests", async ({ page, headless }) => {
+test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -28,6 +28,7 @@ test("material reference tests", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "material-reference-list",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
   })
@@ -38,6 +39,7 @@ test("material reference tests", async ({ page, headless }) => {
     axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "add-new-material-reference-dialog",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Submit"), page.locator("text=Close")],
   })
@@ -69,6 +71,7 @@ test("material reference tests", async ({ page, headless }) => {
     axeSkip: ["heading-order"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "new-material-reference-added",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
     clearNotifications: true,
@@ -80,6 +83,7 @@ test("material reference tests", async ({ page, headless }) => {
     axeSkip: ["heading-order", "page-has-heading-one"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "material-reference-editor",
     waitForTheseToBeVisibleAndStable: [
       page.getByTitle("Edit reference").getByText("Edit reference"),
@@ -101,6 +105,7 @@ test("material reference tests", async ({ page, headless }) => {
     axeSkip: ["heading-order"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "material-reference-edited",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Add new reference")],
     clearNotifications: true,
@@ -132,6 +137,7 @@ test("material reference tests", async ({ page, headless }) => {
     axeSkip: ["region", "aria-allowed-attr"],
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "citation-in-editor",
     beforeScreenshot: async () => await page.locator(`text=${PARAGRAPH}`).scrollIntoViewIfNeeded(),
   })
@@ -171,6 +177,7 @@ test("material reference tests", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "citation-paragraph",
     beforeScreenshot: async () =>
       await page.locator(`text=This paragraph contains a citation`).scrollIntoViewIfNeeded(),
@@ -181,6 +188,7 @@ test("material reference tests", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "closed-course-material-reference-list",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Reference")],
     beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),
@@ -191,6 +199,7 @@ test("material reference tests", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "open-course-material-reference-list",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Reference"), page.locator("text=Wang")],
     beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),

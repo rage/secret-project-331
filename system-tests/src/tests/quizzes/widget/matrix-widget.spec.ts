@@ -10,7 +10,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, matrix screenshot test", async ({ page, headless }) => {
+test("widget, matrix screenshot test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
   // Select Quizzes example, matrix
@@ -22,6 +22,7 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-matrix-initial",
     screenshotTarget: frame,
   })
@@ -38,6 +39,7 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-matrix-two-cells-filled",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`input[name="1"]`),
@@ -58,6 +60,7 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-matrix-whole-matrice-is-active",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`input[name="1"]`),

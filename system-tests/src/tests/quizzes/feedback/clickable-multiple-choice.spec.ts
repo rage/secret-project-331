@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes clickable multiple-choice feedback", async ({ headless, page }) => {
+test("test quizzes clickable multiple-choice feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -46,6 +46,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "clickable-multiple-choice-incorrect-answer",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),
@@ -67,6 +68,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "clickable-multiple-choice-correct-answer",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),
@@ -88,6 +90,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "clickable-multiple-choice-incorrect-answer-after-correct",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),

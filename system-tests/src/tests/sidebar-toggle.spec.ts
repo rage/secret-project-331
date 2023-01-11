@@ -14,7 +14,7 @@ const gutenbergAxeSkip = [
   "aria-required-children",
 ]
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -44,6 +44,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "block-properties",
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("heading", { name: "Landing Page Hero Section" }),
@@ -58,6 +59,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "block-list",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Course Objective Section").first()],
     axeSkip: gutenbergAxeSkip,
@@ -70,6 +72,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "block-menu",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Pullquote")],
     axeSkip: gutenbergAxeSkip,

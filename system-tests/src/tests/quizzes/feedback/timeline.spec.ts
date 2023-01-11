@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes timeline feedback", async ({ headless, page }) => {
+test("test quizzes timeline feedback", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
   )
@@ -17,6 +17,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-initial",
     scrollToYCoordinate: 470,
   })
@@ -55,6 +56,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-filled",
     scrollToYCoordinate: 470,
   })
@@ -66,6 +68,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-feedback-wrong",
     scrollToYCoordinate: 470,
   })
@@ -98,6 +101,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-feedback-correct",
     scrollToYCoordinate: 470,
   })
@@ -132,6 +136,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-feedback-incorrect-with-model-solution",
     scrollToYCoordinate: 600,
   })

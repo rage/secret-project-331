@@ -19,7 +19,7 @@ import { EditorProps } from "."
 const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, privateSpec }) => {
   const [render, setRender] = useState(false)
   const [migratedQuiz, setMigratedQuiz] = useState<PrivateSpecQuiz | null>(null)
-  const [experimentalMode, setExperimentalMode] = useState(true)
+  const [experimentalMode, setExperimentalMode] = useState(false)
 
   const dispatch = useDispatch()
   useEffect(() => {

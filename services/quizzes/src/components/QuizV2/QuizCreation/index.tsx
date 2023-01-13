@@ -2,10 +2,13 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import { PrivateSpecQuiz } from "../../../../types/quizTypes"
+import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
 import Button from "../../../shared-module/components/Button"
 import QuizEditor from "../QuizComponents/QuizEditor"
+import { createEmptyQuizItem } from "../utils/general"
 
 import QuizItemOption, { QuizOption } from "./QuizOption"
 
@@ -143,6 +146,12 @@ interface AddQuizItemProps {
 
 const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
   const { t } = useTranslation()
+  const { updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>((quiz) => {
+    if (!quiz) {
+      return null
+    }
+    return quiz
+  })
 
   return (
     <AddQuizItemWrapper>
@@ -163,6 +172,15 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
             transform="capitalize"
             onClick={() => {
               // TODO: implement
+              updateState((quiz) => {
+                if (!quiz) {
+                  return null
+                }
+                quiz.items = [
+                  ...quiz.items,
+                  createEmptyQuizItem(quiz.items[quiz.items.length - 1].type),
+                ]
+              })
             }}
             size={"medium"}
             className={css`
@@ -183,6 +201,13 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
             `}
             onClick={() => {
               // TODO: implement
+              updateState((quiz) => {
+                if (!quiz) {
+                  return null
+                }
+                // Same values except id
+                quiz.items = [...quiz.items, { ...quiz.items[quiz.items.length - 1], id: v4() }]
+              })
             }}
           >
             {t("create-quiz-item-duplicate")}

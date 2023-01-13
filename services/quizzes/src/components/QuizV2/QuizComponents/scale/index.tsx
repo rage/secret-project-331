@@ -36,7 +36,19 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
   }
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-scale-name")}>
-      <TextField value={selected.title} label={t("option-title")} name={t("option-title")} />
+      <TextField
+        onChange={(title) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.title = title
+          })
+        }}
+        value={selected.title}
+        label={t("option-title")}
+        name={t("option-title")}
+      />
       <TextFieldContainer>
         <TextFieldWrapper>
           <TextField

@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import Editor from "@monaco-editor/react"
 import _ from "lodash"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
@@ -22,8 +22,13 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
 
   const initialEditorState = publicSpecToEditorState(initialPublicSpec)
-  sendCurrentState(port, initialEditorState)
-  const [editorState, _setEditorState] = useState(publicSpecToEditorState(publicSpec))
+  useEffect(() => {
+    console.log("sending initial")
+    sendCurrentState(port, initialEditorState)
+  }, [port, initialEditorState])
+  const [editorState, _setEditorState] = useState<Array<[string, string]>>(
+    publicSpecToEditorState(publicSpec),
+  )
   const setEditorState = (value: Array<[string, string]>) => {
     _setEditorState(value)
     if (!port) {
@@ -31,6 +36,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
       console.error("Cannot send state to parent because I don't have a port")
       return
     }
+    console.log("sending new")
     sendCurrentState(port, value)
   }
 
@@ -49,7 +55,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
           value={contents}
           onChange={(newContents) => {
             if (newContents !== undefined) {
-              const newState = { ...editorState }
+              const newState = [...editorState]
               newState[0][1] = newContents
               setEditorState(newState)
             }

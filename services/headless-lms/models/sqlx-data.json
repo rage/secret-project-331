@@ -10600,6 +10600,16 @@
     },
     "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\nAND re.deleted_at IS NULL\nand er.deleted_at IS NULL\n"
   },
+  "8eec12a84339d2b51c3a819162f81860ee76d77b461ef26fe90d5b85621fca4a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Bytea", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO repository_exercises (\n    id,\n    repository_id,\n    part,\n    name,\n    checksum,\n    download_url\n)\nVALUES ($1, $2, $3, $4, $5, $6)\n"
+  },
   "9042f4a78140ea8061a5d2f7ea3f6d8ae53b484871e869ebd0dd4cb31da6d9fb": {
     "describe": {
       "columns": [],
@@ -11231,16 +11241,6 @@
       }
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  user_id\nFROM regradings\nWHERE deleted_at IS NULL\nORDER BY regradings.created_at\nLIMIT $1 OFFSET $2;\n"
-  },
-  "9aeaf84e5391677bf292f14ac56f8de4bb0a8d9f69401e157fef552e613435a8": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Bytea", "Varchar"]
-      }
-    },
-    "query": "\nINSERT INTO repository_exercises (id, repository_id, part, name, checksum, download_url)\nVALUES ($1, $2, $3, $4, $5, $6)\n"
   },
   "9b22240e7ed6238509fccd2191dfed47215d59363003b204f7f666a587d34a48": {
     "describe": {

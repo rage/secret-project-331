@@ -6,13 +6,11 @@ use crate::prelude::*;
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct User {
     pub id: Uuid,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub upstream_id: Option<i32>,
-    pub email: String,
+    pub email_domain: Option<String>,
 }
 
 pub async fn insert(
@@ -22,19 +20,31 @@ pub async fn insert(
     first_name: Option<&str>,
     last_name: Option<&str>,
 ) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
     let res = sqlx::query!(
         "
-INSERT INTO users (id, email, first_name, last_name)
-VALUES ($1, $2, $3, $4)
+INSERT INTO users (id)
+VALUES ($1)
 RETURNING id
 ",
         pkey_policy.into_uuid(),
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    let _res2 = sqlx::query!(
+        "
+INSERT INTO user_details (user_id, email, first_name, last_name)
+VALUES ($1, $2, $3, $4)
+",
+        res.id,
         email,
         first_name,
         last_name
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
+    tx.commit().await?;
     Ok(res.id)
 }
 
@@ -46,22 +56,34 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
+    let mut tx = conn.begin().await?;
     let user = sqlx::query_as!(
         User,
         r#"
 INSERT INTO
-  users (id, email, first_name, last_name, upstream_id)
-VALUES ($1, $2, $3, $4, $5)
+  users (id, upstream_id)
+VALUES ($1, $2)
 RETURNING *;
           "#,
         moocfi_id,
-        email,
-        first_name,
-        last_name,
         upstream_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
+
+    let _res2 = sqlx::query!(
+        "
+INSERT INTO user_details (user_id, email, first_name, last_name)
+VALUES ($1, $2, $3, $4)
+",
+        user.id,
+        email,
+        first_name,
+        last_name
+    )
+    .fetch_one(&mut tx)
+    .await?;
+    tx.commit().await?;
     Ok(user)
 }
 
@@ -69,9 +91,10 @@ pub async fn get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<U
     let user = sqlx::query_as!(
         User,
         "
-SELECT *
-FROM users
-WHERE email = $1
+SELECT users.*
+FROM user_details
+JOIN users ON (user_details.user_id = users.id)
+WHERE user_details.email = $1
         ",
         email
     )
@@ -84,9 +107,10 @@ pub async fn try_get_by_email(conn: &mut PgConnection, email: &str) -> ModelResu
     let user = sqlx::query_as!(
         User,
         "
-SELECT *
-FROM users
-WHERE email = $1
+SELECT users.*
+FROM user_details
+JOIN users ON (user_details.user_id = users.id)
+WHERE user_details.email = $1
         ",
         email
     )

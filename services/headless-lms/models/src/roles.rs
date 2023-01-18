@@ -84,12 +84,13 @@ pub async fn get(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult<Vec
                 RoleUser,
                 r#"
 SELECT users.id AS "id!",
-  users.first_name,
-  users.last_name,
-  email AS "email!",
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS "role!: UserRole"
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE is_global = TRUE
 AND roles.deleted_at IS NULL
 "#,
@@ -102,12 +103,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS "role: UserRole"
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.organization_id = $1
 AND roles.deleted_at IS NULL
 "#,
@@ -121,12 +123,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS "role: UserRole"
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.course_id = $1
 AND roles.deleted_at IS NULL
 "#,
@@ -140,12 +143,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS "role: UserRole"
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.course_instance_id = $1
 AND roles.deleted_at IS NULL
 "#,
@@ -159,12 +163,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS "role: UserRole"
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.exam_id = $1
 AND roles.deleted_at IS NULL
 "#,

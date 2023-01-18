@@ -1117,13 +1117,11 @@ fn models() {
     });
     doc!(User {
         id,
-        first_name: Some("User".to_string()),
-        last_name: Some("Example".to_string()),
         created_at,
         updated_at,
         deleted_at: None,
         upstream_id: None,
-        email: "email@example.com".to_string(),
+        email_domain: Some("example.com".to_string()),
     });
     doc!(CourseCount { count: 1234 });
     doc!(

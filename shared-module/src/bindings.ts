@@ -491,6 +491,7 @@ export interface AnswerRequiringAttention {
   updated_at: Date
   deleted_at: Date | null
   data_json: unknown | null
+  course_instance_id: string | null
   grading_progress: GradingProgress
   score_given: number | null
   submission_id: string
@@ -584,6 +585,7 @@ export interface ExerciseTaskGradingResult {
   score_maximum: number
   feedback_text: string | null
   feedback_json: unknown | null
+  set_user_variables?: Record<string, unknown>
 }
 
 export type UserPointsUpdateStrategy =
@@ -647,6 +649,7 @@ export interface CourseMaterialExercise {
   exercise_slide_submission_counts: Record<string, number>
   peer_review_config: CourseMaterialPeerReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
+  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
 export interface Exercise {
@@ -721,6 +724,28 @@ export interface TermUpdate {
   definition: string
 }
 
+export interface AnswerRequiringAttentionWithTasks {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+  tasks: Array<CourseMaterialExerciseTask>
+  given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
+  received_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
+}
+
+export interface AnswersRequiringAttention {
+  exercise_max_points: number
+  data: Array<AnswerRequiringAttentionWithTasks>
+  total_pages: number
+}
+
 export interface StudentExerciseSlideSubmission {
   exercise_slide_id: string
   exercise_task_submissions: Array<StudentExerciseTaskSubmission>
@@ -729,6 +754,7 @@ export interface StudentExerciseSlideSubmission {
 export interface StudentExerciseSlideSubmissionResult {
   exercise_status: ExerciseStatus | null
   exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
+  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
 export interface StudentExerciseTaskSubmission {
@@ -740,6 +766,7 @@ export interface StudentExerciseTaskSubmissionResult {
   submission: ExerciseTaskSubmission
   grading: ExerciseTaskGrading | null
   model_solution_spec: unknown | null
+  exercise_task_exercise_service_slug: string
 }
 
 export interface CourseMaterialPeerReviewData {
@@ -1108,6 +1135,22 @@ export interface PeerReviewQuestion {
 
 export type PeerReviewQuestionType = "Essay" | "Scale"
 
+export type PeerReviewAnswer =
+  | { type: "no-answer" }
+  | { type: "essay"; value: string }
+  | { type: "scale"; value: number }
+
+export interface PeerReviewQuestionAndAnswer {
+  peer_review_config_id: string
+  peer_review_question_id: string
+  peer_review_submission_id: string
+  peer_review_question_submission_id: string
+  order_number: number
+  question: string
+  answer: PeerReviewAnswer
+  answer_required: boolean
+}
+
 export interface PeerReviewQuestionSubmission {
   id: string
   created_at: Date
@@ -1117,6 +1160,11 @@ export interface PeerReviewQuestionSubmission {
   peer_review_submission_id: string
   text_data: string | null
   number_data: number | null
+}
+
+export interface PeerReviewWithQuestionsAndAnswers {
+  peer_review_submission_id: string
+  questions_and_answers: Array<PeerReviewQuestionAndAnswer>
 }
 
 export interface PendingRole {
@@ -1359,6 +1407,19 @@ export interface User {
   email: string
 }
 
+export interface UserCourseInstanceExerciseServiceVariable {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_service_slug: string
+  user_id: string
+  course_instance_id: string | null
+  exam_id: string | null
+  variable_key: string
+  variable_value: unknown
+}
+
 export interface UploadResult {
   url: string
 }
@@ -1430,26 +1491,6 @@ export interface NewExerciseRepository {
   exam_id: string | null
   git_url: string
   deploy_key: string | null
-}
-
-export interface AnswerRequiringAttentionWithTasks {
-  id: string
-  user_id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  data_json: unknown | null
-  grading_progress: GradingProgress
-  score_given: number | null
-  submission_id: string
-  exercise_id: string
-  tasks: Array<CourseMaterialExerciseTask>
-}
-
-export interface AnswersRequiringAttention {
-  exercise_max_points: number
-  data: Array<AnswerRequiringAttentionWithTasks>
-  total_pages: number
 }
 
 export interface ExerciseSubmissions {

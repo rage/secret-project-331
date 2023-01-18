@@ -25,7 +25,7 @@ pub async fn generate_anonymous_identifier(
 
 pub async fn get_key_for_the_day(conn: &mut PgConnection) -> ModelResult<Vec<u8>> {
     let now = Utc::now();
-    let valid_for_date = now.date().naive_utc();
+    let valid_for_date = now.date_naive();
     let res = try_get_key_for_the_day_internal(conn, valid_for_date).await?;
     match res {
         Some(hashing_key) => Ok(hashing_key),

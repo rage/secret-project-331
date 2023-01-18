@@ -87,6 +87,8 @@
   "preview-rendered-text": "Preview rendered text",
   "quiz-checkbox-description": "Check boxes or not -- right or wrong answers",
   "quiz-checkbox-name": "Checkbox",
+  "quiz-choose-n-description": "Choices (N)",
+  "quiz-choose-n-name": "Choose-n",
   "quiz-clickable-multiple-choice-description": "Select n from presented buttons",
   "quiz-clickable-multiple-choice-name": "Select n",
   "quiz-description": "Quiz description",

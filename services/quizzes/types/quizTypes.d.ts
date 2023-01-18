@@ -148,6 +148,7 @@ export interface PrivateSpecQuizItemChooseN {
   type: "choose-n"
   id: string
   order: number
+  n: number
   options: QuizItemOption[]
   title: string
   body: string

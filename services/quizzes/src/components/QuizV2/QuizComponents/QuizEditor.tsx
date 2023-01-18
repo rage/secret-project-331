@@ -19,9 +19,9 @@ const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
     case "multiple-choice":
       return <MultipleChoiceEditor quizItemId={quizItem.id} />
     case "multiple-choice-dropdown":
-      return <MultipleChoiceDropdownEditor quizItem={quizItem} />
+      return <MultipleChoiceDropdownEditor quizItemId={quizItem.id} />
     case "choose-n":
-      return <ChooseNEditor quizItem={quizItem} />
+      return <ChooseNEditor quizItemId={quizItem.id} />
     case "scale":
       return <ScaleEditor quizItemId={quizItem.id} />
     case "checkbox":

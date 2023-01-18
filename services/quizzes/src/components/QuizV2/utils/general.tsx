@@ -76,6 +76,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         successMessage: "",
         title: "",
         body: "",
+        n: 2,
       } as PrivateSpecQuizItemChooseN
     case "closed-ended-question":
       return {

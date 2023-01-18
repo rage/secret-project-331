@@ -14,10 +14,9 @@ import SelectField from "../../../../shared-module/components/InputFields/Select
 import { primaryFont } from "../../../../shared-module/styles"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
-
-import MultipleChoiceOption from "./MultipleChoiceOption"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string

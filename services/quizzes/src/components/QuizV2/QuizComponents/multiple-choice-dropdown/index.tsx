@@ -1,19 +1,25 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemMultiplechoiceDropdown } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Accordion from "../../../../shared-module/components/Accordion"
 import Button from "../../../../shared-module/components/Button"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import RadioButton from "../../../../shared-module/components/InputFields/RadioButton"
+import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import { primaryFont } from "../../../../shared-module/styles"
+import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
-// import ParsedTextField from "../common/ParsedTextField"
+import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import ParsedTextField from "../common/ParsedTextField"
+import ToggleCard from "../common/ToggleCard"
 
-import MultipleChoiceOption from "./MultipleChoiceOption"
-
-interface MultipleChoiceDropdownEditorProps {
-  quizItem: PrivateSpecQuizItemMultiplechoiceDropdown
+interface MultipleChoiceEditorProps {
+  quizItemId: string
 }
 
 const OptionTitle = styled.div`
@@ -72,19 +78,126 @@ const AdvancedOptionsContainer = styled.div`
   padding: 8px;
 `
 
-const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> = ({
-  quizItem,
-}) => {
+const MultipleChoiceLayoutChoiceContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  /* Remove margin from the RadioButtons*/
+  * {
+    margin: 0px;
+  }
+  padding: 2px;
+  gap: 16px;
+  margin-bottom: 16px;
+`
+
+const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
 
+  const [optionTitle, setOptionTitle] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [correct, setCorrect] = useState(false)
+
+  const MULTIPLE_CHOICE_OPTIONS = [
+    {
+      value: "default",
+      label: t("multiple-choice-grading-default"),
+    },
+    {
+      value: "points-off-incorrect-options",
+      label: t("multiple-choice-grading-points-off-incorrect-options"),
+    },
+    {
+      value: "points-off-unselected-options",
+      label: t("multiple-choice-grading-points-off-unselected-options"),
+    },
+  ]
+
+  const { selected, updateState } =
+    useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMultiplechoice>((quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemMultiplechoice>(
+        quiz,
+        quizItemId,
+        // eslint-disable-next-line i18next/no-literal-string
+        "multiple-choice-dropdown",
+      )
+    })
+
+  if (selected === null) {
+    return <></>
+  }
+
   return (
-    <EditorCard quizItemId={quizItem.id} title={t("quiz-multiple-choice-dropdown-name")}>
-      {/* <ParsedTextField label={t("title")} /> */}
+    <EditorCard quizItemId={quizItemId} title={t("quiz-multiple-choice-dropdown-name")}>
+      <ParsedTextField
+        value={selected.title}
+        onChange={(title) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.title = title
+          })
+        }}
+        label={t("title")}
+      />
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>
       <OptionCardContainer>
-        {quizItem.options.map((option) => (
-          <MultipleChoiceOption key={option.id} option={option} />
+        {selected.options.map((option) => (
+          <MultipleChoiceOption
+            onDelete={() => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.filter((opt) => opt.id !== option.id)
+              })
+            }}
+            onUpdateValues={(title, message, correct) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.map((opt) => {
+                  if (opt.id == option.id) {
+                    opt.title = title
+                    opt.correct = correct
+                    opt.messageAfterSubmissionWhenSelected = message
+                  }
+                  return opt
+                })
+              })
+            }}
+            onTitleChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.map((opt) => {
+                  if (opt.id == option.id) {
+                    opt.title = value
+                  }
+                  return opt
+                })
+              })
+            }}
+            onSuccessMessageChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.map((opt) => {
+                  if (opt.id == option.id) {
+                    opt.messageAfterSubmissionWhenSelected = value
+                  }
+                  return opt
+                })
+              })
+            }}
+            key={option.id}
+            option={option}
+          />
         ))}
       </OptionCardContainer>
 
@@ -92,15 +205,63 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
       <OptionCreationContainer>
         <OptionCreationWrapper>
           <OptionNameContainer>
-            {/* <ParsedTextField label={t("option-title")} /> */}
+            <ParsedTextField
+              value={optionTitle}
+              onChange={(title) => {
+                setOptionTitle(title)
+              }}
+              label={t("option-title")}
+            />
           </OptionNameContainer>
           <OptionCheckBoxContainer>
-            <CheckBox label={t("label-correct")} />
+            <CheckBox
+              checked={correct}
+              onChange={() => {
+                setCorrect(!correct)
+              }}
+              label={t("label-correct")}
+            />
           </OptionCheckBoxContainer>
         </OptionCreationWrapper>
 
-        {/* <ParsedTextField label={t("success-message")} /> */}
-        <Button variant="primary" size={"medium"}>
+        <ParsedTextField
+          value={successMessage}
+          onChange={(value) => {
+            setSuccessMessage(value)
+          }}
+          label={t("success-message")}
+        />
+        <Button
+          onClick={() => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+
+              // eslint-disable-next-line i18next/no-literal-string
+              draft.options = [
+                ...draft.options,
+                {
+                  order: draft.options.length + 1,
+                  additionalCorrectnessExplanationOnModelSolution: "",
+                  body: "",
+                  correct: correct,
+                  updatedAt: new Date(),
+                  createdAt: new Date(),
+                  id: v4(),
+                  messageAfterSubmissionWhenSelected: successMessage,
+                  title: optionTitle,
+                  quizItemId: draft.id,
+                },
+              ]
+            })
+            setCorrect(false)
+            setOptionTitle("")
+            setSuccessMessage("")
+          }}
+          variant="primary"
+          size={"medium"}
+        >
           {t("add-option")}
         </Button>
       </OptionCreationContainer>
@@ -111,9 +272,141 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
+            <OptionTitle> {t("layout-options")} </OptionTitle>
+            <OptionDescription>{t("layout-options-description")}</OptionDescription>
+            <MultipleChoiceLayoutChoiceContainer role="radiogroup">
+              <RadioButton
+                onChange={() => {
+                  updateState((draft) => {
+                    if (!draft) {
+                      return
+                    }
+                    // eslint-disable-next-line i18next/no-literal-string
+                    draft.direction = "row"
+                  })
+                }}
+                checked={selected.direction == "row"}
+                label={t("row")}
+              />
+              <RadioButton
+                onChange={() => {
+                  updateState((draft) => {
+                    if (!draft) {
+                      return
+                    }
+                    // eslint-disable-next-line i18next/no-literal-string
+                    draft.direction = "column"
+                  })
+                }}
+                checked={selected.direction == "column"}
+                label={t("column")}
+              />
+            </MultipleChoiceLayoutChoiceContainer>
+            <OptionTitle> {t("answer-settings")}</OptionTitle>
+            <ToggleCard
+              onChange={(shuffledOptions) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.shuffleOptions = shuffledOptions
+                })
+              }}
+              title={t("shuffled-checkbox-message")}
+              description={t("shuffle-option-description")}
+              state={selected.shuffleOptions}
+            />
+            <ToggleCard
+              title={t("allow-selecting-multiple-options")}
+              description={t("allow-selecting-multiple-options-description")}
+              onChange={(allowSelectingMultipleOptions) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.allowSelectingMultipleOptions = allowSelectingMultipleOptions
+                })
+              }}
+              state={selected.allowSelectingMultipleOptions}
+            />
+            <SelectField
+              id={"multiple-choice-grading"}
+              className={css`
+                width: 100%;
+                margin-bottom: 0.3rem;
+              `}
+              disabled={!selected.allowSelectingMultipleOptions}
+              onChange={(value) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  switch (value) {
+                    case "default":
+                      // eslint-disable-next-line i18next/no-literal-string
+                      draft.multipleChoiceMultipleOptionsGradingPolicy = "default"
+                      break
+                    case "points-off-incorrect-options":
+                      draft.multipleChoiceMultipleOptionsGradingPolicy =
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "points-off-incorrect-options"
+                      break
+                    case "points-off-unselected-options":
+                      draft.multipleChoiceMultipleOptionsGradingPolicy =
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "points-off-unselected-options"
+                      break
+                  }
+                })
+              }}
+              defaultValue={selected.multipleChoiceMultipleOptionsGradingPolicy}
+              label={t("multiple-choice-grading")}
+              options={MULTIPLE_CHOICE_OPTIONS}
+            />
+            <span
+              className={css`
+                color: #414246;
+                font-size: 14px;
+                font-family: Josefin Sans, sans-serif;
+                display: block;
+                margin-bottom: 8px;
+                ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
+              `}
+            >
+              {selected.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+                t("multiple-choice-grading-default-description")}
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+                "points-off-incorrect-options" &&
+                t("multiple-choice-grading-points-off-incorrect-options-description")}
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+                "points-off-unselected-options" &&
+                t("multiple-choice-grading-points-off-unselected-options-description")}
+            </span>
             <OptionTitle> {t("feedback-message")} </OptionTitle>
-            {/* <ParsedTextField label={t("success-message")} /> */}
-            {/* <ParsedTextField label={t("failure-message")} /> */}
+            <ParsedTextField
+              value={selected.successMessage ?? ""}
+              onChange={(successMessage) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.successMessage = successMessage ?? ""
+                })
+              }}
+              label={t("success-message")}
+            />
+            <ParsedTextField
+              value={selected.failureMessage ?? ""}
+              onChange={(failureMessage) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.failureMessage = failureMessage ?? ""
+                })
+              }}
+              label={t("failure-message")}
+            />
           </AdvancedOptionsContainer>
         </details>
       </Accordion>
@@ -121,4 +414,4 @@ const MultipleChoiceDropdownEditor: React.FC<MultipleChoiceDropdownEditorProps> 
   )
 }
 
-export default MultipleChoiceDropdownEditor
+export default MultipleChoiceEditor

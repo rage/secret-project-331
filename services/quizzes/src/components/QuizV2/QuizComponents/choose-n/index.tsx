@@ -1,19 +1,22 @@
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import { PrivateSpecQuizItemChooseN } from "../../../../../types/quizTypes"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Accordion from "../../../../shared-module/components/Accordion"
 import Button from "../../../../shared-module/components/Button"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { primaryFont } from "../../../../shared-module/styles"
+import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
-// import ParsedTextField from "../common/ParsedTextField"
+import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import ParsedTextField from "../common/ParsedTextField"
 
-import MultipleChoiceOption from "./MultipleChoiceOption"
-
-interface ChooseNEditorProps {
-  quizItem: PrivateSpecQuizItemChooseN
+interface MultipleChoiceEditorProps {
+  quizItemId: string
 }
 
 const OptionTitle = styled.div`
@@ -72,17 +75,111 @@ const AdvancedOptionsContainer = styled.div`
   padding: 8px;
 `
 
-const ChooseNEditor: React.FC<ChooseNEditorProps> = ({ quizItem }) => {
+const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
 
+  const [optionTitle, setOptionTitle] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [correct, setCorrect] = useState(false)
+
+  const { selected, updateState } =
+    useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemChooseN>((quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemChooseN>(quiz, quizItemId, "choose-n")
+    })
+
+  if (selected === null) {
+    return <></>
+  }
+
   return (
-    <EditorCard quizItemId={quizItem.id} title={t("quiz-clickable-multiple-choice-name")}>
-      {/* <ParsedTextField label={t("title")} /> */}
+    <EditorCard quizItemId={quizItemId} title={t("quiz-choose-n-name")}>
+      <ParsedTextField
+        value={selected.title}
+        onChange={(title) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.title = title
+          })
+        }}
+        label={t("title")}
+      />
+      <TextField
+        value={selected.n}
+        label={t("quiz-choose-n-description")}
+        onChange={(value) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            try {
+              draft.n = parseInt(value)
+            } catch (e) {
+              /* NOP */
+            }
+          })
+        }}
+        type={"number"}
+      />
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>
       <OptionCardContainer>
-        {quizItem.options.map((option) => (
-          <MultipleChoiceOption key={option.id} option={option} />
+        {selected.options.map((option) => (
+          <MultipleChoiceOption
+            onDelete={() => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.filter((opt) => opt.id !== option.id)
+              })
+            }}
+            onUpdateValues={(title, message, correct) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.map((opt) => {
+                  if (opt.id == option.id) {
+                    opt.title = title
+                    opt.correct = correct
+                    opt.messageAfterSubmissionWhenSelected = message
+                  }
+                  return opt
+                })
+              })
+            }}
+            onTitleChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.map((opt) => {
+                  if (opt.id == option.id) {
+                    opt.title = value
+                  }
+                  return opt
+                })
+              })
+            }}
+            onSuccessMessageChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.options = draft.options.map((opt) => {
+                  if (opt.id == option.id) {
+                    opt.messageAfterSubmissionWhenSelected = value
+                  }
+                  return opt
+                })
+              })
+            }}
+            key={option.id}
+            option={option}
+          />
         ))}
       </OptionCardContainer>
 
@@ -90,15 +187,63 @@ const ChooseNEditor: React.FC<ChooseNEditorProps> = ({ quizItem }) => {
       <OptionCreationContainer>
         <OptionCreationWrapper>
           <OptionNameContainer>
-            {/* <ParsedTextField label={t("option-title")} /> */}
+            <ParsedTextField
+              value={optionTitle}
+              onChange={(title) => {
+                setOptionTitle(title)
+              }}
+              label={t("option-title")}
+            />
           </OptionNameContainer>
           <OptionCheckBoxContainer>
-            <CheckBox label={t("label-correct")} />
+            <CheckBox
+              checked={correct}
+              onChange={() => {
+                setCorrect(!correct)
+              }}
+              label={t("label-correct")}
+            />
           </OptionCheckBoxContainer>
         </OptionCreationWrapper>
 
-        {/* <ParsedTextField label={t("success-message")} /> */}
-        <Button variant="primary" size={"medium"}>
+        <ParsedTextField
+          value={successMessage}
+          onChange={(value) => {
+            setSuccessMessage(value)
+          }}
+          label={t("success-message")}
+        />
+        <Button
+          onClick={() => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+
+              // eslint-disable-next-line i18next/no-literal-string
+              draft.options = [
+                ...draft.options,
+                {
+                  order: draft.options.length + 1,
+                  additionalCorrectnessExplanationOnModelSolution: "",
+                  body: "",
+                  correct: correct,
+                  updatedAt: new Date(),
+                  createdAt: new Date(),
+                  id: v4(),
+                  messageAfterSubmissionWhenSelected: successMessage,
+                  title: optionTitle,
+                  quizItemId: draft.id,
+                },
+              ]
+            })
+            setCorrect(false)
+            setOptionTitle("")
+            setSuccessMessage("")
+          }}
+          variant="primary"
+          size={"medium"}
+        >
           {t("add-option")}
         </Button>
       </OptionCreationContainer>
@@ -110,8 +255,30 @@ const ChooseNEditor: React.FC<ChooseNEditorProps> = ({ quizItem }) => {
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
             <OptionTitle> {t("feedback-message")} </OptionTitle>
-            {/* <ParsedTextField label={t("success-message")} /> */}
-            {/* <ParsedTextField label={t("failure-message")} /> */}
+            <ParsedTextField
+              value={selected.successMessage ?? ""}
+              onChange={(successMessage) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.successMessage = successMessage ?? ""
+                })
+              }}
+              label={t("success-message")}
+            />
+            <ParsedTextField
+              value={selected.failureMessage ?? ""}
+              onChange={(failureMessage) => {
+                updateState((draft) => {
+                  if (!draft) {
+                    return
+                  }
+                  draft.failureMessage = failureMessage ?? ""
+                })
+              }}
+              label={t("failure-message")}
+            />
           </AdvancedOptionsContainer>
         </details>
       </Accordion>
@@ -119,4 +286,4 @@ const ChooseNEditor: React.FC<ChooseNEditorProps> = ({ quizItem }) => {
   )
 }
 
-export default ChooseNEditor
+export default MultipleChoiceEditor

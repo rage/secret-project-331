@@ -7,7 +7,7 @@ import Layout from "../../../../components/Layout"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
 import { getPoints } from "../../../../services/backend/course-instances"
-import { User } from "../../../../shared-module/bindings"
+import { UserDetail } from "../../../../shared-module/bindings"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -23,7 +23,7 @@ export interface CourseInstancePointsListProps {
 }
 
 interface ProcessedUser {
-  user: User
+  user: UserDetail
   totalPoints: number
   chapterPoints: Record<string, number>
 }
@@ -48,7 +48,7 @@ const CourseInstancePointsList: React.FC<
         `${second.user.last_name} ${second.user.first_name}`,
       )
     } else if (sorting == NUMBER) {
-      return first.user.id.localeCompare(second.user.id)
+      return first.user.user_id.localeCompare(second.user.user_id)
     } else if (sorting == SCORE) {
       return first.totalPoints - second.totalPoints
     } else if (sorting == EMAIL) {
@@ -158,9 +158,10 @@ const CourseInstancePointsList: React.FC<
                 {getPointsList.data.users
                   .map((user) => {
                     const totalPoints = Object.values(
-                      getPointsList.data.user_chapter_points[user.id] || {},
+                      getPointsList.data.user_chapter_points[user.user_id] || {},
                     ).reduce((prev, curr) => prev + curr, 0)
-                    const userChapterPoints = getPointsList.data.user_chapter_points[user.id] || {}
+                    const userChapterPoints =
+                      getPointsList.data.user_chapter_points[user.user_id] || {}
                     const chapterPoints = Object.fromEntries(
                       getPointsList.data.chapter_points.map((c) => [
                         `ch${c.chapter_number}`,
@@ -172,8 +173,8 @@ const CourseInstancePointsList: React.FC<
                   .sort(sortUsers)
                   .map(({ user, totalPoints }) => {
                     return (
-                      <FullWidthTableRow key={user.id}>
-                        <td>{user.id}</td>
+                      <FullWidthTableRow key={user.user_id}>
+                        <td>{user.user_id}</td>
                         <td>
                           {user.first_name} {user.last_name}
                         </td>
@@ -186,10 +187,10 @@ const CourseInstancePointsList: React.FC<
 
                         {getPointsList.data.chapter_points.map((c) => {
                           const userChapterPoints =
-                            getPointsList.data.user_chapter_points[user.id] || {}
+                            getPointsList.data.user_chapter_points[user.user_id] || {}
                           const chapterPoints = userChapterPoints[c.id] || 0
                           return (
-                            <td key={user.id + c.id}>
+                            <td key={user.user_id + c.id}>
                               {roundDown(chapterPoints, 2)}/{c.score_total}
                             </td>
                           )

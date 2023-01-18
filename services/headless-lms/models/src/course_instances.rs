@@ -5,6 +5,7 @@ use crate::{
     chapters::DatabaseChapter,
     exercises,
     prelude::*,
+    user_details::UserDetail,
     users::{self, User},
 };
 
@@ -303,7 +304,7 @@ pub struct PointMap(pub HashMap<Uuid, f32>);
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Points {
     pub chapter_points: Vec<ChapterScore>,
-    pub users: Vec<User>,
+    pub users: Vec<UserDetail>,
     // PointMap is a workaround for https://github.com/rhys-vdw/ts-auto-guard/issues/158
     pub user_chapter_points: HashMap<Uuid, PointMap>,
 }
@@ -379,9 +380,16 @@ ORDER BY user_id ASC
         .collect();
     chapter_points.sort_by_key(|c| c.chapter.chapter_number);
 
+    let list_of_users = users.into_values().collect::<Vec<_>>();
+    let user_id_to_details =
+        crate::user_details::get_users_details_by_user_id_map(&mut *conn, &list_of_users).await?;
+
     Ok(Points {
         chapter_points,
-        users: users.into_values().collect(),
+        users: list_of_users
+            .into_iter()
+            .filter_map(|user| user_id_to_details.get(&user.id).cloned())
+            .collect::<Vec<_>>(),
         user_chapter_points,
     })
 }

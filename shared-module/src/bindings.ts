@@ -196,7 +196,7 @@ export type PointMap = Record<string, number>
 
 export interface Points {
   chapter_points: Array<ChapterScore>
-  users: Array<User>
+  users: Array<UserDetail>
   user_chapter_points: Record<string, PointMap>
 }
 
@@ -1398,13 +1398,20 @@ export interface UserExerciseState {
 
 export interface User {
   id: string
-  first_name: string | null
-  last_name: string | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
   upstream_id: number | null
+  email_domain: string | null
+}
+
+export interface UserDetail {
+  user_id: string
+  created_at: Date
+  updated_at: Date
   email: string
+  first_name: string | null
+  last_name: string | null
 }
 
 export interface UserCourseInstanceExerciseServiceVariable {

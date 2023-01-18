@@ -123,6 +123,7 @@ use headless_lms_models::{
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
     },
+    user_details::UserDetail,
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -1122,6 +1123,14 @@ fn models() {
         deleted_at: None,
         upstream_id: None,
         email_domain: Some("example.com".to_string()),
+    });
+    doc!(UserDetail {
+        user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),
+        created_at,
+        updated_at,
+        email: "example@example.com".to_string(),
+        first_name: Some("Example".to_string()),
+        last_name: Some("User".to_string()),
     });
     doc!(CourseCount { count: 1234 });
     doc!(

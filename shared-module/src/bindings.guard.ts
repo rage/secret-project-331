@@ -186,6 +186,7 @@ import {
   UserCourseInstanceProgress,
   UserCourseModuleCompletion,
   UserCourseSettings,
+  UserDetail,
   UserExerciseState,
   UserInfo,
   UserModuleCompletionStatus,
@@ -514,7 +515,7 @@ export function isPoints(obj: unknown): obj is Points {
     Array.isArray(typedObj["chapter_points"]) &&
     typedObj["chapter_points"].every((e: any) => isChapterScore(e) as boolean) &&
     Array.isArray(typedObj["users"]) &&
-    typedObj["users"].every((e: any) => isUser(e) as boolean) &&
+    typedObj["users"].every((e: any) => isUserDetail(e) as boolean) &&
     ((typedObj["user_chapter_points"] !== null &&
       typeof typedObj["user_chapter_points"] === "object") ||
       typeof typedObj["user_chapter_points"] === "function") &&
@@ -2499,13 +2500,24 @@ export function isUser(obj: unknown): obj is User {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
-    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
-    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
-    typeof typedObj["email"] === "string"
+    (typedObj["email_domain"] === null || typeof typedObj["email_domain"] === "string")
+  )
+}
+
+export function isUserDetail(obj: unknown): obj is UserDetail {
+  const typedObj = obj as UserDetail
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["email"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string")
   )
 }
 

@@ -2539,22 +2539,6 @@
     },
     "query": "\nSELECT DATE(created_at) date, count(DISTINCT user_id)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nAND deleted_at IS NULL\nGROUP BY date\nORDER BY date;\n          "
   },
-  "28ed723d5c2b5dc1dfdc770aab27f399ae565586316b0975026d0f6539f468e5": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO users (id)\nVALUES ($1)\nRETURNING id\n"
-  },
   "2a639dc577c649bec12b4beb3216d0cf93153a74a5c47ee26d0d6172330d2a2f": {
     "describe": {
       "columns": [
@@ -10764,6 +10748,22 @@
     },
     "query": "\nUPDATE user_exercise_slide_states\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id\n    "
   },
+  "949b187041da0d8fb7048042dc786d754141c16dd88e80e970804a5b802172b2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO users (id, email_domain)\nVALUES ($1, $2)\nRETURNING id\n"
+  },
   "95507d06c93371645624282c196546afb39b428df76d978d7d87a8595f4bed05": {
     "describe": {
       "columns": [
@@ -17541,6 +17541,47 @@
     },
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n  order_number = $3,\n  deleted_at = NULL\nRETURNING id,\n  exercise_id,\n  order_number;\n            "
   },
+  "e6570e506bc0384121076842646c1e4329af2eabfc6b09136d81d5e2b4fe0a91": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "upstream_id",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "email_domain",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, true, true],
+      "parameters": {
+        "Left": ["Uuid", "Int4", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO\n  users (id, upstream_id, email_domain)\nVALUES ($1, $2, $3)\nRETURNING *;\n          "
+  },
   "e67e33b48426bb305c6eb69a1a2551543539c1f321cee5a336f6ebcdc467d25f": {
     "describe": {
       "columns": [],
@@ -19203,47 +19244,6 @@
       }
     },
     "query": "\nSELECT *\nFROM course_instance_enrollments\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n        "
-  },
-  "fc0fa75669b05c0ec1fdc34fc342ec6d15106ecbb7ace37c7868a102f5bb0d6f": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "upstream_id",
-          "ordinal": 4,
-          "type_info": "Int4"
-        },
-        {
-          "name": "email_domain",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false, false, false, true, true, true],
-      "parameters": {
-        "Left": ["Uuid", "Int4"]
-      }
-    },
-    "query": "\nINSERT INTO\n  users (id, upstream_id)\nVALUES ($1, $2)\nRETURNING *;\n          "
   },
   "fc3411dc016ab2ff4cff7bc8032262ed4383920feacfab27b719c6747fce6056": {
     "describe": {

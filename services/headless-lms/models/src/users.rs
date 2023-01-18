@@ -21,13 +21,15 @@ pub async fn insert(
     last_name: Option<&str>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
+    let email_domain = email.trim().split('@').last();
     let res = sqlx::query!(
         "
-INSERT INTO users (id)
-VALUES ($1)
+INSERT INTO users (id, email_domain)
+VALUES ($1, $2)
 RETURNING id
 ",
         pkey_policy.into_uuid(),
+        email_domain
     )
     .fetch_one(&mut tx)
     .await?;
@@ -42,7 +44,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .fetch_one(&mut tx)
+    .execute(&mut tx)
     .await?;
     tx.commit().await?;
     Ok(res.id)
@@ -56,17 +58,19 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
+    let email_domain = email.trim().split('@').last();
     let mut tx = conn.begin().await?;
     let user = sqlx::query_as!(
         User,
         r#"
 INSERT INTO
-  users (id, upstream_id)
-VALUES ($1, $2)
+  users (id, upstream_id, email_domain)
+VALUES ($1, $2, $3)
 RETURNING *;
           "#,
         moocfi_id,
-        upstream_id
+        upstream_id,
+        email_domain
     )
     .fetch_one(&mut tx)
     .await?;

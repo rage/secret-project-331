@@ -6,7 +6,7 @@
   "scripts": {
     "eslint": "eslint --fix .",
     "eslint:format-bindings": "eslint --fix shared-module/src/bindings.ts",
-    "eslint:format-generated-docs": "eslint --cache --fix services/headless-lms/server/generated-docs/*.ts && stylelint --fix services/headless-lms/server/generated-docs/*.ts && prettier --write services/headless-lms/server/generated-docs/*.json",
+    "eslint:format-generated-docs": "eslint --cache --fix services/headless-lms/server/generated-docs/*.ts && prettier --write services/headless-lms/server/generated-docs/*.json",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "eslint:ci": "eslint .",
     "prepare": "husky install",

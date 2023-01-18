@@ -9,6 +9,7 @@ import Button from "../../shared-module/components/Button"
 import DatePicker from "../../shared-module/components/InputFields/DatePickerField"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
+import { makeDateStringTimezoneErrorsLessLikely } from "../../shared-module/utils/dateUtil"
 
 const COMPLETIONS = "completions"
 const CSV_HEADER_FORMAT = "user_id[,grade][,completion_date]"
@@ -60,7 +61,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       if (parsed.errors.length > 0) {
         setError(COMPLETIONS, { message: parsed.errors[0].message })
       }
-      const defaultDate = date ? parseISO(date) : null
+      const defaultDate = date ? parseISO(makeDateStringTimezoneErrorsLessLikely(date)) : null
       const newCompletions = parsed.data.map((entry) => {
         const completionDate = (entry as RawTeacherManualCompletion).completion_date
         const grade = (entry as RawTeacherManualCompletion).grade
@@ -69,7 +70,9 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
           throw new Error(t("user-id-is-missing"))
         }
         return {
-          completion_date: completionDate ? parseISO(completionDate) : defaultDate,
+          completion_date: completionDate
+            ? parseISO(makeDateStringTimezoneErrorsLessLikely(completionDate))
+            : defaultDate,
           grade: grade ? parseInt(grade) : null,
           user_id: userId,
         }

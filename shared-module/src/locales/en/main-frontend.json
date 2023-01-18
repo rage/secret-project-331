@@ -194,7 +194,7 @@
   "label-course-instance": "Course instance",
   "label-course-module": "Course module",
   "label-created": "Created:",
-  "label-csv-completions": "Format: csv with headers with fields: <2>{{csvHeaderFormat}}</2> - optional date in ISO format.",
+  "label-csv-completions": "Format: csv with headers with fields: <2>{{csvHeaderFormat}}</2> - optional date in ISO 8601 format.",
   "label-current-text": "Current text:",
   "label-deadline": "Deadline",
   "label-default": "Default",

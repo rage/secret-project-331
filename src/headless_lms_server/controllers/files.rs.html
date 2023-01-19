@@ -206,17 +206,6 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
 
@@ -226,11 +215,10 @@ Handlers for HTTP requests to `/api/v0/files`.
     path::{Path, PathBuf},
 };
 
+<span class="kw">use </span><span class="kw">super</span>::helpers::file_uploading;
 <span class="kw">pub use </span><span class="kw">crate</span>::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>actix_files::NamedFile;
-<span class="kw">use </span>futures::{StreamExt, TryStreamExt};
-<span class="kw">use </span>headless_lms_utils::file_store::file_utils;
 <span class="kw">use </span>tokio::fs::read;
 <span class="doccomment">/**
 
@@ -349,35 +337,53 @@ The randomly generated path to the uploaded file.
 </span><span class="attribute">#[instrument(skip(payload, file_store))]
 #[generated_doc]
 </span><span class="kw">async fn </span>upload_from_exercise_service(
+    pool: web::Data&lt;PgPool&gt;,
     exercise_service_slug: web::Path&lt;String&gt;,
     payload: Multipart,
     file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
     upload_claim: <span class="prelude-ty">Result</span>&lt;UploadClaim&lt;<span class="lifetime">&#39;static</span>&gt;, ControllerError&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;HashMap&lt;String, String&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// accessed from exercise services, can&#39;t authenticate using login,
     // the upload claim is used to verify requests instead
     </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
 
     <span class="comment">// the playground uses the special &quot;playground&quot; slug to upload temporary files
     </span><span class="kw">if </span>exercise_service_slug.as_str() != <span class="string">&quot;playground&quot; </span>{
-        <span class="comment">// non-playground uploads require a valid upload claim
-        </span><span class="kw">let </span>upload_claim = upload_claim<span class="question-mark">?</span>;
-        <span class="kw">if </span>upload_claim.exercise_service_slug() != exercise_service_slug.as_ref() {
-            <span class="comment">// upload claim&#39;s exercise type doesn&#39;t match the upload url
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                <span class="string">&quot;Exercise service slug did not match upload claim&quot;</span>.to_string(),
-                <span class="prelude-val">None</span>,
-            ));
+        <span class="comment">// non-playground uploads require a valid upload claim or user
+        </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>upload_claim, <span class="kw-2">&amp;</span>user) {
+            (<span class="prelude-val">Ok</span>(upload_claim), <span class="kw">_</span>) =&gt; {
+                <span class="kw">if </span>upload_claim.exercise_service_slug() != exercise_service_slug.as_ref() {
+                    <span class="comment">// upload claim&#39;s exercise type doesn&#39;t match the upload url
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        <span class="string">&quot;Exercise service slug did not match upload claim&quot;</span>.to_string(),
+                        <span class="prelude-val">None</span>,
+                    ));
+                }
+            }
+            (<span class="kw">_</span>, <span class="prelude-val">Some</span>(_user)) =&gt; {
+                <span class="comment">// TODO: for now, all users are allowed to upload files
+            </span>}
+            (<span class="prelude-val">Err</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    <span class="string">&quot;Not logged in or missing upload claim&quot;</span>.to_string(),
+                    <span class="prelude-val">None</span>,
+                ))
+            }
         }
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>paths = HashMap::new();
-    <span class="kw">if let </span><span class="prelude-val">Err</span>(outer_err) = upload_from_exercise_service_inner(
+    <span class="kw">if let </span><span class="prelude-val">Err</span>(outer_err) = file_uploading::process_exercise_service_upload(
+        <span class="kw-2">&amp;mut </span>conn,
         exercise_service_slug.as_str(),
         payload,
         file_store.as_ref(),
         <span class="kw-2">&amp;mut </span>paths,
+        user.as_ref(),
     )
     .<span class="kw">await
     </span>{
@@ -391,34 +397,6 @@ The randomly generated path to the uploaded file.
     }
 
     token.authorized_ok(web::Json(paths))
-}
-
-<span class="comment">// Wraps the uploading logic
-</span><span class="kw">async fn </span>upload_from_exercise_service_inner(
-    exercise_service_slug: <span class="kw-2">&amp;</span>str,
-    <span class="kw-2">mut </span>payload: Multipart,
-    file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
-    paths: <span class="kw-2">&amp;mut </span>HashMap&lt;String, String&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), ControllerError&gt; {
-    <span class="kw">while let </span><span class="prelude-val">Some</span>(item) = payload.next().<span class="kw">await </span>{
-        <span class="kw">let </span>field = item.unwrap();
-        <span class="kw">let </span>field_name = field.name().to_string();
-
-        <span class="kw">let </span>random_filename = file_utils::random_filename();
-        <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">&quot;{exercise_service_slug}/{random_filename}&quot;</span>);
-
-        <span class="comment">// todo: convert archives into a uniform format
-        </span>file_store
-            .upload_stream(
-                Path::new(<span class="kw-2">&amp;</span>path),
-                field.map_err(Into::into).boxed_local(),
-                <span class="string">&quot;application/octet-stream&quot;</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-        paths.insert(field_name, path.clone());
-    }
-    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/**

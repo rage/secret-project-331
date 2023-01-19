@@ -146,7 +146,7 @@ BINARY_DATA
     <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Course(course.id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>media_path = upload_media(
+    <span class="kw">let </span>media_path = upload_file_from_cms(
         request.headers(),
         payload,
         StoreKind::Course(course.id),

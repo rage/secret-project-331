@@ -3,22 +3,10 @@
 <span id="3">3</span>
 <span id="4">4</span>
 <span id="5">5</span>
-<span id="6">6</span>
-<span id="7">7</span>
-<span id="8">8</span>
-<span id="9">9</span>
-<span id="10">10</span>
-<span id="11">11</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{ffi::OsStr, path::Path};
-
-<span class="kw">use </span>rand::distributions::{Alphanumeric, DistString};
 
 <span class="kw">pub fn </span>get_extension_from_filename(filename: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
     Path::new(filename).extension().and_then(OsStr::to_str)
-}
-
-<span class="kw">pub fn </span>random_filename() -&gt; String {
-    Alphanumeric.sample_string(<span class="kw-2">&amp;mut </span>rand::thread_rng(), <span class="number">32</span>)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

@@ -99,7 +99,7 @@ BINARY_DATA
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>organization = models::organizations::get_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>media_path = upload_media(
+    <span class="kw">let </span>media_path = upload_file_from_cms(
         request.headers(),
         payload,
         StoreKind::Organization(organization.id),

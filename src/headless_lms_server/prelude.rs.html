@@ -28,7 +28,7 @@
 </pre><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.
 //! Intended to be glob-imported like `use crate::prelude::*;`.
 
-</span><span class="kw">pub use </span><span class="kw">crate</span>::controllers::helpers::media::{upload_media, StoreKind};
+</span><span class="kw">pub use </span><span class="kw">crate</span>::controllers::helpers::file_uploading::{upload_file_from_cms, StoreKind};
 <span class="kw">pub use </span><span class="kw">crate</span>::controllers::UploadResult;
 <span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::{
     authorize, parse_secret_key_from_header, skip_authorize, Action <span class="kw">as </span>Act, AuthUser,

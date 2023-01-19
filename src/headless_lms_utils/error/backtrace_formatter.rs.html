@@ -134,7 +134,7 @@ Customized version of `impl fmt::Debug` from the `Backtrace` crate.
                 .map(|path| {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(cwd) = cwd.clone() {
                         <span class="comment">// If the path starts with the cwd, we assume it&#39;s from the current crate
-                        </span>path.starts_with(<span class="kw-2">&amp;</span>cwd)
+                        </span>path.starts_with(cwd)
                     } <span class="kw">else </span>{
                         <span class="bool-val">false
                     </span>}

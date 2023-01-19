@@ -7,10 +7,12 @@ interface ToggleCardProps {
   state: boolean
   title: string
   description: string
+  onChange: (value: boolean) => void
 }
 
 interface ToggleSwitchProps {
   checked: boolean
+  onChange: (value: boolean) => void
 }
 
 const ToggleCardContainer = styled.div`
@@ -92,21 +94,27 @@ const ToggleButtonSlider = styled.span`
   }
 `
 
-const RectangularSwitch: React.FC<ToggleSwitchProps> = ({ checked }) => (
+const RectangularSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange }) => (
   <ToggleButton>
-    <ToggleButtonInput checked={checked} type="checkbox" />
+    <ToggleButtonInput
+      checked={checked}
+      type="checkbox"
+      onChange={(_) => {
+        onChange(!checked)
+      }}
+    />
     <ToggleButtonSlider />
   </ToggleButton>
 )
 
-const ToggleCard: React.FC<ToggleCardProps> = ({ title, description, state }) => {
+const ToggleCard: React.FC<ToggleCardProps> = ({ title, description, state, onChange }) => {
   return (
     <ToggleCardContainer>
       <ToggleCardDetails>
         <ToggleCardTitle>{title}</ToggleCardTitle>
         <ToggleCardDescription>{description}</ToggleCardDescription>
       </ToggleCardDetails>
-      <RectangularSwitch checked={state} />
+      <RectangularSwitch checked={state} onChange={onChange} />
     </ToggleCardContainer>
   )
 }

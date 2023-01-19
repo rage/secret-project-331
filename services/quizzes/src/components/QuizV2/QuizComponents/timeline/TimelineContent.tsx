@@ -5,21 +5,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { useDispatch } from "react-redux"
+import { v4 } from "uuid"
 
 import { PrivateSpecQuizItemTimeline } from "../../../../../types/quizTypes"
+import { NormalizedQuizItemTimelineItem } from "../../../../../types/types"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { baseTheme } from "../../../../shared-module/styles"
-import {
-  addedTimelineItemAction,
-  deleteTimelineItemEventAction,
-  editTimelineItemEventAction,
-  editTimelineItemYearAction,
-} from "../../../../store/editor/timelineItems/timelineItemsActions"
-import { useTypedSelector } from "../../../../store/store"
+import findQuizItem from "../../utils/general"
 
 interface TimelineContentProps {
-  item: PrivateSpecQuizItemTimeline
+  quizItemId: string
 }
 
 const Wrapper = styled.div`
@@ -63,7 +59,7 @@ const StyledBtn = styled.button`
   align-items: center;
   justify-self: end;
   position: relative;
-  top: 25px;
+  top: 19px;
 
   svg {
     transform: rotate(45deg) scale(1.2);
@@ -90,7 +86,7 @@ const DeleteBtn = styled.button`
   justify-self: end;
   border: none;
   position: relative;
-  top: 30px;
+  top: 18%;
   color: ${baseTheme.colors.red[700]};
   svg {
     transform: scale(1.2);
@@ -100,6 +96,11 @@ const DeleteBtn = styled.button`
     width: 100%;
   }
 `
+
+const ButtonWrapper = styled.div`
+  position: relative;
+`
+
 const List = styled.div`
   display: grid;
   grid-template-columns: 0.1fr 2.2fr 0.1fr;
@@ -141,10 +142,9 @@ interface Fields {
   event: string
 }
 
-const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> = ({ item }) => {
-  const storeTimelineItems = useTypedSelector((state) => state.editor.timelineItems)
-  const storeItem = useTypedSelector((state) => state.editor.items[item.id])
-  const dispatch = useDispatch()
+const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> = ({
+  quizItemId,
+}) => {
   const { t } = useTranslation()
 
   const {
@@ -161,18 +161,45 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
     },
   })
 
+  const { selected, updateState } =
+    useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemTimeline>(quiz, quizItemId, "timeline")
+    })
+
+  if (selected === null) {
+    return <></>
+  }
+
   return (
     <Wrapper>
-      {storeTimelineItems &&
-        storeItem.timelineItems?.map((timelineItemId) => {
-          const timelineItem = storeTimelineItems[timelineItemId]
+      {selected &&
+        selected.timelineItems &&
+        selected.timelineItems.map((timelineItem) => {
+          if (!timelineItem) {
+            return <></>
+          }
           return (
             <List key={timelineItem.id} id={timelineItem.id}>
               <TextField
                 className={cx(yearTextFieldStyles, alreadyInputtedTextFieldStyles)}
                 label={t("label-year")}
                 onChange={(value) => {
-                  dispatch(editTimelineItemYearAction(timelineItemId, value))
+                  updateState((draft) => {
+                    if (!draft || !draft.timelineItems) {
+                      return
+                    }
+                    const parsedYear = parseInt(value)
+                    draft.timelineItems = draft.timelineItems.map((item) => {
+                      if (item.id === timelineItem.id) {
+                        return {
+                          ...item,
+                          year: isNaN(parsedYear) ? 0 : parsedYear,
+                        } as NormalizedQuizItemTimelineItem
+                      }
+                      return item
+                    })
+                  })
                 }}
                 value={timelineItem.year}
               />
@@ -181,18 +208,40 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                 className={cx(alreadyInputtedTextFieldStyles)}
                 label={t("label-correct-event")}
                 onChange={(value) => {
-                  dispatch(editTimelineItemEventAction(timelineItemId, value))
+                  updateState((draft) => {
+                    if (!draft || !draft.timelineItems) {
+                      return
+                    }
+
+                    draft.timelineItems = draft.timelineItems.map((item) => {
+                      if (item.id === timelineItem.id) {
+                        return {
+                          ...item,
+                          correctEventName: value,
+                        }
+                      }
+                      return item
+                    })
+                  })
                 }}
                 value={timelineItem.correctEventName}
               />
-
-              <DeleteBtn
-                onClick={() => {
-                  dispatch(deleteTimelineItemEventAction(item.id, timelineItemId))
-                }}
-              >
-                <FontAwesomeIcon icon={faXmark} />
-              </DeleteBtn>
+              <ButtonWrapper>
+                <DeleteBtn
+                  onClick={() => {
+                    updateState((draft) => {
+                      if (!draft || !draft.timelineItems) {
+                        return
+                      }
+                      draft.timelineItems = draft.timelineItems.filter(
+                        (item) => item.id !== timelineItem.id,
+                      )
+                    })
+                  }}
+                >
+                  <FontAwesomeIcon icon={faXmark} />
+                </DeleteBtn>
+              </ButtonWrapper>
             </List>
           )
         })}
@@ -207,7 +256,17 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
       </h2>
       <StyledForm
         onSubmit={handleSubmit(async (data) => {
-          dispatch(addedTimelineItemAction(item.id, data.year, data.event))
+          updateState((draft) => {
+            if (!draft || !draft.timelineItems) {
+              return
+            }
+            draft.timelineItems.push({
+              id: v4(),
+              correctEventId: v4(),
+              year: data.year,
+              correctEventName: data.event,
+            } as NormalizedQuizItemTimelineItem)
+          })
           reset()
         })}
       >

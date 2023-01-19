@@ -18,7 +18,7 @@ export interface PrivateSpecQuiz {
   id: string
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
-  items: QuizItem[]
+  items: PrivateSpecQuizItem[]
   title: string
   body: string
   submitMessage: string | null
@@ -73,7 +73,7 @@ export interface PrivateSpecQuizItemMultiplechoice {
   body: string
   successMessage: string | null
   failureMessage: string | null
-  sharedOptionFeedbackMessage: null
+  sharedOptionFeedbackMessage: string | null
   direction: "row" | "column"
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
@@ -148,6 +148,7 @@ export interface PrivateSpecQuizItemChooseN {
   type: "choose-n"
   id: string
   order: number
+  n: number
   options: QuizItemOption[]
   title: string
   body: string

@@ -2,15 +2,13 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
-import { NormalizedQuizItem } from "../../../../types/types"
+import { PrivateSpecQuiz } from "../../../../types/quizTypes"
+import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
 import Button from "../../../shared-module/components/Button"
-import { useTypedSelector } from "../../../store/store"
-import {
-  convertNormalizedQuizItemOptionsToQuizItemOptions,
-  migrateQuizItem,
-} from "../../../util/quizMigration"
 import QuizEditor from "../QuizComponents/QuizEditor"
+import { createEmptyQuizItem } from "../utils/general"
 
 import QuizItemOption, { QuizOption } from "./QuizOption"
 
@@ -143,17 +141,24 @@ const QuizItemSelection: React.FC = () => {
 }
 
 interface AddQuizItemProps {
-  storeItems: NormalizedQuizItem[]
+  quiz: PrivateSpecQuiz
 }
 
 const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
   const { t } = useTranslation()
+  const { updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>((quiz) => {
+    if (!quiz) {
+      return null
+    }
+    return quiz
+  })
 
   return (
     <AddQuizItemWrapper>
       <div
         className={css`
           text-align: center;
+          width: 100%;
         `}
       >
         <h3>{t("add-new-quiz-item")}</h3>
@@ -167,6 +172,15 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
             transform="capitalize"
             onClick={() => {
               // TODO: implement
+              updateState((quiz) => {
+                if (!quiz) {
+                  return null
+                }
+                quiz.items = [
+                  ...quiz.items,
+                  createEmptyQuizItem(quiz.items[quiz.items.length - 1].type),
+                ]
+              })
             }}
             size={"medium"}
             className={css`
@@ -187,6 +201,13 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
             `}
             onClick={() => {
               // TODO: implement
+              updateState((quiz) => {
+                if (!quiz) {
+                  return null
+                }
+                // Same values except id
+                quiz.items = [...quiz.items, { ...quiz.items[quiz.items.length - 1], id: v4() }]
+              })
             }}
           >
             {t("create-quiz-item-duplicate")}
@@ -197,14 +218,8 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
   )
 }
 
-export const AddQuizItem: React.FC<AddQuizItemProps> = (storeItems) => (
-  <>
-    {storeItems.storeItems.length > 0 ? (
-      <QuizDuplicationMenu storeItems={storeItems.storeItems} />
-    ) : (
-      <QuizItemSelection />
-    )}
-  </>
+export const AddQuizItem: React.FC<AddQuizItemProps> = ({ quiz }) => (
+  <>{quiz.items.length > 0 ? <QuizDuplicationMenu quiz={quiz} /> : <QuizItemSelection />}</>
 )
 
 const ItemsTitleContainer = styled.div`
@@ -225,11 +240,16 @@ const QuizItemContainer = styled.div`
   gap: 16px;
 `
 
-const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
+interface QuizItemProps {
+  quiz: PrivateSpecQuiz | null
+}
+
+const QuizItems: React.FC<QuizItemProps> = ({ quiz }) => {
   const { t } = useTranslation()
-  const storeItems = Object.values(useTypedSelector((state) => state.editor.items))
-  const storeOptions = useTypedSelector((state) => state.editor.options)
-  storeItems.sort((item1, item2) => item1.order - item2.order)
+
+  if (!quiz) {
+    return null
+  }
 
   return (
     <>
@@ -239,23 +259,14 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
         </SubsectionTitleWrapper>
       </ItemsTitleContainer>
       <QuizItemContainer>
-        {storeItems.map((oldQuiz) => {
-          const quiz = migrateQuizItem(oldQuiz)
-          if (
-            quiz.type == "multiple-choice" ||
-            quiz.type == "choose-n" ||
-            quiz.type == "multiple-choice-dropdown"
-          ) {
-            const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
-            quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
-          }
+        {quiz.items.map((quizItem) => {
           return (
-            <div key={quiz.id}>
-              <QuizEditor quizItem={quiz} />
+            <div key={quizItem.id}>
+              <QuizEditor quizItem={quizItem} />
             </div>
           )
         })}
-        <AddQuizItem storeItems={storeItems} />
+        <AddQuizItem quiz={quiz} />
       </QuizItemContainer>
     </>
   )

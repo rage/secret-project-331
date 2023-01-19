@@ -7,11 +7,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use super::helpers::file_uploading;
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
 use actix_files::NamedFile;
-use futures::{StreamExt, TryStreamExt};
-use headless_lms_utils::file_store::file_utils;
 use tokio::fs::read;
 /**
 
@@ -130,35 +129,53 @@ The randomly generated path to the uploaded file.
 #[instrument(skip(payload, file_store))]
 #[generated_doc]
 async fn upload_from_exercise_service(
+    pool: web::Data<PgPool>,
     exercise_service_slug: web::Path<String>,
     payload: Multipart,
     file_store: web::Data<dyn FileStore>,
+    user: Option<AuthUser>,
     upload_claim: Result<UploadClaim<'static>, ControllerError>,
 ) -> ControllerResult<web::Json<HashMap<String, String>>> {
+    let mut conn = pool.acquire().await?;
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
     let token = skip_authorize()?;
 
     // the playground uses the special "playground" slug to upload temporary files
     if exercise_service_slug.as_str() != "playground" {
-        // non-playground uploads require a valid upload claim
-        let upload_claim = upload_claim?;
-        if upload_claim.exercise_service_slug() != exercise_service_slug.as_ref() {
-            // upload claim's exercise type doesn't match the upload url
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Exercise service slug did not match upload claim".to_string(),
-                None,
-            ));
+        // non-playground uploads require a valid upload claim or user
+        match (&upload_claim, &user) {
+            (Ok(upload_claim), _) => {
+                if upload_claim.exercise_service_slug() != exercise_service_slug.as_ref() {
+                    // upload claim's exercise type doesn't match the upload url
+                    return Err(ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        "Exercise service slug did not match upload claim".to_string(),
+                        None,
+                    ));
+                }
+            }
+            (_, Some(_user)) => {
+                // TODO: for now, all users are allowed to upload files
+            }
+            (Err(_), None) => {
+                return Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "Not logged in or missing upload claim".to_string(),
+                    None,
+                ))
+            }
         }
     }
 
     let mut paths = HashMap::new();
-    if let Err(outer_err) = upload_from_exercise_service_inner(
+    if let Err(outer_err) = file_uploading::process_exercise_service_upload(
+        &mut conn,
         exercise_service_slug.as_str(),
         payload,
         file_store.as_ref(),
         &mut paths,
+        user.as_ref(),
     )
     .await
     {
@@ -172,34 +189,6 @@ async fn upload_from_exercise_service(
     }
 
     token.authorized_ok(web::Json(paths))
-}
-
-// Wraps the uploading logic
-async fn upload_from_exercise_service_inner(
-    exercise_service_slug: &str,
-    mut payload: Multipart,
-    file_store: &dyn FileStore,
-    paths: &mut HashMap<String, String>,
-) -> Result<(), ControllerError> {
-    while let Some(item) = payload.next().await {
-        let field = item.unwrap();
-        let field_name = field.name().to_string();
-
-        let random_filename = file_utils::random_filename();
-        let path = format!("{exercise_service_slug}/{random_filename}");
-
-        // todo: convert archives into a uniform format
-        file_store
-            .upload_stream(
-                Path::new(&path),
-                field.map_err(Into::into).boxed_local(),
-                "application/octet-stream",
-            )
-            .await?;
-
-        paths.insert(field_name, path.clone());
-    }
-    Ok(())
 }
 
 /**

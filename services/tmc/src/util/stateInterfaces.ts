@@ -43,7 +43,7 @@ export type PublicSpec = BrowserExercisePublicSpec | EditorExercisePublicSpec
 
 export interface BrowserExercisePublicSpec {
   type: "browser"
-  files: Array<[string, string]>
+  files: Array<ExerciseFile>
 }
 
 export interface EditorExercisePublicSpec {
@@ -56,7 +56,7 @@ export type Submission = BrowserSubmission | EditorSubmission
 
 export interface BrowserSubmission {
   type: "browser"
-  files: Array<[string, string]>
+  files: Array<ExerciseFile>
 }
 
 export interface EditorSubmission {
@@ -77,8 +77,8 @@ export interface EditorExerciseModelSolutionSpec {
 }
 
 export interface ExerciseFile {
-  fileName: string
-  fileContents: string
+  filepath: string
+  contents: string
 }
 
 export type UserAnswer = BrowserExerciseUserAnswer | EditorExerciseUserAnswer

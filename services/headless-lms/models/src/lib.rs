@@ -29,6 +29,7 @@ pub mod exercise_task_submissions;
 pub mod exercise_tasks;
 pub mod exercises;
 pub mod feedback;
+pub mod file_uploads;
 pub mod glossary;
 pub mod library;
 pub mod material_references;

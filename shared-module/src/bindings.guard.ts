@@ -988,6 +988,8 @@ export function isAnswerRequiringAttention(obj: unknown): obj is AnswerRequiring
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["course_instance_id"] === null ||
+      typeof typedObj["course_instance_id"] === "string") &&
     (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
     (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
     typeof typedObj["submission_id"] === "string" &&

@@ -37,7 +37,7 @@ async fn add_media(
     .await?;
     let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
 
-    let media_path = upload_media(
+    let media_path = upload_file_from_cms(
         request.headers(),
         payload,
         StoreKind::Organization(organization.id),

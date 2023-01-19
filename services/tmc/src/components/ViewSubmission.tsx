@@ -13,8 +13,8 @@ const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => 
       <>
         {state.userAnswer.answerFiles.map((f) => (
           <>
-            <div>{f.fileName}</div>
-            <code>{f.fileContents}</code>
+            <div>{f.filepath}</div>
+            <code>{f.contents}</code>
           </>
         ))}
       </>

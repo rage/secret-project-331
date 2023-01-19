@@ -7,17 +7,12 @@ import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
  *
  * to: parent
  */
-export type MessageFromIframe = CurrentStateMessage | FileUploadMessage | HeightChangedMessage
+export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
   data: unknown
   valid: boolean
-}
-
-export interface FileUploadMessage {
-  message: "file-upload"
-  files: Map<string, string | Blob>
 }
 
 export interface HeightChangedMessage {
@@ -30,25 +25,13 @@ export interface HeightChangedMessage {
  *
  * to: IFrame
  */
-export type MessageToIframe = SetLanguageMessage | UploadResultMessage | SetStateMessage
+export type MessageToIframe = SetLanguageMessage | SetStateMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
   // e.g. "en" or "fi"
   data: string
 }
-
-export type UploadResultMessage =
-  | {
-      message: "upload-result"
-      success: true
-      urls: Map<string, string>
-    }
-  | {
-      message: "upload-result"
-      success: false
-      error: string
-    }
 
 export type SetStateMessage = { message: "set-state" } & IframeState
 
@@ -86,6 +69,8 @@ export type IframeState =
       view_type: "answer-exercise"
       exercise_task_id: string
       user_information: UserInformation
+      files_to_upload?: Map<string, string | Blob>
+      uploaded_files?: Map<string, string>
       /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
       user_variables?: UserVariablesMap | null
       data: {
@@ -97,6 +82,8 @@ export type IframeState =
       view_type: "view-submission"
       exercise_task_id: string
       user_information: UserInformation
+      files_to_upload?: Map<string, string | Blob>
+      uploaded_files?: Map<string, string>
       /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
       user_variables?: UserVariablesMap | null
       data: {
@@ -110,6 +97,8 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
+      files_to_upload?: Map<string, string | Blob>
+      uploaded_files?: Map<string, string>
       repository_exercises?: Array<RepositoryExercise>
       data: { private_spec: unknown }
     }

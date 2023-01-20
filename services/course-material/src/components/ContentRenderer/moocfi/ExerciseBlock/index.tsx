@@ -33,6 +33,7 @@ import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
+import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
 import PeerReviewReceived from "./PeerReviewView/PeerReviewReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
@@ -365,7 +366,7 @@ const ExerciseBlock: React.FC<
             />
           )}
           {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
-          {gradingState === "Pending" && <p>{t("grading-pending")}</p>}
+          {gradingState && <GradingState gradingState={gradingState} />}
           <div
             className={css`
               button {

@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
-import { onUploadFileMessage } from "../../../../shared-module/utils/exerciseServices"
 
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string
@@ -16,7 +15,6 @@ interface ExerciseTaskIframeProps {
 }
 
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
-  exerciseServiceSlug,
   url,
   postThisStateToIFrame,
   setAnswer,
@@ -31,7 +29,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
     <MessageChannelIFrame
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
-      onMessageFromIframe={async (messageContainer, responsePort) => {
+      onMessageFromIframe={async (messageContainer, _responsePort) => {
         console.log(messageContainer)
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
@@ -39,8 +37,6 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
             if (setAnswer) {
               setAnswer({ data, valid })
             }
-          } else if (messageContainer.message === "file-upload") {
-            await onUploadFileMessage(exerciseServiceSlug, messageContainer.files, responsePort)
           }
         }
       }}

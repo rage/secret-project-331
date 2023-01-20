@@ -222,7 +222,8 @@ describe("migration of old quizzes", () => {
     expect(newQuiz.items.length).toEqual(1)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemMultiplechoice = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemMultiplechoice = newQuiz
+      .items[0] as PrivateSpecQuizItemMultiplechoice
     expect(newQuizItem.type).toEqual("multiple-choice")
     expect(newQuizItem.id).toEqual(oldQuizItem.id)
     expect(newQuizItem.order).toEqual(oldQuizItem.order)
@@ -246,7 +247,7 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
 
     expect(newQuizItem.type).toEqual("checkbox")
     expectMetadataToMatch(oldQuiz, newQuiz)
@@ -264,7 +265,7 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
 
     expect(newQuizItem.type).toEqual("essay")
     expectMetadataToMatch(oldQuiz, newQuiz)
@@ -285,7 +286,7 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemMatrix = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemMatrix = newQuiz.items[0] as PrivateSpecQuizItemMatrix
 
     // This will always be defined
     const optionCells: string[][] = oldQuizItem.optionCells ?? []
@@ -305,7 +306,8 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
+      .items[0] as PrivateSpecQuizItemClosedEndedQuestion
 
     expect(newQuizItem.type).toEqual("closed-ended-question")
     expectMetadataToMatch(oldQuiz, newQuiz)
@@ -325,7 +327,7 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
 
     expect(newQuizItem.type).toEqual("scale")
     expectMetadataToMatch(oldQuiz, newQuiz)
@@ -347,7 +349,7 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0] as PrivateSpecQuizItemTimeline
 
     // This will always be defined
     const timelineItems: QuizItemTimelineItem[] = oldQuizItem.timelineItems ?? []
@@ -369,7 +371,7 @@ describe("migration of old quizzes", () => {
     const newQuiz = migrateQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
-    const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0]
+    const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
 
     expect(newQuizItem.type).toEqual("choose-n")
     expectMetadataToMatch(oldQuiz, newQuiz)

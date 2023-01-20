@@ -1,10 +1,9 @@
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
-import { useDispatch } from "react-redux"
 
 import { PrivateSpecQuizItemMatrix } from "../../../../../types/quizTypes"
-import { editedQuizItemOptionCells } from "../../../../store/editor/items/itemAction"
-import { useTypedSelector } from "../../../../store/store"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
 
 import TableCellContent from "./TableCellContent"
 
@@ -30,17 +29,20 @@ const MatrixTableContainer = styled.table`
 `
 
 interface TableContentProps {
-  item: PrivateSpecQuizItemMatrix
+  quizItemId: string // PrivateSpecQuizItemMatrix
 }
 
-const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ item }) => {
-  const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
-  const dispatch = useDispatch()
-
+const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ quizItemId }) => {
+  const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
+    (quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemMatrix>(quiz, quizItemId, "matrix")
+    },
+  )
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
   const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
-    if (item.optionCells) {
-      return item.optionCells
+    if (selected && selected.optionCells) {
+      return selected.optionCells
     }
     const quizAnswers: string[][] = []
     for (let i = 0; i < 6; i++) {
@@ -83,7 +85,12 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ it
       })
     })
     setMatrixVariable(newMatrix)
-    dispatch(editedQuizItemOptionCells(item.id, newMatrix))
+    updateState((draft) => {
+      if (!draft) {
+        return
+      }
+      draft.optionCells = newMatrix
+    })
   }
 
   const tempArray = [0, 1, 2, 3, 4, 5]
@@ -105,11 +112,8 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ it
                           cellText={checkNeighbour}
                           columnLoop={columnIndex}
                           rowLoop={rowIndex}
-                          variables={variables}
                           handleTextarea={handleTextarea}
-                        >
-                          {" "}
-                        </TableCellContent>
+                        />
                       ) : null}
                     </>
                   )

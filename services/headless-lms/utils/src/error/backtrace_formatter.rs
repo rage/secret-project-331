@@ -40,7 +40,7 @@ pub fn format_backtrace(backtrace: &Backtrace, fmt: &mut fmt::Formatter<'_>) -> 
                 .map(|path| {
                     if let Some(cwd) = cwd.clone() {
                         // If the path starts with the cwd, we assume it's from the current crate
-                        path.starts_with(&cwd)
+                        path.starts_with(cwd)
                     } else {
                         false
                     }

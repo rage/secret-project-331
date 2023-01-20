@@ -33,7 +33,7 @@ async fn add_media(
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course.id)).await?;
 
-    let media_path = upload_media(
+    let media_path = upload_file_from_cms(
         request.headers(),
         payload,
         StoreKind::Course(course.id),

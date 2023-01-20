@@ -44,12 +44,12 @@ const handlePost = async (
   } else if (exercise_spec.type === "browser" && submission_data.type === "browser") {
     // write submission files
     const submissionDir = temporaryDirectory()
-    for (const [relativePath, contents] of submission_data.files) {
-      const target = `${submissionDir}/${relativePath}`
-      console.log("making", path.dirname(target))
-      await fs.mkdir(path.dirname(target), { recursive: true })
-      console.log("writing", target)
-      await fs.writeFile(target, contents)
+    for (const { filepath, contents } of submission_data.files) {
+      const resolved = path.resolve(submissionDir, filepath)
+      console.log("making", path.dirname(resolved))
+      await fs.mkdir(path.dirname(resolved), { recursive: true })
+      console.log("writing", resolved)
+      await fs.writeFile(resolved, contents)
     }
     await compressProject(submissionDir, submissionArchive, "tar", true)
     compression = "tar"

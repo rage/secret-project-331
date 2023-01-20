@@ -206,6 +206,7 @@ const ExerciseBlock: React.FC<
   const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
 
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
+  const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
   return (
     <BreakFromCentered sidebar={false}>
       {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
@@ -364,6 +365,7 @@ const ExerciseBlock: React.FC<
             />
           )}
           {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
+          {gradingState === "Pending" && <p>{t("grading-pending")}</p>}
           <div
             className={css`
               button {

@@ -3,12 +3,20 @@ import { useTranslation } from "react-i18next"
 
 import EditorCard from "../common/EditorCard"
 
-const UnsupportedExercise = () => {
+interface UnsupportedExerciseProps {
+  quizItemId: string
+}
+
+const UnsupportedExercise: React.FC<UnsupportedExerciseProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
 
   const title = t("quiz-item-type-not-unsupported-title")
 
-  return <EditorCard title={title}>{t("quiz-item-type-not-supported")}</EditorCard>
+  return (
+    <EditorCard quizItemId={quizItemId} title={title}>
+      {t("quiz-item-type-not-supported")}
+    </EditorCard>
+  )
 }
 
 export default UnsupportedExercise

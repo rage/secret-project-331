@@ -165,7 +165,7 @@ async fn set_chapter_image(
     .await?;
 
     let course = models::courses::get_course(&mut conn, chapter.course_id).await?;
-    let chapter_image = upload_media(
+    let chapter_image = upload_file_from_cms(
         request.headers(),
         payload,
         StoreKind::Course(course.id),

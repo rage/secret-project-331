@@ -10,7 +10,7 @@ use models::{
 };
 
 use crate::{
-    controllers::helpers::media::upload_image_for_organization,
+    controllers::helpers::file_uploading::upload_image_for_organization,
     domain::authorization::skip_authorize, prelude::*,
 };
 use actix_web::web::{self, Json};

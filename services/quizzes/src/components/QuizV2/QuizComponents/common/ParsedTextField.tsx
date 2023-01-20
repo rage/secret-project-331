@@ -51,9 +51,11 @@ const containsTags = (text: string) => {
 
 interface ParsedTextFieldProps {
   label: string
+  value: string
+  onChange: (value: string) => void
 }
 
-const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label }) => {
+const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChange }) => {
   const [preview, setPreview] = useState(false)
   const [text, setText] = useState("")
 
@@ -83,14 +85,19 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label }) => {
     </>
   )
 
+  const handleOnChange = (value: string) => {
+    onChange(value)
+    setText(value)
+  }
+
   return (
     <TextfieldContainer>
       {preview ? (
         <ParsedTextContainer>
-          <ParsedText text={text} parseMarkdown parseLatex inline />
+          <ParsedText text={value} parseMarkdown parseLatex inline />
         </ParsedTextContainer>
       ) : (
-        <TextField value={text} onChange={(value) => setText(value)} label={label} />
+        <TextField value={value} onChange={(value) => handleOnChange(value)} label={label} />
       )}
       <DisplayContainer>{hasTags && PreviewButton}</DisplayContainer>
     </TextfieldContainer>

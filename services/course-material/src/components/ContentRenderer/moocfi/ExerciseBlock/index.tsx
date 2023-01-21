@@ -33,6 +33,7 @@ import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
+import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
 import PeerReviewReceived from "./PeerReviewView/PeerReviewReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
@@ -206,6 +207,7 @@ const ExerciseBlock: React.FC<
   const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
 
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
+  const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
   return (
     <BreakFromCentered sidebar={false}>
       {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
@@ -364,6 +366,7 @@ const ExerciseBlock: React.FC<
             />
           )}
           {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
+          {gradingState && <GradingState gradingState={gradingState} />}
           <div
             className={css`
               button {

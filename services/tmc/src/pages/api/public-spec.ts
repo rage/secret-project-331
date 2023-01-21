@@ -3,6 +3,7 @@ import axios from "axios"
 import FormData from "form-data"
 import * as fs from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
+import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
@@ -88,15 +89,16 @@ const prepareStubDir = async (downloadUrl: string): Promise<string> => {
 const prepareBrowserExercise = async (stubDir: string): Promise<PublicSpec> => {
   console.log("browser exercise, saving student files to public spec")
   const config = await getExercisePackagingConfiguration(stubDir)
-  const files = new Map<string, string>()
-  for (const path of config.student_file_paths) {
-    console.log(`adding ${path}`)
-    const contents = await fs.promises.readFile(`${stubDir}/${path}`)
-    files.set(path, contents.toString())
+  const files = []
+  for (const filepath of config.student_file_paths) {
+    console.log(`adding ${filepath}`)
+    const resolved = path.resolve(stubDir, filepath)
+    const contents = await fs.promises.readFile(resolved)
+    files.push({ filepath, contents: contents.toString() })
   }
   return {
     type: "browser",
-    files: Array.from(files.entries()),
+    files,
   }
 }
 

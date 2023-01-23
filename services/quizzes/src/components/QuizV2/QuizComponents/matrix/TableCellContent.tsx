@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import { QuizItemVariables } from "../../../../../types/types"
 import { baseTheme } from "../../../../shared-module/styles"
 
 interface CellInputStyleProps {
@@ -49,7 +48,6 @@ const CellInputContainer = styled.input<CellInputStyleProps>`
 interface TableCellContentProps {
   rowLoop: number
   columnLoop: number
-  variables: QuizItemVariables
   cellText: string
   matrixSize: number[]
   handleTextarea: (text: string, column: number, row: number) => void

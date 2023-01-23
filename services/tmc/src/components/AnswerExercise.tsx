@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
 import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
-import { PublicSpec, Submission } from "../util/stateInterfaces"
+import { ExerciseFile, PublicSpec, Submission } from "../util/stateInterfaces"
 
 interface Props {
   port: MessagePort
@@ -23,13 +23,10 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
 
   const initialEditorState = publicSpecToEditorState(initialPublicSpec)
   useEffect(() => {
-    console.log("sending initial")
     sendCurrentState(port, initialEditorState)
   }, [port, initialEditorState])
-  const [editorState, _setEditorState] = useState<Array<[string, string]>>(
-    publicSpecToEditorState(publicSpec),
-  )
-  const setEditorState = (value: Array<[string, string]>) => {
+  const [editorState, _setEditorState] = useState(publicSpecToEditorState(publicSpec))
+  const setEditorState = (value: Array<ExerciseFile>) => {
     _setEditorState(value)
     if (!port) {
       // eslint-disable-next-line i18next/no-literal-string
@@ -44,19 +41,22 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   if (publicSpec.type === "browser") {
     // "inline" exercise, solved in the browser
     // todo: support multiple files
-    const [path, contents] = editorState[0]
+    const { filepath, contents } = editorState[0]
     return (
       <>
-        <div>{path}</div>
+        <div>{filepath}</div>
         <Editor
           height="30rem"
           width="100%"
-          language={extensionToLanguage(path)}
+          language={extensionToLanguage(filepath)}
           value={contents}
           onChange={(newContents) => {
             if (newContents !== undefined) {
-              const newState = [...editorState]
-              newState[0][1] = newContents
+              const newState = { ...editorState }
+              const changed = newState.find((ef) => ef.filepath == filepath)
+              if (changed) {
+                changed.contents = newContents
+              }
               setEditorState(newState)
             }
           }}
@@ -89,7 +89,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   }
 }
 
-const publicSpecToEditorState = (publicSpec: PublicSpec): Array<[string, string]> => {
+const publicSpecToEditorState = (publicSpec: PublicSpec): Array<ExerciseFile> => {
   if (publicSpec.type === "browser") {
     return publicSpec.files
   }
@@ -122,7 +122,7 @@ const extensionToLanguage = (path: string): string | undefined => {
   /* eslint-enable i18next/no-literal-string */
 }
 
-const sendCurrentState = (port: MessagePort, files: Array<[string, string]>) => {
+const sendCurrentState = (port: MessagePort, files: Array<ExerciseFile>) => {
   // eslint-disable-next-line i18next/no-literal-string
   console.info("Posting state to parent")
   const data: Submission = {

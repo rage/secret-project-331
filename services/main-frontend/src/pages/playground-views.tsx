@@ -488,11 +488,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
+              {/* eslint-disable i18next/no-literal-string */}
               {publicSpecQuery.isSuccess && (
                 <StyledPre fullWidth={false}>
-                  {JSON.stringify(publicSpecQuery.data, undefined, 2)}
+                  {JSON.stringify(publicSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
                 </StyledPre>
               )}
+              {/* eslint-enable i18next/no-literal-string */}
             </Area>
           </PublicSpecArea>
 
@@ -511,11 +513,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
+              {/* eslint-disable i18next/no-literal-string */}
               {modelSolutionSpecQuery.isSuccess && (
                 <StyledPre fullWidth={false}>
-                  {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2)}
+                  {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2).replaceAll(
+                    "\\n",
+                    "\n",
+                  )}
                 </StyledPre>
               )}
+              {/* eslint-enable i18next/no-literal-string */}
             </Area>
           </ModelSolutionSpecArea>
         </GridContainer>

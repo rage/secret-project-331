@@ -327,12 +327,7 @@ const ExerciseBlock: React.FC<
                 text-align: center;
               `}
             >
-              {reviewingStage === "ReviewedAndLocked"
-                ? t("help-text-answer-has-been-reviewed-and-locked")
-                : t("help-text-exercise-involves-peer-review", {
-                    peer_reviews_to_give:
-                      getCourseMaterialExercise.data.peer_review_config.peer_reviews_to_give,
-                  })}
+              {gradingState && <GradingState gradingState={gradingState} />}
             </div>
           )}
           {/* Reviewing stage seems to be undefined at least for exams */}
@@ -366,7 +361,6 @@ const ExerciseBlock: React.FC<
             />
           )}
           {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
-          {gradingState && <GradingState gradingState={gradingState} />}
           <div
             className={css`
               button {

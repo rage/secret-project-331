@@ -75,7 +75,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-1-before-filling-peer-review-single-submission",
       page: page1,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       beforeScreenshot: async () =>
         await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
@@ -86,7 +85,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-1-after-filling-peer-review-single-submission",
       page: page1,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       beforeScreenshot: async () =>
         await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
@@ -98,7 +96,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-2-before-filling-peer-review-single-submission",
       page: page2,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       beforeScreenshot: async () =>
         await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
@@ -109,7 +106,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-2-after-filling-peer-review-single-submission",
       page: page2,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       beforeScreenshot: async () =>
         await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
@@ -140,7 +136,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page1,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       beforeScreenshot: async () =>
         await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
@@ -154,7 +149,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page2,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       beforeScreenshot: async () =>
         await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
@@ -228,7 +222,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-2-before-filling-peer-review-1-multiple-submission",
       page: page2,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       beforeScreenshot: async () =>
         await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
@@ -239,7 +232,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-2-after-filling-peer-review-1-multiple-submission",
       page: page2,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       beforeScreenshot: async () =>
         await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
@@ -251,7 +243,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-1-before-filling-peer-review-multiple-submission",
       page: page1,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       beforeScreenshot: async () =>
         await page1.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
@@ -262,7 +253,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       snapshotName: "student-1-after-filling-peer-review-multiple-submission",
       page: page1,
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       beforeScreenshot: async () =>
         await page1.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
@@ -293,7 +283,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page1,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       beforeScreenshot: async () =>
         await page1.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
@@ -307,7 +296,6 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page2,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      skipMobile: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       beforeScreenshot: async () =>
         await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),

@@ -41,6 +41,12 @@ impl JwtKey {
         let key: Hmac<Sha256> = Hmac::new_from_slice(key.as_bytes())?;
         Ok(Self(key))
     }
+
+    #[cfg(test)]
+    pub fn test_key() -> Self {
+        let test_jwt_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
+        Self::new(test_jwt_key).unwrap()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

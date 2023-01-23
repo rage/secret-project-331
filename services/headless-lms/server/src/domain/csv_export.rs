@@ -575,7 +575,7 @@ mod test {
                 .unwrap();
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
-        let jwt_key = Arc::new(JwtKey::try_from_env().unwrap());
+        let jwt_key = Arc::new(JwtKey::test_key());
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,

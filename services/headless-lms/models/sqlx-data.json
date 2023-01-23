@@ -507,6 +507,16 @@
     },
     "query": "\nUPDATE peer_review_queue_entries\nSET peer_review_priority = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *\n    "
   },
+  "0531a63ce132ab34d24576c0fa59db7e59b205fc28c5008f034b12a4e8546e4b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "DELETE FROM user_details WHERE user_id = $1"
+  },
   "05fe496775c0bd71fedcd7398bcc1d281087874580d0006704e9c1c65fdc98db": {
     "describe": {
       "columns": [],
@@ -10293,6 +10303,16 @@
     },
     "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE receiving_peer_reviews_exercise_slide_submission_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    "
   },
+  "8970926da64c069bb6e0e63bcf3fbfbf6b0c53fb9a027464fbeddcbfca56a727": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "UPDATE roles set deleted_at = now() WHERE user_id = $1"
+  },
   "8996c28a928545504a3741a926ceb7831d752406f9f3c6871854343bb7b1aa4b": {
     "describe": {
       "columns": [
@@ -13023,6 +13043,16 @@
     },
     "query": "\nINSERT INTO course_instances (\n    id,\n    course_id,\n    name,\n    description,\n    teacher_in_charge_name,\n    teacher_in_charge_email,\n    support_email\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email\n"
   },
+  "ae6a1175c1fb84718dc3f7b9b917950c7a084a2c459f68847b4b17159e6d54ae": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "UPDATE users set deleted_at = now() WHERE id = $1"
+  },
   "aee1ac79f9af758cf20f1b486a12b0f07ced3949ab6f2256bc792291ed7424b5": {
     "describe": {
       "columns": [
@@ -14762,6 +14792,22 @@
       }
     },
     "query": "\nUPDATE proposed_block_edits\nSET status = 'rejected'\nWHERE id = $1\n"
+  },
+  "c118779ce8e5e8cf924539c14efbd62a1673fff5cfa2eda7ac495af348da8ba7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Int4Array"]
+      }
+    },
+    "query": "\nSELECT id\nFROM users\nWHERE upstream_id IN (\n    SELECT UNNEST($1::integer [])\n  )\nAND deleted_at IS NULL\n"
   },
   "c22a7e6cb7aae8fb53d173690581f801243debf6a5121210c7a9af3647658a55": {
     "describe": {

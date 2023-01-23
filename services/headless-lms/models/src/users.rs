@@ -225,3 +225,40 @@ WHERE id IN (
     .await?;
     Ok(res)
 }
+
+pub async fn get_users_ids_in_db_from_upstream_ids(
+    conn: &mut PgConnection,
+    upstream_ids: &[i32],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM users
+WHERE upstream_id IN (
+    SELECT UNNEST($1::integer [])
+  )
+AND deleted_at IS NULL
+",
+        upstream_ids,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res.iter().map(|x| x.id).collect::<Vec<_>>())
+}
+
+pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    info!("Deleting user {id}");
+    let mut tx = conn.begin().await?;
+    sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query!("UPDATE users set deleted_at = now() WHERE id = $1", id,)
+        .execute(&mut *tx)
+        .await?;
+    sqlx::query!("UPDATE roles set deleted_at = now() WHERE user_id = $1", id,)
+        .execute(&mut *tx)
+        .await?;
+    tx.commit().await?;
+    info!("Deletion succeeded");
+    Ok(())
+}

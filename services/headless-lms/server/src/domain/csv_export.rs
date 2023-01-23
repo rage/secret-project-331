@@ -439,7 +439,10 @@ mod test {
     use serde_json::Value;
 
     use super::*;
-    use crate::{domain::models_requests, test_helper::*};
+    use crate::{
+        domain::models_requests::{self, JwtKey},
+        test_helper::*,
+    };
 
     #[actix_web::test]
     async fn exports() {
@@ -572,6 +575,7 @@ mod test {
                 .unwrap();
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
+        let jwt_key = Arc::new(JwtKey::try_from_env().unwrap());
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,
@@ -594,7 +598,7 @@ mod test {
                 },
             )])),
             models_requests::fetch_service_info,
-            models_requests::send_grading_request,
+            models_requests::make_grading_request_sender(jwt_key),
         )
         .await
         .unwrap();

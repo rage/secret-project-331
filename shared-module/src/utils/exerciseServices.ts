@@ -3,6 +3,7 @@
 import { UploadResultMessage } from "../exercise-service-protocol-types"
 import { uploadFromExerciseService } from "../services/backend/files"
 
+export const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER = "exercise-service-grading-update-claim"
 export const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER = "exercise-service-upload-claim"
 
 export const onUploadFileMessage = async (

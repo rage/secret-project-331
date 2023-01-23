@@ -24,6 +24,7 @@ use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
 
+const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 
 #[derive(Clone, Debug)]
@@ -69,7 +70,7 @@ impl<'a> UploadClaim<'a> {
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: UploadClaim = token.verify_with_key(&key.0).map_err(|err| {
+        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -123,6 +124,87 @@ impl<'a> FromRequest for UploadClaim<'a> {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GradingUpdateClaim {
+    submission_id: Uuid,
+    expiration_time: DateTime<Utc>,
+}
+
+impl GradingUpdateClaim {
+    pub fn submission_id(&self) -> Uuid {
+        self.submission_id
+    }
+
+    pub fn expiration_time(&self) -> &DateTime<Utc> {
+        &self.expiration_time
+    }
+
+    pub fn expiring_in_1_day(submission_id: Uuid) -> Self {
+        Self {
+            submission_id,
+            expiration_time: Utc::now() + Duration::days(1),
+        }
+    }
+
+    pub fn sign(self, key: &JwtKey) -> String {
+        self.sign_with_key(&key.0).expect("should never fail")
+    }
+
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!("Invalid jwt key: {}", err),
+                Some(err.into()),
+            )
+        })?;
+        if claim.expiration_time < Utc::now() {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Grading update claim has expired".to_string(),
+                None,
+            ));
+        }
+        Ok(claim)
+    }
+}
+
+impl FromRequest for GradingUpdateClaim {
+    type Error = ControllerError;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        let try_from_request = move || {
+            let jwt_key = req
+                .app_data::<web::Data<JwtKey>>()
+                .expect("Missing JwtKey in app data");
+            let header = req
+                .headers()
+                .get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
+                .ok_or_else(|| {
+                    ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        format!("Missing header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER}",),
+                        None,
+                    )
+                })?;
+            let header = std::str::from_utf8(header.as_bytes()).map_err(|err| {
+                ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    format!(
+                        "Invalid header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER} = {}",
+                        String::from_utf8_lossy(header.as_bytes())
+                    ),
+                    Some(err.into()),
+                )
+            })?;
+            let claim = GradingUpdateClaim::validate(header, jwt_key)?;
+            Result::<_, Self::Error>::Ok(claim)
+        };
+        ready(try_from_request())
+    }
+}
+
 fn reqwest_err(err: reqwest::Error) -> ModelError {
     ModelError::new(
         ModelErrorType::Generic,
@@ -149,6 +231,7 @@ pub fn make_spec_fetcher(
     move |url, exercise_service_slug, private_spec| {
         let client = reqwest::Client::new();
         let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
+        // TODO: use real url
         let upload_url = Some(format!(
             "http://project-331.local/api/v0/files/{exercise_service_slug}"
         ));
@@ -210,42 +293,55 @@ pub fn fetch_service_info(url: Url) -> BoxFuture<'static, ModelResult<ExerciseSe
     .boxed()
 }
 
-// does not use async fn because the arguments should only be borrowed
-// for the part before any async stuff happens
-pub fn send_grading_request(
-    grade_url: Url,
-    exercise_task: &ExerciseTask,
-    submission: &ExerciseTaskSubmission,
+pub fn make_grading_request_sender(
+    jwt_key: Arc<JwtKey>,
+) -> impl Fn(
+    Url,
+    &ExerciseTask,
+    &ExerciseTaskSubmission,
 ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>> {
-    let client = reqwest::Client::new();
-    let req = client
-        .post(grade_url)
-        .timeout(std::time::Duration::from_secs(120))
-        .json(&ExerciseTaskGradingRequest {
-            exercise_spec: &exercise_task.private_spec,
-            submission_data: &submission.data_json,
-        });
-    async {
-        let res = req.send().await.map_err(reqwest_err)?;
-        let status = res.status();
-        if !status.is_success() {
-            let response_body = res.text().await;
-            error!(
-                ?response_body,
-                "Grading request returned an unsuccesful status code"
-            );
-            return Err(ModelError::new(
-                ModelErrorType::Generic,
-                "Grading failed".to_string(),
-                None,
-            ));
+    move |grade_url, exercise_task, submission| {
+        let client = reqwest::Client::new();
+        // TODO: use real url
+        let grading_update_url = format!(
+            "http://project-331.local/api/v0/exercise-services/grading/update-grading/{}",
+            submission.id
+        );
+        let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
+        let req = client
+            .post(grade_url)
+            .header(
+                EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER,
+                grading_update_claim.sign(&jwt_key),
+            )
+            .timeout(std::time::Duration::from_secs(120))
+            .json(&ExerciseTaskGradingRequest {
+                grading_update_url: &grading_update_url,
+                exercise_spec: &exercise_task.private_spec,
+                submission_data: &submission.data_json,
+            });
+        async move {
+            let res = req.send().await.map_err(reqwest_err)?;
+            let status = res.status();
+            if !status.is_success() {
+                let response_body = res.text().await;
+                error!(
+                    ?response_body,
+                    "Grading request returned an unsuccesful status code"
+                );
+                return Err(ModelError::new(
+                    ModelErrorType::Generic,
+                    "Grading failed".to_string(),
+                    None,
+                ));
+            }
+            let obj = res
+                .json::<ExerciseTaskGradingResult>()
+                .await
+                .map_err(reqwest_err)?;
+            info!("Received a grading result: {:#?}", &obj);
+            Ok(obj)
         }
-        let obj = res
-            .json::<ExerciseTaskGradingResult>()
-            .await
-            .map_err(reqwest_err)?;
-        info!("Received a grading result: {:#?}", &obj);
-        Ok(obj)
+        .boxed()
     }
-    .boxed()
 }

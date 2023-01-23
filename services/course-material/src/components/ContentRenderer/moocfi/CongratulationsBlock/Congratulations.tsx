@@ -95,7 +95,9 @@ export interface CongratulationsProps {
 
 const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
   const { t } = useTranslation()
-  const multipleModules = modules.length > 1
+  // const multipleModules = modules.length > 1
+  // TODO: one module view does not display grades and styling needs to be improved
+  const multipleModules = true
   return (
     <Wrapper>
       <StyledBackground />

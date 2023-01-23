@@ -111,7 +111,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
 
           bottom: 100px;
           right: 20px;
-          z-index: 100;
+          z-index: 1100;
           margin-left: 20px;
         `}
       >

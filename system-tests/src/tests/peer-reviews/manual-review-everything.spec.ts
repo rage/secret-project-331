@@ -227,6 +227,7 @@ test.describe("test ManualReviewEverything behavior", () => {
         await page2.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
     })
     await fillPeerReview(page2, ["Disagree", "Disagree"])
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-filling-peer-review-1-multiple-submission",

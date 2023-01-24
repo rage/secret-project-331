@@ -491,6 +491,7 @@ export interface AnswerRequiringAttention {
   updated_at: Date
   deleted_at: Date | null
   data_json: unknown | null
+  course_instance_id: string | null
   grading_progress: GradingProgress
   score_given: number | null
   submission_id: string

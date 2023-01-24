@@ -47,14 +47,5 @@ RETURNING id
 
 /// Woothee uses UNKNOWN instead of None, this fixes that
 fn unknown_is_none(value: Option<String>) -> Option<String> {
-    match value {
-        Some(v) => {
-            if v == "UNKNOWN" {
-                None
-            } else {
-                Some(v)
-            }
-        }
-        None => None,
-    }
+    value.filter(|v| v != "UNKNOWN")
 }

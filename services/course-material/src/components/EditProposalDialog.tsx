@@ -98,7 +98,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
           right: 20px;
           bottom: 20px;
           margin-left: 20px;
-          z-index: 100;
+          z-index: 1100;
           display: flex;
           flex-direction: column;
         `}

@@ -11,14 +11,8 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
-} from "../../types/quizTypes"
-import {
-  NormalizedQuizItem,
-  NormalizedQuizItemOption,
-  Quiz,
-  QuizItem,
-  QuizItemOption,
-} from "../../types/types"
+} from "../../types/quizTypes/privateSpec"
+import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../types/types"
 
 /**
  * Check if the quiz version is old.
@@ -54,7 +48,7 @@ export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
   return result
 }
 
-export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
+export const migrateQuizItem = (quizItem: QuizItem) => {
   switch (quizItem.type as OldQuizItemType) {
     case "checkbox":
       return {
@@ -65,7 +59,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         title: quizItem.title,
-      } as PrivateSpecQuizItemCheckbox
+      } satisfies PrivateSpecQuizItemCheckbox
     case "essay":
       return {
         id: quizItem.id,
@@ -77,7 +71,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         maxWords: quizItem.maxWords,
         minWords: quizItem.minWords,
         successMessage: quizItem.successMessage,
-      } as PrivateSpecQuizItemEssay
+      } satisfies PrivateSpecQuizItemEssay
     case "matrix":
       return {
         id: quizItem.id,
@@ -86,7 +80,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         failureMessage: quizItem.failureMessage,
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
-      } as PrivateSpecQuizItemMatrix
+      } satisfies PrivateSpecQuizItemMatrix
     case "multiple-choice":
       return {
         id: quizItem.id,
@@ -103,7 +97,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
-      } as PrivateSpecQuizItemMultiplechoice
+      } satisfies PrivateSpecQuizItemMultiplechoice
     case "open":
       return {
         id: quizItem.id,
@@ -115,7 +109,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         validityRegex: quizItem.validityRegex,
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
-      } as PrivateSpecQuizItemClosedEndedQuestion
+      } satisfies PrivateSpecQuizItemClosedEndedQuestion
     case "scale":
       return {
         id: quizItem.id,
@@ -129,7 +123,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         minLabel: (<QuizItem>quizItem).minLabel ? (<QuizItem>quizItem).minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
-      } as PrivateSpecQuizItemScale
+      } satisfies PrivateSpecQuizItemScale
     case "timeline":
       return {
         id: quizItem.id,
@@ -138,7 +132,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
-      } as PrivateSpecQuizItemTimeline
+      } satisfies PrivateSpecQuizItemTimeline
     case "clickable-multiple-choice":
       return {
         id: quizItem.id,
@@ -150,7 +144,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         successMessage: quizItem.successMessage,
         options: quizItem.options,
         n: DEFAULT_N,
-      } as PrivateSpecQuizItemChooseN
+      } satisfies PrivateSpecQuizItemChooseN
     case "multiple-choice-dropdown":
       return {
         id: quizItem.id,
@@ -161,7 +155,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
-      } as PrivateSpecQuizItemMultiplechoiceDropdown
+      } satisfies PrivateSpecQuizItemMultiplechoiceDropdown
     default:
       console.error(`Unknown type: '${quizItem.type}'`)
   }
@@ -177,7 +171,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
     maxWords: 100,
     minWords: 0,
     successMessage: "quizItem.successMessage",
-  } as PrivateSpecQuizItemEssay
+  } satisfies PrivateSpecQuizItemEssay
 }
 
 /**

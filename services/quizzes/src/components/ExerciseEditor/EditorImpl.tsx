@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
-import { PrivateSpecQuiz } from "../../../types/quizTypes"
+import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../../contexts/QuizzesExerciseServiceContext"
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
 import Button from "../../shared-module/components/Button"

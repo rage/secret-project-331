@@ -10,7 +10,7 @@ import {
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
-} from "../../types/quizTypes"
+} from "../../types/quizTypes/privateSpec"
 import { Quiz, QuizItem, QuizItemOption, QuizItemTimelineItem } from "../../types/types"
 import { generateQuiz, generateQuizItem, generateQuizItemOption } from "../api/utils/quizGenerator"
 

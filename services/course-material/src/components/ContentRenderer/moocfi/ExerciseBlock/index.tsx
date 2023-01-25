@@ -316,24 +316,12 @@ const ExerciseBlock: React.FC<
               </DeadlineText>
             ))}
 
-          {getCourseMaterialExercise.data.peer_review_config && (
-            <div
-              className={css`
-                padding: 1rem;
-                background-color: ${baseTheme.colors.yellow[200]};
-                color: #493f13;
-                margin: 1rem 0;
-                font-size: clamp(10px, 2.5vw, 16px);
-                text-align: center;
-              `}
-            >
-              {gradingState && <GradingState gradingState={gradingState} />}
-            </div>
+          {getCourseMaterialExercise.data.peer_review_config && gradingState && reviewingStage && (
+            <GradingState gradingProgress={gradingState} reviewingStage={reviewingStage} />
           )}
           {/* Reviewing stage seems to be undefined at least for exams */}
-          {(reviewingStage === undefined ||
-            reviewingStage === "NotStarted" ||
-            reviewingStage === "ReviewedAndLocked") &&
+          {reviewingStage !== "PeerReview" &&
+            reviewingStage !== "SelfReview" &&
             getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
               <ExerciseTask
                 key={task.id}

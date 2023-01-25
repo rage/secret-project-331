@@ -76,6 +76,8 @@
   "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed.",
   "help-text-exercise-involves-peer-review": "To complete this exercise, you will need to peer review {{peer_reviews_to_give}} answers from other students after submitting your own answer. After that, you'll receive peer reviews from other students before getting the points.",
   "help-text-no-answers-to-peer-review-yet": "No answers available to peer review yet. Please come back later to give the peer reviews.",
+  "help-text-waiting-for-manual-grading": "Waiting for teacher to review your answer",
+  "help-text-waiting-for-peer-reviews": "Waiting for other students to review your answer",
   "heres-a-list-of-all-public-pages-for-this-course": "Here's a list of all public pages for this course:",
   "if-author-of-course-please-create-front-page": "If you are the author of the course, please create a front page for the course.",
   "impressive-reached-end-of-chapter": "Impressive! You've reached the end of this chapter.",

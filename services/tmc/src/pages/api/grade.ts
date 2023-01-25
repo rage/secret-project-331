@@ -253,53 +253,30 @@ const gradeInPodInner = async (
     false,
   )
 
-  // `as`: workaround due to typescript being unable to understand that timeoutStatusCode is (potentially) set to a non-null value in a callback
-  let timeoutStatusCode = null as k8s.V1Status | null
   // run tests, the image should have a /tmc-run script
   const tmcRunSocket: WebSocket = await kubeExec.exec(
     "default",
     podName,
     containerName,
-    ["timeout", `${DEFAULT_TASK_TIMEOUT_MS}ms`, "/tmc-run"],
+    ["/tmc-run"],
     process.stdout,
     process.stderr,
     null,
     false,
-    (statusCode) => {
-      timeoutStatusCode = statusCode
-    },
   )
-  // wait for tmc-run to finish
-  await new Promise((resolve, _reject) => {
+  // waits for tmc-run or a timeout to finish
+  const timedOut = await new Promise<boolean>((resolve, reject) => {
+    setTimeout(() => {
+      reject(false)
+    }, DEFAULT_TASK_TIMEOUT_MS)
+
     tmcRunSocket.onclose = () => {
-      resolve(null)
+      resolve(true)
     }
   })
-  console.log("tmc-run finished")
-
-  let timedOut = false
-  if (timeoutStatusCode !== null) {
-    if (timeoutStatusCode.code === 124) {
-      // tmc-run timed out
-      timedOut = true
-    } else if (timeoutStatusCode.code === 125) {
-      // timeout command failed
-      throw "Failed to run `timeout`"
-    } else if (timeoutStatusCode.code === 126) {
-      // tmc-run could not be invoked
-      throw "Failed to run `tmc-run`"
-    } else if (timeoutStatusCode.code === 127) {
-      // tmc-run could not be found
-      throw "Failed to find `tmc-run`"
-    } else if (timeoutStatusCode.code === 137) {
-      // tmc-run was killed
-      throw "`tmc-run` was killed (SIGKILL 9)"
-    }
-  } else {
-    throw "Did not receive a status code from exec"
-  }
 
   if (timedOut) {
+    console.log("tmc-run timed out")
     return {
       grading_progress: "Failed",
       score_given: 0,
@@ -307,6 +284,8 @@ const gradeInPodInner = async (
       feedback_text: "Test timed out",
       feedback_json: null,
     }
+  } else {
+    console.log("tmc-run finished")
   }
 
   // read test results, the container should now have an /app/test_output.txt file

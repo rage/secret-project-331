@@ -33,14 +33,11 @@ async fn grading_update(
     // Add new grading
     let submission =
         models::exercise_task_submissions::get_submission(&mut conn, *submission_id).await?;
-    if let Some(slide) =
-        models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id).await?
-    {
-        let exercise = models::exercises::get_by_id(&mut conn, slide.exercise_id).await?;
-        models::exercise_task_gradings::new_grading(&mut conn, &exercise, &submission).await?;
-    } else {
-        // ??
-    }
+    let slide =
+        models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
+            .await?;
+    let exercise = models::exercises::get_by_id(&mut conn, slide.exercise_id).await?;
+    models::exercise_task_gradings::new_grading(&mut conn, &exercise, &submission).await?;
 
     token.authorized_ok(web::Json(()))
 }

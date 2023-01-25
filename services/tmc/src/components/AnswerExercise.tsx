@@ -33,7 +33,6 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
       console.error("Cannot send state to parent because I don't have a port")
       return
     }
-    console.log("sending new")
     sendCurrentState(port, value)
   }
 

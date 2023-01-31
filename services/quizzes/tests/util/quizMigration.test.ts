@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
-import { isOldQuiz, migrateQuiz } from "../../src/util/quizMigration"
+import { isOldQuiz } from "../../src/util/migration/migrationSettings"
+import { migrateQuiz } from "../../src/util/migration/privateSpecQuiz"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,

@@ -11,22 +11,10 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
-} from "../../types/quizTypes/privateSpec"
-import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../types/types"
+} from "../../../types/quizTypes/privateSpec"
+import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../../types/types"
 
-/**
- * Check if the quiz version is old.
- *
- * @param quiz Quiz
- * @returns True if the quiz is older format, false if not
- */
-export const isOldQuiz = (quiz: Quiz | PrivateSpecQuiz) => {
-  return !Object.prototype.hasOwnProperty.call(quiz, "version")
-}
-
-// Default value for choose-n exercise
-// Not set in the previous version
-const DEFAULT_N = 2
+import { DEFAULT_N } from "./migrationSettings"
 
 export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
   quizOptions: NormalizedQuizItemOption[],
@@ -119,8 +107,8 @@ export const migrateQuizItem = (quizItem: QuizItem) => {
         body: quizItem.body,
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
-        maxLabel: (<QuizItem>quizItem).maxLabel ? (<QuizItem>quizItem).maxLabel : "?",
-        minLabel: (<QuizItem>quizItem).minLabel ? (<QuizItem>quizItem).minLabel : "?",
+        maxLabel: quizItem.maxLabel ? quizItem.maxLabel : "?",
+        minLabel: quizItem.minLabel ? quizItem.minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
       } satisfies PrivateSpecQuizItemScale

@@ -17,13 +17,13 @@ export type PublicSpecQuizItem =
   | PublicSpecQuizItemChooseN
   | PublicSpecQuizItemMultiplechoiceDropdown
 
-export interface PublicQuizItemOption {
-  id: string
-  order: number
-  correct: boolean
-  title: string
-  body: string | null
-}
+// export interface PublicQuizItemOption {
+//   id: string
+//   order: number
+//   correct: boolean
+//   title: string
+//   body: string | null
+// }
 
 export interface PublicSpecQuizItemMultiplechoice {
   type: "multiple-choice"
@@ -83,18 +83,18 @@ export interface PublicSpecQuizItemMatrix {
   order: number
 }
 
-export interface PublicSpecQuizItemTimelineItem {
-  id: string
-  /** The year the student is supposed to match to an event. */
-  year: string
-}
+// export interface PublicSpecQuizItemTimelineItem {
+//   id: string
+//   /** The year the student is supposed to match to an event. */
+//   year: string
+// }
 
 export interface PublicSpecQuizItemTimeline {
   type: "timeline"
   id: string
   order: number
   timelineItems: PublicSpecQuizItemTimelineItem[] | null
-  events: string[]
+  events: PublicTimelineEvent[]
 }
 
 export interface PublicSpecQuizItemChooseN {

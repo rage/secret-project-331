@@ -16,6 +16,8 @@ import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../
 
 import { DEFAULT_N } from "./migrationSettings"
 
+const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
+
 export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
   quizOptions: NormalizedQuizItemOption[],
 ) => {
@@ -36,7 +38,7 @@ export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
   return result
 }
 
-export const migrateQuizItem = (quizItem: QuizItem) => {
+export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
   switch (quizItem.type as OldQuizItemType) {
     case "checkbox":
       return {
@@ -131,7 +133,7 @@ export const migrateQuizItem = (quizItem: QuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
-        n: DEFAULT_N,
+        n: CHOOSE_N_DEFAULT_VALUE,
       } satisfies PrivateSpecQuizItemChooseN
     case "multiple-choice-dropdown":
       return {
@@ -170,7 +172,7 @@ export const migrateQuizItem = (quizItem: QuizItem) => {
  * @see PrivateSpecQuiz
  * @returns New version of Quiz
  */
-export const migrateQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
+export const migratePrivateSpecQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",
     id: oldQuiz.id,
@@ -183,7 +185,7 @@ export const migrateQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
   }
 
   oldQuiz.items.forEach((quizItem) => {
-    privateSpecQuiz.items.push(migrateQuizItem(quizItem))
+    privateSpecQuiz.items.push(migratePrivateSpecQuizItem(quizItem))
   })
 
   return privateSpecQuiz

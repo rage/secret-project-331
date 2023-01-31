@@ -8,7 +8,7 @@ import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChan
 import Button from "../../shared-module/components/Button"
 import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
-import { migrateQuiz } from "../../util/migration/privateSpecQuiz"
+import { migratePrivateSpecQuiz } from "../../util/migration/privateSpecQuiz"
 import { denormalizeData, normalizeData } from "../../util/normalizerFunctions"
 import BasicInformation from "../QuizEditForms/BasicInfo"
 import QuizItems from "../QuizEditForms/QuizItems"
@@ -36,11 +36,11 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
 
   // Preload migrated quiz
   if (state && !migratedQuiz) {
-    setMigratedQuiz(migrateQuiz(denormalizeData(state)))
+    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
   }
 
   const toggleMode = () => {
-    setMigratedQuiz(migrateQuiz(denormalizeData(state)))
+    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
     setExperimentalMode(!experimentalMode)
   }
 

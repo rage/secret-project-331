@@ -31,7 +31,7 @@ const TextBox = styled.div`
   }
 
   ${respondToOrLarger.md} {
-    padding: 2rem grem;
+    padding: 2rem 5rem;
   }
   ${respondToOrLarger.lg} {
     padding: 2rem 6rem;

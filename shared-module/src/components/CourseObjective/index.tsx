@@ -10,7 +10,11 @@ interface StyledObjectiveProps {
   index: number
 }
 
-const Wrapper = styled.div`
+interface WrapperProps {
+  length: number
+}
+
+const Wrapper = styled.div<WrapperProps>`
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -19,7 +23,7 @@ const Wrapper = styled.div`
   max-width: 2000px;
 
   ${respondToOrLarger.md} {
-    padding: 3rem;
+    padding: 1rem 7rem;
   }
 
   h2 {
@@ -34,7 +38,7 @@ const Wrapper = styled.div`
     line-height: 120%;
 
     ${respondToOrLarger.md} {
-      width: 400px;
+      width: ${({ length }) => (length < 5 ? "250px" : "600px")};
     }
   }
 `
@@ -109,8 +113,10 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
   children,
 }) => {
   const data = children && Object.values(children)[0].props.data.innerBlocks
+  const titleLength = title.split(" ").length
+  console.log("titleLength", titleLength)
   return (
-    <Wrapper>
+    <Wrapper length={titleLength}>
       <h2>{title}</h2>
       <TextBox>
         {data &&

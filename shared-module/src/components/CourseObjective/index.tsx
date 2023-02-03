@@ -45,10 +45,9 @@ const Wrapper = styled.div<WrapperProps>`
 
 const TextBox = styled.div`
   display: grid;
+  grid-auto-flow: column;
   grid-template-columns: 1fr;
   margin-bottom: 1rem;
-  align-items: center;
-  text-align: center;
   gap: 1rem;
   justify-content: center;
 
@@ -73,19 +72,16 @@ const TextBox = styled.div`
 `
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   background: ${({ index }) => (index === 1 ? `#1a2333` : `#f7f8f9`)};
   position: relative;
   overflow: hidden;
-  display: grid;
+  padding: 2rem;
   border: ${({ index }) => (index === 1 ? `none` : `2px solid #edf0f2`)};
   color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {
-    margin: auto 2rem 2rem 2rem;
     text-align: left;
-    padding-right: 0;
-    z-index: 99;
   }
 
   .list {
@@ -147,12 +143,12 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                   <h3
                     className={css`
                       font-size: 20px !important;
-                      margin: 2rem 2rem 0 2rem;
                       z-index: 20;
+                      line-height: 120%;
+                      margin-bottom: 1rem;
                       font-style: normal;
                       font-weight: 600;
                       text-align: left;
-                      padding-bottom: 1em;
                     `}
                   >
                     {innerBlocks[0].attributes.content}

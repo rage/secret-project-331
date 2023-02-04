@@ -5,6 +5,7 @@ import React, { Fragment } from "react"
 import { useTranslation } from "react-i18next"
 
 import ArrowSVGIcon from "../img/arrow.svg"
+import BackArrowIcon from "../img/backarrow.svg"
 import LockIcon from "../img/lock.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
@@ -71,6 +72,7 @@ const NextSectionLink: React.FC<
         margin-top: 3rem;
         font-family: ${headingFont};
         min-height: auto;
+        width: 100%:
         ${respondToOrLarger.md} {
           margin-top: 6rem;
           margin-bottom: 4rem;
@@ -156,14 +158,13 @@ const NextSectionLink: React.FC<
                   }
                 `}
               >
-                <ArrowSVGIcon
+                <BackArrowIcon
                   id="left-svg-icon"
                   role="presentation"
                   alt=""
                   width="25"
                   height="25"
                   viewBox="0 0 39 39"
-                  transform="rotate(180)"
                 />
               </div>
             </Link>
@@ -269,8 +270,8 @@ const NextSectionLink: React.FC<
                     id="right-svg-icon"
                     role="presentation"
                     alt=""
-                    width="40"
-                    height="40"
+                    width="30"
+                    height="30"
                     viewBox="0 0 39 39"
                   />
                 ) : (

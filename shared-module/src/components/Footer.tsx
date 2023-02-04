@@ -5,10 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import UHLogo from "../img/UHBrandLogo.svg"
 import MOOCfi from "../img/moocfiLogo.svg"
-import { baseTheme, headingFont, secondaryFont, typography } from "../styles"
+import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
-
-import ContriButeBanner from "./Banner/ContributeBanner"
 
 const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 
@@ -16,26 +14,15 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
 // eslint-disable-next-line i18next/no-literal-string
-const Wrapper = styled.div`
-  display: grid;
-  grid-template-rows: 1fr;
+const Container = styled.div`
   padding: 1rem;
-  color: #231f20;
-  position: relative;
-  gap: 40px;
 
   ${respondToOrLarger.sm} {
-    grid-template-columns: 1fr;
     padding: 4rem;
-    gap: 20px;
-    row-gap: 40px;
   }
 
   ${respondToOrLarger.lg} {
-    grid-template-columns: 1fr 0.6fr;
     padding: 4rem;
-    gap: 20px;
-    row-gap: 40px;
   }
 
   h1 {
@@ -44,6 +31,33 @@ const Wrapper = styled.div`
     font-weight: 600;
     font-size: clamp(24px, 2vw, 30px);
     color: ${baseTheme.colors.gray[700]};
+    padding: 0;
+
+    ${respondToOrLarger.sm} {
+      padding: 0 2rem 0 0;
+    }
+    ${respondToOrLarger.lg} {
+      padding: 0 2rem 0 5rem;
+    }
+  }
+`
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-rows: 1fr;
+  color: #231f20;
+  position: relative;
+  row-gap: 20px;
+
+  ${respondToOrLarger.sm} {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    row-gap: 20px;
+  }
+
+  ${respondToOrLarger.lg} {
+    grid-template-columns: 0.9fr 0.2fr;
+    gap: 20px;
+    row-gap: 20px;
   }
 `
 
@@ -56,9 +70,11 @@ const StyledLink = styled.a`
   transition: opacity 0.2s ease-in;
   margin-bottom: 5px;
   font-family: ${headingFont};
+  padding-left: 0;
 
-  ${respondToOrLarger.md} {
+  ${respondToOrLarger.lg} {
     margin-bottom: 10px;
+    padding-left: 4rem;
   }
 
   :hover {
@@ -79,10 +95,8 @@ const Text = styled.div`
   }
 
   ${respondToOrLarger.lg} {
-    padding: 0 2rem 0 2rem;
-  }
-  ${respondToOrLarger.xxl} {
-    padding: 0 2rem 0 2rem;
+    width: 70%;
+    padding: 0 5rem 0 5rem;
   }
 
   span {
@@ -132,63 +146,55 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
         margin-top: 2rem;
       `}
     >
-      <Wrapper>
-        <Text>
-          <h1>{t("about")}</h1>
-          <span>{t("about-mooc-center-description")}</span>
-          <span className="mooc-description">{t("mooc-project-description")}</span>
-        </Text>
-        <Links>
-          {/*           <h1
+      <Container>
+        <h1>{t("about")}</h1>
+        <Wrapper>
+          <Text>
+            <span>{t("about-mooc-center-description")}</span>
+            <span className="mooc-description">{t("mooc-project-description")}</span>
+          </Text>
+          <Links>
+            <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
+            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
+          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
+            {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
+          </Links>
+          <div
             className={css`
-              text-transform: uppercase;
+              display: flex;
+              align-content: space-between;
+              row-gap: 1.4em;
+              opacity: 0.9;
+
+              ${respondToOrLarger.sm} {
+                padding: 0 2rem 0 0;
+              }
+
+              ${respondToOrLarger.md} {
+                width: 90%;
+              }
+
+              ${respondToOrLarger.lg} {
+                padding: 1rem 2rem 0 5rem;
+              }
             `}
           >
-            {t("resources")}
-          </h1> */}
-          <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
-          {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
-          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
-          {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
-        </Links>
-        <div
-          className={css`
-            display: flex;
-            align-content: space-between;
-            row-gap: 1.4em;
-            opacity: 0.9;
-
-            ${respondToOrLarger.sm} {
-              padding: 0 2rem 0 0;
-            }
-
-            ${respondToOrLarger.md} {
-              width: 90%;
-            }
-
-            ${respondToOrLarger.lg} {
-              padding: 0 2rem 0 2rem;
-            }
-            ${respondToOrLarger.xxl} {
-              padding: 0 2rem 0 2rem;
-            }
-          `}
-        >
-          <LogoA
-            href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
-            // eslint-disable-next-line i18next/no-literal-string
-            aria-label="MOOC.fi"
-          >
-            <MOOCfi />
-          </LogoA>
-          <LogoA
-            href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
-            aria-label={t("university-of-helsinki")}
-          >
-            <UHLogo />
-          </LogoA>
-        </div>
-      </Wrapper>
+            <LogoA
+              href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
+              // eslint-disable-next-line i18next/no-literal-string
+              aria-label="MOOC.fi"
+            >
+              <MOOCfi />
+            </LogoA>
+            <LogoA
+              href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
+              aria-label={t("university-of-helsinki")}
+            >
+              <UHLogo />
+            </LogoA>
+          </div>
+        </Wrapper>
+      </Container>
     </footer>
   )
 }

@@ -153,13 +153,17 @@ const NextSectionLink: React.FC<
                     cursor: pointer;
                   }
 
-                  .arrow {
+                  svg {
                     fill: #44827e;
+                    width: 30%;
+                    ${respondToOrLarger.md} {
+                      width: 100%;
+                    }
                   }
                 `}
               >
                 <BackArrowIcon
-                  id="left-svg-icon"
+                  id="back-arrow-icon"
                   role="presentation"
                   alt=""
                   width="25"
@@ -201,8 +205,8 @@ const NextSectionLink: React.FC<
 
                   flex: 1;
                   line-height: 1.3;
-                  width: 68%;
-                  padding: 1.2rem 1.8rem;
+                  width: 100%;
+                  padding: 1.2rem 1rem;
 
                   overflow: hidden;
                   white-space: nowrap;
@@ -221,11 +225,16 @@ const NextSectionLink: React.FC<
                   .next-page-subtitle {
                     font-weight: medium;
                     color: #dae6e5;
-                    font-size: ${typography.paragraph};
+                    font-size: 15px;
+
+                    ${respondToOrLarger.md} {
+                      font-size: ${typography.paragraph};
+                    }
                   }
 
-                  ${respondToOrLarger.sm} {
-                    width: 100%;
+                  ${respondToOrLarger.md} {
+                    width: 68%;
+                    padding: 1.2rem 1.8rem;
                   }
                 `}
               >
@@ -240,7 +249,7 @@ const NextSectionLink: React.FC<
               <div
                 className={css`
                   color: white;
-                  padding: 1rem 1rem;
+                  padding: 16px 16px 16px 0;
                   background-color: ${url
                     ? baseTheme.colors.green[600]
                     : baseTheme.colors.gray[600]};
@@ -259,8 +268,8 @@ const NextSectionLink: React.FC<
 
                   svg {
                     width: 60%;
-                    ${respondToOrLarger.sm} {
-                      width: 80%;
+                    ${respondToOrLarger.md} {
+                      width: 100%;
                     }
                   }
                 `}

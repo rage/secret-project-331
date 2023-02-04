@@ -38,27 +38,23 @@ const Wrapper = styled.div<WrapperProps>`
     line-height: 120%;
 
     ${respondToOrLarger.md} {
-      width: ${({ length }) => (length < 5 ? "250px" : "600px")};
+      width: ${({ length }) => (length < 5 ? "400px" : "600px")};
     }
   }
 `
 
 const TextBox = styled.div`
   display: grid;
-  grid-auto-flow: column;
+  grid-auto-flow: none;
   grid-template-columns: 1fr;
   margin-bottom: 1rem;
   gap: 1rem;
   justify-content: center;
 
-  ${respondToOrLarger.md} {
-    padding: 0rem 0rem;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   ${respondToOrLarger.lg} {
     padding: 0rem 0rem;
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: column;
   }
 
   h3 {

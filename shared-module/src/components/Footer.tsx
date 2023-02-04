@@ -32,7 +32,7 @@ const Wrapper = styled.div`
   }
 
   ${respondToOrLarger.lg} {
-    grid-template-columns: 0.3fr 1fr 0.3fr;
+    grid-template-columns: 1fr 0.6fr;
     padding: 4rem;
     gap: 20px;
     row-gap: 40px;
@@ -41,21 +41,9 @@ const Wrapper = styled.div`
   h1 {
     margin-bottom: 0.8rem;
     line-height: 1;
-    font-size: 1.2rem;
+    font-weight: 600;
+    font-size: clamp(24px, 2vw, 30px);
     color: ${baseTheme.colors.gray[700]};
-    font-family: ${secondaryFont};
-  }
-
-  div:first-of-type {
-    margin-left: 0;
-
-    ${respondToOrLarger.md} {
-      margin-left: 0;
-    }
-
-    ${respondToOrLarger.lg} {
-      margin-left: 2em;
-    }
   }
 `
 
@@ -63,7 +51,8 @@ const StyledLink = styled.a`
   text-decoration: none;
   color: ${baseTheme.colors.gray[700]};
   font-size: 18px;
-  opacity: 0.7;
+  font-weight: 500;
+  opacity: 0.8;
   transition: opacity 0.2s ease-in;
   margin-bottom: 5px;
   font-family: ${headingFont};
@@ -97,8 +86,14 @@ const Text = styled.div`
   }
 
   span {
-    font-size: 18px;
+    font-size: 20px;
     padding-right: 0;
+    color: ${baseTheme.colors.gray[600]};
+  }
+
+  .mooc-description {
+    display: inline-block;
+    padding-top: 10px;
     opacity: 0.7;
   }
 `
@@ -112,6 +107,10 @@ const LogoA = styled.a`
   transition: filter 0.2s;
   &:hover {
     filter: brightness(34%) contrast(40%);
+  }
+
+  &:first-of-type {
+    padding-right: 1rem;
   }
 `
 
@@ -131,31 +130,50 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
       role="contentinfo"
       className={css`
         margin-top: 2rem;
-
-        h1 {
-          font-size: ${typography.h5};
-          font-weight: 500;
-        }
       `}
     >
-      <ContriButeBanner />
       <Wrapper>
+        <Text>
+          <h1>{t("about")}</h1>
+          <span>{t("about-mooc-center-description")}</span>
+          <span className="mooc-description">{t("mooc-project-description")}</span>
+        </Text>
+        <Links>
+          {/*           <h1
+            className={css`
+              text-transform: uppercase;
+            `}
+          >
+            {t("resources")}
+          </h1> */}
+          <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
+          {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
+          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
+          {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
+        </Links>
         <div
           className={css`
             display: flex;
-            flex-direction: column;
             align-content: space-between;
             row-gap: 1.4em;
             opacity: 0.9;
+
+            ${respondToOrLarger.sm} {
+              padding: 0 2rem 0 0;
+            }
+
+            ${respondToOrLarger.md} {
+              width: 90%;
+            }
+
+            ${respondToOrLarger.lg} {
+              padding: 0 2rem 0 2rem;
+            }
+            ${respondToOrLarger.xxl} {
+              padding: 0 2rem 0 2rem;
+            }
           `}
         >
-          <LogoA
-            href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
-            aria-label={t("university-of-helsinki")}
-          >
-            <UHLogo />
-          </LogoA>
-
           <LogoA
             href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
             // eslint-disable-next-line i18next/no-literal-string
@@ -163,30 +181,13 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
           >
             <MOOCfi />
           </LogoA>
+          <LogoA
+            href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
+            aria-label={t("university-of-helsinki")}
+          >
+            <UHLogo />
+          </LogoA>
         </div>
-        <Text>
-          <h1
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {t("about-mooc-center")}
-          </h1>
-          <span>{t("about-mooc-center-description")}</span>
-        </Text>
-        <Links>
-          <h1
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {t("resources")}
-          </h1>
-          <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
-          {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
-          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
-          {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
-        </Links>
       </Wrapper>
     </footer>
   )

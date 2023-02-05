@@ -16,13 +16,14 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 // eslint-disable-next-line i18next/no-literal-string
 const Container = styled.div`
   padding: 1rem;
+  background: #f7f8f9;
 
   ${respondToOrLarger.sm} {
     padding: 4rem;
   }
 
   ${respondToOrLarger.lg} {
-    padding: 4rem;
+    padding: 5rem 3rem;
   }
 
   h1 {
@@ -37,7 +38,7 @@ const Container = styled.div`
       padding: 0 2rem 0 0;
     }
     ${respondToOrLarger.lg} {
-      padding: 0 2rem 0 5rem;
+      padding: 0 2rem 0 3rem;
     }
   }
 `
@@ -74,7 +75,7 @@ const StyledLink = styled.a`
 
   ${respondToOrLarger.lg} {
     margin-bottom: 10px;
-    padding-left: 4rem;
+    padding-left: 3rem;
   }
 
   :hover {
@@ -95,8 +96,8 @@ const Text = styled.div`
   }
 
   ${respondToOrLarger.lg} {
-    width: 70%;
-    padding: 0 5rem 0 5rem;
+    width: 80%;
+    padding: 0 5rem 0 3rem;
   }
 
   span {
@@ -175,7 +176,7 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
               }
 
               ${respondToOrLarger.lg} {
-                padding: 1rem 2rem 0 5rem;
+                padding: 1rem 2rem 0 3rem;
               }
             `}
           >

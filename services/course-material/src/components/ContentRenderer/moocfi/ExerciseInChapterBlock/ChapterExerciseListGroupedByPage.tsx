@@ -60,7 +60,7 @@ const ChapterExerciseListGroupedByPage: React.FC<
       <>
         {page.exercises.length !== 0 && (
           <>
-            <PageBox pageTitle={page.title} />
+            <PageBox pageTitle={page.title} accordion={false} />
             <div>
               {page.exercises.map((e) => {
                 let userPoints = null

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -13,7 +12,6 @@ import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage
 const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
 > = ({ chapterId, courseInstanceId }) => {
-  const { t } = useTranslation()
   const getChaptersPagesWithExercises = useQuery(
     [`chapter-${chapterId}-pages-with-exercises`],
     () => fetchChaptersPagesWithExercises(chapterId),

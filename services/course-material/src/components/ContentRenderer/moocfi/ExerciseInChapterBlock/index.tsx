@@ -57,7 +57,7 @@ const ExerciseInChapterBlock: React.FC<
     <Wrapper>
       <details>
         <summary>
-          <PageBox pageTitle={"Exercise in this chapter"} accordion={true} />
+          <PageBox pageTitle={t("exercises-in-this-chapter")} accordion={true} />
         </summary>
         <ExercisesInChapter chapterId={chapterId} courseInstanceId={courseInstanceId} />
       </details>

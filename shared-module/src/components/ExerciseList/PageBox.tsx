@@ -43,7 +43,7 @@ const PageBoxRow = styled.div<StyledPageBoxProps>`
 
 export interface PageBoxExtraProps {
   pageTitle: string
-  accordion: boolean
+  accordion?: boolean
 }
 
 export type PageBoxProps = React.HTMLAttributes<HTMLDivElement> & PageBoxExtraProps

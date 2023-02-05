@@ -14,6 +14,9 @@ const Wrapper = styled.div`
   width: 100%;
   margin-top: 5px;
 `
+
+const MARGIN = "0.4em 0 0.4em 0.2em"
+const MARGIN_WITH_ICON = "0.4em 0 0.4em 1.2em"
 // eslint-disable-next-line i18next/no-literal-string
 const PageBoxRow = styled.div<StyledPageBoxProps>`
   position: relative;
@@ -34,7 +37,7 @@ const PageBoxRow = styled.div<StyledPageBoxProps>`
     font-weight: 600;
     display: inline-block;
     width: 100%;
-    margin: ${(props) => (props.accordion ? "0.4em 0 0.4em 1.2em" : "0.4em 0 0.4em 0.2em")};
+    margin: ${(props) => (props.accordion ? MARGIN_WITH_ICON : MARGIN)};
   }
 `
 

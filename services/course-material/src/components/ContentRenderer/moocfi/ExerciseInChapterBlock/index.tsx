@@ -47,7 +47,6 @@ const ExerciseInChapterBlock: React.FC<
 
   const chapterId = pageContext.pageData.chapter_id
   const courseInstanceId = pageContext.instance?.id
-  console.log("data", pageContext.pageData)
 
   if (!chapterId) {
     return <pre>{t("error-page-does-not-belong-to-chapter")}</pre>

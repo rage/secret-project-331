@@ -4,8 +4,8 @@
     "isValid": true,
     "name": "moocfi/hero-section",
     "attributes": {
-      "title": "A page that contains all blocks",
-      "subtitle": "Have fun!"
+      "subtitle": "Have fun!",
+      "title": "A page that contains all blocks"
     },
     "innerBlocks": []
   },
@@ -178,9 +178,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-1",
       "content": "<div>Heading 1</div>",
-      "level": 1,
-      "anchor": "heading-1"
+      "level": 1
     },
     "innerBlocks": []
   },
@@ -189,9 +189,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2",
       "content": "<div>Heading 2</div>",
-      "level": 2,
-      "anchor": "heading-2"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -200,9 +200,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-3",
       "content": "<div>Heading 3</div>",
-      "level": 3,
-      "anchor": "heading-3"
+      "level": 3
     },
     "innerBlocks": []
   },
@@ -211,9 +211,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-4",
       "content": "<div>Heading 4</div>",
-      "level": 4,
-      "anchor": "heading-4"
+      "level": 4
     },
     "innerBlocks": []
   },
@@ -222,9 +222,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-5",
       "content": "<div>Heading 5</div>",
-      "level": 5,
-      "anchor": "heading-5"
+      "level": 5
     },
     "innerBlocks": []
   },
@@ -233,9 +233,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-6",
       "content": "<div>Heading 6</div>",
-      "level": 6,
-      "anchor": "heading-6"
+      "level": 6
     },
     "innerBlocks": []
   },
@@ -244,10 +244,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-align-center",
       "content": "<div>Heading 2 Align Center</div>",
       "level": 2,
-      "textAlign": "center",
-      "anchor": "heading-2-align-center"
+      "textAlign": "center"
     },
     "innerBlocks": []
   },
@@ -256,10 +256,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-align-right",
       "content": "<div>Heading 2 Align Right</div>",
       "level": 2,
-      "textAlign": "right",
-      "anchor": "heading-2-align-right"
+      "textAlign": "right"
     },
     "innerBlocks": []
   },
@@ -268,10 +268,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-align-left",
       "content": "<div>Heading 2 Align Left</div>",
       "level": 2,
-      "textAlign": "left",
-      "anchor": "heading-2-align-left"
+      "textAlign": "left"
     },
     "innerBlocks": []
   },
@@ -280,9 +280,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-bold-italic-italicbold-link-link-new-tab-inline-code-keyboard-strikethrough-subscript-superscript-text-color",
       "content": "<div>Heading 2 <strong>Bold </strong><em>Italic<strong> ItalicBold</strong></em> <a href=\"http://project.local\">Link</a> <a rel=\"noreferrer noopener\" href=\"http://project-331.local\" target=\"_blank\">Link_new_tab</a> <br>Inline: <code>code</code> <kbd>keyboard</kbd> <br><s>strikethrough</s> <sub>subscript </sub><sup>superscript</sup> <span class=\"has-inline-color has-vivid-green-cyan-color\">text-color</span></div>",
-      "level": 2,
-      "anchor": "heading-2-bold-italic-italicbold-link-link-new-tab-inline-code-keyboard-strikethrough-subscript-superscript-text-color"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -291,9 +291,9 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-default",
       "content": "<div>Heading 2 Default</div>",
-      "level": 2,
-      "anchor": "heading-2-default"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -302,10 +302,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-small",
       "content": "<div>Heading 2 Small</div>",
       "fontSize": "small",
-      "level": 2,
-      "anchor": "heading-2-small"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -314,10 +314,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-normal",
       "content": "<div>Heading 2 Normal</div>",
       "fontSize": "normal",
-      "level": 2,
-      "anchor": "heading-2-normal"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -326,10 +326,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-medium",
       "content": "<div>Heading 2 Medium</div>",
       "fontSize": "medium",
-      "level": 2,
-      "anchor": "heading-2-medium"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -338,10 +338,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-large",
       "content": "<div>Heading 2 Large</div>",
       "fontSize": "large",
-      "level": 2,
-      "anchor": "heading-2-large"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -350,10 +350,10 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-huge",
       "content": "<div>Heading 2 Huge</div>",
       "fontSize": "huge",
-      "level": 2,
-      "anchor": "heading-2-huge"
+      "level": 2
     },
     "innerBlocks": []
   },
@@ -362,12 +362,12 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-background-text-color",
       "backgroundColor": "vivid-red",
       "content": "<div>Heading 2 Background &amp; Text Color</div>",
       "level": 2,
       "textAlign": "left",
-      "textColor": "white",
-      "anchor": "heading-2-background-text-color"
+      "textColor": "white"
     },
     "innerBlocks": []
   },
@@ -376,12 +376,12 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-bg-text-align-center",
       "backgroundColor": "black",
-      "content": "<div>Heading 2 BG &amp; Text Align Center</div>",
+      "content": "Heading 2 BG &amp; Text Align Center",
       "level": 2,
       "textAlign": "center",
-      "textColor": "white",
-      "anchor": "heading-2-bg-text-align-center"
+      "textColor": "white"
     },
     "innerBlocks": []
   },
@@ -390,12 +390,12 @@
     "isValid": true,
     "name": "core/heading",
     "attributes": {
+      "anchor": "heading-2-bg-text-align-right",
       "backgroundColor": "cyan-bluish-gray",
-      "content": "<div>Heading 2 BG &amp; Text Align Right</div>",
+      "content": "Heading 2 BG &amp; Text Align Right",
       "level": 2,
       "textAlign": "right",
-      "textColor": "vivid-cyan-blue",
-      "anchor": "heading-2-bg-text-align-right"
+      "textColor": "vivid-cyan-blue"
     },
     "innerBlocks": []
   },
@@ -405,9 +405,163 @@
     "name": "core/list",
     "attributes": {
       "ordered": false,
-      "values": "<li>Unordered List<ul><li>Item<ul><li>Inline <code>code </code><kbd>keyboard </kbd><s>strikethrough</s> <sub>subscript </sub><sup>superscript </sup><span class=\"has-inline-color has-vivid-green-cyan-color\">text-inline-color</span></li><li>One<ul><li>Two<ul><li>Three<ul><li>Four<ol><li>Five</li><li>Six</li></ol></li></ul></li></ul></li></ul></li></ul></li></ul></li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "ca902bf0-748d-4eb4-951f-a94607e5a5b9",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Unordered List"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "cd873796-a570-4974-8813-39170f6d54dc",
+            "isValid": true,
+            "name": "core/list",
+            "attributes": {
+              "ordered": false,
+              "values": ""
+            },
+            "innerBlocks": [
+              {
+                "clientId": "b7736933-b046-4348-b6b0-590e328cfa26",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "Item"
+                },
+                "innerBlocks": [
+                  {
+                    "clientId": "c28e0b29-e60d-4c37-a891-595f1b4bc3f9",
+                    "isValid": true,
+                    "name": "core/list",
+                    "attributes": {
+                      "ordered": false,
+                      "values": ""
+                    },
+                    "innerBlocks": [
+                      {
+                        "clientId": "67d27d78-6ae3-446f-932c-3f3350b8899f",
+                        "isValid": true,
+                        "name": "core/list-item",
+                        "attributes": {
+                          "content": "Inline&nbsp;<code>code&nbsp;</code><kbd>keyboard&nbsp;</kbd><s>strikethrough</s>&nbsp;<sub>subscript&nbsp;</sub><sup>superscript&nbsp;</sup><span class=\"has-inline-color has-vivid-green-cyan-color\">text-inline-color</span>"
+                        },
+                        "innerBlocks": []
+                      },
+                      {
+                        "clientId": "d87d0f13-50fd-46c5-a3f4-7d003c76fcd9",
+                        "isValid": true,
+                        "name": "core/list-item",
+                        "attributes": {
+                          "content": "One"
+                        },
+                        "innerBlocks": [
+                          {
+                            "clientId": "da503b28-1c73-421d-8c8e-53e01815660f",
+                            "isValid": true,
+                            "name": "core/list",
+                            "attributes": {
+                              "ordered": false,
+                              "values": ""
+                            },
+                            "innerBlocks": [
+                              {
+                                "clientId": "c15817e3-7079-4acc-8107-ae2b2ab004ac",
+                                "isValid": true,
+                                "name": "core/list-item",
+                                "attributes": {
+                                  "content": "Two"
+                                },
+                                "innerBlocks": [
+                                  {
+                                    "clientId": "e48ffb44-8e18-41e0-bf21-41a69675e1ba",
+                                    "isValid": true,
+                                    "name": "core/list",
+                                    "attributes": {
+                                      "ordered": false,
+                                      "values": ""
+                                    },
+                                    "innerBlocks": [
+                                      {
+                                        "clientId": "f1d336d4-7e9d-474d-8c7b-191d1b495f58",
+                                        "isValid": true,
+                                        "name": "core/list-item",
+                                        "attributes": {
+                                          "content": "Three"
+                                        },
+                                        "innerBlocks": [
+                                          {
+                                            "clientId": "e1fc5a4a-7c58-48f7-8f2b-8b6311c09c7a",
+                                            "isValid": true,
+                                            "name": "core/list",
+                                            "attributes": {
+                                              "ordered": false,
+                                              "values": ""
+                                            },
+                                            "innerBlocks": [
+                                              {
+                                                "clientId": "aae98e0e-6b7a-4b1d-af0d-05dfc60c12c5",
+                                                "isValid": true,
+                                                "name": "core/list-item",
+                                                "attributes": {
+                                                  "content": "Four"
+                                                },
+                                                "innerBlocks": [
+                                                  {
+                                                    "clientId": "8b33a453-46fa-456c-8c99-4f6c667f2a37",
+                                                    "isValid": true,
+                                                    "name": "core/list",
+                                                    "attributes": {
+                                                      "ordered": true,
+                                                      "values": ""
+                                                    },
+                                                    "innerBlocks": [
+                                                      {
+                                                        "clientId": "b663860a-c75b-4633-8d9e-a2082ebc0c5a",
+                                                        "isValid": true,
+                                                        "name": "core/list-item",
+                                                        "attributes": {
+                                                          "content": "Five"
+                                                        },
+                                                        "innerBlocks": []
+                                                      },
+                                                      {
+                                                        "clientId": "2d4d972f-91cc-41e3-846c-cf9700ce52e9",
+                                                        "isValid": true,
+                                                        "name": "core/list-item",
+                                                        "attributes": {
+                                                          "content": "Six"
+                                                        },
+                                                        "innerBlocks": []
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "clientId": "29dc31e9-b0df-4f8d-befc-590bd7b6b1d8",
@@ -415,9 +569,70 @@
     "name": "core/list",
     "attributes": {
       "ordered": true,
-      "values": "<li>Ordered<ol><li>Item</li><li>Two&nbsp;<a href=\"http://project-331.local/\">link</a>&nbsp;<a rel=\"noreferrer noopener\" href=\"http://project-331.local/\" target=\"_blank\">link_new_tab</a>&nbsp;<strong>bold</strong>&nbsp;<em>italic</em>&nbsp;<strong><em>bolditalic</em></strong><ol><li>Three</li></ol></li></ol></li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "cb58cce3-e1a7-4ffd-a3c2-fe78a8723a1a",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Ordered"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "a6d31017-bea2-430d-9767-f2bf80d9f49d",
+            "isValid": true,
+            "name": "core/list",
+            "attributes": {
+              "ordered": true,
+              "values": ""
+            },
+            "innerBlocks": [
+              {
+                "clientId": "371f80e3-6e13-4c1a-8cad-993fc008328b",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "Item"
+                },
+                "innerBlocks": []
+              },
+              {
+                "clientId": "3e7acbf2-99bf-491b-a9b0-e4b4303085fc",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "Two <a href=\"http://project-331.local/\">link</a><a rel=\"noreferrer noopener\" href=\"http://project-331.local/\" target=\"_blank\">link_new_tab</a><strong>bold</strong><em>italic</em><strong><em>bolditalic</em></strong>"
+                },
+                "innerBlocks": [
+                  {
+                    "clientId": "4619d013-1104-4f9f-b3fc-946beb90c339",
+                    "isValid": true,
+                    "name": "core/list",
+                    "attributes": {
+                      "ordered": true,
+                      "values": ""
+                    },
+                    "innerBlocks": [
+                      {
+                        "clientId": "fa09481a-c45b-4b3a-adce-6b0a7039f6ee",
+                        "isValid": true,
+                        "name": "core/list-item",
+                        "attributes": {
+                          "content": "Three"
+                        },
+                        "innerBlocks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "clientId": "29ae88a2-34fc-4566-8f9d-193d91355936",
@@ -427,9 +642,40 @@
       "backgroundColor": "black",
       "ordered": false,
       "textColor": "white",
-      "values": "<li>List with background<ul><li>and text color</li></ul></li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "2f2f7271-b4af-4c89-bb94-a39de8b8e957",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List with background"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "ffa32e19-e3e7-4aa9-b9a0-ca87939d06e9",
+            "isValid": true,
+            "name": "core/list",
+            "attributes": {
+              "ordered": false,
+              "values": ""
+            },
+            "innerBlocks": [
+              {
+                "clientId": "b923334d-754a-4b19-9e95-ef2bdd630e5a",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "and text color"
+                },
+                "innerBlocks": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     "clientId": "0e2a4be6-ae6e-4f9f-baf8-4d41d23b950d",
@@ -438,9 +684,19 @@
     "attributes": {
       "fontSize": "small",
       "ordered": false,
-      "values": "<li>List Font Size Small</li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "bba90bb6-579a-4ad2-a52e-0dce8c6fe52b",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Font Size Small"
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "bb2714fe-e7f5-421f-ab22-07897fe37b81",
@@ -449,9 +705,19 @@
     "attributes": {
       "fontSize": "large",
       "ordered": true,
-      "values": "<li>List Font Size Large</li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "c10c4edc-b4d2-4cd8-bfb6-280c86a6cf14",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Font Size Large"
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "307ff4b0-4eac-426d-9c29-838cb57d0585",
@@ -461,9 +727,46 @@
       "ordered": true,
       "reversed": true,
       "start": 5,
-      "values": "<li>Ordered</li><li>Reversed</li><li>Start Value 5</li><li>Two</li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "76fa057b-5da9-42cb-959f-5522e001648b",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Ordered"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "59bef14c-8246-4908-837f-e7cc04d3a1c7",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Reversed"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "a45e4328-e239-4016-a827-3221a629d2da",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Start Value 5"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "eb05c0e3-4319-46dd-8e30-d04471ab8afe",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Two"
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "e36001f8-f226-4f4a-a7c7-5a7fc7715ee2",
@@ -472,9 +775,37 @@
     "attributes": {
       "ordered": true,
       "reversed": true,
-      "values": "<li>Ordered</li><li>Reversed</li><li>No start value</li>"
+      "values": ""
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "5f268d9b-318e-4a45-9b32-93e1ea16cde4",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Ordered"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "c78c02d0-1f99-4712-9474-a1af67473bcc",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Reversed"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "eb751a29-cdf1-483f-b42f-9d4e5df7e06a",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "No start value"
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "c7095701-7edc-4736-9048-7a626e408abb",
@@ -504,7 +835,7 @@
     },
     "innerBlocks": [
       {
-        "clientId": "921c6a04-1a0e-4397-a40d-8cd737ef440a",
+        "clientId": "d7cd3c4a-30a8-42ec-8e25-c705855cd2bc",
         "isValid": true,
         "name": "core/paragraph",
         "attributes": {
@@ -693,10 +1024,10 @@
       "alt": "",
       "blurDataUrl": "",
       "caption": "450x450, center",
+      "height": 450,
       "linkDestination": "media",
       "sizeSlug": "large",
       "url": "https://storage.googleapis.com/download-moocfi/moocfi.svg",
-      "height": 450,
       "width": 450
     },
     "innerBlocks": []
@@ -853,126 +1184,176 @@
     "innerBlocks": []
   },
   {
-    "name": "core/quote",
-    "isValid": true,
     "clientId": "0d009bd7-6666-4516-8093-4a0bc46adafa",
+    "isValid": true,
+    "name": "core/quote",
     "attributes": {
       "align": "left",
-      "value": "<p>TLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>",
-      "citation": "Somebody somewhere"
+      "citation": "Somebody somewhere",
+      "value": "<p>TLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>"
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "5c7061c2-b684-4643-a8c2-a5a727df434f",
+        "name": "core/paragraph",
+        "isValid": true,
+        "attributes": {
+          "content": "TLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus ",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "49258bd4-1533-4015-890a-9209d5afb5f7",
-    "name": "core/quote",
     "isValid": true,
+    "name": "core/quote",
     "attributes": {
-      "value": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>",
+      "align": "right",
       "citation": "Somebody from somewhere",
-      "align": "right"
+      "value": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>"
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "5a2cc28b-8c9f-419d-84e5-57087ccceea9",
+        "name": "core/paragraph",
+        "isValid": true,
+        "attributes": {
+          "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus ",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
+    "clientId": "223a087c-e5ea-43ee-a384-83f671f082e7",
+    "isValid": true,
     "name": "moocfi/infobox",
     "attributes": {
       "backgroundColor": "#faf5f3"
     },
-    "clientId": "223a087c-e5ea-43ee-a384-83f671f082e7",
     "innerBlocks": [
       {
+        "clientId": "fcd2d80b-be77-49ee-b318-cbaa3016689c",
+        "isValid": true,
         "name": "core/heading",
         "attributes": {
           "content": "What is inside this infobox?",
           "level": 3
         },
-        "clientId": "fcd2d80b-be77-49ee-b318-cbaa3016689c",
-        "innerBlocks": [],
-        "isValid": true
+        "innerBlocks": []
       },
       {
+        "clientId": "ce46dfae-ec7f-4137-a5c5-4606aa71446f",
+        "isValid": true,
         "name": "core/paragraph",
         "attributes": {
           "content": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
           "dropCap": false
         },
-        "clientId": "ce46dfae-ec7f-4137-a5c5-4606aa71446f",
-        "innerBlocks": [],
-        "isValid": true
+        "innerBlocks": []
       },
       {
+        "clientId": "be771fdc-7f94-4fc9-8e03-0ca375a3e2bd",
+        "isValid": true,
         "name": "core/paragraph",
         "attributes": {
           "content": "<strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
           "dropCap": false
         },
-        "clientId": "be771fdc-7f94-4fc9-8e03-0ca375a3e2bd",
-        "innerBlocks": [],
-        "isValid": true
+        "innerBlocks": []
       }
-    ],
-    "isValid": true
+    ]
   },
   {
+    "clientId": "9a6b79ac-c0d9-4f17-8d67-2475187a3d35",
+    "isValid": true,
     "name": "moocfi/aside",
     "attributes": {
       "backgroundColor": "#ebf5fb",
       "separatorColor": "#007acc"
     },
-    "clientId": "9a6b79ac-c0d9-4f17-8d67-2475187a3d35",
     "innerBlocks": [
       {
+        "clientId": "dc631127-cd91-4022-826c-f5c1d7450c7a",
+        "isValid": true,
         "name": "core/heading",
         "attributes": {
           "content": "What is inside this aside?",
           "level": 3
         },
-        "clientId": "dc631127-cd91-4022-826c-f5c1d7450c7a",
-        "innerBlocks": [],
-        "isValid": true
+        "innerBlocks": []
       },
       {
+        "clientId": "61f83af4-2916-44f5-8605-2786f6eb168f",
+        "isValid": true,
         "name": "core/paragraph",
         "attributes": {
           "content": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
           "dropCap": false
         },
-        "clientId": "61f83af4-2916-44f5-8605-2786f6eb168f",
-        "innerBlocks": [],
-        "isValid": true
+        "innerBlocks": []
       },
       {
+        "clientId": "a7544e6f-e55a-4a97-a5fb-9c8b4d91e64e",
+        "isValid": true,
         "name": "core/paragraph",
         "attributes": {
           "content": "<strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
           "dropCap": false
         },
-        "clientId": "a7544e6f-e55a-4a97-a5fb-9c8b4d91e64e",
-        "innerBlocks": [],
-        "isValid": true
+        "innerBlocks": []
       }
-    ],
-    "isValid": true
+    ]
   },
   {
-    "attributes": {},
     "clientId": "1d7f1ee6-4128-457c-b293-14ca913f0dc8",
+    "isValid": true,
+    "name": "moocfi/learning-objectives",
+    "attributes": {},
     "innerBlocks": [
       {
+        "clientId": "5747acc6-d5d0-4399-b406-f9ec14fd92b0",
+        "isValid": true,
+        "name": "core/list",
         "attributes": {
           "ordered": false,
           "placeholder": "Insert text...",
-          "values": "<li>This is the first objective of this chapter</li><li>This is the second objective of this chapter</li><li>This is the third objective of this chapter</li>"
+          "values": ""
         },
-        "clientId": "5747acc6-d5d0-4399-b406-f9ec14fd92b0",
-        "innerBlocks": [],
-        "isValid": true,
-        "name": "core/list"
+        "innerBlocks": [
+          {
+            "clientId": "63f8f525-1ff1-4ffc-8b80-6661b4074185",
+            "isValid": true,
+            "name": "core/list-item",
+            "attributes": {
+              "content": "This is the first objective of this chapter"
+            },
+            "innerBlocks": []
+          },
+          {
+            "clientId": "9d576d0e-0708-4ef5-9bf6-2aadd6fe489f",
+            "isValid": true,
+            "name": "core/list-item",
+            "attributes": {
+              "content": "This is the second objective of this chapter"
+            },
+            "innerBlocks": []
+          },
+          {
+            "clientId": "942fb13e-21c0-4516-936a-5d2de463f309",
+            "isValid": true,
+            "name": "core/list-item",
+            "attributes": {
+              "content": "This is the third objective of this chapter"
+            },
+            "innerBlocks": []
+          }
+        ]
       }
-    ],
-    "isValid": true,
-    "name": "moocfi/learning-objectives"
+    ]
   },
   {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",
@@ -1650,8 +2031,8 @@
         "isValid": true,
         "name": "core/button",
         "attributes": {
-          "text": "Button Primary",
-          "className": "is-style-material-primary-button"
+          "className": "is-style-material-primary-button",
+          "text": "Button Primary"
         },
         "innerBlocks": []
       },
@@ -1660,18 +2041,18 @@
         "isValid": true,
         "name": "core/button",
         "attributes": {
-          "text": "Button SECONDARY",
-          "className": "is-style-material-secondary-button"
+          "className": "is-style-material-secondary-button",
+          "text": "Button SECONDARY"
         },
         "innerBlocks": []
       },
       {
         "clientId": "ba3fa765-5e46-4f67-b27a-002ba399cf10",
-        "name": "core/button",
         "isValid": true,
+        "name": "core/button",
         "attributes": {
-          "text": "BUTTON TERTIARY",
-          "className": "is-style-material-tertiary-button"
+          "className": "is-style-material-tertiary-button",
+          "text": "BUTTON TERTIARY"
         },
         "innerBlocks": []
       }
@@ -1687,8 +2068,8 @@
     "innerBlocks": [
       {
         "clientId": "8e410195-8cc0-4dfc-a080-0a9549f089a0",
-        "name": "core/button",
         "isValid": true,
+        "name": "core/button",
         "attributes": {
           "text": "BUTTON"
         },

@@ -97,7 +97,19 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
     >
-  >({})
+  >({
+    disableCustomColors: false,
+    disableCustomEditorFontSizes: false,
+    colors: [
+      // eslint-disable-next-line i18next/no-literal-string
+      { color: "#ffffff", name: "White", slug: "white" },
+      // eslint-disable-next-line i18next/no-literal-string
+      { color: "#000000", name: "Black", slug: "black" },
+    ],
+    color: {
+      background: true,
+    },
+  })
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 

@@ -1,6 +1,7 @@
 {
+  "about": "About",
   "about-mooc-center": "About MOOC center",
-  "about-mooc-center-description": "The MOOC Center creates custom online courses for the University of Helsinki. It’s behind the highly popular courses that have been available in mooc.fi from 2012. The platform for the courses has been developed in-house by teams comprising both university employees and students.",
+  "about-mooc-center-description": "The University of Helsinki MOOC Center makes high-quality online education possible by developing and researching educational software and online learning materials. Teachers both within and without the University of Helsinki rely on our tools to create impactful teaching materials. Our popular Massive Open Online Courses (MOOCs) have been available through MOOC.fi since 2012.",
   "about-this-project": "About this project",
   "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub:",
   "accessibility": "Accessibility",
@@ -56,6 +57,7 @@
   "log-in": "Log in",
   "log-out": "Log out",
   "modules": "Modules",
+  "mooc-project-description": "This website is powered by an open source software developed by the University of Helsinki MOOC Center.",
   "navigation-menu": "Navigation menu",
   "next-page": "Next page",
   "no": "No",

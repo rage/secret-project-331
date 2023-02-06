@@ -30,6 +30,9 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
 }) => {
   const { t } = useTranslation()
   const isReady = false
+  if (module.grade === 0 || module.passed === false) {
+    return null
+  }
   return (
     <CTAWrapper>
       <a

@@ -265,17 +265,18 @@ const gradeInPodInner = async (
     false,
   )
   // waits for tmc-run or a timeout to finish
-  const timedOut = await new Promise<boolean>((resolve, reject) => {
-    setTimeout(() => {
-      reject(false)
-    }, DEFAULT_TASK_TIMEOUT_MS)
-
+  const tmcRunPromise = new Promise<{ timedOut: boolean }>((resolve) => {
     tmcRunSocket.onclose = () => {
-      resolve(true)
+      resolve({ timedOut: false })
     }
   })
-
-  if (timedOut) {
+  const timeOut = new Promise<{ timedOut: boolean }>((resolve) => {
+    setTimeout(() => {
+      resolve({ timedOut: true })
+    })
+  })
+  const result = await Promise.race([tmcRunPromise, timeOut])
+  if (result.timedOut) {
     console.log("tmc-run timed out")
     return {
       grading_progress: "Failed",

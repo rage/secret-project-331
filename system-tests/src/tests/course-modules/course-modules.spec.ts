@@ -6,7 +6,8 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("Course modules test", async ({ page, headless }) => {
+  test.slow()
   // navigate to module page
   await page.goto("http://project-331.local/")
   await page.locator("text=University of Helsinki, Department of Computer Science").click()

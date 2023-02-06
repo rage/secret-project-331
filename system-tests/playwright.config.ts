@@ -17,6 +17,7 @@ const config: PlaywrightTestConfig = {
   retries: process.env.GITHUB_REF === "refs/heads/master" ? 2 : 0,
   // Please don't increase this. Instead, tag your slow test as slow: https://playwright.dev/docs/api/class-test#test-slow-1
   timeout: 100000,
+  workers: "50%",
   use: {
     navigationTimeout: 15000,
     actionTimeout: 15000,

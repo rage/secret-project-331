@@ -53,22 +53,23 @@ const ChapterParts = styled.div`
     background-color: #D8D8D8;
     font-weight: 500;
 
-    .chapter-part-arrow {
-      // visibility: visible;
-    }
-
     :hover {
       background-color: rgb(235, 239, 242) !important;
     }
   `}
   :hover {
     background-color: rgb(235, 239, 242);
+
+    svg {
+      fill: ${baseTheme.colors.gray[600]};
+    }
   }
 
   svg {
     position: absolute;
     right: 30px;
     top: 40%;
+    fill: ${baseTheme.colors.gray[300]};
   }
 
   span {
@@ -122,7 +123,7 @@ const PagesInChapterBox: React.FC<
               <span>{props.chapterIndex}</span>
             </PageNumberBox>
             <span>{props.chapterTitle}</span>
-            <ArrowSVGIcon className="chapter-part-arrow" role="presentation" alt="" width="15" />
+            <ArrowSVGIcon className="page-link-arrow" role="presentation" alt="" width="15" />
           </ChapterParts>
         </Link>
       </>

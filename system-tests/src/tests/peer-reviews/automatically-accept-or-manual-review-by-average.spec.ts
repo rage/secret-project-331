@@ -66,10 +66,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      beforeScreenshot: async () =>
-        await page1
-          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
-          .scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -79,10 +76,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      beforeScreenshot: async () =>
-        await page2
-          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
-          .scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     // Teacher reviews answers
@@ -110,10 +104,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      beforeScreenshot: async () =>
-        await page1
-          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
-          .scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -123,10 +114,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      beforeScreenshot: async () =>
-        await page2
-          .getByText("AutomaticallyAcceptOrManualReviewByAverage")
-          .scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
   })
 })

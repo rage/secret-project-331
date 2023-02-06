@@ -76,8 +76,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page1,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
-      beforeScreenshot: async () =>
-        await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
     await fillPeerReview(page1, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
@@ -86,8 +85,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page1,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
-      beforeScreenshot: async () =>
-        await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     // Student 2 starts peer review
@@ -97,8 +95,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page2,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
-      beforeScreenshot: async () =>
-        await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
     await fillPeerReview(page2, ["Disagree", "Disagree"])
     await expectScreenshotsToMatchSnapshots({
@@ -107,8 +104,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: page2,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
-      beforeScreenshot: async () =>
-        await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     // Teacher checks answers requiring attention
@@ -137,8 +133,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
-      beforeScreenshot: async () =>
-        await page1.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     // Student 2 views his reviews and grading
@@ -150,8 +145,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
-      beforeScreenshot: async () =>
-        await page2.getByText("ManualReviewEverything").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
   })
 

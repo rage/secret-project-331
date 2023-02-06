@@ -47,8 +47,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       page: page1,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      beforeScreenshot: async () =>
-        await page1.getByText("AutomaticallyAcceptOrRejectByAverage").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     // User 2 neavigates to exercise and answers
@@ -70,8 +69,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      beforeScreenshot: async () =>
-        await page2.getByText("AutomaticallyAcceptOrRejectByAverage").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     // User 1 writes reviews
@@ -87,8 +85,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      beforeScreenshot: async () =>
-        await page1.getByText("AutomaticallyAcceptOrRejectByAverage").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -98,8 +95,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      beforeScreenshot: async () =>
-        await page2.getByText("AutomaticallyAcceptOrRejectByAverage").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     await page1.reload()
@@ -112,8 +108,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      beforeScreenshot: async () =>
-        await page1.getByText("AutomaticallyAcceptOrRejectByAverage").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -123,8 +118,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      beforeScreenshot: async () =>
-        await page2.getByText("AutomaticallyAcceptOrRejectByAverage").scrollIntoViewIfNeeded(),
+      scrollToYCoordinate: 0,
     })
   })
 })

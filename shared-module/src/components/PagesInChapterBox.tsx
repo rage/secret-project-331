@@ -59,10 +59,6 @@ const ChapterParts = styled.div`
   `}
   :hover {
     background-color: rgb(235, 239, 242);
-
-    svg {
-      fill: ${baseTheme.colors.gray[600]};
-    }
   }
 
   svg {
@@ -70,6 +66,10 @@ const ChapterParts = styled.div`
     right: 30px;
     top: 40%;
     fill: ${baseTheme.colors.gray[300]};
+  }
+
+  :hover svg {
+    fill: ${baseTheme.colors.gray[600]};
   }
 
   span {

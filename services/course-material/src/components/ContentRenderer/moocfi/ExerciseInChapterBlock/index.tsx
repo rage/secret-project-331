@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
-import PageBox from "../../../../shared-module/components/ExerciseList/PageBox"
+import AccordionIcon from "../../../../shared-module//img/accordion-arrow.svg"
 import Spinner from "../../../../shared-module/components/Spinner"
-import { baseTheme } from "../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExercisesInChapter from "./ExercisesInChapter"
@@ -14,12 +14,32 @@ import ExercisesInChapter from "./ExercisesInChapter"
 const Wrapper = styled.div`
   margin: 4rem 0;
 
-  summary {
-    display: unset;
-  }
-
   details {
     transition: all 0.3s ease-in-out;
+  }
+
+  summary {
+    height: 100%;
+    border-radius: 2px;
+    position: relative;
+    padding: 0.6em 1em;
+    list-style-type: none;
+    color: ${baseTheme.colors.gray[600]};
+    text-decoration: none;
+    background: #f2f5f7;
+    margin: 5px 0 5px 0;
+    display: flex;
+    justify-content: center;
+
+    span {
+      vertical-align: top;
+      font-family: ${headingFont};
+      font-size: clamp(16px, 1vw, 18px);
+      font-weight: 600;
+      display: inline-block;
+      width: 100%;
+      margin: 0.4em 0 0.4em 1.2em;
+    }
   }
 
   details summary svg {
@@ -56,7 +76,8 @@ const ExerciseInChapterBlock: React.FC<
     <Wrapper>
       <details>
         <summary>
-          <PageBox pageTitle={t("exercises-in-this-chapter")} accordion={true} />
+          <AccordionIcon />
+          <span>{t("exercises-in-this-chapter")}</span>
         </summary>
         <ExercisesInChapter chapterId={chapterId} courseInstanceId={courseInstanceId} />
       </details>

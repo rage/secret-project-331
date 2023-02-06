@@ -96,12 +96,12 @@ const Text = styled.div`
   }
 
   ${respondToOrLarger.lg} {
-    width: 80%;
+    width: 90%;
     padding: 0 5rem 0 3rem;
   }
 
   span {
-    font-size: 20px;
+    font-size: 18px;
     padding-right: 0;
     color: ${baseTheme.colors.gray[600]};
   }

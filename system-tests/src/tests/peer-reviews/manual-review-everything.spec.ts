@@ -233,6 +233,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       pageScreenshotOptions: { fullPage: true },
     })
+
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
     await expectScreenshotsToMatchSnapshots({

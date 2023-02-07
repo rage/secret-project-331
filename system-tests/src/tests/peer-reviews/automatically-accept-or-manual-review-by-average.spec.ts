@@ -72,7 +72,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -82,7 +82,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // Teacher reviews answers
@@ -110,7 +110,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -120,7 +120,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
   })
 })

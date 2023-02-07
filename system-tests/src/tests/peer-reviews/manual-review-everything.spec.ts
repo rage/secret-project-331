@@ -88,6 +88,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student1Page, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
@@ -97,6 +98,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // Student 2 starts peer review
@@ -107,6 +109,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
     await expectScreenshotsToMatchSnapshots({
@@ -116,6 +119,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // Teacher checks answers requiring attention
@@ -145,6 +149,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // Student 2 views his reviews and grading
@@ -157,6 +162,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
   })
 
@@ -225,8 +231,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: student2Page,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      beforeScreenshot: async () =>
-        await student2Page.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
+      pageScreenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
@@ -236,8 +241,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: student2Page,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      beforeScreenshot: async () =>
-        await student2Page.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // student 1 starts a peer review
@@ -247,8 +251,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: student1Page,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      beforeScreenshot: async () =>
-        await student1Page.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
+      pageScreenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student1Page, ["Agree", "Agree"])
     await expectScreenshotsToMatchSnapshots({
@@ -257,8 +260,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       page: student1Page,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      beforeScreenshot: async () =>
-        await student1Page.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // teacher checks the answers
@@ -287,8 +289,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      beforeScreenshot: async () =>
-        await student1Page.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // Student 2 seeing the score
@@ -300,8 +301,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      beforeScreenshot: async () =>
-        await student2Page.getByText("ManualReviewEverything2").scrollIntoViewIfNeeded(),
+      pageScreenshotOptions: { fullPage: true },
     })
   })
 })

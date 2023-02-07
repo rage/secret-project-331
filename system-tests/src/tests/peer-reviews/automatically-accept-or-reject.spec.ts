@@ -76,7 +76,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // User 1 writes reviews
@@ -92,7 +92,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -102,7 +102,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await student1Page.reload()
@@ -115,7 +115,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await expectScreenshotsToMatchSnapshots({
@@ -125,7 +125,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
   })
 })

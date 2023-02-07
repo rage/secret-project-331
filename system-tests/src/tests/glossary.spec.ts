@@ -34,6 +34,7 @@ test("glossary test", async ({ page, headless }) => {
     headless,
     snapshotName: "initial-glossary-page",
     waitForThisToBeVisibleAndStable: "text=Glossary",
+    pageScreenshotOptions: { fullPage: true },
   })
 
   await page.goto("http://project-331.local/")
@@ -65,6 +66,7 @@ test("glossary test", async ({ page, headless }) => {
     headless,
     snapshotName: "initial-glossary-management-page",
     waitForThisToBeVisibleAndStable: "text=Manage glossary",
+    pageScreenshotOptions: { fullPage: true },
   })
 
   // Click text=Delete
@@ -75,6 +77,7 @@ test("glossary test", async ({ page, headless }) => {
     headless,
     snapshotName: "deleted-term",
     waitForThisToBeVisibleAndStable: "text=Deleted",
+    pageScreenshotOptions: { fullPage: true },
   })
 
   await page.fill('[placeholder="New term"]', "abcd")
@@ -93,6 +96,7 @@ test("glossary test", async ({ page, headless }) => {
     snapshotName: "added-new-term",
     waitForThisToBeVisibleAndStable: "text=efgh",
     scrollToYCoordinate: 538,
+    pageScreenshotOptions: { fullPage: true },
   })
 
   // Click text=Edit
@@ -104,6 +108,7 @@ test("glossary test", async ({ page, headless }) => {
     snapshotName: "editing-term",
     waitForThisToBeVisibleAndStable: "text=updated term",
     clearNotifications: true,
+    pageScreenshotOptions: { fullPage: true },
   })
 
   // Fill [placeholder="updated term"]
@@ -120,6 +125,7 @@ test("glossary test", async ({ page, headless }) => {
     headless,
     snapshotName: "edited-term",
     waitForThisToBeVisibleAndStable: `div:text-is("Success")`,
+    pageScreenshotOptions: { fullPage: true },
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
@@ -131,5 +137,6 @@ test("glossary test", async ({ page, headless }) => {
     snapshotName: "final-glossary-page",
     waitForThisToBeVisibleAndStable: "text=Glossary",
     clearNotifications: true,
+    pageScreenshotOptions: { fullPage: true },
   })
 })

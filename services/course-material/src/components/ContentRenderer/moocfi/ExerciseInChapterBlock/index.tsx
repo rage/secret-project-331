@@ -12,7 +12,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import ExercisesInChapter from "./ExercisesInChapter"
 
 const Wrapper = styled.div`
-  margin: 4rem 0;
+  margin: 0 0 5rem 0;
 
   details {
     transition: all 0.3s ease-in-out;
@@ -29,7 +29,8 @@ const Wrapper = styled.div`
     background: #f2f5f7;
     margin: 5px 0 5px 0;
     display: flex;
-    justify-content: center;
+    flex-direction: columns;
+    align-items: center;
 
     span {
       vertical-align: top;
@@ -38,16 +39,14 @@ const Wrapper = styled.div`
       font-weight: 600;
       display: inline-block;
       width: 100%;
-      margin: 0.4em 0 0.4em 1.2em;
+      line-height: 150%;
+      margin: 0.4em 0 0.4em 0.6em;
     }
   }
 
   details summary svg {
-    position: absolute;
     color: ${baseTheme.colors.gray[700]};
     line-height: 0;
-    top: 25px;
-    left: 3%;
     transition: all 200ms linear;
   }
   details[open] summary svg {

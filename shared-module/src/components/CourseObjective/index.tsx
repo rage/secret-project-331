@@ -19,7 +19,7 @@ const Wrapper = styled.div<WrapperProps>`
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   padding: 1.5rem;
-  margin: 0 auto;
+  margin: 4em auto;
   max-width: 2000px;
 
   ${respondToOrLarger.md} {
@@ -28,18 +28,13 @@ const Wrapper = styled.div<WrapperProps>`
 
   h2 {
     z-index: 20;
-    width: 250px;
     font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    text-align: left;
+    text-align: center;
     color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
     line-height: 120%;
-
-    ${respondToOrLarger.md} {
-      width: ${({ length }) => (length < 5 ? "400px" : "600px")};
-    }
   }
 `
 
@@ -69,12 +64,11 @@ const TextBox = styled.div`
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
   height: 100%;
-  background: ${({ index }) => (index === 1 ? `#1a2333` : `#f7f8f9`)};
+  background: #f7f8f9;
   position: relative;
   overflow: hidden;
   padding: 2rem;
-  border: ${({ index }) => (index === 1 ? `none` : `2px solid #edf0f2`)};
-  color: ${({ index }) => index === 1 && `#dae3eb`};
+  border: 2px solid #edf0f2;
 
   .paragraph {
     text-align: left;
@@ -106,7 +100,6 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
 }) => {
   const data = children && Object.values(children)[0].props.data.innerBlocks
   const titleLength = title.split(" ").length
-  console.log("titleLength", titleLength)
   return (
     <Wrapper length={titleLength}>
       <h2>{title}</h2>

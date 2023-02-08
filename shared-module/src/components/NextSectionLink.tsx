@@ -270,6 +270,7 @@ const NextSectionLink: React.FC<
 
                     .arrow {
                       fill: #fff;
+                      width: unset;
                     }
 
                     ${respondToOrLarger.sm} {

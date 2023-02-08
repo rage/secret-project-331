@@ -11,6 +11,7 @@ This documents all endpoints. Select a module below for a namespace.
 pub mod auth;
 pub mod cms;
 pub mod course_material;
+pub mod exercise_services;
 pub mod files;
 pub mod helpers;
 pub mod main_frontend;
@@ -37,5 +38,6 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/files").configure(files::_add_routes))
         .service(web::scope("/main-frontend").configure(main_frontend::_add_routes))
         .service(web::scope("/auth").configure(auth::_add_routes))
-        .service(web::scope("/study-registry").configure(study_registry::_add_routes));
+        .service(web::scope("/study-registry").configure(study_registry::_add_routes))
+        .service(web::scope("/exercise-services").configure(exercise_services::_add_routes));
 }

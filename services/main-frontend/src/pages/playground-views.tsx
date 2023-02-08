@@ -267,6 +267,8 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
         throw new Error("Requirements for the mutation not satisfied.")
       }
       const gradingRequest: GradingRequest = {
+        // eslint-disable-next-line i18next/no-literal-string
+        grading_update_url: "todo",
         exercise_spec: privateSpecParsed,
         submission_data: data,
       }

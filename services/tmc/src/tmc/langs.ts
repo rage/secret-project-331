@@ -4,9 +4,8 @@ import * as cp from "child_process"
 import * as readline from "readline"
 import kill from "tree-kill"
 
-import { OutputData } from "./cli"
+import { Compression, ExercisePackagingConfiguration, OutputData } from "./cli"
 import { isCliOutput } from "./cli.guard"
-import { Compression, ExercisePackagingConfiguration } from "./generated"
 
 const execute = async (cmd: string, args: Array<string>): Promise<OutputData> => {
   const cliPath = "/app/tmc-langs-cli"
@@ -131,18 +130,25 @@ export const prepareSubmission = async (
   submissionPath: string,
   submissionCompression: Compression = "zstd",
   naive = false,
-) => {
-  await execute("prepare-submission", [
+): Promise<string> => {
+  const output = await execute("prepare-submission", [
     "--clone-path",
     clonePath,
     "--output-path",
     outputPath,
+    "--output-format",
+    "zstd",
     "--submission-path",
     submissionPath,
     "--submission-compression",
     submissionCompression,
+    "--no-archive-prefix",
     ...(naive ? ["--extract-submission-naively"] : []),
   ])
+  if (output.data !== null && output.data["output-data-kind"] == "submission-sandbox") {
+    return output.data["output-data"]
+  }
+  throw "Unexpected output data"
 }
 
 export const getExercisePackagingConfiguration = async (
@@ -153,6 +159,15 @@ export const getExercisePackagingConfiguration = async (
     exercisePath,
   ])
   if (config.data?.["output-data-kind"] === "exercise-packaging-configuration") {
+    return config.data["output-data"]
+  } else {
+    throw "Unexpected data"
+  }
+}
+
+export const fastAvailablePoints = async (exercisePath: string): Promise<Array<string>> => {
+  const config = await execute("fast-available-points", ["--exercise-path", exercisePath])
+  if (config.data?.["output-data-kind"] === "available-points") {
     return config.data["output-data"]
   } else {
     throw "Unexpected data"

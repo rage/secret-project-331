@@ -17,7 +17,10 @@ use models::{
 use chrono::{Duration, Utc};
 
 use crate::{
-    domain::{authorization::skip_authorize, models_requests},
+    domain::{
+        authorization::skip_authorize,
+        models_requests::{self, JwtKey},
+    },
     prelude::*,
 };
 
@@ -158,6 +161,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
+    jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
@@ -218,7 +222,7 @@ async fn post_submission(
         payload.0,
         GradingPolicy::Default,
         models_requests::fetch_service_info,
-        models_requests::send_grading_request,
+        models_requests::make_grading_request_sender(jwt_key.into_inner()),
     )
     .await?;
 

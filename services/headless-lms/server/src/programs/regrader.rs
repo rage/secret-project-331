@@ -1,10 +1,10 @@
-use std::{env, time::Duration};
+use std::{env, sync::Arc, time::Duration};
 
 use headless_lms_models as models;
 use models::library::regrading;
 use sqlx::{Connection, PgConnection};
 
-use crate::domain::models_requests;
+use crate::domain::models_requests::{self, JwtKey};
 
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
@@ -15,6 +15,7 @@ pub async fn main() -> anyhow::Result<()> {
     crate::setup_tracing()?;
     let db_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let jwt_key = Arc::new(JwtKey::try_from_env().expect("Could not initialise JwtKey"));
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {
@@ -30,7 +31,7 @@ pub async fn main() -> anyhow::Result<()> {
         if let Err(err) = regrading::regrade(
             &mut conn,
             &exercise_services_by_type,
-            models_requests::send_grading_request,
+            models_requests::make_grading_request_sender(Arc::clone(&jwt_key)),
         )
         .await
         {

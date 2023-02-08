@@ -128,10 +128,7 @@ WHERE exercise_id = ANY($1)
     Ok(res)
 }
 
-pub async fn get_exercise_slide(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<Option<ExerciseSlide>> {
+pub async fn get_exercise_slide(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseSlide> {
     let res = sqlx::query_as!(
         ExerciseSlide,
         "
@@ -142,7 +139,7 @@ WHERE id = $1
     ",
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

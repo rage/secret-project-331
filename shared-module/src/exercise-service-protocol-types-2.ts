@@ -6,6 +6,7 @@
  * to: exercise service
  */
 export type GradingRequest<S = unknown, D = unknown> = {
+  grading_update_url: string
   exercise_spec: S
   submission_data: D
 }

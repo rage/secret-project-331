@@ -199,8 +199,7 @@ async fn do_single_regrading(
         .await?;
         let exercise_slide =
             models::exercise_slides::get_exercise_slide(&mut *conn, submission.exercise_slide_id)
-                .await?
-                .unwrap();
+                .await?;
         let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
         let not_ready_grading =
             models::exercise_task_gradings::new_grading(&mut *conn, &exercise, &submission).await?;

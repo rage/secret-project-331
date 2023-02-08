@@ -39,6 +39,8 @@
 <a href="#39" id="39">39</a>
 <a href="#40" id="40">40</a>
 <a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
 
@@ -52,6 +54,7 @@ This documents all endpoints. Select a module below for a namespace.
 </span><span class="kw">pub mod </span>auth;
 <span class="kw">pub mod </span>cms;
 <span class="kw">pub mod </span>course_material;
+<span class="kw">pub mod </span>exercise_services;
 <span class="kw">pub mod </span>files;
 <span class="kw">pub mod </span>helpers;
 <span class="kw">pub mod </span>main_frontend;
@@ -78,7 +81,8 @@ This documents all endpoints. Select a module below for a namespace.
         .service(web::scope(<span class="string">&quot;/files&quot;</span>).configure(files::_add_routes))
         .service(web::scope(<span class="string">&quot;/main-frontend&quot;</span>).configure(main_frontend::_add_routes))
         .service(web::scope(<span class="string">&quot;/auth&quot;</span>).configure(auth::_add_routes))
-        .service(web::scope(<span class="string">&quot;/study-registry&quot;</span>).configure(study_registry::_add_routes));
+        .service(web::scope(<span class="string">&quot;/study-registry&quot;</span>).configure(study_registry::_add_routes))
+        .service(web::scope(<span class="string">&quot;/exercise-services&quot;</span>).configure(exercise_services::_add_routes));
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

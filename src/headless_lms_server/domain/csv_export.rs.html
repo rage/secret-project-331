@@ -618,6 +618,10 @@
 <a href="#618" id="618">618</a>
 <a href="#619" id="619">619</a>
 <a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>csv::Writer;
@@ -1059,7 +1063,10 @@ HttpResponse::Ok()
     <span class="kw">use </span>serde_json::Value;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use crate</span>::{domain::models_requests, test_helper::<span class="kw-2">*</span>};
+    <span class="kw">use crate</span>::{
+        domain::models_requests::{<span class="self">self</span>, JwtKey},
+        test_helper::<span class="kw-2">*</span>,
+    };
 
     <span class="attr">#[actix_web::test]
     </span><span class="kw">async fn </span>exports() {
@@ -1192,6 +1199,7 @@ HttpResponse::Ok()
                 </span>.unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
+        <span class="kw">let </span>jwt_key = Arc::new(JwtKey::test_key());
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             <span class="kw-2">&amp;mut </span>exercise_with_user_state,
@@ -1214,7 +1222,7 @@ HttpResponse::Ok()
                 },
             )])),
             models_requests::fetch_service_info,
-            models_requests::send_grading_request,
+            models_requests::make_grading_request_sender(jwt_key),
         )
         .<span class="kw">await
         </span>.unwrap();

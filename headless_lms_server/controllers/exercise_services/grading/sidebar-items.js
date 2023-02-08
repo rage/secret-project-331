@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["grading_update","POST `/api/v0/exercise-services/grading/grading-update`"]]};

@@ -967,7 +967,6 @@
 <a href="#967" id="967">967</a>
 <a href="#968" id="968">968</a>
 <a href="#969" id="969">969</a>
-<a href="#970" id="970">970</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     convert::TryFrom,
@@ -1169,8 +1168,7 @@
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>exercise_slide =
             models::exercise_slides::get_exercise_slide(<span class="kw-2">&amp;mut *</span>conn, submission.exercise_slide_id)
-                .<span class="kw">await</span><span class="question-mark">?
-                </span>.unwrap();
+                .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_slide.exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>not_ready_grading =
             models::exercise_task_gradings::new_grading(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>exercise, <span class="kw-2">&amp;</span>submission).<span class="kw">await</span><span class="question-mark">?</span>;

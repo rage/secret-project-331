@@ -237,9 +237,6 @@
 <a href="#237" id="237">237</a>
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
@@ -370,10 +367,7 @@ WHERE exercise_id = ANY($1)
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub async fn </span>get_exercise_slide(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    id: Uuid,
-) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseSlide&gt;&gt; {
+<span class="kw">pub async fn </span>get_exercise_slide(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ExerciseSlide&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlide,
         <span class="string">&quot;
@@ -384,7 +378,7 @@ WHERE id = $1
     &quot;</span>,
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res)
 }

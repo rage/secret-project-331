@@ -422,6 +422,10 @@
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
 <a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
 </span><span class="kw">use </span>futures::future::OptionFuture;
@@ -441,7 +445,10 @@
 <span class="kw">use </span>chrono::{Duration, Utc};
 
 <span class="kw">use crate</span>::{
-    domain::{authorization::skip_authorize, models_requests},
+    domain::{
+        authorization::skip_authorize,
+        models_requests::{<span class="self">self</span>, JwtKey},
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -582,6 +589,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 </span><span class="kw">async fn </span>post_submission(
     pool: web::Data&lt;PgPool&gt;,
+    jwt_key: web::Data&lt;JwtKey&gt;,
     exercise_id: web::Path&lt;Uuid&gt;,
     payload: web::Json&lt;StudentExerciseSlideSubmission&gt;,
     user: AuthUser,
@@ -642,7 +650,7 @@ Content-Type: application/json
         payload.<span class="number">0</span>,
         GradingPolicy::Default,
         models_requests::fetch_service_info,
-        models_requests::send_grading_request,
+        models_requests::make_grading_request_sender(jwt_key.into_inner()),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

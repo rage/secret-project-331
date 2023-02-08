@@ -38,13 +38,14 @@
 <a href="#38" id="38">38</a>
 <a href="#39" id="39">39</a>
 <a href="#40" id="40">40</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::{env, time::Duration};
+<a href="#41" id="41">41</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc, time::Duration};
 
 <span class="kw">use </span>headless_lms_models <span class="kw">as </span>models;
 <span class="kw">use </span>models::library::regrading;
 <span class="kw">use </span>sqlx::{Connection, PgConnection};
 
-<span class="kw">use </span><span class="kw">crate</span>::domain::models_requests;
+<span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
 
 <span class="doccomment">/**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
@@ -55,6 +56,7 @@ Starts a thread that will periodically send regrading submissions to the corresp
     <span class="kw">crate</span>::setup_tracing()<span class="question-mark">?</span>;
     <span class="kw">let </span>db_url = env::var(<span class="string">&quot;DATABASE_URL&quot;</span>)
         .unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.to_string());
+    <span class="kw">let </span>jwt_key = Arc::new(JwtKey::try_from_env().expect(<span class="string">&quot;Could not initialise JwtKey&quot;</span>));
 
     <span class="kw">let </span><span class="kw-2">mut </span>interval = tokio::time::interval(Duration::from_secs(<span class="number">10</span>));
     <span class="kw">loop </span>{
@@ -70,7 +72,7 @@ Starts a thread that will periodically send regrading submissions to the corresp
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = regrading::regrade(
             <span class="kw-2">&amp;mut </span>conn,
             <span class="kw-2">&amp;</span>exercise_services_by_type,
-            models_requests::send_grading_request,
+            models_requests::make_grading_request_sender(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         )
         .<span class="kw">await
         </span>{

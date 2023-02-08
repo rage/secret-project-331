@@ -538,6 +538,7 @@
 <a href="#538" id="538">538</a>
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -581,6 +582,7 @@
 
 <span class="attr">#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 </span><span class="kw">pub struct </span>ExerciseTaskGradingRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub </span>grading_update_url: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
     <span class="kw">pub </span>exercise_spec: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
     <span class="kw">pub </span>submission_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }

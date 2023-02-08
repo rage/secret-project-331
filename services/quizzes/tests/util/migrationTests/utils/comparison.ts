@@ -1,20 +1,19 @@
 /* eslint-disable i18next/no-literal-string */
-import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
+
 import {
-  ModelSolutionQuiz as OldModelSolutionSpecQuiz,
+  ModelSolutionQuiz,
+  ModelSolutionQuizItem,
+} from "../../../../types/quizTypes/modelSolutionSpec"
+import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
+import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
+import {
+  ModelSolutionQuiz as OldModelSolutionQuiz,
+  ModelSolutionQuizItem as OldModelSolutionQuizItem,
   PublicQuiz,
+  PublicQuizItem,
   Quiz,
   QuizItem,
-  QuizItemOption,
-  QuizItemTimelineItem,
-} from "../../../types/types"
-import {
-  generateQuiz,
-  generateQuizItem,
-  generateQuizItemOption,
-} from "../../api/utils/quizGenerator"
+} from "../../../../types/types"
 
 const QUIZ_VERSION = "2"
 
@@ -62,7 +61,7 @@ const expectPublicSpecMetadataToMatch = (
  * @param version Version of the model solution spec quiz
  */
 const expectModelSolutionSpecMetadataToMatch = (
-  oldQuiz: OldModelSolutionSpecQuiz,
+  oldQuiz: OldModelSolutionQuiz,
   modelSolutionSpecQuiz: ModelSolutionQuiz,
   version = QUIZ_VERSION,
 ) => {
@@ -83,10 +82,10 @@ const expectModelSolutionSpecMetadataToMatch = (
  * @param newObject New object, e.g. new quiz item
  * @param oldObject Old object, e.g. older quiz item
  */
-const compareFields = <T extends object>(
+const compareFields = <T extends object, S extends object>(
   fields: { [key: string]: string },
   newQuizItem: T,
-  oldQuizItem: QuizItem,
+  oldQuizItem: S,
 ) => {
   Object.keys(fields).forEach((key) => {
     if (!Object.keys(newQuizItem).includes(key)) {
@@ -99,7 +98,7 @@ const compareFields = <T extends object>(
         `field '${fields[key]}' does not exist in old quiz item: ${JSON.stringify(oldQuizItem)}`,
       )
     }
-    expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof QuizItem])
+    expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
   })
   return false
 }
@@ -217,188 +216,217 @@ const comparePrivateSpecQuizItem = (
       }
       break
   }
-  compareFields<PrivateSpecQuizItem>(fields, privateSpecQuizItem, oldQuizItem)
+  compareFields<PrivateSpecQuizItem, QuizItem>(fields, privateSpecQuizItem, oldQuizItem)
 }
 
-/**
- * Create an old quiz from list of quiz items.
- *
- * @param items Array of quiz items
- * @returns Old Quiz
- */
-const createOldQuizFromQuizItems = (items: QuizItem[]) => {
-  const oldQuiz = generateQuiz({
-    id: "old-quiz-id",
-    title: "old-quiz-title",
-    body: "old-quiz-body",
-    awardPointsEvenIfWrong: true,
-    grantPointsPolicy: "grant_only_when_answer_fully_correct",
-    submitMessage: "old-quiz-submit-message",
-  })
-
-  items.forEach((quizItem) => {
-    oldQuiz.items.push(quizItem)
-  })
-
-  return oldQuiz
-}
-
-const generateMultipleChoiceForOldQuiz = (
-  correctOptions: number,
-  numberOfOptions: number,
-  order: number,
-): QuizItem => {
-  const quizOptions: QuizItemOption[] = []
-  for (let i = 0; i < numberOfOptions; i++) {
-    quizOptions.push(
-      generateQuizItemOption({
-        quizItemId: "multiple-choice-exercise",
-        correct: i < correctOptions,
-        title: `option-${i + 1}`,
-        id: `option-${i + 1}`,
-        order: i + 1,
-      }),
-    )
+const comparePublicSpecQuizItem = (
+  publicSpecQuizItem: PublicSpecQuizItem,
+  oldQuizItem: PublicQuizItem,
+) => {
+  let fields = {}
+  switch (publicSpecQuizItem.type) {
+    case "checkbox":
+      fields = {
+        id: "id",
+        order: "order",
+        title: "title",
+        body: "body",
+      }
+      break
+    case "choose-n":
+      fields = {
+        id: "id",
+        order: "order",
+        options: "options",
+        title: "title",
+        body: "body",
+      }
+      break
+    case "closed-ended-question":
+      fields = {
+        id: "id",
+        order: "order",
+        formatRegex: "formatRegex",
+        title: "title",
+        body: "body",
+      }
+      break
+    case "essay":
+      fields = {
+        id: "id",
+        order: "order",
+        minWords: "minWords",
+        maxWords: "maxWords",
+        title: "title",
+        body: "body",
+      }
+      break
+    case "matrix":
+      fields = {
+        id: "id",
+        order: "order",
+      }
+      break
+    case "multiple-choice":
+      fields = {
+        shuffleOptions: "shuffleOptions",
+        id: "id",
+        order: "order",
+        allowSelectingMultipleOptions: "multi",
+        title: "title",
+        body: "body",
+        direction: "direction",
+        multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
+      }
+      break
+    case "multiple-choice-dropdown":
+      fields = {
+        id: "id",
+        order: "order",
+        title: "title",
+        body: "body",
+      }
+      break
+    case "scale":
+      fields = {
+        id: "id",
+        order: "order",
+        maxValue: "maxValue",
+        minValue: "minValue",
+        maxLabel: "maxLabel",
+        minLabel: "minLabel",
+        title: "title",
+        body: "body",
+      }
+      break
+    case "timeline":
+      fields = {
+        id: "id",
+        order: "order",
+      }
+      break
   }
-
-  return generateQuizItem({
-    id: "multiple-choice-exercise",
-    title: "multiple-choice-quiz-item",
-    type: "multiple-choice",
-    multi: true,
-    options: quizOptions,
-    multipleChoiceMultipleOptionsGradingPolicy: "default",
-    order,
-  })
+  compareFields<PublicSpecQuizItem, PublicQuizItem>(fields, publicSpecQuizItem, oldQuizItem)
 }
 
-const generateCheckboxForOldQuiz = (order: number): QuizItem => {
-  return generateQuizItem({
-    id: "checkbox-exercise",
-    type: "checkbox",
-    order,
-    body: "checkbox-body",
-    failureMessage: "checkbox-failure-message",
-    successMessage: "checkbox-success-message",
-    title: "checkbox-title",
-  })
-}
-
-const generateEssayForOldQuiz = (order: number): QuizItem => {
-  return generateQuizItem({
-    id: "essay-exercise",
-    type: "essay",
-    order,
-    title: "essay-title",
-    body: "essay-body",
-    failureMessage: "essay-failure-message",
-    successMessage: "essay-success-message",
-    maxWords: 500,
-    minWords: 100,
-  })
-}
-
-const generateMatrixForOldQuiz = (order: number): QuizItem => {
-  return generateQuizItem({
-    id: "matrix-exercise",
-    type: "matrix",
-    order,
-    failureMessage: "matrix-failure-message",
-    successMessage: "matrix-success-message",
-    optionCells: [
-      ["1", "0", "0"],
-      ["0", "1", "0"],
-      ["0", "0", "1"],
-    ],
-  })
-}
-
-const generateClosedEndedForOldQuiz = (order: number): QuizItem => {
-  return generateQuizItem({
-    id: "closed-ended-exercise",
-    type: "open",
-    order,
-    body: "closed-ended-body",
-    title: "closed-ended-title",
-    formatRegex: "s{5}",
-    validityRegex: "answer",
-    successMessage: "closed-ended-failure-message",
-    failureMessage: "closed-ended-success-message",
-  })
-}
-
-const generateScaleForOldQuiz = (order: number): QuizItem => {
-  return generateQuizItem({
-    id: "scale-exercise",
-    type: "scale",
-    order,
-    title: "scale-exercise-title",
-    body: "scale-exercise-body",
-    failureMessage: "scale-exercise-failure-message",
-    successMessage: "scale-exercise-success-message",
-    maxLabel: "max",
-    minLabel: "min",
-    maxValue: 100,
-    minValue: 1,
-  })
-}
-
-const generateTimelineForOldQuiz = (order: number): QuizItem => {
-  return generateQuizItem({
-    id: "timeline-exercise",
-    type: "timeline",
-    order,
-    failureMessage: "timeline-failure-message",
-    successMessage: "timeline-success-message",
-    timelineItems: [
-      {
-        id: "0001",
-        year: "2000",
-        correctEventName: "event-name-2000",
-        correctEventId: "0001",
-      } as QuizItemTimelineItem,
-    ],
-  })
-}
-
-const generateChooseNForOldQuiz = (numberOfOptions: number, order: number): QuizItem => {
-  const quizOptions: QuizItemOption[] = []
-  for (let i = 0; i < numberOfOptions; i++) {
-    quizOptions.push(
-      generateQuizItemOption({
-        quizItemId: "multiple-choice-exercise",
-        correct: true,
-        title: `option-${i + 1}`,
-        id: `option-${i + 1}`,
-        order: i + 1,
-      }),
-    )
+const compareModelSolutionQuizItem = (
+  modelSolutionQuizItem: ModelSolutionQuizItem,
+  oldQuizItem: OldModelSolutionQuizItem,
+) => {
+  let fields = {}
+  switch (modelSolutionQuizItem.type) {
+    case "checkbox":
+      fields = {
+        id: "id",
+        order: "order",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "choose-n":
+      fields = {
+        id: "id",
+        order: "order",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "closed-ended-question":
+      fields = {
+        id: "id",
+        order: "order",
+        formatRegex: "formatRegex",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "essay":
+      fields = {
+        id: "id",
+        order: "order",
+        minWords: "minWords",
+        maxWords: "maxWords",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "matrix":
+      fields = {
+        id: "id",
+        order: "order",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "multiple-choice":
+      fields = {
+        shuffleOptions: "shuffleOptions",
+        id: "id",
+        order: "order",
+        allowSelectingMultipleOptions: "multi",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+        sharedOptionFeedbackMessage: "sharedOptionFeedbackMessage",
+        direction: "direction",
+        multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
+      }
+      break
+    case "multiple-choice-dropdown":
+      fields = {
+        id: "id",
+        order: "order",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "scale":
+      fields = {
+        id: "id",
+        order: "order",
+        maxValue: "maxValue",
+        minValue: "minValue",
+        maxLabel: "maxLabel",
+        minLabel: "minLabel",
+        title: "title",
+        body: "body",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
+    case "timeline":
+      fields = {
+        id: "id",
+        order: "order",
+        successMessage: "successMessage",
+        failureMessage: "failureMessage",
+      }
+      break
   }
-
-  return generateQuizItem({
-    id: "choose-N-exercise",
-    type: "clickable-multiple-choice",
-    order,
-    body: "choose-N-body",
-    title: "choose-N-title",
-    failureMessage: "choose-N-failure-message",
-    successMessage: "choose-N-success-message",
-    options: quizOptions,
-  })
+  compareFields<ModelSolutionQuizItem, OldModelSolutionQuizItem>(
+    fields,
+    modelSolutionQuizItem,
+    oldQuizItem,
+  )
 }
 
 export {
+  compareFields,
   comparePrivateSpecQuizItem,
+  comparePublicSpecQuizItem,
+  compareModelSolutionQuizItem,
+  expectModelSolutionSpecMetadataToMatch,
   expectPrivateSpecMetadataToMatch,
   expectPublicSpecMetadataToMatch,
-  expectModelSolutionSpecMetadataToMatch,
-  generateCheckboxForOldQuiz,
-  generateChooseNForOldQuiz,
-  generateClosedEndedForOldQuiz,
-  generateEssayForOldQuiz,
-  generateMatrixForOldQuiz,
-  generateMultipleChoiceForOldQuiz,
-  generateScaleForOldQuiz,
-  generateTimelineForOldQuiz,
-  createOldQuizFromQuizItems,
 }

@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+
 import { isOldQuiz } from "../../../src/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import {
@@ -16,8 +17,9 @@ import { Quiz, QuizItem, QuizItemTimelineItem } from "../../../types/types"
 import { generateQuiz } from "../../api/utils/quizGenerator"
 
 import {
+  comparePrivateSpecQuizItem,
   createOldQuizFromQuizItems,
-  expectMetadataToMatch,
+  expectPrivateSpecMetadataToMatch,
   generateCheckboxForOldQuiz,
   generateChooseNForOldQuiz,
   generateClosedEndedForOldQuiz,
@@ -28,7 +30,7 @@ import {
   generateTimelineForOldQuiz,
 } from "./testUtils"
 
-describe("migration of old quizzes", () => {
+describe("private spec", () => {
   test("distinguishes between old and new quiz", () => {
     const oldQuiz: Quiz = generateQuiz({
       id: "example-quiz",
@@ -38,7 +40,7 @@ describe("migration of old quizzes", () => {
     expect(!isOldQuiz(newQuiz))
   })
 
-  test("correctly migrates multiple-choice exercises", () => {
+  test("migrates multiple-choice exercises", () => {
     const correctOptions = 3
     const numberOfOptions = 5
     const quizOrder = 1
@@ -50,30 +52,16 @@ describe("migration of old quizzes", () => {
     const oldQuiz = createOldQuizFromQuizItems([multipleChoiceQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
-    expectMetadataToMatch(oldQuiz, newQuiz)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toEqual(1)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemMultiplechoice = newQuiz
       .items[0] as PrivateSpecQuizItemMultiplechoice
-    expect(newQuizItem.type).toEqual("multiple-choice")
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.title).toEqual(oldQuizItem.title)
-    expect(newQuizItem.body).toEqual(oldQuizItem.body)
-    expect(newQuizItem.allowSelectingMultipleOptions).toEqual(oldQuizItem.multi)
-    expect(newQuizItem.direction).toEqual(oldQuizItem.direction)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.sharedOptionFeedbackMessage).toEqual(oldQuizItem.sharedOptionFeedbackMessage)
-    expect(newQuizItem.shuffleOptions).toEqual(oldQuizItem.shuffleOptions)
-    expect(newQuizItem.options).toMatchObject(oldQuizItem.options)
-    expect(newQuizItem.multipleChoiceMultipleOptionsGradingPolicy).toEqual(
-      oldQuizItem.multipleChoiceMultipleOptionsGradingPolicy,
-    )
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
 
-  test("correctly migrates checkbox exercise", () => {
+  test("migrates checkbox exercise", () => {
     const checkboxQuizItem: QuizItem = generateCheckboxForOldQuiz(1)
     const oldQuiz = createOldQuizFromQuizItems([checkboxQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
@@ -82,16 +70,11 @@ describe("migration of old quizzes", () => {
     const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
 
     expect(newQuizItem.type).toEqual("checkbox")
-    expectMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.body).toEqual(oldQuizItem.body)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
-    expect(newQuizItem.title).toEqual(oldQuizItem.title)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
 
-  test("correctly migrates essay exercise", () => {
+  test("migrates essay exercise", () => {
     const essayQuizItem: QuizItem = generateEssayForOldQuiz(1)
     const oldQuiz = createOldQuizFromQuizItems([essayQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
@@ -100,19 +83,12 @@ describe("migration of old quizzes", () => {
     const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
 
     expect(newQuizItem.type).toEqual("essay")
-    expectMetadataToMatch(oldQuiz, newQuiz)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
 
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.title).toEqual(oldQuizItem.title)
-    expect(newQuizItem.body).toEqual(oldQuizItem.body)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
-    expect(newQuizItem.minWords).toEqual(oldQuizItem.minWords)
-    expect(newQuizItem.maxWords).toEqual(oldQuizItem.maxWords)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
 
-  test("correctly migrates matrix exercise", () => {
+  test("migrates matrix exercise", () => {
     const matrixQuizItem: QuizItem = generateMatrixForOldQuiz(1)
     const oldQuiz = createOldQuizFromQuizItems([matrixQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
@@ -124,15 +100,12 @@ describe("migration of old quizzes", () => {
     const optionCells: string[][] = oldQuizItem.optionCells ?? []
 
     expect(newQuizItem.type).toEqual("matrix")
-    expectMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.optionCells).toMatchObject(optionCells)
   })
 
-  test("correctly migrates 'open' exercise", () => {
+  test("migrates 'open' exercise", () => {
     const openQuizItem: QuizItem = generateClosedEndedForOldQuiz(1)
     const oldQuiz = createOldQuizFromQuizItems([openQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
@@ -142,18 +115,11 @@ describe("migration of old quizzes", () => {
       .items[0] as PrivateSpecQuizItemClosedEndedQuestion
 
     expect(newQuizItem.type).toEqual("closed-ended-question")
-    expectMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.body).toEqual(oldQuizItem.body)
-    expect(newQuizItem.title).toEqual(oldQuizItem.title)
-    expect(newQuizItem.formatRegex).toEqual(oldQuizItem.formatRegex)
-    expect(newQuizItem.validityRegex).toEqual(oldQuizItem.validityRegex)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
 
-  test("correctly migrates scale exercise", () => {
+  test("migrates scale exercise", () => {
     const scaleQuizItem: QuizItem = generateScaleForOldQuiz(1)
     const oldQuiz = createOldQuizFromQuizItems([scaleQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
@@ -162,20 +128,11 @@ describe("migration of old quizzes", () => {
     const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
 
     expect(newQuizItem.type).toEqual("scale")
-    expectMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.title).toEqual(oldQuizItem.title)
-    expect(newQuizItem.body).toEqual(oldQuizItem.body)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
-    expect(newQuizItem.maxLabel).toEqual(oldQuizItem.maxLabel)
-    expect(newQuizItem.minLabel).toEqual(oldQuizItem.minLabel)
-    expect(newQuizItem.maxValue).toEqual(oldQuizItem.maxValue)
-    expect(newQuizItem.minValue).toEqual(oldQuizItem.minValue)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
   })
 
-  test("correctly migrates timeline exercise", () => {
+  test("migrates timeline exercise", () => {
     const timelineQuizItem: QuizItem = generateTimelineForOldQuiz(1)
     const oldQuiz = createOldQuizFromQuizItems([timelineQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
@@ -187,15 +144,12 @@ describe("migration of old quizzes", () => {
     const timelineItems: QuizItemTimelineItem[] = oldQuizItem.timelineItems ?? []
 
     expect(newQuizItem.type).toEqual("timeline")
-    expectMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.timelineItems).toMatchObject(timelineItems)
   })
 
-  test("correctly migrates clickable-multiple-choice exercise", () => {
+  test("migrates clickable-multiple-choice exercise", () => {
     const numberOfOptions = 5
     const quizOrder = 1
     const chooseNQuizItem: QuizItem = generateChooseNForOldQuiz(numberOfOptions, quizOrder)
@@ -206,17 +160,12 @@ describe("migration of old quizzes", () => {
     const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
 
     expect(newQuizItem.type).toEqual("choose-n")
-    expectMetadataToMatch(oldQuiz, newQuiz)
-    expect(newQuizItem.id).toEqual(oldQuizItem.id)
-    expect(newQuizItem.order).toEqual(oldQuizItem.order)
-    expect(newQuizItem.body).toEqual(oldQuizItem.body)
-    expect(newQuizItem.title).toEqual(oldQuizItem.title)
-    expect(newQuizItem.failureMessage).toEqual(oldQuizItem.failureMessage)
-    expect(newQuizItem.successMessage).toEqual(oldQuizItem.successMessage)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
+    comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
     expect(newQuizItem.options).toMatchObject(oldQuizItem.options)
   })
 
-  test("correctly migrates multiple quiz items", () => {
+  test("migrates multiple quiz items", () => {
     const correctOptions = 3
     const numberOfOptions = 5
 
@@ -245,7 +194,7 @@ describe("migration of old quizzes", () => {
     ])
 
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
-    expectMetadataToMatch(oldQuiz, newQuiz)
+    expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toEqual(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([
       "essay",

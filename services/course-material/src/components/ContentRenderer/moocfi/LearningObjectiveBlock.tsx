@@ -26,7 +26,7 @@ const Header = styled.div`
   min-height: 55px;
   display: flex;
   padding: 1rem 0;
-  border-bottom: 3px ${baseTheme.colors.green[300]} dashed;
+  border-bottom: 3px ${baseTheme.colors.green[200]} dashed;
 
   h2 {
     font-size: 24px;

@@ -23,11 +23,7 @@ const CourseChapterGridBlock: React.FC<React.PropsWithChildren<unknown>> = () =>
 
   return (
     <BreakFromCentered sidebar={false}>
-      <div
-        className={css`
-          padding: 1em 0;
-        `}
-      >
+      <div>
         <ChapterGrid courseId={pageContext.pageData.course_id} />
       </div>
     </BreakFromCentered>

@@ -86,7 +86,9 @@ const LearningObjectiveSectionBlock: React.FC<
       : t("title-what-youll-learn-in-this-page")
   }
 
-  const data = props.data.innerBlocks
+  //It is assumed that LearningBlock accepts only list - it can be updated to accept paragraph
+  const data = props.data.innerBlocks[0]
+
   return (
     <BreakFromCentered sidebar={false}>
       <Centered variant="default">
@@ -95,19 +97,15 @@ const LearningObjectiveSectionBlock: React.FC<
             <h2>{heading}</h2>
           </Header>
           <Content>
-            {data &&
-              data.map((item: any) => {
-                return (
-                  <div>
-                    {item.innerBlocks?.map(({ attributes, clientId }) => (
-                      <StyledObjectives key={clientId}>
-                        <StyledCheck />
-                        <span>{attributes.content}</span>
-                      </StyledObjectives>
-                    ))}
-                  </div>
-                )
-              })}
+            <div>
+              {data &&
+                data.innerBlocks?.map(({ attributes, clientId }) => (
+                  <StyledObjectives key={clientId}>
+                    <StyledCheck />
+                    <span>{attributes.content}</span>
+                  </StyledObjectives>
+                ))}
+            </div>
           </Content>
         </Wrapper>
       </Centered>

@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
@@ -99,10 +98,10 @@ const LearningObjectiveSectionBlock: React.FC<
           <Content>
             <div>
               {data &&
-                data.innerBlocks?.map(({ attributes, clientId }) => (
-                  <StyledObjectives key={clientId}>
+                data.innerBlocks?.map((item: any) => (
+                  <StyledObjectives key={item.clientId}>
                     <StyledCheck />
-                    <span>{attributes.content}</span>
+                    <span>{item.attributes.content}</span>
                   </StyledObjectives>
                 ))}
             </div>

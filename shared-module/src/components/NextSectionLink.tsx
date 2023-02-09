@@ -263,7 +263,6 @@ const NextSectionLink: React.FC<
 
                     .arrow {
                       fill: #fff;
-                      width: unset;
                     }
 
                     ${respondToOrLarger.sm} {
@@ -272,10 +271,7 @@ const NextSectionLink: React.FC<
                     }
 
                     svg {
-                      width: 60%;
-                      ${respondToOrLarger.md} {
-                        width: 100%;
-                      }
+                      width: auto;
                     }
                   `}
                 >

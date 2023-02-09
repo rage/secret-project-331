@@ -23,7 +23,6 @@ const Wrapper = styled.div`
     border-radius: 2px;
     position: relative;
     padding: 0.6em 1em;
-    list-style-type: none;
     color: ${baseTheme.colors.gray[600]};
     text-decoration: none;
     background: #f2f5f7;
@@ -31,6 +30,7 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: columns;
     align-items: center;
+    list-style: none;
 
     span {
       vertical-align: top;
@@ -42,6 +42,11 @@ const Wrapper = styled.div`
       line-height: 150%;
       margin: 0.4em 0 0.4em 0.6em;
     }
+  }
+
+  details > summary::marker,
+  details > summary::-webkit-details-marker {
+    display: none;
   }
 
   details summary svg {

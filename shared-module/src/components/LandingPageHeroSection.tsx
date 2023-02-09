@@ -73,6 +73,7 @@ export interface LandingPageHeroSectionProps {
   title: string
   backgroundImage?: string
   backgroundColor?: string
+  backgroundRepeatX?: boolean
   variant?: string
 }
 
@@ -80,7 +81,7 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSe
 
 const LandingPageHeroSection: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<CardProps>>
-> = ({ title, children, backgroundImage, backgroundColor }) => {
+> = ({ title, children, backgroundImage, backgroundColor, backgroundRepeatX }) => {
   const { t } = useTranslation()
   return (
     <div
@@ -92,7 +93,7 @@ const LandingPageHeroSection: React.FC<
         ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});
-        background-repeat: no-repeat;
+        background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
         background-position: center center;`}
         background-size: cover;
         ${respondToOrLarger.xxxxl} {

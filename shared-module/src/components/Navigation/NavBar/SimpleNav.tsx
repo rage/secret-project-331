@@ -56,7 +56,7 @@ const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<Navig
     <nav role="navigation" className={cx(Navbar)} aria-label={t("navigation-menu")}>
       <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
       <div className={cx(NavbarLogo)}>
-        <a href="/" aria-label="Home page" role="button">
+        <a href="/" aria-label={t("home-page")} role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faFingerprint}

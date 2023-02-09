@@ -30,6 +30,10 @@ const Wrapper = styled.div`
     margin: 5px 0 5px 0;
     display: flex;
     justify-content: center;
+    &:hover {
+      filter: contrast(1.2) brightness(0.95);
+    }
+    cursor: pointer;
 
     span {
       vertical-align: top;

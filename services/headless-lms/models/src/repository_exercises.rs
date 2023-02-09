@@ -25,7 +25,14 @@ pub async fn new(
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-INSERT INTO repository_exercises (id, repository_id, part, name, checksum, download_url)
+INSERT INTO repository_exercises (
+    id,
+    repository_id,
+    part,
+    name,
+    checksum,
+    download_url
+)
 VALUES ($1, $2, $3, $4, $5, $6)
 ",
         id,
@@ -33,7 +40,7 @@ VALUES ($1, $2, $3, $4, $5, $6)
         part,
         name,
         checksum,
-        download_url
+        download_url,
     )
     .execute(conn)
     .await?;

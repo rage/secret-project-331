@@ -20,13 +20,9 @@ fi
 echo "Removing old CLI versions"
 run_command find . -maxdepth 1 -type f -name 'tmc-langs-cli-*' -delete
 
-echo "Downloading CLI"
-run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_FILENAME"
-run_command chmod +x "$LANGS_FILENAME"
-
-GENERATED_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/bindings/tmc-langs-node/ts/generated.d.ts"
-GENERATED_DOWNLOAD_TARGET="./src/tmc/generated.d.ts"
-GENERATED_GUARD="./src/tmc/generated.guard.ts"
+GENERATED_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/crates/tmc-langs-cli/bindings.d.ts"
+GENERATED_DOWNLOAD_TARGET="./src/tmc/cli.d.ts"
+GENERATED_GUARD="./src/tmc/cli.guard.ts"
 
 echo "Removing old generated type definitions"
 run_command rm -f "$GENERATED_DOWNLOAD_TARGET"
@@ -36,9 +32,18 @@ GENERATED=$(curl "$GENERATED_DOWNLOAD_URL")
 # write URL to the file to make it easy to keep track of the version
 printf "// %s\n\n" "$GENERATED_DOWNLOAD_URL" > "$GENERATED_DOWNLOAD_TARGET"
 echo "$GENERATED" >> "$GENERATED_DOWNLOAD_TARGET"
+
+# write guard annotation for CliOutput and RunResult
+run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
+run_command sed -i '/^export interface RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
 run_command npx eslint --fix "$GENERATED_DOWNLOAD_TARGET"
 
 # generate guard
-run_command npx ts-auto-guard --export-all --paths ./src/tmc/generated.d.ts --project ./tsconfig.json
-run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' ./src/tmc/generated.guard.ts
-run_command npx eslint --fix ./src/tmc/generated.guard.ts
+run_command npx ts-auto-guard --paths "$GENERATED_DOWNLOAD_TARGET" --project ./tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "$GENERATED_GUARD"
+run_command npx eslint --fix "$GENERATED_GUARD"
+
+# this is done last so that if anything goes wrong earlier, we don't get a false "Already up to date!" message
+echo "Downloading CLI"
+run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_FILENAME"
+run_command chmod +x "$LANGS_FILENAME"

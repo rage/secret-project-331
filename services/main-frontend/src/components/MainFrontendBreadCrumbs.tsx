@@ -1,16 +1,13 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseQuery from "../hooks/useCourseQuery"
+import useCourseBreadcrumbInfoQuery from "../hooks/useCourseBreadcrumbInfoQuery"
 import useOrganizationQueryBySlug from "../hooks/useOrganizationQueryBySlug"
-import { getCourseBreadCrumbInfo } from "../services/backend/courses"
 import Breadcrumbs, { BreadcrumbPiece } from "../shared-module/components/Breadcrumbs"
 import BreakFromCentered from "../shared-module/components/Centering/BreakFromCentered"
 import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
-import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 import { manageCourseRoute, organizationFrontPageRoute } from "../shared-module/utils/routes"
 
 interface MainFrontendBreadCrumbsProps {
@@ -26,11 +23,8 @@ const MainFrontendBreadCrumbs: React.FC<MainFrontendBreadCrumbsProps> = ({
 
   const organizationQuery = useOrganizationQueryBySlug(organizationSlug)
 
-  const courseQuery = useQuery(
-    ["course-breadcrumb-info", courseId],
-    () => getCourseBreadCrumbInfo(assertNotNullOrUndefined(courseId)),
-    { enabled: !!courseId },
-  )
+  const courseQuery = useCourseBreadcrumbInfoQuery(courseId)
+
   const courseName = courseQuery.data?.course_name
   const courseQueryOrganizationSlug = courseQuery.data?.organization_slug
   const organizationName = organizationQuery.data?.name ?? courseQuery.data?.organization_name

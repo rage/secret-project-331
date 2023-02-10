@@ -24,9 +24,9 @@ const LoginStateContext = React.createContext<LoginState>(defaultLoginState)
 
 export default LoginStateContext
 
-export const LoginStateContextProvider: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<unknown>>
-> = ({ children }) => {
+export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown>> = ({
+  children,
+}) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
   const isLoggedIn = useQuery([`logged-in`], loggedIn)
 
@@ -47,12 +47,12 @@ export const LoginStateContextProvider: React.FC<
 }
 
 export function withSignedIn<T>(
-  Component: ComponentType<React.PropsWithChildren<React.PropsWithChildren<T>>>,
-): React.FC<React.PropsWithChildren<React.PropsWithChildren<T>>> {
+  Component: ComponentType<React.PropsWithChildren<T>>,
+): React.FC<React.PropsWithChildren<T>> {
   // eslint-disable-next-line i18next/no-literal-string
   const displayName = Component.displayName || Component.name || "Component"
 
-  const InnerComponent: React.FC<React.PropsWithChildren<React.PropsWithChildren<T>>> = (props) => {
+  const InnerComponent: React.FC<React.PropsWithChildren<T>> = (props) => {
     const { t } = useTranslation()
     const loginStateContext = useContext(LoginStateContext)
 
@@ -67,6 +67,7 @@ export function withSignedIn<T>(
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
+    // @ts-ignore: Shared module might have a diffrerent react version
     return <Component {...props} />
   }
 

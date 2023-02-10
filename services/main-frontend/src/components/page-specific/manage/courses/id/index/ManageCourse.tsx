@@ -1,25 +1,17 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
-import {
-  QueryObserverResult,
-  RefetchOptions,
-  RefetchQueryFilters,
-  useQueryClient,
-} from "@tanstack/react-query"
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
-import { Course, NewCourse } from "../../../../../../shared-module/bindings"
+import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
+import { deleteCourse } from "../../../../../../services/backend/courses"
+import { Course } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
-import NewCourseForm from "../../../../../forms/NewCourseForm"
-import CourseCourseInstances from "../course-instances/CourseCourseInstances"
-import CourseLanguageVersionsList, {
-  formatLanguageVersionsQueryKey,
-} from "../language-versions/CourseLanguageVersionsList"
+import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
+import { courseMaterialFrontPageHref } from "../../../../../../shared-module/utils/cross-routing"
 
 import UpdateCourseForm from "./UpdateCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
@@ -33,9 +25,9 @@ interface Props {
 
 const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
-  const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
+  const courseBreadcrumbInfoQuery = useCourseBreadcrumbInfoQuery(course.id)
+  const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
   const deleteCourseMutation = useToastMutation(
     async () => {
       await deleteCourse(course.id)
@@ -58,27 +50,30 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     await refetch()
   }
 
-  const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
-    await postNewCourseTranslation(course.id, newCourse)
-    await refetch()
-    setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries([formatLanguageVersionsQueryKey(course.id)])
-  }
-
   return (
     <>
-      <h1
+      <div
         className={css`
-          font-size: clamp(2rem, 3.6vh, 36px);
-          color: ${baseTheme.colors.gray[700]};
-          font-family: ${headingFont};
-          font-weight: bold;
+          margin-top: -1.5rem;
+          margin-bottom: 1rem;
         `}
       >
-        {course.name}
-        {course.is_draft && ` (${t("draft")})`}
-        {course.deleted_at && ` (${t("deleted")})`}
-      </h1>
+        <h1
+          className={css`
+            font-size: ${typography.h4};
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${headingFont};
+            font-weight: bold;
+          `}
+        >
+          {course.name}
+          {course.is_draft && ` (${t("draft")})`}
+          {course.deleted_at && ` (${t("deleted")})`}
+        </h1>
+        <p>
+          <b>{t("text-field-label-description")}</b>: {course.description}
+        </p>
+      </div>
       <OnlyRenderIfPermissions
         action={{
           type: "usually_unacceptable_deletion",
@@ -128,28 +123,30 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           />
         </div>
       </Dialog>
-      <Dialog open={showNewLanguageVersionForm} onClose={() => setShowNewLanguageVersionForm(true)}>
+      {organizationSlug && (
         <div
           className={css`
-            margin: 1rem;
+            margin: 1rem 0;
           `}
         >
-          <div>{t("create-new-language-version-of", { "course-name": course.name })}</div>
-          <NewCourseForm
-            organizationId={course.organization_id}
-            onSubmitNewCourseForm={handleCreateNewLanguageVersion}
-            onClose={() => setShowNewLanguageVersionForm(false)}
-          />
+          <a href={courseMaterialFrontPageHref(organizationSlug, course.slug)}>
+            <Button variant="secondary" size="medium">
+              {t("button-text-open-course-front-page")}
+            </Button>
+          </a>
         </div>
-      </Dialog>
-
-      <h2>{t("title-all-course-language-versions")}</h2>
-      <CourseLanguageVersionsList courseId={course.id} />
-      <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
-        {t("button-text-new")}
-      </Button>
-      <CourseCourseInstances courseId={course.id} />
-
+      )}
+      <div
+        className={css`
+          border: 3px dotted ${baseTheme.colors.gray[300]};
+          color: ${baseTheme.colors.gray[500]};
+          padding: 20rem 0;
+          margin: 2rem 0;
+          text-align: center;
+        `}
+      >
+        <p>{t("placeholder-text-reserved-for-course-overview")}</p>
+      </div>
       <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
     </>
   )

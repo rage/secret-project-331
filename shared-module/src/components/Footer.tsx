@@ -101,6 +101,7 @@ const Text = styled.div`
   }
 
   span {
+    display: block;
     font-size: 18px;
     padding-right: 0;
     color: ${baseTheme.colors.gray[600]};
@@ -152,7 +153,10 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
         <Wrapper>
           <Text>
             <span>{t("about-mooc-center-description")}</span>
-            <span className="mooc-description">{t("mooc-project-description")}</span>
+            <span className="mooc-description">
+              {t("mooc-project-description")} {t("star-the-project-on-github")}:{" "}
+              <a href="https://github.com/rage/secret-project-331/">{t("project-github")}</a>.
+            </span>
           </Text>
           <Links>
             <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>

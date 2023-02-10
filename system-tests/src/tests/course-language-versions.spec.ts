@@ -50,7 +50,7 @@ test("test", async ({ page, headless }) => {
   // Click [aria-label="Kotisivulle"]
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
+    page.getByRole("link", { name: "Home" }).click(),
   ])
 
   // Click [id="__next"] div >> :nth-match(div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer "), 4)

@@ -203,7 +203,7 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
+    page.getByRole("link", { name: "Home" }).click(),
   ])
 
   // Click text=University of Helsinki, Department of Computer Science

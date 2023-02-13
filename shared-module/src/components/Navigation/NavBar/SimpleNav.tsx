@@ -16,7 +16,6 @@ const StyledIcon = css`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const Navbar = css`
-  background: #f9f9f9;
   height: 90px;
   display: flex;
   flex-direction: row;

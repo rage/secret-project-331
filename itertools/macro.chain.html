@@ -2,25 +2,25 @@
     () =&gt; { ... };
     (<span class="macro-nonterminal">$first</span>:expr $(, <span class="macro-nonterminal">$rest</span>:expr )* $(,)<span class="question-mark">?</span>) =&gt; { ... };
 }</code></pre></div>
-</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://doc.rust-lang.org/1.67.0/core/iter/traits/iterator/trait.Iterator.html#method.chain">Chain</a> zero or more iterators together into one sequence.</p>
-<p>The comma-separated arguments must implement <a href="https://doc.rust-lang.org/1.67.0/core/iter/traits/collect/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a>.
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://doc.rust-lang.org/1.67.1/core/iter/traits/iterator/trait.Iterator.html#method.chain">Chain</a> zero or more iterators together into one sequence.</p>
+<p>The comma-separated arguments must implement <a href="https://doc.rust-lang.org/1.67.1/core/iter/traits/collect/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a>.
 The final argument may be followed by a trailing comma.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
-<p>Empty invocations of <code>chain!</code> expand to an invocation of <a href="https://doc.rust-lang.org/1.67.0/core/iter/sources/empty/fn.empty.html" title="std::iter::empty"><code>std::iter::empty</code></a>:</p>
+<p>Empty invocations of <code>chain!</code> expand to an invocation of <a href="https://doc.rust-lang.org/1.67.1/core/iter/sources/empty/fn.empty.html" title="std::iter::empty"><code>std::iter::empty</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::iter;
 <span class="kw">use </span>itertools::chain;
 
 <span class="kw">let _</span>: iter::Empty&lt;()&gt; = <span class="macro">chain!</span>();
 <span class="kw">let _</span>: iter::Empty&lt;i8&gt; = <span class="macro">chain!</span>();</code></pre></div>
-<p>Invocations of <code>chain!</code> with one argument expand to <a href="https://doc.rust-lang.org/1.67.0/core/iter/traits/collect/trait.IntoIterator.html"><code>arg.into_iter()</code></a>:</p>
+<p>Invocations of <code>chain!</code> with one argument expand to <a href="https://doc.rust-lang.org/1.67.1/core/iter/traits/collect/trait.IntoIterator.html"><code>arg.into_iter()</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::{ops::Range, slice};
 <span class="kw">use </span>itertools::chain;
 <span class="kw">let _</span>: &lt;Range&lt;<span class="kw">_</span>&gt; <span class="kw">as </span>IntoIterator&gt;::IntoIter = <span class="macro">chain!</span>((<span class="number">2</span>..<span class="number">6</span>),); <span class="comment">// trailing comma optional!
 </span><span class="kw">let _</span>:     &lt;<span class="kw-2">&amp;</span>[<span class="kw">_</span>] <span class="kw">as </span>IntoIterator&gt;::IntoIter = <span class="macro">chain!</span>(<span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]);</code></pre></div>
-<p>Invocations of <code>chain!</code> with multiple arguments <a href="https://doc.rust-lang.org/1.67.0/core/iter/traits/collect/trait.IntoIterator.html"><code>.into_iter()</code></a> each
-argument, and then <a href="https://doc.rust-lang.org/1.67.0/core/iter/traits/iterator/trait.Iterator.html#method.chain"><code>chain</code></a> them together:</p>
+<p>Invocations of <code>chain!</code> with multiple arguments <a href="https://doc.rust-lang.org/1.67.1/core/iter/traits/collect/trait.IntoIterator.html"><code>.into_iter()</code></a> each
+argument, and then <a href="https://doc.rust-lang.org/1.67.1/core/iter/traits/iterator/trait.Iterator.html#method.chain"><code>chain</code></a> them together:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::{iter::<span class="kw-2">*</span>, ops::Range, slice};
 <span class="kw">use </span>itertools::{assert_equal, chain};
@@ -36,4 +36,4 @@ argument, and then <a href="https://doc.rust-lang.org/1.67.0/core/iter/traits/it
         .chain(<span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>]);
 
 assert_equal(with_macro, with_method);</code></pre></div>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

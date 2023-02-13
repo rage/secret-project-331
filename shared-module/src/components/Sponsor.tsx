@@ -40,7 +40,7 @@ const SponsorBox = styled.div`
   justify-content: center;
   align-items: center;
   align-content: center;
-  gap: 10px;
+  gap: 30px;
   img {
     display: flex;
     align-self: center;
@@ -48,14 +48,14 @@ const SponsorBox = styled.div`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const SponsorLogo = styled.div<StyledSponsor>`
-  width: ${({ width }) => (width ? width : "200px")};
+  width: ${({ width }) => (width ? width : "160px")};
   aspect-ratio: 2 / 1;
   font-size: 1.6rem;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 50px;
-  opacity: 0.6;
+  opacity: 0.8;
 
   img {
     max-width: 100%;

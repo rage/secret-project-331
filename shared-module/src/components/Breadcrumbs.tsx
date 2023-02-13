@@ -30,7 +30,6 @@ const StyledBreadcrumb = styled.div`
 
 const wrapper = css`
   padding: 1rem 2rem;
-  background-color: #f1f1f1;
   color: #fff;
   border-radius: 2px;
 

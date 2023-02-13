@@ -15,6 +15,7 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Container = styled.div`
+  margin-top: 5em;
   padding: 1rem;
   background: #f7f8f9;
 
@@ -100,7 +101,7 @@ const Text = styled.div`
     padding: 0 5rem 0 3rem;
   }
 
-  span {
+  p {
     font-size: 18px;
     padding-right: 0;
     color: ${baseTheme.colors.gray[600]};
@@ -151,8 +152,8 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
         <h1>{t("about")}</h1>
         <Wrapper>
           <Text>
-            <span>{t("about-mooc-center-description")}</span>
-            <span className="mooc-description">{t("mooc-project-description")}</span>
+            <p>{t("about-mooc-center-description")}</p>
+            <p className="mooc-description">{t("mooc-project-description")}</p>
           </Text>
           <Links>
             <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>

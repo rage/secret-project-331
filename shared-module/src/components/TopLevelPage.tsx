@@ -6,6 +6,7 @@ import React from "react"
 import Bulleye from "../img/bulleye.svg"
 import Cross from "../img/cross.svg"
 import { headingFont } from "../styles"
+import { respondToOrLarger } from "../styles/respond"
 
 interface SVGProps {
   isEven: boolean
@@ -49,6 +50,15 @@ const Content = styled.div`
     font-size: 18px;
     opacity: 0.8;
   }
+
+  .right-arrow {
+    height: 15px;
+    width: 15px;
+    ${respondToOrLarger.md} {
+      height: 30px;
+      width: 30px;
+    }
+  }
 `
 // eslint-disable-next-line i18next/no-literal-string
 const SVGWrapper = styled.div<SVGProps>`
@@ -89,7 +99,7 @@ const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<Top
           <h3>{title}</h3>
           {/* <span>{subtitlePlaceholder}</span> */}
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 56.957 49">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56.957 49" className="right-arrow">
           <path
             d="M32.466,0,29.321,3.146l19.123,19.11H0v4.475H48.444L29.321,45.854,32.466,49l24.49-24.506Z"
             fill="#44827E"

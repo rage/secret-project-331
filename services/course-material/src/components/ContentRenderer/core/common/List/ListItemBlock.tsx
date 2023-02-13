@@ -4,6 +4,7 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { ListItemAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
+import { respondToOrLarger } from "../../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
@@ -21,8 +22,12 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
       className={cx(
         props.wrapperClassName,
         css`
-          font-size: ${fontSizeMapper(fontSize)};
+          font-size: 18px;
           ${fontFamily && `font-family: ${fontFamily};`}
+
+          ${respondToOrLarger.md} {
+            font-size: ${fontSizeMapper(fontSize)};
+          }
         `,
       )}
       id={props.id}

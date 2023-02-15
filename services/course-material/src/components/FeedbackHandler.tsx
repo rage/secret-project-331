@@ -82,7 +82,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
             position: fixed;
             bottom: 10px;
             right: 10px;
-            z-index: 100;
+            z-index: 1100;
           `}
         >
           <Menu

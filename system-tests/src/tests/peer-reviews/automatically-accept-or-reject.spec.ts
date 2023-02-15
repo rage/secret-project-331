@@ -1,8 +1,6 @@
-import { test } from "@playwright/test"
+import { BrowserContext, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import { login } from "../../utils/login"
-import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { fillPeerReview } from "./peer_review_utils"
@@ -12,113 +10,122 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     storageState: "src/states/admin@example.com.json",
   })
 
-  test("AutomaticallyAcceptOrRejectByAverage > Accepts", async ({ headless, browser }) => {
-    const context1 = await browser.newContext()
-    const context2 = await browser.newContext()
-    const context3 = await browser.newContext()
+  let context1: BrowserContext
+  let context2: BrowserContext
+  let context3: BrowserContext
 
-    const page1 = await context1.newPage()
-    const page2 = await context2.newPage()
-    const page3 = await context3.newPage()
+  test.beforeEach(async ({ browser }) => {
+    context1 = await browser.newContext({ storageState: "src/states/student1@example.com.json" })
+    context2 = await browser.newContext({ storageState: "src/states/student2@example.com.json" })
+    context3 = await browser.newContext({ storageState: "src/states/teacher@example.com.json" })
+  })
 
-    await logout(page1)
-    await logout(page2)
-    await logout(page3)
+  test.afterEach(async () => {
+    await context1.close()
+    await context2.close()
+    await context3.close()
+  })
 
-    await login("student1@example.com", "student.1", page1, true)
-    await login("student2@example.com", "student.2", page2, true)
-    await login("teacher@example.com", "teacher", page3, true)
+  test("AutomaticallyAcceptOrRejectByAverage > Accepts", async ({ headless }) => {
+    test.slow()
+    const student1Page = await context1.newPage()
+    const student2Page = await context2.newPage()
+    const _teacherPage = await context3.newPage()
 
     // User 1 neavigates to exercise and answers
-    await page1.goto("http://project-331.local/")
-    await page1
+    await student1Page.goto("http://project-331.local/")
+    await student1Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
-    await page1.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
-    await selectCourseInstanceIfPrompted(page1)
-    await page1.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await page1.getByRole("link", { name: "3 Page Three" }).click()
-    await page1.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
-    await page1.getByRole("button", { name: "Submit" }).click()
+    await student1Page
+      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
+      .click()
+    await selectCourseInstanceIfPrompted(student1Page)
+    await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    await student1Page.getByRole("link", { name: "3 Page Three" }).click()
+    await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
+    await student1Page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-submission",
-      page: page1,
+      page: student1Page,
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
       scrollToYCoordinate: 0,
     })
 
     // User 2 neavigates to exercise and answers
-    await page2.goto("http://project-331.local/")
-    await page2
+    await student2Page.goto("http://project-331.local/")
+    await student2Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
-    await page2.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
-    await selectCourseInstanceIfPrompted(page2)
-    await page2.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await page2.getByRole("link", { name: "3 Page Three" }).click()
-    await page2.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
-    await page2.getByRole("button", { name: "Submit" }).click()
+    await student2Page
+      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
+      .click()
+    await selectCourseInstanceIfPrompted(student2Page)
+    await student2Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+    await student2Page.getByRole("link", { name: "3 Page Three" }).click()
+    await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
+    await student2Page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-submission",
-      page: page2,
+      page: student2Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // User 1 writes reviews
-    await fillPeerReview(page1, ["Agree", "Agree"])
+    await fillPeerReview(student1Page, ["Agree", "Agree"])
 
     // User 2 writes reviews
-    await fillPeerReview(page2, ["Disagree", "Disagree"])
+    await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-peer-review",
-      page: page1,
+      page: student1Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-peer-review",
-      page: page2,
+      page: student2Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
-    await page1.reload()
-    await page2.reload()
+    await student1Page.reload()
+    await student2Page.reload()
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-seeing-score",
-      page: page1,
+      page: student1Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-seeing-score",
-      page: page2,
+      page: student2Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
   })
 })

@@ -1,4 +1,5 @@
 import { LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
+import os from "os"
 
 function envToNumber(env: string, defaultNumber: number) {
   try {
@@ -17,6 +18,8 @@ const config: PlaywrightTestConfig = {
   retries: process.env.GITHUB_REF === "refs/heads/master" ? 2 : 0,
   // Please don't increase this. Instead, tag your slow test as slow: https://playwright.dev/docs/api/class-test#test-slow-1
   timeout: 100000,
+  // If more than 10Gb use all cores, otherwise use half
+  workers: os.freemem() > 10000000000 ? "100%" : "50%",
   use: {
     navigationTimeout: 15000,
     actionTimeout: 15000,
@@ -60,6 +63,7 @@ if (process.env.HTML) {
 
 if (process.env.CI) {
   const reporters = config.reporter as ReporterDescription[]
+  config.workers = "50%"
   config.reporter = [["github"], ...reporters]
 }
 

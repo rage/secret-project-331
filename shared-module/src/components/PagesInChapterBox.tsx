@@ -11,10 +11,6 @@ const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
-
-  .chapter-part-arrow {
-    visibility: hidden;
-  }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -57,10 +53,6 @@ const ChapterParts = styled.div`
     background-color: #D8D8D8;
     font-weight: 500;
 
-    .chapter-part-arrow {
-      visibility: visible;
-    }
-
     :hover {
       background-color: rgb(235, 239, 242) !important;
     }
@@ -72,7 +64,12 @@ const ChapterParts = styled.div`
   svg {
     position: absolute;
     right: 30px;
-    top: 37%;
+    top: 40%;
+    fill: ${baseTheme.colors.gray[300]};
+  }
+
+  :hover svg {
+    fill: ${baseTheme.colors.gray[600]};
   }
 
   span {
@@ -126,7 +123,7 @@ const PagesInChapterBox: React.FC<
               <span>{props.chapterIndex}</span>
             </PageNumberBox>
             <span>{props.chapterTitle}</span>
-            <ArrowSVGIcon className="chapter-part-arrow" role="presentation" alt="" width="20" />
+            <ArrowSVGIcon className="page-link-arrow" role="presentation" alt="" width="15" />
           </ChapterParts>
         </Link>
       </>

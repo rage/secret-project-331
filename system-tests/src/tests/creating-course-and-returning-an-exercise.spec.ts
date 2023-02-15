@@ -201,23 +201,7 @@ test("test", async ({ page }) => {
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
   await page.waitForSelector(`text="Please select the most correct alternative."`)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.getByRole("link", { name: "Home" }).click(),
-  ])
-
-  // Click text=University of Helsinki, Department of Computer Science
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
-  ])
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
-
-  // Click text=Introduction to System Level Testing
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing' }*/),
-    page.click("text=Introduction to System Level Testing"),
-  ])
+  await page.goto(`http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing`)
 
   // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)

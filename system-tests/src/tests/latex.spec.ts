@@ -51,18 +51,6 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/f2f1482e-4f49-4f6e-a5ef-99ac1513d97c' }*/),
     page.click(`button:text("Edit page"):right-of(:text("first page"))`),
   ])
-  // - PROGRESS
-  // Click text=Chapter Progress PlaceholderThis block is used to display Chapter progress. To d
-  await page.click(
-    "text=Chapter Progress PlaceholderThis block is used to display Chapter progress. To d",
-  )
-  await page.waitForTimeout(100)
-  // Click [aria-label="Options"]
-  await page.click('[aria-label="Options"]')
-  await page.waitForTimeout(100)
-  // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove Chapter Progress")
-  await page.waitForTimeout(100)
   // - CHAPTER GRID
   await page.click("text=Pages in chapter placeholder")
   await page.waitForTimeout(100)
@@ -130,17 +118,9 @@ test("latex-block renders", async ({ headless, page }) => {
 
   // Click button:text-is("Save")
   await page.click('button:text-is("Save") >> visible=true')
+  await page.waitForTimeout(200)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.getByRole("link", { name: "Home" }).click(),
-  ])
-  // Click text=University of Helsinki, Department of Mathematics and Statistics
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
-  ])
-  await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat")
+  await page.goto(`http://project-331.local/org/uh-mathstat`)
   // Click text=Latex course
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/latex-course' }*/),

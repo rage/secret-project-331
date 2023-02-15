@@ -27,6 +27,8 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
   )
 
+  await page.getByRole("tab", { name: "Language versions" }).click()
+
   // Click text=New language version
   await page.click(`:nth-match(button:below(:text("All course language versions")):text("New"), 1)`)
 

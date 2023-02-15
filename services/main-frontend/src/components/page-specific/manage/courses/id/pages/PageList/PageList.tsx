@@ -86,7 +86,9 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
       </h3>
       <TableWrapper
         className={css`
-          overflow-x: unset;
+          ${respondToOrLarger.md} {
+            overflow-x: unset;
+          }
         `}
       >
         {items.map((page: Page, n) => {

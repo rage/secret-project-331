@@ -32,7 +32,7 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
       <div>
         <div
           className={css`
-            margin: 4em 0;
+            margin: 2.5em 0;
           `}
         >
           <h2

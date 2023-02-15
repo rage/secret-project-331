@@ -107,7 +107,7 @@ test("feedback test", async ({ headless, page }) => {
 
   // Click text=Manage feedback
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
+  await Promise.all([page.waitForNavigation(), page.getByRole("tab").getByText("Feedback").click()])
   // await page.waitForURL((url) => url.searchParams.has("read"))
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 

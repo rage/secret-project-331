@@ -146,6 +146,11 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
       role="contentinfo"
       className={css`
         margin-top: 2rem;
+
+        a {
+          color: #065853;
+          font-weight: bold;
+        }
       `}
     >
       <Container>

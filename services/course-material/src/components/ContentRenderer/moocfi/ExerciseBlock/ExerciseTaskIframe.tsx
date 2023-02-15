@@ -12,6 +12,7 @@ interface ExerciseTaskIframeProps {
   postThisStateToIFrame: IframeState | null
   setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
   title: string
+  iframeId?: string
 }
 
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
@@ -19,6 +20,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   postThisStateToIFrame,
   setAnswer,
   title,
+  iframeId,
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
@@ -28,6 +30,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   return (
     <MessageChannelIFrame
       url={url}
+      id={iframeId}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (messageContainer, _responsePort) => {
         console.log(messageContainer)

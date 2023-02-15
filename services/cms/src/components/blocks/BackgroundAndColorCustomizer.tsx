@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import { baseTheme } from "../../shared-module/styles"
 
 const placeHolderFixHeightStyles = css`
@@ -26,6 +27,7 @@ const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 interface RequiredAttributes {
   backgroundImage: string | undefined
   backgroundColor: string | undefined
+  backgroundRepeatX: boolean | undefined
 }
 
 interface BackgroundAndColorCustomizerProps {
@@ -87,6 +89,11 @@ const BackgroundAndColorCustomizer: React.FC<
           colors={DEFAULT_BACKGROUND_COLORS}
         />
       </Placeholder>
+      <CheckBox
+        label={t("label-repeat-background-x")}
+        checked={attributes.backgroundRepeatX}
+        onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
+      />
     </PanelBody>
   )
 }

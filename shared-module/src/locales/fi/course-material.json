@@ -11,6 +11,7 @@
   "available-on-date-at-time": "Avoinna {{ date }} klo {{ time }}",
   "block-invalid-without-course": "Tätä lohkoa ei voi käyttää sivulla joka ei liity kurssiin.",
   "button-label-search-for-pages": "Selaa sivuja",
+  "button-text-manage-course": "Hallinnoi kurssia",
   "button-text-refresh": "Päivitä",
   "can-comment-on-portions-of-material-by-highlightig": "Voit kommentoida tiettyjä kohtia materiaalista valitsemalla sen",
   "cannot-render-exercise-task-missing-url": "Tehtävänantoa ei voida näyttää, osoite puuttuu.",

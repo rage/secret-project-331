@@ -355,6 +355,13 @@ export interface NewCourse {
   is_test_mode: boolean
 }
 
+export interface CourseBreadcrumbInfo {
+  course_id: string
+  course_name: string
+  organization_slug: string
+  organization_name: string
+}
+
 export interface EmailTemplate {
   id: string
   created_at: Date

@@ -130,18 +130,7 @@ test("history test", async ({ page, headless }) => {
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
-  // Click text=Home
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
-  ])
-
-  // Click text=University of Helsinki, Department of Computer Science
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
-  ])
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await page.goto("http://project-331.local/org/uh-cs")
 
   // Click text=Manage
   await Promise.all([
@@ -267,15 +256,7 @@ test("history test", async ({ page, headless }) => {
     },
   })
 */
-  // Click text=Home
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
-  ])
-
-  // Click text=University of Helsinki, Department of Computer Science
-  await page.click("text=University of Helsinki, Department of Computer Science")
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await page.goto("http://project-331.local/org/uh-cs")
 
   // Click text=Introduction to history
   await Promise.all([

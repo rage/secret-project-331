@@ -3,10 +3,12 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
+import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { logout } from "../../shared-module/services/backend/auth"
 import { useCurrentPagePathForReturnTo } from "../../shared-module/utils/redirectBackAfterLoginOrSignup"
+import { manageCourseRoute } from "../../shared-module/utils/routes"
 import SelectCourseInstanceModal from "../modals/SelectCourseInstanceModal"
 
 export interface UserNavigationControlsProps {
@@ -49,6 +51,25 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           }}
           manualOpen={showSettings}
         />
+      )}
+      {courseId && (
+        <OnlyRenderIfPermissions
+          action={{
+            type: "teach",
+          }}
+          resource={{
+            type: "course",
+            id: courseId,
+          }}
+        >
+          <li>
+            <a href={manageCourseRoute(courseId)}>
+              <Button variant="primary" size="medium">
+                {t("button-text-manage-course")}
+              </Button>
+            </a>
+          </li>
+        </OnlyRenderIfPermissions>
       )}
       {courseId && (
         <li>

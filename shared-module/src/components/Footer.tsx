@@ -110,7 +110,7 @@ const Text = styled.div`
   .mooc-description {
     display: inline-block;
     padding-top: 10px;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 `
 const Links = styled.div`
@@ -146,6 +146,11 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
       role="contentinfo"
       className={css`
         margin-top: 2rem;
+
+        a {
+          color: #065853;
+          font-weight: bold;
+        }
       `}
     >
       <Container>
@@ -153,7 +158,10 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
         <Wrapper>
           <Text>
             <p>{t("about-mooc-center-description")}</p>
-            <p className="mooc-description">{t("mooc-project-description")}</p>
+            <p className="mooc-description">
+              {t("mooc-project-description")} {t("star-the-project-on-github")}:{" "}
+              <a href="https://github.com/rage/secret-project-331/">{t("project-github")}</a>.
+            </p>
           </Text>
           <Links>
             <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>

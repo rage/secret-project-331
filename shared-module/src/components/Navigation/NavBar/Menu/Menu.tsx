@@ -36,13 +36,18 @@ const ToolTip = css`
 
   li {
     text-decoration: none;
-    padding: 12px 34px;
+
     border-bottom: 2px solid #e1e1e1;
     list-style: none;
     margin: 0;
+    background-color: white;
 
     &:last-child {
       border-bottom: none;
+    }
+
+    &:hover {
+      filter: brightness(92%) contrast(110%);
     }
 
     Button {
@@ -50,10 +55,12 @@ const ToolTip = css`
       list-style: none;
       border: none;
       margin: 0;
-      padding: 0;
+      padding: 12px 25px;
       font-size: 16px;
       background: inherit;
       text-transform: none;
+      text-align: center;
+      width: 100%;
       color: ${baseTheme.colors.green[500]};
     }
 

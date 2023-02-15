@@ -3,6 +3,7 @@ import { isBoolean } from "lodash"
 import {
   Chapter,
   Course,
+  CourseBreadcrumbInfo,
   CourseInstance,
   CourseInstanceForm,
   CourseStructure,
@@ -21,6 +22,7 @@ import {
 } from "../../shared-module/bindings"
 import {
   isCourse,
+  isCourseBreadcrumbInfo,
   isCourseInstance,
   isCourseStructure,
   isExercise,
@@ -35,6 +37,13 @@ import { mainFrontendClient } from "../mainFrontendClient"
 export const getCourse = async (courseId: string): Promise<Course> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}`, { responseType: "json" })
   return validateResponse(response, isCourse)
+}
+
+export const getCourseBreadCrumbInfo = async (courseId: string): Promise<CourseBreadcrumbInfo> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/breadcrumb-info`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourseBreadcrumbInfo)
 }
 
 export const postNewCourse = async (data: NewCourse): Promise<Course> => {

@@ -1,17 +1,23 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../../../../shared-module/styles"
 
-const TableWrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
+const TableWrapper: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => {
   const { t } = useTranslation()
   return (
     <div
-      className={css`
-        overflow-x: scroll;
-        width: 100%;
-      `}
+      className={cx(
+        css`
+          overflow-x: scroll;
+          width: 100%;
+        `,
+        className,
+      )}
     >
       <table
         className={css`

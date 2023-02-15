@@ -27,6 +27,8 @@ test("test", async ({ headless, page }) => {
     "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5",
   )
 
+  await page.getByRole("tab", { name: "Course instances" }).click()
+
   // Click text=Default Manage Manage emails Manage permissions View completions View points Exp >> [aria-label="View completions"]
   await page
     .locator(

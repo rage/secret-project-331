@@ -7,7 +7,7 @@ use models::{
     chapters::Chapter,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     course_modules::ModuleUpdates,
-    courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+    courses::{Course, CourseBreadcrumbInfo, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
@@ -42,6 +42,22 @@ async fn get_course(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_course_breadcrumb_info(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseBreadcrumbInfo>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(info))
 }
 
 /**
@@ -967,5 +983,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/update-peer-review-queue-reviews-received",
             web::post().to(post_update_peer_review_queue_reviews_received),
+        )
+        .route(
+            "/{course_id}/breadcrumb-info",
+            web::get().to(get_course_breadcrumb_info),
         );
 }

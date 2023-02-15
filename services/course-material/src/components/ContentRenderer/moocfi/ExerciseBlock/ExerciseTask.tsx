@@ -66,8 +66,6 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             postThisStateToIFrame={postThisStateToIFrame}
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
-            // eslint-disable-next-line i18next/no-literal-string
-            iframeId={`iframe-${exerciseNumber}`}
             title={t("exercise-task-content", {
               "exercise-number": exerciseNumber + 1,
               "task-number": exerciseTask.order_number + 1,

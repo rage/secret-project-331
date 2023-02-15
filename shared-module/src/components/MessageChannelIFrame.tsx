@@ -25,7 +25,6 @@ interface MessageChannelIFrameProps {
   title: string
   showBorders?: boolean
   disableSandbox?: boolean
-  id?: string
 }
 
 // const IFRAME_TITLE = "Exercise type specific content"
@@ -40,7 +39,6 @@ const MessageChannelIFrame: React.FC<
   title,
   showBorders = false,
   disableSandbox = false,
-  id,
 }) => {
   console.log(id)
   const { t, i18n } = useTranslation()
@@ -203,20 +201,17 @@ const MessageChannelIFrame: React.FC<
           margin-bottom: 1rem;
         `}
       >
-        {id && (
-          <iframe
-            id={id}
-            sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
-            className={css`
-              overflow: hidden;
-              width: 100%;
-              border: 0;
-            `}
-            title={title}
-            ref={iframeRef}
-            src={url}
-          />
-        )}
+        <iframe
+          sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
+          className={css`
+            overflow: hidden;
+            width: 100%;
+            border: 0;
+          `}
+          title={title}
+          ref={iframeRef}
+          src={url}
+        />
       </div>
     </BreakFromCentered>
   )

@@ -7,3 +7,4 @@ export const INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS =
   "include-this-heading-in-headings-navigation"
 export const SHOW_TOAS_INIFINITELY_IN_SYSTEM_TESTS_EVENT = "show-toast-infinitely-in-system-tests"
 export const SHOW_TOAST_DURATION_IN_SYSTEM_TESTS_EVENT = "show-toas-duration-in-system-tests"
+export const EXERCISE_SERVICE_CONTENT_ID = "exercise-service-content-id"

@@ -1,7 +1,6 @@
 # The production environment is also used as a base for the test environment.
 resources:
   - ../base
-  - tmc-service-account.yml
 
 patches:
   - path: patch-ingress.yml

@@ -3,7 +3,7 @@ import { BrowserContext, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { fillPeerReview } from "./peer_review_utils"
+import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
 test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => {
   test.use({
@@ -65,6 +65,12 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     // Student 2 fills peerreviews
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-not-seeing-score",
@@ -74,6 +80,12 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
       pageScreenshotOptions: { fullPage: true },
     })
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -103,6 +115,12 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await teacherPage.getByRole("button", { name: "Give custom points" }).click()
     await teacherPage.reload()
 
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-seeing-score",
@@ -112,6 +130,12 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrManualReviewByAverage"'],
       pageScreenshotOptions: { fullPage: true },
     })
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     await expectScreenshotsToMatchSnapshots({
       headless,

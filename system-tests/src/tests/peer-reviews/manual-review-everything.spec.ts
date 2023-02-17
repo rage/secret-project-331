@@ -3,7 +3,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { fillPeerReview } from "./peer_review_utils"
+import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
 test.describe("test ManualReviewEverything behavior", () => {
   test.use({
@@ -80,6 +80,12 @@ test.describe("test ManualReviewEverything behavior", () => {
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
 
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     // Student 1 starts peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -90,7 +96,15 @@ test.describe("test ManualReviewEverything behavior", () => {
       scrollToYCoordinate: 0,
       pageScreenshotOptions: { fullPage: true },
     })
+
     await fillPeerReview(student1Page, ["Agree", "Agree"])
+
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-filling-peer-review-single-submission",
@@ -100,6 +114,12 @@ test.describe("test ManualReviewEverything behavior", () => {
       scrollToYCoordinate: 0,
       pageScreenshotOptions: { fullPage: true },
     })
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     // Student 2 starts peer review
     await expectScreenshotsToMatchSnapshots({
@@ -112,6 +132,13 @@ test.describe("test ManualReviewEverything behavior", () => {
       pageScreenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-filling-peer-review-single-submission",
@@ -139,8 +166,13 @@ test.describe("test ManualReviewEverything behavior", () => {
     await teacherPage.getByRole("button", { name: "Full points" }).first().click()
     await teacherPage.reload()
 
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     // Student 1 views his reviews and grading
-    await student1Page.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-checking-their-peer-reviews-single-submission",
@@ -152,8 +184,13 @@ test.describe("test ManualReviewEverything behavior", () => {
       pageScreenshotOptions: { fullPage: true },
     })
 
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     // Student 2 views his reviews and grading
-    await student2Page.reload()
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-checking-their-peer-reviews-single-submission",
@@ -224,6 +261,12 @@ test.describe("test ManualReviewEverything behavior", () => {
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
 
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     // student 2 starts a peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -236,6 +279,12 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-after-filling-peer-review-1-multiple-submission",
@@ -244,6 +293,12 @@ test.describe("test ManualReviewEverything behavior", () => {
       waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
       pageScreenshotOptions: { fullPage: true },
     })
+
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     // student 1 starts a peer review
     await expectScreenshotsToMatchSnapshots({
@@ -255,6 +310,12 @@ test.describe("test ManualReviewEverything behavior", () => {
       pageScreenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student1Page, ["Agree", "Agree"])
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-filling-peer-review-multiple-submission",
@@ -282,7 +343,13 @@ test.describe("test ManualReviewEverything behavior", () => {
     await teacherPage.reload()
 
     // Student 1 seeing the score
-    await student1Page.reload()
+
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-checking-their-peer-reviews-multiple-submission",
@@ -294,7 +361,12 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
 
     // Student 2 seeing the score
-    await student2Page.reload()
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-2-checking-their-peer-reviews-multiple-submission",

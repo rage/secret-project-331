@@ -1,5 +1,7 @@
 import { Page } from "playwright"
 
+import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/utils/constants"
+
 /**
  *
  * @param page    Page, where peer review is filled
@@ -20,3 +22,11 @@ export const fillPeerReview = async (page: Page, options: string[]) => {
     .click()
   await page.getByRole("button", { name: "Submit" }).first().click()
 }
+
+export const waitForIframeContent = (page: Page) => {
+  return Promise.all(
+    page.frames().map((f) => f.locator(`"div#${EXERCISE_SERVICE_CONTENT_ID}"`).click()),
+  )
+}
+
+export const TIMEOUT = 60000

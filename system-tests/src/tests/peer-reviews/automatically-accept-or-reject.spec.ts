@@ -3,7 +3,7 @@ import { BrowserContext, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { fillPeerReview } from "./peer_review_utils"
+import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
 test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
   test.use({
@@ -46,6 +46,12 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
 
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-submission",
@@ -53,6 +59,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       clearNotifications: true,
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
       scrollToYCoordinate: 0,
+      pageScreenshotOptions: { fullPage: true },
     })
 
     // User 2 neavigates to exercise and answers
@@ -68,6 +75,12 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await student2Page.getByRole("link", { name: "3 Page Three" }).click()
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -85,6 +98,12 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     // User 2 writes reviews
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       snapshotName: "student-1-after-peer-review",
@@ -94,6 +113,12 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
       pageScreenshotOptions: { fullPage: true },
     })
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -105,8 +130,11 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       pageScreenshotOptions: { fullPage: true },
     })
 
-    await student1Page.reload()
-    await student2Page.reload()
+    await student1Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -117,6 +145,12 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
       waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
       pageScreenshotOptions: { fullPage: true },
     })
+
+    await student2Page
+      .frameLocator("iframe")
+      .first()
+      .locator("div#exercise-service-content-id")
+      .click({ timeout: TIMEOUT })
 
     await expectScreenshotsToMatchSnapshots({
       headless,

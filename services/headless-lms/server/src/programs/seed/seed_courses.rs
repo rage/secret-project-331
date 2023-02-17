@@ -2015,8 +2015,6 @@ pub async fn seed_cs_course_material(
                     .with_id(Uuid::parse_str("848ac898-81c0-4ebc-881f-6f84e9eaf472")?),
                 GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
                     .with_id(Uuid::parse_str("c8b36f58-5366-4d6b-b4ec-9fc0bd65950e")?),
-                GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
-                    .with_id(Uuid::parse_str("cdb9e4b9-ba68-4933-b037-4648e3df7a6c")?),
                 GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
                     .with_id(Uuid::parse_str("457431b0-55db-46ac-90ae-03965f48b27e")?),
                 ])
@@ -2186,8 +2184,6 @@ pub async fn seed_cs_course_material(
                         .with_id(Uuid::parse_str("c5c623f9-c7ca-4f8e-b04b-e91cecef217a")?),
                     GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string())
                         .with_id(Uuid::parse_str("37bbc4e9-2e96-45ea-a6f8-bbc7dc7f6be3")?),
-                    GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string())
-                        .with_id(Uuid::parse_str("2e91c140-fd17-486b-8dc1-0a9589a18e3a")?),
                     GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string())
                         .with_id(Uuid::parse_str("1bf7e311-75e8-48ec-bd55-e8f1185d76d0")?),
                 ])

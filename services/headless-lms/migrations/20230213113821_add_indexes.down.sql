@@ -1,0 +1,2 @@
+DROP INDEX user_exercise_states_fast_search;
+DROP INDEX exercise_slide_submissions_fast_search;

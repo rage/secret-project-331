@@ -5,7 +5,7 @@
  * Generated type guards for "cli.d.ts".
  * WARNING: Do not manually change this file.
  */
-import { CliOutput } from "./cli"
+import { CliOutput, RunResult } from "./cli"
 
 export function isCliOutput(obj: unknown): obj is CliOutput {
   const typedObj = obj as CliOutput
@@ -180,9 +180,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     (((e["tmcproject-yml"]["minimum_python_version"] !== null &&
                       typeof e["tmcproject-yml"]["minimum_python_version"] === "object") ||
                       typeof e["tmcproject-yml"]["minimum_python_version"] === "function") &&
-                      (e["tmcproject-yml"]["minimum_python_version"]["major"] === null ||
-                        typeof e["tmcproject-yml"]["minimum_python_version"]["major"] ===
-                          "number") &&
+                      typeof e["tmcproject-yml"]["minimum_python_version"]["major"] === "number" &&
                       (e["tmcproject-yml"]["minimum_python_version"]["minor"] === null ||
                         typeof e["tmcproject-yml"]["minimum_python_version"]["minor"] ===
                           "number") &&
@@ -195,32 +193,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
         (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
           typeof typedObj["data"] === "function") &&
           typedObj["data"]["output-data-kind"] === "test-result" &&
-          ((typedObj["data"]["output-data"] !== null &&
-            typeof typedObj["data"]["output-data"] === "object") ||
-            typeof typedObj["data"]["output-data"] === "function") &&
-          (typedObj["data"]["output-data"]["status"] === "PASSED" ||
-            typedObj["data"]["output-data"]["status"] === "TESTS_FAILED" ||
-            typedObj["data"]["output-data"]["status"] === "COMPILE_FAILED" ||
-            typedObj["data"]["output-data"]["status"] === "TESTRUN_INTERRUPTED" ||
-            typedObj["data"]["output-data"]["status"] === "GENERIC_ERROR") &&
-          Array.isArray(typedObj["data"]["output-data"]["testResults"]) &&
-          typedObj["data"]["output-data"]["testResults"].every(
-            (e: any) =>
-              ((e !== null && typeof e === "object") || typeof e === "function") &&
-              typeof e["name"] === "string" &&
-              typeof e["successful"] === "boolean" &&
-              Array.isArray(e["points"]) &&
-              e["points"].every((e: any) => typeof e === "string") &&
-              typeof e["message"] === "string" &&
-              Array.isArray(e["exception"]) &&
-              e["exception"].every((e: any) => typeof e === "string"),
-          ) &&
-          ((typedObj["data"]["output-data"]["logs"] !== null &&
-            typeof typedObj["data"]["output-data"]["logs"] === "object") ||
-            typeof typedObj["data"]["output-data"]["logs"] === "function") &&
-          Object.entries<any>(typedObj["data"]["output-data"]["logs"]).every(
-            ([key, value]) => typeof value === "string" && typeof key === "string",
-          )) ||
+          (isRunResult(typedObj["data"]["output-data"]) as boolean)) ||
         (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
           typeof typedObj["data"] === "function") &&
           typedObj["data"]["output-data-kind"] === "exercise-desc" &&
@@ -882,7 +855,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
           ((typedObj["data"]["output-data"] !== null &&
             typeof typedObj["data"]["output-data"] === "object") ||
             typeof typedObj["data"]["output-data"] === "function") &&
-          typeof typedObj["data"]["output-data"]["projects_dir"] === "string"))) ||
+          typeof typedObj["data"]["output-data"]["projects_dir"] === "string") ||
+        (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
+          typeof typedObj["data"] === "function") &&
+          typedObj["data"]["output-data-kind"] === "submission-sandbox" &&
+          typeof typedObj["data"]["output-data"] === "string"))) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["output-kind"] === "status-update" &&
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -921,5 +898,34 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       (typedObj["notification-kind"] === "warning" || typedObj["notification-kind"] === "info") &&
       typeof typedObj["message"] === "string")
+  )
+}
+
+export function isRunResult(obj: unknown): obj is RunResult {
+  const typedObj = obj as RunResult
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["status"] === "PASSED" ||
+      typedObj["status"] === "TESTS_FAILED" ||
+      typedObj["status"] === "COMPILE_FAILED" ||
+      typedObj["status"] === "TESTRUN_INTERRUPTED" ||
+      typedObj["status"] === "GENERIC_ERROR") &&
+    Array.isArray(typedObj["testResults"]) &&
+    typedObj["testResults"].every(
+      (e: any) =>
+        ((e !== null && typeof e === "object") || typeof e === "function") &&
+        typeof e["name"] === "string" &&
+        typeof e["successful"] === "boolean" &&
+        Array.isArray(e["points"]) &&
+        e["points"].every((e: any) => typeof e === "string") &&
+        typeof e["message"] === "string" &&
+        Array.isArray(e["exception"]) &&
+        e["exception"].every((e: any) => typeof e === "string"),
+    ) &&
+    ((typedObj["logs"] !== null && typeof typedObj["logs"] === "object") ||
+      typeof typedObj["logs"] === "function") &&
+    Object.entries<any>(typedObj["logs"]).every(
+      ([key, value]) => typeof value === "string" && typeof key === "string",
+    )
   )
 }

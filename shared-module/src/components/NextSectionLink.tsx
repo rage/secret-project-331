@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import ArrowSVGIcon from "../img/arrow.svg"
 import BackArrowIcon from "../img/backarrow.svg"
 import LockIcon from "../img/lock.svg"
+import TopArrowSVGIcon from "../img/up-arrow.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
@@ -95,15 +96,7 @@ const NextSectionLink: React.FC<
       >
         {chapterFrontPageURL && (
           <StyledLink href={chapterFrontPageURL}>
-            <ArrowSVGIcon
-              id="up-svg-icon"
-              role="presentation"
-              alt=""
-              width="12"
-              height="12"
-              viewBox="0 0 39 39"
-              transform="rotate(270)"
-            />
+            <TopArrowSVGIcon id="up-svg-icon" role="presentation" alt="" />
             <span>{t("chapter-front-page")}</span>
           </StyledLink>
         )}
@@ -278,10 +271,7 @@ const NextSectionLink: React.FC<
                     }
 
                     svg {
-                      width: 60%;
-                      ${respondToOrLarger.md} {
-                        width: 100%;
-                      }
+                      width: auto;
                     }
                   `}
                 >

@@ -40,7 +40,6 @@ const MessageChannelIFrame: React.FC<
   showBorders = false,
   disableSandbox = false,
 }) => {
-  console.log(id)
   const { t, i18n } = useTranslation()
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)

@@ -1,8 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
-import React, { Dispatch, SetStateAction, useEffect } from "react"
+import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
@@ -24,19 +23,6 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   port,
 }) => {
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (!port) {
-      return
-    }
-    const message: CurrentStateMessage = {
-      data: { private_spec: state?.viewType === "exercise-editor" ? state.privateSpec : null },
-      // eslint-disable-next-line i18next/no-literal-string
-      message: "current-state",
-      valid: true,
-    }
-    port.postMessage(message)
-  }, [state, port])
 
   if (!port) {
     return <>{t("waiting-for-port")}</>

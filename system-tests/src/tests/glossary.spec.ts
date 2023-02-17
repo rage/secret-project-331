@@ -55,7 +55,7 @@ test("glossary test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a/glossary' }*/),
-    page.click("text=Glossary"),
+    page.getByRole("tab", { name: "Glossary" }).click(),
   ])
 
   await page.click("text=Edit")

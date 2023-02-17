@@ -11,6 +11,7 @@ export interface HeroSectionAttributes {
   subtitle: string
   backgroundColor: string | undefined
   backgroundImage: string | undefined
+  backgroundRepeatX: boolean | undefined
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
@@ -37,6 +38,10 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
     backgroundImage: {
       type: "string",
       default: undefined,
+    },
+    backgroundRepeatX: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: HeroSectionEditor,

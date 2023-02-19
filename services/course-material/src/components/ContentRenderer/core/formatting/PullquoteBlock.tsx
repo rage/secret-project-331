@@ -2,16 +2,18 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
+import { headingFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const FONT_SIZES: { [key: string]: string } = {
-  small: "10px",
-  normal: "20px",
-  medium: "30px",
-  large: "34px",
-  huge: "38px",
+  small: "18px",
+  normal: "22px",
+  medium: "36px",
+  large: "30px",
+  huge: "34px",
 }
 
 const PullquoteBlock: React.FC<
@@ -53,7 +55,7 @@ const PullquoteBlock: React.FC<
           border-top: 0.25rem solid #d5dbdf;
           border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;
-          margin-bottom: 1rem;
+          margin: 3rem 0;
           ${align && `float: ${align};`}
           ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
         `}
@@ -61,16 +63,21 @@ const PullquoteBlock: React.FC<
       >
         <blockquote
           className={css`
-            font-size: ${size};
+            font-size: 20px;
+            font-family: ${headingFont};
             line-height: 1.6;
             margin-bottom: 1rem;
+
+            ${respondToOrLarger.md} {
+              font-size: ${size};
+            }
           `}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(value ?? "") }}
         />
         <cite
           className={css`
-            font-style: 20px;
-            text-transform: capitalize !important;
+            font-size: 20px;
+            font-style: normal;
           `}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
         ></cite>

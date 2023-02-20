@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import { baseTheme, monospaceFont } from "../../../shared-module/styles"
+import { baseTheme } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"

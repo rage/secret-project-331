@@ -248,6 +248,8 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     <div
       className={css`
         font-size: 20px;
+        text-underline-offset: 4.6px;
+        text-decoration-thickness: 1.6px;
 
         a {
           color: #4290f2;

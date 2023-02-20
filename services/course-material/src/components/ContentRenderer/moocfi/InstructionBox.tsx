@@ -1,8 +1,7 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
-import { GlossaryContext } from "../../../contexts/GlossaryContext"
 import { baseTheme, monospaceFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
@@ -34,6 +33,7 @@ const InstructionBlock: React.FC<
 
             span {
               font-size: 18px;
+              color: ${baseTheme.colors.gray[600]};
 
               ${respondToOrLarger.md} {
                 font-size: 20px;

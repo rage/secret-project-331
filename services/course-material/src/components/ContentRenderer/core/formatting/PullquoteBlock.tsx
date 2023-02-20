@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { headingFont } from "../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
@@ -30,7 +30,7 @@ const PullquoteBlock: React.FC<
     // style,
     textAlign,
     textColor,
-    fontSize,
+    fontSize = "medium",
     value,
   } = data.attributes
 
@@ -63,10 +63,10 @@ const PullquoteBlock: React.FC<
       >
         <blockquote
           className={css`
-            font-size: 20px;
+            font-size: 22px;
             font-family: ${headingFont};
+            font-weight
             line-height: 1.6;
-            margin-bottom: 1rem;
 
             ${respondToOrLarger.md} {
               font-size: ${size};
@@ -77,7 +77,12 @@ const PullquoteBlock: React.FC<
         <cite
           className={css`
             font-size: 20px;
+            display: inline-block;
+            font-family: ${headingFont};
             font-style: normal;
+            text-transform: capitalize !important;
+            margin-top: 1.2rem;
+            color: ${baseTheme.colors.green[700]};
           `}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
         ></cite>

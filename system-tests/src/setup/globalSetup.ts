@@ -1,6 +1,6 @@
 import { chromium, FullConfig } from "@playwright/test"
 import { spawnSync } from "child_process"
-import { stat, statSync } from "fs"
+import { statSync } from "fs"
 import path from "path"
 import which from "which"
 

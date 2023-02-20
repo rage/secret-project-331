@@ -250,6 +250,8 @@ module.exports = {
       extends: ["plugin:playwright/playwright-test"],
       rules: {
         "playwright/no-focused-test": "off",
+        "playwright/prefer-strict-equal": "error",
+        "playwright/prefer-to-be": "error",
       },
     },
   ],

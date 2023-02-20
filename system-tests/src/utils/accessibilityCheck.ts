@@ -2,14 +2,16 @@ import AxeBuilder from "@axe-core/playwright"
 import { CheckResult } from "axe-core"
 import { Console } from "console"
 import { Page } from "playwright"
+import { Writable } from "stream"
 
 export default async function accessibilityCheck(
   page: Page,
   contextName: string,
   axeSkip: string[] | undefined,
 ): Promise<void> {
-  // force all console.group output to stderr
-  const stdErrConsole = new Console(process.stderr)
+  // collect console.logs with all the console.group groupings
+  const outputStream = new StoringStream()
+  const customConsole = new Console(outputStream)
   const results = await new AxeBuilder({ page }).analyze()
   let resultsFiltered = []
   if (Array.isArray(axeSkip)) {
@@ -26,49 +28,48 @@ export default async function accessibilityCheck(
   if (resultsFiltered.length === 0) {
     return
   }
-  stdErrConsole.error()
-  stdErrConsole.error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}`)
-  stdErrConsole.error()
+  customConsole.error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}.`)
+  customConsole.error()
   // https://www.deque.com/axe/core-documentation/api-documentation/#results-object
   resultsFiltered.forEach((violation, n) => {
-    stdErrConsole.group(`Violation ${n + 1}\n-----------`)
-    stdErrConsole.error(`Rule: ${violation.id}`)
-    stdErrConsole.error(`Description: ${violation.description}`)
-    stdErrConsole.error(`Impact: ${violation.impact}`)
-    stdErrConsole.error(`Help: ${violation.help}`)
-    stdErrConsole.error(`Help URL: ${violation.helpUrl}`)
-    stdErrConsole.group("Affected DOM nodes:")
+    customConsole.group(`Violation ${n + 1}\n-----------`)
+    customConsole.error(`Rule: ${violation.id}`)
+    customConsole.error(`Description: ${violation.description}`)
+    customConsole.error(`Impact: ${violation.impact}`)
+    customConsole.error(`Help: ${violation.help}`)
+    customConsole.error(`Help URL: ${violation.helpUrl}`)
+    customConsole.group("Affected DOM nodes:")
     violation.nodes // nodes is an array of all elements the rule tested
       .filter((o) => o.impact !== null) // the check passed for this element if impact is null
       .forEach((node, n) => {
-        stdErrConsole.group(`Affected DOM node ${n + 1}`)
-        stdErrConsole.error(`Impact: ${node.impact}`)
-        stdErrConsole.error(`Node HTML: ${node.html}`)
-        stdErrConsole.error(`Target: ${node.target}`)
+        customConsole.group(`Affected DOM node ${n + 1}`)
+        customConsole.error(`Impact: ${node.impact}`)
+        customConsole.error(`Node HTML: ${node.html}`)
+        customConsole.error(`Target: ${node.target}`)
         if (node.any.length > 0) {
-          stdErrConsole.group("At least one of these need to pass:")
-          displayChecksForNodes(node.any, stdErrConsole)
-          stdErrConsole.groupEnd()
+          customConsole.group("At least one of these need to pass:")
+          displayChecksForNodes(node.any, customConsole)
+          customConsole.groupEnd()
         }
         if (node.all.length > 0) {
-          stdErrConsole.group("All of these need to pass:")
-          displayChecksForNodes(node.all, stdErrConsole)
-          stdErrConsole.groupEnd()
+          customConsole.group("All of these need to pass:")
+          displayChecksForNodes(node.all, customConsole)
+          customConsole.groupEnd()
         }
         if (node.none.length > 0) {
-          stdErrConsole.group("None of these can pass:")
-          displayChecksForNodes(node.all, stdErrConsole)
-          stdErrConsole.groupEnd()
+          customConsole.group("None of these can pass:")
+          displayChecksForNodes(node.all, customConsole)
+          customConsole.groupEnd()
         }
-        stdErrConsole.error()
-        stdErrConsole.groupEnd()
+        customConsole.error()
+        customConsole.groupEnd()
       })
-    stdErrConsole.groupEnd()
-    stdErrConsole.error("\n")
-    stdErrConsole.groupEnd()
+    customConsole.groupEnd()
+    customConsole.error("\n")
+    customConsole.groupEnd()
   })
 
-  throw new Error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}`)
+  throw new Error(outputStream.chunks.join(""))
 }
 
 function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): void {
@@ -81,4 +82,22 @@ function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): vo
     stdErrConsole.error(`Related nodes: ${JSON.stringify(node.relatedNodes, undefined, 2)}`)
     stdErrConsole.groupEnd()
   })
+}
+
+class StoringStream extends Writable {
+  chunks: string[]
+
+  constructor() {
+    super()
+    this.chunks = []
+  }
+  _write(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    chunk: any,
+    encoding: BufferEncoding,
+    callback: (error?: Error | null | undefined) => void,
+  ): void {
+    this.chunks.push(chunk.toString())
+    callback()
+  }
 }

@@ -10,7 +10,11 @@ import {
 
 import accessibilityCheck from "./accessibilityCheck"
 import { scrollLocatorOrLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
-import { ensureImageHasBeenOptimized } from "./imageOptimizer"
+import {
+  ensureImageHasBeenOptimized,
+  imageSavedPageYCoordinate,
+  savePageYCoordinateToImage,
+} from "./imageMetadataTools"
 
 const viewPorts = {
   "desktop-regular": { width: 1920, height: 1080 },
@@ -212,6 +216,7 @@ async function snapshotWithViewPort({
       screenshotName,
       screenshotOptions,
       testInfo,
+      page,
     )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
@@ -235,6 +240,7 @@ export async function takeScreenshotAndComparetoSnapshot(
   screenshotName: string,
   screenshotOptions: ScreenshotOptions | PageScreenshotOptions,
   testInfo: TestInfo,
+  page: Page,
 ): Promise<void> {
   const pathToImage = testInfo.snapshotPath(screenshotName)
   let newScreenshot = false
@@ -255,17 +261,29 @@ export async function takeScreenshotAndComparetoSnapshot(
     console.warn(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
     )
+    const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
+    if (savedYCoordinate !== null) {
+      console.log(
+        `Found a saved y coordinate of ${savedYCoordinate}. Trying to scroll to it in case it helps to fix the test.`,
+      )
+      page.evaluate((savedYCoordinate) => {
+        window.scrollTo(0, savedYCoordinate)
+      }, savedYCoordinate)
+    }
+    await page.waitForTimeout(600)
     if (isPage(screenshotTarget)) {
-      await screenshotTarget.waitForTimeout(600)
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
-      await screenshotTarget.page().waitForTimeout(600)
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   }
   if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
     // When updating snapshots, optimize the new image so that it does not take extra space in version control.
-    ensureImageHasBeenOptimized(pathToImage)
+    await ensureImageHasBeenOptimized(pathToImage)
+    const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
+    if (savedYCoordinate === null) {
+      await savePageYCoordinateToImage(pathToImage, page)
+    }
   }
 }
 

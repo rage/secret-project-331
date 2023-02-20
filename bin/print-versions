@@ -59,7 +59,7 @@ function print_is_installed() {
 
 echo "--------[ Rust ]--------"
 print_version "Rust" rustc --version
-print_version "Cargo version" sqlx --version
+print_version "Cargo version" cargo --version
 print_version "Sqlx-cli" sqlx --version
 print_is_installed "Cargo sqlx" cargo-sqlx
 print_version "Pkg-config" pkg-config --version

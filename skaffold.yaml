@@ -81,6 +81,9 @@ deploy:
       after:
         - host:
             command: ["bash", "-c", "bin/warm-routes &"]
+      before:
+        - host:
+            command: ["sh", "-c", "echo 'Waiting for the ingress to be ready.' && echo '> kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && kubectl wait --namespace ingress-nginx
 
 portForward:
 - resourceType: statefulset

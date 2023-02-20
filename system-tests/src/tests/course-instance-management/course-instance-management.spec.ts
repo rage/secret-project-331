@@ -138,6 +138,8 @@ test("test", async ({ page, headless }, testInfo) => {
     page.locator("text=Delete").click(),
   ])
 
+  await page.getByRole("tab", { name: "Course instances" }).click()
+
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,

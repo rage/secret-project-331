@@ -70,7 +70,7 @@ async function createLoginStates() {
       "All login states (=saved cookies for logging in) have been generated within the last week. Skipping generation and using existing ones.",
     )
     console.info(
-      "Note: If you want to regenerate the login statesnow, delete the json files in the 'src/states' folder.",
+      "Note: If you want to regenerate the login states now, delete the json files in the 'src/states' folder.",
     )
     console.info()
     return

@@ -253,7 +253,7 @@ After that, you should be able to access the application by going to `http://pro
 
 Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
 
-\*\*If you're having problems with minikube, try running ``
+**If you're having problems with minikube, try running `bin/detect-dev-env-problems`.**
 
 ### Windows
 

@@ -2,9 +2,19 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
+
+const FONT_SIZES: { [key: string]: string } = {
+  small: "18px",
+  normal: "22px",
+  medium: "36px",
+  large: "30px",
+  huge: "34px",
+}
 
 const PullquoteBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<PullquoteAttributes>>
@@ -20,11 +30,14 @@ const PullquoteBlock: React.FC<
     // style,
     textAlign,
     textColor,
+    fontSize = "medium",
     value,
   } = data.attributes
 
   const textAlignNotCenterWidth =
     textAlign && textAlign !== "center" && !align ? "max-width: 26.25rem;" : null
+
+  const size = FONT_SIZES[fontSize]
 
   return (
     <div
@@ -39,10 +52,10 @@ const PullquoteBlock: React.FC<
           ${gradient && `background: ${colorMapper(gradient)};`}
           text-align: center;
           ${textAlign && `text-align: ${textAlign};`}
-          border-top: 0.25rem solid currentColor;
-          border-bottom: 0.25rem solid currentColor;
+          border-top: 0.25rem solid #d5dbdf;
+          border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;
-          margin-bottom: 1rem;
+          margin: 3rem 0;
           ${align && `float: ${align};`}
           ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
         `}
@@ -50,15 +63,25 @@ const PullquoteBlock: React.FC<
       >
         <blockquote
           className={css`
-            font-size: 1.75rem;
+            font-size: 22px;
+            font-family: ${headingFont};
             line-height: 1.6;
+
+            ${respondToOrLarger.md} {
+              font-size: ${size};
+            }
           `}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(value ?? "") }}
         />
         <cite
           className={css`
+            font-size: 20px;
+            display: inline-block;
+            font-family: ${headingFont};
             font-style: normal;
-            text-transform: uppercase;
+            text-transform: capitalize !important;
+            margin-top: 1.2rem;
+            color: ${baseTheme.colors.green[700]};
           `}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
         ></cite>

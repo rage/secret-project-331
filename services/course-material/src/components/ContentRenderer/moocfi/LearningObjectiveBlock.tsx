@@ -6,8 +6,6 @@ import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
 import useIsPageChapterFrontPage from "../../../hooks/useIsPageChapterFrontPage"
 import Check from "../../../img/checkmark.svg"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../shared-module/components/Centering/Centered"
 import { baseTheme, headingFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
@@ -15,7 +13,6 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`
   margin: 2rem auto;
-  max-width: 1000px;
   background: #f0f5f5;
   padding: 1.5rem 2.2rem;
   height: auto;
@@ -89,26 +86,22 @@ const LearningObjectiveSectionBlock: React.FC<
   const data = props.data.innerBlocks[0]
 
   return (
-    <BreakFromCentered sidebar={false}>
-      <Centered variant="default">
-        <Wrapper>
-          <Header>
-            <h2>{heading}</h2>
-          </Header>
-          <Content>
-            <div>
-              {data &&
-                data.innerBlocks?.map((item: any) => (
-                  <StyledObjectives key={item.clientId}>
-                    <StyledCheck />
-                    <span>{item.attributes.content}</span>
-                  </StyledObjectives>
-                ))}
-            </div>
-          </Content>
-        </Wrapper>
-      </Centered>
-    </BreakFromCentered>
+    <Wrapper>
+      <Header>
+        <h2>{heading}</h2>
+      </Header>
+      <Content>
+        <div>
+          {data &&
+            data.innerBlocks?.map((item: any) => (
+              <StyledObjectives key={item.clientId}>
+                <StyledCheck />
+                <span>{item.attributes.content}</span>
+              </StyledObjectives>
+            ))}
+        </div>
+      </Content>
+    </Wrapper>
   )
 }
 

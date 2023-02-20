@@ -15,6 +15,7 @@ import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import HightlightBox from "./HighlightBox"
 import InfoBox from "./InfoBox"
+import InstructionBox from "./InstructionBox"
 import LandingPageCopyText from "./LandingPageCopyText"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
@@ -46,6 +47,7 @@ export const blockTypeMapForPages = [
   ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/highlightbox", HightlightBox],
+  ["moocfi/instructionbox", InstructionBox],
   ["moocfi/tablebox", TableBox],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>

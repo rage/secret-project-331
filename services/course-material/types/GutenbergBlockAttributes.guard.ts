@@ -945,6 +945,8 @@ export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
     (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
@@ -1663,7 +1665,15 @@ export function isFileAttributes(obj: unknown): obj is FileAttributes {
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+        typeof typedObj["style"] === "function") &&
+        Object.entries<any>(typedObj["style"]).every(([key, _value]) => typeof key === "string")))
   )
 }
 
@@ -2125,7 +2135,8 @@ export function isCellAttributes(obj: unknown): obj is CellAttributes {
     (typeof typedObj["tag"] === "undefined" || typeof typedObj["tag"] === "string") &&
     (typeof typedObj["scope"] === "undefined" || typeof typedObj["scope"] === "string") &&
     (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
-    (typeof typedObj["colspan"] === "undefined" || typeof typedObj["colspan"] === "string")
+    (typeof typedObj["colspan"] === "undefined" || typeof typedObj["colspan"] === "string") &&
+    (typeof typedObj["rowspan"] === "undefined" || typeof typedObj["rowspan"] === "string")
   )
 }
 
@@ -2141,6 +2152,8 @@ export function isVerseAttributes(obj: unknown): obj is VerseAttributes {
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["backgroundColor"] === "undefined" ||
       typeof typedObj["backgroundColor"] === "string") &&
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&

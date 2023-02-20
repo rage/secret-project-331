@@ -89,6 +89,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                       className={fetchAlignment(cell.align)}
                       key={i}
                       colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
+                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                       dangerouslySetInnerHTML={{
                         __html: parseText(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
@@ -110,6 +111,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                     className={fetchAlignment(cell.align)}
                     key={i}
                     colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
+                    rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                     dangerouslySetInnerHTML={{
                       __html: parseText(
                         cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
@@ -131,6 +133,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                       className={fetchAlignment(cell.align)}
                       key={i}
                       colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
+                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                       dangerouslySetInnerHTML={{
                         __html: parseText(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",

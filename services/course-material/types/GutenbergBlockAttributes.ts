@@ -668,6 +668,7 @@ export interface ButtonAttributes {
   }
   anchor?: string
   className?: string
+  borderColor?: string
   fontFamily?: string
   fontSize?: string
   style?: {
@@ -1178,6 +1179,12 @@ export interface FileAttributes {
   }
   anchor?: string
   className?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1489,6 +1496,7 @@ export interface CellAttributes {
   scope?: string
   align?: string
   colspan?: string
+  rowspan?: string
 }
 
 export interface VerseAttributes {
@@ -1499,6 +1507,7 @@ export interface VerseAttributes {
   }
   anchor?: string
   className?: string
+  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string

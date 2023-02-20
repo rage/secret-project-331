@@ -65,7 +65,7 @@ const PullquoteBlock: React.FC<
           className={css`
             font-size: 22px;
             font-family: ${headingFont};
-            font-weight
+            font-weight;
             line-height: 1.6;
 
             ${respondToOrLarger.md} {

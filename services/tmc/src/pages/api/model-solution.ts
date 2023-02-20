@@ -81,7 +81,7 @@ const handleBrowserModelSolution = async (
   for (const studentFilePath of config.student_file_paths) {
     const resolvedPath = path.resolve(solutionDir, studentFilePath)
     const buffer = await fs.readFile(resolvedPath)
-    solutionFiles.push({ fileName: resolvedPath, fileContents: buffer.toString() })
+    solutionFiles.push({ filepath: studentFilePath, contents: buffer.toString() })
   }
 
   const modelSolutionSpec: ModelSolutionSpec = {

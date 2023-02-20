@@ -5,10 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import UHLogo from "../img/UHBrandLogo.svg"
 import MOOCfi from "../img/moocfiLogo.svg"
-import { baseTheme, headingFont, secondaryFont, typography } from "../styles"
+import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
-
-import ContriButeBanner from "./Banner/ContributeBanner"
 
 const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 
@@ -16,46 +14,52 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
 // eslint-disable-next-line i18next/no-literal-string
-const Wrapper = styled.div`
-  display: grid;
-  grid-template-rows: 1fr;
+const Container = styled.div`
+  margin-top: 5em;
   padding: 1rem;
-  color: #231f20;
-  position: relative;
-  gap: 40px;
+  background: #f7f8f9;
 
   ${respondToOrLarger.sm} {
-    grid-template-columns: 1fr;
     padding: 4rem;
-    gap: 20px;
-    row-gap: 40px;
   }
 
   ${respondToOrLarger.lg} {
-    grid-template-columns: 0.3fr 1fr 0.3fr;
-    padding: 4rem;
-    gap: 20px;
-    row-gap: 40px;
+    padding: 5rem 3rem;
   }
 
   h1 {
     margin-bottom: 0.8rem;
     line-height: 1;
-    font-size: 1.2rem;
+    font-weight: 600;
+    font-size: clamp(24px, 2vw, 30px);
     color: ${baseTheme.colors.gray[700]};
-    font-family: ${secondaryFont};
+    padding: 0;
+
+    ${respondToOrLarger.sm} {
+      padding: 0 2rem 0 0;
+    }
+    ${respondToOrLarger.lg} {
+      padding: 0 2rem 0 3rem;
+    }
+  }
+`
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-rows: 1fr;
+  color: #231f20;
+  position: relative;
+  row-gap: 20px;
+
+  ${respondToOrLarger.sm} {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    row-gap: 20px;
   }
 
-  div:first-of-type {
-    margin-left: 0;
-
-    ${respondToOrLarger.md} {
-      margin-left: 0;
-    }
-
-    ${respondToOrLarger.lg} {
-      margin-left: 2em;
-    }
+  ${respondToOrLarger.lg} {
+    grid-template-columns: 0.9fr 0.2fr;
+    gap: 20px;
+    row-gap: 20px;
   }
 `
 
@@ -63,13 +67,16 @@ const StyledLink = styled.a`
   text-decoration: none;
   color: ${baseTheme.colors.gray[700]};
   font-size: 18px;
-  opacity: 0.7;
+  font-weight: 500;
+  opacity: 0.8;
   transition: opacity 0.2s ease-in;
   margin-bottom: 5px;
   font-family: ${headingFont};
+  padding-left: 0;
 
-  ${respondToOrLarger.md} {
+  ${respondToOrLarger.lg} {
     margin-bottom: 10px;
+    padding-left: 3rem;
   }
 
   :hover {
@@ -90,16 +97,20 @@ const Text = styled.div`
   }
 
   ${respondToOrLarger.lg} {
-    padding: 0 2rem 0 2rem;
-  }
-  ${respondToOrLarger.xxl} {
-    padding: 0 2rem 0 2rem;
+    width: 90%;
+    padding: 0 5rem 0 3rem;
   }
 
-  span {
+  p {
     font-size: 18px;
     padding-right: 0;
-    opacity: 0.7;
+    color: ${baseTheme.colors.gray[600]};
+  }
+
+  .mooc-description {
+    display: inline-block;
+    padding-top: 10px;
+    opacity: 0.8;
   }
 `
 const Links = styled.div`
@@ -112,6 +123,10 @@ const LogoA = styled.a`
   transition: filter 0.2s;
   &:hover {
     filter: brightness(34%) contrast(40%);
+  }
+
+  &:first-of-type {
+    padding-right: 1rem;
   }
 `
 
@@ -132,62 +147,64 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
       className={css`
         margin-top: 2rem;
 
-        h1 {
-          font-size: ${typography.h5};
-          font-weight: 500;
+        a {
+          color: #065853;
+          font-weight: bold;
         }
       `}
     >
-      <ContriButeBanner />
-      <Wrapper>
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            align-content: space-between;
-            row-gap: 1.4em;
-            opacity: 0.9;
-          `}
-        >
-          <LogoA
-            href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
-            aria-label={t("university-of-helsinki")}
-          >
-            <UHLogo />
-          </LogoA>
-
-          <LogoA
-            href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
-            // eslint-disable-next-line i18next/no-literal-string
-            aria-label="MOOC.fi"
-          >
-            <MOOCfi />
-          </LogoA>
-        </div>
-        <Text>
-          <h1
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {t("about-mooc-center")}
-          </h1>
-          <span>{t("about-mooc-center-description")}</span>
-        </Text>
-        <Links>
-          <h1
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {t("resources")}
-          </h1>
-          <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
-          {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
+      <Container>
+        <h1>{t("about")}</h1>
+        <Wrapper>
+          <Text>
+            <p>{t("about-mooc-center-description")}</p>
+            <p className="mooc-description">
+              {t("mooc-project-description")} {t("star-the-project-on-github")}:{" "}
+              <a href="https://github.com/rage/secret-project-331/">{t("project-github")}</a>.
+            </p>
+          </Text>
+          <Links>
+            <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
+            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
           <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
-          {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
-        </Links>
-      </Wrapper>
+            {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
+          </Links>
+          <div
+            className={css`
+              display: flex;
+              align-content: space-between;
+              row-gap: 1.4em;
+              opacity: 0.9;
+
+              ${respondToOrLarger.sm} {
+                padding: 0 2rem 0 0;
+              }
+
+              ${respondToOrLarger.md} {
+                width: 90%;
+              }
+
+              ${respondToOrLarger.lg} {
+                padding: 1rem 2rem 0 3rem;
+              }
+            `}
+          >
+            <LogoA
+              href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
+              // eslint-disable-next-line i18next/no-literal-string
+              aria-label="MOOC.fi"
+            >
+              <MOOCfi />
+            </LogoA>
+            <LogoA
+              href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
+              aria-label={t("university-of-helsinki")}
+            >
+              <UHLogo />
+            </LogoA>
+          </div>
+        </Wrapper>
+      </Container>
     </footer>
   )
 }

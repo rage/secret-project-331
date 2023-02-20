@@ -73,6 +73,7 @@ fn models(target: &mut File) {
         courses::CourseStructure,
         courses::CourseUpdate,
         courses::NewCourse,
+        courses::CourseBreadcrumbInfo,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,

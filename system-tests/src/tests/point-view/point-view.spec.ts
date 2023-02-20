@@ -48,6 +48,8 @@ test("test", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
   )
 
+  await page.getByRole("tab", { name: "Course instances" }).click()
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/course-instances/1544bf21-240a-56c4-a391-9b0621051fa6/points' }*/),
     page.locator("text=View points").nth(1).click(),

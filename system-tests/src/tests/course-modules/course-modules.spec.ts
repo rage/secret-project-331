@@ -15,7 +15,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/edaa1c52-15cd-458d-8ce2-1e4010641244",
   )
-  await page.locator('span:has-text("Modules")').click()
+  await page.getByRole("tab", { name: "Modules" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/edaa1c52-15cd-458d-8ce2-1e4010641244/modules",
   )

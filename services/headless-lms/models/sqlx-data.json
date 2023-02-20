@@ -10689,6 +10689,16 @@
     },
     "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\nAND re.deleted_at IS NULL\nand er.deleted_at IS NULL\n"
   },
+  "8eec12a84339d2b51c3a819162f81860ee76d77b461ef26fe90d5b85621fca4a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Bytea", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO repository_exercises (\n    id,\n    repository_id,\n    part,\n    name,\n    checksum,\n    download_url\n)\nVALUES ($1, $2, $3, $4, $5, $6)\n"
+  },
   "9042f4a78140ea8061a5d2f7ea3f6d8ae53b484871e869ebd0dd4cb31da6d9fb": {
     "describe": {
       "columns": [],
@@ -10783,6 +10793,37 @@
       }
     },
     "query": "\nINSERT INTO users (id, email_domain)\nVALUES ($1, $2)\nRETURNING id\n"
+  },
+  "951b669adeb15ca65df3eda9c4972c83daeaac52f8d9bc6a7fdf805449faa387": {
+    "describe": {
+      "columns": [
+        {
+          "name": "course_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT courses.id as course_id,\n  courses.name as course_name,\n  organizations.slug as organization_slug,\n  organizations.name as organization_name\nFROM courses\n  JOIN organizations ON (courses.organization_id = organizations.id)\nWHERE courses.id = $1;\n    "
   },
   "95507d06c93371645624282c196546afb39b428df76d978d7d87a8595f4bed05": {
     "describe": {
@@ -11186,16 +11227,6 @@
       }
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  user_id\nFROM regradings\nWHERE deleted_at IS NULL\nORDER BY regradings.created_at\nLIMIT $1 OFFSET $2;\n"
-  },
-  "9aeaf84e5391677bf292f14ac56f8de4bb0a8d9f69401e157fef552e613435a8": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Bytea", "Varchar"]
-      }
-    },
-    "query": "\nINSERT INTO repository_exercises (id, repository_id, part, name, checksum, download_url)\nVALUES ($1, $2, $3, $4, $5, $6)\n"
   },
   "9b22240e7ed6238509fccd2191dfed47215d59363003b204f7f666a587d34a48": {
     "describe": {
@@ -16073,6 +16104,16 @@
       }
     },
     "query": "UPDATE pages SET chapter_id = $1 WHERE id = $2"
+  },
+  "d166ef7aea5087e8bd7cf3fc6eb61625bfc05dde74af20f4c46d8dd36db802c1": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Varchar", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO file_uploads(path, name, mime, uploaded_by_user)\nVALUES ($1, $2, $3, $4)\n"
   },
   "d167d84ecde8f5bfc9b573de74cc7674a5b8649d68ac086320b592e539d7d1c8": {
     "describe": {

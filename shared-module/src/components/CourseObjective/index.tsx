@@ -10,52 +10,46 @@ interface StyledObjectiveProps {
   index: number
 }
 
-const Wrapper = styled.div`
+interface WrapperProps {
+  length: number
+}
+
+const Wrapper = styled.div<WrapperProps>`
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   padding: 1.5rem;
-  margin: 0 auto;
+  margin: 4em auto;
   max-width: 2000px;
 
   ${respondToOrLarger.md} {
-    padding: 3rem;
+    padding: 1rem 7rem;
   }
 
   h2 {
     z-index: 20;
-    width: 250px;
     font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
     font-weight: 700;
-    text-align: left;
+    text-align: center;
     color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
     line-height: 120%;
-
-    ${respondToOrLarger.md} {
-      width: 400px;
-    }
   }
 `
 
 const TextBox = styled.div`
   display: grid;
+  grid-auto-flow: none;
   grid-template-columns: 1fr;
   margin-bottom: 1rem;
-  align-items: center;
-  text-align: center;
   gap: 1rem;
   justify-content: center;
-
-  ${respondToOrLarger.md} {
-    padding: 0rem 0rem;
-    grid-template-columns: repeat(2, 1fr);
-  }
 
   ${respondToOrLarger.lg} {
     padding: 0rem 0rem;
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: column;
   }
 
   h3 {
@@ -69,19 +63,15 @@ const TextBox = styled.div`
 `
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
-  min-height: 100%;
-  background: ${({ index }) => (index === 1 ? `#1a2333` : `#f7f8f9`)};
+  height: 100%;
+  background: #f7f8f9;
   position: relative;
   overflow: hidden;
-  display: grid;
-  border: ${({ index }) => (index === 1 ? `none` : `2px solid #edf0f2`)};
-  color: ${({ index }) => index === 1 && `#dae3eb`};
+  padding: 2rem;
+  border: 2px solid #edf0f2;
 
   .paragraph {
-    margin: auto 2rem 2rem 2rem;
     text-align: left;
-    padding-right: 0;
-    z-index: 99;
   }
 
   .list {
@@ -109,8 +99,9 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
   children,
 }) => {
   const data = children && Object.values(children)[0].props.data.innerBlocks
+  const titleLength = title.split(" ").length
   return (
-    <Wrapper>
+    <Wrapper length={titleLength}>
       <h2>{title}</h2>
       <TextBox>
         {data &&
@@ -141,12 +132,12 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                   <h3
                     className={css`
                       font-size: 20px !important;
-                      margin: 2rem 2rem 0 2rem;
                       z-index: 20;
+                      line-height: 120%;
+                      margin-bottom: 1rem;
                       font-style: normal;
                       font-weight: 600;
                       text-align: left;
-                      padding-bottom: 1em;
                     `}
                   >
                     {innerBlocks[0].attributes.content}

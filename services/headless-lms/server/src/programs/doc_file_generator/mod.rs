@@ -118,6 +118,7 @@ use headless_lms_models::{
         CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
     },
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+    courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
@@ -775,6 +776,14 @@ fn models() {
             base_module_completion_requires_n_submodule_completions: 0,
         }
     );
+
+    doc!(CourseBreadcrumbInfo {
+        course_id,
+        course_name: "Introduction to everything".to_string(),
+        organization_slug: "uh-cs".to_string(),
+        organization_name: "University of Helsinkin, Deparment of Computer Science".to_string()
+    });
+
     doc!(CoursePageWithUserData {
         page,
         instance,

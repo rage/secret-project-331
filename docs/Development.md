@@ -201,10 +201,10 @@ You may also need:
 1. [Stern](https://github.com/wercker/stern)
 2. [Kubectx](https://github.com/ahmetb/kubectx)
 
-In addition, you need the commands (`bc, find, jq, rsync, sponge`) for the scripts:
+In addition, you need the commands (`bc, find, jq, rsync, sponge, realpath`) for the scripts:
 
 ```
-brew install bc jq rsync sponge
+brew install bc jq rsync sponge coreutils
 ```
 
 You may also need stern and kubectx:

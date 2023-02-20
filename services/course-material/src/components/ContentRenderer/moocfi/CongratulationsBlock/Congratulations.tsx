@@ -8,7 +8,6 @@ import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
 import { headingFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
-import CongratulationsLinks from "./CongratulationsLinks"
 import ModuleCard from "./ModuleCard"
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -95,9 +94,6 @@ export interface CongratulationsProps {
 
 const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
   const { t } = useTranslation()
-  // const multipleModules = modules.length > 1
-  // TODO: one module view does not display grades and styling needs to be improved
-  const multipleModules = true
   return (
     <Wrapper>
       <StyledBackground />
@@ -107,16 +103,14 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
         <span className="subtitle">
           {t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")}
         </span>
-        {!multipleModules && <CongratulationsLinks module={modules[0]} />}
-        {multipleModules && (
-          <ModuleWrapper>
-            {modules
-              .sort((a, b) => a.order_number - b.order_number)
-              .map((module) => (
-                <ModuleCard key={module.module_id} module={module} />
-              ))}
-          </ModuleWrapper>
-        )}
+
+        <ModuleWrapper>
+          {modules
+            .sort((a, b) => a.order_number - b.order_number)
+            .map((module) => (
+              <ModuleCard key={module.module_id} module={module} />
+            ))}
+        </ModuleWrapper>
       </Content>
     </Wrapper>
   )

@@ -111,16 +111,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
-  ])
-
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
-  ])
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await page.goto("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
@@ -236,14 +227,7 @@ screenshotTarget: page,
     },
   })
 */
-
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
-  ])
-
-  await page.locator("text=University of Helsinki, Department of Computer Science").click()
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await page.goto("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),

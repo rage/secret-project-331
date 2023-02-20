@@ -162,21 +162,7 @@ test("test", async ({ page }) => {
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
   await page.waitForSelector(`text="Please select the most correct alternative."`)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
-  ])
-
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
-  ])
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
-
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing' }*/),
-    page.locator("text=Introduction to System Level Testing").click(),
-  ])
+  await page.goto(`http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing`)
 
   await selectCourseInstanceIfPrompted(page)
 

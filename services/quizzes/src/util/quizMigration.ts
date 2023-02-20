@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+/* stylelint-disable */
 import {
   OldQuizItemType,
   PrivateSpecQuiz,
@@ -29,6 +30,10 @@ import {
 export const isOldQuiz = (quiz: Quiz | PrivateSpecQuiz) => {
   return !Object.prototype.hasOwnProperty.call(quiz, "version")
 }
+
+// Default value for choose-n exercise
+// Not set in the previous version
+const DEFAULT_N = 2
 
 export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
   quizOptions: NormalizedQuizItemOption[],
@@ -145,6 +150,7 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
+        n: DEFAULT_N,
       } as PrivateSpecQuizItemChooseN
     case "multiple-choice-dropdown":
       return {

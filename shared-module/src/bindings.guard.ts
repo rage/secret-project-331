@@ -37,6 +37,7 @@ import {
   CourseBackgroundQuestionAnswer,
   CourseBackgroundQuestionsAndAnswers,
   CourseBackgroundQuestionType,
+  CourseBreadcrumbInfo,
   CourseCount,
   CourseExam,
   CourseInstance,
@@ -782,6 +783,17 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["description"] === "string" &&
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean"
+  )
+}
+
+export function isCourseBreadcrumbInfo(obj: unknown): obj is CourseBreadcrumbInfo {
+  const typedObj = obj as CourseBreadcrumbInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["organization_slug"] === "string" &&
+    typeof typedObj["organization_name"] === "string"
   )
 }
 

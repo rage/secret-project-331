@@ -10,6 +10,7 @@ export interface LandingPageHeroSectionAttributes {
   title: string
   backgroundColor: string
   backgroundImage: string | undefined
+  backgroundRepeatX: boolean | undefined
 }
 
 const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSectionAttributes> = {
@@ -31,6 +32,10 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
     backgroundImage: {
       type: "string",
       default: undefined,
+    },
+    backgroundRepeatX: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: LandingPageHeroSectionEditor,

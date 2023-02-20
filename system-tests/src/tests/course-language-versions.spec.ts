@@ -24,6 +24,9 @@ test("test", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
   )
 
+  await page.getByRole("tab", { name: "Language versions" }).click()
+
+  // Click text=New language version
   await page.click(`:nth-match(button:below(:text("All course language versions")):text("New"), 1)`)
 
   await page.click('input[type="radio"]')
@@ -42,7 +45,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.click('[aria-label="Home page"]'),
+    page.getByRole("link", { name: "Home" }).click(),
   ])
 
   await Promise.all([

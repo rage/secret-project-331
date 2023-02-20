@@ -82,8 +82,6 @@ const PlaygroundViewSubmissionIframe: React.FC<
             if (msg.message === "current-state") {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               setCurrentStateReceivedFromIframe(msg)
-            } else if (msg.message === "file-upload") {
-              // cannot upload from submission view
             }
           }
         }}

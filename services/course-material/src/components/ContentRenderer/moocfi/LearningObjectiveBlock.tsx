@@ -1,4 +1,3 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,6 +9,8 @@ import Check from "../../../img/checkmark.svg"
 import { Block } from "../../../services/backend"
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../shared-module/components/Centering/Centered"
+import { baseTheme, headingFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 
@@ -17,54 +18,51 @@ import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMateria
 const Wrapper = styled.div`
   margin: 2rem auto;
   max-width: 1000px;
+  background: #f0f5f5;
+  padding: 1.5rem 2.2rem;
   height: auto;
 `
 const Header = styled.div`
-  background: #44827e;
   text-align: center;
   min-height: 55px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 3px ${baseTheme.colors.green[200]} dashed;
 
   h2 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 500;
     line-height: 1.2;
-    text-transform: uppercase;
-    color: #ffffff;
+    color: ${baseTheme.colors.gray[700]};
+    display: inline-block;
   }
 `
 const Content = styled.div`
-  padding: 2rem 2rem 3rem 2rem;
+  padding: 1rem 0;
   background: rgba(229, 224, 241, 0.05);
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  row-gap: 20px;
-  column-gap: 5px;
-  border-right: 1px solid #e5e0f1;
-  border-left: 1px solid #e5e0f1;
-  border-bottom: 1px solid #e5e0f1;
+  grid-template-columns: 1fr;
 
-  @media (max-width: 767.98px) {
-    padding: 1rem 1rem 2rem 1rem;
-    grid-template-columns: 1fr;
-    row-gap: 25px;
+  ${respondToOrLarger.md} {
+    padding: 1.5rem 2rem 1rem 0;
   }
 `
 const StyledObjectives = styled.div`
   display: grid;
+  width: 100%;
   grid-template-columns: 20px 1fr;
+  padding-bottom: 12px;
   span {
+    font-family: ${headingFont};
+    font-weight: 500;
     margin-left: 15px;
     font-size: 18px;
     line-height: 1.3;
     font-style: normal;
-    font-weight: 400;
     color: #535a66;
   }
 `
+
 const StyledCheck = styled(Check)`
   margin-top: 8px;
 `
@@ -88,32 +86,31 @@ const LearningObjectiveSectionBlock: React.FC<
       ? t("title-what-youll-learn-in-this-chapter")
       : t("title-what-youll-learn-in-this-page")
   }
+
+  //It is assumed that LearningBlock accepts only list - it can be updated to accept paragraph
+  const data = props.data.innerBlocks[0]
+
+  const childHtmls = parseListBlock(data)
+
   return (
     <BreakFromCentered sidebar={false}>
       <Centered variant="default">
         <Wrapper>
           <Header>
-            <h2
-              className={css`
-                text-transform: uppercase;
-              `}
-            >
-              {heading}
-            </h2>
+            <h2>{heading}</h2>
           </Header>
           <Content>
-            {props.data.innerBlocks.map((listBlock) => {
-              const entries = parseListBlock(listBlock)
-
-              return entries.map((childHtml) => (
-                <StyledObjectives key={listBlock.clientId}>
-                  <StyledCheck />
-                  <span
-                    dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }}
-                  />
-                </StyledObjectives>
-              ))
-            })}
+            <div>
+              {data &&
+                childHtmls.map((childHtml, n) => (
+                  <StyledObjectives key={n}>
+                    <StyledCheck />
+                    <span
+                      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }}
+                    />
+                  </StyledObjectives>
+                ))}
+            </div>
           </Content>
         </Wrapper>
       </Centered>

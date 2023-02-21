@@ -100,7 +100,6 @@ const compareFields = <T extends object, S extends object>(
     }
     expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
   })
-  return false
 }
 
 /**
@@ -309,7 +308,7 @@ const comparePublicSpecQuizItem = (
   compareFields<PublicSpecQuizItem, PublicQuizItem>(fields, publicSpecQuizItem, oldQuizItem)
 }
 
-const compareModelSolutionQuizItem = (
+const compareModelSolutionSpecQuizItem = (
   modelSolutionQuizItem: ModelSolutionQuizItem,
   oldQuizItem: OldModelSolutionQuizItem,
 ) => {
@@ -425,7 +424,7 @@ export {
   compareFields,
   comparePrivateSpecQuizItem,
   comparePublicSpecQuizItem,
-  compareModelSolutionQuizItem,
+  compareModelSolutionSpecQuizItem,
   expectModelSolutionSpecMetadataToMatch,
   expectPrivateSpecMetadataToMatch,
   expectPublicSpecMetadataToMatch,

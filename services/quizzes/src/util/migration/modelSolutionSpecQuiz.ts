@@ -17,8 +17,8 @@ import {
 } from "../../../types/types"
 
 import { DEFAULT_N } from "./migrationSettings"
-
-const migrateModelSolutionQuizItem = (
+const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
+const migrateModelSolutionSpecQuizItem = (
   quizItem: OldModelSolutionQuizItem,
 ): ModelSolutionQuizItem => {
   switch (quizItem.type as OldQuizItemType) {
@@ -114,7 +114,7 @@ const migrateModelSolutionQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
-        n: DEFAULT_N,
+        n: CHOOSE_N_DEFAULT_VALUE,
       } satisfies ModelSolutionQuizItemChooseN
     case "multiple-choice-dropdown":
       return {
@@ -130,7 +130,7 @@ const migrateModelSolutionQuizItem = (
   }
 }
 
-const migrateModelSolutionQuiz = (oldModelSolutionQuiz: OldModelSolutionQuiz) => {
+const migrateModelSolutionSpecQuiz = (oldModelSolutionQuiz: OldModelSolutionQuiz) => {
   const modelSolutionQuiz: ModelSolutionQuiz = {
     version: "2",
     id: oldModelSolutionQuiz.id,
@@ -142,9 +142,9 @@ const migrateModelSolutionQuiz = (oldModelSolutionQuiz: OldModelSolutionQuiz) =>
     title: oldModelSolutionQuiz.title,
   }
   oldModelSolutionQuiz.items.forEach((quizItem) => {
-    modelSolutionQuiz.items.push(migrateModelSolutionQuizItem(quizItem))
+    modelSolutionQuiz.items.push(migrateModelSolutionSpecQuizItem(quizItem))
   })
   return modelSolutionQuiz
 }
 
-export default migrateModelSolutionQuiz
+export default migrateModelSolutionSpecQuiz

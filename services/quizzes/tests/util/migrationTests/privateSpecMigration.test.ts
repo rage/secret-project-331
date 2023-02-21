@@ -16,19 +16,18 @@ import {
 import { Quiz, QuizItem, QuizItemTimelineItem } from "../../../types/types"
 import { generateQuiz } from "../../api/utils/quizGenerator"
 
+import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
 import {
-  comparePrivateSpecQuizItem,
-  createOldQuizFromQuizItems,
-  expectPrivateSpecMetadataToMatch,
-  generateCheckboxForOldQuiz,
-  generateChooseNForOldQuiz,
-  generateClosedEndedForOldQuiz,
-  generateEssayForOldQuiz,
-  generateMatrixForOldQuiz,
-  generateMultipleChoiceForOldQuiz,
-  generateScaleForOldQuiz,
-  generateTimelineForOldQuiz,
-} from "./testUtils"
+  generateCheckboxForOlderPrivateSpecQuiz,
+  generateChooseNForOlderPrivateSpecQuiz,
+  generateClosedEndedForOlderPrivateSpecQuiz,
+  generateEssayForOlderPrivateSpecQuiz,
+  generateMatrixForOlderPrivateSpecQuiz,
+  generateMultipleChoicePrivateSpecQuiz,
+  generateScaleForOlderPrivateSpecQuiz,
+  generateTimelineForOlderPrivateSpecQuiz,
+  packToPrivateSpecQuiz,
+} from "./utils/generation"
 
 describe("private spec", () => {
   test("distinguishes between old and new quiz", () => {
@@ -44,12 +43,12 @@ describe("private spec", () => {
     const correctOptions = 3
     const numberOfOptions = 5
     const quizOrder = 1
-    const multipleChoiceQuizItem: QuizItem = generateMultipleChoiceForOldQuiz(
+    const multipleChoiceQuizItem: QuizItem = generateMultipleChoicePrivateSpecQuiz(
       correctOptions,
       numberOfOptions,
       quizOrder,
     )
-    const oldQuiz = createOldQuizFromQuizItems([multipleChoiceQuizItem])
+    const oldQuiz = packToPrivateSpecQuiz([multipleChoiceQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
@@ -62,8 +61,8 @@ describe("private spec", () => {
   })
 
   test("migrates checkbox exercise", () => {
-    const checkboxQuizItem: QuizItem = generateCheckboxForOldQuiz(1)
-    const oldQuiz = createOldQuizFromQuizItems([checkboxQuizItem])
+    const checkboxQuizItem: QuizItem = generateCheckboxForOlderPrivateSpecQuiz(1)
+    const oldQuiz = packToPrivateSpecQuiz([checkboxQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -75,8 +74,8 @@ describe("private spec", () => {
   })
 
   test("migrates essay exercise", () => {
-    const essayQuizItem: QuizItem = generateEssayForOldQuiz(1)
-    const oldQuiz = createOldQuizFromQuizItems([essayQuizItem])
+    const essayQuizItem: QuizItem = generateEssayForOlderPrivateSpecQuiz(1)
+    const oldQuiz = packToPrivateSpecQuiz([essayQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -89,8 +88,8 @@ describe("private spec", () => {
   })
 
   test("migrates matrix exercise", () => {
-    const matrixQuizItem: QuizItem = generateMatrixForOldQuiz(1)
-    const oldQuiz = createOldQuizFromQuizItems([matrixQuizItem])
+    const matrixQuizItem: QuizItem = generateMatrixForOlderPrivateSpecQuiz(1)
+    const oldQuiz = packToPrivateSpecQuiz([matrixQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -106,8 +105,8 @@ describe("private spec", () => {
   })
 
   test("migrates 'open' exercise", () => {
-    const openQuizItem: QuizItem = generateClosedEndedForOldQuiz(1)
-    const oldQuiz = createOldQuizFromQuizItems([openQuizItem])
+    const openQuizItem: QuizItem = generateClosedEndedForOlderPrivateSpecQuiz(1)
+    const oldQuiz = packToPrivateSpecQuiz([openQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -120,8 +119,8 @@ describe("private spec", () => {
   })
 
   test("migrates scale exercise", () => {
-    const scaleQuizItem: QuizItem = generateScaleForOldQuiz(1)
-    const oldQuiz = createOldQuizFromQuizItems([scaleQuizItem])
+    const scaleQuizItem: QuizItem = generateScaleForOlderPrivateSpecQuiz(1)
+    const oldQuiz = packToPrivateSpecQuiz([scaleQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -133,8 +132,8 @@ describe("private spec", () => {
   })
 
   test("migrates timeline exercise", () => {
-    const timelineQuizItem: QuizItem = generateTimelineForOldQuiz(1)
-    const oldQuiz = createOldQuizFromQuizItems([timelineQuizItem])
+    const timelineQuizItem: QuizItem = generateTimelineForOlderPrivateSpecQuiz(1)
+    const oldQuiz = packToPrivateSpecQuiz([timelineQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -152,8 +151,11 @@ describe("private spec", () => {
   test("migrates clickable-multiple-choice exercise", () => {
     const numberOfOptions = 5
     const quizOrder = 1
-    const chooseNQuizItem: QuizItem = generateChooseNForOldQuiz(numberOfOptions, quizOrder)
-    const oldQuiz = createOldQuizFromQuizItems([chooseNQuizItem])
+    const chooseNQuizItem: QuizItem = generateChooseNForOlderPrivateSpecQuiz(
+      numberOfOptions,
+      quizOrder,
+    )
+    const oldQuiz = packToPrivateSpecQuiz([chooseNQuizItem])
     const newQuiz = migratePrivateSpecQuiz(oldQuiz)
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
@@ -169,20 +171,20 @@ describe("private spec", () => {
     const correctOptions = 3
     const numberOfOptions = 5
 
-    const essayQuizItem = generateEssayForOldQuiz(1)
-    const checkboxQuizItem = generateCheckboxForOldQuiz(2)
-    const openQuizItem = generateClosedEndedForOldQuiz(3)
-    const scaleQuizItem = generateScaleForOldQuiz(4)
-    const matrixQuizItem = generateMatrixForOldQuiz(5)
-    const timelineQuizItem = generateTimelineForOldQuiz(6)
-    const multipleChoiceQuizItem = generateMultipleChoiceForOldQuiz(
+    const essayQuizItem = generateEssayForOlderPrivateSpecQuiz(1)
+    const checkboxQuizItem = generateCheckboxForOlderPrivateSpecQuiz(2)
+    const openQuizItem = generateClosedEndedForOlderPrivateSpecQuiz(3)
+    const scaleQuizItem = generateScaleForOlderPrivateSpecQuiz(4)
+    const matrixQuizItem = generateMatrixForOlderPrivateSpecQuiz(5)
+    const timelineQuizItem = generateTimelineForOlderPrivateSpecQuiz(6)
+    const multipleChoiceQuizItem = generateMultipleChoicePrivateSpecQuiz(
       correctOptions,
       numberOfOptions,
       7,
     )
-    const chooseNQuizItem = generateChooseNForOldQuiz(numberOfOptions, 8)
+    const chooseNQuizItem = generateChooseNForOlderPrivateSpecQuiz(numberOfOptions, 8)
 
-    const oldQuiz = createOldQuizFromQuizItems([
+    const oldQuiz = packToPrivateSpecQuiz([
       essayQuizItem,
       checkboxQuizItem,
       openQuizItem,

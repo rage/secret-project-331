@@ -15,6 +15,8 @@ import { PublicQuiz, PublicQuizItem } from "../../../types/types"
 
 import { DEFAULT_N } from "./migrationSettings"
 
+const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
+
 const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem => {
   switch (quizItem.type as OldQuizItemType) {
     case "essay":
@@ -93,7 +95,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         body: quizItem.body,
         title: quizItem.title,
         options: quizItem.options,
-        n: DEFAULT_N,
+        n: CHOOSE_N_DEFAULT_VALUE,
       } satisfies PublicSpecQuizItemChooseN
     case "multiple-choice-dropdown":
       return {

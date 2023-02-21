@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { ModelSolutionQuiz, ModelSolutionQuizItem, PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption } from "../../../../types/types"
+import { ModelSolutionQuiz, ModelSolutionQuizItem, PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption, QuizItemTimelineItem } from "../../../../types/types"
 
 
 
@@ -249,6 +249,8 @@ export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(initia
   return Object.assign(emptyQuizItemAnswer(), initialValues);
 }
 
+// MULTIPLE CHOICE EXERCISE GENERATION
+
 // == Generator functions
 /**
  * Generate multiple-choice quiz item for older quizzes. First items
@@ -345,7 +347,357 @@ const generateMultipleChoiceModelSolutionSpecQuiz = (
     order,
   })
 }
+// CHOOSE N -EXERCISE GENERATION
+const generateChooseNForOlderPrivateSpecQuiz = (numberOfOptions: number, order: number): QuizItem => {
+  const quizOptions: QuizItemOption[] = []
+  for (let i = 0; i < numberOfOptions; i++) {
+    quizOptions.push(
+      generatePrivateQuizItemOption({
+        quizItemId: "multiple-choice-exercise",
+        correct: true,
+        title: `option-${i + 1}`,
+        id: `option-${i + 1}`,
+        order: i + 1,
+      }),
+    )
+  }
 
+  return generatePrivateQuizItem({
+    id: "choose-N-exercise",
+    type: "clickable-multiple-choice",
+    order,
+    body: "choose-N-body",
+    title: "choose-N-title",
+    failureMessage: "choose-N-failure-message",
+    successMessage: "choose-N-success-message",
+    options: quizOptions,
+  })
+}
+
+const generateChooseNForOlderPublicSpecQuiz = (numberOfOptions: number, order: number): PublicQuizItem => {
+  const quizOptions: QuizItemOption[] = []
+  for (let i = 0; i < numberOfOptions; i++) {
+    quizOptions.push(
+      generatePrivateQuizItemOption({
+        quizItemId: "multiple-choice-exercise",
+        correct: true,
+        title: `option-${i + 1}`,
+        id: `option-${i + 1}`,
+        order: i + 1,
+      }),
+    )
+  }
+
+  return generatePublicQuizItem({
+    id: "choose-N-exercise",
+    type: "clickable-multiple-choice",
+    order,
+    body: "choose-N-body",
+    title: "choose-N-title",
+    failureMessage: "choose-N-failure-message",
+    successMessage: "choose-N-success-message",
+    options: quizOptions,
+  })
+}
+
+const generateChooseNForOlderModelSolutionSpecQuiz = (numberOfOptions: number, order: number): ModelSolutionQuizItem => {
+  const quizOptions: QuizItemOption[] = []
+  for (let i = 0; i < numberOfOptions; i++) {
+    quizOptions.push(
+      generatePrivateQuizItemOption({
+        quizItemId: "multiple-choice-exercise",
+        correct: true,
+        title: `option-${i + 1}`,
+        id: `option-${i + 1}`,
+        order: i + 1,
+      }),
+    )
+  }
+
+  return generateModelSolutionQuizItem({
+    id: "choose-N-exercise",
+    type: "clickable-multiple-choice",
+    order,
+    body: "choose-N-body",
+    title: "choose-N-title",
+    failureMessage: "choose-N-failure-message",
+    successMessage: "choose-N-success-message",
+    options: quizOptions,
+  })
+}
+
+// CHECKBOX EXERCISE GENERATION
+const generateCheckboxForOlderPrivateSpecQuiz = (order: number): QuizItem => {
+  return generatePrivateQuizItem({
+    id: "checkbox-exercise",
+    type: "checkbox",
+    order,
+    body: "checkbox-body",
+    failureMessage: "checkbox-failure-message",
+    successMessage: "checkbox-success-message",
+    title: "checkbox-title",
+  })
+}
+
+const generateCheckboxForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+  return generatePublicQuizItem({
+    id: "checkbox-exercise",
+    type: "checkbox",
+    order,
+    body: "checkbox-body",
+    failureMessage: "checkbox-failure-message",
+    successMessage: "checkbox-success-message",
+    title: "checkbox-title",
+  })
+}
+
+const generateCheckboxForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+  return generateModelSolutionQuizItem({
+    id: "checkbox-exercise",
+    type: "checkbox",
+    order,
+    body: "checkbox-body",
+    failureMessage: "checkbox-failure-message",
+    successMessage: "checkbox-success-message",
+    title: "checkbox-title",
+  })
+}
+// ESSAY EXERCISE GENERATION
+const generateEssayForOlderPrivateSpecQuiz = (order: number): QuizItem => {
+  return generatePrivateQuizItem({
+    id: "essay-exercise",
+    type: "essay",
+    order,
+    title: "essay-title",
+    body: "essay-body",
+    failureMessage: "essay-failure-message",
+    successMessage: "essay-success-message",
+    maxWords: 500,
+    minWords: 100,
+  })
+}
+
+const generateEssayForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+  return generatePublicQuizItem({
+    id: "essay-exercise",
+    type: "essay",
+    order,
+    title: "essay-title",
+    body: "essay-body",
+    failureMessage: "essay-failure-message",
+    successMessage: "essay-success-message",
+    maxWords: 500,
+    minWords: 100,
+  })
+}
+
+const generateEssayForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+  return generateModelSolutionQuizItem({
+    id: "essay-exercise",
+    type: "essay",
+    order,
+    title: "essay-title",
+    body: "essay-body",
+    failureMessage: "essay-failure-message",
+    successMessage: "essay-success-message",
+    maxWords: 500,
+    minWords: 100,
+  })
+}
+
+// MATRIX EXERCISE GENERATION
+const generateMatrixForOlderPrivateSpecQuiz = (order: number): QuizItem => {
+  return generatePrivateQuizItem({
+    id: "matrix-exercise",
+    type: "matrix",
+    order,
+    failureMessage: "matrix-failure-message",
+    successMessage: "matrix-success-message",
+    optionCells: [
+      ["1", "0", "0"],
+      ["0", "1", "0"],
+      ["0", "0", "1"],
+    ],
+  })
+}
+
+const generateMatrixForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+  return generatePublicQuizItem({
+    id: "matrix-exercise",
+    type: "matrix",
+    order,
+    failureMessage: "matrix-failure-message",
+    successMessage: "matrix-success-message",
+    optionCells: [
+      ["1", "0", "0"],
+      ["0", "1", "0"],
+      ["0", "0", "1"],
+    ],
+  })
+}
+
+const generateMatrixForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+  return generateModelSolutionQuizItem({
+    id: "matrix-exercise",
+    type: "matrix",
+    order,
+    failureMessage: "matrix-failure-message",
+    successMessage: "matrix-success-message",
+    optionCells: [
+      ["1", "0", "0"],
+      ["0", "1", "0"],
+      ["0", "0", "1"],
+    ],
+  })
+}
+// CLOSED-ENDED QUESTION EXERCISE GENERATION
+const generateClosedEndedForOlderPrivateSpecQuiz = (order: number): QuizItem => {
+  return generatePrivateQuizItem({
+    id: "closed-ended-exercise",
+    type: "open",
+    order,
+    body: "closed-ended-body",
+    title: "closed-ended-title",
+    formatRegex: "s{5}",
+    validityRegex: "answer",
+    successMessage: "closed-ended-failure-message",
+    failureMessage: "closed-ended-success-message",
+  })
+}
+
+const generateClosedEndedForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+  return generatePublicQuizItem({
+    id: "closed-ended-exercise",
+    type: "open",
+    order,
+    body: "closed-ended-body",
+    title: "closed-ended-title",
+    formatRegex: "s{5}",
+    validityRegex: "answer",
+    successMessage: "closed-ended-failure-message",
+    failureMessage: "closed-ended-success-message",
+  })
+}
+
+const generateClosedEndedForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+  return generateModelSolutionQuizItem({
+    id: "closed-ended-exercise",
+    type: "open",
+    order,
+    body: "closed-ended-body",
+    title: "closed-ended-title",
+    formatRegex: "s{5}",
+    validityRegex: "answer",
+    successMessage: "closed-ended-failure-message",
+    failureMessage: "closed-ended-success-message",
+  })
+}
+
+// SCALE EXERCISE GENERATION
+const generateScaleForOlderPrivateSpecQuiz = (order: number): QuizItem => {
+  return generatePrivateQuizItem({
+    id: "scale-exercise",
+    type: "scale",
+    order,
+    title: "scale-exercise-title",
+    body: "scale-exercise-body",
+    failureMessage: "scale-exercise-failure-message",
+    successMessage: "scale-exercise-success-message",
+    maxLabel: "max",
+    minLabel: "min",
+    maxValue: 100,
+    minValue: 1,
+  })
+}
+
+const generateScaleForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+  return generatePublicQuizItem({
+    id: "scale-exercise",
+    type: "scale",
+    order,
+    title: "scale-exercise-title",
+    body: "scale-exercise-body",
+    failureMessage: "scale-exercise-failure-message",
+    successMessage: "scale-exercise-success-message",
+    maxLabel: "max",
+    minLabel: "min",
+    maxValue: 100,
+    minValue: 1,
+  })
+}
+
+const generateScaleForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+  return generateModelSolutionQuizItem({
+    id: "scale-exercise",
+    type: "scale",
+    order,
+    title: "scale-exercise-title",
+    body: "scale-exercise-body",
+    failureMessage: "scale-exercise-failure-message",
+    successMessage: "scale-exercise-success-message",
+    maxLabel: "max",
+    minLabel: "min",
+    maxValue: 100,
+    minValue: 1,
+  })
+}
+
+// TIMELINE EXERCISE GENERATION
+const generateTimelineForOlderPrivateSpecQuiz = (order: number): QuizItem => {
+  return generatePrivateQuizItem({
+    id: "timeline-exercise",
+    type: "timeline",
+    order,
+    failureMessage: "timeline-failure-message",
+    successMessage: "timeline-success-message",
+    timelineItems: [
+      {
+        id: "0001",
+        year: "2000",
+        correctEventName: "event-name-2000",
+        correctEventId: "0001",
+      } as QuizItemTimelineItem,
+    ],
+  })
+}
+
+const generateTimelineForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+  return generatePublicQuizItem({
+    id: "timeline-exercise",
+    type: "timeline",
+    order,
+    failureMessage: "timeline-failure-message",
+    successMessage: "timeline-success-message",
+    timelineItems: [
+      {
+        id: "0001",
+        year: "2000",
+        correctEventName: "event-name-2000",
+        correctEventId: "0001",
+      } as QuizItemTimelineItem,
+    ],
+  })
+}
+
+const generateTimelineForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+  return generateModelSolutionQuizItem({
+    id: "timeline-exercise",
+    type: "timeline",
+    order,
+    failureMessage: "timeline-failure-message",
+    successMessage: "timeline-success-message",
+    timelineItems: [
+      {
+        id: "0001",
+        year: "2000",
+        correctEventName: "event-name-2000",
+        correctEventId: "0001",
+      } as QuizItemTimelineItem,
+    ],
+  })
+}
+
+// Packing the quiz items into the quiz
 
 const packToPrivateSpecQuiz = (
   quizItems: QuizItem[]
@@ -355,8 +707,8 @@ const packToPublicSpecQuiz = (
   quizItems: PublicQuizItem[]
 ) => generatePublicQuiz({ items: quizItems })
 
-const packToModelSolutionQuiz = (
-  quizItems: QuizItem[]
+const packToModelSolutionSpecQuiz = (
+  quizItems: ModelSolutionQuizItem[]
 ) => generateModelSolutionQuiz({ items: quizItems })
 
 const packToAnswer = (
@@ -364,12 +716,42 @@ const packToAnswer = (
 ) => generateQuizAnswer({ itemAnswers: quizAnswers })
 
 export {
+  // Checkbox
+  generateCheckboxForOlderPrivateSpecQuiz,
+  generateCheckboxForOlderPublicSpecQuiz,
+  generateCheckboxForOlderModelSolutionSpecQuiz,
+  // Closed ended question (Open question in the older version)
+  generateClosedEndedForOlderPrivateSpecQuiz,
+  generateClosedEndedForOlderPublicSpecQuiz,
+  generateClosedEndedForOlderModelSolutionSpecQuiz,
+  // Essay
+  generateEssayForOlderPrivateSpecQuiz,
+  generateEssayForOlderPublicSpecQuiz,
+  generateEssayForOlderModelSolutionSpecQuiz,
+  // Matrix
+  generateMatrixForOlderPrivateSpecQuiz,
+  generateMatrixForOlderPublicSpecQuiz,
+  generateMatrixForOlderModelSolutionSpecQuiz,
+  // Scale
+  generateScaleForOlderPrivateSpecQuiz,
+  generateScaleForOlderPublicSpecQuiz,
+  generateScaleForOlderModelSolutionSpecQuiz,
+  // Timeline
+  generateTimelineForOlderPrivateSpecQuiz,
+  generateTimelineForOlderPublicSpecQuiz,
+  generateTimelineForOlderModelSolutionSpecQuiz,
+  // Multiple choice
   generateMultipleChoicePrivateSpecQuiz,
   generateMultipleChoicePublicSpecQuiz,
   generateMultipleChoiceModelSolutionSpecQuiz,
+  // Choose n (Clickable multiple choice in the older version)
+  generateChooseNForOlderPrivateSpecQuiz,
+  generateChooseNForOlderPublicSpecQuiz,
+  generateChooseNForOlderModelSolutionSpecQuiz,
+  // Packing
   packToPrivateSpecQuiz,
   packToPublicSpecQuiz,
-  packToModelSolutionQuiz,
+  packToModelSolutionSpecQuiz,
   packToAnswer
 }
 

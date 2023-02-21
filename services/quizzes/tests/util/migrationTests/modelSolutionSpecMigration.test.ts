@@ -25,7 +25,7 @@ import {
   generateScaleForOlderModelSolutionSpecQuiz,
   generateTimelineForOlderModelSolutionSpecQuiz,
   packToModelSolutionSpecQuiz,
-} from "./utils/generation"
+} from "./utils/exerciseGeneration"
 
 describe("model solution spec migration of quizzes", () => {
   test("migrates multiple-choice exercises", () => {

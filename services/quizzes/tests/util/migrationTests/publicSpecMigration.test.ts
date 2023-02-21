@@ -22,7 +22,7 @@ import {
   generateScaleForOlderPublicSpecQuiz,
   generateTimelineForOlderPublicSpecQuiz,
   packToPublicSpecQuiz,
-} from "./utils/generation"
+} from "./utils/exerciseGeneration"
 
 describe("public spec migration of quizzes", () => {
   test("migrates multiple-choice exercises", () => {

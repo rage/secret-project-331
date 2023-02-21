@@ -5,34 +5,6 @@ import { ModelSolutionQuiz, ModelSolutionQuizItem, PublicQuiz, PublicQuizItem, P
 
 // Content for private quiz item
 
-// Quiz answers
-const emptyQuizAnswer = (): QuizAnswer => ({
-  createdAt: '',
-  updatedAt: '',
-  id: '',
-  itemAnswers: [],
-  quizId: '',
-  status: "open",
-})
-
-const emptyQuizItemAnswer = (): QuizItemAnswer => ({
-  id: "v4()",
-  quizAnswerId: "v4()",
-  quizItemId: "v4()",
-  textData: null,
-  intData: null,
-  createdAt: "",
-  updatedAt: "",
-  correct: false,
-  /** Whether or not the provided answer can be submitted. */
-  valid: true,
-  /** Only contains an id of a selected option */
-  optionAnswers: null,
-  optionCells: null,
-  /** Only used for timeline answers. */
-  timelineChoices: null
-})
-
 // Private spec quiz
 const emptyPrivateQuizItemOption = (): QuizItemOption => ({
   id: 'v4()',
@@ -238,15 +210,6 @@ export const generateModelSolutionQuiz = <T extends Partial<ModelSolutionQuiz>>(
 
 export const generateModelSolutionQuizItem = <T extends Partial<ModelSolutionQuizItem>>(initialValues: T): ModelSolutionQuizItem & T => {
   return Object.assign(emptyModelSolutionQuizItem(), initialValues);
-}
-
-// Quiz answer generation
-export const generateQuizAnswer = <T extends Partial<QuizAnswer>>(initialValues: T): QuizAnswer & T => {
-  return Object.assign(emptyQuizAnswer(), initialValues);
-}
-
-export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(initialValues: T): QuizItemAnswer & T => {
-  return Object.assign(emptyQuizItemAnswer(), initialValues);
 }
 
 // MULTIPLE CHOICE EXERCISE GENERATION
@@ -711,10 +674,6 @@ const packToModelSolutionSpecQuiz = (
   quizItems: ModelSolutionQuizItem[]
 ) => generateModelSolutionQuiz({ items: quizItems })
 
-const packToAnswer = (
-  quizAnswers: QuizItemAnswer[]
-) => generateQuizAnswer({ itemAnswers: quizAnswers })
-
 export {
   // Checkbox
   generateCheckboxForOlderPrivateSpecQuiz,
@@ -752,7 +711,6 @@ export {
   packToPrivateSpecQuiz,
   packToPublicSpecQuiz,
   packToModelSolutionSpecQuiz,
-  packToAnswer
 }
 
 

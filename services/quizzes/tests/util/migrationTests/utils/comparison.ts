@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 
+import { UserItemAnswer } from "../../../../types/quizTypes/answer"
 import {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
@@ -13,6 +14,7 @@ import {
   PublicQuizItem,
   Quiz,
   QuizItem,
+  QuizItemAnswer,
 } from "../../../../types/types"
 
 const QUIZ_VERSION = "2"
@@ -420,6 +422,87 @@ const compareModelSolutionSpecQuizItem = (
   )
 }
 
+const compareUserItemAnswer = (quizItemAnswer: QuizItemAnswer, userItemAnswer: UserItemAnswer) => {
+  let fields = {}
+
+  switch (userItemAnswer.type) {
+    case "checkbox":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        // intData: "checked",  // This is tested manually
+      }
+      break
+    case "choose-n":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        optionAnswers: "selectedOptionIds",
+      }
+      break
+    case "closed-ended-question":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        textData: "textData",
+      }
+      break
+    case "essay":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        textData: "textData",
+      }
+      break
+    case "matrix":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        optionCells: "matrix",
+      }
+      break
+    case "multiple-choice":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        optionAnswers: "selectedOptionIds",
+      }
+      break
+    case "multiple-choice-dropdown":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        optionAnswers: "selectedOptionIds",
+      }
+      break
+    case "scale":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        intData: "intData",
+      }
+      break
+    case "timeline":
+      fields = {
+        id: "id",
+        quizItemId: "quizItemId",
+        valid: "valid",
+        timelineChoices: "timelineChoices",
+      }
+      break
+  }
+
+  compareFields<QuizItemAnswer, UserItemAnswer>(fields, quizItemAnswer, userItemAnswer)
+}
+
 export {
   compareFields,
   comparePrivateSpecQuizItem,
@@ -428,4 +511,5 @@ export {
   expectModelSolutionSpecMetadataToMatch,
   expectPrivateSpecMetadataToMatch,
   expectPublicSpecMetadataToMatch,
+  compareUserItemAnswer,
 }

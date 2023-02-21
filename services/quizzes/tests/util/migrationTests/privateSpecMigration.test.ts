@@ -27,7 +27,7 @@ import {
   generateScaleForOlderPrivateSpecQuiz,
   generateTimelineForOlderPrivateSpecQuiz,
   packToPrivateSpecQuiz,
-} from "./utils/generation"
+} from "./utils/exerciseGeneration"
 
 describe("private spec", () => {
   test("distinguishes between old and new quiz", () => {

@@ -10789,6 +10789,37 @@
     },
     "query": "\nUPDATE user_exercise_slide_states\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id\n    "
   },
+  "951b669adeb15ca65df3eda9c4972c83daeaac52f8d9bc6a7fdf805449faa387": {
+    "describe": {
+      "columns": [
+        {
+          "name": "course_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT courses.id as course_id,\n  courses.name as course_name,\n  organizations.slug as organization_slug,\n  organizations.name as organization_name\nFROM courses\n  JOIN organizations ON (courses.organization_id = organizations.id)\nWHERE courses.id = $1;\n    "
+  },
   "95507d06c93371645624282c196546afb39b428df76d978d7d87a8595f4bed05": {
     "describe": {
       "columns": [

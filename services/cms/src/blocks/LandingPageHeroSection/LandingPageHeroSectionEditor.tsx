@@ -44,7 +44,7 @@ const LandingPageHeroSectionEditor: React.FC<
             background-color: ${attributes.backgroundColor};
             ${attributes.backgroundImage &&
             `background-image: url("${attributes.backgroundImage}");
-            background-repeat: no-repeat;
+            background-repeat: ${attributes.backgroundRepeatX ? "repeat-x" : "no-repeat"};
             background-position: center center;`}
             width: 100%;
             border-radius: 1px;

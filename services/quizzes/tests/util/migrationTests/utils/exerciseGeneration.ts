@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { ModelSolutionQuiz, ModelSolutionQuizItem, PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption, QuizItemTimelineItem } from "../../../../types/types"
+import { ModelSolutionQuiz, ModelSolutionQuizItem, PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz, QuizItem, QuizItemOption, QuizItemTimelineItem } from "../../../../types/types"
 
 
 

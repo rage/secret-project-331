@@ -8,6 +8,7 @@ import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/cons
 
 interface TextBoxProps {
   fontColor?: string
+  direction: string
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -17,9 +18,18 @@ const TextBox = styled.div<TextBoxProps>`
   max-width: 800px;
   padding: 2rem 2.5rem 3rem 2.5rem;
   margin: 0 auto;
-  align-items: center;
-  text-align: center;
+  text-align: ${({ direction }) => direction};
+  align-items: ${({ direction }) => direction};
   justify-content: center;
+
+  ${respondToOrLarger.md} {
+    margin: ${({ direction }) => (direction == "center" ? "0 auto" : "0 0 0 35%")};
+
+    h1,
+    span,
+    .chapter {
+    }
+  }
 
   h1 {
     font-weight: 700;
@@ -34,7 +44,7 @@ const TextBox = styled.div<TextBoxProps>`
     font-size: 18px;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     opacity: 0.8;
-    text-align: center;
+    text-align: ${({ direction }) => direction};
     font-weight: 500;
     font-family: ${headingFont};
   }
@@ -92,17 +102,21 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           opacity: 0.3;
           background-image: url(${backgroundImage});
           background-repeat: no-repeat;
-          background-position: ${direction} center;
+          background-position: center center;
           position: absolute;
           top: 0px;
           left: 0px;
+          ${respondToOrLarger.md} {
+            opacity: ${direction == "center" ? "0.3" : "1"};
+            background-position: ${direction} center;
+          }
           ${respondToOrLarger.xxxxxl} {
             background-size: contain;
           }
         }
       `}
     >
-      <TextBox color={fontColor}>
+      <TextBox color={fontColor} direction={direction}>
         <span className="chapter">{chapter}</span>
         <h1 className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}>{title}</h1>
         <span>{subtitle}</span>

@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, typography } from "../styles"
+import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/constants"
 
@@ -14,8 +14,9 @@ interface TextBoxProps {
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
   flex-direction: column;
+  max-width: 800px;
   padding: 2rem 2.5rem 3rem 2.5rem;
-  margin-bottom: 1rem;
+  margin: 0 auto;
   align-items: center;
   text-align: center;
   justify-content: center;
@@ -24,25 +25,25 @@ const TextBox = styled.div<TextBoxProps>`
     font-weight: 700;
     z-index: 20;
     margin-bottom: 0.5rem;
-    margin-top: 1.5rem;
+    font-weight: 600;
     line-height: 120%;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
   }
 
   .chapter {
+    font-size: 18px;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     opacity: 0.8;
+    text-align: center;
+    font-weight: 500;
+    font-family: ${headingFont};
   }
 
   span {
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
-    font-size: 1.2rem;
-    opacity: 0.7;
+    font-size: 18px;
+    opacity: 0.8;
     z-index: 20;
-
-    ${respondToOrLarger.sm} {
-      font-size: ${typography.h5};
-    }
   }
 `
 export interface HeroSectionProps {
@@ -81,12 +82,23 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         padding: 7.5em 1em;
         margin-bottom: 3rem;
         background-color: ${backgroundColor};
-        background-image: url(${backgroundImage});
-        background-repeat: no-repeat;
-        background-position: ${direction} center;
         background-size: auto;
-        ${respondToOrLarger.xxxxxl} {
-          background-size: contain;
+        position: relative;
+
+        &::after {
+          width: 100%;
+          height: 100%;
+          content: "";
+          opacity: 0.3;
+          background-image: url(${backgroundImage});
+          background-repeat: no-repeat;
+          background-position: ${direction} center;
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          ${respondToOrLarger.xxxxxl} {
+            background-size: contain;
+          }
         }
       `}
     >

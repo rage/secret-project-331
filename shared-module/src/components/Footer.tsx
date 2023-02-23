@@ -121,12 +121,13 @@ const Links = styled.div`
 const LogoA = styled.a`
   filter: brightness(100%) contrast(100%);
   transition: filter 0.2s;
+  max-height: 98px;
   &:hover {
     filter: brightness(34%) contrast(40%);
   }
 
   &:first-of-type {
-    padding-right: 1rem;
+    margin-right: 1.5rem;
   }
 `
 
@@ -149,7 +150,7 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
 
         a {
           color: #065853;
-          font-weight: bold;
+          font-weight: 600;
         }
       `}
     >

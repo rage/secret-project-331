@@ -91,7 +91,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
         margin-bottom: 3rem;
-        background-color: ${backgroundColor};
+        background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["600"]};
         background-size: auto;
         position: relative;
 

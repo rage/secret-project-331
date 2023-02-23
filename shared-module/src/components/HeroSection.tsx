@@ -67,7 +67,9 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   backgroundColor,
   chapter,
 }) => {
-  const direction = alignCenter ? "center" : "left"
+  const CENTER = "center"
+  const LEFT = "left"
+  const direction = alignCenter ? CENTER : LEFT
   console.log({ backgroundImage, backgroundColor })
   return (
     <div

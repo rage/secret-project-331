@@ -18,7 +18,8 @@ import { HeroSectionAttributes } from "."
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
-  const { title, subtitle } = attributes
+  const { title, subtitle, alignCenter, chapter } = attributes
+  const direction = alignCenter ? "center" : "left"
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -37,7 +38,7 @@ const HeroSectionEditor: React.FC<
             ${attributes.backgroundImage &&
             `background-image: url("${attributes.backgroundImage}");
             background-repeat: no-repeat;
-            background-position: center center;`}
+            background-position: ${direction} center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -45,14 +46,30 @@ const HeroSectionEditor: React.FC<
           `}
         >
           <RichText
-            className="has-text-align-center wp-block-heading"
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
+            tagName="h6"
+            value={chapter}
+            onChange={(value: string) => setAttributes({ chapter: value })}
+            placeholder={"Chapter number..."}
+          />
+          <RichText
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={"Hero section title..."}
           />
           <RichText
-            className="has-text-align-center wp-block-heading"
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
             tagName="h3"
             value={subtitle}
             onChange={(value: string) => setAttributes({ subtitle: value })}

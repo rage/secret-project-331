@@ -89,10 +89,28 @@ const BackgroundAndColorCustomizer: React.FC<
           colors={DEFAULT_BACKGROUND_COLORS}
         />
       </Placeholder>
+      <Placeholder
+        className={placeHolderFixHeightStyles}
+        icon={<BlockIcon icon={icon} />}
+        label={t("font-color")}
+      >
+        <ColorPalette
+          disableCustomColors={false}
+          value={attributes.fontColor ?? WHITE}
+          onChange={(fontColor) => setAttributes({ fontColor })}
+          clearable={false}
+          colors={DEFAULT_BACKGROUND_COLORS}
+        />
+      </Placeholder>
       <CheckBox
         label={t("label-repeat-background-x")}
         checked={attributes.backgroundRepeatX}
         onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
+      />
+      <CheckBox
+        label={t("label-align-center")}
+        checked={attributes.alignCenter}
+        onChange={() => setAttributes({ alignCenter: !attributes.alignCenter })}
       />
     </PanelBody>
   )

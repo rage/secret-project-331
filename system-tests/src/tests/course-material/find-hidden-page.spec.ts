@@ -25,8 +25,14 @@ test("find hidden page", async ({ page, headless }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
+  await page.getByText("Information pages").waitFor()
+  await page.waitForTimeout(200)
+
   await expectScreenshotsToMatchSnapshots({
-    beforeScreenshot: () => page.locator("text=Information pages").scrollIntoViewIfNeeded(),
+    beforeScreenshot: async () => {
+      await page.locator("text=Information pages").scrollIntoViewIfNeeded()
+      await page.waitForTimeout(200)
+    },
     clearNotifications: true,
     headless,
     page,

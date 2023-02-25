@@ -43,16 +43,17 @@ const TextBox = styled.div<TextBoxProps>`
   .chapter {
     font-size: 18px;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
-    opacity: 0.8;
+    opacity: 0.7;
     text-align: ${({ direction }) => direction};
     font-weight: 500;
     font-family: ${headingFont};
+    margin-bottom: 0.2rem;
   }
 
   span {
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     font-size: 18px;
-    opacity: 0.8;
+    opacity: 0.9;
     z-index: 20;
   }
 `
@@ -92,10 +93,11 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         padding: 7.5em 1em;
         margin-bottom: 3rem;
         background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["600"]};
-        background-size: auto;
+        background-size: cover;
         position: relative;
 
         &::after {
+          background-size: 26rem;
           width: 100%;
           height: 100%;
           content: "";
@@ -109,9 +111,14 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           ${respondToOrLarger.md} {
             opacity: ${direction == "center" ? "0.3" : "1"};
             background-position: ${direction} center;
+            background-size: ${direction == "center" ? "30rem" : "24rem"};
+            left: ${direction == "center" ? "0" : "20px"};
           }
-          ${respondToOrLarger.xxxxxl} {
-            background-size: contain;
+          ${respondToOrLarger.lg} {
+            opacity: ${direction == "center" ? "0.3" : "1"};
+            background-position: ${direction} center;
+            background-size: ${direction == "center" ? "30rem" : "26rem"};
+            left: ${direction == "center" ? "0" : "40px"};
           }
         }
       `}

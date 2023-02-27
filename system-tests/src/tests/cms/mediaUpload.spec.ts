@@ -82,8 +82,7 @@ test.describe("Uploading media as admin", async () => {
         "region",
       ],
       screenshotTarget: newPage,
-      snapshotName: "uploadMediaPicture.png",
-
+      snapshotName: "uploadMediaPicture",
       headless,
       testInfo,
     })

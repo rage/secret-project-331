@@ -49,6 +49,7 @@ const config: PlaywrightTestConfig = {
       },
     },
   ],
+  workers: process.env.SECRET_PROJECT_SYSTEM_TEST_WORKERS,
 }
 
 if (!config.use) {

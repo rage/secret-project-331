@@ -18,7 +18,7 @@ async function globalSetup(config: FullConfig): Promise<void> {
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
 
 async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
-  if (config.updateSnapshots === "all") {
+  if (config.updateSnapshots === "all" || !process.env.CI) {
     if (which.sync("oxipng", { nothrow: true }) === null) {
       throw new Error(
         "oxipng is not installed or is not in the $PATH. Please install it (see https://github.com/shssoichiro/oxipng).",

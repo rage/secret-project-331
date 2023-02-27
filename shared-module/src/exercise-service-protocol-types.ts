@@ -11,7 +11,7 @@ export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
-  data: { private_spec: unknown } | { public_spec: unknown } | { user_answer: unknown }
+  data: unknown // { private_spec: unknown } | { public_spec: unknown } ?
   valid: boolean
 }
 

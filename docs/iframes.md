@@ -102,7 +102,6 @@ IFrame posts its updated state. The IFrame is supposed to post this message when
 
 - Private spec. This can be anything that defines the exercise. This gets saved and will be passed to the exercise service when loading the editor again and when grading a submission.
 - Public spec. Specification that hides the correct answer that will be used to render an exercise to the student when they start doing the exercise. This will not be passed back to the editor when loading it again because the exercise service is supposed to be able to derive this again from the private spec.
-- User answer: The answer sent in by the user.
 
 The data is also accompanied by a validity status that indicates whether it should be able to be stored in its current form.
 
@@ -122,16 +121,6 @@ Example 2:
 {
   message: "current-state",
   data: { public_spec: { choices: ["yes", "no"] } },
-  valid: true
-}
-```
-
-Example 3:
-
-```js
-{
-  message: "current-state",
-  data: { user_answer: { password: "dasdasd9" } },
   valid: true
 }
 ```

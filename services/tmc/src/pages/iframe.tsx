@@ -89,9 +89,9 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         sendSpecToParent(port, { private_spec: newState.privateSpec })
       } else if (port && newState?.viewType == "answer-exercise") {
         // send user answer
-        sendSpecToParent(port, { user_answer: newState.userAnswer })
+        sendSpecToParent(port, { private_spec: newState.userAnswer })
       } else if (port && newState?.viewType == "view-submission") {
-        sendSpecToParent(port, { user_answer: newState.submission })
+        sendSpecToParent(port, { private_spec: newState.submission })
       }
       return newState
     })
@@ -114,13 +114,13 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
 
 const sendSpecToParent = (
   port: MessagePort,
-  data: { private_spec: PrivateSpec } | { public_spec: PublicSpec } | { user_answer: UserAnswer },
+  data: { private_spec: PrivateSpec | UserAnswer } | { public_spec: PublicSpec },
 ) => {
   // eslint-disable-next-line i18next/no-literal-string
   console.info("Posting message to parent")
   const currentStateMessage: IframeMessage = {
     message: "current-state",
-    data: data,
+    data,
     // we never construct invalid data
     valid: true,
   }

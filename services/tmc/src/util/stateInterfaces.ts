@@ -54,7 +54,7 @@ export interface EditorExercisePublicSpec {
 }
 
 export type IframeMessage = CurrentStateMessage & {
-  data: { private_spec: PrivateSpec } | { public_spec: PublicSpec } | { user_answer: UserAnswer }
+  data: { private_spec: PrivateSpec | UserAnswer } | { public_spec: PublicSpec }
 }
 
 export type UserAnswer = BrowserAnswer | EditorAnswer

@@ -733,13 +733,17 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     onClick={() => {
                       if (
                         !currentStateReceivedFromIframe ||
-                        !("user_answer" in currentStateReceivedFromIframe.data)
+                        !(
+                          currentStateReceivedFromIframe.data &&
+                          typeof currentStateReceivedFromIframe.data === "object" &&
+                          "private_spec" in currentStateReceivedFromIframe.data
+                        )
                       ) {
                         throw new Error("No current state received from the iframe")
                       }
                       submitAnswerMutation.mutate({
                         type: "submit",
-                        data: currentStateReceivedFromIframe.data.user_answer,
+                        data: currentStateReceivedFromIframe.data.private_spec,
                       })
                     }}
                   >

@@ -103,12 +103,13 @@ test("Course modules test", async ({ page, headless }) => {
 
   // save changes
   await page.locator("text=Save changes").click()
+
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "after-saving",
-    waitForThisToBeVisibleAndStable: "text=Success",
     toMatchSnapshotOptions: { threshold: 0.4 },
     pageScreenshotOptions: { fullPage: true },
+    clearNotifications: true,
   })
 })

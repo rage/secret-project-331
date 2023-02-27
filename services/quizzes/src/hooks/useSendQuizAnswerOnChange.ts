@@ -13,7 +13,7 @@ export const useSendQuizAnswerOnChange = (port: MessagePort, state: WidgetReduce
     }
     const message: CurrentStateMessage = {
       message: CURRENT_STATE,
-      data: state.quiz_answer,
+      data: { private_spec: state.quiz_answer },
       valid: state.quiz_answer_is_valid,
     }
 

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
+import _ from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -16,6 +17,7 @@ import PlaygroundViewSubmissionIframe from "../components/page-specific/playgrou
 import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
+  PlaygroundViewsMessage,
   SpecRequest,
 } from "../shared-module/bindings"
 import { isExerciseServiceInfoApi } from "../shared-module/bindings.guard"
@@ -255,32 +257,73 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 
   const [userAnswer, setUserAnswer] = useState<unknown>(null)
+  type submitAnswerMutationParam =
+    // Submits the data to the exercise service and sets the returned grading as the data
+    | { type: "submit"; data: unknown }
+    // Directly sets the grading received from a websocket as the mutation's data
+    | { type: "fromWebsocket"; data: ExerciseTaskGradingResult }
   const submitAnswerMutation = useToastMutation<
     ExerciseTaskGradingResult,
     unknown,
-    unknown,
+    submitAnswerMutationParam,
     unknown
   >(
-    async (data: unknown) => {
-      if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
-        // eslint-disable-next-line i18next/no-literal-string
-        throw new Error("Requirements for the mutation not satisfied.")
+    async (param) => {
+      if (param.type === "submit") {
+        if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
+          throw new Error("Requirements for the mutation not satisfied.")
+        }
+        const gradingRequest: GradingRequest = {
+          // eslint-disable-next-line i18next/no-literal-string
+          grading_update_url: `http://project-331.local/api/v0/main-frontend/playground-views/grading/${websocketId}`,
+          exercise_spec: privateSpecParsed,
+          submission_data: param.data,
+        }
+        setUserAnswer(param.data)
+        const res = await axios.post(
+          `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
+          gradingRequest,
+        )
+        return res.data
+      } else if (param.type === "fromWebsocket") {
+        return param.data
+      } else {
+        throw new Error("unreachable")
       }
-      const gradingRequest: GradingRequest = {
-        // eslint-disable-next-line i18next/no-literal-string
-        grading_update_url: "todo",
-        exercise_spec: privateSpecParsed,
-        submission_data: data,
-      }
-      setUserAnswer(data)
-      const res = await axios.post(
-        `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
-        gradingRequest,
-      )
-      return res.data
     },
     { notify: true, method: "POST" },
   )
+
+  const [websocket, setWebsocket] = useState<WebSocket | null>(null)
+  const [websocketId, setWebsocketId] = useState<string | null>(null)
+  useEffect(() => {
+    // prevent creating unnecessary websocket connections
+    if (websocket === null) {
+      // eslint-disable-next-line i18next/no-literal-string
+      setWebsocket(new WebSocket("ws://project-331.local/api/v0/main-frontend/playground-views/ws"))
+      return
+    }
+    const ws = websocket
+    ws.onmessage = (ev) => {
+      console.log("ws message", ev)
+      const msg = JSON.parse(ev.data) as PlaygroundViewsMessage
+      if (msg.tag == "TimedOut") {
+        console.error("websocket timed out")
+      } else if (msg.tag == "Registered") {
+        setWebsocketId(msg.data)
+      } else if (msg.tag == "ExerciseTaskGradingResult") {
+        submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
+      } else {
+        throw new Error(`Unexpected websocket message: ${ev}`)
+      }
+    }
+    ws.onclose = (ev) => {
+      console.error("websocket closed unexpectedly", ev)
+    }
+    ws.onerror = (err) => {
+      console.error("websocket error", err)
+    }
+  }, [websocket, submitAnswerMutation])
 
   const modelSolutionSpecQuery = useQuery(
     [`iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
@@ -664,7 +707,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {currentView === "answer-exercise" && (
                 <>
                   <CheckBox
-                    // eslint-disable-next-line i18next/no-literal-string
                     label={t("label-send-previous-submission")}
                     checked={answerExerciseViewSendPreviousSubmission}
                     onChange={() => {
@@ -689,11 +731,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                       currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
                     }
                     onClick={() => {
-                      if (!currentStateReceivedFromIframe) {
-                        // eslint-disable-next-line i18next/no-literal-string
+                      if (
+                        !currentStateReceivedFromIframe ||
+                        !("user_answer" in currentStateReceivedFromIframe.data)
+                      ) {
                         throw new Error("No current state received from the iframe")
                       }
-                      submitAnswerMutation.mutate(currentStateReceivedFromIframe.data)
+                      submitAnswerMutation.mutate({
+                        type: "submit",
+                        data: currentStateReceivedFromIframe.data.user_answer,
+                      })
                     }}
                   >
                     {t("button-text-submit")}
@@ -703,7 +750,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {currentView === "view-submission" && (
                 <>
                   <CheckBox
-                    // eslint-disable-next-line i18next/no-literal-string
                     label={t("label-send-model-solution-spec")}
                     checked={submissionViewSendModelsolutionSpec}
                     onChange={() => {

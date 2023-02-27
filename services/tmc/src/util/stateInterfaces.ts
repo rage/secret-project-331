@@ -4,6 +4,7 @@ import {
   ExerciseTaskSubmission,
   RepositoryExercise,
 } from "../shared-module/bindings"
+import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 
 export const playgroundPublicSpecUploadUrl = "http://project-331.local/api/v0/files/playground"
 export const publicSpecUploadUrl = "http://project-331.local/api/v0/files/tmc"
@@ -21,7 +22,7 @@ export type ExerciseEditorState = {
 export type AnswerExerciseState = {
   viewType: "answer-exercise"
   initialPublicSpec: PublicSpec
-  publicSpec: PublicSpec
+  userAnswer: UserAnswer
   previousSubmission: ExerciseTaskSubmission | null
 }
 
@@ -29,7 +30,7 @@ export type ViewSubmissionState = {
   viewType: "view-submission"
   exerciseTaskId: string
   grading: ExerciseTaskGradingResult | null
-  userAnswer: UserAnswer
+  submission: UserAnswer
   publicSpec: PublicSpec
   modelSolutionSpec: ModelSolutionSpec | null
 }
@@ -52,14 +53,18 @@ export interface EditorExercisePublicSpec {
   archiveDownloadUrl: string
 }
 
-export type Submission = BrowserSubmission | EditorSubmission
+export type IframeMessage = CurrentStateMessage & {
+  data: { private_spec: PrivateSpec } | { public_spec: PublicSpec } | { user_answer: UserAnswer }
+}
 
-export interface BrowserSubmission {
+export type UserAnswer = BrowserAnswer | EditorAnswer
+
+export interface BrowserAnswer {
   type: "browser"
   files: Array<ExerciseFile>
 }
 
-export interface EditorSubmission {
+export interface EditorAnswer {
   type: "editor"
   archiveDownloadUrl: string
 }
@@ -79,16 +84,4 @@ export interface EditorExerciseModelSolutionSpec {
 export interface ExerciseFile {
   filepath: string
   contents: string
-}
-
-export type UserAnswer = BrowserExerciseUserAnswer | EditorExerciseUserAnswer
-
-export interface BrowserExerciseUserAnswer {
-  type: "browser"
-  fileContents: string
-}
-
-export interface EditorExerciseUserAnswer {
-  type: "editor"
-  answerFiles: [ExerciseFile]
 }

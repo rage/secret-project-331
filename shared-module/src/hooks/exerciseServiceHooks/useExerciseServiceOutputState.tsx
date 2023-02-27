@@ -23,7 +23,7 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
     })
 
     const message: CurrentStateMessage = {
-      data: nextState,
+      data: { private_spec: nextState },
       // eslint-disable-next-line i18next/no-literal-string
       message: "current-state",
       valid: true,

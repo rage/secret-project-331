@@ -27,7 +27,7 @@ const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => 
     const message: CurrentStateMessage = {
       // eslint-disable-next-line i18next/no-literal-string
       message: "current-state",
-      data: { private_spec: data },
+      data,
       valid: true,
     }
     port.postMessage(message)

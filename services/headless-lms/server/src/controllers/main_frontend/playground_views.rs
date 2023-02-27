@@ -32,7 +32,7 @@ impl WsConnections {
     fn get(&self, id: Uuid) -> Option<Addr<ClientConnection>> {
         let lock = self
             .0
-            .get_or_init(|| Default::default())
+            .get_or_init(Default::default)
             .read()
             .expect("should never panic with the lock");
         lock.get(&id).cloned()
@@ -41,7 +41,7 @@ impl WsConnections {
     fn register(&self, id: Uuid, addr: Addr<ClientConnection>) {
         let mut lock = self
             .0
-            .get_or_init(|| Default::default())
+            .get_or_init(Default::default)
             .write()
             .expect("should never panic with the lock");
         lock.insert(id, addr);

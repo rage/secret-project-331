@@ -22,7 +22,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "widget-essay-answered",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="Of the lamps of Fëanor"`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="Of the lamps of Fëanor"`)],
     screenshotTarget: frame,
   })
 
@@ -32,7 +32,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
   Elit at imperdiet dui accumsan. Sit amet nisl suscipit adipiscing bibendum est ultricies. Mauris rhoncus aenean vel elit. Consequat ac felis donec et odio. Tortor pretium viverra suspendisse potenti nullam ac. Aenean pharetra magna ac placerat vestibulum. `,
   )
 
-  page.locator(`text=Word count`)
+  await frame.locator(`text=Word count`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -40,7 +40,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
     snapshotName: "widget-essay-long-answer",
     waitForTheseToBeVisibleAndStable: [
       frame.locator(`text="Of the lamps of Fëanor"`),
-      page.locator(`text=Word count: 79`),
+      frame.locator(`text=Word count: 79`),
     ],
     screenshotTarget: frame,
   })

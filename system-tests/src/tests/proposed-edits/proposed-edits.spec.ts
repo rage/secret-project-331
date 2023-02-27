@@ -204,6 +204,6 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "after-changes",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Like this!!!!!")],
+    waitForTheseToBeVisibleAndStable: [page1.locator("text=Like this!!!!!")],
   })
 })

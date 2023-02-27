@@ -30,7 +30,7 @@ test("widget, multiple-choice multi screenshot test with long text", async ({
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-multi-long-answers",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="short answer"`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="short answer"`)],
     screenshotTarget: frame,
   })
 })

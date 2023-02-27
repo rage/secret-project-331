@@ -62,12 +62,13 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("button", { name: "Delete" }).first().click()
 
+  await page.getByText("Deleted").first().waitFor()
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "deleted-term",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Deleted")],
   })
 
   await page.fill('[placeholder="New term"]', "abcd")
@@ -123,7 +124,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "final-glossary-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Glossary")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
     clearNotifications: true,
   })
 })

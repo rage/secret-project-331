@@ -140,7 +140,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.click(':nth-match(:text("Read"), 2)')
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback?read=true")
 
-  await page.locator("text=Mark as unread").click()
+  await page.getByRole("button", { name: "Mark as unread" }).first().click()
 
-  await page.locator("text=Unread").click()
+  await page.getByRole("tab", { name: "Unread" }).click()
 })

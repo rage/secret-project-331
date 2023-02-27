@@ -74,7 +74,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "block-menu",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Pullquote")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("option", { name: "List" })],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })

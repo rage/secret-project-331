@@ -58,7 +58,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-single",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Correct! This is indeed the first answer"`),
+      frame.locator(`text="Correct! This is indeed the first answer"`),
     ],
     screenshotTarget: frame,
     clearNotifications: true,
@@ -71,7 +71,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-column-single",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is second option"`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="This is second option"`)],
 
     screenshotTarget: frame,
     clearNotifications: true,
@@ -86,7 +86,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-single",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Incorrect. This is not the first answer"`),
+      frame.locator(`text="Incorrect. This is not the first answer"`),
     ],
 
     screenshotTarget: frame,
@@ -104,7 +104,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-column-multi",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is first option"`)],
+    waitForTheseToBeVisibleAndStable: [frame2.locator(`text="This is first option"`)],
 
     screenshotTarget: frame2,
     clearNotifications: true,
@@ -120,7 +120,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Correct! This is indeed the first option"`),
+      frame.locator(`text="Correct! This is indeed the first option"`),
     ],
     screenshotTarget: frame2,
     clearNotifications: true,
@@ -133,7 +133,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-column-multi",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is second option"`)],
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="This is second option"`)],
     screenshotTarget: frame2,
     clearNotifications: true,
   })
@@ -147,7 +147,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Incorrect. This is not the first option"`),
+      frame.locator(`text="Incorrect. This is not the first option"`),
     ],
     screenshotTarget: frame2,
     clearNotifications: true,

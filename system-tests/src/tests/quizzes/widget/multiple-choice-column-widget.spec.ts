@@ -19,7 +19,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     testInfo,
     snapshotName: "widget-multiple-choice-column-initial",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Which of the color codes represent the color"`),
+      frame.locator(`text="Which of the color codes represent the color"`),
     ],
     screenshotTarget: frame,
   })
@@ -31,7 +31,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     testInfo,
     snapshotName: "widget-multiple-choice-column-#00ff00",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Which of the color codes represent the color"`),
+      frame.locator(`text="Which of the color codes represent the color"`),
     ],
     screenshotTarget: frame,
   })
@@ -43,7 +43,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     testInfo,
     snapshotName: "widget-multiple-choice-column-#ff0000",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Which of the color codes represent the color"`),
+      frame.locator(`text="Which of the color codes represent the color"`),
     ],
     screenshotTarget: frame,
   })

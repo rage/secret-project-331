@@ -45,7 +45,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     clearNotifications: true,
   })
 
-  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
+  await frame3.locator('button:has-text("This is first option")').click()
 
   await page.locator("text=Submit").click()
 
@@ -55,7 +55,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-single",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Correct! This is indeed the first answer"`),
+      frame3.locator(`text="Correct! This is indeed the first answer"`),
     ],
     screenshotTarget: frame3,
     clearNotifications: true,
@@ -68,12 +68,12 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-row-single",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is second option"`)],
+    waitForTheseToBeVisibleAndStable: [frame3.locator(`text="This is second option"`)],
     screenshotTarget: frame3,
     clearNotifications: true,
   })
 
-  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
+  await frame3.locator('button:has-text("This is second option")').click()
 
   await page.locator("text=Submit").click()
 
@@ -82,7 +82,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-single",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Incorrect. This is not the first answer"`),
+      frame3.locator(`text="Incorrect. This is not the first answer"`),
     ],
     screenshotTarget: frame3,
     clearNotifications: true,
@@ -99,12 +99,12 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-row-multi",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is first option"`)],
+    waitForTheseToBeVisibleAndStable: [frame4.locator(`text="This is first option"`)],
     screenshotTarget: frame4,
     clearNotifications: true,
   })
 
-  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
+  await frame4.locator('button:has-text("This is first option")').click()
 
   await page.locator("text=Submit").click()
 
@@ -114,7 +114,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-multi",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Correct! This is indeed the first answer"`),
+      frame4.locator(`text="Correct! This is indeed the first answer"`),
     ],
     screenshotTarget: frame4,
     clearNotifications: true,
@@ -127,12 +127,12 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-row-multi",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="This is second option"`)],
+    waitForTheseToBeVisibleAndStable: [frame4.locator(`text="This is second option"`)],
     screenshotTarget: frame4,
     clearNotifications: true,
   })
 
-  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
+  await frame4.locator('button:has-text("This is second option")').click()
 
   await page.locator("text=Submit").click()
 
@@ -141,7 +141,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-multi",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text="Incorrect. This is not the first answer"`),
+      frame4.locator(`text="Incorrect. This is not the first answer"`),
     ],
     screenshotTarget: frame4,
     clearNotifications: true,

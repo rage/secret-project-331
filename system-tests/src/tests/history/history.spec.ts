@@ -99,11 +99,11 @@ test("history test", async ({ page, headless }, testInfo) => {
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 
-  await frame.locator('[placeholder="Option text"]').click()
+  await frame.getByPlaceholder("Option text").first().click()
 
-  await frame.locator('[placeholder="Option text"]').press("Control+a")
+  await frame.getByPlaceholder("Option text").first().press("Control+a")
   // Fill [placeholder="Option text"]
-  await frame.locator('[placeholder="Option text"]').fill("Updated answer")
+  await frame.getByPlaceholder("Option text").first().fill("Updated answer")
   // Check input[type="checkbox"]
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 

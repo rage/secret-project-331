@@ -90,8 +90,10 @@ export default async function expectScreenshotsToMatchSnapshots({
       for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
         notif.remove()
       }
-      for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
-        notif.remove()
+      for (const notif of Array.from(
+        document.querySelectorAll<HTMLElement>(".toast-notification"),
+      )) {
+        notif.style.display = "none"
       }
     })
   }

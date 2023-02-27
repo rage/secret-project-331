@@ -37,7 +37,7 @@ test("find hidden page", async ({ page, headless }) => {
     headless,
     page,
     snapshotName: "top-level-pages-list",
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    toMatchSnapshotOptions: { maxDiffPixels: 400 },
   })
 
   // Click text=Welcome to Introduction to Everything
@@ -54,6 +54,6 @@ test("find hidden page", async ({ page, headless }) => {
     page,
     snapshotName: "hidden-page",
     waitForThisToBeVisibleAndStable: [`text="You found the secret of the project 331!"`],
-    toMatchSnapshotOptions: { threshold: 0.3 },
+    toMatchSnapshotOptions: { maxDiffPixels: 400 },
   })
 })

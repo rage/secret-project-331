@@ -112,6 +112,11 @@ const BackgroundAndColorCustomizer: React.FC<
         checked={attributes.alignCenter}
         onChange={() => setAttributes({ alignCenter: !attributes.alignCenter })}
       />
+      <CheckBox
+        label={t("include-chapter-number")}
+        checked={attributes.includeChapterNumber}
+        onChange={() => setAttributes({ includeChapterNumber: !attributes.includeChapterNumber })}
+      />
     </PanelBody>
   )
 }

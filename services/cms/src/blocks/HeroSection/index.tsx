@@ -13,6 +13,7 @@ export interface HeroSectionAttributes {
   fontColor: string | undefined
   backgroundImage: string | undefined
   backgroundRepeatX: boolean | undefined
+  includeChapterNumber: boolean | undefined
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
@@ -57,6 +58,10 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
     alignCenter: {
       type: "boolean",
       default: false,
+    },
+    includeChapterNumber: {
+      type: "boolean",
+      default: true,
     },
   },
   edit: HeroSectionEditor,

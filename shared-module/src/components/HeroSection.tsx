@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, headingFont, typography } from "../styles"
+import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/constants"
 
@@ -23,12 +23,11 @@ const TextBox = styled.div<TextBoxProps>`
   justify-content: center;
 
   ${respondToOrLarger.md} {
-    margin: ${({ direction }) => (direction == "center" ? "0 auto" : "0 0 0 35%")};
+    margin: ${({ direction }) => (direction == "center" ? "0 auto" : "0 0 0 45%")};
+  }
 
-    h1,
-    span,
-    .chapter {
-    }
+  ${respondToOrLarger.lg} {
+    margin: ${({ direction }) => (direction == "center" ? "0 auto" : "0 0 0 35%")};
   }
 
   h1 {
@@ -111,8 +110,8 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           ${respondToOrLarger.md} {
             opacity: ${direction == "center" ? "0.3" : "1"};
             background-position: ${direction} center;
-            background-size: ${direction == "center" ? "30rem" : "24rem"};
-            left: ${direction == "center" ? "0" : "20px"};
+            background-size: ${direction == "center" ? "30rem" : "22rem"};
+            left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
             opacity: ${direction == "center" ? "0.3" : "1"};

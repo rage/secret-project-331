@@ -55,6 +55,7 @@
   "menti-title-help-text": "Set a title. This is used by screen readers.",
   "menti-title-label": "Title",
   "needs-peer-review": "needs peer review",
+  "include-chapter-number": "Include chapter number",
   "no-repository-exercises-found-for-course": "No repository exercises found for course",
   "open-saved-page-in-new-tab": "Open saved page in a new tab",
   "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes.",

@@ -146,7 +146,9 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const DEFAULT_SERVICE_INFO_URL = "http://project-331.local/example-exercise/api/service-info"
+const PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_PUBLIC_ADDRESS
+const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "ws://")
+const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -238,7 +240,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       }
       const payload: SpecRequest = {
         private_spec: privateSpecParsed,
-        upload_url: "http://project-331.local/api/v0/files/playground",
+        upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
       const res = await axios.post(
         `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
@@ -275,7 +277,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
         }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: `http://project-331.local/api/v0/main-frontend/playground-views/grading/${websocketId}`,
+          grading_update_url: `${PUBLIC_ADDRESS}/api/v0/main-frontend/playground-views/grading/${websocketId}`,
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
         }
@@ -300,7 +302,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
       // eslint-disable-next-line i18next/no-literal-string
-      setWebsocket(new WebSocket("ws://project-331.local/api/v0/main-frontend/playground-views/ws"))
+      setWebsocket(new WebSocket(`${WEBSOCKET_ADDRESS}/api/v0/main-frontend/playground-views/ws`))
       return
     }
     const ws = websocket
@@ -333,7 +335,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       const payload: SpecRequest = {
         private_spec: privateSpecParsed,
         // eslint-disable-next-line i18next/no-literal-string
-        upload_url: "http://project-331.local/api/v0/files/playground",
+        upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
       const res = await axios.post(
         `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
@@ -681,7 +683,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                       checksum: [1, 2, 3, 4],
                       download_url:
                         // eslint-disable-next-line i18next/no-literal-string
-                        "http://project-331.local/api/v0/files/playground-views/repository-exercise-1.tar.zst",
+                        `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-1.tar.zst`,
                     },
                     {
                       // eslint-disable-next-line i18next/no-literal-string
@@ -698,7 +700,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                       // eslint-disable-next-line i18next/no-literal-string
                       download_url:
                         // eslint-disable-next-line i18next/no-literal-string
-                        "http://project-331.local/api/v0/files/playground-views/repository-exercise-2.tar.zst",
+                        `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-2.tar.zst`,
                     },
                   ]}
                 />

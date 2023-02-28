@@ -6,9 +6,10 @@ import {
 } from "../shared-module/bindings"
 import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 
-export const playgroundPublicSpecUploadUrl = "http://project-331.local/api/v0/files/playground"
-export const publicSpecUploadUrl = "http://project-331.local/api/v0/files/tmc"
-export const publicSpecDownloadUrlRoot = "http://project-331.local/api/v0/files/"
+const PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_PUBLIC_ADDRESS
+export const playgroundPublicSpecUploadUrl = `${PUBLIC_ADDRESS}/api/v0/files/playground`
+export const publicSpecUploadUrl = `${PUBLIC_ADDRESS}/api/v0/files/tmc`
+export const publicSpecDownloadUrlRoot = `${PUBLIC_ADDRESS}/api/v0/files/`
 
 export type IframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
 

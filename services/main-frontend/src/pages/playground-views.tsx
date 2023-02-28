@@ -305,7 +305,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
     const ws = websocket
     ws.onmessage = (ev) => {
-      console.log("ws message", ev)
       const msg = JSON.parse(ev.data) as PlaygroundViewsMessage
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")

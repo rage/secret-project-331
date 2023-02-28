@@ -9,11 +9,13 @@ import HeroSectionSave from "./HeroSectionSave"
 export interface HeroSectionAttributes {
   title: string
   subtitle: string
+  chapter: string
   backgroundColor: string | undefined
   fontColor: string | undefined
   backgroundImage: string | undefined
   backgroundRepeatX: boolean | undefined
-  includeChapterNumber: boolean | undefined
+  alignCenter?: boolean | undefined
+  includeChapterNumber?: boolean | undefined
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {

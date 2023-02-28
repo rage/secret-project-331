@@ -27,7 +27,10 @@ const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 interface RequiredAttributes {
   backgroundImage: string | undefined
   backgroundColor: string | undefined
+  fontColor?: string | undefined
+  alignCenter?: boolean | undefined
   backgroundRepeatX: boolean | undefined
+  includeChapterNumber?: boolean | undefined
 }
 
 interface BackgroundAndColorCustomizerProps {

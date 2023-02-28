@@ -70,6 +70,7 @@ export interface HeroSectionProps {
   alignCenter: boolean
   backgroundColor?: string
   chapter?: string
+  includeChapterNumber?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps

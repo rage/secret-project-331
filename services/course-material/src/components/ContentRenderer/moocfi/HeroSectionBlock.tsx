@@ -10,11 +10,13 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   props,
 ) => {
   const pageContext = useContext(PageContext)
-  const path = pageContext.pageData.url_path
+  const path = pageContext?.pageData?.url_path
+  const formattedPath = path?.replace("-", " ").replace("/", "")
 
-  const chapterNumber = props.data.attributes.includeChapterNumber
-    ? path.replace("-", " ").replace("/", "")
-    : props.data.attributes.chapter
+  const chapterNumber =
+    props.data.attributes?.includeChapterNumber && formattedPath
+      ? formattedPath
+      : props.data.attributes.chapter
 
   return (
     <BreakFromCentered sidebar={false}>

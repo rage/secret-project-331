@@ -31,7 +31,7 @@ test("find hidden page", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     beforeScreenshot: async () => {
       await page.locator("text=Information pages").scrollIntoViewIfNeeded()
-      await page.waitForTimeout(200)
+      await page.waitForTimeout(800)
     },
     clearNotifications: true,
     headless,

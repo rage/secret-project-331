@@ -40,7 +40,6 @@ const TextBox = styled.div<TextBoxProps>`
     font-weight: 700;
     z-index: 20;
     margin-bottom: 0.5rem;
-    font-weight: 600;
     line-height: 120%;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
   }

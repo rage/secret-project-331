@@ -8,6 +8,7 @@ resources:
   - ./postgres-dev.yml
   - headless-lms/env.yml
   - access-ingress-internally.yml
+  - tmc-service-account.yml
 patches:
   - path: patch-ingress.yml
     target:

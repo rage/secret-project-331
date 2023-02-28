@@ -11,6 +11,10 @@ interface TextBoxProps {
   direction: string
 }
 
+const CENTERED_MARGIN = "0 auto"
+const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
+const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
+
 // eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
@@ -23,11 +27,13 @@ const TextBox = styled.div<TextBoxProps>`
   justify-content: center;
 
   ${respondToOrLarger.md} {
-    margin: ${({ direction }) => (direction == "center" ? "0 auto" : "0 0 0 45%")};
+    margin: ${({ direction }) =>
+      direction == "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_MEDIUM_SCREEN};
   }
 
   ${respondToOrLarger.lg} {
-    margin: ${({ direction }) => (direction == "center" ? "0 auto" : "0 0 0 35%")};
+    margin: ${({ direction }) =>
+      direction == "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_LARGE_SCREEN};
   }
 
   h1 {

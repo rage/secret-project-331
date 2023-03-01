@@ -63,7 +63,7 @@ const HeroSectionEditor: React.FC<
               <RichText
                 tagName="h6"
                 value={label}
-                onChange={(value: string) => setAttributes({ chapter: value })}
+                onChange={(value: string) => setAttributes({ label: value })}
                 placeholder={"Chapter number..."}
               />
             )}

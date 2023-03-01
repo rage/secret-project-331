@@ -69,7 +69,7 @@ export interface HeroSectionProps {
   fontColor?: string
   alignCenter: boolean
   backgroundColor?: string
-  chapter?: string
+  label?: string
   useDefaultTextForLabel?: boolean
 }
 

@@ -22,15 +22,13 @@ const DEFAULT_BACKGROUND_COLORS = [
 
 const WHITE = "#FFFFFF"
 
-const DEFAULT = true
-
 const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 
 interface RequiredAttributes {
   backgroundImage: string | undefined
   backgroundColor: string | undefined
   fontColor?: string | undefined
-  alignCenter: boolean | undefined
+  alignCenter?: boolean | undefined
   backgroundRepeatX: boolean | undefined
   useDefaultTextForLabel?: boolean | undefined
 }

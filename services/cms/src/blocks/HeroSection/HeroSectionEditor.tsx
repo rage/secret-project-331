@@ -20,6 +20,7 @@ const HeroSectionEditor: React.FC<
 > = ({ clientId, attributes, setAttributes }) => {
   const { title, subtitle, alignCenter, chapter } = attributes
   const direction = alignCenter ? "center" : "left"
+  console.log({ attributes })
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">

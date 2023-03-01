@@ -22,13 +22,15 @@ const DEFAULT_BACKGROUND_COLORS = [
 
 const WHITE = "#FFFFFF"
 
+const DEFAULT = true
+
 const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 
 interface RequiredAttributes {
   backgroundImage: string | undefined
   backgroundColor: string | undefined
   fontColor?: string | undefined
-  alignCenter?: boolean | undefined
+  alignCenter: boolean | undefined
   backgroundRepeatX: boolean | undefined
   includeChapterNumber?: boolean | undefined
 }
@@ -112,12 +114,12 @@ const BackgroundAndColorCustomizer: React.FC<
       />
       <CheckBox
         label={t("label-align-center")}
-        checked={attributes.alignCenter}
+        checked={attributes.alignCenter ?? DEFAULT}
         onChange={() => setAttributes({ alignCenter: !attributes.alignCenter })}
       />
       <CheckBox
         label={t("include-chapter-number")}
-        checked={attributes.includeChapterNumber}
+        checked={attributes.includeChapterNumber ?? DEFAULT}
         onChange={() => setAttributes({ includeChapterNumber: !attributes.includeChapterNumber })}
       />
     </PanelBody>

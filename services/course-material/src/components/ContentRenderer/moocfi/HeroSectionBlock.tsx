@@ -10,13 +10,12 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   props,
 ) => {
   const pageContext = useContext(PageContext)
-  const path = pageContext?.pageData?.url_path
+  const path = pageContext.pageData?.url_path
+  const includeChapterNumber = props.data.attributes.includeChapterNumber ?? true
   const formattedPath = path?.replace("-", " ").replace("/", "")
 
   const chapterNumber =
-    props.data.attributes?.includeChapterNumber && formattedPath
-      ? formattedPath
-      : props.data.attributes.chapter
+    includeChapterNumber && formattedPath ? formattedPath : props.data.attributes.chapter
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -26,7 +25,7 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
         subtitle={props.data.attributes.subtitle}
         backgroundImage={props.data.attributes.backgroundImage}
         fontColor={props.data.attributes.fontColor}
-        alignCenter={props.data.attributes.alignCenter}
+        alignCenter={props.data.attributes.alignCenter ?? true}
         backgroundColor={props.data.attributes.backgroundColor}
       />
     </BreakFromCentered>

@@ -59,11 +59,11 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
     },
     alignCenter: {
       type: "boolean",
-      default: false,
+      default: true,
     },
     includeChapterNumber: {
       type: "boolean",
-      default: true,
+      default: false,
     },
   },
   edit: HeroSectionEditor,

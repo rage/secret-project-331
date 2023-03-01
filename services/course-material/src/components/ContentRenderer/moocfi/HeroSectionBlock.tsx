@@ -9,23 +9,23 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {
-  const pageContext = useContext(PageContext)
-  const path = pageContext.pageData?.url_path
-  const includeChapterNumber = props.data.attributes.includeChapterNumber ?? true
+  const DEFAULT = true
+  const path = useContext(PageContext)?.pageData?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
+  const useDefaultTextForLabel = props.data.attributes.useDefaultTextForLabel ?? DEFAULT
 
   const chapterNumber =
-    includeChapterNumber && formattedPath ? formattedPath : props.data.attributes.chapter
+    useDefaultTextForLabel && formattedPath ? formattedPath : props.data.attributes.label
 
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection
-        chapter={chapterNumber}
+        label={chapterNumber}
         title={props.data.attributes.title}
         subtitle={props.data.attributes.subtitle}
         backgroundImage={props.data.attributes.backgroundImage}
         fontColor={props.data.attributes.fontColor}
-        alignCenter={props.data.attributes.alignCenter ?? true}
+        alignCenter={props.data.attributes.alignCenter ?? DEFAULT}
         backgroundColor={props.data.attributes.backgroundColor}
       />
     </BreakFromCentered>

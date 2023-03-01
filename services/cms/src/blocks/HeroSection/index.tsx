@@ -9,13 +9,13 @@ import HeroSectionSave from "./HeroSectionSave"
 export interface HeroSectionAttributes {
   title: string
   subtitle: string
-  chapter: string
+  label: string
   backgroundColor: string | undefined
   fontColor: string | undefined
   backgroundImage: string | undefined
   backgroundRepeatX: boolean | undefined
   alignCenter?: boolean | undefined
-  includeChapterNumber?: boolean | undefined
+  useDefaultTextForLabel?: boolean | undefined
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
@@ -23,7 +23,7 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
   description: "A hero section for chapter front page with a heading and subheading.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {
-    chapter: {
+    label: {
       type: "string",
       source: "html",
       selector: "h6",
@@ -61,9 +61,9 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
       type: "boolean",
       default: true,
     },
-    includeChapterNumber: {
+    useDefaultTextForLabel: {
       type: "boolean",
-      default: false,
+      default: true,
     },
   },
   edit: HeroSectionEditor,

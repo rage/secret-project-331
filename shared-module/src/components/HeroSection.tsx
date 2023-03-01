@@ -70,7 +70,7 @@ export interface HeroSectionProps {
   alignCenter: boolean
   backgroundColor?: string
   chapter?: string
-  includeChapterNumber?: boolean
+  useDefaultTextForLabel?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -82,7 +82,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   fontColor,
   alignCenter,
   backgroundColor,
-  chapter,
+  label,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
@@ -129,7 +129,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
       `}
     >
       <TextBox color={fontColor} direction={direction}>
-        <span className="chapter">{chapter}</span>
+        <span className="chapter">{label}</span>
         <h1 className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}>{title}</h1>
         <span>{subtitle}</span>
       </TextBox>

@@ -2,9 +2,10 @@
 import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React from "react"
+import React, { useContext } from "react"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
+import PageContext from "../../contexts/PageContext"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
 import {
@@ -18,9 +19,13 @@ import { HeroSectionAttributes } from "."
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
-  const { title, subtitle, alignCenter, chapter } = attributes
-  const direction = alignCenter ? "center" : "left"
-  console.log({ attributes })
+  const { title, subtitle, alignCenter, useDefaultTextForLabel, label } = attributes
+  const direction = alignCenter || alignCenter == undefined ? "center" : "left"
+  const defaultLabel = useDefaultTextForLabel == undefined || useDefaultTextForLabel
+
+  const path = useContext(PageContext)?.page?.url_path
+  const formattedPath = path?.replace("-", " ").replace("/", "")
+
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -46,16 +51,23 @@ const HeroSectionEditor: React.FC<
             padding: 7.5em 1em;
           `}
         >
-          <RichText
+          <div
             className={css`
               color: ${attributes.fontColor};
               text-align: center;
             `}
-            tagName="h6"
-            value={chapter}
-            onChange={(value: string) => setAttributes({ chapter: value })}
-            placeholder={"Chapter number..."}
-          />
+          >
+            {defaultLabel ? (
+              <h6>{formattedPath}</h6>
+            ) : (
+              <RichText
+                tagName="h6"
+                value={label}
+                onChange={(value: string) => setAttributes({ chapter: value })}
+                placeholder={"Chapter number..."}
+              />
+            )}
+          </div>
           <RichText
             className={css`
               color: ${attributes.fontColor};

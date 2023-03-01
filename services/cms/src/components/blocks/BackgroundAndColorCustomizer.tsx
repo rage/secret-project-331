@@ -32,7 +32,7 @@ interface RequiredAttributes {
   fontColor?: string | undefined
   alignCenter: boolean | undefined
   backgroundRepeatX: boolean | undefined
-  includeChapterNumber?: boolean | undefined
+  useDefaultTextForLabel?: boolean | undefined
 }
 
 interface BackgroundAndColorCustomizerProps {
@@ -44,6 +44,7 @@ const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
+  console.log("alignCenter", attributes.alignCenter)
   return (
     <PanelBody title={t("background")} initialOpen={false}>
       {attributes.backgroundImage ? (
@@ -114,13 +115,17 @@ const BackgroundAndColorCustomizer: React.FC<
       />
       <CheckBox
         label={t("label-align-center")}
-        checked={attributes.alignCenter ?? DEFAULT}
+        checked={attributes.alignCenter == undefined || attributes.alignCenter}
         onChange={() => setAttributes({ alignCenter: !attributes.alignCenter })}
       />
       <CheckBox
-        label={t("include-chapter-number")}
-        checked={attributes.includeChapterNumber ?? DEFAULT}
-        onChange={() => setAttributes({ includeChapterNumber: !attributes.includeChapterNumber })}
+        label={t("use-default-text-for-label")}
+        checked={
+          attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+        }
+        onChange={() =>
+          setAttributes({ useDefaultTextForLabel: !attributes.useDefaultTextForLabel })
+        }
       />
     </PanelBody>
   )

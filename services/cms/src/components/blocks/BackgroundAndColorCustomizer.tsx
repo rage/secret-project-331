@@ -44,7 +44,10 @@ const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
-  console.log("alignCenter", attributes.alignCenter)
+  const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
+  const useDefaultTextForLabel =
+    attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+
   return (
     <PanelBody title={t("background")} initialOpen={false}>
       {attributes.backgroundImage ? (
@@ -115,17 +118,13 @@ const BackgroundAndColorCustomizer: React.FC<
       />
       <CheckBox
         label={t("label-align-center")}
-        checked={attributes.alignCenter == undefined || attributes.alignCenter}
-        onChange={() => setAttributes({ alignCenter: !attributes.alignCenter })}
+        checked={alignCenter}
+        onChange={() => setAttributes({ alignCenter: !alignCenter })}
       />
       <CheckBox
         label={t("use-default-text-for-label")}
-        checked={
-          attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
-        }
-        onChange={() =>
-          setAttributes({ useDefaultTextForLabel: !attributes.useDefaultTextForLabel })
-        }
+        checked={useDefaultTextForLabel}
+        onChange={() => setAttributes({ useDefaultTextForLabel: !useDefaultTextForLabel })}
       />
     </PanelBody>
   )

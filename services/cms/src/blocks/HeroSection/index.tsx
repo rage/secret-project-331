@@ -20,7 +20,7 @@ export interface HeroSectionAttributes {
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
   title: "Hero Section",
-  description: "A hero section for chapter front page with a heading and subheading.",
+  description: "A hero section for chapter front page with a heading and sub-heading.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {
     label: {

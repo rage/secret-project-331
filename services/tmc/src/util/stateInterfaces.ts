@@ -1,4 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
+import getConfig from "next/config"
+
 import {
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,
@@ -6,7 +8,8 @@ import {
 } from "../shared-module/bindings"
 import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 
-const PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_PUBLIC_ADDRESS
+const { publicRuntimeConfig } = getConfig()
+const PUBLIC_ADDRESS = publicRuntimeConfig.publicAddress
 export const playgroundPublicSpecUploadUrl = `${PUBLIC_ADDRESS}/api/v0/files/playground`
 export const publicSpecUploadUrl = `${PUBLIC_ADDRESS}/api/v0/files/tmc`
 export const publicSpecDownloadUrlRoot = `${PUBLIC_ADDRESS}/api/v0/files/`

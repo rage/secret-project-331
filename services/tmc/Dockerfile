@@ -14,8 +14,6 @@ RUN npm ci
 COPY --chown=node ./tmc-langs-cli-* /app/tmc-langs-cli
 COPY --chown=node . /app
 
-ENV NEXT_PUBLIC_PUBLIC_ADDRESS="http://project-331.local"
-
 EXPOSE 3005
 
 CMD [ "npm", "run", "dev" ]

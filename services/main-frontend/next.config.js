@@ -49,6 +49,9 @@ const config = {
       },
     },
   },
+  publicRuntimeConfig: {
+    publicAddress: process.env.PUBLIC_ADDRESS,
+  },
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

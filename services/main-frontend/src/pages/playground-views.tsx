@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
 import _ from "lodash"
+import getConfig from "next/config"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -146,7 +147,8 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_PUBLIC_ADDRESS
+const { publicRuntimeConfig } = getConfig()
+const PUBLIC_ADDRESS = publicRuntimeConfig.publicAddress
 const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "ws://")
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 

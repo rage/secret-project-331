@@ -15,8 +15,6 @@ COPY --chown=node . /app
 
 RUN npm run postinstall
 
-ENV NEXT_PUBLIC_PUBLIC_ADDRESS="http://project-331.local"
-
 EXPOSE 3000
 
 CMD [ "npm", "run", "dev" ]

@@ -18,6 +18,5 @@ RUN npm run postinstall
 
 ENV NEXT_PUBLIC_BASE_PATH=""
 ENV NEXT_PUBLIC_SITE_TITLE="MOOC.fi courses"
-ENV NEXT_PUBLIC_PUBLIC_ADDRESS="https://courses.mooc.fi"
 
 RUN npm run build

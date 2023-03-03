@@ -47,8 +47,7 @@ const TextBox = styled.div`
   grid-template-columns: 1fr;
   grid-template-rows: repeat(auto-fill, auto);
   margin-bottom: 1rem;
-  grid-row-gap: 0.5em;
-  grid-column-gap: 1em;
+  gap: 0.8em;
   justify-content: center;
 
   ${respondToOrLarger.lg} {

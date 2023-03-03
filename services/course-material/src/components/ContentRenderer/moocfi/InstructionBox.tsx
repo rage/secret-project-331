@@ -21,7 +21,7 @@ const InstructionBlock: React.FC<
           padding: 1rem 1.5rem;
           background-color: #f2f7fc;
           margin: 1rem 0;
-          border: 2px #9783c5 dashed;
+          border: 2px ${baseTheme.colors.purple[300]} dashed;
         `}
       >
         <div

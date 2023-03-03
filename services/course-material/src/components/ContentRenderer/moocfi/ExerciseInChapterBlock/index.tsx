@@ -32,7 +32,7 @@ const Wrapper = styled.div`
     align-items: center;
     list-style: none;
     &:hover {
-      filter: contrast(1.2) brightness(0.95);
+      background: #edf2f5;
     }
     cursor: pointer;
 

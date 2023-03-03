@@ -40,7 +40,7 @@ const SponsorBox = styled.div`
   justify-content: center;
   align-items: center;
   align-content: center;
-  gap: 30px;
+  gap: 10px;
   img {
     display: flex;
     align-self: center;
@@ -59,7 +59,7 @@ const SponsorLogo = styled.div<StyledSponsor>`
 
   img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 80px;
   }
 
   @media (max-width: 767.98px) {

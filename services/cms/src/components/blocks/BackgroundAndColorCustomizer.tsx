@@ -31,6 +31,7 @@ interface RequiredAttributes {
   alignCenter?: boolean | undefined
   backgroundRepeatX: boolean | undefined
   useDefaultTextForLabel?: boolean | undefined
+  transparent?: boolean | undefined
 }
 
 interface BackgroundAndColorCustomizerProps {

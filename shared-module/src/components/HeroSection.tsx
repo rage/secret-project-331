@@ -47,7 +47,7 @@ const TextBox = styled.div<TextBoxProps>`
   .chapter {
     font-size: 18px;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
-    opacity: 0.7;
+    opacity: 0.9;
     text-align: ${({ direction }) => direction};
     font-weight: 500;
     font-family: ${headingFont};
@@ -73,6 +73,7 @@ export interface HeroSectionProps {
   label?: string
   useDefaultTextForLabel?: boolean
   transparent?: boolean
+  backgroundRepeatX?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -86,6 +87,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   backgroundColor,
   label,
   transparent: isNotTransparent,
+  backgroundRepeatX,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
@@ -110,7 +112,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           content: "";
           opacity: 0.3;
           background-image: url(${backgroundImage});
-          background-repeat: no-repeat;
+          background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
           background-position: center center;
           position: absolute;
           top: 0px;

@@ -101,7 +101,6 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         padding: 7.5em 1em;
         margin-bottom: 3rem;
         background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
-        background-size: cover;
         position: relative;
 
         &::after {
@@ -119,13 +118,13 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           ${respondToOrLarger.md} {
             opacity: ${isNotTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
-            background-size: ${direction == "center" ? "30rem" : "22rem"};
+            background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
             opacity: ${isNotTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
-            background-size: ${direction == "center" ? "30rem" : "26rem"};
+            background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};
           }
         }

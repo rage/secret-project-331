@@ -13,9 +13,13 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   const path = useContext(PageContext)?.pageData?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
   const useDefaultTextForLabel = props.data.attributes.useDefaultTextForLabel ?? DEFAULT
+  const isChapterNumber = formattedPath.toLowerCase().startsWith("c")
+  const transparent = props.data.attributes.transparent ?? DEFAULT
 
   const chapterNumber =
-    useDefaultTextForLabel && formattedPath ? formattedPath : props.data.attributes.label
+    useDefaultTextForLabel && formattedPath && isChapterNumber
+      ? formattedPath
+      : props.data.attributes.label
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -24,6 +28,7 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
         title={props.data.attributes.title}
         subtitle={props.data.attributes.subtitle}
         backgroundImage={props.data.attributes.backgroundImage}
+        transparent={transparent}
         fontColor={props.data.attributes.fontColor}
         alignCenter={props.data.attributes.alignCenter ?? DEFAULT}
         backgroundColor={props.data.attributes.backgroundColor}

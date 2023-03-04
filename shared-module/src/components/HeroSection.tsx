@@ -52,6 +52,7 @@ const TextBox = styled.div<TextBoxProps>`
     font-weight: 500;
     font-family: ${headingFont};
     margin-bottom: 0.2rem;
+    text-transform: capitalize;
   }
 
   span {
@@ -71,6 +72,7 @@ export interface HeroSectionProps {
   backgroundColor?: string
   label?: string
   useDefaultTextForLabel?: boolean
+  transparent?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -83,6 +85,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   alignCenter,
   backgroundColor,
   label,
+  transparent: isNotTransparent,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
@@ -97,7 +100,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
         margin-bottom: 3rem;
-        background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["400"]};
+        background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
         background-size: cover;
         position: relative;
 
@@ -114,13 +117,13 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           top: 0px;
           left: 0px;
           ${respondToOrLarger.md} {
-            opacity: ${direction == "center" ? "0.3" : "1"};
+            opacity: ${isNotTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
             background-size: ${direction == "center" ? "30rem" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
-            opacity: ${direction == "center" ? "0.3" : "1"};
+            opacity: ${isNotTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
             background-size: ${direction == "center" ? "30rem" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};

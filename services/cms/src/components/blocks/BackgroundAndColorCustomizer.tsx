@@ -45,6 +45,7 @@ const BackgroundAndColorCustomizer: React.FC<
   const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
   const useDefaultTextForLabel =
     attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+  const transparent = attributes.transparent == undefined || attributes.transparent
 
   return (
     <PanelBody title={t("background")} initialOpen={false}>
@@ -123,6 +124,11 @@ const BackgroundAndColorCustomizer: React.FC<
         label={t("use-default-text-for-label")}
         checked={useDefaultTextForLabel}
         onChange={() => setAttributes({ useDefaultTextForLabel: !useDefaultTextForLabel })}
+      />
+      <CheckBox
+        label={t("transparent-image")}
+        checked={!transparent}
+        onChange={() => setAttributes({ transparent: !transparent })}
       />
     </PanelBody>
   )

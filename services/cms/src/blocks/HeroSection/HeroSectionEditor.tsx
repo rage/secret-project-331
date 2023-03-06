@@ -2,9 +2,10 @@
 import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React from "react"
+import React, { useContext } from "react"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
+import PageContext from "../../contexts/PageContext"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
 import {
@@ -18,7 +19,13 @@ import { HeroSectionAttributes } from "."
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
-  const { title, subtitle } = attributes
+  const { title, subtitle, alignCenter, useDefaultTextForLabel, label } = attributes
+  const direction = alignCenter || alignCenter == undefined ? "center" : "left"
+  const defaultLabel = useDefaultTextForLabel == undefined || useDefaultTextForLabel
+
+  const path = useContext(PageContext)?.page?.url_path
+  const formattedPath = path?.replace("-", " ").replace("/", "")
+
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -37,22 +44,45 @@ const HeroSectionEditor: React.FC<
             ${attributes.backgroundImage &&
             `background-image: url("${attributes.backgroundImage}");
             background-repeat: no-repeat;
-            background-position: center center;`}
+            background-position: ${direction} center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             padding: 7.5em 1em;
           `}
         >
+          <div
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
+          >
+            {defaultLabel ? (
+              <h6>{formattedPath}</h6>
+            ) : (
+              <RichText
+                tagName="h6"
+                value={label}
+                onChange={(value: string) => setAttributes({ label: value })}
+                placeholder={"Chapter number..."}
+              />
+            )}
+          </div>
           <RichText
-            className="has-text-align-center wp-block-heading"
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={"Hero section title..."}
           />
           <RichText
-            className="has-text-align-center wp-block-heading"
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
             tagName="h3"
             value={subtitle}
             onChange={(value: string) => setAttributes({ subtitle: value })}

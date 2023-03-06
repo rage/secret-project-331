@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import Editor from "@monaco-editor/react"
 import _ from "lodash"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
@@ -22,7 +22,9 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
 
   const initialEditorState = publicSpecToEditorState(initialPublicSpec)
-  sendCurrentState(port, initialEditorState)
+  useEffect(() => {
+    sendCurrentState(port, initialEditorState)
+  }, [port, initialEditorState])
   const [editorState, _setEditorState] = useState(publicSpecToEditorState(publicSpec))
   const setEditorState = (value: Array<ExerciseFile>) => {
     _setEditorState(value)

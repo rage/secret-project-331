@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../components/Layout"
+import MainFrontendBreadCrumbs from "../../components/MainFrontendBreadCrumbs"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
 import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
-import { fetchOrganizationBySlug } from "../../services/backend/organizations"
+import useOrganizationQueryBySlug from "../../hooks/useOrganizationQueryBySlug"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
@@ -22,50 +22,49 @@ interface OrganizationPageProps {
 
 const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getOrganizationBySlug = useQuery([`organization-${query.organizationSlug}`], () =>
-    fetchOrganizationBySlug(query.organizationSlug),
-  )
+  const organizationQuery = useOrganizationQueryBySlug(query.organizationSlug)
 
   return (
     <Layout>
+      <MainFrontendBreadCrumbs organizationSlug={query.organizationSlug} courseId={null} />
       <div>
-        {getOrganizationBySlug.isSuccess && (
+        {organizationQuery.isSuccess && (
           <h1
             className={css`
               font-size: clamp(26px, 3vw, 30px);
               font-weight: 600;
             `}
           >
-            {getOrganizationBySlug.data.name}
+            {organizationQuery.data.name}
           </h1>
         )}
-        {getOrganizationBySlug.isSuccess && (
+        {organizationQuery.isSuccess && (
           <a
-            href={`/manage/organizations/${getOrganizationBySlug.data.id}`}
+            href={`/manage/organizations/${organizationQuery.data.id}`}
             aria-label={`${t("link-manage")}`}
           >
             {t("manage")}
           </a>
         )}
-        {getOrganizationBySlug.isSuccess && (
+        {organizationQuery.isSuccess && (
           <>
-            {getOrganizationBySlug.data.organization_image_url && (
+            {organizationQuery.data.organization_image_url && (
               <img
                 className={css`
                   max-width: 20rem;
                   max-height: 20rem;
                 `}
-                src={getOrganizationBySlug.data.organization_image_url}
+                src={organizationQuery.data.organization_image_url}
                 alt={t("image-alt-what-to-display-on-organization")}
               />
             )}
           </>
         )}
-        {getOrganizationBySlug.isLoading && <Spinner variant={"medium"} />}
-        {getOrganizationBySlug.isError && (
-          <ErrorBanner variant={"readOnly"} error={getOrganizationBySlug.error} />
+        {organizationQuery.isLoading && <Spinner variant={"medium"} />}
+        {organizationQuery.isError && (
+          <ErrorBanner variant={"readOnly"} error={organizationQuery.error} />
         )}
-        {getOrganizationBySlug.isSuccess && (
+        {organizationQuery.isSuccess && (
           <>
             <h2
               className={css`
@@ -77,25 +76,25 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             </h2>
             {/* TODO: Implement perPage dropdown? */}
             <CourseList
-              organizationId={getOrganizationBySlug.data.id}
+              organizationId={organizationQuery.data.id}
               organizationSlug={query.organizationSlug}
             />
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}
             <OnlyRenderIfPermissions
               action={{ type: "create_courses_or_exams" }}
-              resource={{ id: getOrganizationBySlug.data.id, type: "organization" }}
+              resource={{ id: organizationQuery.data.id, type: "organization" }}
             >
               <h2>{t("exam-list")}</h2>
               <ExamList
-                organizationId={getOrganizationBySlug.data.id}
+                organizationId={organizationQuery.data.id}
                 organizationSlug={query.organizationSlug}
               />
             </OnlyRenderIfPermissions>
           </>
         )}
 
-        <DebugModal data={getOrganizationBySlug.data} />
+        <DebugModal data={organizationQuery.data} />
       </div>
     </Layout>
   )

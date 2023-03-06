@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import { baseTheme } from "../../shared-module/styles"
 
 const placeHolderFixHeightStyles = css`
@@ -26,6 +27,10 @@ const ALLOWED_MIMETYPES_FOR_UPLOAD = ["image/svg+xml"]
 interface RequiredAttributes {
   backgroundImage: string | undefined
   backgroundColor: string | undefined
+  fontColor?: string | undefined
+  alignCenter?: boolean | undefined
+  backgroundRepeatX: boolean | undefined
+  useDefaultTextForLabel?: boolean | undefined
 }
 
 interface BackgroundAndColorCustomizerProps {
@@ -37,6 +42,10 @@ const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
+  const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
+  const useDefaultTextForLabel =
+    attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+
   return (
     <PanelBody title={t("background")} initialOpen={false}>
       {attributes.backgroundImage ? (
@@ -87,6 +96,34 @@ const BackgroundAndColorCustomizer: React.FC<
           colors={DEFAULT_BACKGROUND_COLORS}
         />
       </Placeholder>
+      <Placeholder
+        className={placeHolderFixHeightStyles}
+        icon={<BlockIcon icon={icon} />}
+        label={t("font-color")}
+      >
+        <ColorPalette
+          disableCustomColors={false}
+          value={attributes.fontColor ?? WHITE}
+          onChange={(fontColor) => setAttributes({ fontColor })}
+          clearable={false}
+          colors={DEFAULT_BACKGROUND_COLORS}
+        />
+      </Placeholder>
+      <CheckBox
+        label={t("label-repeat-background-x")}
+        checked={attributes.backgroundRepeatX}
+        onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
+      />
+      <CheckBox
+        label={t("label-align-center")}
+        checked={alignCenter}
+        onChange={() => setAttributes({ alignCenter: !alignCenter })}
+      />
+      <CheckBox
+        label={t("use-default-text-for-label")}
+        checked={useDefaultTextForLabel}
+        onChange={() => setAttributes({ useDefaultTextForLabel: !useDefaultTextForLabel })}
+      />
     </PanelBody>
   )
 }

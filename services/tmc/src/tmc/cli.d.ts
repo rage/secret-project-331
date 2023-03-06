@@ -1,3 +1,9 @@
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.30.0/crates/tmc-langs-cli/bindings.d.ts
+
+export type Locale = string
+
+export type Compression = "tar" | "zip" | "zstd"
+
 /** @see {isCliOutput} ts-auto-guard:type-guard */
 export type CliOutput =
   | ({ "output-kind": "output-data" } & OutputData)
@@ -81,6 +87,7 @@ export type DataKind =
   | { "output-data-kind": "submission-finished"; "output-data": SubmissionFinished }
   | { "output-data-kind": "config-value"; "output-data": ConfigValue }
   | { "output-data-kind": "tmc-config"; "output-data": TmcConfig }
+  | { "output-data-kind": "submission-sandbox"; "output-data": string }
 
 export interface NewSubmission {
   show_submission_url: string
@@ -140,6 +147,7 @@ export interface RefreshData {
   exercises: Array<RefreshExercise>
 }
 
+/** @see {isRunResult} ts-auto-guard:type-guard */
 export interface RunResult {
   status: RunStatus
   testResults: Array<TestResult>
@@ -385,7 +393,7 @@ export interface ExercisePoint {
 }
 
 export interface PythonVer {
-  major: number | null
+  major: number
   minor: number | null
   patch: number | null
 }

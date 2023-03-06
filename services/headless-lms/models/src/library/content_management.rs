@@ -161,7 +161,6 @@ pub async fn create_new_chapter(
     let chapter_frontpage_content = serde_json::to_value(vec![
         GutenbergBlock::hero_section(&chapter.name, ""),
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
     ])?;
     let chapter_frontpage = NewPage {

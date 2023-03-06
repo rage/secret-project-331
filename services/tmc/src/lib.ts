@@ -1,6 +1,18 @@
 /* eslint-disable i18next/no-literal-string */
+import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
 import * as fs from "fs"
+
+export const initKubeConfig = (): k8s.KubeConfig => {
+  const kc = new k8s.KubeConfig()
+  kc.loadFromDefault()
+  return kc
+}
+
+export const initKubeApi = (): k8s.CoreV1Api => {
+  const k8sApi = initKubeConfig().makeApiClient(k8s.CoreV1Api)
+  return k8sApi
+}
 
 interface PendingSubmission {
   id: string

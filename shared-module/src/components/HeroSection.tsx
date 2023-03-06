@@ -92,7 +92,6 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
-  console.log({ backgroundImage, backgroundColor })
   return (
     <div
       id="hero-section"

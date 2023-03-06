@@ -25,5 +25,3 @@ patches:
     target:
       version: v1
       kind: Role
-patchesStrategicMerge:
-  - main-frontend/patch-env.yml

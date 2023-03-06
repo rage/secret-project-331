@@ -41,7 +41,7 @@ spec:
             - name: NEXT_PUBLIC_BASE_PATH
               value: null
             - name: PUBLIC_ADDRESS
-              value: "https://courses.mooc.fi"
+              value: "http://project-331.local"
           resources:
             requests:
               memory: 100Mi

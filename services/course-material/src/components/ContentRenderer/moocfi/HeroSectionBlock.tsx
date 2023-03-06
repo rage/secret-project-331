@@ -10,14 +10,15 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   props,
 ) => {
   const DEFAULT = true
-  const path = useContext(PageContext)?.pageData?.url_path
+  const pageData = useContext(PageContext)?.pageData
+  const path = pageData?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
   const useDefaultTextForLabel = props.data.attributes.useDefaultTextForLabel ?? DEFAULT
-  const isChapterNumber = formattedPath && formattedPath.toLowerCase().startsWith("c")
+  const isChapterFrontpage = pageData?.chapter_id
   const transparent = props.data.attributes.transparent ?? DEFAULT
 
   const chapterNumber =
-    useDefaultTextForLabel && formattedPath && isChapterNumber
+    useDefaultTextForLabel && formattedPath && isChapterFrontpage
       ? formattedPath
       : props.data.attributes.label
 

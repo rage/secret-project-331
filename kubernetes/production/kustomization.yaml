@@ -43,9 +43,6 @@ patches:
       version: v1
       labelSelector: "needs-db=job"
 
-patchesStrategicMerge:
-  - main-frontend/patch-env.yml
-
 # Patch image names
 images:
   - name: course-material

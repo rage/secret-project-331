@@ -9,4 +9,4 @@ spec:
         - name: main-frontend
           env:
             - name: PUBLIC_ADDRESS
-              value: "https://courses.mooc.fi"
+              value: "http://project-331.local"

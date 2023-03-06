@@ -30,3 +30,5 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container-cronjob"
+patchesStrategicMerge:
+  - main-frontend/patch-env.yml

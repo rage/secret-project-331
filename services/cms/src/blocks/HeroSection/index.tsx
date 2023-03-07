@@ -16,7 +16,7 @@ export interface HeroSectionAttributes {
   backgroundRepeatX: boolean | undefined
   alignCenter?: boolean | undefined
   useDefaultTextForLabel?: boolean | undefined
-  transparent?: boolean | undefined
+  partiallyTransparent?: boolean | undefined
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
@@ -66,7 +66,7 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
       type: "boolean",
       default: true,
     },
-    transparent: {
+    partiallyTransparent: {
       type: "boolean",
       default: true,
     },

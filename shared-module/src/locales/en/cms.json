@@ -90,7 +90,7 @@
   "top-level-block-placeholder": "Top level pages placeholder",
   "top-level-block-placeholder-explanation": "This block list all the top level pages in a course and it is placed on the course material front page.",
   "tries-per-slide": "Max tries per slide",
-  "transparent-image": "Transparent background image",
+  "partially-transparent-background": "Make background image partially transparent",
   "use-default-text-for-label": "Use default text for label",
   "unsupported-block-placeholder": "Unsupported block placeholder",
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",

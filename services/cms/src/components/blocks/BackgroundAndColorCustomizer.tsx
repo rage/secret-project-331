@@ -31,7 +31,7 @@ interface RequiredAttributes {
   alignCenter?: boolean | undefined
   backgroundRepeatX: boolean | undefined
   useDefaultTextForLabel?: boolean | undefined
-  transparent?: boolean | undefined
+  partiallyTransparent?: boolean | undefined
 }
 
 interface BackgroundAndColorCustomizerProps {
@@ -46,7 +46,8 @@ const BackgroundAndColorCustomizer: React.FC<
   const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
   const useDefaultTextForLabel =
     attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
-  const transparent = attributes.transparent == undefined || attributes.transparent
+  const partiallyTransparent =
+    attributes.partiallyTransparent == undefined || attributes.partiallyTransparent
 
   return (
     <PanelBody title={t("background")} initialOpen={false}>
@@ -127,9 +128,9 @@ const BackgroundAndColorCustomizer: React.FC<
         onChange={() => setAttributes({ useDefaultTextForLabel: !useDefaultTextForLabel })}
       />
       <CheckBox
-        label={t("transparent-image")}
-        checked={!transparent}
-        onChange={() => setAttributes({ transparent: !transparent })}
+        label={t("partially-transparent-background")}
+        checked={!partiallyTransparent}
+        onChange={() => setAttributes({ partiallyTransparent: !partiallyTransparent })}
       />
     </PanelBody>
   )

@@ -72,7 +72,7 @@ export interface HeroSectionProps {
   backgroundColor?: string
   label?: string
   useDefaultTextForLabel?: boolean
-  transparent?: boolean
+  partiallyTransparent?: boolean
   backgroundRepeatX?: boolean
 }
 
@@ -86,7 +86,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   alignCenter,
   backgroundColor,
   label,
-  transparent: isNotTransparent,
+  partiallyTransparent: isNotPartiallyTransparent,
   backgroundRepeatX,
 }) => {
   const CENTER = "center"
@@ -117,13 +117,13 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           top: 0px;
           left: 0px;
           ${respondToOrLarger.md} {
-            opacity: ${isNotTransparent ? "1" : "0.4"};
+            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
             background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
-            opacity: ${isNotTransparent ? "1" : "0.4"};
+            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
             background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};

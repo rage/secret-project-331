@@ -8,7 +8,7 @@ import Button from "../../../shared-module/components/Button"
 import GenericInfobox from "../../../shared-module/components/GenericInfobox"
 import { baseTheme, typography } from "../../../shared-module/styles"
 
-const KOSKI_URL = "https://opintopolku.fi/oma-opintopolku/"
+const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
 export interface RegisterCompletionProps {
   data: UserCompletionInformation
@@ -85,15 +85,16 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
           <li>
             <Trans
               t={t}
-              i18nKey="after-completion-has-been-registered-you-can-view-completed-credits-at-koski"
+              i18nKey="after-completion-has-been-registered-you-can-view-completed-credits-at-url"
             >
-              After your completion has been registered, you can view completed credits at{" "}
-              <strong>Koski</strong>: <a href={KOSKI_URL}>{{ koskiUrl: KOSKI_URL }}</a> NB! There is
-              some delay on registering a completion and the credits being visible at Koski.
+              After your completion has been registered, you can view your completion in the{" "}
+              <strong>My StudyInfo</strong> service:{" "}
+              <a href={MY_STUDYINFO}>{{ url: MY_STUDYINFO }}</a> Note! There is some delay on
+              registering a completion and the credits being visible in My StudyInfo.
             </Trans>
           </li>
         </ol>
-        <p>{t("credit-will-be-registered-within-six-weeks")}</p>
+        <p>{t("credit-will-be-registered-within-few-days")}</p>
       </div>
       <div
         className={css`

@@ -12,6 +12,8 @@ use headless_lms_models::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
         PageUpdateArgs,
     },
+    peer_review_configs::{self, CmsPeerReviewConfig},
+    peer_review_questions::{self, CmsPeerReviewQuestion},
     user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
@@ -77,6 +79,7 @@ pub async fn create_page(
     .await?;
     Ok(page.id)
 }
+
 pub fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
@@ -112,6 +115,7 @@ pub fn create_best_exercise(
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
+    exercise_name: Option<String>,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -120,7 +124,7 @@ pub fn create_best_exercise(
 ) {
     let (exercise_block, exercise, mut slides, mut tasks) = example_exercise_flexible(
         exercise_id,
-        "Best exercise".to_string(),
+        exercise_name.unwrap_or_else(|| "Best exercise".to_string()),
         vec![(
             exercise_slide_id,
             vec![(
@@ -216,6 +220,7 @@ pub fn example_exercise_flexible(
             },
         )
         .collect();
+
     let exercise = CmsPageExercise {
         id: exercise_id,
         name: exercise_name,
@@ -225,7 +230,7 @@ pub fn example_exercise_flexible(
         limit_number_of_tries: false,
         deadline: None,
         needs_peer_review: false,
-        use_course_default_peer_review_config: true,
+        use_course_default_peer_review_config: false,
         peer_review_config: None,
         peer_review_questions: None,
     };
@@ -433,6 +438,7 @@ pub async fn create_exam(
             Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
             Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
             Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
+            Some("Best exercise".to_string()),
         );
     pages::insert_page(
         conn,
@@ -468,4 +474,81 @@ pub async fn create_exam(
     .await?;
     course_exams::upsert(conn, new_exam_id, course_id).await?;
     Ok(new_exam_id)
+}
+
+pub async fn create_best_peer_review(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    exercise_id: Uuid,
+    accepting_strategy: peer_review_configs::PeerReviewAcceptingStrategy,
+    accepting_threshold: f32,
+) -> Result<()> {
+    // let prc_id =
+    //     peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
+    //         .await?;
+    let prc = peer_review_configs::upsert_with_id(
+        conn,
+        PKeyPolicy::Generate,
+        &CmsPeerReviewConfig {
+            id: Uuid::new_v4(),
+            course_id,
+            exercise_id: Some(exercise_id),
+            peer_reviews_to_give: 1,
+            peer_reviews_to_receive: 0,
+            accepting_threshold,
+            accepting_strategy,
+        },
+    )
+    .await?;
+
+    peer_review_questions::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &CmsPeerReviewQuestion {
+            id: Uuid::new_v4(),
+            peer_review_config_id: prc.id,
+            order_number: 0,
+            question: "What are your thoughts on the answer".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::Essay,
+            answer_required: true,
+        },
+    )
+    .await?;
+
+    peer_review_questions::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &CmsPeerReviewQuestion {
+            id: Uuid::new_v4(),
+            peer_review_config_id: prc.id,
+            order_number: 1,
+            question: "Was the answer correct?".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            answer_required: true,
+        },
+    )
+    .await?;
+
+    peer_review_questions::insert(
+        conn,
+        PKeyPolicy::Generate,
+        &CmsPeerReviewQuestion {
+            id: Uuid::new_v4(),
+            peer_review_config_id: prc.id,
+            order_number: 2,
+            question: "Was the answer good?".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            answer_required: true,
+        },
+    )
+    .await?;
+
+    exercises::set_exercise_to_use_exercise_specific_peer_review_config(
+        conn,
+        exercise_id,
+        true,
+        false,
+    )
+    .await?;
+    Ok(())
 }

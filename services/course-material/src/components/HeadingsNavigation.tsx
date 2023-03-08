@@ -88,7 +88,6 @@ export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
 const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationProps>> = () => {
   const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()
-  // eslint-disable-next-line i18next/no-literal-string
   const [activeHeading, setActiveHeading] = useState<string | undefined>(undefined)
   // Ref to optimize useEffect. A number to keep multiple clicks from interfering with each other
   const numberOfCallbacksScrollingTheDocument = useRef(0)

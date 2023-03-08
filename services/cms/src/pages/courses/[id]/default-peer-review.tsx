@@ -73,6 +73,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       errorMessage: t("default-toast-error-message"),
       successMessage: t("default-toast-success-message"),
     },
+
     { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
   )
 

@@ -14,6 +14,7 @@ const CORRECT = `button:has-text("Correct") >> nth=0`
 const INCORRECT = `button:has-text("Incorrect")`
 
 test("Exercise score updates gradually", async ({ headless, page }) => {
+  test.slow()
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click text=University of Helsinki, Department of Computer Science

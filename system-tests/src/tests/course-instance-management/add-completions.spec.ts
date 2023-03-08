@@ -66,6 +66,7 @@ test("test", async ({ headless, page }) => {
       "text=Submit",
     ],
     page,
+    clearNotifications: true,
   })
 
   // Click button:has-text("Submit")
@@ -101,6 +102,7 @@ test("test", async ({ headless, page }) => {
       "text=Submit",
     ],
     page,
+    clearNotifications: true,
   })
 
   // Click button:has-text("Submit")

@@ -3,6 +3,7 @@ import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
 import { State } from "../pages/iframe"
+import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
@@ -41,25 +42,33 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
 
   if (state.viewType === "answer-exercise") {
     return (
-      <AnswerExercise
-        port={port}
-        publicSpec={state.publicSpec}
-        previousSubmission={state.previousSubmission}
-        user_information={state.userInformation}
-      />
+      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+        <AnswerExercise
+          port={port}
+          publicSpec={state.publicSpec}
+          previousSubmission={state.previousSubmission}
+          user_information={state.userInformation}
+        />
+      </div>
     )
   } else if (state.viewType === "view-submission") {
     return (
-      <ViewSubmission
-        publicAlternatives={state.publicSpec}
-        modelSolutions={state.modelSolutions}
-        user_answer={state.userAnswer}
-        gradingFeedbackJson={state.gradingFeedbackJson}
-        user_information={state.userInformation}
-      />
+      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+        <ViewSubmission
+          publicAlternatives={state.publicSpec}
+          modelSolutions={state.modelSolutions}
+          user_answer={state.userAnswer}
+          gradingFeedbackJson={state.gradingFeedbackJson}
+          user_information={state.userInformation}
+        />
+      </div>
     )
   } else if (state.viewType === "exercise-editor") {
-    return <ExerciseEditor port={port} privateSpec={state.privateSpec} />
+    return (
+      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+        <ExerciseEditor port={port} privateSpec={state.privateSpec} />
+      </div>
+    )
   } else {
     return <>{t("waiting-for-content")}</>
   }

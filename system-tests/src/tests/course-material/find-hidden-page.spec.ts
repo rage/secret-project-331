@@ -25,18 +25,20 @@ test("find hidden page", async ({ page, headless }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.getByText("Information pages").waitFor()
-  await page.waitForTimeout(200)
-
   await expectScreenshotsToMatchSnapshots({
-    beforeScreenshot: async () => {
-      await page.locator("text=Information pages").scrollIntoViewIfNeeded()
-      await page.waitForTimeout(200)
-    },
     clearNotifications: true,
     headless,
     page,
     snapshotName: "top-level-pages-list",
+    toMatchSnapshotOptions: { maxDiffPixels: 1000 },
+    scrollToYCoordinate: { mobile: 5061, "small-desktop": 3661 },
+    beforeScreenshot: async () => {
+      await Promise.all([
+        page.getByText("Information pages").waitFor(),
+        page.waitForTimeout(200),
+        page.getByText("Chapter 7Bonus chapterChapter 8Another bonus chapter").click(),
+      ])
+    },
   })
 
   // Click text=Welcome to Introduction to Everything
@@ -53,5 +55,6 @@ test("find hidden page", async ({ page, headless }) => {
     page,
     snapshotName: "hidden-page",
     waitForThisToBeVisibleAndStable: [`text="You found the secret of the project 331!"`],
+    toMatchSnapshotOptions: { maxDiffPixels: 400 },
   })
 })

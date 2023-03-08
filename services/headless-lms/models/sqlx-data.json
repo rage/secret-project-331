@@ -15601,6 +15601,22 @@
     },
     "query": "\nDELETE FROM page_visit_datum_daily_visit_hashing_keys WHERE valid_for_date < $1\n    "
   },
+  "cba4bfc5b328ead58a3c14aa30439ef9daf47a9d25c72f6343d53b8f233965e1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Bool", "Bool", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercises\nSET use_course_default_peer_review_config = $1,\n  needs_peer_review = $2\nWHERE id = $3\nRETURNING id;\n        "
+  },
   "cbe5322e580b9612ae14b75c27f8012cea260ba0bc542c3f2dc6eb2ea7b2cff4": {
     "describe": {
       "columns": [

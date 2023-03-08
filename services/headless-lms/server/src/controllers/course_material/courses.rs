@@ -614,6 +614,32 @@ async fn get_public_top_level_pages(
 }
 
 /**
+GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course.
+
+# Example
+Request:
+```http
+GET /api/v0/course-material/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
+Content-Type: application/json
+```
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_course_language_versions(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    let language_versions =
+        models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
+
+    token.authorized_ok(web::Json(language_versions))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -640,6 +666,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/search-pages-with-phrase",
             web::post().to(search_pages_with_phrase),
+        )
+        .route(
+            "/{course_id}/language-versions",
+            web::get().to(get_all_course_language_versions),
         )
         .route(
             "/{course_id}/search-pages-with-words",

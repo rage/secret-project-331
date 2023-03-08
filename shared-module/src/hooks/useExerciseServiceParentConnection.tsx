@@ -5,7 +5,9 @@ import { useEffect, useState } from "react"
  *
  * How this connection establisment works and what are the allowed messages are documented here: https://github.com/rage/secret-project-331/blob/master/docs/iframes.md
  */
-function useExerciseServiceParentConnection(onMessage: (messageData: unknown) => void) {
+function useExerciseServiceParentConnection(
+  onMessage: (messageData: unknown, port: MessagePort) => void,
+) {
   const [port, setPort] = useState<MessagePort | null>(null)
   useEffect(() => {
     const handler = (message: WindowEventMap["message"]) => {
@@ -29,7 +31,7 @@ function useExerciseServiceParentConnection(onMessage: (messageData: unknown) =>
           console.info(JSON.stringify(message.data, undefined, 2))
           const data = message.data
           try {
-            onMessage(data)
+            onMessage(data, port)
           } catch (e) {
             // eslint-disable-next-line i18next/no-literal-string
             console.error(`Iframe onMessage handler crashed`, e)

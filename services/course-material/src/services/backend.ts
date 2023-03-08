@@ -437,3 +437,10 @@ export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterF
   const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
   return validateResponse(response, isIsChapterFrontPage)
 }
+
+export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/language-versions`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isCourse))
+}

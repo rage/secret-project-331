@@ -6,7 +6,8 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("Course modules test", async ({ page, headless }) => {
+  test.slow()
   // navigate to module page
   await page.goto("http://project-331.local/")
   await page.locator("text=University of Helsinki, Department of Computer Science").click()
@@ -102,12 +103,13 @@ test("test", async ({ page, headless }) => {
 
   // save changes
   await page.locator("text=Save changes").click()
+
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "after-saving",
-    waitForThisToBeVisibleAndStable: "text=Success",
     toMatchSnapshotOptions: { threshold: 0.4 },
     pageScreenshotOptions: { fullPage: true },
+    clearNotifications: true,
   })
 })

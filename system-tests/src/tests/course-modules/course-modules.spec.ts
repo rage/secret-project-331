@@ -103,6 +103,7 @@ test("Course modules test", async ({ page, headless }) => {
 
   // save changes
   await page.locator("text=Save changes").click()
+  await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,

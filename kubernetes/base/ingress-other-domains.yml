@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: project-331-other-domains
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.org/websocket-services: "ws"
+    nginx.ingress.kubernetes.io/limit-connections: "100"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-rpm: "2000"
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+    nginx.ingress.kubernetes.io/server-snippet: |
+      rewrite ^(.*) /api/v0/other-domain-redirects$1 last;
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    # Handling for domain redirections, matches all other domain than the main domain.
+    - host: "*.project-331.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001

@@ -24,7 +24,8 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - http:
+    - host: courses.project-331.local
+      http:
         paths:
           - path: /api
             pathType: Prefix
@@ -68,17 +69,3 @@ spec:
                 name: main-frontend
                 port:
                   number: 3000
-          - path: /quizzes
-            pathType: Prefix
-            backend:
-              service:
-                name: quizzes
-                port:
-                  number: 3004
-          - path: /tmc
-            pathType: Prefix
-            backend:
-              service:
-                name: tmc
-                port:
-                  number: 3005

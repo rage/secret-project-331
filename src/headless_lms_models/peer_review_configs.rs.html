@@ -449,6 +449,11 @@
 <a href="#449" id="449">449</a>
 <a href="#450" id="450">450</a>
 <a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
@@ -552,6 +557,7 @@ RETURNING id
 
 <span class="kw">pub async fn </span>upsert_with_id(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
     cms_peer_review: <span class="kw-2">&amp;</span>CmsPeerReviewConfig,
 ) -&gt; ModelResult&lt;CmsPeerReviewConfig&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
@@ -581,7 +587,7 @@ RETURNING id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS &quot;accepting_strategy:_&quot;;&quot;#</span>,
-        cms_peer_review.id,
+        pkey_policy.into_uuid(),
         cms_peer_review.course_id,
         cms_peer_review.exercise_id,
         cms_peer_review.peer_reviews_to_give,
@@ -868,8 +874,12 @@ WHERE id = $1;
     peer_review_configuration: <span class="kw-2">&amp;</span>CmsPeerReviewConfiguration,
 ) -&gt; ModelResult&lt;CmsPeerReviewConfiguration&gt; {
     <span class="comment">// Upsert peer review
-    </span><span class="kw">let </span>peer_review_config =
-        upsert_with_id(conn, <span class="kw-2">&amp;</span>peer_review_configuration.peer_review_config).<span class="kw">await</span><span class="question-mark">?</span>;
+    </span><span class="kw">let </span>peer_review_config = upsert_with_id(
+        conn,
+        PKeyPolicy::Fixed(peer_review_configuration.peer_review_config.id),
+        <span class="kw-2">&amp;</span>peer_review_configuration.peer_review_config,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Upsert peer review questions
     </span><span class="kw">let </span>_peer_review_question_ids =

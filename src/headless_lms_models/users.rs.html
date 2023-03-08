@@ -197,6 +197,12 @@
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
 </pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::ApplicationConfiguration;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -344,6 +350,12 @@ WHERE id = $1
         <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>email == <span class="string">&quot;creator@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;creator&quot; </span>{
         <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;creator@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student1@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student.1&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;student1@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student2@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student.2&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;student2@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;student3@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student.3&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;student3@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::InvalidRequest,

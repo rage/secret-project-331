@@ -19,6 +19,8 @@ const viewPorts = {
  */
 type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[0]
 
+type ViewPortDict = { [Property in keyof typeof viewPorts]: number }
+
 interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean | undefined
   snapshotName: string
@@ -33,7 +35,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   axeSkip?: boolean | string[]
   skipMobile?: boolean
   /** If defined, the page will scroll to this y coordinate before taking the screenshot */
-  scrollToYCoordinate?: number
+  scrollToYCoordinate?: number | ViewPortDict
   /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
   replaceSomePartsWithPlaceholders?: boolean
 }
@@ -151,7 +153,7 @@ interface SnapshotWithViewPortProps {
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip: boolean | string[]
-  scrollToYCoordinate?: number
+  scrollToYCoordinate?: number | { [Property in keyof typeof viewPorts]: number }
   replaceSomePartsWithPlaceholders: boolean
 }
 
@@ -225,11 +227,19 @@ async function snapshotWithViewPort({
 
   // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
   if (scrollToYCoordinate) {
-    await (page || pageObjectToUse).evaluate(async (coord) => {
-      window.scrollTo(0, coord)
-    }, scrollToYCoordinate)
-    // 100ms was not enough at the time of writing this
-    await pageObjectToUse.waitForTimeout(200)
+    if (typeof scrollToYCoordinate === "number") {
+      await (page || pageObjectToUse).evaluate(async (coord) => {
+        window.scrollTo(0, coord)
+      }, scrollToYCoordinate)
+      // 100ms was not enough at the time of writing this
+      await pageObjectToUse.waitForTimeout(200)
+    } else {
+      await (page || pageObjectToUse).evaluate(async (coord) => {
+        window.scrollTo(0, coord)
+      }, scrollToYCoordinate[viewPortName])
+      // 100ms was not enough at the time of writing this
+      await pageObjectToUse.waitForTimeout(200)
+    }
   }
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`

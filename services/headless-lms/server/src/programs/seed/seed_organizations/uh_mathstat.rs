@@ -5,6 +5,7 @@ use headless_lms_models::{
     courses::NewCourse,
     library,
     library::content_management::CreateNewCourseFixedIds,
+    library::copying::copy_course,
     organizations, PKeyPolicy,
 };
 use uuid::Uuid;
@@ -113,7 +114,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let _introduction_to_citations = seed_sample_course(
+    let introduction_to_citations = seed_sample_course(
         &db_pool,
         uh_mathstat_id,
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
@@ -123,6 +124,24 @@ pub async fn seed_organization_uh_mathstat(
         student_user_id,
         &example_normal_user_ids,
         Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    copy_course(
+        &mut conn,
+        introduction_to_citations,
+        &NewCourse {
+            name: "Johdatus sitaatioihin".to_string(),
+            slug: "johdatus-sitaatioihin".to_string(),
+            organization_id: uh_mathstat_id,
+            language_code: "fi-FI".to_string(),
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            description: "Just a draft.".to_string(),
+            is_draft: false,
+            is_test_mode: false,
+        },
+        true,
     )
     .await?;
 

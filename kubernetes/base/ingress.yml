@@ -69,3 +69,17 @@ spec:
                 name: main-frontend
                 port:
                   number: 3000
+          - path: /quizzes
+            pathType: Prefix
+            backend:
+              service:
+                name: quizzes
+                port:
+                  number: 3004
+          - path: /tmc
+            pathType: Prefix
+            backend:
+              service:
+                name: tmc
+                port:
+                  number: 3005

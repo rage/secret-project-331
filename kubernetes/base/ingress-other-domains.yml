@@ -18,7 +18,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    # Handling for domain redirections, matches all other domain than the main domain.
+    # Handling for domain redirections, matches all other domains than the main domain.
     - host: "*.project-331.local"
       http:
         paths:

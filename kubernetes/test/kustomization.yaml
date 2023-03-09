@@ -15,6 +15,11 @@ patches:
       version: v1
       kind: Ingress
       name: project-331-ingress
+  - path: patch-ingress-other-domains.yml
+    target:
+      version: v1
+      kind: Ingress
+      name: project-331-other-domains
   # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml
     target:

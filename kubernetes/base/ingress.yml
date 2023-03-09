@@ -24,7 +24,7 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - host: courses.project-331.local
+    - host: project-331.local
       http:
         paths:
           - path: /api

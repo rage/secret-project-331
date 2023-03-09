@@ -3,7 +3,7 @@
   path: "/spec/tls"
 - op: replace
   path: "/spec/rules/0/host"
-  value: courses.project-331.local
+  value: project-331.local
 # Increase rate limits due to many requests during the tests
 - op: replace
   path: "/metadata/annotations/nginx.ingress.kubernetes.io~1limit-connections"

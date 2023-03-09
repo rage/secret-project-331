@@ -2,10 +2,9 @@
   path: "/spec/tls"
   value:
     - hosts:
-      - courses.mooc.fi
+        - courses.mooc.fi
       secretName: courses-moocfi-tls
 
-- op: add
+- op: replace
   path: "/spec/rules/0/host"
-  value:
-    courses.mooc.fi
+  value: courses.mooc.fi

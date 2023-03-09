@@ -35,6 +35,7 @@ pub mod library;
 pub mod material_references;
 pub mod open_university_registration_links;
 pub mod organizations;
+pub mod other_domain_to_course_redirections;
 pub mod page_history;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;

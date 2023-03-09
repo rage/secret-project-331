@@ -24,7 +24,8 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-    - http:
+    - host: project-331.local
+      http:
         paths:
           - path: /api
             pathType: Prefix

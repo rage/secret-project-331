@@ -48,12 +48,12 @@ pub async fn redirect_other_domain(
         );
     }
 
-    return Err(ControllerError::new(
+    Err(ControllerError::new(
         ControllerErrorType::BadRequest,
         "No HOST header provided. Don't know where the request is supposed to be directed."
             .to_string(),
         None,
-    ));
+    ))
 }
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("{url_path:.*}", web::get().to(redirect_other_domain));

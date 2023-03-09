@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["_add_routes",""],["redirect_other_domain","GET `/api/v0/other-domain-redirects/.*` Redirects a domain that is not a main domain to the correct course."]]};

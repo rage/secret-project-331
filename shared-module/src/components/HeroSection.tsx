@@ -47,11 +47,12 @@ const TextBox = styled.div<TextBoxProps>`
   .chapter {
     font-size: 18px;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
-    opacity: 0.7;
+    opacity: 0.9;
     text-align: ${({ direction }) => direction};
     font-weight: 500;
     font-family: ${headingFont};
     margin-bottom: 0.2rem;
+    text-transform: capitalize;
   }
 
   span {
@@ -71,6 +72,8 @@ export interface HeroSectionProps {
   backgroundColor?: string
   label?: string
   useDefaultTextForLabel?: boolean
+  partiallyTransparent?: boolean
+  backgroundRepeatX?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -83,11 +86,12 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   alignCenter,
   backgroundColor,
   label,
+  partiallyTransparent: isNotPartiallyTransparent,
+  backgroundRepeatX,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
-  console.log({ backgroundImage, backgroundColor })
   return (
     <div
       id="hero-section"
@@ -97,8 +101,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
         margin-bottom: 3rem;
-        background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["400"]};
-        background-size: cover;
+        background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
         position: relative;
 
         &::after {
@@ -108,21 +111,21 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
           content: "";
           opacity: 0.3;
           background-image: url(${backgroundImage});
-          background-repeat: no-repeat;
+          background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
           background-position: center center;
           position: absolute;
           top: 0px;
           left: 0px;
           ${respondToOrLarger.md} {
-            opacity: ${direction == "center" ? "0.3" : "1"};
+            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
-            background-size: ${direction == "center" ? "30rem" : "22rem"};
+            background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
-            opacity: ${direction == "center" ? "0.3" : "1"};
+            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
             background-position: ${direction} center;
-            background-size: ${direction == "center" ? "30rem" : "26rem"};
+            background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};
           }
         }

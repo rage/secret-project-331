@@ -17,6 +17,7 @@ const LandingPageHeroSectionBlock: React.FC<
         title={props.data.attributes.title}
         backgroundImage={props.data.attributes.backgroundImage}
         backgroundColor={props.data.attributes.backgroundColor}
+        fontColor={props.data.attributes.fontColor}
         backgroundRepeatX={props.data.attributes.backgroundRepeatX}
       >
         {props.data.innerBlocks.map((block) => {

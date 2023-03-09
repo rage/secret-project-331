@@ -4,6 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import DefaultSVG from "../img/hero-default-bg-image.svg"
+import { baseTheme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 import Button from "./Button"
@@ -11,10 +12,14 @@ import Button from "./Button"
 export const CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING =
   "chapter-grid-scrolling-destination"
 
+interface TextBoxProps {
+  fontColor?: string
+}
+
 // eslint-disable-next-line i18next/no-literal-string
 //const HeroWrapper = styled.div``
 
-const TextBox = styled.div`
+const TextBox = styled.div<TextBoxProps>`
   display: flex;
   flex-direction: column;
   padding: 2rem 2.5rem;
@@ -26,6 +31,7 @@ const TextBox = styled.div`
   h1 {
     z-index: 20;
     margin-bottom: 0.8rem;
+    color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     margin-top: 1.5rem;
     font-size: clamp(2.4rem, 4vw, 60px);
     font-weight: bold;
@@ -39,6 +45,7 @@ const TextBox = styled.div`
 
   .hero-subtitle {
     width: 100%;
+    color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
     ${respondToOrLarger.md} {
       width: 600px;
     }
@@ -49,11 +56,7 @@ const TextBox = styled.div`
     font-weight: 600;
     font-size: 22px;
     line-height: 40px;
-
     text-align: center;
-
-    color: #000000;
-
     opacity: 0.7;
   }
   button {
@@ -73,6 +76,7 @@ export interface LandingPageHeroSectionProps {
   title: string
   backgroundImage?: string
   backgroundColor?: string
+  fontColor?: string
   backgroundRepeatX?: boolean
   variant?: string
 }
@@ -81,7 +85,7 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSe
 
 const LandingPageHeroSection: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<CardProps>>
-> = ({ title, children, backgroundImage, backgroundColor, backgroundRepeatX }) => {
+> = ({ title, children, backgroundImage, backgroundColor, backgroundRepeatX, fontColor }) => {
   const { t } = useTranslation()
   return (
     <div
@@ -102,7 +106,7 @@ const LandingPageHeroSection: React.FC<
       `}
     >
       {backgroundImage === undefined && <StyledSVG />}
-      <TextBox>
+      <TextBox color={fontColor}>
         <h1>{title}</h1>
         <div className="hero-subtitle">{children}</div>
         <Button

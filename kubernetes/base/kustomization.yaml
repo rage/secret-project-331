@@ -9,6 +9,7 @@ resources:
   - quizzes/deployment.yml
   - tmc/deployment.yml
   - ingress.yml
+  - ingress-other-domains.yml
   - headless-lms/ended-exams-processor.yml
   - headless-lms/open-university-registration-link-fetcher.yml
   - headless-lms/service-info-fetcher.yml

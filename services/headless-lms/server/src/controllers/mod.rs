@@ -15,6 +15,7 @@ pub mod exercise_services;
 pub mod files;
 pub mod helpers;
 pub mod main_frontend;
+pub mod other_domain_redirects;
 pub mod study_registry;
 
 use actix_web::web::{self, ServiceConfig};
@@ -39,5 +40,8 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/main-frontend").configure(main_frontend::_add_routes))
         .service(web::scope("/auth").configure(auth::_add_routes))
         .service(web::scope("/study-registry").configure(study_registry::_add_routes))
-        .service(web::scope("/exercise-services").configure(exercise_services::_add_routes));
+        .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
+        .service(
+            web::scope("/other-domain-redirects").configure(other_domain_redirects::_add_routes),
+        );
 }

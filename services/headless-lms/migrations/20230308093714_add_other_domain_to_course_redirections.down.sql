@@ -1,0 +1,1 @@
+DROP TABLE other_domain_to_course_redirections;

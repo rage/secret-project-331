@@ -3,8 +3,8 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
-import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import { Menu } from "../../shared-module/components/Navigation/NavBar"
+import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { logout } from "../../shared-module/services/backend/auth"
@@ -53,9 +53,9 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           }}
           manualOpen={showSettings}
         />
-      )}
-      <Menu>
-        {courseId && (
+      )}{" "}
+      {courseId && (
+        <Menu>
           <OnlyRenderIfPermissions
             action={{
               type: "teach",
@@ -67,29 +67,32 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           >
             <li>
               <a href={manageCourseRoute(courseId)}>
-                <Button variant="primary" size="medium">
+                <Button
+                  className={css`
+                    color: ${baseTheme.colors.green[600]}!important;
+                  `}
+                  variant="primary"
+                  size="medium"
+                >
                   {t("button-text-manage-course")}
                 </Button>
               </a>
             </li>
           </OnlyRenderIfPermissions>
-        )}
-        {courseId && (
-            <li>
-              <Button
-                className={css`
-                  color: ${baseTheme.colors.green[600]}!important;
-                `}
-                size="medium"
-                variant="primary"
-                onClick={() => {
-                  setShowSettings(true)
-                }}
-              >
-                {t("settings")}
-              </Button>
-            </li>
-          )}
+          <li>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+              onClick={() => {
+                setShowSettings(true)
+              }}
+            >
+              {t("settings")}
+            </Button>
+          </li>
           <li className={cx(styles)}>
             <Button
               className={css`
@@ -101,39 +104,40 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
             >
               {t("log-out")}
             </Button>
-          </li>
+          </li>{" "}
         </Menu>
+      )}
+    </>
   ) : (
-      <Menu>
-        <li className={cx(styles)}>
-          <a href={signUpPathWithReturnTo}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]}!important;
-              `}
-              size="medium"
-              variant="primary"
-            >
-              {t("create-new-account")}
-            </Button>
-          </a>
-        </li>
-        <li className={cx(styles)}>
-          <a href={loginPathWithReturnTo}>
-            <Button
-              className={css`
-                color: ${baseTheme.colors.green[600]}!important;
-              `}
-              size="medium"
-              variant="primary"
-            >
-              {t("log-in")}
-            </Button>
-          </a>
-        </li>
-      </Menu>
-
-
-  ) </>}
+    <Menu>
+      <li className={cx(styles)}>
+        <a href={signUpPathWithReturnTo}>
+          <Button
+            className={css`
+              color: ${baseTheme.colors.green[600]}!important;
+            `}
+            size="medium"
+            variant="primary"
+          >
+            {t("create-new-account")}
+          </Button>
+        </a>
+      </li>
+      <li className={cx(styles)}>
+        <a href={loginPathWithReturnTo}>
+          <Button
+            className={css`
+              color: ${baseTheme.colors.green[600]}!important;
+            `}
+            size="medium"
+            variant="primary"
+          >
+            {t("log-in")}
+          </Button>
+        </a>
+      </li>
+    </Menu>
+  )
+}
 
 export default UserNavigationControls

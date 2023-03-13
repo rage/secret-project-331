@@ -22,12 +22,13 @@ import {
   typography,
 } from "../../shared-module/styles"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+
 import {
   FigureOutNewLangCode,
   FigureOutNewUrl,
   GetLanguageFlag,
   GetLanguageName,
-} from "../modals/ChooseCourseLanguage"
+} from "./ChooseCourseLanguage"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // eslint-disable-next-line i18next/no-literal-string
@@ -182,14 +183,13 @@ const CourseInstanceSelectModal: React.FC<
 
   const handleSubmitAndClose = useCallback(
     async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
+      const LANGUAGE_COOKIE_KEY = "selected-language"
+      const newLanguage = newLangcode ?? ""
+      const selectedLanguage = newLanguage.split("-")
+      i18n.changeLanguage(newLanguage)
+      // eslint-disable-next-line i18next/no-literal-string
+      document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
       if (languageChanged) {
-        const LANGUAGE_COOKIE_KEY = "selected-language"
-        const newLanguage = newLangcode ?? ""
-        const selectedLanguage = newLanguage.split("-")
-        i18n.changeLanguage(newLanguage)
-        // eslint-disable-next-line i18next/no-literal-string
-        document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
-
         window.location.assign(newUrl ?? "")
 
         return

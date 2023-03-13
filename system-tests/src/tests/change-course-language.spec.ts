@@ -12,7 +12,7 @@ test("test", async ({ page, headless }) => {
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
   await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
-  await page.getByLabel("Default").first().check()
+  await page.getByText("Default").first().check()
   await page.getByRole("button", { name: "Continue" }).click()
 
   await page.getByRole("button", { name: "Open menu" }).click()
@@ -27,7 +27,7 @@ test("test", async ({ page, headless }) => {
   const value = await page.$("#changeLanguage")
   value?.selectOption([{ label: "Suomi" }, { value: "af01f8cd-d40c-42af-a4e1-3dc9573765ce,fi-FI" }])
 
-  await page.getByText("Default").count()
+  await page.getByText("Default").first().click()
   await page.getByRole("button", { name: "Continue" }).click()
 
   await page.getByRole("heading", { name: "Kurssin yhteenveto" }).click()
@@ -51,7 +51,7 @@ test("test", async ({ page, headless }) => {
     { value: "049061ba-ac30-49f1-aa9d-b7566dc22b78,en-US" },
   ])
 
-  await page.getByText("Oletus").count()
+  await page.getByText("Oletus").first().click()
   await page.getByRole("button", { name: "Jatka" }).click()
   await page.getByRole("heading", { name: "Course overview" }).click()
 

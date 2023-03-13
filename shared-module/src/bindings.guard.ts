@@ -1088,6 +1088,19 @@ export function isExerciseSlideSubmissionInfo(obj: unknown): obj is ExerciseSlid
   )
 }
 
+export function isPeerReviewsRecieved(obj: unknown): obj is PeerReviewsRecieved {
+  const typedObj = obj as PeerReviewsRecieved
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["peer_review_questions"]) &&
+    typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean) &&
+    Array.isArray(typedObj["peer_review_question_submissions"]) &&
+    typedObj["peer_review_question_submissions"].every(
+      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
+    )
+  )
+}
+
 export function isCourseMaterialExerciseSlide(obj: unknown): obj is CourseMaterialExerciseSlide {
   const typedObj = obj as CourseMaterialExerciseSlide
   return (
@@ -1180,19 +1193,6 @@ export function isExerciseTaskSubmission(obj: unknown): obj is ExerciseTaskSubmi
   )
 }
 
-export function isPeerReviewsRecieved(obj: unknown): obj is PeerReviewsRecieved {
-  const typedObj = obj as PeerReviewsRecieved
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    Array.isArray(typedObj["peer_review_questions"]) &&
-    typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean) &&
-    Array.isArray(typedObj["peer_review_question_submissions"]) &&
-    typedObj["peer_review_question_submissions"].every(
-      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
-    )
-  )
-}
-
 export function isCourseMaterialExerciseTask(obj: unknown): obj is CourseMaterialExerciseTask {
   const typedObj = obj as CourseMaterialExerciseTask
   return (
@@ -1247,12 +1247,7 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
     (isCourseMaterialExerciseSlide(typedObj["current_exercise_slide"]) as boolean) &&
     (typedObj["exercise_status"] === null ||
       (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
-    ((typedObj["exercise_slide_submission_counts"] !== null &&
-      typeof typedObj["exercise_slide_submission_counts"] === "object") ||
-      typeof typedObj["exercise_slide_submission_counts"] === "function") &&
-    Object.entries<any>(typedObj["exercise_slide_submission_counts"]).every(
-      ([key, value]) => typeof value === "number" && typeof key === "string",
-    ) &&
+    (isPointMap(typedObj["exercise_slide_submission_counts"]) as boolean) &&
     (typedObj["peer_review_config"] === null ||
       (isCourseMaterialPeerReviewConfig(typedObj["peer_review_config"]) as boolean)) &&
     (typedObj["previous_exercise_slide_submission"] === null ||

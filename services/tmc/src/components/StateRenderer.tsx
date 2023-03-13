@@ -2,6 +2,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 import { IframeState } from "../util/stateInterfaces"
@@ -23,11 +24,23 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({ state,
   }
 
   if (state.viewType === "exercise-editor") {
-    return <ExerciseEditor state={state} setState={setState} />
+    return (
+      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+        <ExerciseEditor state={state} setState={setState} />
+      </div>
+    )
   } else if (state.viewType === "answer-exercise") {
-    return <AnswerExercise initialPublicSpec={state.initialPublicSpec} setState={setState} />
+    return (
+      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+        <AnswerExercise initialPublicSpec={state.initialPublicSpec} setState={setState} />
+      </div>
+    )
   } else if (state.viewType === "view-submission") {
-    return <ViewSubmission state={state} />
+    return (
+      <div id={EXERCISE_SERVICE_CONTENT_ID}>
+        <ViewSubmission state={state} />
+      </div>
+    )
   }
 
   return <>{t("waiting-for-content")}</>

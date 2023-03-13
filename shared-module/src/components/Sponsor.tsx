@@ -15,7 +15,7 @@ const Container = styled.div`
     font-size: clamp(28px, 3vw, 30px);
     color: ${baseTheme.colors.gray[700]};
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     opacity: 0.9;
   }
   ${respondToOrLarger.xxs} {
@@ -40,7 +40,7 @@ const SponsorBox = styled.div`
   justify-content: center;
   align-items: center;
   align-content: center;
-  gap: 30px;
+  gap: 10px;
   img {
     display: flex;
     align-self: center;
@@ -59,7 +59,7 @@ const SponsorLogo = styled.div<StyledSponsor>`
 
   img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 80px;
   }
 
   @media (max-width: 767.98px) {

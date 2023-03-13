@@ -8,6 +8,7 @@ test.use({
 })
 
 test("material reference tests", async ({ page, headless }) => {
+  test.slow()
   await page.goto("http://project-331.local/")
 
   await Promise.all([

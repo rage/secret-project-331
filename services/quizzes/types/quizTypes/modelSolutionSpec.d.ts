@@ -2,23 +2,20 @@ type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_ful
 
 export interface QuizItemOption {
   id: string
-  quizItemId?: string
   order: number
   correct: boolean
-  createdAt: Date
-  updatedAt: Date
   title: string
   body: string | null
   messageAfterSubmissionWhenSelected: null | string
   additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
-export interface PrivateSpecQuiz {
+export interface ModelSolutionQuiz {
   version: "2"
   id: string
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
-  items: PrivateSpecQuizItem[]
+  items: ModelSolutionQuizItem[]
   title: string
   body: string
   submitMessage: string | null
@@ -51,18 +48,18 @@ type multipleChoiceMultipleOptionsGradingPolicy =
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
 
-export type PrivateSpecQuizItem =
-  | PrivateSpecQuizItemMultiplechoice
-  | PrivateSpecQuizItemEssay
-  | PrivateSpecQuizItemScale
-  | PrivateSpecQuizItemCheckbox
-  | PrivateSpecQuizItemClosedEndedQuestion
-  | PrivateSpecQuizItemMatrix
-  | PrivateSpecQuizItemTimeline
-  | PrivateSpecQuizItemChooseN
-  | PrivateSpecQuizItemMultiplechoiceDropdown
+export type ModelSolutionQuizItem =
+  | ModelSolutionQuizItemMultiplechoice
+  | ModelSolutionQuizItemEssay
+  | ModelSolutionQuizItemScale
+  | ModelSolutionQuizItemCheckbox
+  | ModelSolutionQuizItemClosedEndedQuestion
+  | ModelSolutionQuizItemMatrix
+  | ModelSolutionQuizItemTimeline
+  | ModelSolutionQuizItemChooseN
+  | ModelSolutionQuizItemMultiplechoiceDropdown
 
-export interface PrivateSpecQuizItemMultiplechoice {
+export interface ModelSolutionQuizItemMultiplechoice {
   type: "multiple-choice"
   shuffleOptions: boolean
   id: string
@@ -78,7 +75,7 @@ export interface PrivateSpecQuizItemMultiplechoice {
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
 
-export interface PrivateSpecQuizItemEssay {
+export interface ModelSolutionQuizItemEssay {
   type: "essay"
   id: string
   order: number
@@ -90,7 +87,7 @@ export interface PrivateSpecQuizItemEssay {
   failureMessage: string | null
 }
 
-export interface PrivateSpecQuizItemScale {
+export interface ModelSolutionQuizItemScale {
   type: "scale"
   id: string
   order: number
@@ -104,7 +101,7 @@ export interface PrivateSpecQuizItemScale {
   failureMessage: string | null
 }
 
-export interface PrivateSpecQuizItemCheckbox {
+export interface ModelSolutionQuizItemCheckbox {
   type: "checkbox"
   id: string
   order: number
@@ -114,11 +111,10 @@ export interface PrivateSpecQuizItemCheckbox {
   failureMessage: string | null
 }
 
-export interface PrivateSpecQuizItemClosedEndedQuestion {
+export interface ModelSolutionQuizItemClosedEndedQuestion {
   type: "closed-ended-question"
   id: string
   order: number
-  validityRegex: string | null
   formatRegex: string | null
   title: string
   body: string
@@ -126,7 +122,7 @@ export interface PrivateSpecQuizItemClosedEndedQuestion {
   failureMessage: string | null
 }
 
-export interface PrivateSpecQuizItemMatrix {
+export interface ModelSolutionQuizItemMatrix {
   type: "matrix"
   id: string
   order: number
@@ -135,16 +131,26 @@ export interface PrivateSpecQuizItemMatrix {
   failureMessage: string | null
 }
 
-export interface PrivateSpecQuizItemTimeline {
+export interface ModelSolutionQuizItemTimelineItem {
+  id: string
+  /** The year the student is supposed to match to an event. */
+  year: string
+  /** The event the student is supposed choose from the dropdown menu */
+  correctEventName: string
+  /** Generated id for the correct event that allows us to identify the event even if the teacher has decided the edit the event name afterwards. This makes this exercise resilient to typo fixes. */
+  correctEventId: string
+}
+
+export interface ModelSolutionQuizItemTimeline {
   type: "timeline"
   id: string
   order: number
   successMessage: string | null
   failureMessage: string | null
-  timelineItems: QuizItemTimelineItem[] | null
+  timelineItems: ModelSolutionQuizItemTimelineItem[] | null
 }
 
-export interface PrivateSpecQuizItemChooseN {
+export interface ModelSolutionQuizItemChooseN {
   type: "choose-n"
   id: string
   order: number
@@ -156,7 +162,7 @@ export interface PrivateSpecQuizItemChooseN {
   failureMessage: string | null
 }
 
-export interface PrivateSpecQuizItemMultiplechoiceDropdown {
+export interface ModelSolutionQuizItemMultiplechoiceDropdown {
   type: "multiple-choice-dropdown"
   id: string
   order: number

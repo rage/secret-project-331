@@ -72,7 +72,6 @@
   "grade": "Arvosana",
   "grading-failed": "Tehtävän arvostelu epäonnistui",
   "grading-fully-graded": "Tehtävä arvioitu",
-  "grading-not-ready": "Tehtävää ei ole vielä arvosteltu",
   "grading-pending": "Tehtävän arvostelu odottaa",
   "grading-pending-manual": "Tehtävä odottaa manuaalista arviointia",
   "help-text-answer-has-been-reviewed-and-locked": "Vastauksesi on arvioitu ja arvosteltu. Uusia palautuksia ei enää hyväksytä",

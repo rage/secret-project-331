@@ -3,16 +3,22 @@ import { Namespace, TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { GradingProgress, ReviewingStage } from "../../../../shared-module/bindings"
+import {
+  CourseMaterialPeerReviewConfig,
+  GradingProgress,
+  ReviewingStage,
+} from "../../../../shared-module/bindings"
 import { baseTheme } from "../../../../shared-module/styles"
 
 interface GradingStateProps {
   gradingProgress: GradingProgress
   reviewingStage: ReviewingStage
+  peerReviewConfig: CourseMaterialPeerReviewConfig | null
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
   reviewingStage,
+  peerReviewConfig,
 }) => {
   const { t } = useTranslation()
   if (reviewingStage === "NotStarted" && gradingProgress === "FullyGraded") {
@@ -29,7 +35,7 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
         text-align: center;
       `}
     >
-      <p>{getText(reviewingStage, gradingProgress, t)}</p>
+      <p>{getText(reviewingStage, gradingProgress, peerReviewConfig, t)}</p>
     </div>
   )
 }
@@ -37,8 +43,14 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
 const getText = (
   reviewingStage: ReviewingStage,
   gradingProgress: GradingProgress,
+  peerReviewConfig: CourseMaterialPeerReviewConfig | null,
   t: TFunction<Namespace<"course-material">, undefined, Namespace<"course-material">>,
 ) => {
+  if (peerReviewConfig && reviewingStage === "NotStarted") {
+    return t("help-text-exercise-involves-peer-review", {
+      peer_reviews_to_give: peerReviewConfig.peer_reviews_to_give,
+    })
+  }
   if (reviewingStage === "NotStarted") {
     switch (gradingProgress) {
       case "Failed":
@@ -46,7 +58,7 @@ const getText = (
       case "FullyGraded":
         return t("grading-fully-graded")
       case "NotReady":
-        return t("grading-not-ready")
+        return ""
       case "Pending":
         return t("grading-pending")
       case "PendingManual":

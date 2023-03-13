@@ -35,3 +35,20 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container-cronjob"
+
+# Patch replicas
+replicas:
+  - name: course-material
+    count: 1
+  - name: quizzes
+    count: 1
+  - name: tmc
+    count: 1
+  - name: example-exercise
+    count: 1
+  - name: main-frontend
+    count: 1
+  - name: cms
+    count: 1
+  - name: headless-lms
+    count: 1

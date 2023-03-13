@@ -64,3 +64,20 @@ images:
     newName: eu.gcr.io/moocfi-public/secret-project-cms-production-slim:latest
   - name: headless-lms
     newName: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim:latest
+
+# Patch replicas
+replicas:
+  - name: course-material
+    count: 2
+  - name: quizzes
+    count: 1
+  - name: tmc
+    count: 1
+  - name: example-exercise
+    count: 1
+  - name: main-frontend
+    count: 1
+  - name: cms
+    count: 1
+  - name: headless-lms
+    count: 2

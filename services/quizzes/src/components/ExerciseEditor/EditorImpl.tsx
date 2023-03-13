@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
-import { PrivateSpecQuiz } from "../../../types/quizTypes"
+import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../../contexts/QuizzesExerciseServiceContext"
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
 import Button from "../../shared-module/components/Button"
 import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
+import { migratePrivateSpecQuiz } from "../../util/migration/privateSpecQuiz"
 import { denormalizeData, normalizeData } from "../../util/normalizerFunctions"
-import { migrateQuiz } from "../../util/quizMigration"
 import BasicInformation from "../QuizEditForms/BasicInfo"
 import QuizItems from "../QuizEditForms/QuizItems"
 import QuizItemsV2 from "../QuizV2/QuizCreation"
@@ -36,11 +36,11 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
 
   // Preload migrated quiz
   if (state && !migratedQuiz) {
-    setMigratedQuiz(migrateQuiz(denormalizeData(state)))
+    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
   }
 
   const toggleMode = () => {
-    setMigratedQuiz(migrateQuiz(denormalizeData(state)))
+    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
     setExperimentalMode(!experimentalMode)
   }
 

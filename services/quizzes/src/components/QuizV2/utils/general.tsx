@@ -12,7 +12,7 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
   QuizItemType,
-} from "../../../../types/quizTypes"
+} from "../../../../types/quizTypes/privateSpec"
 
 /**
  * Find quiz item from quiz

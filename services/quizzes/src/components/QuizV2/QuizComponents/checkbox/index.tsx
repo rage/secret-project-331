@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemCheckbox } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemCheckbox } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../../../shared-module/components/InputFields/TextField"

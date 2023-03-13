@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Accordion from "../../../../shared-module/components/Accordion"
 import Button from "../../../../shared-module/components/Button"
@@ -246,12 +246,9 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   additionalCorrectnessExplanationOnModelSolution: "",
                   body: "",
                   correct: correct,
-                  updatedAt: new Date(),
-                  createdAt: new Date(),
                   id: v4(),
                   messageAfterSubmissionWhenSelected: successMessage,
                   title: optionTitle,
-                  quizItemId: draft.id,
                 },
               ]
             })

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
-import { PrivateSpecQuizItemMatrix } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemMatrix } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 

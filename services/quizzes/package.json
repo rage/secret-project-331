@@ -6,7 +6,8 @@
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3004 node server.js",
-    "test": "jest"
+    "test": "jest",
+    "test-silent": "jest --silent"
   },
   "dependencies": {
     "@date-io/date-fns": "^2.16.0",

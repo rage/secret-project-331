@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemOption } from "../../../../../types/quizTypes"
+import { QuizItemOption } from "../../../../../types/quizTypes/privateSpec"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { primaryFont } from "../../../../shared-module/styles"

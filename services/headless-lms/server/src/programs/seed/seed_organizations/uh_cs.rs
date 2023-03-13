@@ -356,6 +356,18 @@ async fn courses_group_1(
         Arc::clone(&jwt_key),
     )
     .await?;
+    let _model_course = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("4dde368a-5e5d-4001-b8aa-13079390f818")?,
+        "Model solutions",
+        "model-solutions",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
     let automatic_completions_id = seed_sample_course(
         &db_pool,
         uh_cs_organization_id,

@@ -1,3 +1,10 @@
+- op: add
+  path: "/spec/tls"
+  value:
+    - hosts:
+        - "*.mooc.fi"
+      secretName: moocfi-wildcard-cert-production
+
 - op: replace
   path: "/spec/rules/0/host"
   value: "*.mooc.fi"

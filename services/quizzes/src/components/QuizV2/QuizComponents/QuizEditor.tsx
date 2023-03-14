@@ -1,4 +1,4 @@
-import { PrivateSpecQuizItem } from "../../../../types/quizTypes"
+import { PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
 
 import CheckboxEditor from "./checkbox"
 import ChooseNEditor from "./choose-n"

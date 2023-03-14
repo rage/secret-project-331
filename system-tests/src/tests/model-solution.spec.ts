@@ -22,7 +22,7 @@ test.describe("Model solutions", () => {
     // Click text=Manage
     await Promise.all([
       page.waitForNavigation(),
-      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+      page.click("[aria-label=\"Manage course 'Model solutions'\"] svg"),
     ])
 
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
@@ -83,25 +83,19 @@ test.describe("Model solutions", () => {
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
-    // Click text=Introduction to Everything
+    // Click text=Model solutions
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything' }*/),
-      page.click("text=Introduction to Everything"),
+      page.waitForNavigation(/*{ url: 'http://project-331.local/courses/model-solutions' }*/),
+      page.click("text=Model solutions"),
     ])
 
     await selectCourseInstanceIfPrompted(page)
     // Click text=Chapter 1: The Basics
     await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
-    await expectUrlPathWithRandomUuid(
-      page,
-      "/org/uh-cs/courses/introduction-to-everything/chapter-1",
-    )
+    await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1")
     // Click text=Page One
     await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
-    await expectUrlPathWithRandomUuid(
-      page,
-      "/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
-    )
+    await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1/page-1")
     // Wait for the frame to be visible
     await page.waitForLoadState("networkidle")
 

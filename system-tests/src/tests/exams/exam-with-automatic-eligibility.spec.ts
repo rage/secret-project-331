@@ -18,7 +18,7 @@ test("Can take exam after enough course points", async ({ headless, page }) => {
       "text=Automatic course exam",
       "text=Submissions are no longer accepted after",
       "text=You have 1 minutes to complete the exam after starting",
-      "text=You are not eligible for taking this exam.",
+      "text=The exam is not open yet. Use this button to access the exam once the exam starts.",
     ],
   })
 

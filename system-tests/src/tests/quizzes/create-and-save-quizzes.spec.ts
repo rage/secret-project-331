@@ -204,7 +204,7 @@ test("create quizzes test", async ({ page }) => {
   const frame6 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
   await scrollToFrame(page, frame6)
 
-  await frame6.locator(`#quiz-option-card-matrix`).click
+  await frame6.locator(`#quiz-option-card-matrix`).click()
   await frame6.locator(`tr:nth-child(1) td:nth-child(1) input`).fill("1")
   await frame6.locator(`tr:nth-child(1) td:nth-child(2) input`).fill("2")
   await frame6.locator(`tr:nth-child(2) td:nth-child(1) input`).fill("3")

@@ -70,7 +70,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "deleted-term",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Deleted")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Deleted").first()],
   })
 
   await page.fill('[placeholder="New term"]', "abcd")

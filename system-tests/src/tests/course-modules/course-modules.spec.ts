@@ -117,7 +117,6 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "after-saving",
     clearNotifications: true,
-    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotOptions: { fullPage: true },
   })
 })

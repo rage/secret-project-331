@@ -45,7 +45,7 @@ export async function fillQuizItemOptionModal(
 
 // TODO: Only call this from `fillQuizItemOptionModal` and don't export.
 export async function closeModal(page: Page, frame: Locator) {
-  await frame.locator(`[aria-label="Close"]`).waitFor()
+  await frame.locator(`[aria-label="Close"]`).click()
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
 }

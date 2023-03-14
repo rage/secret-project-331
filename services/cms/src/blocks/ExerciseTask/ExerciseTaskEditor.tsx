@@ -2,8 +2,9 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faPenSquare, faTrashAlt, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { InnerBlocks } from "@wordpress/block-editor"
+import { store as blockEditorStore, InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
+import { useDispatch } from "@wordpress/data"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -82,7 +83,9 @@ const ExerciseTaskEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
 > = ({ attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
+
   const exerciseServicesQuery = useAllExerciseServices()
+  const { selectBlock } = useDispatch(blockEditorStore)
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -95,6 +98,9 @@ const ExerciseTaskEditor: React.FC<
   }
 
   const toggleEditor = () => {
+    if (!attributes.show_editor) {
+      selectBlock(attributes.id)
+    }
     setAttributes({ show_editor: !attributes.show_editor })
     setPrivateSpecToPostToIframe(attributes.private_spec)
   }

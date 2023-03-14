@@ -277,6 +277,7 @@ const CourseInstanceSelectModal: React.FC<
               font-weight: ${fontWeights.normal};
               font-size: 14px;
               max-width: 300px;
+              line-height: 17px;
               text-align: center;
               color: ${baseTheme.colors.green[700]};
             `}

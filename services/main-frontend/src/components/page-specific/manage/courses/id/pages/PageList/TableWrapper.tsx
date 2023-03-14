@@ -16,7 +16,7 @@ const TableWrapper: React.FC<React.PropsWithChildren<{ className?: string }>> = 
         css`
           overflow-x: scroll;
           width: 100%;
-          ${respondToOrLarger.sm}         {
+          ${respondToOrLarger.sm} {
             overflow-x: visible;
           }
         `,

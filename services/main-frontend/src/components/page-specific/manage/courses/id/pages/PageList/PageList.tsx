@@ -67,7 +67,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
         background-color: white;
         padding: 2rem 1rem;
 
-        ${respondToOrLarger.sm}       {
+        ${respondToOrLarger.sm} {
           padding: 2rem 2rem;
         }
 

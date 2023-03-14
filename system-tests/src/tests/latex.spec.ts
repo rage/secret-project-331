@@ -82,7 +82,8 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page
     .locator('[aria-label="Empty block\\; start writing or type forward slash to choose a block"]')
-    .click()
+    // eslint-disable-next-line playwright/no-force-option
+    .click({ force: true })
 
   await page
     .locator('[aria-label="Empty block\\; start writing or type forward slash to choose a block"]')
@@ -101,6 +102,8 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(
     `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
+    // eslint-disable-next-line playwright/no-force-option
+    { force: true },
   )
   await page.type(
     `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,

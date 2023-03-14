@@ -177,7 +177,7 @@ test("test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
-    await page.locator("text=System Testing").click(),
+    await page.locator("text=System Testing").first().click(),
   ])
   await expectUrlPathWithRandomUuid(
     page,

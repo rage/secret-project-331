@@ -2,9 +2,8 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faPenSquare, faTrashAlt, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { store as blockEditorStore, InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import { useDispatch } from "@wordpress/data"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -85,7 +84,6 @@ const ExerciseTaskEditor: React.FC<
   const dispatch = useContext(EditorContentDispatch)
 
   const exerciseServicesQuery = useAllExerciseServices()
-  const { selectBlock } = useDispatch(blockEditorStore)
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -98,9 +96,6 @@ const ExerciseTaskEditor: React.FC<
   }
 
   const toggleEditor = () => {
-    if (!attributes.show_editor) {
-      selectBlock(attributes.id)
-    }
     setAttributes({ show_editor: !attributes.show_editor })
     setPrivateSpecToPostToIframe(attributes.private_spec)
   }
@@ -188,6 +183,24 @@ const ExerciseTaskEditor: React.FC<
                     padding: 1rem;
                     border: 1px solid black;
                     margin-bottom: 2rem;
+
+                    .block-list-appender:not(:first-child) {
+                      position: relative;
+                      top: -40px;
+                      margin: 0;
+
+                      .block-editor-inserter {
+                        line-height: 0;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                      }
+
+                      .block-editor-default-block-appender__content {
+                        height: 0px;
+                      }
+                    }
+
                     ${gutenbergControlsVisible}
                   `}
                 >

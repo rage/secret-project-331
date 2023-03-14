@@ -7,8 +7,6 @@ import PageContext from "../../../contexts/PageContext"
 import useIsPageChapterFrontPage from "../../../hooks/useIsPageChapterFrontPage"
 import Check from "../../../img/checkmark.svg"
 import { Block } from "../../../services/backend"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../shared-module/components/Centering/Centered"
 import { baseTheme, headingFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
@@ -17,7 +15,6 @@ import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMateria
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`
   margin: 2rem auto;
-  max-width: 1000px;
   background: #f0f5f5;
   padding: 1.5rem 2.2rem;
   height: auto;
@@ -93,28 +90,22 @@ const LearningObjectiveSectionBlock: React.FC<
   const childHtmls = parseListBlock(data)
 
   return (
-    <BreakFromCentered sidebar={false}>
-      <Centered variant="default">
-        <Wrapper>
-          <Header>
-            <h2>{heading}</h2>
-          </Header>
-          <Content>
-            <div>
-              {data &&
-                childHtmls.map((childHtml, n) => (
-                  <StyledObjectives key={n}>
-                    <StyledCheck />
-                    <span
-                      dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }}
-                    />
-                  </StyledObjectives>
-                ))}
-            </div>
-          </Content>
-        </Wrapper>
-      </Centered>
-    </BreakFromCentered>
+    <Wrapper>
+      <Header>
+        <h2>{heading}</h2>
+      </Header>
+      <Content>
+        <div>
+          {data &&
+            childHtmls.map((childHtml, n) => (
+              <StyledObjectives key={n}>
+                <StyledCheck />
+                <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }} />
+              </StyledObjectives>
+            ))}
+        </div>
+      </Content>
+    </Wrapper>
   )
 }
 

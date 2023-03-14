@@ -173,6 +173,12 @@ pub async fn authenticate_test_user(
         crate::users::get_by_email(conn, "assistant@example.com").await?
     } else if email == "creator@example.com" && password == "creator" {
         crate::users::get_by_email(conn, "creator@example.com").await?
+    } else if email == "student1@example.com" && password == "student.1" {
+        crate::users::get_by_email(conn, "student1@example.com").await?
+    } else if email == "student2@example.com" && password == "student.2" {
+        crate::users::get_by_email(conn, "student2@example.com").await?
+    } else if email == "student3@example.com" && password == "student.3" {
+        crate::users::get_by_email(conn, "student3@example.com").await?
     } else {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,

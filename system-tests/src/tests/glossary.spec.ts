@@ -7,7 +7,8 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("glossary test", async ({ page, headless }, testInfo) => {
+  test.slow()
   await page.goto("http://project-331.local/")
 
   await Promise.all([
@@ -69,6 +70,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "deleted-term",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Deleted")],
   })
 
   await page.fill('[placeholder="New term"]', "abcd")

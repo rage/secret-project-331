@@ -9,6 +9,7 @@ import LandingPageHeroSectionSave from "./LandingPageHeroSectionSave"
 export interface LandingPageHeroSectionAttributes {
   title: string
   backgroundColor: string
+  fontColor: string
   backgroundImage: string | undefined
   backgroundRepeatX: boolean | undefined
 }
@@ -28,6 +29,10 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
     backgroundColor: {
       type: "string",
       default: "#FFFFFF",
+    },
+    fontColor: {
+      type: "string",
+      default: "#000000",
     },
     backgroundImage: {
       type: "string",

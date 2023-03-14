@@ -551,6 +551,11 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
+export interface PeerReviewsRecieved {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+}
+
 export interface CourseMaterialExerciseSlide {
   id: string
   exercise_tasks: Array<CourseMaterialExerciseTask>
@@ -610,11 +615,6 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
-}
-
-export interface PeerReviewsRecieved {
-  peer_review_questions: Array<PeerReviewQuestion>
-  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
 }
 
 export interface CourseMaterialExerciseTask {

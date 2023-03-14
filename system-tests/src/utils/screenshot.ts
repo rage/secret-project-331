@@ -35,6 +35,8 @@ const viewPorts = {
 type ScreenshotOptions = Parameters<ReturnType<typeof expect<Locator>>["toHaveScreenshot"]>[0]
 type PageScreenshotOptions = Parameters<ReturnType<typeof expect<Page>>["toHaveScreenshot"]>[0]
 
+type ViewPortDict = { [Property in keyof typeof viewPorts]: number }
+
 interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   headless: boolean | undefined
   snapshotName: string
@@ -44,7 +46,7 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   axeSkip?: string[]
   skipMobile?: boolean
   /** If defined, the page will scroll to this y coordinate before taking the screenshot */
-  scrollToYCoordinate?: number
+  scrollToYCoordinate?: number | ViewPortDict
   /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
   replaceSomePartsWithPlaceholders?: boolean
   testInfo: TestInfo
@@ -104,8 +106,10 @@ export default async function expectScreenshotsToMatchSnapshots({
           for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
             notif.remove()
           }
-          for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
-            notif.remove()
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>(".toast-notification"),
+          )) {
+            notif.style.display = "none"
           }
         })
       }
@@ -203,11 +207,19 @@ async function snapshotWithViewPort({
 
   // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
   if (scrollToYCoordinate) {
-    await page.evaluate(async (coord) => {
-      window.scrollTo(0, coord)
-    }, scrollToYCoordinate)
-    // 100ms was not enough at the time of writing this
-    await page.waitForTimeout(200)
+    if (typeof scrollToYCoordinate === "number") {
+      await page.evaluate(async (coord) => {
+        window.scrollTo(0, coord)
+      }, scrollToYCoordinate)
+      // 100ms was not enough at the time of writing this
+      await page.waitForTimeout(200)
+    } else {
+      await page.evaluate(async (coord) => {
+        window.scrollTo(0, coord)
+      }, scrollToYCoordinate[viewPortName])
+      // 100ms was not enough at the time of writing this
+      await page.waitForTimeout(200)
+    }
   }
 
   const screenshotName = `${snapshotName.replace(

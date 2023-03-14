@@ -1,4 +1,5 @@
 import { devices, LaunchOptions, PlaywrightTestConfig, ReporterDescription } from "@playwright/test"
+import { freemem } from "os"
 
 function envToNumber(env: string, defaultNumber: number) {
   try {
@@ -7,6 +8,10 @@ function envToNumber(env: string, defaultNumber: number) {
     return defaultNumber
   }
 }
+
+const freeMemoryGB = freemem() / (1024 * 1024 * 1024)
+// If more than 10Gb use all cores, otherwise use half
+const defaultWorkersAmount = freeMemoryGB > 10 ? "50%" : "100%"
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
@@ -19,6 +24,8 @@ const config: PlaywrightTestConfig = {
   timeout: 100000,
   testDir: "./src/tests",
   snapshotPathTemplate: "./src/__screenshots__/{testFilePath}/{arg}{ext}",
+
+  workers: process.env.SECRET_PROJECT_SYSTEM_TEST_WORKERS ?? defaultWorkersAmount,
   use: {
     navigationTimeout: 15000,
     actionTimeout: 15000,
@@ -49,7 +56,6 @@ const config: PlaywrightTestConfig = {
       },
     },
   ],
-  workers: process.env.SECRET_PROJECT_SYSTEM_TEST_WORKERS,
 }
 
 if (!config.use) {
@@ -80,6 +86,7 @@ if (process.env.HTML) {
 
 if (process.env.CI) {
   const reporters = config.reporter as ReporterDescription[]
+  config.workers = "50%"
   config.reporter = [["github"], ...reporters]
 }
 

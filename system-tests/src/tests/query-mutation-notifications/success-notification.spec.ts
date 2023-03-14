@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { showToasInfinitely, showToastNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -16,6 +17,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.fill('input[label="Title"]', "New title")
 
   await page.click(`button:text-is("Save") >> visible=true`)
+  await showToasInfinitely(page)
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -23,4 +25,5 @@ test("test", async ({ page, headless }, testInfo) => {
     snapshotName: "success-notification-test",
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first().first()],
   })
+  await showToastNormally(page)
 })

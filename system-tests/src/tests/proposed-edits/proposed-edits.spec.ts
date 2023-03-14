@@ -160,7 +160,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.click('text="Send"')
 
-  await page.click('text="Change requests"')
+  await page.getByText("Operation successful!").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -169,6 +169,7 @@ test("test", async ({ page, headless }, testInfo) => {
     snapshotName: "manage-after-send",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Reject").first()],
     clearNotifications: true,
+    scrollToYCoordinate: 0,
   })
 
   await page.click('text="Old"')
@@ -179,6 +180,7 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "manage-old-after-send",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Accepted").first()],
+    scrollToYCoordinate: 0,
   })
 
   await page.locator("text=Pending 2").click()
@@ -205,5 +207,6 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "after-changes",
     waitForTheseToBeVisibleAndStable: [page1.locator("text=Like this!!!!!")],
+    scrollToYCoordinate: 0,
   })
 })

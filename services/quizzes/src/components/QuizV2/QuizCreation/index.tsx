@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuiz } from "../../../../types/quizTypes"
+import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
 import Button from "../../../shared-module/components/Button"
 import QuizEditor from "../QuizComponents/QuizEditor"

@@ -46,6 +46,7 @@ import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
 import InfoBox from "./moocfi/InfoBox"
+import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
@@ -132,6 +133,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/partners": PartnersBlock,
   "moocfi/highlightbox": HighlightBox,
+  "moocfi/instructionbox": InstructionBoxBlock,
   "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
@@ -246,6 +248,8 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     <div
       className={css`
         font-size: 20px;
+        text-underline-offset: 4.6px;
+        text-decoration-thickness: 1.6px;
 
         a {
           color: #1072ea;

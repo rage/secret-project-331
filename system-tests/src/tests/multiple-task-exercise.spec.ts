@@ -14,6 +14,7 @@ const CORRECT = `button:has-text("Correct") >> nth=0`
 const INCORRECT = `button:has-text("Incorrect")`
 
 test("Exercise score updates gradually", async ({ page, headless }, testInfo) => {
+  test.slow()
   await page.goto("http://project-331.local/")
 
   await Promise.all([

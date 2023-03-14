@@ -101,6 +101,7 @@ RETURNING id
 
 pub async fn upsert_with_id(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     cms_peer_review: &CmsPeerReviewConfig,
 ) -> ModelResult<CmsPeerReviewConfig> {
     let res = sqlx::query_as!(
@@ -130,7 +131,7 @@ RETURNING id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy:_";"#,
-        cms_peer_review.id,
+        pkey_policy.into_uuid(),
         cms_peer_review.course_id,
         cms_peer_review.exercise_id,
         cms_peer_review.peer_reviews_to_give,
@@ -417,8 +418,12 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     peer_review_configuration: &CmsPeerReviewConfiguration,
 ) -> ModelResult<CmsPeerReviewConfiguration> {
     // Upsert peer review
-    let peer_review_config =
-        upsert_with_id(conn, &peer_review_configuration.peer_review_config).await?;
+    let peer_review_config = upsert_with_id(
+        conn,
+        PKeyPolicy::Fixed(peer_review_configuration.peer_review_config.id),
+        &peer_review_configuration.peer_review_config,
+    )
+    .await?;
 
     // Upsert peer review questions
     let previous_peer_review_question_ids =

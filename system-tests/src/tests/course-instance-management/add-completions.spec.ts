@@ -60,6 +60,7 @@ test("test", async ({ page, headless }, testInfo) => {
       page.locator("text=Users receiving a completion for the first time"),
     ],
     screenshotTarget: page,
+    clearNotifications: true,
   })
 
   await page.locator('button:has-text("Submit")').click()
@@ -92,6 +93,7 @@ test("test", async ({ page, headless }, testInfo) => {
       page.getByRole("button", { name: "Submit" }),
     ],
     screenshotTarget: page,
+    clearNotifications: true,
   })
 
   await page.locator('button:has-text("Submit")').click()

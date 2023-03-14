@@ -33,6 +33,7 @@ import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
+import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
 import PeerReviewReceived from "./PeerReviewView/PeerReviewReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
@@ -206,6 +207,7 @@ const ExerciseBlock: React.FC<
   const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
 
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
+  const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
   return (
     <BreakFromCentered sidebar={false}>
       {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
@@ -314,29 +316,16 @@ const ExerciseBlock: React.FC<
               </DeadlineText>
             ))}
 
-          {getCourseMaterialExercise.data.peer_review_config && (
-            <div
-              className={css`
-                padding: 1rem;
-                background-color: ${baseTheme.colors.yellow[200]};
-                color: #493f13;
-                margin: 1rem 0;
-                font-size: clamp(10px, 2.5vw, 16px);
-                text-align: center;
-              `}
-            >
-              {reviewingStage === "ReviewedAndLocked"
-                ? t("help-text-answer-has-been-reviewed-and-locked")
-                : t("help-text-exercise-involves-peer-review", {
-                    peer_reviews_to_give:
-                      getCourseMaterialExercise.data.peer_review_config.peer_reviews_to_give,
-                  })}
-            </div>
+          {getCourseMaterialExercise.data.peer_review_config && gradingState && reviewingStage && (
+            <GradingState
+              gradingProgress={gradingState}
+              reviewingStage={reviewingStage}
+              peerReviewConfig={getCourseMaterialExercise.data.peer_review_config}
+            />
           )}
           {/* Reviewing stage seems to be undefined at least for exams */}
-          {(reviewingStage === undefined ||
-            reviewingStage === "NotStarted" ||
-            reviewingStage === "ReviewedAndLocked") &&
+          {reviewingStage !== "PeerReview" &&
+            reviewingStage !== "SelfReview" &&
             getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
               <ExerciseTask
                 key={task.id}

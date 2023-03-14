@@ -48,6 +48,8 @@ async function createLoginStates() {
     { email: "teacher@example.com", password: "teacher" },
     { email: "language.teacher@example.com", password: "language.teacher" },
     { email: "user@example.com", password: "user" },
+    { email: "student1@example.com", password: "student.1" },
+    { email: "student2@example.com", password: "student.2" },
     { email: "assistant@example.com", password: "assistant" },
     { email: "creator@example.com", password: "creator" },
   ]

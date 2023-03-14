@@ -54,5 +54,6 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
     beforeScreenshot: async () => {
       await replaceTimeComponentDates(page)
     },
+    clearNotifications: true,
   })
 })

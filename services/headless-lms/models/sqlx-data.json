@@ -15623,6 +15623,22 @@
     },
     "query": "\nDELETE FROM page_visit_datum_daily_visit_hashing_keys WHERE valid_for_date < $1\n    "
   },
+  "cba4bfc5b328ead58a3c14aa30439ef9daf47a9d25c72f6343d53b8f233965e1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Bool", "Bool", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercises\nSET use_course_default_peer_review_config = $1,\n  needs_peer_review = $2\nWHERE id = $3\nRETURNING id;\n        "
+  },
   "cbe5322e580b9612ae14b75c27f8012cea260ba0bc542c3f2dc6eb2ea7b2cff4": {
     "describe": {
       "columns": [
@@ -17391,6 +17407,47 @@
       }
     },
     "query": "\nSELECT s.*\nFROM exercise_slides s\n  JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)\nWHERE t.id = $1\n  AND t.deleted_at IS NULL\n  AND s.deleted_at IS NULL;\n    "
+  },
+  "de7485bc018960c303ee499788716012ce193074e5f41eb7fd8f02ad04941c4b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "domain",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Text"]
+      }
+    },
+    "query": "\nSELECT * FROM other_domain_to_course_redirections\nWHERE domain = $1 AND deleted_at IS NULL\n"
   },
   "debb71ad011d9e3973c03668f6f2e738f672314b7b0b12d11e7ac338652b79f5": {
     "describe": {

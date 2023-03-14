@@ -28,10 +28,12 @@ const Wrapper = styled.div<WrapperProps>`
 
   h2 {
     z-index: 20;
+    width: ${({ length }) => length > 6 && "800px"};
     font-size: clamp(30px, 3.5vw, 48px);
     font-style: normal;
     font-weight: 700;
     text-align: center;
+    margin: 0 auto;
     color: ${baseTheme.colors.gray[700]};
     padding-bottom: 1em;
     line-height: 120%;
@@ -40,19 +42,21 @@ const Wrapper = styled.div<WrapperProps>`
 
 const TextBox = styled.div`
   display: grid;
+  width: 100%;
   grid-auto-flow: none;
   grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fill, auto);
   margin-bottom: 1rem;
-  gap: 1rem;
+  gap: 0.8em;
   justify-content: center;
 
   ${respondToOrLarger.lg} {
     padding: 0rem 0rem;
     grid-template-columns: repeat(3, 1fr);
-    grid-auto-flow: column;
   }
 
   h3 {
+    opacity: 0.8;
     text-align: left;
     padding-right: 0;
 
@@ -72,6 +76,7 @@ const Objective = styled.div<StyledObjectiveProps>`
 
   .paragraph {
     text-align: left;
+    font-size: 18px;
   }
 
   .list {
@@ -131,10 +136,10 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                 {innerBlocks && innerBlocks[0].name === "core/heading" && (
                   <h3
                     className={css`
-                      font-size: 20px !important;
+                      font-size: 18px !important;
                       z-index: 20;
                       line-height: 120%;
-                      margin-bottom: 1rem;
+                      margin-bottom: 0.8rem;
                       font-style: normal;
                       font-weight: 600;
                       text-align: left;

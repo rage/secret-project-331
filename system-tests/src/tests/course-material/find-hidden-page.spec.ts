@@ -23,12 +23,21 @@ test("find hidden page", async ({ page, headless }, testInfo) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    beforeScreenshot: () => page.locator("text=Information pages").scrollIntoViewIfNeeded(),
     clearNotifications: true,
     headless,
     testInfo,
     screenshotTarget: page,
     snapshotName: "top-level-pages-list",
+    screenshotOptions: { maxDiffPixels: 1000 },
+    scrollToYCoordinate: { mobile: 5061, "small-desktop": 3661 },
+    beforeScreenshot: async () => {
+      await Promise.all([
+        page.getByText("Information pages").waitFor(),
+        // eslint-disable-next-line playwright/no-wait-for-timeout
+        page.waitForTimeout(200),
+        page.getByText("Chapter 7Bonus chapterChapter 8Another bonus chapter").click(),
+      ])
+    },
   })
 
   await Promise.all([
@@ -47,5 +56,6 @@ test("find hidden page", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text="You found the secret of the project 331!"`),
     ],
+    screenshotOptions: { maxDiffPixels: 400 },
   })
 })

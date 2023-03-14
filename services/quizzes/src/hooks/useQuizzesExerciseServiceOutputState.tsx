@@ -1,6 +1,6 @@
 import { Draft } from "immer"
 
-import { PrivateSpecQuiz } from "../../types/quizTypes"
+import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../contexts/QuizzesExerciseServiceContext"
 import useExerciseServiceOutputState from "../shared-module/hooks/exerciseServiceHooks/useExerciseServiceOutputState"
 

@@ -20,7 +20,7 @@ test.describe("Model solutions", () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click(),
+      page.locator("[aria-label=\"Manage course 'Model solutions'\"] svg").click(),
     ])
 
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
@@ -76,22 +76,16 @@ test.describe("Model solutions", () => {
 
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-everything' }*/),
-      page.locator("text=Introduction to Everything").click(),
+      page.locator("text=Model solutions").click(),
     ])
 
     await selectCourseInstanceIfPrompted(page)
 
     await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
-    await expectUrlPathWithRandomUuid(
-      page,
-      "/org/uh-cs/courses/introduction-to-everything/chapter-1",
-    )
+    await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1")
 
     await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
-    await expectUrlPathWithRandomUuid(
-      page,
-      "/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
-    )
+    await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1/page-1")
     // Wait for the frame to be visible
     await page.waitForLoadState("networkidle")
 

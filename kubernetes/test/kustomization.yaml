@@ -15,6 +15,11 @@ patches:
       version: v1
       kind: Ingress
       name: project-331-ingress
+  - path: patch-ingress-other-domains.yml
+    target:
+      version: v1
+      kind: Ingress
+      name: project-331-other-domains
   # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml
     target:
@@ -30,3 +35,20 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container-cronjob"
+
+# Patch replicas
+replicas:
+  - name: course-material
+    count: 1
+  - name: quizzes
+    count: 1
+  - name: tmc
+    count: 1
+  - name: example-exercise
+    count: 1
+  - name: main-frontend
+    count: 1
+  - name: cms
+    count: 1
+  - name: headless-lms
+    count: 1

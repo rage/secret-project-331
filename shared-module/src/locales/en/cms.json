@@ -35,8 +35,10 @@
   "exercises-in-chapter-placeholder": "Exercises In Chapter Placeholder",
   "exercises-in-chapter-placeholder-explanation": "This block is placed on each chapter front page, e.g. /chapter-1/ for listing and navigating to different exercises within chapter.",
   "failed-loading-repository-exercises": "Failed loading repository exercises",
+  "font-color": "Font color",
   "glossary-placeholder": "Glossary Placeholder",
   "glossary-placeholder-explanation": "This block will contain the glossary of the course.",
+  "label-align-center": "Align center",
   "label-email-subject": "Email subject",
   "label-repeat-background-x": "Repeat background horizontally",
   "label-template-name": "Template name",
@@ -58,6 +60,7 @@
   "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes.",
   "pages-in-chapter-placeholder": "Pages in chapter placeholder",
   "pages-in-chapter-placeholder-explanation": "This block is placed on each chapter front page, e.g. /chapter-1/ for navigating to different sub sections easily.",
+  "partially-transparent-background": "Make background image partially transparent",
   "partners-block": "Partners Block",
   "partners-block-description": "Partners block is use to display all partner's logo in the landing page",
   "peer-review-accepting-strategy": "Peer review accepting strategy",
@@ -92,6 +95,7 @@
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
   "use-course-default-peer-review-config": "Use course default peer review config",
+  "use-default-text-for-label": "Use default text for label",
   "welcome-message-for-course": "Welcome message for course...",
   "width-of-table": "Width of table"
 }

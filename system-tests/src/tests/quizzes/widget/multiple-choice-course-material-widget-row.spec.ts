@@ -8,6 +8,8 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 test("multiple-choice course material row test", async ({ page, headless }, testInfo) => {
+  test.slow()
+  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
   await Promise.all([

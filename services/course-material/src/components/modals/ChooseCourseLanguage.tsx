@@ -4,9 +4,8 @@ import { useContext } from "react"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseById, fetchCourseLanguageVersions } from "../../services/backend"
-import Language, {
-  DEFAULT_FLAG_CLIP_PATH,
-} from "../../shared-module/components/LanguageSelection/Language"
+import Language from "../../shared-module/components/LanguageSelection/Language"
+import { baseTheme } from "../../shared-module/styles"
 import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
@@ -81,14 +80,23 @@ const GetLanguageFlag = (LangCode: string) => {
   const LanguageComponent = Language[LangCode]
 
   return (
-    <div>
+    <div
+      className={css`
+        box-sizing: border-box;
+        border: 2px solid ${baseTheme.colors.gray[200]};
+        border-radius: 50%;
+        overflow: hidden;
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        margin-top: 3px;
+      `}
+    >
       {LanguageComponent && (
         <LanguageComponent.image
           className={css`
-            width: 37px;
-            height: 37px;
-            clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
-            margin-left: 35px;
+            margin-left: -8px;
+            height: 28px;
           `}
         />
       )}

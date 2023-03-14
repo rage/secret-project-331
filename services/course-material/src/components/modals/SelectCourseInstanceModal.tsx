@@ -95,7 +95,6 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
         display: flex;
         justify-content: space-between;
         font-family: ${headingFont};
-        font-size: 15px;
         padding-bottom: 1rem;
         align-items: center;
       `}
@@ -105,7 +104,6 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
         className={css`
           font-family: ${primaryFont};
           font-weight: ${fontWeights.normal};
-          line-height: 22px;
           font-size: ${typography.h6};
           color: ${baseTheme.colors.gray[500]};
         `}
@@ -116,6 +114,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       <div
         className={css`
           display: flex;
+          height: 37px;
         `}
       >
         {GetLanguageFlag(langCode)}
@@ -123,9 +122,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           className={css`
             box-sizing: border-box;
             background: #ffffff;
-            border: 1px solid #dddee0;
-            line-height: 22px;
-            height: 37px;
+            border: 2px solid ${baseTheme.colors.gray[200]};
             width: 119px;
           `}
           id="changeLanguage"
@@ -272,7 +269,6 @@ const CourseInstanceSelectModal: React.FC<
             justify-content: center;
             align-items: center;
             border-radius: 0px 0px 4px 4px;
-            padding: 0 125px;
           `}
         >
           <p
@@ -280,11 +276,10 @@ const CourseInstanceSelectModal: React.FC<
               font-family: ${primaryFont};
               font-weight: ${fontWeights.normal};
               font-size: 14px;
-              line-height: 17px;
+              max-width: 300px;
               text-align: center;
               color: ${baseTheme.colors.green[700]};
             `}
-            // eslint-disable-next-line i18next/no-literal-string
           >
             {t("course-language-change-warning")}
           </p>

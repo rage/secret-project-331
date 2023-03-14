@@ -29,7 +29,7 @@ test("find hidden page", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     snapshotName: "top-level-pages-list",
     screenshotOptions: { maxDiffPixels: 1000 },
-    scrollToYCoordinate: { mobile: 5061, "small-desktop": 3661 },
+    scrollToYCoordinate: { "mobile-tall": 5061, "desktop-regular": 3661 },
     beforeScreenshot: async () => {
       await Promise.all([
         page.getByText("Information pages").waitFor(),

@@ -3,7 +3,7 @@ import { faArrowDown, faArrowUp, faTrash } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 
-import { PrivateSpecQuiz } from "../../../../../types/quizTypes"
+import { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Button from "../../../../shared-module/components/Button"
 

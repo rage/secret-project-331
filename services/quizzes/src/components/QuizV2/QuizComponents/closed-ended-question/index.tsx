@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Accordion from "../../../../shared-module/components/Accordion"
 import RadioButton from "../../../../shared-module/components/InputFields/RadioButton"

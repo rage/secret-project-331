@@ -36,7 +36,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
 
   await Promise.all([
     page.waitForNavigation(),
-    page.locator("text=Complicated exercise page").click(),
+    page.getByRole("link", { name: "11 Complicated exercise page" }).click(),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",

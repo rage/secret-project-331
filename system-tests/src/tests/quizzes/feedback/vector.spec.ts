@@ -22,9 +22,24 @@ test("test quizzes vector feedback", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 270,
   })
 
-  await page.frameLocator("iframe").getByLabel("Answer").first().fill("a")
-  await page.frameLocator("iframe").getByLabel("Answer").nth(1).fill("4")
-  await page.frameLocator("iframe").getByLabel("Answer").nth(2).fill("5")
+  await page
+    .frameLocator("iframe")
+    .locator(".quizzes-quiz-item")
+    .filter({ hasText: "X Answer" })
+    .getByLabel("Answer", { exact: true })
+    .fill("a")
+  await page
+    .frameLocator("iframe")
+    .locator(".quizzes-quiz-item")
+    .filter({ hasText: "Y Answer" })
+    .getByLabel("Answer", { exact: true })
+    .fill("4")
+  await page
+    .frameLocator("iframe")
+    .locator(".quizzes-quiz-item")
+    .filter({ hasText: "Z Answer" })
+    .getByLabel("Answer", { exact: true })
+    .fill("5")
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

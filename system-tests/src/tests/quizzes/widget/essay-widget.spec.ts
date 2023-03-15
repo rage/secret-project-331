@@ -1,6 +1,9 @@
 import { test } from "@playwright/test"
 
-import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+} from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
 test.use({
@@ -13,6 +16,8 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
   await page.selectOption("select", { label: "Quizzes example, essay" })
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
+
+  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
 
   await frame
     .locator(`textarea:below(:text("Min words"))`)

@@ -2,7 +2,7 @@ import { test } from "@playwright/test"
 
 import {
   getLocatorForNthExerciseServiceIframe,
-  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+  scrollLocatorsParentIframeToViewIfNeeded,
 } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -20,7 +20,7 @@ test("widget, multiple-choice multi screenshot test with long text", async ({
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
+  await scrollLocatorsParentIframeToViewIfNeeded(frame)
 
   await frame.locator(`text="short answer"`).click()
 

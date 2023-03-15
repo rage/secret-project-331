@@ -5,7 +5,7 @@ import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialAction
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
-  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+  scrollLocatorsParentIframeToViewIfNeeded,
 } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
@@ -97,7 +97,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
-  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
+  await scrollLocatorsParentIframeToViewIfNeeded(frame)
 
   await frame.getByPlaceholder("Option text").first().click()
 

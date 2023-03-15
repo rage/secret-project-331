@@ -2,7 +2,7 @@ import { test } from "@playwright/test"
 
 import {
   getLocatorForNthExerciseServiceIframe,
-  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+  scrollLocatorsParentIframeToViewIfNeeded,
 } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -17,7 +17,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame)
+  await scrollLocatorsParentIframeToViewIfNeeded(frame)
 
   await frame
     .locator(`textarea:below(:text("Min words"))`)

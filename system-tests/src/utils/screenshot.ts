@@ -9,7 +9,7 @@ import {
 } from "../shared-module/utils/constants"
 
 import accessibilityCheck from "./accessibilityCheck"
-import { scrollLocatorOrLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
+import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
 import {
   ensureImageHasBeenOptimized,
   imageSavedPageYCoordinate,
@@ -311,14 +311,14 @@ export async function waitToBeVisible({
   waitForTheseToBeVisibleAndStable,
 }: WaitToBeVisibleProps): Promise<void> {
   for (const locator of waitForTheseToBeVisibleAndStable) {
-    await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(locator)
+    await scrollLocatorsParentIframeToViewIfNeeded(locator)
     await locator.waitFor({ state: "visible" })
   }
 }
 
 async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<void> {
   for (const locator of waitForThisToBeStable) {
-    await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(locator)
+    await scrollLocatorsParentIframeToViewIfNeeded(locator)
     const elementHandle = await locator.elementHandle()
     await elementHandle?.waitForElementState("stable")
   }

@@ -4,7 +4,7 @@ import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
-  scrollLocatorOrLocatorsParentIframeToViewIfNeeded,
+  scrollLocatorsParentIframeToViewIfNeeded,
 } from "../utils/iframeLocators"
 
 test.use({
@@ -185,7 +185,7 @@ test("test", async ({ page }) => {
   )
 
   const frame2 = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
-  await scrollLocatorOrLocatorsParentIframeToViewIfNeeded(frame2)
+  await scrollLocatorsParentIframeToViewIfNeeded(frame2)
 
   await frame2.locator("text=Automatically testing the whole system").first().click()
 

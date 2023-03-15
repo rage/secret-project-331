@@ -29,9 +29,9 @@ export async function getLocatorForNthExerciseServiceIframe(
 }
 
 /**
- * If the locator is inside an iframe, scrolls the iframe to the view. Otherwise scrolls the locator to the view.
+ * If the locator is inside an iframe, scrolls the iframe to the view. Sometimes needed for making locators working inside the iframe to work.
  */
-export async function scrollLocatorOrLocatorsParentIframeToViewIfNeeded(locator: Locator) {
+export async function scrollLocatorsParentIframeToViewIfNeeded(locator: Locator) {
   // Logic to make getting element handles from inside iframes that are offscreen to work
   await expect(async () => {
     const elementHandle = await locator.elementHandle({ timeout: 500 })

@@ -40,7 +40,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
     "postcss": "^8.4.21",
-    "postcss-styled-components": "^0.2.1",
+    "postcss-styled-syntax": "^0.4.0",
     "postcss-syntax": "^0.36.2",
     "prettier": "^2.8.4",
     "stylelint": "^15.2.0",

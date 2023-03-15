@@ -66,6 +66,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
             padding: 0.5rem;
             ${hasFixedLayout && "overflow-wrap: break-word;"}
           }
+          /* stylelint-disable-next-line block-no-empty */
           tbody tr:nth-child(odd) {
             ${isStriped && `background-color: ${baseTheme.colors.gray[100]};`}
           }

@@ -3,6 +3,7 @@
   "rules": {
     "font-family-no-missing-generic-family-keyword": null,
     "no-duplicate-selectors": null,
+    "function-no-unknown": null,
     "selector-type-no-unknown": [
       true,
       {
@@ -20,7 +21,7 @@
         "**/*.js",
         "**/*.jsx"
       ],
-      "customSyntax": "postcss-styled-components"
+      "customSyntax": "postcss-styled-syntax"
     }
   ]
 }

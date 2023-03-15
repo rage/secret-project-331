@@ -28,8 +28,8 @@
     "date-fns": "^2.29.3",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
-    "immer": "^9.0.16",
     "i18next": "^22.4.6",
+    "immer": "^9.0.16",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.34.1",
     "next": "^13.1.1",
@@ -56,7 +56,7 @@
     "@types/react-outside-click-handler": "^1.3.1",
     "@types/uuid": "^9.0.0",
     "axios": "^1.2.2",
-    "postcss-styled-components": "^0.2.0",
+    "postcss-styled-syntax": "^0.4.0",
     "stylelint": "^14.16.1",
     "stylelint-config-recommended": "^9.0.0",
     "typescript": "^4.9.4"

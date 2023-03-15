@@ -87,7 +87,7 @@
     "jest-environment-jsdom": "^29.5.0",
     "jsdom": "^21.1.1",
     "json-schema-to-typescript": "^11.0.4",
-    "postcss-styled-components": "^0.2.1",
+    "postcss-styled-syntax": "^0.4.0",
     "stylelint": "^14.16.1",
     "stylelint-config-recommended": "^9.0.0",
     "ts-jest": "^29.0.5",

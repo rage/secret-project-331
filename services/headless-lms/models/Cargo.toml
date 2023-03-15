@@ -13,7 +13,7 @@ license = "Apache-2.0"
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.23.0", features = ["fs", "io-util"] }
+tokio = { version = "1.23.0", features = ["fs", "io-util", "sync", "parking_lot"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.25"
 # A `dotenv` implementation for Rust

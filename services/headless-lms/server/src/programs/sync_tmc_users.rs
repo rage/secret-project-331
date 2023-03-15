@@ -27,6 +27,7 @@ pub struct Change {
     pub old_value: String,
     pub created_at: String,
     pub id: i32,
+    pub user_id: Option<i32>,
 }
 
 pub async fn main() -> anyhow::Result<()> {
@@ -50,7 +51,7 @@ pub async fn delete_users(
         .changes
         .iter()
         .filter(|c| c.change_type == "deleted")
-        .filter_map(|c| c.old_value.parse::<i32>().ok())
+        .filter_map(|c| c.user_id)
         .collect::<Vec<_>>();
     info!("Making sure {} users are deleted", to_delete.len());
     let user_ids_in_db = get_users_ids_in_db_from_upstream_ids(&mut *conn, &to_delete).await?;

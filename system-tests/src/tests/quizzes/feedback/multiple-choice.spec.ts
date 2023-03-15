@@ -31,7 +31,7 @@ test("test quizzes multiple-choice feedback", async ({ page, headless }, testInf
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.locator("text=Multiple choice with feedback").click(),
+    await page.getByRole("link", { name: "9 Multiple choice with feedback" }).click(),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-multiple-choice-with-feedback",

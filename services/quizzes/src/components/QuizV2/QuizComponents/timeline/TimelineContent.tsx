@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemTimeline } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemTimeline } from "../../../../../types/quizTypes/privateSpec"
 import { NormalizedQuizItemTimelineItem } from "../../../../../types/types"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
@@ -194,7 +194,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                       if (item.id === timelineItem.id) {
                         return {
                           ...item,
-                          year: isNaN(parsedYear) ? 0 : parsedYear,
+                          year: isNaN(parsedYear) ? "0" : value,
                         } as NormalizedQuizItemTimelineItem
                       }
                       return item

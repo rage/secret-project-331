@@ -60,6 +60,7 @@
   "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes.",
   "pages-in-chapter-placeholder": "Pages in chapter placeholder",
   "pages-in-chapter-placeholder-explanation": "This block is placed on each chapter front page, e.g. /chapter-1/ for navigating to different sub sections easily.",
+  "partially-transparent-background": "Make background image partially transparent",
   "partners-block": "Partners Block",
   "partners-block-description": "Partners block is use to display all partner's logo in the landing page",
   "peer-review-accepting-strategy": "Peer review accepting strategy",

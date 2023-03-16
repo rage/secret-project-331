@@ -15,12 +15,15 @@ const localCss = css`
     border-radius: 0;
     ${BASE_BUTTON_STYLES}
   }
+  /* stylelint-disable-next-line block-no-empty */
   .is-style-material-primary-button .wp-block-button__link {
     ${PrimaryButtonStyles({ variant: "primary", size: "large" })}
   }
+  /* stylelint-disable-next-line block-no-empty */
   .is-style-material-secondary-button .wp-block-button__link {
     ${SecondaryButtonStyles({ variant: "secondary", size: "large" })}
   }
+  /* stylelint-disable-next-line block-no-empty */
   .is-style-material-tertiary-button .wp-block-button__link {
     ${TertiaryButtonStyles({ variant: "tertiary", size: "large" })}
   }

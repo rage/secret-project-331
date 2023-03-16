@@ -1,56 +1,49 @@
 import { test } from "@playwright/test"
 
+import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, checkbox", async ({ page, headless }) => {
-  // Go to http://project-331.local/playground
+test("widget, checkbox", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  // Click text=Quizzes, example, checkbox
   await page.selectOption("select", { label: "Quizzes, example, checkbox" })
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-checkbox-initial",
-    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
+    screenshotTarget: frame,
   })
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-
   // Check input[type="checkbox"]
-  await frame.check('input[type="checkbox"]')
+  await frame.locator('input[type="checkbox"]').first().check()
 
   // Check :nth-match(input[type="checkbox"], 2)
-  await frame.check(':nth-match(input[type="checkbox"], 2)')
+  await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-checkbox-both-checked",
-    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
+    screenshotTarget: frame,
   })
 
   // Uncheck :nth-match(input[type="checkbox"], 2)
-  await frame.uncheck(':nth-match(input[type="checkbox"], 2)')
+  await frame.locator(':nth-match(input[type="checkbox"], 2)').uncheck()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "widget-checkbox-other-unchecked",
-    waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
-    frame,
+    waitForTheseToBeVisibleAndStable: [frame.locator(`text="The s in https stands for secure."`)],
+    screenshotTarget: frame,
   })
 })

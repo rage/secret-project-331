@@ -16,10 +16,10 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   save: LearningObjectiveSectionSave,
   transforms: {
     from: [
+      // @ts-expect-error: transform example from the documentation
       {
         type: "block",
         blocks: ["core/list"],
-        // @ts-expect-error: Transform example from documentation
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         transform(attributes: any, innerBlocks: any) {
           return createBlock("moocfi/learning-objectives", {}, [

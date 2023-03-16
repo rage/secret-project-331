@@ -13,7 +13,7 @@ const HeightTrackingContainer: React.FC<
 > = ({ port, children }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
-  const [previouslySentHeight, setPreviouslySentHeight] = useState(0)
+  const previouslySentHeightRef = useRef(0)
 
   useEffect(() => {
     const onResize = () => {
@@ -29,7 +29,7 @@ const HeightTrackingContainer: React.FC<
     }
   }, [])
 
-  // mutation observer, catches changes to the DOM
+  // resize observer, catches whenever an element resizes
   useEffect(() => {
     const ref = contentRef.current
     if (!ref) {
@@ -42,36 +42,41 @@ const HeightTrackingContainer: React.FC<
       }
       setHeight(ref.getBoundingClientRect().height)
     }
-    const observer = new MutationObserver(onResize)
-    observer.observe(ref, { attributes: true, childList: true, subtree: true })
+    const observer = new ResizeObserver(onResize)
+    observer.observe(ref)
     return () => {
       observer.disconnect()
     }
   }, [contentRef])
 
   useEffect(() => {
-    if (!port || height === previouslySentHeight) {
-      return
-    }
-    onHeightChange(height, port)
-    setPreviouslySentHeight(height)
-  }, [height, port, previouslySentHeight])
+    // To be safe, we'll check periodically whether the sent height matches the height in the document.
+    const intervalId = setInterval(() => {
+      if (!port) {
+        return
+      }
+      const ref = contentRef.current
+      if (!ref) {
+        return
+      }
+      const currentHeight = ref.getBoundingClientRect().height
+      if (currentHeight !== previouslySentHeightRef.current) {
+        setHeight(currentHeight)
+      }
+      return () => {
+        clearInterval(intervalId)
+      }
+    }, 5000)
+  }, [port])
 
-  // To be safe, check on all React renders if we need to resend the height
   useEffect(() => {
-    if (!port) {
-      return
-    }
-    const ref = contentRef.current
-    if (!ref) {
-      return
-    }
-    const computedHeight = ref.getBoundingClientRect().height
-    if (computedHeight === previouslySentHeight) {
+    // Send the updates to the parent
+    if (!port || height === previouslySentHeightRef.current) {
       return
     }
     onHeightChange(height, port)
-  })
+    previouslySentHeightRef.current = height
+  }, [height, port])
 
   return (
     <IframeHeightContext.Provider value={{ height: height }}>

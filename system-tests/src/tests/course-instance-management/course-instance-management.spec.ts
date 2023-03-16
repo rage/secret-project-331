@@ -6,22 +6,20 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Advanced course instance management Manage >> :nth-match(a, 2)
-
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("[aria-label=\"Manage course 'Advanced course instance management'\"] svg"),
+    await page
+      .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
+      .click(),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
@@ -29,19 +27,24 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "initial-course-management-page",
-    waitForThisToBeVisibleAndStable: "text=Course instances",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.getByRole("tab", { name: "Course instances" })],
+    screenshotTarget: page,
   })
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Course instances")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.getByRole("tab", { name: "Course instances" }).click(),
+  ])
   await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "new-course-instance-form",
-    waitForThisToBeVisibleAndStable: "text=New course instance",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=New course instance")],
+    screenshotTarget: page,
   })
 
   await page.fill("#name", "some name")
@@ -51,19 +54,19 @@ test("test", async ({ page, headless }) => {
   await page.fill("#supportEmail", "support@example.com")
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2099-01-01T23:59")
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
   )
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "course-management-page-with-new-instance",
-    waitForThisToBeVisibleAndStable: "text=Success",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
+    screenshotTarget: page,
   })
 
-  // Click text=Default Manage Manage emails View Points Export points >> a
   await Promise.all([
     page.waitForNavigation(),
     page.click(
@@ -76,20 +79,21 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "initial-management-page",
-    waitForThisToBeVisibleAndStable: "text=Course instance default",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instance default")],
+    screenshotTarget: page,
     clearNotifications: true,
   })
 
-  // Click text=Edit contact details
-  await page.click("text=Edit")
+  await page.getByRole("button", { name: "Edit" }).first().click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "initial-management-page-editing",
-    waitForThisToBeVisibleAndStable: "text=Submit",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Name").first()],
+    screenshotTarget: page,
   })
 
   await page.fill("#name", "new name")
@@ -100,7 +104,7 @@ test("test", async ({ page, headless }) => {
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2098-01-01T23:59")
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.evaluate(() => {
     window.scrollTo(0, 0)
@@ -123,21 +127,24 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "management-page-after-changes",
-    waitForThisToBeVisibleAndStable: "text=Success",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
+    screenshotTarget: page,
   })
 
-  // Click text=Delete course instance
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),
-    page.click("text=Delete"),
+    page.locator("text=Delete").click(),
   ])
+
+  await page.getByRole("tab", { name: "Course instances" }).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "course-management-page-after-delete",
-    waitForThisToBeVisibleAndStable: "text=Course instances",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "All course instances" })],
+    screenshotTarget: page,
   })
 })

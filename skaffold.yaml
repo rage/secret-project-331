@@ -2,66 +2,66 @@ apiVersion: skaffold/v3
 kind: Config
 build:
   artifacts:
-  - image: headless-lms
-    context: services/headless-lms
-    sync:
-      manual:
-      - src: '**/*.rs'
-        dest: /app
-      - src: '**/*.sql'
-        dest: /app
-      - src: shared-module/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
-  - image: cms
-    context: services/cms
-    sync:
-      manual:
-      - src: src/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
-  - image: main-frontend
-    context: services/main-frontend
-    sync:
-      manual:
-      - src: src/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
-  - image: example-exercise
-    context: services/example-exercise
-    sync:
-      manual:
-      - src: src/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
-  - image: course-material
-    context: services/course-material
-    sync:
-      manual:
-      - src: src/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
-  - image: quizzes
-    context: services/quizzes
-    sync:
-      manual:
-      - src: src/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
-  - image: tmc
-    context: services/tmc
-    sync:
-      manual:
-      - src: src/**/*
-        dest: /app
-    docker:
-      dockerfile: Dockerfile
+    - image: headless-lms
+      context: services/headless-lms
+      sync:
+        manual:
+          - src: "**/*.rs"
+            dest: /app
+          - src: "**/*.sql"
+            dest: /app
+          - src: shared-module/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
+    - image: cms
+      context: services/cms
+      sync:
+        manual:
+          - src: src/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
+    - image: main-frontend
+      context: services/main-frontend
+      sync:
+        manual:
+          - src: src/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
+    - image: example-exercise
+      context: services/example-exercise
+      sync:
+        manual:
+          - src: src/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
+    - image: course-material
+      context: services/course-material
+      sync:
+        manual:
+          - src: src/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
+    - image: quizzes
+      context: services/quizzes
+      sync:
+        manual:
+          - src: src/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
+    - image: tmc
+      context: services/tmc
+      sync:
+        manual:
+          - src: src/**/*
+            dest: /app
+      docker:
+        dockerfile: Dockerfile
   tagPolicy:
     # sha256 tag policy pushes the latest tag, which is used for caching
     sha256: {}
@@ -72,26 +72,40 @@ build:
 manifests:
   kustomize:
     paths:
-    - kubernetes/dev
+      - kubernetes/dev
+
 deploy:
   kubeContext: minikube
+  kubectl:
+    hooks:
+      after:
+        - host:
+            command: ["bash", "-c", "bin/warm-routes &"]
+      before:
+        - host:
+            command:
+              [
+                "sh",
+                "-c",
+                "echo 'Waiting for the ingress to be ready.' && echo '> kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller",
+              ]
 
 portForward:
-- resourceType: statefulset
-  resourceName: postgres
-  namespace: default
-  port: 5432
-  localPort: 54328
+  - resourceType: statefulset
+    resourceName: postgres
+    namespace: default
+    port: 5432
+    localPort: 54328
 
 profiles:
-- name: only-db
-  patches:
-  - op: remove
-    path: /build/artifacts
-  - op: remove
-    path: /manifests/kustomize
-  manifests:
-    rawYaml:
-    - kubernetes/dev/postgres-dev.yml
-  deploy:
-    kubectl: {}
+  - name: only-db
+    patches:
+      - op: remove
+        path: /build/artifacts
+      - op: remove
+        path: /manifests/kustomize
+    manifests:
+      rawYaml:
+        - kubernetes/dev/postgres-dev.yml
+    deploy:
+      kubectl: {}

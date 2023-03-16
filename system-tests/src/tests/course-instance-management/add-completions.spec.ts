@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
+import { showToastInfinitely, showToastNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -96,6 +97,7 @@ test("test", async ({ page, headless }, testInfo) => {
     clearNotifications: true,
   })
 
+  await showToastInfinitely(page)
   await page.locator('button:has-text("Submit")').click()
 
   await expectScreenshotsToMatchSnapshots({
@@ -112,6 +114,8 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     beforeScreenshot: () => page.locator("text=User1").scrollIntoViewIfNeeded(),
   })
+
+  await showToastNormally(page)
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),

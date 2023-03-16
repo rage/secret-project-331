@@ -26,7 +26,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await context3.close()
   })
 
-  test("AutomaticallyAcceptOrRejectByAverage > Accepts", async ({ headless }) => {
+  test("AutomaticallyAcceptOrRejectByAverage > Accepts", async ({ headless }, testInfo) => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -54,12 +54,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-after-submission",
-      page: student1Page,
+      screenshotTarget: student1Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
+      waitForTheseToBeVisibleAndStable: [
+        student1Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+      ],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
 
     // User 2 neavigates to exercise and answers
@@ -84,12 +87,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-after-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [
+        student2Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+      ],
+      screenshotOptions: { fullPage: true },
     })
 
     // User 1 writes reviews
@@ -106,12 +112,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-after-peer-review",
-      page: student1Page,
+      screenshotTarget: student1Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [
+        student1Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+      ],
+      screenshotOptions: { fullPage: true },
     })
 
     await student2Page
@@ -122,12 +131,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-after-peer-review",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [
+        student2Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+      ],
+      screenshotOptions: { fullPage: true },
     })
 
     await student1Page
@@ -138,12 +150,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-seeing-score",
-      page: student1Page,
+      screenshotTarget: student1Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [
+        student1Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+      ],
+      screenshotOptions: { fullPage: true },
     })
 
     await student2Page
@@ -154,12 +169,15 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-seeing-score",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
-      waitForThisToBeVisibleAndStable: ['text="AutomaticallyAcceptOrRejectByAverage"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [
+        student2Page.locator('text="AutomaticallyAcceptOrRejectByAverage"'),
+      ],
+      screenshotOptions: { fullPage: true },
     })
   })
 })

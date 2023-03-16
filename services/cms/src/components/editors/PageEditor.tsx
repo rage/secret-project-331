@@ -257,7 +257,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
           </div>
           <DebugModal
             data={content}
-            readOnly={true}
+            readOnly={false}
             updateDataOnClose={(data) => contentDispatch({ type: "setContent", payload: data })}
           />
         </div>

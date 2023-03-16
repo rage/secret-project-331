@@ -42,11 +42,10 @@ const config = {
       // labelFormat: "[dirname]--[filename]--[local]",
     },
   },
-  experimental: {
-    modularizeImports: {
-      lodash: {
-        transform: "lodash/{{member}}",
-      },
+
+  modularizeImports: {
+    lodash: {
+      transform: "lodash/{{member}}",
     },
   },
 }

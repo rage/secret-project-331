@@ -15,7 +15,7 @@ test("test", async ({ page }) => {
   await page.locator('button:has-text("Create")').click()
   await page.locator("text=Operation successful!").waitFor()
   await page.locator("text=/ 1 Submissions regraded").waitFor()
-  expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
+  await expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
 
   const firstRegradingPageUrl = page.url()
 
@@ -36,5 +36,5 @@ test("test", async ({ page }) => {
   // Finally, check if the first regrading has completed
   await page.goto(firstRegradingPageUrl)
   // Long timeout to make sure the regrader has actually had the opportunity to run
-  await page.locator(`text=total_grading_progress: FullyGraded`).waitFor({ timeout: 15_000 })
+  await page.locator(`text=total_grading_progress: FullyGraded`).waitFor({ timeout: 150_000 })
 })

@@ -49,30 +49,25 @@ fn models(target: &mut File) {
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
+        course_background_question_answers::CourseBackgroundQuestionAnswer,
+        course_background_question_answers::NewCourseBackgroundQuestionAnswer,
+        course_background_questions::CourseBackgroundQuestion,
+        course_background_questions::CourseBackgroundQuestionType,
+        course_background_questions::CourseBackgroundQuestionsAndAnswers,
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::ChapterScore,
         course_instances::CourseInstance,
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
-
-        course_background_question_answers::CourseBackgroundQuestionAnswer,
-        course_background_question_answers::NewCourseBackgroundQuestionAnswer,
-
-        course_background_questions::CourseBackgroundQuestionsAndAnswers,
-        course_background_questions::CourseBackgroundQuestion,
-        course_background_questions::CourseBackgroundQuestionType,
-
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
-
         course_modules::AutomaticCompletionRequirements,
         course_modules::CompletionPolicy,
         course_modules::CourseModule,
-        course_modules::NewCourseModule,
         course_modules::ModifiedModule,
         course_modules::ModuleUpdates,
+        course_modules::NewCourseModule,
         course_modules::NewModule,
-
         courses::Course,
         courses::CourseCount,
         courses::CourseStructure,
@@ -173,18 +168,18 @@ fn models(target: &mut File) {
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
-        peer_review_configs::CourseMaterialPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfiguration,
+        peer_review_configs::CourseMaterialPeerReviewConfig,
         peer_review_configs::PeerReviewAcceptingStrategy,
         peer_review_configs::PeerReviewConfig,
-        peer_review_questions::CmsPeerReviewQuestion,
-        peer_review_questions::PeerReviewQuestion,
-        peer_review_questions::PeerReviewQuestionType,
         peer_review_question_submissions::PeerReviewAnswer,
         peer_review_question_submissions::PeerReviewQuestionAndAnswer,
         peer_review_question_submissions::PeerReviewQuestionSubmission,
         peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
+        peer_review_questions::CmsPeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestionType,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -212,15 +207,15 @@ fn models(target: &mut File) {
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,
 
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
+        user_details::UserDetail,
         user_exercise_states::ExerciseUserCounts,
         user_exercise_states::ReviewingStage,
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
-
-        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     };
 }
 
@@ -252,11 +247,11 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            course_instances::SaveCourseSettingsPayload,
             courses::ChaptersWithStatus,
             courses::CourseMaterialCourseModule,
             exams::ExamData,
             exams::ExamEnrollmentData,
-            course_instances::SaveCourseSettingsPayload,
         };
     }
 

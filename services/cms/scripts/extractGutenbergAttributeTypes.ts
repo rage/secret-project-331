@@ -43,6 +43,21 @@ global.document = dom.window.document
 global.navigator = dom.window.navigator
 // @ts-ignore: Just to prevent a crash, not used
 global.CSS = {}
+global.location = dom.window.location
+
+const OriginalURL = global.URL
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const urlThatDoesntCrashWithPaths = function (...args: any[]) {
+  if (args[0].startsWith("/")) {
+    return new OriginalURL(`https://example.com${args[0]}`)
+  }
+  // @ts-expect-error: mirrors the function
+  return new OriginalURL(...args)
+}
+urlThatDoesntCrashWithPaths.prototype = URL.prototype
+// @ts-expect-error: fake constructor
+global.URL = urlThatDoesntCrashWithPaths
 
 class FakeMutationObserver {
   observe() {

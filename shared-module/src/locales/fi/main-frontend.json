@@ -197,7 +197,7 @@
   "label-course-instance": "Kurssin versio",
   "label-course-module": "Course module",
   "label-created": "Luotu:",
-  "label-csv-completions": "Muotoilu: csv oheisella otsikkorivillä: <2>{{csvHeaderFormat}}</2> - vapaaehtoinen päivämäärä ISO-muodossa.",
+  "label-csv-completions": "Muotoilu: csv oheisella otsikkorivillä: <2>{{csvHeaderFormat}}</2> - vapaaehtoinen päivämäärä ISO 8601 -muodossa.",
   "label-current-text": "Nykyinen teksti:",
   "label-deadline": "Deadline",
   "label-default": "Oletus",

@@ -6,9 +6,11 @@ import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
 import useIsPageChapterFrontPage from "../../../hooks/useIsPageChapterFrontPage"
 import Check from "../../../img/checkmark.svg"
+import { Block } from "../../../services/backend"
 import { baseTheme, headingFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`
@@ -85,6 +87,8 @@ const LearningObjectiveSectionBlock: React.FC<
   //It is assumed that LearningBlock accepts only list - it can be updated to accept paragraph
   const data = props.data.innerBlocks[0]
 
+  const childHtmls = parseListBlock(data)
+
   return (
     <Wrapper>
       <Header>
@@ -93,16 +97,37 @@ const LearningObjectiveSectionBlock: React.FC<
       <Content>
         <div>
           {data &&
-            data.innerBlocks?.map((item: any) => (
-              <StyledObjectives key={item.clientId}>
+            childHtmls.map((childHtml, n) => (
+              <StyledObjectives key={n}>
                 <StyledCheck />
-                <span>{item.attributes.content}</span>
+                <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }} />
               </StyledObjectives>
             ))}
         </div>
       </Content>
     </Wrapper>
   )
+}
+
+/** Parses the block structure manually. Not the smartest thing to do since this is gonna be more fragile than it needs to be
+A better implementation would use the InnerBlocks component and style the child items either with css or custom components that
+would be given as replacements to the innerblocks component.  */
+function parseListBlock({ attributes, innerBlocks }: Block<unknown>): string[] {
+  // @ts-expect-error: innerblocks should only by lists
+  const values = attributes.values
+  // Handle the new type of innerblocks where the content is not in innerhtml and instead uses listitem blocks as innerblocks
+  if (!values || values === "") {
+    // @ts-expect-error: should be the list item block
+    return innerBlocks.map((b) => b?.attributes?.content ?? "")
+  }
+  // Handle the old type of list
+  const parser = new DOMParser()
+  // eslint-disable-next-line i18next/no-literal-string
+  const listItem = parser.parseFromString(values, "text/html")
+  const children: string[] = [].slice
+    .call(listItem.body.childNodes)
+    .map(({ innerHTML }) => innerHTML)
+  return children
 }
 
 export default withErrorBoundary(LearningObjectiveSectionBlock)

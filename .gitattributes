@@ -23,3 +23,6 @@ Dockerfile text eol=lf
 .gitignore text eol=lf
 .giattributes text eol=lf
 .babelrc text eol=lf
+
+# Hide diff for certain heavy files by default in Github pull request
+system-tests/src/__screenshots__/**/*.png linguist-generated=true

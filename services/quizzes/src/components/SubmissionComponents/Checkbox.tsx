@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { baseTheme } from "../../shared-module/styles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -77,7 +76,7 @@ const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
           </Option>
         )}
         <div>
-          {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map((of) => (
+          {quiz_item_feedback?.quiz_item_option_feedbacks?.map((of) => (
             <p key={of.option_id}>{of.option_feedback}</p>
           ))}
         </div>

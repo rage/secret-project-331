@@ -7,14 +7,14 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test quizzes open feedback", async ({ headless, page }) => {
+test("test quizzes open feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await Promise.all([
     page.waitForNavigation(),
@@ -23,9 +23,9 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
 
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
@@ -45,8 +45,9 @@ test("test quizzes open feedback", async ({ headless, page }) => {
   await page.locator("text=Submit").click()
   await page.frameLocator("iframe").locator(`input[aria-label="3"]:disabled`).first().waitFor()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "scale-feedback",
   })
 })

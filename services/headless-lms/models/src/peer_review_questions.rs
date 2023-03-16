@@ -250,10 +250,11 @@ pub async fn upsert_multiple_peer_review_questions(
     conn: &mut PgConnection,
     peer_review_questions: &[CmsPeerReviewQuestion],
 ) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
-    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (peer_review_config_id, order_number, question_type, question, answer_required) ");
+    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (id, peer_review_config_id, order_number, question_type, question, answer_required) ");
 
     sql.push_values(peer_review_questions, |mut x, prq| {
-        x.push_bind(prq.peer_review_config_id)
+        x.push_bind(prq.id)
+            .push_bind(prq.peer_review_config_id)
             .push_bind(prq.order_number)
             .push_bind(prq.question_type)
             .push_bind(prq.question.as_str())
@@ -266,7 +267,8 @@ SET peer_review_config_id = excluded.peer_review_config_id,
   order_number = excluded.order_number,
   question_type = excluded.question_type,
   question = excluded.question,
-  answer_required = excluded.answer_required
+  answer_required = excluded.answer_required,
+  deleted_at = NULL
 RETURNING id;
 "#,
     );

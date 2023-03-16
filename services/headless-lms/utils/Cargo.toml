@@ -21,17 +21,17 @@ futures = "0.3.25"
 # A library to generate and parse UUIDs.
 uuid = { version = "1.2.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.150", features = ["derive"] }
+serde = { version = "1.0.152", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.23", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.89"
+serde_json = "1.0.91"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods
-async-trait = "0.1.59"
+async-trait = "0.1.60"
 # Types and traits for working with bytes
 bytes = "1.3.0"
 # Random number generators and other randomness functionality.
@@ -47,7 +47,7 @@ tracing = "0.1.37"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.66"
+backtrace = "0.3.67"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "54263034d33818c292b9470cd61e2a2c8dff6097", features = [
   "chrono-impl",
@@ -58,17 +58,17 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "54263034d33818c292b9
 # An implementation of regular expressions for Rust.
 regex = "1.7.0"
 # Single assignment cells and lazy values.
-once_cell = "1.16.0"
+once_cell = "1.17.0"
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.37"
+thiserror = "1.0.38"
 # Percent encoding and decoding
 percent-encoding = "2.2.0"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
 ipnet = "2.7.0"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.0.25"
 

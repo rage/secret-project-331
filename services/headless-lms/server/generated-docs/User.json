@@ -1,10 +1,8 @@
 {
   "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
-  "first_name": "User",
-  "last_name": "Example",
   "created_at": "2021-12-31T22:00:00Z",
   "updated_at": "2021-12-31T22:00:00Z",
   "deleted_at": null,
   "upstream_id": null,
-  "email": "email@example.com"
+  "email_domain": "example.com"
 }

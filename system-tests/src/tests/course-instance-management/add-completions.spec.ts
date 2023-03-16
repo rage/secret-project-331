@@ -1,24 +1,22 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
+import { showToastInfinitely, showToastNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click [aria-label="Manage course \'Manual Completions\'"] path
   await Promise.all([
     page.waitForNavigation(),
     page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click(),
@@ -29,7 +27,6 @@ test("test", async ({ headless, page }) => {
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  // Click text=Default Manage Manage emails Manage permissions View completions View points Exp >> [aria-label="View completions"]
   await page
     .locator(
       'text=Default Manage Manage emails Manage permissions View completions View points Exp >> [aria-label="View completions"]',
@@ -39,9 +36,8 @@ test("test", async ({ headless, page }) => {
     "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
   )
 
-  // Click text=Manually add completions
   await page.locator("text=Manually add completions").click()
-  // Click textarea[name="completions"]
+
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
   await page.locator('textarea[name="completions"]').fill(`user_id,grade
@@ -50,77 +46,76 @@ test("test", async ({ headless, page }) => {
   fbeb9286-3dd8-4896-a6b8-3faffa3fabd6,4
   3524d694-7fa8-4e73-aa1a-de9a20fd514b,3`)
 
-  // Click text=Check
   await page.locator("text=Check").click()
 
-  // Click div[role="button"]:has-text("Users receiving a completion for the first time (3)")
   await page
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
     .click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "manual-completion-default-module-preview",
-    waitForThisToBeVisibleAndStable: [
-      "text=Users receiving a completion for the first time",
-      "text=Submit",
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("button", { name: "Submit" }),
+      page.locator("text=Users receiving a completion for the first time"),
     ],
-    page,
+    screenshotTarget: page,
     clearNotifications: true,
   })
 
-  // Click button:has-text("Submit")
   await page.locator('button:has-text("Submit")').click()
 
   await page.getByText(`Completions submitted successfully`).waitFor()
 
-  // Click text=Manually add completions
   await page.locator("text=Manually add completions").click()
 
   // Select 57db3a62-d098-489a-8869-0a14efd6fa80
   await page.locator("select").selectOption({ label: "Another module" })
 
-  // Click textarea[name="completions"]
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
   await page.locator('textarea[name="completions"]').fill(`user_id
   00e249d8-345f-4eff-aedb-7bdc4c44c1d5
   fbeb9286-3dd8-4896-a6b8-3faffa3fabd6`)
 
-  // Click text=Check
   await page.locator("text=Check").click()
-  // Click div[role="button"]:has-text("Users receiving a completion for the first time (2)")
+
   await page
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (2)")')
     .click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "manual-completion-another-module-preview",
-    waitForThisToBeVisibleAndStable: [
-      "text=Users receiving a completion for the first time",
-      "text=Submit",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Users receiving a completion for the first time"),
+      page.getByRole("button", { name: "Submit" }),
     ],
-    page,
+    screenshotTarget: page,
     clearNotifications: true,
   })
 
-  // Click button:has-text("Submit")
+  await showToastInfinitely(page)
   await page.locator('button:has-text("Submit")').click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "manual-completion-after-posting-completions",
-    waitForThisToBeVisibleAndStable: [
-      "text=User1",
-      "text=User2",
-      "text=User3",
-      "text=User4",
-      "text=Completions submitted successfully.",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=User1"),
+      page.locator("text=User2"),
+      page.locator("text=User3"),
+      page.locator("text=User4"),
+      page.locator("text=Completions submitted successfully."),
     ],
-    page,
+    screenshotTarget: page,
     beforeScreenshot: () => page.locator("text=User1").scrollIntoViewIfNeeded(),
   })
+
+  await showToastNormally(page)
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),

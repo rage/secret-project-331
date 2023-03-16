@@ -9,6 +9,7 @@ import {
 } from "../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../contexts/GlossaryContext"
 import { baseTheme } from "../../../../shared-module/styles"
+import { stringToNumberOrPlaceholder } from "../../../../shared-module/utils/numbers"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import { parseText } from "../../util/textParsing"
@@ -65,6 +66,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
             padding: 0.5rem;
             ${hasFixedLayout && "overflow-wrap: break-word;"}
           }
+          /* stylelint-disable-next-line block-no-empty */
           tbody tr:nth-child(odd) {
             ${isStriped && `background-color: ${baseTheme.colors.gray[100]};`}
           }
@@ -87,6 +89,8 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                     <th
                       className={fetchAlignment(cell.align)}
                       key={i}
+                      colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
+                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                       dangerouslySetInnerHTML={{
                         __html: parseText(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
@@ -107,6 +111,8 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                   <td
                     className={fetchAlignment(cell.align)}
                     key={i}
+                    colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
+                    rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                     dangerouslySetInnerHTML={{
                       __html: parseText(
                         cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
@@ -127,6 +133,8 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                     <th
                       className={fetchAlignment(cell.align)}
                       key={i}
+                      colSpan={stringToNumberOrPlaceholder(cell.colspan, undefined)}
+                      rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                       dangerouslySetInnerHTML={{
                         __html: parseText(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",

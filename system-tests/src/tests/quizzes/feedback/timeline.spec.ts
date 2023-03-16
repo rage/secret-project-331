@@ -7,8 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes timeline feedback", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("test quizzes timeline feedback", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
   )
@@ -16,8 +15,9 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-initial",
     scrollToYCoordinate: 470,
   })
@@ -38,6 +38,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .locator(`label:text("1998")`)
     .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.locator(`button:disabled:text("Submit")`).waitFor()
 
@@ -53,24 +54,26 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .selectOption({ label: "Finland joins the European Union" })
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-filled",
     scrollToYCoordinate: 470,
   })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-feedback-wrong",
     scrollToYCoordinate: 470,
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
   // Clear previous answers
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
@@ -91,20 +94,21 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .locator(`label:text("2002")`)
     .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.frameLocator("iframe").locator("text=Your answer was correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-feedback-correct",
     scrollToYCoordinate: 470,
   })
 
   // Model solution is now visible since we got full points, so we can see what feedback looks like with the model solution
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
   // Clear previous answers
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
   await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
@@ -125,13 +129,14 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     .locator(`label:text("2002")`)
     .selectOption({ label: "Finland switches their currency to Euro" })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "timeline-feedback-incorrect-with-model-solution",
     scrollToYCoordinate: 600,
   })

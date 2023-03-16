@@ -34,3 +34,33 @@ export function roundDown(n: number, maxDecimals?: number): string {
   const rounded = fixed.slice(0, decimal + 1 + actualMaxDecimals - cutOff)
   return rounded
 }
+
+/** Converts a string to a number, never throws an exception.
+ * If substitute not provided, may return NaN.
+ *
+ * Example 1: stringToNumberOrPlaceholder("1.2") => 1.2
+ *
+ * Example 2: stringToNumberOrPlaceholder("lol") => NaN
+ *
+ * Example 3: stringToNumberOrPlaceholder("lol", undefined) => undefined
+ *
+ * Example 4: stringToNumberOrPlaceholder("lol", null) => null
+ */
+export function stringToNumberOrPlaceholder<T>(
+  s: string | undefined | null,
+  missingNumberSubstitute: T | number = NaN,
+): number | T {
+  if (s === undefined || s === null) {
+    return missingNumberSubstitute
+  }
+  let res: number
+  try {
+    res = Number(s)
+  } catch (e) {
+    return missingNumberSubstitute
+  }
+  if (isNaN(res)) {
+    return missingNumberSubstitute
+  }
+  return res
+}

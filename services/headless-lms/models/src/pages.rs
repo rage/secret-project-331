@@ -3026,10 +3026,15 @@ pub async fn reorder_chapters(
                 let pages = get_chapter_pages(&mut tx, chapter.id).await?;
 
                 for page in pages {
-                    let old_path = &page.url_path;
-                    let new_path = old_path.replacen(
+                    let path_with_temp_random_number = &page.url_path;
+                    let new_path = path_with_temp_random_number.replacen(
                         &randomized_chapter_number.to_string(),
                         &new_chapter_number.to_string(),
+                        1,
+                    );
+                    let old_path = path_with_temp_random_number.replacen(
+                        &randomized_chapter_number.to_string(),
+                        &chapter.chapter_number.to_string(),
                         1,
                     );
                     // update each page path associated with the modified chapter

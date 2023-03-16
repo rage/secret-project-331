@@ -1,15 +1,26 @@
-import { chromium } from "@playwright/test"
+import { FullConfig } from "@playwright/test"
 import { spawnSync } from "child_process"
 import path from "path"
+import playWrightPackageJson from "playwright/package.json"
+import which from "which"
 
-import playWrightPackageJson from "../../node_modules/playwright/package.json"
 import systemTestsPackageLockJson from "../../package-lock.json"
-import { login } from "../utils/login"
 
-async function globalSetup(): Promise<void> {
+async function globalSetup(config: FullConfig): Promise<void> {
+  await makeSureNecessaryProgramsAreInstalled(config)
   await makeSureNpmCiHasBeenRan()
   await setupSystemTestDb()
-  await createLoginStates()
+  // After this global.setup.spec.ts is ran
+}
+
+async function makeSureNecessaryProgramsAreInstalled(config: FullConfig) {
+  if (config.updateSnapshots === "all" || !process.env.CI) {
+    if (which.sync("oxipng", { nothrow: true }) === null) {
+      throw new Error(
+        "oxipng is not installed or is not in the $PATH. Please install it (see https://github.com/shssoichiro/oxipng).",
+      )
+    }
+  }
 }
 
 async function makeSureNpmCiHasBeenRan() {
@@ -24,34 +35,23 @@ async function makeSureNpmCiHasBeenRan() {
   }
 }
 
-// Create session states for each user, state will be named as username, e.g. admin.json
-async function createLoginStates() {
-  console.log("Creating login states for supported test users.")
-  const browser = await chromium.launch()
-  const page = await browser.newPage()
-  await login("admin@example.com", "admin", page)
-  await login("teacher@example.com", "teacher", page)
-  await login("language.teacher@example.com", "language.teacher", page)
-  await login("user@example.com", "user", page)
-  await login("assistant@example.com", "assistant", page)
-  await login("creator@example.com", "creator", page)
-  await login("student1@example.com", "student.1", page)
-  await login("student2@example.com", "student.2", page)
-  await login("teacher@example.com", "teacher", page)
-}
-
 // The setup system test db called by playwright to make the playwright vscode extension to work.
 async function setupSystemTestDb() {
-  const setupSystemTestDbScriptPath = path.join(__dirname, "../../../bin/setup-system-test-db")
-  console.log("Setting up system test db.")
-  // spawnSync is the easiest way to wait for the script to finish while inheriting stdio.
-  // Using a sync method hare shoud not be a problem since this is a setup script
-  const res = spawnSync(setupSystemTestDbScriptPath, { stdio: "inherit" })
-  if (res.error) {
-    console.error("Error: Could not setup system test db.")
-    throw res.error
+  try {
+    console.time("system-test-db-setup")
+    const setupSystemTestDbScriptPath = path.join(__dirname, "../../../bin/setup-system-test-db")
+    console.log("Setting up system test db.")
+    // spawnSync is the easiest way to wait for the script to finish while inheriting stdio.
+    // Using a sync method hare shoud not be a problem since this is a setup script
+    const res = spawnSync(setupSystemTestDbScriptPath, { stdio: "inherit" })
+    if (res.error) {
+      console.error("Error: Could not setup system test db.")
+      throw res.error
+    }
+    console.log("System test db setup complete.")
+  } finally {
+    console.timeEnd("system-test-db-setup")
   }
-  console.log("System test db setup complete.")
 }
 
 export default globalSetup

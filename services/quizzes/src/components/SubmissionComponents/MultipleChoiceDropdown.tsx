@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
-import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -35,7 +34,7 @@ const incorrectAnswer = css`
 const MultipleChoiceDropdownFeedback: React.FC<
   React.PropsWithChildren<QuizItemSubmissionComponentProps>
 > = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback, quiz_item_model_solution }) => {
-  const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
+  const correct = quiz_item_feedback?.quiz_item_correct
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.optionAnswers as string[])[0],
   )[0]
@@ -94,7 +93,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
             justify-content: center;
           `}
         >
-          {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map((of) => (
+          {quiz_item_feedback?.quiz_item_option_feedbacks?.map((of) => (
             <p key={of.option_id}>{of.option_feedback}</p>
           ))}
         </div>

@@ -1,84 +1,81 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
+import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
-import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("test quizzes multiple-choice-dropdown", async ({ page, headless }, testInfo) => {
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-5",
   )
 
   await selectCourseInstanceIfPrompted(page)
 
-  // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/iframe")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  await frame.locator("text=Choose the right answer from given options.").waitFor()
 
-  await frame.waitForSelector("text=Choose the right answer from given options.")
+  await frame
+    .locator(`select:right-of(:text("Choose the right answer from given options."))`)
+    .selectOption({ label: "The Wright answer" })
 
-  await frame.selectOption(
-    `select:right-of(:text("Choose the right answer from given options."))`,
-    { label: "The Wright answer" },
-  )
-
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
-  await frame.waitForSelector("text=Choose the right answer from given options.")
+  await frame.locator("text=Choose the right answer from given options.").waitFor()
 
-  await frame.selectOption(
-    `select:right-of(:text("Choose the right answer from given options."))`,
-    { label: "The right answer" },
-  )
+  await frame
+    .locator(`select:right-of(:text("Choose the right answer from given options."))`)
+    .selectOption({
+      label: "The right answer",
+    })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-dropdown-feedback-correct-answer",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
   })
 
-  await page.click("text=Try again")
+  await page.locator("text=Try again").click()
 
-  await frame.waitForSelector("text=Choose the right answer from given options.")
+  await frame.locator("text=Choose the right answer from given options.").waitFor()
 
-  await frame.selectOption(
-    `select:right-of(:text("Choose the right answer from given options."))`,
-    { label: "The Wright answer" },
-  )
+  await frame
+    .locator(`select:right-of(:text("Choose the right answer from given options."))`)
+    .selectOption({
+      label: "The Wright answer",
+    })
 
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
-    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=This is an extra submit message from the teacher.`),
+    ],
   })
 })

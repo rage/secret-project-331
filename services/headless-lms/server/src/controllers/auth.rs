@@ -310,8 +310,8 @@ pub async fn logout(session: Session) -> HttpResponse {
 GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
 #[instrument(skip(session))]
-pub async fn logged_in(session: Session) -> web::Json<bool> {
-    let logged_in = authorization::has_auth_user_session(&session);
+pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<bool> {
+    let logged_in = authorization::has_auth_user_session(&session, pool).await;
     web::Json(logged_in)
 }
 

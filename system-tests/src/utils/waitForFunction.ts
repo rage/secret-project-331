@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-wait-for-timeout */
 import { Page } from "@playwright/test"
 
 const waitForFunction = async <T>(page: Page, functionToExecute: () => T): Promise<T> => {

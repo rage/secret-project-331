@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+/* stylelint-disable */
 import {
   OldQuizItemType,
   PrivateSpecQuiz,

@@ -21,6 +21,7 @@ export const fillPeerReview = async (page: Page, options: string[]) => {
     )
     .click()
   await page.getByRole("button", { name: "Submit" }).first().click()
+  await page.getByText("Operation successful!").waitFor()
 }
 
 export const waitForIframeContent = (page: Page) => {

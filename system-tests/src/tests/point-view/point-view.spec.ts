@@ -37,6 +37,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await frame.locator("text=b").click()
 
   await page.locator("text=Submit").click()
+  await page.getByRole("button", { name: "try again" }).waitFor()
 
   await page.goto("http://project-331.local/")
 

@@ -1449,6 +1449,13 @@
 <a href="#1449" id="1449">1449</a>
 <a href="#1450" id="1450">1450</a>
 <a href="#1451" id="1451">1451</a>
+<a href="#1452" id="1452">1452</a>
+<a href="#1453" id="1453">1453</a>
+<a href="#1454" id="1454">1454</a>
+<a href="#1455" id="1455">1455</a>
+<a href="#1456" id="1456">1456</a>
+<a href="#1457" id="1457">1457</a>
+<a href="#1458" id="1458">1458</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1575,6 +1582,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
     },
+    user_details::UserDetail,
 };
 <span class="kw">use </span>serde::Serialize;
 <span class="kw">use </span>serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -2577,13 +2585,19 @@ This method is mainly useful for external/std types. For example, we cannot writ
     </span>});
     <span class="macro">doc!</span>(User {
         id,
-        first_name: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.to_string()),
-        last_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
         created_at,
         updated_at,
         deleted_at: <span class="prelude-val">None</span>,
         upstream_id: <span class="prelude-val">None</span>,
-        email: <span class="string">&quot;email@example.com&quot;</span>.to_string(),
+        email_domain: <span class="prelude-val">Some</span>(<span class="string">&quot;example.com&quot;</span>.to_string()),
+    });
+    <span class="macro">doc!</span>(UserDetail {
+        user_id: Uuid::parse_str(<span class="string">&quot;ec1b4267-7dca-456e-959c-a0a7763cef40&quot;</span>).unwrap(),
+        created_at,
+        updated_at,
+        email: <span class="string">&quot;example@example.com&quot;</span>.to_string(),
+        first_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
+        last_name: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.to_string()),
     });
     <span class="macro">doc!</span>(CourseCount { count: <span class="number">1234 </span>});
     <span class="macro">doc!</span>(

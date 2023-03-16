@@ -3311,6 +3311,11 @@
 <a href="#3311" id="3311">3311</a>
 <a href="#3312" id="3312">3312</a>
 <a href="#3313" id="3313">3313</a>
+<a href="#3314" id="3314">3314</a>
+<a href="#3315" id="3315">3315</a>
+<a href="#3316" id="3316">3316</a>
+<a href="#3317" id="3317">3317</a>
+<a href="#3318" id="3318">3318</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -6339,10 +6344,15 @@ WHERE pages.order_number = $1
                 </span><span class="kw">let </span>pages = get_chapter_pages(<span class="kw-2">&amp;mut </span>tx, chapter.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="kw">for </span>page <span class="kw">in </span>pages {
-                    <span class="kw">let </span>old_path = <span class="kw-2">&amp;</span>page.url_path;
-                    <span class="kw">let </span>new_path = old_path.replacen(
+                    <span class="kw">let </span>path_with_temp_random_number = <span class="kw-2">&amp;</span>page.url_path;
+                    <span class="kw">let </span>new_path = path_with_temp_random_number.replacen(
                         <span class="kw-2">&amp;</span>randomized_chapter_number.to_string(),
                         <span class="kw-2">&amp;</span>new_chapter_number.to_string(),
+                        <span class="number">1</span>,
+                    );
+                    <span class="kw">let </span>old_path = path_with_temp_random_number.replacen(
+                        <span class="kw-2">&amp;</span>randomized_chapter_number.to_string(),
+                        <span class="kw-2">&amp;</span>chapter.chapter_number.to_string(),
                         <span class="number">1</span>,
                     );
                     <span class="comment">// update each page path associated with the modified chapter

@@ -376,6 +376,11 @@
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
 <a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
@@ -462,12 +467,13 @@
                 RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id AS &quot;id!&quot;,
-  users.first_name,
-  users.last_name,
-  email AS &quot;email!&quot;,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS &quot;role!: UserRole&quot;
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE is_global = TRUE
 AND roles.deleted_at IS NULL
 &quot;#</span>,
@@ -480,12 +486,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS &quot;role: UserRole&quot;
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.organization_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
@@ -499,12 +506,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS &quot;role: UserRole&quot;
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.course_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
@@ -518,12 +526,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS &quot;role: UserRole&quot;
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.course_instance_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
@@ -537,12 +546,13 @@ AND roles.deleted_at IS NULL
                 RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
-  users.first_name,
-  users.last_name,
-  email,
+  user_details.first_name,
+  user_details.last_name,
+  user_details.email,
   role AS &quot;role: UserRole&quot;
 FROM users
   JOIN roles ON users.id = roles.user_id
+  JOIN user_details ON users.id = user_details.user_id
 WHERE roles.exam_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,

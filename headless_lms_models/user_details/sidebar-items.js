@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["get_user_details_by_user_id",""],["get_users_details_by_user_id_map",""]],"struct":[["UserDetail",""]]};

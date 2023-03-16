@@ -300,6 +300,8 @@
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>sqlx::{Postgres, QueryBuilder, Row};
@@ -552,10 +554,11 @@ where peer_review_config_id = $1
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     peer_review_questions: <span class="kw-2">&amp;</span>[CmsPeerReviewQuestion],
 ) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>sql:QueryBuilder&lt;Postgres&gt; = sqlx::QueryBuilder::new(<span class="string">&quot;INSERT INTO peer_review_questions (peer_review_config_id, order_number, question_type, question, answer_required) &quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>sql:QueryBuilder&lt;Postgres&gt; = sqlx::QueryBuilder::new(<span class="string">&quot;INSERT INTO peer_review_questions (id, peer_review_config_id, order_number, question_type, question, answer_required) &quot;</span>);
 
     sql.push_values(peer_review_questions, |<span class="kw-2">mut </span>x, prq| {
-        x.push_bind(prq.peer_review_config_id)
+        x.push_bind(prq.id)
+            .push_bind(prq.peer_review_config_id)
             .push_bind(prq.order_number)
             .push_bind(prq.question_type)
             .push_bind(prq.question.as_str())
@@ -568,7 +571,8 @@ SET peer_review_config_id = excluded.peer_review_config_id,
   order_number = excluded.order_number,
   question_type = excluded.question_type,
   question = excluded.question,
-  answer_required = excluded.answer_required
+  answer_required = excluded.answer_required,
+  deleted_at = NULL
 RETURNING id;
 &quot;#</span>,
     );

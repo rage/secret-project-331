@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.44/src/cipher_ctx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cipher_ctx.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.45/src/cipher_ctx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cipher_ctx.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -839,121 +839,6 @@
 <a href="#839" id="839">839</a>
 <a href="#840" id="840">840</a>
 <a href="#841" id="841">841</a>
-<a href="#842" id="842">842</a>
-<a href="#843" id="843">843</a>
-<a href="#844" id="844">844</a>
-<a href="#845" id="845">845</a>
-<a href="#846" id="846">846</a>
-<a href="#847" id="847">847</a>
-<a href="#848" id="848">848</a>
-<a href="#849" id="849">849</a>
-<a href="#850" id="850">850</a>
-<a href="#851" id="851">851</a>
-<a href="#852" id="852">852</a>
-<a href="#853" id="853">853</a>
-<a href="#854" id="854">854</a>
-<a href="#855" id="855">855</a>
-<a href="#856" id="856">856</a>
-<a href="#857" id="857">857</a>
-<a href="#858" id="858">858</a>
-<a href="#859" id="859">859</a>
-<a href="#860" id="860">860</a>
-<a href="#861" id="861">861</a>
-<a href="#862" id="862">862</a>
-<a href="#863" id="863">863</a>
-<a href="#864" id="864">864</a>
-<a href="#865" id="865">865</a>
-<a href="#866" id="866">866</a>
-<a href="#867" id="867">867</a>
-<a href="#868" id="868">868</a>
-<a href="#869" id="869">869</a>
-<a href="#870" id="870">870</a>
-<a href="#871" id="871">871</a>
-<a href="#872" id="872">872</a>
-<a href="#873" id="873">873</a>
-<a href="#874" id="874">874</a>
-<a href="#875" id="875">875</a>
-<a href="#876" id="876">876</a>
-<a href="#877" id="877">877</a>
-<a href="#878" id="878">878</a>
-<a href="#879" id="879">879</a>
-<a href="#880" id="880">880</a>
-<a href="#881" id="881">881</a>
-<a href="#882" id="882">882</a>
-<a href="#883" id="883">883</a>
-<a href="#884" id="884">884</a>
-<a href="#885" id="885">885</a>
-<a href="#886" id="886">886</a>
-<a href="#887" id="887">887</a>
-<a href="#888" id="888">888</a>
-<a href="#889" id="889">889</a>
-<a href="#890" id="890">890</a>
-<a href="#891" id="891">891</a>
-<a href="#892" id="892">892</a>
-<a href="#893" id="893">893</a>
-<a href="#894" id="894">894</a>
-<a href="#895" id="895">895</a>
-<a href="#896" id="896">896</a>
-<a href="#897" id="897">897</a>
-<a href="#898" id="898">898</a>
-<a href="#899" id="899">899</a>
-<a href="#900" id="900">900</a>
-<a href="#901" id="901">901</a>
-<a href="#902" id="902">902</a>
-<a href="#903" id="903">903</a>
-<a href="#904" id="904">904</a>
-<a href="#905" id="905">905</a>
-<a href="#906" id="906">906</a>
-<a href="#907" id="907">907</a>
-<a href="#908" id="908">908</a>
-<a href="#909" id="909">909</a>
-<a href="#910" id="910">910</a>
-<a href="#911" id="911">911</a>
-<a href="#912" id="912">912</a>
-<a href="#913" id="913">913</a>
-<a href="#914" id="914">914</a>
-<a href="#915" id="915">915</a>
-<a href="#916" id="916">916</a>
-<a href="#917" id="917">917</a>
-<a href="#918" id="918">918</a>
-<a href="#919" id="919">919</a>
-<a href="#920" id="920">920</a>
-<a href="#921" id="921">921</a>
-<a href="#922" id="922">922</a>
-<a href="#923" id="923">923</a>
-<a href="#924" id="924">924</a>
-<a href="#925" id="925">925</a>
-<a href="#926" id="926">926</a>
-<a href="#927" id="927">927</a>
-<a href="#928" id="928">928</a>
-<a href="#929" id="929">929</a>
-<a href="#930" id="930">930</a>
-<a href="#931" id="931">931</a>
-<a href="#932" id="932">932</a>
-<a href="#933" id="933">933</a>
-<a href="#934" id="934">934</a>
-<a href="#935" id="935">935</a>
-<a href="#936" id="936">936</a>
-<a href="#937" id="937">937</a>
-<a href="#938" id="938">938</a>
-<a href="#939" id="939">939</a>
-<a href="#940" id="940">940</a>
-<a href="#941" id="941">941</a>
-<a href="#942" id="942">942</a>
-<a href="#943" id="943">943</a>
-<a href="#944" id="944">944</a>
-<a href="#945" id="945">945</a>
-<a href="#946" id="946">946</a>
-<a href="#947" id="947">947</a>
-<a href="#948" id="948">948</a>
-<a href="#949" id="949">949</a>
-<a href="#950" id="950">950</a>
-<a href="#951" id="951">951</a>
-<a href="#952" id="952">952</a>
-<a href="#953" id="953">953</a>
-<a href="#954" id="954">954</a>
-<a href="#955" id="955">955</a>
-<a href="#956" id="956">956</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The symmetric encryption context.
 //!
 //! # Examples
@@ -1335,49 +1220,6 @@
         <span class="kw">unsafe </span>{ ffi::EVP_CIPHER_CTX_num(<span class="self">self</span>.as_ptr()) <span class="kw">as </span>usize }
     }
 
-    <span class="doccomment">/// Returns number of bytes cached in partial block update.
-    </span><span class="attr">#[cfg(ossl110)]
-    </span><span class="kw">fn </span>used_block_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.num()
-    }
-
-    <span class="doccomment">/// Returns maximum number of bytes that could be cached.
-    </span><span class="attr">#[cfg(not(ossl110))]
-    </span><span class="kw">fn </span>used_block_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.block_size()
-    }
-
-    <span class="doccomment">/// Calculate the minimal size of the output buffer given the
-    /// input buffer size.
-    ///
-    /// For streaming ciphers the minimal output size is the same as
-    /// the input size. For block ciphers the minimal output size
-    /// additionally depends on the partial blocks that might have
-    /// been written in previous calls to [`Self::cipher_update`].
-    ///
-    /// This function takes into account the number of partially
-    /// written blocks for block ciphers for supported targets
-    /// (OpenSSL &gt;= 1.1). For unsupported targets the number of
-    /// partially written bytes is assumed to contain one full block
-    /// (pessimistic case).
-    ///
-    /// # Panics
-    ///
-    /// Panics if the context has not been initialized with a cipher.
-    </span><span class="kw">pub fn </span>minimal_output_size(<span class="kw-2">&amp;</span><span class="self">self</span>, inlen: usize) -&gt; usize {
-        <span class="kw">let </span>block_size = <span class="self">self</span>.block_size();
-        <span class="kw">if </span>block_size &gt; <span class="number">1 </span>{
-            <span class="comment">// block cipher
-            </span><span class="kw">let </span>num = <span class="self">self</span>.used_block_size();
-            <span class="kw">let </span>total_size = inlen + num;
-            <span class="kw">let </span>num_blocks = total_size / block_size;
-            num_blocks * block_size
-        } <span class="kw">else </span>{
-            <span class="comment">// streaming cipher
-            </span>inlen
-        }
-    }
-
     <span class="doccomment">/// Sets the length of the IV expected by this context.
     ///
     /// Only some ciphers support configurable IV lengths.
@@ -1525,7 +1367,11 @@
         output: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>[u8]&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(output) = <span class="kw-2">&amp;</span>output {
-            <span class="kw">let </span>min_output_size = <span class="self">self</span>.minimal_output_size(input.len());
+            <span class="kw">let </span><span class="kw-2">mut </span>block_size = <span class="self">self</span>.block_size();
+            <span class="kw">if </span>block_size == <span class="number">1 </span>{
+                block_size = <span class="number">0</span>;
+            }
+            <span class="kw">let </span>min_output_size = input.len() + block_size;
             <span class="macro">assert!</span>(
                 output.len() &gt;= min_output_size,
                 <span class="string">&quot;Output buffer size should be at least {} bytes.&quot;</span>,
@@ -1544,16 +1390,13 @@
     ///
     /// This function is the same as [`Self::cipher_update`] but with the
     /// output size check removed. It can be used when the exact
-    /// buffer size control is maintained by the caller and the
-    /// underlying cryptographic library doesn&#39;t expose exact block
-    /// cache data (e.g. OpenSSL &lt; 1.1, BoringSSL, LibreSSL).
+    /// buffer size control is maintained by the caller.
     ///
     /// SAFETY: The caller is expected to provide `output` buffer
     /// large enough to contain correct number of bytes. For streaming
     /// ciphers the output buffer size should be at least as big as
     /// the input buffer. For block ciphers the size of the output
-    /// buffer depends on the state of partially updated blocks (see
-    /// [`Self::minimal_output_size`]).
+    /// buffer depends on the state of partially updated blocks.
     </span><span class="attr">#[corresponds(EVP_CipherUpdate)]
     </span><span class="kw">pub unsafe fn </span>cipher_update_unchecked(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -1605,14 +1448,34 @@
             <span class="macro">assert!</span>(output.len() &gt;= block_size);
         }
 
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.cipher_final_unchecked(output) }
+    }
+
+    <span class="doccomment">/// Finalizes the encryption or decryption process.
+    ///
+    /// Any remaining data will be written to the output buffer.
+    ///
+    /// Returns the number of bytes written to `output`.
+    ///
+    /// This function is the same as [`Self::cipher_final`] but with
+    /// the output buffer size check removed.
+    ///
+    /// SAFETY: The caller is expected to provide `output` buffer
+    /// large enough to contain correct number of bytes. For streaming
+    /// ciphers the output buffer can be empty, for block ciphers the
+    /// output buffer should be at least as big as the block.
+    </span><span class="attr">#[corresponds(EVP_CipherFinal)]
+    </span><span class="kw">pub unsafe fn </span>cipher_final_unchecked(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        output: <span class="kw-2">&amp;mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorStack&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>outl = <span class="number">0</span>;
-        <span class="kw">unsafe </span>{
-            cvt(ffi::EVP_CipherFinal(
-                <span class="self">self</span>.as_ptr(),
-                output.as_mut_ptr(),
-                <span class="kw-2">&amp;mut </span>outl,
-            ))<span class="question-mark">?</span>;
-        }
+
+        cvt(ffi::EVP_CipherFinal(
+            <span class="self">self</span>.as_ptr(),
+            output.as_mut_ptr(),
+            <span class="kw-2">&amp;mut </span>outl,
+        ))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(outl <span class="kw">as </span>usize)
     }
@@ -1714,75 +1577,6 @@
     }
 
     <span class="attr">#[test]
-    #[cfg(ossl110)]
-    </span><span class="kw">fn </span>partial_block_updates() {
-        test_block_cipher_for_partial_block_updates(Cipher::aes_128_cbc());
-        test_block_cipher_for_partial_block_updates(Cipher::aes_256_cbc());
-        test_block_cipher_for_partial_block_updates(Cipher::des_ede3_cbc());
-    }
-
-    <span class="attr">#[cfg(ossl110)]
-    </span><span class="kw">fn </span>test_block_cipher_for_partial_block_updates(cipher: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>CipherRef) {
-        <span class="kw">let </span><span class="kw-2">mut </span>key = <span class="macro">vec!</span>[<span class="number">0</span>; cipher.key_length()];
-        rand_bytes(<span class="kw-2">&amp;mut </span>key).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>iv = <span class="macro">vec!</span>[<span class="number">0</span>; cipher.iv_length()];
-        rand_bytes(<span class="kw-2">&amp;mut </span>iv).unwrap();
-
-        <span class="kw">let </span><span class="kw-2">mut </span>ctx = CipherCtx::new().unwrap();
-
-        ctx.encrypt_init(<span class="prelude-val">Some</span>(cipher), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>key), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>iv))
-            .unwrap();
-        ctx.set_padding(<span class="bool-val">false</span>);
-
-        <span class="kw">let </span>block_size = cipher.block_size();
-        <span class="macro">assert!</span>(block_size &gt; <span class="number">1</span>, <span class="string">&quot;Need a block cipher, not a stream cipher&quot;</span>);
-
-        <span class="comment">// update cipher with non-full block
-        // expect no output until a block is complete
-        </span><span class="kw">let </span>outlen = ctx
-            .cipher_update(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">0</span>; block_size - <span class="number">1</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">0</span>]))
-            .unwrap();
-        <span class="macro">assert_eq!</span>(<span class="number">0</span>, outlen);
-
-        <span class="comment">// update cipher with missing bytes from the previous block
-        // and one additional block, output should contain two blocks
-        </span><span class="kw">let </span><span class="kw-2">mut </span>two_blocks = <span class="macro">vec!</span>[<span class="number">0</span>; block_size * <span class="number">2</span>];
-        <span class="kw">let </span>outlen = ctx
-            .cipher_update(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">0</span>; block_size + <span class="number">1</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>two_blocks))
-            .unwrap();
-        <span class="macro">assert_eq!</span>(block_size * <span class="number">2</span>, outlen);
-
-        ctx.cipher_final_vec(<span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">0</span>]).unwrap();
-
-        <span class="comment">// try to decrypt
-        </span>ctx.decrypt_init(<span class="prelude-val">Some</span>(cipher), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>key), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>iv))
-            .unwrap();
-        ctx.set_padding(<span class="bool-val">false</span>);
-
-        <span class="comment">// update cipher with non-full block
-        // expect no output until a block is complete
-        </span><span class="kw">let </span>outlen = ctx
-            .cipher_update(<span class="kw-2">&amp;</span>two_blocks[<span class="number">0</span>..block_size - <span class="number">1</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">0</span>]))
-            .unwrap();
-        <span class="macro">assert_eq!</span>(<span class="number">0</span>, outlen);
-
-        <span class="comment">// update cipher with missing bytes from the previous block
-        // and one additional block, output should contain two blocks
-        </span><span class="kw">let </span><span class="kw-2">mut </span>two_blocks_decrypted = <span class="macro">vec!</span>[<span class="number">0</span>; block_size * <span class="number">2</span>];
-        <span class="kw">let </span>outlen = ctx
-            .cipher_update(
-                <span class="kw-2">&amp;</span>two_blocks[block_size - <span class="number">1</span>..],
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>two_blocks_decrypted),
-            )
-            .unwrap();
-        <span class="macro">assert_eq!</span>(block_size * <span class="number">2</span>, outlen);
-
-        ctx.cipher_final_vec(<span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">0</span>]).unwrap();
-        <span class="comment">// check if the decrypted blocks are the same as input (all zeros)
-        </span><span class="macro">assert_eq!</span>(two_blocks_decrypted, <span class="macro">vec!</span>[<span class="number">0</span>; block_size * <span class="number">2</span>]);
-    }
-
-    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_stream_ciphers() {
         test_stream_cipher(Cipher::aes_192_ctr());
         test_stream_cipher(Cipher::aes_256_ctr());
@@ -1850,43 +1644,19 @@
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 16 bytes.&quot;</span>)]
-    #[cfg(ossl110)]
+    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 33 bytes.&quot;</span>)]
     </span><span class="kw">fn </span>full_block_updates_aes_128() {
         output_buffer_too_small(Cipher::aes_128_cbc());
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 16 bytes.&quot;</span>)]
-    #[cfg(ossl110)]
+    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 33 bytes.&quot;</span>)]
     </span><span class="kw">fn </span>full_block_updates_aes_256() {
         output_buffer_too_small(Cipher::aes_256_cbc());
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 8 bytes.&quot;</span>)]
-    #[cfg(ossl110)]
-    </span><span class="kw">fn </span>full_block_updates_3des() {
-        output_buffer_too_small(Cipher::des_ede3_cbc());
-    }
-
-    <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 32 bytes.&quot;</span>)]
-    #[cfg(not(ossl110))]
-    </span><span class="kw">fn </span>full_block_updates_aes_128() {
-        output_buffer_too_small(Cipher::aes_128_cbc());
-    }
-
-    <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 32 bytes.&quot;</span>)]
-    #[cfg(not(ossl110))]
-    </span><span class="kw">fn </span>full_block_updates_aes_256() {
-        output_buffer_too_small(Cipher::aes_256_cbc());
-    }
-
-    <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 16 bytes.&quot;</span>)]
-    #[cfg(not(ossl110))]
+    #[should_panic(expected = <span class="string">&quot;Output buffer size should be at least 17 bytes.&quot;</span>)]
     </span><span class="kw">fn </span>full_block_updates_3des() {
         output_buffer_too_small(Cipher::des_ede3_cbc());
     }

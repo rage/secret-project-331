@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/object-0.29.0/src/elf.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>elf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../object/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/object-0.30.0/src/elf.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>elf.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../object/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -6402,6 +6402,227 @@
 <a href="#6402" id="6402">6402</a>
 <a href="#6403" id="6403">6403</a>
 <a href="#6404" id="6404">6404</a>
+<a href="#6405" id="6405">6405</a>
+<a href="#6406" id="6406">6406</a>
+<a href="#6407" id="6407">6407</a>
+<a href="#6408" id="6408">6408</a>
+<a href="#6409" id="6409">6409</a>
+<a href="#6410" id="6410">6410</a>
+<a href="#6411" id="6411">6411</a>
+<a href="#6412" id="6412">6412</a>
+<a href="#6413" id="6413">6413</a>
+<a href="#6414" id="6414">6414</a>
+<a href="#6415" id="6415">6415</a>
+<a href="#6416" id="6416">6416</a>
+<a href="#6417" id="6417">6417</a>
+<a href="#6418" id="6418">6418</a>
+<a href="#6419" id="6419">6419</a>
+<a href="#6420" id="6420">6420</a>
+<a href="#6421" id="6421">6421</a>
+<a href="#6422" id="6422">6422</a>
+<a href="#6423" id="6423">6423</a>
+<a href="#6424" id="6424">6424</a>
+<a href="#6425" id="6425">6425</a>
+<a href="#6426" id="6426">6426</a>
+<a href="#6427" id="6427">6427</a>
+<a href="#6428" id="6428">6428</a>
+<a href="#6429" id="6429">6429</a>
+<a href="#6430" id="6430">6430</a>
+<a href="#6431" id="6431">6431</a>
+<a href="#6432" id="6432">6432</a>
+<a href="#6433" id="6433">6433</a>
+<a href="#6434" id="6434">6434</a>
+<a href="#6435" id="6435">6435</a>
+<a href="#6436" id="6436">6436</a>
+<a href="#6437" id="6437">6437</a>
+<a href="#6438" id="6438">6438</a>
+<a href="#6439" id="6439">6439</a>
+<a href="#6440" id="6440">6440</a>
+<a href="#6441" id="6441">6441</a>
+<a href="#6442" id="6442">6442</a>
+<a href="#6443" id="6443">6443</a>
+<a href="#6444" id="6444">6444</a>
+<a href="#6445" id="6445">6445</a>
+<a href="#6446" id="6446">6446</a>
+<a href="#6447" id="6447">6447</a>
+<a href="#6448" id="6448">6448</a>
+<a href="#6449" id="6449">6449</a>
+<a href="#6450" id="6450">6450</a>
+<a href="#6451" id="6451">6451</a>
+<a href="#6452" id="6452">6452</a>
+<a href="#6453" id="6453">6453</a>
+<a href="#6454" id="6454">6454</a>
+<a href="#6455" id="6455">6455</a>
+<a href="#6456" id="6456">6456</a>
+<a href="#6457" id="6457">6457</a>
+<a href="#6458" id="6458">6458</a>
+<a href="#6459" id="6459">6459</a>
+<a href="#6460" id="6460">6460</a>
+<a href="#6461" id="6461">6461</a>
+<a href="#6462" id="6462">6462</a>
+<a href="#6463" id="6463">6463</a>
+<a href="#6464" id="6464">6464</a>
+<a href="#6465" id="6465">6465</a>
+<a href="#6466" id="6466">6466</a>
+<a href="#6467" id="6467">6467</a>
+<a href="#6468" id="6468">6468</a>
+<a href="#6469" id="6469">6469</a>
+<a href="#6470" id="6470">6470</a>
+<a href="#6471" id="6471">6471</a>
+<a href="#6472" id="6472">6472</a>
+<a href="#6473" id="6473">6473</a>
+<a href="#6474" id="6474">6474</a>
+<a href="#6475" id="6475">6475</a>
+<a href="#6476" id="6476">6476</a>
+<a href="#6477" id="6477">6477</a>
+<a href="#6478" id="6478">6478</a>
+<a href="#6479" id="6479">6479</a>
+<a href="#6480" id="6480">6480</a>
+<a href="#6481" id="6481">6481</a>
+<a href="#6482" id="6482">6482</a>
+<a href="#6483" id="6483">6483</a>
+<a href="#6484" id="6484">6484</a>
+<a href="#6485" id="6485">6485</a>
+<a href="#6486" id="6486">6486</a>
+<a href="#6487" id="6487">6487</a>
+<a href="#6488" id="6488">6488</a>
+<a href="#6489" id="6489">6489</a>
+<a href="#6490" id="6490">6490</a>
+<a href="#6491" id="6491">6491</a>
+<a href="#6492" id="6492">6492</a>
+<a href="#6493" id="6493">6493</a>
+<a href="#6494" id="6494">6494</a>
+<a href="#6495" id="6495">6495</a>
+<a href="#6496" id="6496">6496</a>
+<a href="#6497" id="6497">6497</a>
+<a href="#6498" id="6498">6498</a>
+<a href="#6499" id="6499">6499</a>
+<a href="#6500" id="6500">6500</a>
+<a href="#6501" id="6501">6501</a>
+<a href="#6502" id="6502">6502</a>
+<a href="#6503" id="6503">6503</a>
+<a href="#6504" id="6504">6504</a>
+<a href="#6505" id="6505">6505</a>
+<a href="#6506" id="6506">6506</a>
+<a href="#6507" id="6507">6507</a>
+<a href="#6508" id="6508">6508</a>
+<a href="#6509" id="6509">6509</a>
+<a href="#6510" id="6510">6510</a>
+<a href="#6511" id="6511">6511</a>
+<a href="#6512" id="6512">6512</a>
+<a href="#6513" id="6513">6513</a>
+<a href="#6514" id="6514">6514</a>
+<a href="#6515" id="6515">6515</a>
+<a href="#6516" id="6516">6516</a>
+<a href="#6517" id="6517">6517</a>
+<a href="#6518" id="6518">6518</a>
+<a href="#6519" id="6519">6519</a>
+<a href="#6520" id="6520">6520</a>
+<a href="#6521" id="6521">6521</a>
+<a href="#6522" id="6522">6522</a>
+<a href="#6523" id="6523">6523</a>
+<a href="#6524" id="6524">6524</a>
+<a href="#6525" id="6525">6525</a>
+<a href="#6526" id="6526">6526</a>
+<a href="#6527" id="6527">6527</a>
+<a href="#6528" id="6528">6528</a>
+<a href="#6529" id="6529">6529</a>
+<a href="#6530" id="6530">6530</a>
+<a href="#6531" id="6531">6531</a>
+<a href="#6532" id="6532">6532</a>
+<a href="#6533" id="6533">6533</a>
+<a href="#6534" id="6534">6534</a>
+<a href="#6535" id="6535">6535</a>
+<a href="#6536" id="6536">6536</a>
+<a href="#6537" id="6537">6537</a>
+<a href="#6538" id="6538">6538</a>
+<a href="#6539" id="6539">6539</a>
+<a href="#6540" id="6540">6540</a>
+<a href="#6541" id="6541">6541</a>
+<a href="#6542" id="6542">6542</a>
+<a href="#6543" id="6543">6543</a>
+<a href="#6544" id="6544">6544</a>
+<a href="#6545" id="6545">6545</a>
+<a href="#6546" id="6546">6546</a>
+<a href="#6547" id="6547">6547</a>
+<a href="#6548" id="6548">6548</a>
+<a href="#6549" id="6549">6549</a>
+<a href="#6550" id="6550">6550</a>
+<a href="#6551" id="6551">6551</a>
+<a href="#6552" id="6552">6552</a>
+<a href="#6553" id="6553">6553</a>
+<a href="#6554" id="6554">6554</a>
+<a href="#6555" id="6555">6555</a>
+<a href="#6556" id="6556">6556</a>
+<a href="#6557" id="6557">6557</a>
+<a href="#6558" id="6558">6558</a>
+<a href="#6559" id="6559">6559</a>
+<a href="#6560" id="6560">6560</a>
+<a href="#6561" id="6561">6561</a>
+<a href="#6562" id="6562">6562</a>
+<a href="#6563" id="6563">6563</a>
+<a href="#6564" id="6564">6564</a>
+<a href="#6565" id="6565">6565</a>
+<a href="#6566" id="6566">6566</a>
+<a href="#6567" id="6567">6567</a>
+<a href="#6568" id="6568">6568</a>
+<a href="#6569" id="6569">6569</a>
+<a href="#6570" id="6570">6570</a>
+<a href="#6571" id="6571">6571</a>
+<a href="#6572" id="6572">6572</a>
+<a href="#6573" id="6573">6573</a>
+<a href="#6574" id="6574">6574</a>
+<a href="#6575" id="6575">6575</a>
+<a href="#6576" id="6576">6576</a>
+<a href="#6577" id="6577">6577</a>
+<a href="#6578" id="6578">6578</a>
+<a href="#6579" id="6579">6579</a>
+<a href="#6580" id="6580">6580</a>
+<a href="#6581" id="6581">6581</a>
+<a href="#6582" id="6582">6582</a>
+<a href="#6583" id="6583">6583</a>
+<a href="#6584" id="6584">6584</a>
+<a href="#6585" id="6585">6585</a>
+<a href="#6586" id="6586">6586</a>
+<a href="#6587" id="6587">6587</a>
+<a href="#6588" id="6588">6588</a>
+<a href="#6589" id="6589">6589</a>
+<a href="#6590" id="6590">6590</a>
+<a href="#6591" id="6591">6591</a>
+<a href="#6592" id="6592">6592</a>
+<a href="#6593" id="6593">6593</a>
+<a href="#6594" id="6594">6594</a>
+<a href="#6595" id="6595">6595</a>
+<a href="#6596" id="6596">6596</a>
+<a href="#6597" id="6597">6597</a>
+<a href="#6598" id="6598">6598</a>
+<a href="#6599" id="6599">6599</a>
+<a href="#6600" id="6600">6600</a>
+<a href="#6601" id="6601">6601</a>
+<a href="#6602" id="6602">6602</a>
+<a href="#6603" id="6603">6603</a>
+<a href="#6604" id="6604">6604</a>
+<a href="#6605" id="6605">6605</a>
+<a href="#6606" id="6606">6606</a>
+<a href="#6607" id="6607">6607</a>
+<a href="#6608" id="6608">6608</a>
+<a href="#6609" id="6609">6609</a>
+<a href="#6610" id="6610">6610</a>
+<a href="#6611" id="6611">6611</a>
+<a href="#6612" id="6612">6612</a>
+<a href="#6613" id="6613">6613</a>
+<a href="#6614" id="6614">6614</a>
+<a href="#6615" id="6615">6615</a>
+<a href="#6616" id="6616">6616</a>
+<a href="#6617" id="6617">6617</a>
+<a href="#6618" id="6618">6618</a>
+<a href="#6619" id="6619">6619</a>
+<a href="#6620" id="6620">6620</a>
+<a href="#6621" id="6621">6621</a>
+<a href="#6622" id="6622">6622</a>
+<a href="#6623" id="6623">6623</a>
+<a href="#6624" id="6624">6624</a>
+<a href="#6625" id="6625">6625</a>
 </pre><pre class="rust"><code><span class="doccomment">//! ELF definitions.
 //!
 //! These definitions are independent of read/write support, although we do implement
@@ -12655,18 +12876,17 @@
 </span><span class="kw">pub const </span>R_NDS32_TLS_DESC: u32 = <span class="number">119</span>;
 
 <span class="comment">// LoongArch values `FileHeader*::e_flags`.
-</span><span class="doccomment">/// Uses 64-bit GPRs and the stack for parameter passing
-</span><span class="kw">pub const </span>EF_LARCH_ABI_LP64S: u32 = <span class="number">0x1</span>;
-<span class="doccomment">/// Uses 64-bit GPRs, 32-bit FPRs and the stack for parameter passing
-</span><span class="kw">pub const </span>EF_LARCH_ABI_LP64F: u32 = <span class="number">0x2</span>;
-<span class="doccomment">/// Uses 64-bit GPRs, 64-bit FPRs and the stack for parameter passing
-</span><span class="kw">pub const </span>EF_LARCH_ABI_LP64D: u32 = <span class="number">0x3</span>;
-<span class="doccomment">/// Uses 32-bit GPRs and the stack for parameter passing
-</span><span class="kw">pub const </span>EF_LARCH_ABI_ILP32S: u32 = <span class="number">0x5</span>;
-<span class="doccomment">/// Uses 32-bit GPRs, 32-bit FPRs and the stack for parameter passing
-</span><span class="kw">pub const </span>EF_LARCH_ABI_ILP32F: u32 = <span class="number">0x6</span>;
-<span class="doccomment">/// Uses 32-bit GPRs, 64-bit FPRs and the stack for parameter passing
-</span><span class="kw">pub const </span>EF_LARCH_ABI_ILP32D: u32 = <span class="number">0x7</span>;
+</span><span class="doccomment">/// Additional properties of the base ABI type, including the FP calling
+/// convention.
+</span><span class="kw">pub const </span>EF_LARCH_ABI_MODIFIER_MASK: u32 = <span class="number">0x7</span>;
+<span class="doccomment">/// Uses GPRs and the stack for parameter passing
+</span><span class="kw">pub const </span>EF_LARCH_ABI_SOFT_FLOAT: u32 = <span class="number">0x1</span>;
+<span class="doccomment">/// Uses GPRs, 32-bit FPRs and the stack for parameter passing
+</span><span class="kw">pub const </span>EF_LARCH_ABI_SINGLE_FLOAT: u32 = <span class="number">0x2</span>;
+<span class="doccomment">/// Uses GPRs, 64-bit FPRs and the stack for parameter passing
+</span><span class="kw">pub const </span>EF_LARCH_ABI_DOUBLE_FLOAT: u32 = <span class="number">0x3</span>;
+<span class="doccomment">/// Uses relocation types directly writing to immediate slots
+</span><span class="kw">pub const </span>EF_LARCH_OBJABI_V1: u32 = <span class="number">0x40</span>;
 
 <span class="comment">// LoongArch values `Rel*::r_type`.
 </span><span class="doccomment">/// No reloc
@@ -12776,6 +12996,228 @@
 </span><span class="kw">pub const </span>R_LARCH_GNU_VTINHERIT: u32 = <span class="number">57</span>;
 <span class="doccomment">/// GNU C++ vtable member usage
 </span><span class="kw">pub const </span>R_LARCH_GNU_VTENTRY: u32 = <span class="number">58</span>;
+<span class="doccomment">/// 18-bit PC-relative jump offset with two trailing zeros
+</span><span class="kw">pub const </span>R_LARCH_B16: u32 = <span class="number">64</span>;
+<span class="doccomment">/// 23-bit PC-relative jump offset with two trailing zeros
+</span><span class="kw">pub const </span>R_LARCH_B21: u32 = <span class="number">65</span>;
+<span class="doccomment">/// 28-bit PC-relative jump offset with two trailing zeros
+</span><span class="kw">pub const </span>R_LARCH_B26: u32 = <span class="number">66</span>;
+<span class="doccomment">/// 12..=31 bits of 32/64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_ABS_HI20: u32 = <span class="number">67</span>;
+<span class="doccomment">/// 0..=11 bits of 32/64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_ABS_LO12: u32 = <span class="number">68</span>;
+<span class="doccomment">/// 32..=51 bits of 64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_ABS64_LO20: u32 = <span class="number">69</span>;
+<span class="doccomment">/// 52..=63 bits of 64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_ABS64_HI12: u32 = <span class="number">70</span>;
+<span class="doccomment">/// The signed 32-bit offset `offs` from `PC &amp; 0xfffff000` to
+/// `(S + A + 0x800) &amp; 0xfffff000`, with 12 trailing zeros removed.
+///
+/// We define the *PC relative anchor* for `S + A` as `PC + offs` (`offs`
+/// is sign-extended to VA bits).
+</span><span class="kw">pub const </span>R_LARCH_PCALA_HI20: u32 = <span class="number">71</span>;
+<span class="doccomment">/// Same as R_LARCH_ABS_LO12.  0..=11 bits of the 32/64-bit offset from the
+/// [PC relative anchor][R_LARCH_PCALA_HI20].
+</span><span class="kw">pub const </span>R_LARCH_PCALA_LO12: u32 = <span class="number">72</span>;
+<span class="doccomment">/// 32..=51 bits of the 64-bit offset from the
+/// [PC relative anchor][R_LARCH_PCALA_HI20].
+</span><span class="kw">pub const </span>R_LARCH_PCALA64_LO20: u32 = <span class="number">73</span>;
+<span class="doccomment">/// 52..=63 bits of the 64-bit offset from the
+/// [PC relative anchor][R_LARCH_PCALA_HI20].
+</span><span class="kw">pub const </span>R_LARCH_PCALA64_HI12: u32 = <span class="number">74</span>;
+<span class="doccomment">/// The signed 32-bit offset `offs` from `PC &amp; 0xfffff000` to
+/// `(GP + G + 0x800) &amp; 0xfffff000`, with 12 trailing zeros removed.
+///
+/// We define the *PC relative anchor* for the GOT entry at `GP + G` as
+/// `PC + offs` (`offs` is sign-extended to VA bits).
+</span><span class="kw">pub const </span>R_LARCH_GOT_PC_HI20: u32 = <span class="number">75</span>;
+<span class="doccomment">/// 0..=11 bits of the 32/64-bit offset from the
+/// [PC relative anchor][R_LARCH_GOT_PC_HI20] to the GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_GOT_PC_LO12: u32 = <span class="number">76</span>;
+<span class="doccomment">/// 32..=51 bits of the 64-bit offset from the
+/// [PC relative anchor][R_LARCH_GOT_PC_HI20] to the GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_GOT64_PC_LO20: u32 = <span class="number">77</span>;
+<span class="doccomment">/// 52..=63 bits of the 64-bit offset from the
+/// [PC relative anchor][R_LARCH_GOT_PC_HI20] to the GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_GOT64_PC_HI12: u32 = <span class="number">78</span>;
+<span class="doccomment">/// 12..=31 bits of 32/64-bit GOT entry absolute address
+</span><span class="kw">pub const </span>R_LARCH_GOT_HI20: u32 = <span class="number">79</span>;
+<span class="doccomment">/// 0..=11 bits of 32/64-bit GOT entry absolute address
+</span><span class="kw">pub const </span>R_LARCH_GOT_LO12: u32 = <span class="number">80</span>;
+<span class="doccomment">/// 32..=51 bits of 64-bit GOT entry absolute address
+</span><span class="kw">pub const </span>R_LARCH_GOT64_LO20: u32 = <span class="number">81</span>;
+<span class="doccomment">/// 52..=63 bits of 64-bit GOT entry absolute address
+</span><span class="kw">pub const </span>R_LARCH_GOT64_HI12: u32 = <span class="number">82</span>;
+<span class="doccomment">/// 12..=31 bits of TLS LE 32/64-bit offset from thread pointer
+</span><span class="kw">pub const </span>R_LARCH_TLS_LE_HI20: u32 = <span class="number">83</span>;
+<span class="doccomment">/// 0..=11 bits of TLS LE 32/64-bit offset from thread pointer
+</span><span class="kw">pub const </span>R_LARCH_TLS_LE_LO12: u32 = <span class="number">84</span>;
+<span class="doccomment">/// 32..=51 bits of TLS LE 64-bit offset from thread pointer
+</span><span class="kw">pub const </span>R_LARCH_TLS_LE64_LO20: u32 = <span class="number">85</span>;
+<span class="doccomment">/// 52..=63 bits of TLS LE 64-bit offset from thread pointer
+</span><span class="kw">pub const </span>R_LARCH_TLS_LE64_HI12: u32 = <span class="number">86</span>;
+<span class="doccomment">/// The signed 32-bit offset `offs` from `PC &amp; 0xfffff000` to
+/// `(GP + IE + 0x800) &amp; 0xfffff000`, with 12 trailing zeros removed.
+///
+/// We define the *PC relative anchor* for the TLS IE GOT entry at
+/// `GP + IE` as `PC + offs` (`offs` is sign-extended to VA bits).
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE_PC_HI20: u32 = <span class="number">87</span>;
+<span class="doccomment">/// 0..=12 bits of the 32/64-bit offset from the
+/// [PC-relative anchor][R_LARCH_TLS_IE_PC_HI20] to the TLS IE GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE_PC_LO12: u32 = <span class="number">88</span>;
+<span class="doccomment">/// 32..=51 bits of the 64-bit offset from the
+/// [PC-relative anchor][R_LARCH_TLS_IE_PC_HI20] to the TLS IE GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE64_PC_LO20: u32 = <span class="number">89</span>;
+<span class="doccomment">/// 52..=63 bits of the 64-bit offset from the
+/// [PC-relative anchor][R_LARCH_TLS_IE_PC_HI20] to the TLS IE GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE64_PC_HI12: u32 = <span class="number">90</span>;
+<span class="doccomment">/// 12..=31 bits of TLS IE GOT entry 32/64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE_HI20: u32 = <span class="number">91</span>;
+<span class="doccomment">/// 0..=11 bits of TLS IE GOT entry 32/64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE_LO12: u32 = <span class="number">92</span>;
+<span class="doccomment">/// 32..=51 bits of TLS IE GOT entry 64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE64_LO20: u32 = <span class="number">93</span>;
+<span class="doccomment">/// 51..=63 bits of TLS IE GOT entry 64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_TLS_IE64_HI12: u32 = <span class="number">94</span>;
+<span class="doccomment">/// 12..=31 bits of the offset from `PC` to `GP + GD + 0x800`, where
+/// `GP + GD` is a TLS LD GOT entry
+</span><span class="kw">pub const </span>R_LARCH_TLS_LD_PC_HI20: u32 = <span class="number">95</span>;
+<span class="doccomment">/// 12..=31 bits of TLS LD GOT entry 32/64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_TLS_LD_HI20: u32 = <span class="number">96</span>;
+<span class="doccomment">/// 12..=31 bits of the 32/64-bit PC-relative offset to the PC-relative
+/// anchor for the TLE GD GOT entry.
+</span><span class="kw">pub const </span>R_LARCH_TLS_GD_PC_HI20: u32 = <span class="number">97</span>;
+<span class="doccomment">/// 12..=31 bits of TLS GD GOT entry 32/64-bit absolute address
+</span><span class="kw">pub const </span>R_LARCH_TLS_GD_HI20: u32 = <span class="number">98</span>;
+<span class="doccomment">/// 32-bit PC relative
+</span><span class="kw">pub const </span>R_LARCH_32_PCREL: u32 = <span class="number">99</span>;
+<span class="doccomment">/// Paired with a normal relocation at the same address to indicate the
+/// insturction can be relaxed
+</span><span class="kw">pub const </span>R_LARCH_RELAX: u32 = <span class="number">100</span>;
+
+<span class="comment">// Xtensa values Rel*::r_type`.
+</span><span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_NONE: u32 = <span class="number">0</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_32: u32 = <span class="number">1</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_RTLD: u32 = <span class="number">2</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_GLOB_DAT: u32 = <span class="number">3</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_JMP_SLOT: u32 = <span class="number">4</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_RELATIVE: u32 = <span class="number">5</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_PLT: u32 = <span class="number">6</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_OP0: u32 = <span class="number">8</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_OP1: u32 = <span class="number">9</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_OP2: u32 = <span class="number">10</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_ASM_EXPAND: u32 = <span class="number">11</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_ASM_SIMPLIFY: u32 = <span class="number">12</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_32_PCREL: u32 = <span class="number">14</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_GNU_VTINHERIT: u32 = <span class="number">15</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_GNU_VTENTRY: u32 = <span class="number">16</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_DIFF8: u32 = <span class="number">17</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_DIFF16: u32 = <span class="number">18</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_DIFF32: u32 = <span class="number">19</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT0_OP: u32 = <span class="number">20</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT1_OP: u32 = <span class="number">21</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT2_OP: u32 = <span class="number">22</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT3_OP: u32 = <span class="number">23</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT4_OP: u32 = <span class="number">24</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT5_OP: u32 = <span class="number">25</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT6_OP: u32 = <span class="number">26</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT7_OP: u32 = <span class="number">27</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT8_OP: u32 = <span class="number">28</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT9_OP: u32 = <span class="number">29</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT10_OP: u32 = <span class="number">30</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT11_OP: u32 = <span class="number">31</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT12_OP: u32 = <span class="number">32</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT13_OP: u32 = <span class="number">33</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT14_OP: u32 = <span class="number">34</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT0_ALT: u32 = <span class="number">35</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT1_ALT: u32 = <span class="number">36</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT2_ALT: u32 = <span class="number">37</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT3_ALT: u32 = <span class="number">38</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT4_ALT: u32 = <span class="number">39</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT5_ALT: u32 = <span class="number">40</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT6_ALT: u32 = <span class="number">41</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT7_ALT: u32 = <span class="number">42</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT8_ALT: u32 = <span class="number">43</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT9_ALT: u32 = <span class="number">44</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT10_ALT: u32 = <span class="number">45</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT11_ALT: u32 = <span class="number">46</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT12_ALT: u32 = <span class="number">47</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT13_ALT: u32 = <span class="number">48</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_SLOT14_ALT: u32 = <span class="number">49</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLSDESC_FN: u32 = <span class="number">50</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLSDESC_ARG: u32 = <span class="number">51</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLS_DTPOFF: u32 = <span class="number">52</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLS_TPOFF: u32 = <span class="number">53</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLS_FUNC: u32 = <span class="number">54</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLS_ARG: u32 = <span class="number">55</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_TLS_CALL: u32 = <span class="number">56</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_PDIFF8: u32 = <span class="number">57</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_PDIFF16: u32 = <span class="number">58</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_PDIFF32: u32 = <span class="number">59</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_NDIFF8: u32 = <span class="number">60</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_NDIFF16: u32 = <span class="number">61</span>;
+<span class="attr">#[allow(missing_docs)]
+</span><span class="kw">pub const </span>R_XTENSA_NDIFF32: u32 = <span class="number">62</span>;
 
 <span class="macro">unsafe_impl_endian_pod!</span>(
     FileHeader32,

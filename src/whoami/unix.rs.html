@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.3/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../whoami/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.3.0/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../whoami/index.html">
                         <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -568,6 +568,133 @@
 <a href="#567" id="567">567</a>
 <a href="#568" id="568">568</a>
 <a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright © 2017-2022 The WhoAmI Contributors.
 //
 // Licensed under any of:
@@ -577,12 +704,15 @@
 // At your choosing (See accompanying files LICENSE_APACHE_2_0.txt,
 // LICENSE_MIT.txt and LICENSE_BOOST_1_0.txt).
 
-</span><span class="kw">use crate</span>::{DesktopEnv, Platform};
-
-<span class="kw">use </span>std::ffi::{c_void, OsString};
-<span class="kw">use </span>std::mem;
-<span class="kw">use </span>std::os::unix::ffi::OsStringExt;
-
+</span><span class="kw">use </span>std::{
+    borrow::Cow,
+    ffi::{c_void, CStr, OsString},
+    mem,
+    os::{
+        raw::{c_char, c_int},
+        unix::ffi::OsStringExt,
+    },
+};
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
 </span><span class="kw">use </span>std::{
     os::{
@@ -591,6 +721,8 @@
     },
     ptr::null_mut,
 };
+
+<span class="kw">use crate</span>::{Arch, DesktopEnv, Platform};
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">struct </span>PassWd {
@@ -743,13 +875,13 @@
     <span class="kw">unsafe </span>{
         <span class="kw">let </span>len = CFStringGetLength(string);
         <span class="kw">let </span>capacity =
-            CFStringGetMaximumSizeForEncoding(len, <span class="number">134_217_984 </span><span class="comment">/*UTF8*/</span>) + <span class="number">1</span>;
+            CFStringGetMaximumSizeForEncoding(len, <span class="number">134_217_984 </span><span class="comment">/* UTF8 */</span>) + <span class="number">1</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::with_capacity(capacity <span class="kw">as </span>usize);
         <span class="kw">if </span>CFStringGetCString(
             string,
             out.as_mut_ptr(),
             capacity,
-            <span class="number">134_217_984</span>, <span class="comment">/*UTF8*/
+            <span class="number">134_217_984</span>, <span class="comment">/* UTF8 */
         </span>) != <span class="number">0
         </span>{
             out.set_len(strlen(out.as_ptr().cast())); <span class="comment">// Remove trailing NUL byte
@@ -809,11 +941,11 @@
     }
 }
 
-<span class="kw">pub fn </span>username() -&gt; String {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>username() -&gt; String {
     string_from_os(username_os())
 }
 
-<span class="kw">pub fn </span>username_os() -&gt; OsString {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>username_os() -&gt; OsString {
     getpwuid(<span class="bool-val">false</span>)
 }
 
@@ -859,21 +991,21 @@
     }
 }
 
-<span class="kw">pub fn </span>realname() -&gt; String {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>realname() -&gt; String {
     string_from_os(realname_os())
 }
 
-<span class="kw">pub fn </span>realname_os() -&gt; OsString {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>realname_os() -&gt; OsString {
     getpwuid(<span class="bool-val">true</span>)
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
-</span><span class="kw">pub fn </span>devicename_os() -&gt; OsString {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>devicename_os() -&gt; OsString {
     devicename().into()
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
-</span><span class="kw">pub fn </span>devicename() -&gt; String {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>devicename() -&gt; String {
     <span class="kw">let </span><span class="kw-2">mut </span>distro = String::new();
 
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(program) = std::fs::read_to_string(<span class="string">&quot;/etc/machine-info&quot;</span>) {
@@ -895,12 +1027,12 @@
 }
 
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
-</span><span class="kw">pub fn </span>devicename() -&gt; String {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>devicename() -&gt; String {
     string_from_os(devicename_os())
 }
 
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
-</span><span class="kw">pub fn </span>devicename_os() -&gt; OsString {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>devicename_os() -&gt; OsString {
     <span class="kw">let </span>out = os_from_cfstring(<span class="kw">unsafe </span>{
         SCDynamicStoreCopyComputerName(null_mut(), null_mut())
     });
@@ -913,7 +1045,7 @@
     fancy_fallback_os(computer)
 }
 
-<span class="kw">pub fn </span>hostname() -&gt; String {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>hostname() -&gt; String {
     string_from_os(hostname_os())
 }
 
@@ -974,20 +1106,18 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Some</span>(product_name.to_string())
         }
-    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(user_visible_version) = user_visible_version {
-        <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Mac OS (Unknown) {}&quot;</span>, user_visible_version))
     } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>}
+        user_visible_version.map(|v| <span class="macro">format!</span>(<span class="string">&quot;Mac OS (Unknown) {}&quot;</span>, v))
+    }
 }
 
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
-</span><span class="kw">pub fn </span>distro_os() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>distro_os() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
     distro().map(|a| a.into())
 }
 
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
-</span><span class="kw">pub fn </span>distro() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>distro() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(data) = std::fs::read_to_string(
         <span class="string">&quot;/System/Library/CoreServices/ServerVersion.plist&quot;</span>,
     ) {
@@ -1002,12 +1132,12 @@
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
-</span><span class="kw">pub fn </span>distro_os() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>distro_os() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
     distro().map(|a| a.into())
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
-</span><span class="kw">pub fn </span>distro() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>distro() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>distro = String::new();
 
     <span class="kw">let </span>program = std::fs::read_to_string(<span class="string">&quot;/etc/os-release&quot;</span>)
@@ -1023,7 +1153,7 @@
 
         <span class="kw">match </span>j.next()<span class="question-mark">? </span>{
             <span class="string">&quot;PRETTY_NAME&quot; </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(j.next()<span class="question-mark">?</span>.trim_matches(<span class="string">&#39;&quot;&#39;</span>).to_string())
+                <span class="kw">return </span><span class="prelude-val">Some</span>(j.next()<span class="question-mark">?</span>.trim_matches(<span class="string">&#39;&quot;&#39;</span>).to_string());
             }
             <span class="string">&quot;NAME&quot; </span>=&gt; fallback = <span class="prelude-val">Some</span>(j.next()<span class="question-mark">?</span>.trim_matches(<span class="string">&#39;&quot;&#39;</span>).to_string()),
             <span class="kw">_ </span>=&gt; {}
@@ -1035,13 +1165,13 @@
 
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
 #[inline(always)]
-</span><span class="kw">pub const fn </span>desktop_env() -&gt; DesktopEnv {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>desktop_env() -&gt; DesktopEnv {
     DesktopEnv::Aqua
 }
 
 <span class="attr">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
 #[inline(always)]
-</span><span class="kw">pub fn </span>desktop_env() -&gt; DesktopEnv {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>desktop_env() -&gt; DesktopEnv {
     <span class="kw">match </span>std::env::var_os(<span class="string">&quot;DESKTOP_SESSION&quot;</span>)
         .map(|env| env.to_string_lossy().to_string())
     {
@@ -1071,7 +1201,7 @@
 
 <span class="attr">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
 #[inline(always)]
-</span><span class="kw">pub const fn </span>platform() -&gt; Platform {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>platform() -&gt; Platform {
     Platform::MacOS
 }
 
@@ -1084,7 +1214,7 @@
     target_os = <span class="string">&quot;netbsd&quot;
 </span>)))]
 #[inline(always)]
-</span><span class="kw">pub const fn </span>platform() -&gt; Platform {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>platform() -&gt; Platform {
     Platform::Linux
 }
 
@@ -1096,7 +1226,7 @@
     target_os = <span class="string">&quot;netbsd&quot;
 </span>))]
 #[inline(always)]
-</span><span class="kw">pub const fn </span>platform() -&gt; Platform {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>platform() -&gt; Platform {
     Platform::Bsd
 }
 
@@ -1109,33 +1239,157 @@
     <span class="kw">type </span>Item = String;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">if </span><span class="self">self</span>.index<span class="question-mark">? </span>{
+        <span class="kw">if </span><span class="self">self</span>.index<span class="question-mark">? </span>&amp;&amp; <span class="self">self</span>.array.contains(<span class="string">&#39;-&#39;</span>) {
             <span class="self">self</span>.index = <span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>temp = <span class="self">self</span>.array.split(<span class="string">&#39;-&#39;</span>).next()<span class="question-mark">?</span>.to_string();
-            std::mem::swap(<span class="kw-2">&amp;mut </span>temp, <span class="kw-2">&amp;mut </span><span class="self">self</span>.array);
+            mem::swap(<span class="kw-2">&amp;mut </span>temp, <span class="kw-2">&amp;mut </span><span class="self">self</span>.array);
             <span class="prelude-val">Some</span>(temp)
         } <span class="kw">else </span>{
             <span class="self">self</span>.index = <span class="prelude-val">None</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>temp = String::new();
-            std::mem::swap(<span class="kw-2">&amp;mut </span>temp, <span class="kw-2">&amp;mut </span><span class="self">self</span>.array);
+            mem::swap(<span class="kw-2">&amp;mut </span>temp, <span class="kw-2">&amp;mut </span><span class="self">self</span>.array);
             <span class="prelude-val">Some</span>(temp)
         }
     }
 }
 
 <span class="attr">#[inline(always)]
-</span><span class="kw">pub fn </span>lang() -&gt; <span class="kw">impl </span>Iterator&lt;Item = String&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lang() -&gt; <span class="kw">impl </span>Iterator&lt;Item = String&gt; {
+    <span class="kw">const </span>DEFAULT_LANG: <span class="kw-2">&amp;</span>str = <span class="string">&quot;en_US&quot;</span>;
+
     <span class="kw">let </span>array = std::env::var(<span class="string">&quot;LANG&quot;</span>)
         .unwrap_or_default()
         .split(<span class="string">&#39;.&#39;</span>)
         .next()
-        .unwrap_or(<span class="string">&quot;en_US&quot;</span>)
-        .to_string()
-        .replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;-&quot;</span>);
+        .unwrap_or(DEFAULT_LANG)
+        .to_string();
+    <span class="kw">let </span>array = <span class="kw">if </span>array == <span class="string">&quot;C&quot; </span>{
+        DEFAULT_LANG.to_string()
+    } <span class="kw">else </span>{
+        array
+    };
+
     LangIter {
-        array,
+        array: array.replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;-&quot;</span>),
         index: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
     }
+}
+
+<span class="attr">#[repr(C)]
+#[cfg(any(
+    target_os = <span class="string">&quot;macos&quot;</span>,
+    target_os = <span class="string">&quot;ios&quot;</span>,
+    target_os = <span class="string">&quot;freebsd&quot;</span>,
+    target_os = <span class="string">&quot;dragonfly&quot;</span>,
+    target_os = <span class="string">&quot;netbsd&quot;</span>,
+    target_os = <span class="string">&quot;openbsd&quot;
+</span>))]
+</span><span class="kw">struct </span>UtsName {
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+    </span>sysname: [c_char; <span class="number">256</span>],
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;dragonfly&quot;</span>)]
+    </span>sysname: [c_char; <span class="number">32</span>],
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+    </span>nodename: [c_char; <span class="number">256</span>],
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;dragonfly&quot;</span>)]
+    </span>nodename: [c_char; <span class="number">32</span>],
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+    </span>release: [c_char; <span class="number">256</span>],
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;dragonfly&quot;</span>)]
+    </span>release: [c_char; <span class="number">32</span>],
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+    </span>version: [c_char; <span class="number">256</span>],
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;dragonfly&quot;</span>)]
+    </span>version: [c_char; <span class="number">32</span>],
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;dragonfly&quot;</span>))]
+    </span>machine: [c_char; <span class="number">256</span>],
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;dragonfly&quot;</span>)]
+    </span>machine: [c_char; <span class="number">32</span>],
+}
+
+<span class="attr">#[repr(C)]
+#[cfg(any(
+    target_os = <span class="string">&quot;linux&quot;</span>,
+    target_os = <span class="string">&quot;android&quot;</span>,
+    target_os = <span class="string">&quot;fuchsia&quot;</span>,
+    target_os = <span class="string">&quot;redox&quot;
+</span>))]
+</span><span class="kw">struct </span>UtsName {
+    sysname: [c_char; <span class="number">65</span>],
+    nodename: [c_char; <span class="number">65</span>],
+    release: [c_char; <span class="number">65</span>],
+    version: [c_char; <span class="number">65</span>],
+    machine: [c_char; <span class="number">65</span>],
+    domainname: [c_char; <span class="number">65</span>],
+}
+
+<span class="comment">// Buffer initialization
+</span><span class="kw">impl </span>Default <span class="kw">for </span>UtsName {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="kw">unsafe </span>{ mem::zeroed() }
+    }
+}
+
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;freebsd&quot;</span>))]
+    </span><span class="kw">fn </span>uname(buf: <span class="kw-2">*mut </span>UtsName) -&gt; c_int;
+
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;freebsd&quot;</span>)]
+    </span><span class="kw">fn </span>__xuname(nmln: c_int, buf: <span class="kw-2">*mut </span>c_void) -&gt; c_int;
+}
+<span class="attr">#[inline]
+#[cfg(target_os = <span class="string">&quot;freebsd&quot;</span>)]
+</span><span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>uname(buf: <span class="kw-2">*mut </span>UtsName) -&gt; c_int {
+    __xuname(<span class="number">256</span>, buf.cast())
+}
+
+<span class="kw">impl </span>Arch {
+    <span class="kw">fn </span>from_str(s: Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>arch_str = <span class="kw">match </span>s {
+            Cow::Borrowed(str) =&gt; str,
+            Cow::Owned(<span class="kw-2">ref </span>str) =&gt; str,
+        };
+        <span class="kw">match </span>arch_str {
+            <span class="string">&quot;aarch64&quot; </span>| <span class="string">&quot;arm64&quot; </span>| <span class="string">&quot;aarch64_be&quot; </span>| <span class="string">&quot;armv8b&quot; </span>| <span class="string">&quot;armv8l&quot; </span>=&gt; {
+                Arch::Arm64
+            }
+            <span class="string">&quot;armv5&quot; </span>=&gt; Arch::ArmV5,
+            <span class="string">&quot;armv6&quot; </span>| <span class="string">&quot;arm&quot; </span>=&gt; Arch::ArmV6,
+            <span class="string">&quot;armv7&quot; </span>=&gt; Arch::ArmV7,
+            <span class="string">&quot;i386&quot; </span>=&gt; Arch::I386,
+            <span class="string">&quot;i586&quot; </span>=&gt; Arch::I586,
+            <span class="string">&quot;i686&quot; </span>| <span class="string">&quot;i686-AT386&quot; </span>=&gt; Arch::I686,
+            <span class="string">&quot;mips&quot; </span>=&gt; Arch::Mips,
+            <span class="string">&quot;mipsel&quot; </span>=&gt; Arch::MipsEl,
+            <span class="string">&quot;mips64&quot; </span>=&gt; Arch::Mips64,
+            <span class="string">&quot;mips64el&quot; </span>=&gt; Arch::Mips64El,
+            <span class="string">&quot;powerpc&quot; </span>| <span class="string">&quot;ppc&quot; </span>| <span class="string">&quot;ppcle&quot; </span>=&gt; Arch::PowerPc,
+            <span class="string">&quot;powerpc64&quot; </span>| <span class="string">&quot;ppc64&quot; </span>| <span class="string">&quot;ppc64le&quot; </span>=&gt; Arch::PowerPc64,
+            <span class="string">&quot;powerpc64le&quot; </span>=&gt; Arch::PowerPc64Le,
+            <span class="string">&quot;riscv32&quot; </span>=&gt; Arch::Riscv32,
+            <span class="string">&quot;riscv64&quot; </span>=&gt; Arch::Riscv64,
+            <span class="string">&quot;s390x&quot; </span>=&gt; Arch::S390x,
+            <span class="string">&quot;sparc&quot; </span>=&gt; Arch::Sparc,
+            <span class="string">&quot;sparc64&quot; </span>=&gt; Arch::Sparc64,
+            <span class="string">&quot;wasm32&quot; </span>=&gt; Arch::Wasm32,
+            <span class="string">&quot;wasm64&quot; </span>=&gt; Arch::Wasm64,
+            <span class="string">&quot;x86_64&quot; </span>| <span class="string">&quot;amd64&quot; </span>=&gt; Arch::X64,
+            <span class="kw">_ </span>=&gt; Arch::Unknown(arch_str.to_owned()),
+        }
+    }
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>arch() -&gt; Arch {
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = UtsName::default();
+    <span class="kw">let </span>result = <span class="kw">unsafe </span>{ uname(<span class="kw-2">&amp;mut </span>buf) };
+    <span class="kw">if </span>result == -<span class="number">1 </span>{
+        <span class="kw">return </span>Arch::Unknown(<span class="string">&quot;uname(2) failed to execute&quot;</span>.to_owned());
+    }
+
+    <span class="kw">let </span>arch_str =
+        <span class="kw">unsafe </span>{ CStr::from_ptr(buf.machine.as_ptr()) }.to_string_lossy();
+
+    Arch::from_str(arch_str)
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="whoami" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

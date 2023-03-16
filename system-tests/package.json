@@ -18,7 +18,7 @@
     "record-test-user": "npm run create-login-states && npx playwright codegen --load-storage=src/states/user@example.com.json project-331.local",
     "record-test-assistant": "npm run create-login-states && npx playwright codegen --load-storage=src/states/assistant@example.com.json project-331.local",
     "record-test-creator": "npm run create-login-states && npx playwright codegen --load-storage=src/states/creator@example.com.json project-331.local",
-    "create-login-states": "env LANGUAGE=en_US  npx playwright test src/tests/example.spec.ts",
+    "create-login-states": "env LANGUAGE=en_US  npx playwright test --project setup",
     "test-debug-logs": "env DEBUG=pw:api npm run test",
     "open": "npx playwright open project-331.local",
     "update-snapshots": "npm run test-nohtml -- --update-snapshots",

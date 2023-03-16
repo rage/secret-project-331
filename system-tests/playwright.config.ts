@@ -9,14 +9,26 @@ function envToNumber(env: string, defaultNumber: number) {
   }
 }
 
+const chromeUse = {
+  ...devices["Desktop Chrome"],
+  launchOptions: {
+    // For fighting anti-aliasing from: https://github.com/microsoft/playwright/issues/8161#issuecomment-1369230603
+    args: [
+      "--font-render-hinting=none",
+      "--disable-skia-runtime-opts",
+      "--disable-font-subpixel-positioning",
+      "--disable-lcd-text",
+    ],
+  },
+}
+
 const freeMemoryGB = freemem() / (1024 * 1024 * 1024)
-// If more than 10Gb use all cores, otherwise use half
-const defaultWorkersAmount = freeMemoryGB > 10 ? "50%" : "100%"
+// If more than 10Gb use most cores, otherwise use half
+const defaultWorkersAmount = freeMemoryGB > 10 ? "50%" : "85%"
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
-  globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   reporter: [["line"]],
   // We like keeping retries to 0 because by disallowing retries we are forced to keep the tests stable. If were not forced to keep the tests stable, all tests would eventually become flaky. This would slow down test execution a lot and would be major pain. The only exception is when we're deploying master because we don't want flaky tests to randomly prevent urgent deploys.
   retries: process.env.GITHUB_REF === "refs/heads/master" ? 2 : 0,
@@ -41,19 +53,14 @@ const config: PlaywrightTestConfig = {
   },
   projects: [
     {
+      name: "setup",
+      testDir: "./src/setup",
+      use: chromeUse,
+    },
+    {
       name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-        launchOptions: {
-          // For fighting anti-aliasing from: https://github.com/microsoft/playwright/issues/8161#issuecomment-1369230603
-          args: [
-            "--font-render-hinting=none",
-            "--disable-skia-runtime-opts",
-            "--disable-font-subpixel-positioning",
-            "--disable-lcd-text",
-          ],
-        },
-      },
+      dependencies: ["setup"],
+      use: chromeUse,
     },
   ],
 }

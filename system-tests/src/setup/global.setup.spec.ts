@@ -1,6 +1,6 @@
 // Does the rest of the global setup after globalSetup.ts but does it with a test so that we get playwright tracess if this happens to fail
 
-import { Page, test } from "@playwright/test"
+import { BrowserContext, Page, test } from "@playwright/test"
 import { statSync } from "fs"
 import path from "path"
 
@@ -8,14 +8,14 @@ import { login } from "../utils/login"
 
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
 
-test("Global setup, setting up login states", async ({ page }) => {
-  await createLoginStates(page)
+test("Global setup, setting up login states", async ({ page, context }) => {
+  await createLoginStates(page, context)
 })
 
 /** Create session states for each user, state will be named as username, e.g. admin.json
  * See https://playwright.dev/docs/auth#reuse-signed-in-state
  */
-async function createLoginStates(page: Page) {
+async function createLoginStates(page: Page, context: BrowserContext) {
   const usersLoginInformationToCache = [
     { email: "admin@example.com", password: "admin" },
     { email: "teacher@example.com", password: "teacher" },
@@ -54,5 +54,6 @@ async function createLoginStates(page: Page) {
   for (const userLoginInformation of usersLoginInformationToCache) {
     await login(userLoginInformation.email, userLoginInformation.password, page)
     console.log(`Created login state for ${userLoginInformation.email}`)
+    await context.clearCookies()
   }
 }

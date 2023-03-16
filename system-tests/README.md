@@ -38,11 +38,15 @@ To start recording, run one of the following:
 Create a new test file somewhere in `src/tests/` named e.g. `foo.spec.ts`.<br />
 Once you've recorded, copy the code automatically written by the recorder to your newly created test file and manually insert assertions where necessary.
 
+## Helper functions
+
+- getLocatorForNthExerciseServiceIframe - Locator for either interacting with an exercise service iframe or for taking a screenshot of the iframe. See [example](https://github.com/rage/secret-project-331/blob/11f8dc9ff998277618eb77f4f0d2830da9e6344a/system-tests/src/tests/quizzes/feedback/multiple-choice.spec.ts#L41-L57).
+- selectCourseInstanceIfPrompted - Selects course instance in course material if the prompt appears. Useful if there are many tests that access the same course using the same user because every user gets the dialog only the first time they access the course. Always select the course instance using this funciton instead of writing custom code to interact with the dialog.
+
 ### Example tests
 
 - [login.spec.ts](src/tests/login/login.spec.ts) &mdash; Basic examples
 - [mediaUpload.spec.ts](src/tests/cms/mediaUpload.spec.ts) &mdash; Screenshot comparison example
-- [multiple-choice-widget.spec.ts](src/tests/cms/quizzes/widget/multiple-choice-widget.spec.ts) &mdash; Iframe example
 
 ### Screenshots / Visual snapshots
 
@@ -59,27 +63,21 @@ If you have changed how the UI looks like, you can update the image snapshots wi
 Example usage of `expectScreenshotsToMatchSnapshots`:
 
 ```js
-test("test with screenshots", async ({ headless, page }) => {
+test("test with screenshots", async ({ headless, page }, testInfo) => {
   // navigate somewhere, do actions until we want to take a screenshot
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
+      testInfo
       headless,
       // a unique name for the image
       snapshotName: "model-solutions-in-submissions",
-      // a element, or selector, or an array of elements and selectors
+      // an array of locators
       // that need to be visible and not moving before taking the screenshot
       // it is important to choose this carefully, because otherwise we might take the screenshot
       // before the UI is ready for it
-      waitForTheseToBeVisibleAndStable: "text=Welcome to the course",
+      waitForTheseToBeVisibleAndStable: [page.getByText("Welcome to the course")],
     })
 
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    snapshotName: "widget-multiple-choice",
-    // working with iframes
-    waitForTheseToBeVisibleAndStable: await frame.frameElement(),
-    frame,
-  })
 }
 ```
 

@@ -7,129 +7,129 @@
 # For each deployed service, we build two images: a build cache image and a slim image that is used for the deployment. The slim image depends on the cache image and will be built after the cache image. The cache image can be very big (many gigabytes) and  slim image should be much smaller (like a couple hunderd megabytes).
 # The two different images are built with Docker's multi-stage builds (https://docs.docker.com/develop/develop-images/multistage-build/) -- we just specify which target we want for each image. The latter build will use the Docker build cache from the previous build so we don't execute the build steps twice.
 
-
 apiVersion: skaffold/v3
 kind: Config
 build:
   artifacts:
-  # headless-lms
-  - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
-    context: services/headless-lms
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim
-    context: services/headless-lms
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # headless-lms
     - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
-      alias: BUILD_CACHE
+      context: services/headless-lms
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim
+      context: services/headless-lms
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
+          alias: BUILD_CACHE
 
-  # cms
-  - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
-    context: services/cms
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
-    context: services/cms
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # cms
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
-      alias: BUILD_CACHE
+      context: services/cms
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
+      context: services/cms
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
+          alias: BUILD_CACHE
 
-  # course-material
-  - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
-    context: services/course-material
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
-    context: services/course-material
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # course-material
     - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
-      alias: BUILD_CACHE
+      context: services/course-material
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
+      context: services/course-material
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
+          alias: BUILD_CACHE
 
-  # main-frontend
-  - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
-    context: services/main-frontend
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
-    context: services/main-frontend
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # main-frontend
     - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
-      alias: BUILD_CACHE
+      context: services/main-frontend
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
+      context: services/main-frontend
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
+          alias: BUILD_CACHE
 
-  # example-exercise
-  - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
-    context: services/example-exercise
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim
-    context: services/example-exercise
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # example-exercise
     - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
-      alias: BUILD_CACHE
+      context: services/example-exercise
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim
+      context: services/example-exercise
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
+          alias: BUILD_CACHE
 
-  # quizzes
-  - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
-    context: services/quizzes
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim
-    context: services/quizzes
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # quizzes
     - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
-      alias: BUILD_CACHE
+      context: services/quizzes
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim
+      context: services/quizzes
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
+          alias: BUILD_CACHE
 
-  # tmc
-  - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
-    context: services/tmc
-    docker:
-      dockerfile: Dockerfile.production.cache.dockerfile
-      cacheFrom:
-      - eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache:latest
-  - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-slim
-    context: services/tmc
-    docker:
-      dockerfile: Dockerfile.production.slim.dockerfile
-    requires:
+    # tmc
     - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
-      alias: BUILD_CACHE
+      context: services/tmc
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-slim
+      context: services/tmc
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
+          alias: BUILD_CACHE
   tagPolicy:
     # Default tag policy
     gitCommit:
       variant: CommitSha
   local:
-    useDockerCLI: true
-     # Allow parallel builds
+    useDockerCLI:
+      true
+      # Allow parallel builds
     concurrency: 0
     push: false
 
 manifests:
   kustomize:
     paths:
-    - kubernetes/test
+      - kubernetes/test
 
 deploy:
   kubeContext: minikube
@@ -137,37 +137,45 @@ deploy:
     hooks:
       before:
         - host:
-            command: ["sh", "-c", "echo 'Waiting for the ingress to be ready.' && echo '> kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller"]
+            command:
+              [
+                "sh",
+                "-c",
+                "echo 'Waiting for the ingress to be ready.' && echo '> kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller",
+              ]
 
 portForward:
-- resourceType: statefulset
-  resourceName: postgres
-  namespace: default
-  port: 5432
-  localPort: 54328
+  - resourceType: statefulset
+    resourceName: postgres
+    namespace: default
+    port: 5432
+    localPort: 54328
 
 profiles:
-# Push builds to moocfi-public
-- name: push-images
-  patches:
-  - op: add
-    path: /build/local/push
-    value: true
-- name: production
-  patches:
-  # Allow all kube contexes
-  - op: remove
-    path: /deploy/kubeContext
-  # Replace which folder to use
-  - op: replace
-    path: /manifests/kustomize/paths
-    value:
-    - kubernetes/production
-# Used to push the latest tag in ci, used for caching.
-- name: latest-tag
-  patches:
-  - op: replace
-    path: /build/tagPolicy
-    value:
-      # sha256 tag policy pushes the latest tag, which is used for caching
-      sha256: {}
+  # Push builds to moocfi-public
+  - name: push-images
+    patches:
+      - op: add
+        path: /build/local/push
+        value: true
+  - name: production
+    patches:
+      # Allow all kube contexes
+      - op: remove
+        path: /deploy/kubeContext
+      # Replace which folder to use
+      - op: replace
+        path: /manifests/kustomize/paths
+        value:
+          - kubernetes/production
+      # No need to wait for ingress in production
+      - op: remove
+        path: /deploy/kubectl
+  # Used to push the latest tag in ci, used for caching.
+  - name: latest-tag
+    patches:
+      - op: replace
+        path: /build/tagPolicy
+        value:
+          # sha256 tag policy pushes the latest tag, which is used for caching
+          sha256: {}

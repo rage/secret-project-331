@@ -50,9 +50,11 @@
   iframe[title="Embedded content from vimeo"] {
     height: 440px;
   }
+
   iframe[title="Embedded content from spotify.com"] {
     height: 335px;
   }
+
   iframe[title="Embedded content from twitter"],
   iframe[title="Embedded content from imgur"],
   iframe[title="Embedded content from reddit.com"],
@@ -67,12 +69,14 @@
     border-bottom-width: 0px;
     border-left-width: 0px;
   }
+
   iframe[title="Embedded content from menti.com"],
   iframe[title="Embedded content from mentimeter.com"] {
     html {
       overflow: hidden;
     }
   }
+
   iframe[title="Embedded content from soundcloud"] {
     box-sizing: initial;
   }
@@ -105,4 +109,16 @@
 
 .block-editor-block-mover .block-editor-block-mover-button {
   height: 24px !important;
+}
+
+// fix a bug where content after a spacer was not editable
+.block-editor-block-list__block[data-type="core/spacer"]::before {
+  height: unset !important;
+}
+
+.block-editor-block-list__empty-block-inserter {
+  .block-editor-inserter {
+    float: right;
+    margin: 2px;
+  }
 }

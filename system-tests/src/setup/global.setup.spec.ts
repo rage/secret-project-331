@@ -55,5 +55,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
     await login(userLoginInformation.email, userLoginInformation.password, page)
     console.log(`Created login state for ${userLoginInformation.email}`)
     await context.clearCookies()
+    await page.goto("about:blank")
+    await context.clearCookies()
   }
 }

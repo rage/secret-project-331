@@ -2,7 +2,6 @@ import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ItemAnswerFeedback } from "../../pages/api/grade"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -42,9 +41,9 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   user_quiz_item_answer,
 }) => {
   const { t } = useTranslation()
-  const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
+  const correct = quiz_item_feedback?.quiz_item_correct
   const fieldId = useId()
-  const item_feedback = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_feedback
+  const item_feedback = quiz_item_feedback?.quiz_item_feedback
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quiz_direction}>
       <div>{public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}</div>

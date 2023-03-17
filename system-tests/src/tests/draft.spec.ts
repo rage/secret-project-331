@@ -4,17 +4,15 @@ import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {
-    // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
 
-    // Click text=University of Helsinki, Department of Mathematics and Statistics
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
+    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
   })
 })
 
@@ -23,22 +21,20 @@ test.describe("user", () => {
     storageState: "src/states/user@example.com.json",
   })
   test("cannot see draft course", async ({ page }) => {
-    // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
 
-    // Click text=University of Helsinki, Department of Mathematics and Statistics
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
+    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
   })
   test("cannot directly navigate to the draft course page", async ({ page }) => {
     await page.goto("http://project-331.local/org/uh-mathstat/courses/introduction-to-drafts")
     await expect(page.locator("text=Forbidden")).toBeVisible()
-    await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
+    await expect(page.locator("text=Introduction to Drafts")).toBeHidden()
   })
 })
 
@@ -47,13 +43,11 @@ test.describe("admin", () => {
     storageState: "src/states/admin@example.com.json",
   })
   test("can see draft course", async ({ page }) => {
-    // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
 
-    // Click text=University of Helsinki, Department of Mathematics and Statistics
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
@@ -62,15 +56,14 @@ test.describe("admin", () => {
   test("can create a draft course and change it to a non-draft course", async ({
     page,
     headless,
-  }) => {
-    // Go to http://project-331.local/
+  }, testInfo) => {
     await page.goto("http://project-331.local/")
-    // Click text=University of Helsinki, Department of Mathematics and Statistics
+
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
-      page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
+      page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
-    // Click text=Create
+
     await page.click(`button:text("Create")`)
     // Fill input
     await page.fill("input[label=Name]", "Advanced drafts")
@@ -80,36 +73,37 @@ test.describe("admin", () => {
     await page.fill('input[label="Teacher in charge email"]', "admin@example.com")
     // Check input[type="checkbox"]
     await page.check("input[label=Draft]")
-    // Click input[name="language-code"]
+
     await page.check(`label:has-text("English")`)
-    // Click div[role="dialog"] >> text=Create
+
     await page.click('div[role="dialog"] >> text=Create')
-    // Click [aria-label="Manage\ course\ \'Advanced\ drafts\'"] svg
+
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/265c83b6-7faf-40bf-90e9-40a4c28f826c' }*/),
-      page.click("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg"),
+      page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click(),
     ])
 
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
       headless,
+      testInfo,
       snapshotName: "draft-course",
-      waitForThisToBeVisibleAndStable: "text=Advanced drafts (Draft)",
+      waitForTheseToBeVisibleAndStable: [page.locator("text=Advanced drafts (Draft)")],
     })
 
-    // Click text=Edit
-    await page.click("text=Edit")
+    await page.getByRole("button", { name: "Edit" }).first().click()
     // Uncheck input[type="checkbox"]
     await page.uncheck('input[type="checkbox"]')
-    // Click text=Update
+
     await page.click(`button:text-is("Update")`)
     await page.locator(`button:text-is("Update")`).waitFor({ state: "hidden" })
 
     await expectScreenshotsToMatchSnapshots({
-      page,
+      screenshotTarget: page,
       headless,
+      testInfo,
       snapshotName: "non-draft-course",
-      waitForThisToBeVisibleAndStable: "text=Advanced drafts",
+      waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Advanced drafts" })],
     })
   })
 })

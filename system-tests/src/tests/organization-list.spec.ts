@@ -6,13 +6,14 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("Organization list renders", async ({ page, headless }) => {
+test("Organization list renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/manage/exercise-services")
   await page.goto("http://project-331.local/")
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "frontpage-organizations-list",
-    waitForThisToBeVisibleAndStable: "text=learn the basics in Computer Science",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=learn the basics in Computer Science")],
   })
 })

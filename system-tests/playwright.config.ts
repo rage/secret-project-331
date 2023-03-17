@@ -18,7 +18,7 @@ const config: PlaywrightTestConfig = {
   // Please don't increase this. Instead, tag your slow test as slow: https://playwright.dev/docs/api/class-test#test-slow-1
   timeout: 100000,
   // If more than 10Gb use all cores, otherwise use half
-  workers: "100%",
+  workers: "50%",
   use: {
     navigationTimeout: 15000,
     actionTimeout: 15000,

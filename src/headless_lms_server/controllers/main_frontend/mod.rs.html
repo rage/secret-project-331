@@ -54,6 +54,8 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -77,6 +79,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub mod </span>organizations;
 <span class="kw">pub mod </span>pages;
 <span class="kw">pub mod </span>playground_examples;
+<span class="kw">pub mod </span>playground_views;
 <span class="kw">pub mod </span>proposed_edits;
 <span class="kw">pub mod </span>regradings;
 <span class="kw">pub mod </span>roles;
@@ -108,7 +111,8 @@ This documents all endpoints. Select a module below for a category.
         .service(web::scope(<span class="string">&quot;/glossary&quot;</span>).configure(glossary::_add_routes))
         .service(web::scope(<span class="string">&quot;/roles&quot;</span>).configure(roles::_add_routes))
         .service(web::scope(<span class="string">&quot;/exercise-repositories&quot;</span>).configure(exercise_repositories::_add_routes))
-        .service(web::scope(<span class="string">&quot;/regradings&quot;</span>).configure(regradings::_add_routes));
+        .service(web::scope(<span class="string">&quot;/regradings&quot;</span>).configure(regradings::_add_routes))
+        .service(web::scope(<span class="string">&quot;/playground-views&quot;</span>).configure(playground_views::_add_routes));
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

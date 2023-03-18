@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["ready","Creates a future that is immediately ready with a value."]],"mod":[["future",""],["stream",""],["try_future",""]],"struct":[["Ready","Future for the `ready` function."]]};

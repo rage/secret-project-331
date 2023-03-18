@@ -1,0 +1,4 @@
+(function() {var implementors = {
+"actix":[],
+"headless_lms_server":[["impl <a class=\"trait\" href=\"actix/handler/trait.Handler.html\" title=\"trait actix::handler::Handler\">Handler</a>&lt;<a class=\"struct\" href=\"headless_lms_server/controllers/main_frontend/playground_views/struct.PlaygroundSubmissionMessage.html\" title=\"struct headless_lms_server::controllers::main_frontend::playground_views::PlaygroundSubmissionMessage\">PlaygroundSubmissionMessage</a>&gt; for <a class=\"struct\" href=\"headless_lms_server/controllers/main_frontend/playground_views/struct.ClientConnection.html\" title=\"struct headless_lms_server::controllers::main_frontend::playground_views::ClientConnection\">ClientConnection</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

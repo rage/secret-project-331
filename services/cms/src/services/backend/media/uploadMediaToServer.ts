@@ -38,7 +38,7 @@ export async function uploadMedia({
   // Tell gutenberg to show the placeholders
   onFileChange(initialItems)
 
-  const mediaItems = initialItems as Array<typeof initialItems[0] | null>
+  const mediaItems = initialItems as Array<(typeof initialItems)[0] | null>
 
   await Promise.all(
     validFiles.map(async (file, i) => {

@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("Course modules test", async ({ page, headless }) => {
+test("Course modules test", async ({ page, headless }, testInfo) => {
   test.slow()
   // navigate to module page
   await page.goto("http://project-331.local/")
@@ -21,32 +21,34 @@ test("Course modules test", async ({ page, headless }) => {
     "http://project-331.local/manage/courses/edaa1c52-15cd-458d-8ce2-1e4010641244/modules",
   )
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-module-management-page",
-    waitForThisToBeVisibleAndStable: "text=Modules",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Modules" })],
+    screenshotOptions: { fullPage: true },
   })
 
   // delete a module
   await page.locator('[aria-label="Delete"]').first().click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-deletion",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+
+    screenshotOptions: { fullPage: true },
   })
 
   // reset deletion
   await page.locator("text=Reset").click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-deletion-reset",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+
+    screenshotOptions: { fullPage: true },
   })
 
   // create invalid module
@@ -55,12 +57,13 @@ test("Course modules test", async ({ page, headless }) => {
   await page.locator("#new-module-ends").selectOption("3")
   await page.locator("text=Confirm").click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-creating-new-module",
-    waitForThisToBeVisibleAndStable: "text=1: invalid module",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=1: invalid module")],
+
+    screenshotOptions: { fullPage: true },
   })
 
   // update invalid module to be valid
@@ -69,22 +72,24 @@ test("Course modules test", async ({ page, headless }) => {
   await page.locator("#editing-module-ends").selectOption("4")
   await page.locator('[aria-label="Save"]').click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-updating-new-module",
-    waitForThisToBeVisibleAndStable: "text=1: valid module",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=1: valid module")],
+
+    screenshotOptions: { fullPage: true },
   })
 
   // delete module
   await page.locator('[aria-label="Delete"]').nth(1).click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-second-deletion",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+
+    screenshotOptions: { fullPage: true },
   })
 
   // update last module
@@ -93,12 +98,13 @@ test("Course modules test", async ({ page, headless }) => {
   await page.locator("#editing-module-start").selectOption("3")
   await page.locator('[aria-label="Save"]').click()
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-last-update",
-    waitForThisToBeVisibleAndStable: "text=2: renamed module",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=2: renamed module")],
+
+    screenshotOptions: { fullPage: true },
   })
 
   // save changes
@@ -106,11 +112,11 @@ test("Course modules test", async ({ page, headless }) => {
   await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "after-saving",
-    toMatchSnapshotOptions: { threshold: 0.4 },
-    pageScreenshotOptions: { fullPage: true },
     clearNotifications: true,
+    screenshotOptions: { fullPage: true },
   })
 })

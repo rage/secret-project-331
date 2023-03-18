@@ -84,13 +84,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
       >
         {chapter ? t("heading-pages-in-this-chapter") : t("heading-top-level-pages")}
       </h3>
-      <TableWrapper
-        className={css`
-          ${respondToOrLarger.md} {
-            overflow-x: unset;
-          }
-        `}
-      >
+      <TableWrapper>
         {items.map((page: Page, n) => {
           let moving = MOVING_ALLOWED
           if (n === 0) {

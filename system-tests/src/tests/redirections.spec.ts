@@ -7,5 +7,7 @@ test.use({
 test("Redirection redirects to the new url", async ({ page }) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/redirections/old-url")
   await page.locator(`text=First chapters second page.`).waitFor({ state: "attached" })
-  expect(page).toHaveURL(`http://project-331.local/org/uh-cs/courses/redirections/chapter-1/page-2`)
+  await expect(page).toHaveURL(
+    `http://project-331.local/org/uh-cs/courses/redirections/chapter-1/page-2`,
+  )
 })

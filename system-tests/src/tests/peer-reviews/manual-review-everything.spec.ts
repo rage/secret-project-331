@@ -26,7 +26,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await context3.close()
   })
 
-  test("ManualReviewEverything > Single submissions", async ({ headless }) => {
+  test("ManualReviewEverything > Single submissions", async ({ headless }, testInfo) => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -89,12 +89,13 @@ test.describe("test ManualReviewEverything behavior", () => {
     // Student 1 starts peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-before-filling-peer-review-single-submission",
-      page: student1Page,
+      screenshotTarget: student1Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
 
     await fillPeerReview(student1Page, ["Agree", "Agree"])
@@ -107,12 +108,13 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-after-filling-peer-review-single-submission",
-      page: student1Page,
+      screenshotTarget: student1Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
 
     await student2Page
@@ -124,12 +126,13 @@ test.describe("test ManualReviewEverything behavior", () => {
     // Student 2 starts peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-before-filling-peer-review-single-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything"')],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
 
@@ -141,12 +144,13 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-after-filling-peer-review-single-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything"')],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
 
     // Teacher checks answers requiring attention
@@ -175,13 +179,14 @@ test.describe("test ManualReviewEverything behavior", () => {
     // Student 1 views his reviews and grading
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-checking-their-peer-reviews-single-submission",
-      page: student1Page,
+      screenshotTarget: student1Page,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
 
     await student2Page
@@ -193,17 +198,18 @@ test.describe("test ManualReviewEverything behavior", () => {
     // Student 2 views his reviews and grading
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-checking-their-peer-reviews-single-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything"'],
+      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
       scrollToYCoordinate: 0,
-      pageScreenshotOptions: { fullPage: true },
+      screenshotOptions: { fullPage: true },
     })
   })
 
-  test("ManualReviewEverything > Multiple submissions", async ({ headless }) => {
+  test("ManualReviewEverything > Multiple submissions", async ({ headless }, testInfo) => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -270,11 +276,12 @@ test.describe("test ManualReviewEverything behavior", () => {
     // student 2 starts a peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-before-filling-peer-review-1-multiple-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
+      screenshotOptions: { fullPage: true },
     })
 
     await fillPeerReview(student2Page, ["Disagree", "Disagree"])
@@ -287,11 +294,12 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-after-filling-peer-review-1-multiple-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
+      screenshotOptions: { fullPage: true },
     })
 
     await student1Page
@@ -303,11 +311,12 @@ test.describe("test ManualReviewEverything behavior", () => {
     // student 1 starts a peer review
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-before-filling-peer-review-multiple-submission",
-      page: student1Page,
+      screenshotTarget: student2Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
+      screenshotOptions: { fullPage: true },
     })
     await fillPeerReview(student1Page, ["Agree", "Agree"])
     await student1Page
@@ -318,11 +327,12 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-after-filling-peer-review-multiple-submission",
-      page: student1Page,
+      screenshotTarget: student1Page,
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything2"')],
+      screenshotOptions: { fullPage: true },
     })
 
     // teacher checks the answers
@@ -352,12 +362,13 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-1-checking-their-peer-reviews-multiple-submission",
-      page: student1Page,
+      screenshotTarget: student1Page,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything2"')],
+      screenshotOptions: { fullPage: true },
     })
 
     // Student 2 seeing the score
@@ -369,12 +380,13 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     await expectScreenshotsToMatchSnapshots({
       headless,
+      testInfo,
       snapshotName: "student-2-checking-their-peer-reviews-multiple-submission",
-      page: student2Page,
+      screenshotTarget: student2Page,
       axeSkip: ["heading-order", "duplicate-id"],
       clearNotifications: true,
-      waitForThisToBeVisibleAndStable: ['text="ManualReviewEverything2"'],
-      pageScreenshotOptions: { fullPage: true },
+      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
+      screenshotOptions: { fullPage: true },
     })
   })
 })

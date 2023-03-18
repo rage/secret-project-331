@@ -248,5 +248,14 @@ module.exports = {
         "i18next/no-literal-string": "off",
       },
     },
+    {
+      files: ["system-tests/src/**/*"],
+      extends: ["plugin:playwright/playwright-test"],
+      rules: {
+        "playwright/no-focused-test": "off",
+        "playwright/prefer-strict-equal": "error",
+        "playwright/prefer-to-be": "error",
+      },
+    },
   ],
 }

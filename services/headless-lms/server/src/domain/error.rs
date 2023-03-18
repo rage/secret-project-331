@@ -337,6 +337,16 @@ impl From<git2::Error> for ControllerError {
     }
 }
 
+impl From<actix_web::Error> for ControllerError {
+    fn from(err: actix_web::Error) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            None,
+        )
+    }
+}
+
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         let backtrace: Backtrace = if let Some(backtrace) =

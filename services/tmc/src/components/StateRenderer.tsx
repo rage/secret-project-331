@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import React, { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
@@ -13,20 +13,11 @@ import ViewSubmission from "./ViewSubmission"
 
 interface Props {
   state: IframeState | null
-  setState: Dispatch<SetStateAction<IframeState | null>>
-  port: MessagePort | null
+  setState: (updater: (state: IframeState | null) => IframeState | null) => void
 }
 
-export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
-  state,
-  setState,
-  port,
-}) => {
+export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({ state, setState }) => {
   const { t } = useTranslation()
-
-  if (!port) {
-    return <>{t("waiting-for-port")}</>
-  }
 
   if (!state) {
     return <>{t("waiting-for-content")}</>
@@ -35,17 +26,13 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
   if (state.viewType === "exercise-editor") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
-        <ExerciseEditor state={state} setState={setState} port={port} />
+        <ExerciseEditor state={state} setState={setState} />
       </div>
     )
   } else if (state.viewType === "answer-exercise") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
-        <AnswerExercise
-          port={port}
-          publicSpec={state.publicSpec}
-          initialPublicSpec={state.initialPublicSpec}
-        />
+        <AnswerExercise initialPublicSpec={state.initialPublicSpec} setState={setState} />
       </div>
     )
   } else if (state.viewType === "view-submission") {

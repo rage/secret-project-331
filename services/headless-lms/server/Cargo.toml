@@ -3,7 +3,7 @@ name = "headless-lms-server"
 version = "0.1.0"
 authors = ["Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2021"
-rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
+rust-version = "1.56.0" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -43,7 +43,7 @@ sqlx = { version = "0.6.2", features = [
   "uuid",
   "chrono",
   "json",
-  "offline"
+  "offline",
 ] }
 # A library to generate and parse UUIDs.
 uuid = { version = "1.2.2", features = ["serde", "v4", "v5"] }
@@ -123,6 +123,10 @@ jwt = "0.16.0"
 hmac = "0.12.1"
 # Pure Rust implementation of the SHA-2 hash function family.
 sha2 = "0.10.6"
+# Websocket support for actix-web
+actix-web-actors = "4.2.0"
+# Actors for actix-web-actors
+actix = "0.13.0"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

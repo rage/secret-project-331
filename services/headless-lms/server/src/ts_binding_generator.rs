@@ -266,6 +266,7 @@ fn controllers(target: &mut File) {
             exercise_repositories::NewExerciseRepository,
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
+            playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
         };

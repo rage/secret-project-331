@@ -21,3 +21,9 @@ patches:
       version: v1
       kind: Deployment
       name: "headless-lms"
+  - path: patch-tmc-service-account.yml
+    target:
+      version: v1
+      kind: Role
+patchesStrategicMerge:
+  - main-frontend/patch-env.yml

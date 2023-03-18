@@ -2,7 +2,8 @@
 import axios from "axios"
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { ClientErrorResponse, GradingResult } from "../../lib"
+import { ClientErrorResponse, ExerciseFeedback } from "../../lib"
+import { GradingResult } from "../../shared-module/exercise-service-protocol-types-2"
 
 // Endpoint for the sandbox to report test results
 export default async (
@@ -30,7 +31,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse<void>): Prom
   const testResults: TestResults = req.body
 
   // test results to grading result
-  const grading: GradingResult = {
+  const grading: GradingResult<ExerciseFeedback> = {
     grading_progress: "FullyGraded",
     score_given: testResults.score_given,
     score_maximum: testResults.score_maximum,

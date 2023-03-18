@@ -110,7 +110,7 @@ Example 1:
 ```js
 {
   message: "current-state",
-  data: [{ name: "yes", correct: true }, { name: "no", correct: false }],
+  data: { private_spec: [{ name: "yes", correct: true }, { name: "no", correct: false }] },
   valid: true
 }
 ```
@@ -120,7 +120,7 @@ Example 2:
 ```js
 {
   message: "current-state",
-  data: { password: "dasdasd9" },
+  data: { public_spec: { choices: ["yes", "no"] } },
   valid: true
 }
 ```

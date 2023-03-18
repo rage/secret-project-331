@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import React, { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
@@ -8,22 +8,11 @@ import { ExerciseEditorState, IframeState } from "../util/stateInterfaces"
 
 interface Props {
   state: ExerciseEditorState
-  setState: Dispatch<SetStateAction<IframeState | null>>
-  port: MessagePort
+  setState: (updater: (state: IframeState | null) => IframeState | null) => void
 }
 
 const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState }) => {
   const { t } = useTranslation()
-
-  const setStateWrapper = (updater: (oldState: ExerciseEditorState) => ExerciseEditorState) => {
-    setState((oldState) => {
-      if (oldState?.viewType === "exercise-editor") {
-        return updater(oldState)
-      } else {
-        return null
-      }
-    })
-  }
 
   // cms editor view
   if (state.privateSpec == null) {
@@ -79,13 +68,17 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
           label={t("solve-in-editor")}
           checked={state.privateSpec?.type === "editor"}
           onChange={() =>
-            setStateWrapper((old) => {
-              return {
-                ...old,
-                privateSpec: {
-                  type: "editor",
-                  repositoryExercise: repositoryExercise,
-                },
+            setState((old) => {
+              if (old) {
+                return {
+                  ...old,
+                  privateSpec: {
+                    type: "editor",
+                    repositoryExercise: repositoryExercise,
+                  },
+                }
+              } else {
+                return null
               }
             })
           }
@@ -94,13 +87,17 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
           label={t("solve-in-browser")}
           checked={state.privateSpec?.type === "browser"}
           onChange={() =>
-            setStateWrapper((old) => {
-              return {
-                ...old,
-                privateSpec: {
-                  type: "browser",
-                  repositoryExercise: repositoryExercise,
-                },
+            setState((old) => {
+              if (old) {
+                return {
+                  ...old,
+                  privateSpec: {
+                    type: "browser",
+                    repositoryExercise: repositoryExercise,
+                  },
+                }
+              } else {
+                return null
               }
             })
           }
@@ -109,8 +106,12 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
           variant="primary"
           size="medium"
           onClick={() =>
-            setStateWrapper((state) => {
-              return { ...state, privateSpec: null }
+            setState((old) => {
+              if (old) {
+                return { ...old, privateSpec: null }
+              } else {
+                return null
+              }
             })
           }
         >

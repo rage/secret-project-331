@@ -152,6 +152,7 @@ import {
   PendingRole,
   PlaygroundExample,
   PlaygroundExampleData,
+  PlaygroundViewsMessage,
   PointMap,
   Points,
   ProposalCount,
@@ -2695,6 +2696,20 @@ export function isMarkAsRead(obj: unknown): obj is MarkAsRead {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["read"] === "boolean"
+  )
+}
+
+export function isPlaygroundViewsMessage(obj: unknown): obj is PlaygroundViewsMessage {
+  const typedObj = obj as PlaygroundViewsMessage
+  return (
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "TimedOut") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Registered" &&
+      typeof typedObj["data"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "ExerciseTaskGradingResult" &&
+      (isExerciseTaskGradingResult(typedObj["data"]) as boolean))
   )
 }
 

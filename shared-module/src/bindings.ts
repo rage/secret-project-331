@@ -1516,6 +1516,11 @@ export interface MarkAsRead {
   read: boolean
 }
 
+export type PlaygroundViewsMessage =
+  | { tag: "TimedOut" }
+  | { tag: "Registered"; data: string }
+  | { tag: "ExerciseTaskGradingResult"; data: ExerciseTaskGradingResult }
+
 export interface GetEditProposalsQuery {
   pending: boolean
   page: number | undefined

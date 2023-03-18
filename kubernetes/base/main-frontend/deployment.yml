@@ -40,6 +40,8 @@ spec:
           env:
             - name: NEXT_PUBLIC_BASE_PATH
               value: null
+            - name: PUBLIC_ADDRESS
+              value: "https://courses.mooc.fi"
           resources:
             requests:
               memory: 100Mi

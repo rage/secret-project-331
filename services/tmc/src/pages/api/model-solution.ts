@@ -4,6 +4,7 @@ import { promises as fs } from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
 import * as path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
+import { v4 } from "uuid"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
 import { SpecRequest } from "../../shared-module/bindings"
@@ -17,6 +18,7 @@ import {
 import { ExerciseFile, ModelSolutionSpec, PrivateSpec } from "../../util/stateInterfaces"
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+  const requestId = v4().slice(0, 4)
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }
@@ -26,10 +28,11 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     uploadClaim = uploadClaimHeader
   }
 
-  return await handlePost(req, uploadClaim, res)
+  return await handlePost(requestId, req, uploadClaim, res)
 }
 
 const handlePost = async (
+  requestId: string,
   req: NextApiRequest,
   uploadClaim: string | null,
   res: NextApiResponse<ModelSolutionSpec | ClientErrorResponse>,
@@ -45,28 +48,28 @@ const handlePost = async (
 
   try {
     // create model solution
-    console.debug("downloading template")
+    debug(requestId, "downloading template")
     const templateArchive = temporaryFile()
     await downloadStream(privateSpec.repositoryExercise.download_url, templateArchive)
 
-    console.debug("extracting template")
+    debug(requestId, "extracting template")
     const extractedProjectDir = temporaryDirectory()
     await extractProject(templateArchive, extractedProjectDir)
 
-    console.debug("preparing solution")
+    debug(requestId, "preparing solution")
     const solutionDir = temporaryDirectory()
     await prepareSolution(extractedProjectDir, solutionDir)
 
     if (privateSpec.type === "browser") {
       await handleBrowserModelSolution(solutionDir, res)
     } else if (privateSpec.type === "editor") {
-      await handleEditorModelSolution(solutionDir, upload_url, uploadClaim, res)
+      await handleEditorModelSolution(requestId, solutionDir, upload_url, uploadClaim, res)
     } else {
       throw "unreachable"
     }
   } catch (e) {
     if (e instanceof Error) {
-      console.error(e.stack)
+      error(requestId, "error:", e.stack)
     }
     return res.status(500).json({ message: `Internal server error: ${JSON.stringify(e, null, 2)}` })
   }
@@ -93,16 +96,17 @@ const handleBrowserModelSolution = async (
 }
 
 const handleEditorModelSolution = async (
+  requestId: string,
   solutionDir: string,
   uploadUrl: string,
   uploadClaim: string | null,
   res: NextApiResponse<ModelSolutionSpec | ClientErrorResponse>,
 ) => {
-  console.debug("compressing solution")
+  debug(requestId, "compressing solution")
   const solutionArchive = temporaryFile()
   await compressProject(solutionDir, solutionArchive, "zstd", true)
 
-  console.debug("uploading solution")
+  debug(requestId, "uploading solution to", uploadUrl)
   const solutionDownloadUrl = await axios.post(uploadUrl, {
     headers: uploadClaim ? { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: uploadClaim } : {},
     file: solutionArchive,
@@ -113,4 +117,12 @@ const handleEditorModelSolution = async (
   }
 
   return res.status(200).json(modelSolutionSpec)
+}
+
+const debug = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.debug(`[model-solution/${requestId}]`, message, ...optionalParams)
+}
+
+const error = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.error(`[model-solution/${requestId}]`, message, ...optionalParams)
 }

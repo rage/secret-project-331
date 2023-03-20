@@ -268,6 +268,7 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
 </pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::ApplicationConfiguration;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -328,6 +329,7 @@ VALUES ($1, $2, $3, $4)
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -&gt; ModelResult&lt;User&gt; {
+    <span class="macro">info!</span>(<span class="string">&quot;The user is not in the database yet, inserting&quot;</span>);
     <span class="kw">let </span>email_domain = email.trim().split(<span class="string">&#39;@&#39;</span>).last();
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
@@ -355,7 +357,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .execute(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(user)

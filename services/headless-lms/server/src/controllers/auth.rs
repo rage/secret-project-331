@@ -264,16 +264,20 @@ pub async fn login(
     };
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
-    if let Ok(user) = user {
-        let token = skip_authorize()?;
-        authorization::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().finish())
-    } else {
-        Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
-            "Incorrect email or password.".to_string(),
-            None,
-        ))
+    match user {
+        Ok(user) => {
+            let token = skip_authorize()?;
+            authorization::remember(&session, user)?;
+            token.authorized_ok(HttpResponse::Ok().finish())
+        }
+        Err(err) => {
+            info!("Could not get user from moocfi: {err}");
+            Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Incorrect email or password.".to_string(),
+                None,
+            ))
+        }
     }
 }
 

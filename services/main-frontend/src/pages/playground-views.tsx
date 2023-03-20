@@ -148,7 +148,7 @@ const ModelSolutionSpecArea = styled.div`
 `
 
 const { publicRuntimeConfig } = getConfig()
-const PUBLIC_ADDRESS = publicRuntimeConfig.publicAddress
+const PUBLIC_ADDRESS = publicRuntimeConfig?.publicAddress
 const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "ws://")
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 

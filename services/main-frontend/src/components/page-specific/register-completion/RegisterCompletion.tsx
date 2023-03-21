@@ -49,7 +49,6 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
           {t("course")}: {data.course_name}
         </h2>
         {data.ects_credits && <p>{t("credits-n-ects", { n: data.ects_credits })}</p>}
-        <p>{t("requires-a-finnish-social-security-number")}</p>
       </div>
       <GenericInfobox>
         {t("use-this-email-address-on-the-registration-form")}: {data.email}

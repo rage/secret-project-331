@@ -24,7 +24,7 @@ const chromeUse = {
 
 const freeMemoryGB = freemem() / (1024 * 1024 * 1024)
 // If more than 10Gb use most cores, otherwise use half
-const defaultWorkersAmount = freeMemoryGB > 10 ? "50%" : "85%"
+const defaultWorkersAmount = freeMemoryGB < 10 ? "50%" : "85%"
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,

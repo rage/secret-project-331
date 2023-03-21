@@ -58,6 +58,7 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
+    info!("The user is not in the database yet, inserting");
     let email_domain = email.trim().split('@').last();
     let mut tx = conn.begin().await?;
     let user = sqlx::query_as!(
@@ -85,7 +86,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .fetch_one(&mut tx)
+    .execute(&mut tx)
     .await?;
     tx.commit().await?;
     Ok(user)

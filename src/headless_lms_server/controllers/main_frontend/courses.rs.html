@@ -989,6 +989,10 @@
 <a href="#989" id="989">989</a>
 <a href="#990" id="990">990</a>
 <a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>std::sync::Arc;
@@ -1015,7 +1019,10 @@
 };
 
 <span class="kw">use crate</span>::{
-    domain::models_requests::{<span class="self">self</span>, JwtKey},
+    domain::{
+        models_requests::{<span class="self">self</span>, JwtKey},
+        request_id::RequestId,
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -1070,6 +1077,7 @@ Content-Type: application/json
 </span><span class="attr">#[generated_doc]
 #[instrument(skip(pool))]
 </span><span class="kw">async fn </span>post_new_course(
+    request_id: RequestId,
     pool: web::Data&lt;PgPool&gt;,
     payload: web::Json&lt;NewCourse&gt;,
     user: AuthUser,
@@ -1098,7 +1106,7 @@ Content-Type: application/json
         PKeyPolicy::Generate,
         new_course,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::make_spec_fetcher(request_id.<span class="number">0</span>, Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

@@ -269,6 +269,10 @@
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 
 </span><span class="kw">use </span>std::{path::PathBuf, str::FromStr, sync::Arc};
@@ -276,7 +280,10 @@
 <span class="kw">use </span>models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
 <span class="kw">use crate</span>::{
-    domain::models_requests::{<span class="self">self</span>, JwtKey},
+    domain::{
+        models_requests::{<span class="self">self</span>, JwtKey},
+        request_id::RequestId,
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -300,6 +307,7 @@ Content-Type: application/json
 </span><span class="attr">#[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 </span><span class="kw">async fn </span>post_new_chapter(
+    request_id: RequestId,
     pool: web::Data&lt;PgPool&gt;,
     payload: web::Json&lt;NewChapter&gt;,
     user: AuthUser,
@@ -321,7 +329,7 @@ Content-Type: application/json
         PKeyPolicy::Generate,
         <span class="kw-2">&amp;</span>new_chapter,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::make_spec_fetcher(request_id.<span class="number">0</span>, Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

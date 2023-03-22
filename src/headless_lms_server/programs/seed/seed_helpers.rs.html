@@ -605,7 +605,7 @@
         conn,
         new_page,
         author,
-        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -627,7 +627,7 @@
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: <span class="bool-val">false</span>,
         },
-        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1022,7 +1022,7 @@
             content_search_language: <span class="prelude-val">None</span>,
         },
         teacher,
-        models_requests::make_spec_fetcher(jwt_key),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), jwt_key),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

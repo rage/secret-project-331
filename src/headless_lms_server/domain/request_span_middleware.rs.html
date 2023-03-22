@@ -75,11 +75,22 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Middleware that wraps HTTP requests to tokio tracing spans for debugging and attaches a request id to all log messages.
 */
 
-</span><span class="kw">use </span>actix_http::header::{HeaderName, HeaderValue};
+</span><span class="kw">use </span><span class="kw">super</span>::request_id::RequestId;
+<span class="kw">use </span>actix_http::{
+    header::{HeaderName, HeaderValue},
+    HttpMessage,
+};
 <span class="kw">use </span>actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
@@ -138,6 +149,9 @@ Middleware that wraps HTTP requests to tokio tracing spans for debugging and att
                 <span class="string">&quot;Start handling request.&quot;</span>,
             );
         });
+
+        <span class="comment">// insert the generated id as an extension so that handlers can extract it if needed
+        </span>req.extensions_mut().insert(RequestId(request_id));
 
         <span class="kw">let </span>fut = <span class="self">self</span>.service.call(req).instrument(request_span);
 

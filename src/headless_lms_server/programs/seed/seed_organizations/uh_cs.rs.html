@@ -941,7 +941,7 @@
             }),
             new_course,
             admin_user_id,
-            models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
             models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;

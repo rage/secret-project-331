@@ -4103,7 +4103,7 @@
     users: <span class="kw-2">&amp;</span>[Uuid],
     jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
-    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
+    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
     <span class="macro">info!</span>(<span class="string">&quot;inserting sample course {}&quot;</span>, course_name);
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_course = NewCourse {
@@ -5615,7 +5615,7 @@
             }),
             new_course,
             admin,
-            models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
             models_requests::fetch_service_info,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -5659,7 +5659,7 @@
         )),
         <span class="kw-2">&amp;</span>new_chapter,
         admin,
-        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -5703,7 +5703,7 @@
     jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
+    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
     <span class="comment">// Create new course
     </span><span class="kw">let </span>new_course = NewCourse {
         name: <span class="string">&quot;Introduction to Course Material&quot;</span>.to_string(),
@@ -6429,7 +6429,7 @@
     student: Uuid,
     jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
-    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
+    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
     <span class="macro">info!</span>(<span class="string">&quot;inserting sample course {}&quot;</span>, course_name);
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_course = NewCourse {
@@ -7794,7 +7794,7 @@
     admin: Uuid,
     jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
-    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
+    <span class="kw">let </span>spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key));
     <span class="macro">info!</span>(<span class="string">&quot;inserting sample course {}&quot;</span>, course_name);
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_course = NewCourse {

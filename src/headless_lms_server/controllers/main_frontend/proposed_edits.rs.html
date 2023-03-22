@@ -123,12 +123,19 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>models::proposed_page_edits::{<span class="self">self</span>, EditProposalInfo, PageProposal, ProposalCount};
 
 <span class="kw">use crate</span>::{
-    domain::models_requests::{<span class="self">self</span>, JwtKey},
+    domain::{
+        models_requests::{<span class="self">self</span>, JwtKey},
+        request_id::RequestId,
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -201,6 +208,7 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
 */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>process_edit_proposal(
+    request_id: RequestId,
     proposal: web::Json&lt;EditProposalInfo&gt;,
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
@@ -215,7 +223,7 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::make_spec_fetcher(request_id.<span class="number">0</span>, Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

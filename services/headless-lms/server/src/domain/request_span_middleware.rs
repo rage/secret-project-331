@@ -2,7 +2,11 @@
 Middleware that wraps HTTP requests to tokio tracing spans for debugging and attaches a request id to all log messages.
 */
 
-use actix_http::header::{HeaderName, HeaderValue};
+use super::request_id::RequestId;
+use actix_http::{
+    header::{HeaderName, HeaderValue},
+    HttpMessage,
+};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
@@ -61,6 +65,9 @@ where
                 "Start handling request.",
             );
         });
+
+        // insert the generated id as an extension so that handlers can extract it if needed
+        req.extensions_mut().insert(RequestId(request_id));
 
         let fut = self.service.call(req).instrument(request_span);
 

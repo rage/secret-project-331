@@ -5,7 +5,6 @@ import * as fs from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
 import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
-import { v4 } from "uuid"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
 import { RepositoryExercise, SpecRequest } from "../../shared-module/bindings"
@@ -20,7 +19,6 @@ import {
 import { PrivateSpec, PublicSpec } from "../../util/stateInterfaces"
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const requestId = v4().slice(0, 4)
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
   }
@@ -30,16 +28,17 @@ export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> 
     uploadClaim = uploadClaimHeader
   }
 
-  return await handlePost(requestId, req, uploadClaim, res)
+  return await handlePost(req, uploadClaim, res)
 }
 
 async function handlePost(
-  requestId: string,
   req: NextApiRequest,
   uploadClaim: string | null,
   res: NextApiResponse<PublicSpec | ClientErrorResponse>,
 ): Promise<void> {
-  const { private_spec, upload_url } = req.body as SpecRequest
+  const { request_id, private_spec, upload_url } = req.body as SpecRequest
+  const requestId = request_id.slice(0, 4)
+
   const privateSpec = private_spec as PrivateSpec | null
   if (privateSpec === null) {
     throw new Error("Private spec cannot be null")
@@ -118,6 +117,7 @@ const prepareEditorExercise = async (
   const stubArchive = temporaryFile()
   debug(requestId, "compressing stub to", stubArchive)
   await compressProject(stubDir, stubArchive, "zstd", true)
+
   debug(requestId, "uploading stub to", uploadUrl)
   const form = new FormData()
   const archiveName = exercise.part + "/" + exercise.name + ".tar.zst"

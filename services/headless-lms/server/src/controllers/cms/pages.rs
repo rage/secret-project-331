@@ -9,7 +9,10 @@ use models::{
 };
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::{
+        models_requests::{self, JwtKey},
+        request_id::RequestId,
+    },
     prelude::*,
 };
 
@@ -76,6 +79,7 @@ Content-Type: application/json
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn update_page(
+    request_id: RequestId,
     payload: web::Json<CmsPageUpdate>,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -98,7 +102,7 @@ async fn update_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page,
         },
-        models_requests::make_spec_fetcher(jwt_key.into_inner()),
+        models_requests::make_spec_fetcher(request_id.0, jwt_key.into_inner()),
         models_requests::fetch_service_info,
     )
     .await?;

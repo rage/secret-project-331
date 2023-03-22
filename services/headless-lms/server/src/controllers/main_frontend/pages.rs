@@ -8,7 +8,10 @@ use models::{
 };
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::{
+        models_requests::{self, JwtKey},
+        request_id::RequestId,
+    },
     prelude::*,
 };
 
@@ -43,6 +46,7 @@ Content-Type: application/json
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn post_new_page(
+    request_id: RequestId,
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -63,7 +67,7 @@ async fn post_new_page(
         &mut conn,
         new_page,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -134,6 +138,7 @@ POST /api/v0/main-frontend/pages/:page_id/restore
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn restore(
+    request_id: RequestId,
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
     restore_data: web::Json<HistoryRestoreData>,
@@ -147,7 +152,7 @@ async fn restore(
         *page_id,
         restore_data.history_id,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

@@ -223,6 +223,7 @@ fn reqwest_err(err: reqwest::Error) -> ModelError {
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SpecRequest<'a> {
+    request_id: Uuid,
     private_spec: Option<&'a serde_json::Value>,
     upload_url: Option<String>,
 }
@@ -231,6 +232,7 @@ pub struct SpecRequest<'a> {
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
 pub fn make_spec_fetcher(
+    request_id: Uuid,
     jwt_key: Arc<JwtKey>,
 ) -> impl Fn(Url, &str, Option<&serde_json::Value>) -> BoxFuture<'static, ModelResult<serde_json::Value>>
 {
@@ -249,6 +251,7 @@ pub fn make_spec_fetcher(
             )
             .timeout(std::time::Duration::from_secs(120))
             .json(&SpecRequest {
+                request_id,
                 private_spec,
                 upload_url,
             })

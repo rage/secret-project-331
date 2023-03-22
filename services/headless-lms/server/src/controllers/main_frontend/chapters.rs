@@ -5,7 +5,10 @@ use std::{path::PathBuf, str::FromStr, sync::Arc};
 use models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::{
+        models_requests::{self, JwtKey},
+        request_id::RequestId,
+    },
     prelude::*,
 };
 
@@ -29,6 +32,7 @@ Content-Type: application/json
 #[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn post_new_chapter(
+    request_id: RequestId,
     pool: web::Data<PgPool>,
     payload: web::Json<NewChapter>,
     user: AuthUser,
@@ -50,7 +54,7 @@ async fn post_new_chapter(
         PKeyPolicy::Generate,
         &new_chapter,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

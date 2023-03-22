@@ -124,9 +124,9 @@ POST `/api/v0/files/:exercise_service_slug`
 Used to upload data from exercise service iframes.
 
 # Returns
-The randomly generated path to the uploaded file.
+The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
 */
-#[instrument(skip(payload, file_store))]
+#[instrument(skip(payload, file_store, app_conf))]
 #[generated_doc]
 async fn upload_from_exercise_service(
     pool: web::Data<PgPool>,
@@ -135,6 +135,7 @@ async fn upload_from_exercise_service(
     file_store: web::Data<dyn FileStore>,
     user: Option<AuthUser>,
     upload_claim: Result<UploadClaim<'static>, ControllerError>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<HashMap<String, String>>> {
     let mut conn = pool.acquire().await?;
     // accessed from exercise services, can't authenticate using login,
@@ -176,6 +177,7 @@ async fn upload_from_exercise_service(
         file_store.as_ref(),
         &mut paths,
         user.as_ref(),
+        &app_conf.base_url,
     )
     .await
     {

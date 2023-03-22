@@ -25,6 +25,7 @@ pub async fn process_exercise_service_upload(
     file_store: &dyn FileStore,
     paths: &mut HashMap<String, String>,
     uploader: Option<&AuthUser>,
+    base_url: &str,
 ) -> Result<(), ControllerError> {
     let mut tx = conn.begin().await?;
     while let Some(item) = payload.next().await {
@@ -35,7 +36,8 @@ pub async fn process_exercise_service_upload(
         let path = format!("{exercise_service_slug}/{random_filename}");
 
         upload_file_to_storage(&mut tx, Path::new(&path), field, file_store, uploader).await?;
-        paths.insert(field_name, path);
+        let url = format!("{base_url}/api/v0/files/{path}");
+        paths.insert(field_name, url);
     }
     tx.commit().await?;
     Ok(())

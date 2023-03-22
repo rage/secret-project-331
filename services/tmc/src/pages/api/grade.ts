@@ -331,10 +331,7 @@ const gradeInPodInner = async (
       score_given: testOutput.testResults.flatMap((tr) => tr.points).length,
       score_maximum: points.length,
       feedback_text: feedbackText,
-      feedback_json: {
-        stdout: "stdout" in testOutput.logs ? testOutput.logs["stdout"] : "",
-        stderr: "stderr" in testOutput.logs ? testOutput.logs["stderr"] : "",
-      },
+      feedback_json: testOutput,
     }
   } else {
     throw "Unexpected results"

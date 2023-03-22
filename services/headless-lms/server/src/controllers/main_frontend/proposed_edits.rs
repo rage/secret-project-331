@@ -3,7 +3,10 @@ use std::sync::Arc;
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::{
+        models_requests::{self, JwtKey},
+        request_id::RequestId,
+    },
     prelude::*,
 };
 
@@ -76,6 +79,7 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
 */
 #[instrument(skip(pool))]
 pub async fn process_edit_proposal(
+    request_id: RequestId,
     proposal: web::Json<EditProposalInfo>,
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -90,7 +94,7 @@ pub async fn process_edit_proposal(
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

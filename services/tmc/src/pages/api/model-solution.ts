@@ -1,13 +1,15 @@
 /* eslint-disable i18next/no-literal-string */
 import axios from "axios"
-import { promises as fs } from "fs"
+import FormData from "form-data"
+import * as fs from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
-import * as path from "path"
+import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
-import { SpecRequest } from "../../shared-module/bindings"
+import { RepositoryExercise, SpecRequest } from "../../shared-module/bindings"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "../../shared-module/utils/exerciseServices"
+import { isObjectMap } from "../../shared-module/utils/fetching"
 import {
   compressProject,
   extractProject,
@@ -34,7 +36,9 @@ const handlePost = async (
   uploadClaim: string | null,
   res: NextApiResponse<ModelSolutionSpec | ClientErrorResponse>,
 ): Promise<void> => {
-  const { private_spec, upload_url } = req.body as SpecRequest
+  const { request_id, private_spec, upload_url } = req.body as SpecRequest
+  const requestId = request_id.slice(0, 4)
+
   const privateSpec = private_spec as PrivateSpec | null
   if (privateSpec === null) {
     throw "Private spec cannot be null"
@@ -45,72 +49,89 @@ const handlePost = async (
 
   try {
     // create model solution
-    console.debug("downloading template")
+    debug(requestId, "downloading template")
     const templateArchive = temporaryFile()
     await downloadStream(privateSpec.repositoryExercise.download_url, templateArchive)
 
-    console.debug("extracting template")
+    debug(requestId, "extracting template")
     const extractedProjectDir = temporaryDirectory()
     await extractProject(templateArchive, extractedProjectDir)
 
-    console.debug("preparing solution")
+    debug(requestId, "preparing solution")
     const solutionDir = temporaryDirectory()
     await prepareSolution(extractedProjectDir, solutionDir)
 
+    let modelSolutionSpec: ModelSolutionSpec
     if (privateSpec.type === "browser") {
-      await handleBrowserModelSolution(solutionDir, res)
+      modelSolutionSpec = await prepareBrowserModelSolution(solutionDir)
     } else if (privateSpec.type === "editor") {
-      await handleEditorModelSolution(solutionDir, upload_url, uploadClaim, res)
+      modelSolutionSpec = await prepareEditorModelSolution(
+        requestId,
+        solutionDir,
+        privateSpec.repositoryExercise,
+        upload_url,
+        uploadClaim,
+      )
     } else {
-      throw "unreachable"
+      return res.status(500).json({ message: `Unexpected private spec type: ${privateSpec.type}` })
     }
+    return res.status(200).json(modelSolutionSpec)
   } catch (e) {
     if (e instanceof Error) {
-      console.error(e.stack)
+      error(requestId, "error:", e.stack)
     }
     return res.status(500).json({ message: `Internal server error: ${JSON.stringify(e, null, 2)}` })
   }
 }
 
-const handleBrowserModelSolution = async (
-  solutionDir: string,
-  res: NextApiResponse<ModelSolutionSpec | ClientErrorResponse>,
-) => {
+const prepareBrowserModelSolution = async (solutionDir: string): Promise<ModelSolutionSpec> => {
   const config = await getExercisePackagingConfiguration(solutionDir)
   const solutionFiles: Array<ExerciseFile> = []
   for (const studentFilePath of config.student_file_paths) {
     const resolvedPath = path.resolve(solutionDir, studentFilePath)
-    const buffer = await fs.readFile(resolvedPath)
+    const buffer = await fs.promises.readFile(resolvedPath)
     solutionFiles.push({ filepath: studentFilePath, contents: buffer.toString() })
   }
 
-  const modelSolutionSpec: ModelSolutionSpec = {
+  return {
     type: "browser",
     solutionFiles,
   }
-
-  return res.status(200).json(modelSolutionSpec)
 }
 
-const handleEditorModelSolution = async (
+const prepareEditorModelSolution = async (
+  requestId: string,
   solutionDir: string,
+  exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
-  res: NextApiResponse<ModelSolutionSpec | ClientErrorResponse>,
-) => {
-  console.debug("compressing solution")
+): Promise<ModelSolutionSpec> => {
+  debug(requestId, "compressing solution")
   const solutionArchive = temporaryFile()
   await compressProject(solutionDir, solutionArchive, "zstd", true)
 
-  console.debug("uploading solution")
-  const solutionDownloadUrl = await axios.post(uploadUrl, {
+  debug(requestId, "uploading solution to", uploadUrl)
+  const form = new FormData()
+  const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
+  form.append(archiveName, fs.createReadStream(solutionArchive))
+  const res = await axios.post(uploadUrl, form, {
     headers: uploadClaim ? { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: uploadClaim } : {},
-    file: solutionArchive,
   })
-  const modelSolutionSpec: ModelSolutionSpec = {
-    type: "editor",
-    downloadUrl: solutionDownloadUrl.data,
+  if (isObjectMap<string>(res.data)) {
+    const solutionDownloadUrl = res.data[archiveName]
+    return {
+      type: "editor",
+      downloadUrl: solutionDownloadUrl,
+    }
+  } else {
+    throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)
   }
+}
 
-  return res.status(200).json(modelSolutionSpec)
+const debug = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.debug(`[model-solution/${requestId}]`, message, ...optionalParams)
+}
+
+const error = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.error(`[model-solution/${requestId}]`, message, ...optionalParams)
 }

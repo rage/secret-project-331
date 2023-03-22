@@ -56,6 +56,7 @@ export interface ErrorResponse {
 }
 
 export interface SpecRequest {
+  request_id: string
   private_spec: unknown | null
   upload_url: string | null
 }

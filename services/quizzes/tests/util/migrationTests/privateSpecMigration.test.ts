@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { isOldQuiz } from "../../../src/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
@@ -34,7 +35,7 @@ describe("private spec", () => {
     const oldQuiz: Quiz = generateQuiz({
       id: "example-quiz",
     })
-    const newQuiz: PrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz: PrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)!
     expect(isOldQuiz(oldQuiz))
     expect(!isOldQuiz(newQuiz))
   })
@@ -49,7 +50,7 @@ describe("private spec", () => {
       quizOrder,
     )
     const oldQuiz = packToPrivateSpecQuiz([multipleChoiceQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toEqual(1)
@@ -63,7 +64,7 @@ describe("private spec", () => {
   test("migrates checkbox exercise", () => {
     const checkboxQuizItem: QuizItem = generateCheckboxForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([checkboxQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
@@ -76,7 +77,7 @@ describe("private spec", () => {
   test("migrates essay exercise", () => {
     const essayQuizItem: QuizItem = generateEssayForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([essayQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
@@ -90,7 +91,7 @@ describe("private spec", () => {
   test("migrates matrix exercise", () => {
     const matrixQuizItem: QuizItem = generateMatrixForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([matrixQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemMatrix = newQuiz.items[0] as PrivateSpecQuizItemMatrix
@@ -107,7 +108,7 @@ describe("private spec", () => {
   test("migrates 'open' exercise", () => {
     const openQuizItem: QuizItem = generateClosedEndedForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([openQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
@@ -121,7 +122,7 @@ describe("private spec", () => {
   test("migrates scale exercise", () => {
     const scaleQuizItem: QuizItem = generateScaleForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([scaleQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
@@ -134,7 +135,7 @@ describe("private spec", () => {
   test("migrates timeline exercise", () => {
     const timelineQuizItem: QuizItem = generateTimelineForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([timelineQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0] as PrivateSpecQuizItemTimeline
@@ -156,7 +157,7 @@ describe("private spec", () => {
       quizOrder,
     )
     const oldQuiz = packToPrivateSpecQuiz([chooseNQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const oldQuizItem: QuizItem = oldQuiz.items[0]
     const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
@@ -195,7 +196,7 @@ describe("private spec", () => {
       chooseNQuizItem,
     ])
 
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toEqual(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([

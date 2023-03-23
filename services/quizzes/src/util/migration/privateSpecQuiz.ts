@@ -172,7 +172,10 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
  * @see PrivateSpecQuiz
  * @returns New version of Quiz
  */
-export const migratePrivateSpecQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
+export const migratePrivateSpecQuiz = (oldQuiz: Quiz | null): PrivateSpecQuiz | null => {
+  if (oldQuiz === null) {
+    return null
+  }
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",
     id: oldQuiz.id,

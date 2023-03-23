@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { PublicSpecQuizItemMultiplechoice } from "../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -45,7 +46,7 @@ const gradingOptionCorrectAndSelected = css`
 `
 
 const MultipleChoiceSubmission: React.FC<
-  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+  React.PropsWithChildren<QuizItemSubmissionComponentProps<PublicSpecQuizItemMultiplechoice>>
 > = ({
   public_quiz_item,
   quiz_item_model_solution,

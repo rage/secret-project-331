@@ -1,14 +1,15 @@
 import React from "react"
 
-import { PublicQuiz, QuizAnswer } from "../../types/types"
+import { UserAnswer } from "../../types/quizTypes/answer"
+import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 
 import Widget from "./widget"
 
 export interface ExerciseProps {
   port: MessagePort
-  publicSpec: PublicQuiz
-  previousSubmission: QuizAnswer | null
+  publicSpec: PublicSpecQuiz
+  previousSubmission: UserAnswer | null
   user_information: UserInformation
 }
 

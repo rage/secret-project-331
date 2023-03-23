@@ -19,6 +19,7 @@ interface TimelineItemFeedback {
   what_was_chosen_was_correct: boolean
 }
 
+// TODO: Move to definition file.
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null

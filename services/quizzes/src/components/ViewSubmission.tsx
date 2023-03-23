@@ -2,7 +2,9 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
+import { UserAnswer } from "../../types/quizTypes/answer"
+import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../shared-module/styles"
@@ -22,8 +24,8 @@ import ScaleSubmissionViewComponent from "./SubmissionComponents/Scale"
 import Timeline from "./SubmissionComponents/Timeline"
 
 interface SubmissionProps {
-  user_answer: QuizAnswer
-  publicAlternatives: PublicQuiz
+  user_answer: UserAnswer
+  publicAlternatives: PublicSpecQuiz
   modelSolutions: ModelSolutionQuiz | null
   gradingFeedbackJson: ItemAnswerFeedback[] | null
   user_information: UserInformation

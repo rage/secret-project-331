@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable i18next/no-literal-string */
 import migratePublicSpecQuiz from "../../../src/util/migration/publicSpecQuiz"
 import {
@@ -28,7 +29,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates multiple-choice exercises", () => {
     const multipleChoiceItem = generateMultipleChoicePublicSpecQuiz(10, 5, 0)
     const oldPublicQuiz = packToPublicSpecQuiz([multipleChoiceItem])
-    const migratedPublicQuiz = migratePublicSpecQuiz(oldPublicQuiz)
+    const migratedPublicQuiz = migratePublicSpecQuiz(oldPublicQuiz)!
     const migratedMultipleChoiceItem = migratedPublicQuiz.items[0]
 
     expectPublicSpecMetadataToMatch(oldPublicQuiz, migratedPublicQuiz)
@@ -38,7 +39,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates checkbox exercise", () => {
     const checkboxQuizItem: PublicQuizItem = generateCheckboxForOlderPublicSpecQuiz(1)
     const oldQuiz = packToPublicSpecQuiz([checkboxQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemCheckbox = newQuiz.items[0] as PublicSpecQuizItemCheckbox
@@ -51,7 +52,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates essay exercise", () => {
     const essayQuizItem: PublicQuizItem = generateEssayForOlderPublicSpecQuiz(1)
     const oldQuiz = packToPublicSpecQuiz([essayQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemEssay = newQuiz.items[0] as PublicSpecQuizItemEssay
@@ -65,7 +66,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates matrix exercise", () => {
     const matrixQuizItem: PublicQuizItem = generateMatrixForOlderPublicSpecQuiz(1)
     const oldQuiz = packToPublicSpecQuiz([matrixQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemMatrix = newQuiz.items[0] as PublicSpecQuizItemMatrix
@@ -78,7 +79,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates 'open' exercise", () => {
     const openQuizItem: PublicQuizItem = generateClosedEndedForOlderPublicSpecQuiz(1)
     const oldQuiz = packToPublicSpecQuiz([openQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemClosedEndedQuestion = newQuiz
@@ -92,7 +93,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates scale exercise", () => {
     const scaleQuizItem: PublicQuizItem = generateScaleForOlderPublicSpecQuiz(1)
     const oldQuiz = packToPublicSpecQuiz([scaleQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemScale = newQuiz.items[0] as PublicSpecQuizItemScale
@@ -105,7 +106,7 @@ describe("public spec migration of quizzes", () => {
   test("migrates timeline exercise", () => {
     const timelineQuizItem: PublicQuizItem = generateTimelineForOlderPublicSpecQuiz(1)
     const oldQuiz = packToPublicSpecQuiz([timelineQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemTimeline = newQuiz.items[0] as PublicSpecQuizItemTimeline
@@ -127,7 +128,7 @@ describe("public spec migration of quizzes", () => {
       quizOrder,
     )
     const oldQuiz = packToPublicSpecQuiz([chooseNQuizItem])
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
 
     const oldQuizItem: PublicQuizItem = oldQuiz.items[0]
     const newQuizItem: PublicSpecQuizItemChooseN = newQuiz.items[0] as PublicSpecQuizItemChooseN
@@ -166,7 +167,7 @@ describe("public spec migration of quizzes", () => {
       chooseNQuizItem,
     ])
 
-    const newQuiz = migratePublicSpecQuiz(oldQuiz)
+    const newQuiz = migratePublicSpecQuiz(oldQuiz)!
     expectPublicSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toEqual(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([

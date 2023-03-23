@@ -130,7 +130,12 @@ const migrateModelSolutionSpecQuizItem = (
   }
 }
 
-const migrateModelSolutionSpecQuiz = (oldModelSolutionQuiz: OldModelSolutionQuiz) => {
+const migrateModelSolutionSpecQuiz = (
+  oldModelSolutionQuiz: OldModelSolutionQuiz | null,
+): ModelSolutionQuiz | null => {
+  if (oldModelSolutionQuiz === null) {
+    return null
+  }
   const modelSolutionQuiz: ModelSolutionQuiz = {
     version: "2",
     id: oldModelSolutionQuiz.id,

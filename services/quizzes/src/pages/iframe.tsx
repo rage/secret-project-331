@@ -5,7 +5,15 @@ import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
+import { UserAnswer } from "../../types/quizTypes/answer"
+import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
+import {
+  ModelSolutionQuiz as oldModelSolutionQuiz,
+  PublicQuiz,
+  Quiz,
+  QuizAnswer,
+} from "../../types/types"
 import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
@@ -18,6 +26,10 @@ import useExerciseServiceParentConnection from "../shared-module/hooks/useExerci
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { COLUMN } from "../util/constants"
 import { migrateQuiz } from "../util/migrate"
+import { isOldQuiz } from "../util/migration/migrationSettings"
+import migrateModelSolutionSpecQuiz from "../util/migration/modelSolutionSpecQuiz"
+import migratePublicSpecQuiz from "../util/migration/publicSpecQuiz"
+import migrateQuizAnswer from "../util/migration/userAnswerSpec"
 
 import { ItemAnswerFeedback } from "./api/grade"
 
@@ -30,15 +42,15 @@ export interface SubmissionData {
 export type State =
   | {
       viewType: "answer-exercise"
-      publicSpec: PublicQuiz
+      publicSpec: PublicSpecQuiz
       userInformation: UserInformation
-      previousSubmission: QuizAnswer | null
+      previousSubmission: UserAnswer | null
     }
   | {
       viewType: "view-submission"
-      publicSpec: PublicQuiz
+      publicSpec: PublicSpecQuiz
       modelSolutions: ModelSolutionQuiz | null
-      userAnswer: QuizAnswer
+      userAnswer: UserAnswer
       gradingFeedbackJson: ItemAnswerFeedback[] | null
       userInformation: UserInformation
     }
@@ -58,11 +70,22 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
     if (forgivingIsSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
+          let public_spec = messageData.data.public_spec
+          let quiz_answer = messageData.data.previous_submission
+          if (isOldQuiz(messageData.data.previous_submission as QuizAnswer)) {
+            quiz_answer = migrateQuizAnswer(
+              messageData.data.previous_submission as QuizAnswer,
+              public_spec as PublicSpecQuiz,
+            )
+          }
+          if (isOldQuiz(public_spec as PublicQuiz)) {
+            public_spec = migratePublicSpecQuiz(public_spec as PublicQuiz)
+          }
           setState({
             viewType: messageData.view_type,
-            publicSpec: messageData.data.public_spec as PublicQuiz,
+            publicSpec: public_spec as PublicSpecQuiz,
             userInformation: messageData.user_information,
-            previousSubmission: messageData.data.previous_submission as QuizAnswer | null,
+            previousSubmission: quiz_answer as UserAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
           if (messageData.data.private_spec === null) {
@@ -79,11 +102,28 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             })
           }
         } else if (messageData.view_type === "view-submission") {
+          let public_spec = messageData.data.public_spec
+          let model_solution_spec = messageData.data.model_solution_spec
+          let quiz_answer = messageData.data.user_answer
+          if (isOldQuiz(public_spec as PublicQuiz)) {
+            public_spec = migratePublicSpecQuiz(public_spec as PublicQuiz)
+          }
+          if (isOldQuiz(model_solution_spec as PublicQuiz)) {
+            model_solution_spec = migrateModelSolutionSpecQuiz(
+              model_solution_spec as oldModelSolutionQuiz,
+            )
+          }
+          if (isOldQuiz(messageData.data.user_answer as QuizAnswer)) {
+            quiz_answer = migrateQuizAnswer(
+              messageData.data.user_answer as QuizAnswer,
+              public_spec as PublicSpecQuiz,
+            )
+          }
           setState({
             viewType: messageData.view_type,
-            publicSpec: messageData.data.public_spec as PublicQuiz,
-            modelSolutions: messageData.data.model_solution_spec as ModelSolutionQuiz | null,
-            userAnswer: messageData.data.user_answer as QuizAnswer,
+            publicSpec: public_spec as PublicSpecQuiz,
+            modelSolutions: model_solution_spec as ModelSolutionQuiz | null,
+            userAnswer: quiz_answer as UserAnswer,
             userInformation: messageData.user_information,
             gradingFeedbackJson: messageData.data.grading?.feedback_json as
               | ItemAnswerFeedback[]

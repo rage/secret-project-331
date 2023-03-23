@@ -109,7 +109,10 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
   }
 }
 
-const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz) => {
+const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz | null): PublicSpecQuiz | null => {
+  if (oldPublicSpecQuiz === null) {
+    return null
+  }
   const PublicSpecQuiz: PublicSpecQuiz = {
     version: "2",
     id: oldPublicSpecQuiz.id,

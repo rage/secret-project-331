@@ -1,7 +1,9 @@
 import { useReducer } from "react"
 import { v4 } from "uuid"
 
-import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
+import { UserAnswer, UserItemAnswer } from "../../../types/quizTypes/answer"
+import { QuizItemType } from "../../../types/quizTypes/privateSpec"
+import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
@@ -21,20 +23,10 @@ import Unsupported from "./Unsupported"
 
 interface WidgetProps {
   port: MessagePort
-  publicSpec: PublicQuiz
+  publicSpec: PublicSpecQuiz
   user_information: UserInformation
-  previousSubmission: QuizAnswer | null
+  previousSubmission: UserAnswer | null
 }
-
-type QuizItemType =
-  | "essay"
-  | "multiple-choice"
-  | "scale"
-  | "checkbox"
-  | "open"
-  | "custom-frontend-accept-data"
-  | "matrix"
-  | "timeline"
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: {
@@ -56,22 +48,22 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 }
 
 export interface WidgetReducerState {
-  quiz: PublicQuiz
-  quiz_answer: QuizAnswer
+  quiz: PublicSpecQuiz
+  quiz_answer: UserAnswer
   quiz_answer_is_valid: boolean
 }
 
-type QuizItemAnswerWithoutId = Omit<QuizItemAnswer, "quiz_item_id">
+type QuizItemAnswerWithoutId = Omit<UserItemAnswer, "quiz_item_id">
 
 type Action = {
-  quiz_item_answer: QuizItemAnswer
+  quiz_item_answer: UserItemAnswer
   type: "set-answer-state"
 }
 
 export interface QuizItemComponentProps {
   quizDirection: FlexDirection
-  quizItem: PublicQuizItem
-  quizItemAnswerState: QuizItemAnswer | null
+  quizItem: PublicSpecQuizItem
+  quizItemAnswerState: UserItemAnswer | null
   user_information: UserInformation
   setQuizItemAnswerState: (newQuizItemAnswer: QuizItemAnswerWithoutId) => void
 }

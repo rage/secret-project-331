@@ -12,11 +12,12 @@ import {
   UserItemAnswerTimeline,
 } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
+import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 import { QuizAnswer, QuizItemAnswer } from "../../../types/types"
 
 const migrateQuizItemAnswer = (
   quizItemAnswer: QuizItemAnswer,
-  quizItem: PrivateSpecQuizItem,
+  quizItem: PrivateSpecQuizItem | PublicSpecQuizItem,
 ): UserItemAnswer => {
   switch (quizItem.type) {
     case "essay":
@@ -95,17 +96,20 @@ const migrateQuizItemAnswer = (
 }
 
 const migrateQuizAnswer = (
-  quizAnswer: QuizAnswer,
-  privateSpecQuiz: PrivateSpecQuiz,
-): UserAnswer => {
+  quizAnswer: QuizAnswer | null,
+  privateSpecQuiz: PrivateSpecQuiz | PublicSpecQuiz | null,
+): UserAnswer | null => {
+  if (quizAnswer === null || privateSpecQuiz === null) {
+    return null
+  }
   const userAnswer: UserAnswer = {
     id: quizAnswer.id,
     itemAnswers: [],
   }
 
-  const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem } = {}
+  const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem | PublicSpecQuizItem } = {}
   privateSpecQuiz.items.forEach((item) => {
-    privateSpecQuizItems[item.id] = item
+    privateSpecQuizItems[item.id] = item as unknown as PublicSpecQuizItem
   })
 
   quizAnswer.itemAnswers.forEach((answer) => {

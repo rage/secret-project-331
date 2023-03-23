@@ -6,97 +6,89 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Permission management'\"] svg"),
+    page.locator("[aria-label=\"Manage course 'Permission management'\"] svg").click(),
   ])
 
-  // Click text=Manage permissions
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92/permissions' }*/),
-    page.click("text=Permissions"),
+    page.locator("text=Permissions").click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-permission-management-page",
-    waitForThisToBeVisibleAndStable: ["text=Roles for course"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Roles for course")],
   })
 
-  // Click [placeholder="Enter email"]
   await page.click('[placeholder="Enter email"]')
 
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "teacher@example.com")
 
-  // Click text=RoleAdminAssistantReviewerTeacher >> div
-  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
+  await page.locator("text=RoleAdminAssistantReviewerTeacher >> div").click()
 
   // Select Admin
   await page.selectOption("select", "Admin")
 
-  // Click text=Add user
-  await page.click("text=Add user")
+  await page.locator("text=Add user").click()
 
-  // Click [placeholder="Enter email"]
   await page.click('[placeholder="Enter email"]')
 
   // Fill [placeholder="Enter email"]
   await page.fill('[placeholder="Enter email"]', "admin@example.com")
 
-  // Click text=RoleAdminAssistantReviewerTeacher >> div
-  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
+  await page.locator("text=RoleAdminAssistantReviewerTeacher >> div").click()
 
   // Select Admin
   await page.selectOption("select", "Teacher")
 
-  // Click text=Add user
-  await page.click("text=Add user")
+  await page.locator("text=Add user").click()
 
-  // Click [aria-label="Sort by email"]
   await page.click('[aria-label="Sort by email"]')
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/a2002fc3-2c87-4aae-a5e5-9d14617aad2b/permissions?sort=email",
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "sorted-by-email",
     clearNotifications: true,
   })
 
-  // Click [aria-label="Sort by role"]
   await page.click('[aria-label="Sort by role"]')
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/a2002fc3-2c87-4aae-a5e5-9d14617aad2b/permissions?sort=role",
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "sorted-by-role",
   })
 
-  // Click [aria-label="Edit role"]
   await page.click('[aria-label="Edit role"]')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "editing-permission",
-    waitForThisToBeVisibleAndStable: ["#editing-role"],
+    waitForTheseToBeVisibleAndStable: [page.getByText("teacher@example.com").first()],
   })
 
   // Select Reviewer
@@ -105,24 +97,24 @@ test("test", async ({ headless, page }) => {
     "Reviewer",
   )
 
-  // Click [aria-label="Save edited role"]
   await page.click('[aria-label="Save edited role"]')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "edited-permission",
-    waitForThisToBeVisibleAndStable: 'text="Success"',
-    clearNotifications: true,
+    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
+    clearNotifications: false,
   })
 
-  // Click [aria-label="Remove role"]
   await page.click('[aria-label="Remove role"]')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "removed-permission",
-    waitForThisToBeVisibleAndStable: 'text="Success"',
+    waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
   })
 })

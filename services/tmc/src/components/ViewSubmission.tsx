@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { ViewSubmissionState } from "../util/stateInterfaces"
 
 interface Props {
@@ -6,21 +5,23 @@ interface Props {
 }
 
 const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => {
-  if (state.userAnswer.type === "browser") {
-    return <code>{state.userAnswer.fileContents}</code>
-  } else if (state.userAnswer.type === "editor") {
+  if (state.submission.type === "browser") {
     return (
       <>
-        {state.userAnswer.answerFiles.map((f) => (
-          <>
-            <div>{f.filepath}</div>
-            <code>{f.contents}</code>
-          </>
-        ))}
+        {state.submission.files.map((f) => {
+          return (
+            <>
+              <div>{f.filepath}</div>
+              <code key={f.filepath}>{f.contents}</code>
+            </>
+          )
+        })}
       </>
     )
+  } else if (state.submission.type === "editor") {
+    return <div>{state.submission.archiveDownloadUrl}</div>
   } else {
-    throw "unreachable"
+    throw new Error("unreachable")
   }
 }
 

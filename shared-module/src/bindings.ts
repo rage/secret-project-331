@@ -139,6 +139,39 @@ export interface UserCourseInstanceChapterProgress {
   attempted_exercises: number | null
 }
 
+export interface CourseBackgroundQuestionAnswer {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_background_question_id: string
+  answer_value: string | null
+  user_id: string
+}
+
+export interface NewCourseBackgroundQuestionAnswer {
+  answer_value: string | null
+  course_background_question_id: string
+}
+
+export interface CourseBackgroundQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_instance_id: string | null
+  course_id: string
+  question_text: string
+  question_type: CourseBackgroundQuestionType
+}
+
+export type CourseBackgroundQuestionType = "Checkbox" | "Text"
+
+export interface CourseBackgroundQuestionsAndAnswers {
+  background_questions: Array<CourseBackgroundQuestion>
+  answers: Array<CourseBackgroundQuestionAnswer>
+}
+
 export interface CourseInstanceEnrollment {
   user_id: string
   course_id: string
@@ -196,42 +229,9 @@ export type PointMap = Record<string, number>
 
 export interface Points {
   chapter_points: Array<ChapterScore>
-  users: Array<User>
+  users: Array<UserDetail>
   user_chapter_points: Record<string, PointMap>
 }
-
-export interface CourseBackgroundQuestionAnswer {
-  id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  course_background_question_id: string
-  answer_value: string | null
-  user_id: string
-}
-
-export interface NewCourseBackgroundQuestionAnswer {
-  answer_value: string | null
-  course_background_question_id: string
-}
-
-export interface CourseBackgroundQuestionsAndAnswers {
-  background_questions: Array<CourseBackgroundQuestion>
-  answers: Array<CourseBackgroundQuestionAnswer>
-}
-
-export interface CourseBackgroundQuestion {
-  id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  course_instance_id: string | null
-  course_id: string
-  question_text: string
-  question_type: CourseBackgroundQuestionType
-}
-
-export type CourseBackgroundQuestionType = "Checkbox" | "Text"
 
 export interface CourseModuleCompletionWithRegistrationInfo {
   completion_registration_attempt_date: Date | null
@@ -270,16 +270,6 @@ export interface CourseModule {
   ects_credits: number | null
 }
 
-export interface NewCourseModule {
-  completion_policy: CompletionPolicy
-  completion_registration_link_override: string | null
-  course_id: string
-  ects_credits: number | null
-  name: string | null
-  order_number: number
-  uh_course_code: string | null
-}
-
 export interface ModifiedModule {
   id: string
   name: string | null
@@ -295,6 +285,16 @@ export interface ModuleUpdates {
   deleted_modules: Array<string>
   modified_modules: Array<ModifiedModule>
   moved_chapters: Array<[string, string]>
+}
+
+export interface NewCourseModule {
+  completion_policy: CompletionPolicy
+  completion_registration_link_override: string | null
+  course_id: string
+  ects_credits: number | null
+  name: string | null
+  order_number: number
+  uh_course_code: string | null
 }
 
 export interface NewModule {
@@ -1078,14 +1078,6 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
-export interface CourseMaterialPeerReviewConfig {
-  id: string
-  course_id: string
-  exercise_id: string | null
-  peer_reviews_to_give: number
-  peer_reviews_to_receive: number
-}
-
 export interface CmsPeerReviewConfig {
   id: string
   course_id: string
@@ -1099,6 +1091,14 @@ export interface CmsPeerReviewConfig {
 export interface CmsPeerReviewConfiguration {
   peer_review_config: CmsPeerReviewConfig
   peer_review_questions: Array<CmsPeerReviewQuestion>
+}
+
+export interface CourseMaterialPeerReviewConfig {
+  id: string
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
 }
 
 export type PeerReviewAcceptingStrategy =
@@ -1118,29 +1118,6 @@ export interface PeerReviewConfig {
   accepting_threshold: number
   accepting_strategy: PeerReviewAcceptingStrategy
 }
-
-export interface CmsPeerReviewQuestion {
-  id: string
-  peer_review_config_id: string
-  order_number: number
-  question: string
-  question_type: PeerReviewQuestionType
-  answer_required: boolean
-}
-
-export interface PeerReviewQuestion {
-  id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  peer_review_config_id: string
-  order_number: number
-  question: string
-  question_type: PeerReviewQuestionType
-  answer_required: boolean
-}
-
-export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export type PeerReviewAnswer =
   | { type: "no-answer" }
@@ -1173,6 +1150,29 @@ export interface PeerReviewWithQuestionsAndAnswers {
   peer_review_submission_id: string
   questions_and_answers: Array<PeerReviewQuestionAndAnswer>
 }
+
+export interface CmsPeerReviewQuestion {
+  id: string
+  peer_review_config_id: string
+  order_number: number
+  question: string
+  question_type: PeerReviewQuestionType
+  answer_required: boolean
+}
+
+export interface PeerReviewQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_config_id: string
+  order_number: number
+  question: string
+  question_type: PeerReviewQuestionType
+  answer_required: boolean
+}
+
+export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export interface PendingRole {
   id: string
@@ -1341,6 +1341,19 @@ export interface TeacherGradingDecision {
   teacher_decision: TeacherDecisionType
 }
 
+export interface UserCourseInstanceExerciseServiceVariable {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_service_slug: string
+  user_id: string
+  course_instance_id: string | null
+  exam_id: string | null
+  variable_key: string
+  variable_value: unknown
+}
+
 export interface UserCourseSettings {
   user_id: string
   course_language_group_id: string
@@ -1349,6 +1362,15 @@ export interface UserCourseSettings {
   deleted_at: Date | null
   current_course_id: string
   current_course_instance_id: string
+}
+
+export interface UserDetail {
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  email: string
+  first_name: string | null
+  last_name: string | null
 }
 
 export interface ExerciseUserCounts {
@@ -1405,26 +1427,11 @@ export interface UserExerciseState {
 
 export interface User {
   id: string
-  first_name: string | null
-  last_name: string | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
   upstream_id: number | null
-  email: string
-}
-
-export interface UserCourseInstanceExerciseServiceVariable {
-  id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  exercise_service_slug: string
-  user_id: string
-  course_instance_id: string | null
-  exam_id: string | null
-  variable_key: string
-  variable_value: unknown
+  email_domain: string | null
 }
 
 export interface UploadResult {
@@ -1447,6 +1454,10 @@ export interface Login {
 
 export interface UserInfo {
   user_id: string
+}
+
+export interface SaveCourseSettingsPayload {
+  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
 }
 
 export interface ChaptersWithStatus {
@@ -1479,10 +1490,6 @@ export type ExamEnrollmentData =
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
 
-export interface SaveCourseSettingsPayload {
-  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
-}
-
 export interface GetFeedbackQuery {
   read: boolean
   page: number | undefined
@@ -1508,6 +1515,11 @@ export interface ExerciseSubmissions {
 export interface MarkAsRead {
   read: boolean
 }
+
+export type PlaygroundViewsMessage =
+  | { tag: "TimedOut" }
+  | { tag: "Registered"; data: string }
+  | { tag: "ExerciseTaskGradingResult"; data: ExerciseTaskGradingResult }
 
 export interface GetEditProposalsQuery {
   pending: boolean

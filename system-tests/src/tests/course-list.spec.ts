@@ -7,10 +7,9 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("course list renders", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("course list renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
-  // Click [aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")
+
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click(
@@ -20,9 +19,10 @@ test("course list renders", async ({ headless, page }) => {
 
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
-    page,
     headless,
+    testInfo,
+    screenshotTarget: page,
     snapshotName: "course-listing",
-    waitForThisToBeVisibleAndStable: ["text=Courses:"],
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Courses:")],
   })
 })

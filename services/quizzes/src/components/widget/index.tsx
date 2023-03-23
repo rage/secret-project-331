@@ -5,7 +5,7 @@ import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../..
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
-import { COLUMN } from "../../util/constants"
+import { COLUMN, QUIZ_ITEM_CLASS } from "../../util/constants"
 import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
@@ -149,22 +149,23 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
           const quizItemAnswerState =
             state.quiz_answer.itemAnswers.find((qia) => qia.quizItemId === quizItem.id) ?? null
           return (
-            <Component
-              key={quizItem.id}
-              quizDirection={direction}
-              quizItem={quizItem}
-              quizItemAnswerState={quizItemAnswerState}
-              user_information={user_information}
-              setQuizItemAnswerState={(newQuizItemAnswer: QuizItemAnswerWithoutId) => {
-                dispatch({
-                  type: "set-answer-state",
-                  quiz_item_answer: {
-                    ...newQuizItemAnswer,
-                    quizItemId: quizItem.id,
-                  },
-                })
-              }}
-            />
+            <div key={quizItem.id} className={QUIZ_ITEM_CLASS}>
+              <Component
+                quizDirection={direction}
+                quizItem={quizItem}
+                quizItemAnswerState={quizItemAnswerState}
+                user_information={user_information}
+                setQuizItemAnswerState={(newQuizItemAnswer: QuizItemAnswerWithoutId) => {
+                  dispatch({
+                    type: "set-answer-state",
+                    quiz_item_answer: {
+                      ...newQuizItemAnswer,
+                      quizItemId: quizItem.id,
+                    },
+                  })
+                }}
+              />
+            </div>
           )
         })}
     </FlexWrapper>

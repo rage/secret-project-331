@@ -232,6 +232,9 @@ module.exports = {
           "getValues",
           "watch",
           "useMediaQuery",
+          "console.log",
+          "console.error",
+          "Error",
         ],
         ignoreProperty: ["type"],
       },
@@ -243,6 +246,15 @@ module.exports = {
       files: ["system-tests/**/*"],
       rules: {
         "i18next/no-literal-string": "off",
+      },
+    },
+    {
+      files: ["system-tests/src/**/*"],
+      extends: ["plugin:playwright/playwright-test"],
+      rules: {
+        "playwright/no-focused-test": "off",
+        "playwright/prefer-strict-equal": "error",
+        "playwright/prefer-to-be": "error",
       },
     },
   ],

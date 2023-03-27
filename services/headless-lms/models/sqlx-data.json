@@ -3662,6 +3662,16 @@
     },
     "query": "\nINSERT INTO user_details (user_id, email, first_name, last_name)\nVALUES ($1, $2, $3, $4)\n"
   },
+  "3b666d5cb36b69f10b7f2320980e21445748ced300a2a4492c7ffb4630cf2721": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE exercise_id = $1 AND user_id = $2 AND course_instance_id = $3\n"
+  },
   "3c54ad6a3cc0b88764f80e64680724a116966367fb28fcb0c85eb1a04c4e8624": {
     "describe": {
       "columns": [
@@ -10109,6 +10119,16 @@
       }
     },
     "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    deleted_at,\n    peer_review_config_id,\n    order_number,\n    question,\n    question_type AS \"question_type: _\",\n    answer_required\nFROM peer_review_questions\nWHERE peer_review_config_id = $1\n    AND deleted_at IS NULL;\n        "
+  },
+  "874ce76ed10bd237e9bd8382db06045c38f85c1f262392eb79f46034a374e40e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE created_at < now() - '1 hour'::interval\n"
   },
   "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
     "describe": {
@@ -16739,6 +16759,22 @@
     },
     "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id,\n    score_maximum,\n    max_tries_per_slide,\n    limit_number_of_tries,\n    deadline,\n    needs_peer_review,\n    use_course_default_peer_review_config\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13\n  ) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  score_maximum = $8,\n  max_tries_per_slide = $9,\n  limit_number_of_tries = $10,\n  deadline = $11,\n  needs_peer_review = $12,\n  use_course_default_peer_review_config = $13,\n  deleted_at = NULL\nRETURNING *;\n            "
   },
+  "d7aa92b17e25f4257e753ff79dd3dc0152e0c9a41038e2602eb3dabcff618fdc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exercise_slide_submission_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT exercise_slide_submission_id\nFROM offered_answers_to_peer_review_temporary\nWHERE exercise_id = $1\n  AND user_id = $2\n  AND course_instance_id = $3\n  AND created_at > now() - '1 hour'::interval\n  "
+  },
   "d7c2e87b32f5a87fa4595464a6449ce402745887d29b981da6b44cc419aad59c": {
     "describe": {
       "columns": [
@@ -19404,6 +19440,16 @@
       }
     },
     "query": "\nSELECT *\nFROM course_instance_enrollments\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n        "
+  },
+  "fc302d9b709a3ee24ce680c00c07823e7f69aaa907b22bb34810e322895facab": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO offered_answers_to_peer_review_temporary (\n    exercise_slide_submission_id,\n    user_id,\n    course_instance_id,\n    exercise_id\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT offered_answers_to_peer_review_temporary_pkey DO\nUPDATE\nSET exercise_slide_submission_id = $1,\n  user_id = $2,\n  course_instance_id = $3,\n  exercise_id = $4,\n  created_at = now()\n"
   },
   "fc3411dc016ab2ff4cff7bc8032262ed4383920feacfab27b719c6747fce6056": {
     "describe": {

@@ -54,6 +54,7 @@ pub struct CourseMaterialPeerReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub peer_review_config_id: Uuid,
     pub peer_review_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
+    pub token: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -189,6 +190,14 @@ pub async fn create_peer_review_submission_for_user(
     if let Some(entry) = receiver_peer_review_queue_entry {
         update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry).await?;
     }
+    // Make it possible for the user to receive a new submission to review
+    crate::offered_answers_to_peer_review_temporary::delete_saved_submissions_for_user(
+        &mut tx,
+        exercise.id,
+        giver_exercise_state.user_id,
+        giver_exercise_state.get_course_instance_id()?,
+    )
+    .await?;
     tx.commit().await?;
 
     Ok(giver_exercise_state)
@@ -367,6 +376,23 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     )
     .await?;
     let course_instance_id = reviewer_user_exercise_state.get_course_instance_id()?;
+
+    // If an answer has been given within 1 hour to be reviewed and it still needs peer review, return the same one
+    if let Some(saved_exercise_slide_submission_to_review) = crate::offered_answers_to_peer_review_temporary::try_to_restore_previously_given_exercise_slide_submission(&mut *conn, exercise.id, reviewer_user_exercise_state.user_id, course_instance_id).await? {
+        let data = get_course_material_peer_review_data(
+            conn,
+            &peer_review_config,
+            &Some(saved_exercise_slide_submission_to_review),
+            reviewer_user_exercise_state.user_id,
+            course_instance_id,
+            exercise.id,
+            fetch_service_info,
+        )
+        .await?;
+
+        return Ok(data)
+    }
+
     let excluded_exercise_slide_submission_ids =
         peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
@@ -383,7 +409,17 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     )
     .await?;
     let exercise_slide_submission_to_review = match candidate_submission_id {
-        Some(exercise_slide_submission) => Some(exercise_slide_submission),
+        Some(exercise_slide_submission) => {
+            crate::offered_answers_to_peer_review_temporary::save_given_exercise_slide_submission(
+                &mut *conn,
+                exercise_slide_submission.id,
+                exercise.id,
+                reviewer_user_exercise_state.user_id,
+                course_instance_id,
+            )
+            .await?;
+            Some(exercise_slide_submission)
+        }
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.

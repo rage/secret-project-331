@@ -798,6 +798,7 @@ export interface CourseMaterialPeerReviewSubmission {
   exercise_slide_submission_id: string
   peer_review_config_id: string
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
+  token: string
 }
 
 export interface CompletionRegistrationLink {
@@ -1489,6 +1490,11 @@ export type ExamEnrollmentData =
   | { tag: "NotEnrolled"; can_enroll: boolean }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
+
+export interface CourseMaterialPeerReviewDataWithToken {
+  course_material_peer_review_data: CourseMaterialPeerReviewData
+  token: string | null
+}
 
 export interface GetFeedbackQuery {
   read: boolean

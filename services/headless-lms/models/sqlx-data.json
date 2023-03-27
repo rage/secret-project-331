@@ -15327,6 +15327,22 @@
     },
     "query": "\nUPDATE regradings\nSET error_message = $1\nWHERE id = $2\n"
   },
+  "c6f8015b29670a51b64ea5effe14e0f78ae70ef2196b3e1c1a66a4a4439ee269": {
+    "describe": {
+      "columns": [
+        {
+          "name": "latest_submission_time",
+          "ordinal": 0,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT MAX(created_at) as latest_submission_time\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n        "
+  },
   "c73a2a7333319894d99be453e45b50701829dd037f04f3af0bd3862781c600bf": {
     "describe": {
       "columns": [

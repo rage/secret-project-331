@@ -7,18 +7,15 @@ import { baseTheme } from "../../../../../shared-module/styles/theme"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const THINGLINK = "thinglink"
-const GET_NUMERIC_ID_FROM_STRING_REGEX = /\/(\d+)\//
+const GET_NUMERIC_ID_FROM_STRING_REGEX = /\/(\d+)/g
 
 export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const { t } = useTranslation()
   let id: string | null = null
-  try {
-    if (props.url) {
-      const groups = props.url.matchAll(GET_NUMERIC_ID_FROM_STRING_REGEX)
-      id = groups.next().value
-    }
-  } catch (e) {
-    // NOP
+
+  if (props.url) {
+    const groups = props.url.matchAll(GET_NUMERIC_ID_FROM_STRING_REGEX)
+    id = groups.next()?.value[1]
   }
 
   return (

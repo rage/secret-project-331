@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use chrono::Duration;
 use futures::future::BoxFuture;
 use rand::{seq::SliceRandom, thread_rng};
 use url::Url;
@@ -53,6 +54,7 @@ pub struct CourseMaterialPeerReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub peer_review_config_id: Uuid,
     pub peer_review_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
+    pub token: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -82,6 +84,55 @@ pub async fn create_peer_review_submission_for_user(
     )?;
 
     let mut tx = conn.begin().await?;
+
+    let peer_reviews_given_before_this_review: i32 =
+        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+            &mut tx,
+            giver_exercise_state.user_id,
+            giver_exercise_state.exercise_id,
+            giver_exercise_state.get_course_instance_id()?,
+        )
+        .await?
+        .try_into()?;
+    let peer_reviews_given = peer_reviews_given_before_this_review + 1;
+
+    let unacceptable_amount_of_peer_reviews =
+        std::cmp::max(peer_review.peer_reviews_to_give, 1) * 15;
+    let suspicious_amount_of_peer_reviews =
+        std::cmp::max(std::cmp::max(peer_review.peer_reviews_to_give, 1) * 2, 4);
+    // To prevent someone from spamming peer reviews
+    if peer_reviews_given > unacceptable_amount_of_peer_reviews {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "You have given too many peer reviews to this exercise".to_string(),
+            None,
+        ));
+    }
+    // If someone has created more peer reviews than usual, apply rate limiting
+    if peer_reviews_given > suspicious_amount_of_peer_reviews {
+        // This is purposefully getting submission time to any peer reviewed exercise to prevent the user from spamming multiple exercises at the same time.
+        let last_submission_time =
+            peer_review_submissions::get_last_time_user_submitted_peer_review(
+                &mut tx,
+                giver_exercise_state.user_id,
+                giver_exercise_state.exercise_id,
+                giver_exercise_state.get_course_instance_id()?,
+            )
+            .await?;
+
+        if let Some(last_submission_time) = last_submission_time {
+            let diff = peer_reviews_given - suspicious_amount_of_peer_reviews;
+            let coefficient = std::cmp::min(std::cmp::max(diff, 1), 10);
+            // Between 30 seconds and 5 minutes
+            if Utc::now() - Duration::seconds(30 * coefficient as i64) < last_submission_time {
+                return Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "You are submitting too fast. Try again later.".to_string(),
+                    None,
+                ));
+            }
+        }
+    }
     let peer_review_submission_id = peer_review_submissions::insert(
         &mut tx,
         PKeyPolicy::Generate,
@@ -103,15 +154,7 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     }
-    let peer_reviews_given: i32 =
-        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
-            &mut tx,
-            giver_exercise_state.user_id,
-            giver_exercise_state.exercise_id,
-            giver_exercise_state.get_course_instance_id()?,
-        )
-        .await?
-        .try_into()?;
+
     let giver_exercise_state = if peer_reviews_given >= peer_review.peer_reviews_to_give {
         update_peer_review_giver_exercise_progress(
             &mut tx,
@@ -147,6 +190,14 @@ pub async fn create_peer_review_submission_for_user(
     if let Some(entry) = receiver_peer_review_queue_entry {
         update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry).await?;
     }
+    // Make it possible for the user to receive a new submission to review
+    crate::offered_answers_to_peer_review_temporary::delete_saved_submissions_for_user(
+        &mut tx,
+        exercise.id,
+        giver_exercise_state.user_id,
+        giver_exercise_state.get_course_instance_id()?,
+    )
+    .await?;
     tx.commit().await?;
 
     Ok(giver_exercise_state)
@@ -325,6 +376,23 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     )
     .await?;
     let course_instance_id = reviewer_user_exercise_state.get_course_instance_id()?;
+
+    // If an answer has been given within 1 hour to be reviewed and it still needs peer review, return the same one
+    if let Some(saved_exercise_slide_submission_to_review) = crate::offered_answers_to_peer_review_temporary::try_to_restore_previously_given_exercise_slide_submission(&mut *conn, exercise.id, reviewer_user_exercise_state.user_id, course_instance_id).await? {
+        let data = get_course_material_peer_review_data(
+            conn,
+            &peer_review_config,
+            &Some(saved_exercise_slide_submission_to_review),
+            reviewer_user_exercise_state.user_id,
+            course_instance_id,
+            exercise.id,
+            fetch_service_info,
+        )
+        .await?;
+
+        return Ok(data)
+    }
+
     let excluded_exercise_slide_submission_ids =
         peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
@@ -341,7 +409,17 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     )
     .await?;
     let exercise_slide_submission_to_review = match candidate_submission_id {
-        Some(exercise_slide_submission) => Some(exercise_slide_submission),
+        Some(exercise_slide_submission) => {
+            crate::offered_answers_to_peer_review_temporary::save_given_exercise_slide_submission(
+                &mut *conn,
+                exercise_slide_submission.id,
+                exercise.id,
+                reviewer_user_exercise_state.user_id,
+                course_instance_id,
+            )
+            .await?;
+            Some(exercise_slide_submission)
+        }
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.

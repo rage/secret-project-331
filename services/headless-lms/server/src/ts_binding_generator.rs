@@ -252,6 +252,7 @@ fn controllers(target: &mut File) {
             courses::CourseMaterialCourseModule,
             exams::ExamData,
             exams::ExamEnrollmentData,
+            exercises::CourseMaterialPeerReviewDataWithToken
         };
     }
 

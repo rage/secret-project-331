@@ -133,6 +133,8 @@ use std::{collections::HashMap, fs};
 use ts_rs::TS;
 use uuid::Uuid;
 
+use crate::controllers::course_material::exercises::CourseMaterialPeerReviewDataWithToken;
+
 // Helper function to avoid typing out Example::example()
 fn ex<T: Example>() -> T {
     Example::example()
@@ -315,6 +317,10 @@ fn controllers() {
             user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
         }
     );
+    doc!(CourseMaterialPeerReviewDataWithToken {
+        course_material_peer_review_data,
+        token: Some("eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs".to_string())
+    });
 }
 
 fn models() {
@@ -872,6 +878,7 @@ fn models() {
         exercise_slide_submission_id,
         peer_review_config_id,
         peer_review_question_answers,
+        token: "eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs".to_string()
     });
     doc!(
         T,

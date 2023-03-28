@@ -1,43 +1,38 @@
 /* eslint-disable i18next/no-literal-string */
 import Editor from "@monaco-editor/react"
 import _ from "lodash"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
-import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
-import { ExerciseFile, PublicSpec, Submission } from "../util/stateInterfaces"
+import { ExerciseFile, IframeState, PublicSpec } from "../util/stateInterfaces"
 
 interface Props {
-  port: MessagePort
   initialPublicSpec: PublicSpec
-  publicSpec: PublicSpec
+  setState: (updater: (state: IframeState | null) => IframeState | null) => void
 }
 
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
-  port,
-  publicSpec,
   initialPublicSpec,
+  setState,
 }) => {
   const { t } = useTranslation()
 
   const initialEditorState = publicSpecToEditorState(initialPublicSpec)
-  useEffect(() => {
-    sendCurrentState(port, initialEditorState)
-  }, [port, initialEditorState])
-  const [editorState, _setEditorState] = useState(publicSpecToEditorState(publicSpec))
-  const setEditorState = (value: Array<ExerciseFile>) => {
-    _setEditorState(value)
-    if (!port) {
-      // eslint-disable-next-line i18next/no-literal-string
-      console.error("Cannot send state to parent because I don't have a port")
-      return
-    }
-    sendCurrentState(port, value)
+  const [editorState, _setEditorState] = useState(initialEditorState)
+  const setEditorState = (files: Array<ExerciseFile>) => {
+    _setEditorState(files)
+    setState((old) => {
+      if (old?.viewType == "answer-exercise") {
+        return { ...old, userAnswer: { type: "browser", files } }
+      } else {
+        return null
+      }
+    })
   }
 
   // student exercise view
-  if (publicSpec.type === "browser") {
+  if (initialPublicSpec.type === "browser") {
     // "inline" exercise, solved in the browser
     // todo: support multiple files
     const { filepath, contents } = editorState[0]
@@ -51,7 +46,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
           value={contents}
           onChange={(newContents) => {
             if (newContents !== undefined) {
-              const newState = { ...editorState }
+              const newState = _.cloneDeep(editorState)
               const changed = newState.find((ef) => ef.filepath == filepath)
               if (changed) {
                 changed.contents = newContents
@@ -72,12 +67,12 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         </Button>
       </>
     )
-  } else if (publicSpec.type === "editor") {
+  } else if (initialPublicSpec.type === "editor") {
     // solved in an external editor
     return (
       <>
         <div>{t("solve-in-editor")}</div>
-        <a download={"testts"} href={publicSpec.archiveDownloadUrl}>
+        <a download={"testts"} href={initialPublicSpec.archiveDownloadUrl}>
           {t("download")}
         </a>
       </>
@@ -115,26 +110,10 @@ const extensionToLanguage = (path: string): string | undefined => {
     default:
       // try to use the extension as language,
       // works in most other cases like java, c...
-      // an unknown language will just disable syntax highlighting so this won't cause problems
+      // worst case scenario the editor doesn't recognise the extension as a language and doesn't provide syntax highlighting
       return extension
   }
   /* eslint-enable i18next/no-literal-string */
-}
-
-const sendCurrentState = (port: MessagePort, files: Array<ExerciseFile>) => {
-  // eslint-disable-next-line i18next/no-literal-string
-  console.info("Posting state to parent")
-  const data: Submission = {
-    type: "browser",
-    files,
-  }
-  const message: CurrentStateMessage = {
-    // eslint-disable-next-line i18next/no-literal-string
-    message: "current-state",
-    data,
-    valid: true,
-  }
-  port.postMessage(message)
 }
 
 export default AnswerExercise

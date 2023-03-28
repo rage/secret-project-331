@@ -152,6 +152,7 @@ import {
   PendingRole,
   PlaygroundExample,
   PlaygroundExampleData,
+  PlaygroundViewsMessage,
   PointMap,
   Points,
   ProposalCount,
@@ -315,6 +316,7 @@ export function isSpecRequest(obj: unknown): obj is SpecRequest {
   const typedObj = obj as SpecRequest
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["request_id"] === "string" &&
     (typedObj["upload_url"] === null || typeof typedObj["upload_url"] === "string")
   )
 }
@@ -1247,7 +1249,12 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
     (isCourseMaterialExerciseSlide(typedObj["current_exercise_slide"]) as boolean) &&
     (typedObj["exercise_status"] === null ||
       (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
-    (isPointMap(typedObj["exercise_slide_submission_counts"]) as boolean) &&
+    ((typedObj["exercise_slide_submission_counts"] !== null &&
+      typeof typedObj["exercise_slide_submission_counts"] === "object") ||
+      typeof typedObj["exercise_slide_submission_counts"] === "function") &&
+    Object.entries<any>(typedObj["exercise_slide_submission_counts"]).every(
+      ([key, value]) => typeof value === "number" && typeof key === "string",
+    ) &&
     (typedObj["peer_review_config"] === null ||
       (isCourseMaterialPeerReviewConfig(typedObj["peer_review_config"]) as boolean)) &&
     (typedObj["previous_exercise_slide_submission"] === null ||
@@ -2695,6 +2702,20 @@ export function isMarkAsRead(obj: unknown): obj is MarkAsRead {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["read"] === "boolean"
+  )
+}
+
+export function isPlaygroundViewsMessage(obj: unknown): obj is PlaygroundViewsMessage {
+  const typedObj = obj as PlaygroundViewsMessage
+  return (
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "TimedOut") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Registered" &&
+      typeof typedObj["data"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "ExerciseTaskGradingResult" &&
+      (isExerciseTaskGradingResult(typedObj["data"]) as boolean))
   )
 }
 

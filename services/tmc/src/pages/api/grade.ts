@@ -1,22 +1,15 @@
 /* eslint-disable i18next/no-literal-string */
 import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
-import { createReadStream, promises as fs } from "fs"
+import { createReadStream, createWriteStream, promises as fs } from "fs"
 import { NextApiRequest, NextApiResponse } from "next"
 import path from "path"
+import internal from "stream"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import { v4 } from "uuid"
-import WebSocket from "ws"
 
-import {
-  ClientErrorResponse,
-  downloadStream,
-  GradingResult,
-  initKubeApi,
-  initKubeConfig,
-  pendingSubmissions,
-} from "../../lib"
-import { GradingProgress } from "../../shared-module/bindings"
+import { ClientErrorResponse, downloadStream, initKubeApi, initKubeConfig } from "../../lib"
+import { ExerciseTaskGradingResult, GradingProgress } from "../../shared-module/bindings"
 import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "../../shared-module/utils/exerciseServices"
 import { isRunResult } from "../../tmc/cli.guard"
@@ -26,13 +19,13 @@ import {
   fastAvailablePoints,
   prepareSubmission,
 } from "../../tmc/langs"
-import { PrivateSpec, Submission } from "../../util/stateInterfaces"
+import { PrivateSpec, UserAnswer } from "../../util/stateInterfaces"
 
 const DEFAULT_TASK_TIMEOUT_MS = 60000
 
 export default async (
   req: NextApiRequest,
-  res: NextApiResponse<GradingResult | ClientErrorResponse>,
+  res: NextApiResponse<ExerciseTaskGradingResult | ClientErrorResponse>,
 ): Promise<void> => {
   if (req.method !== "POST") {
     return res.status(404).json({ message: "Not found" })
@@ -43,27 +36,44 @@ export default async (
   if (typeof gradingUpdateClaimHeader === "string") {
     gradingUpdateClaim = gradingUpdateClaimHeader
   }
-  if (gradingUpdateClaim === null) {
-    return res
-      .status(400)
-      .send({ message: `Missing '${EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER}' header` })
+
+  let postResult: PostResult
+  try {
+    postResult = await handlePost(req, res)
+  } catch (e) {
+    let message = "Internal server error"
+    // check for langs error
+    if (typeof e === "object" && e && "message" in e) {
+      message += `: ${e.message}`
+    } else if (e instanceof Error) {
+      message += `: ${e.message}`
+    } else {
+      message += `: ${JSON.stringify(e)}`
+    }
+    return res.status(500).send({ message })
   }
 
-  try {
-    return await handlePost(req, gradingUpdateClaim, res)
-  } catch (e) {
-    console.log(e)
-    return res.status(500).send({ message: "Internal server error" })
-  }
+  // wait for the grading to finish and send the finished grading
+  const gradingResult = await postResult.gradingPromise
+  console.log(`sending grading to ${postResult.gradingUpdateUrl}`)
+  await axios.post(postResult.gradingUpdateUrl, gradingResult, {
+    headers: gradingUpdateClaim
+      ? { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: gradingUpdateClaim }
+      : {},
+  })
 }
 
-type TmcGradingRequest = GradingRequest<PrivateSpec, Submission>
+type TmcGradingRequest = GradingRequest<PrivateSpec, UserAnswer>
+
+interface PostResult {
+  gradingPromise: Promise<ExerciseTaskGradingResult>
+  gradingUpdateUrl: string
+}
 
 const handlePost = async (
   req: NextApiRequest,
-  gradingUpdateClaim: string,
-  res: NextApiResponse<GradingResult | ClientErrorResponse>,
-): Promise<void> => {
+  res: NextApiResponse<ExerciseTaskGradingResult | ClientErrorResponse>,
+): Promise<PostResult> => {
   const { exercise_spec, submission_data, grading_update_url } = req.body as TmcGradingRequest
 
   // prepare submission for the grading pod
@@ -111,15 +121,7 @@ const handlePost = async (
   )
   console.log("prepared submission")
 
-  const gradingId = v4()
   const pendingSubmission = gradeInPod(preparedSubmissionArchivePath, sandboxImage, points)
-
-  // store pending
-  pendingSubmissions.push({
-    id: gradingId,
-    gradingResultUrl: "todo",
-    timestamp: Date.now(),
-  })
 
   // let the server know the grading request has been received
   res.status(200).json({
@@ -130,18 +132,14 @@ const handlePost = async (
     feedback_json: null,
   })
 
-  // wait for the grading to finish and send the finished grading
-  const gradingResult = await pendingSubmission
-  await axios.post(grading_update_url, gradingResult, {
-    headers: { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: gradingUpdateClaim },
-  })
+  return { gradingPromise: pendingSubmission, gradingUpdateUrl: grading_update_url }
 }
 
 const gradeInPod = async (
   submissionPath: string,
   sandboxImage: string,
   points: Array<string>,
-): Promise<GradingResult> => {
+): Promise<ExerciseTaskGradingResult> => {
   const kubeConfig = initKubeConfig()
   const kubeApi = initKubeApi()
 
@@ -162,7 +160,7 @@ const gradeInPod = async (
   // ensure the container doesn't stay up for too long if something goes wrong
   container.command = ["sleep", (DEFAULT_TASK_TIMEOUT_MS + 10 * 60 * 1000).toString()]
 
-  let gradingResult: GradingResult
+  let gradingResult: ExerciseTaskGradingResult
   try {
     gradingResult = await gradeInPodInner(
       kubeApi,
@@ -176,7 +174,7 @@ const gradeInPod = async (
       points,
     )
   } catch (e) {
-    console.error("Failed to grade in pod")
+    console.error(`Failed to grade in pod: ${e}`)
     gradingResult = {
       grading_progress: "Failed",
       score_given: 0,
@@ -207,7 +205,7 @@ const gradeInPodInner = async (
   sandboxImage: string,
   submissionPath: string,
   points: Array<string>,
-): Promise<GradingResult> => {
+): Promise<ExerciseTaskGradingResult> => {
   pod.spec = new k8s.V1PodSpec()
   pod.spec.containers = [container]
 
@@ -231,8 +229,8 @@ const gradeInPodInner = async (
   // copy and extract exercise to pod /app/
   const kubeExec = new k8s.Exec(kubeConfig)
   const submissionReadStream = createReadStream(submissionPath)
-  await kubeExec.exec(
-    "default",
+  const tarResult = await execWithTimeout(
+    kubeExec,
     podName,
     containerName,
     [
@@ -249,34 +247,24 @@ const gradeInPodInner = async (
     process.stdout,
     process.stderr,
     submissionReadStream,
-    // tty = false, the piping does not work otherwise
-    false,
+    DEFAULT_TASK_TIMEOUT_MS, // could use a different/shorter timeout here
   )
+  if (tarResult.timedOut) {
+    throw "Running tar inside the container timed out"
+  }
 
   // run tests, the image should have a /tmc-run script
-  const tmcRunSocket: WebSocket = await kubeExec.exec(
-    "default",
+  const tmcRunResult = await execWithTimeout(
+    kubeExec,
     podName,
     containerName,
     ["/tmc-run"],
     process.stdout,
     process.stderr,
     null,
-    false,
+    DEFAULT_TASK_TIMEOUT_MS,
   )
-  // waits for tmc-run or a timeout to finish
-  const tmcRunPromise = new Promise<{ timedOut: boolean }>((resolve) => {
-    tmcRunSocket.onclose = () => {
-      resolve({ timedOut: false })
-    }
-  })
-  const timeOut = new Promise<{ timedOut: boolean }>((resolve) => {
-    setTimeout(() => {
-      resolve({ timedOut: true })
-    })
-  })
-  const result = await Promise.race([tmcRunPromise, timeOut])
-  if (result.timedOut) {
+  if (tmcRunResult.timedOut) {
     console.log("tmc-run timed out")
     return {
       grading_progress: "Failed",
@@ -290,11 +278,37 @@ const gradeInPodInner = async (
   }
 
   // read test results, the container should now have an /app/test_output.txt file
-  const testOutputPath = "./test_output.txt"
+  /*
+  cpFromPod is broken: https://github.com/kubernetes-client/javascript/issues/982
+  while waiting for a fix, we do the copy via `cat`
   const kubeCp = new k8s.Cp(kubeConfig)
-  await kubeCp.cpFromPod("default", podName, containerName, "/app/test_output.txt", testOutputPath)
+  const f = await kubeCp.cpFromPod(
+    "default",
+    podName,
+    containerName,
+    "/app/test_output.txt",
+    testOutputPath,
+  )
+  */
+  const testOutputPath = temporaryFile()
+  const testOutputWriteStream = createWriteStream(testOutputPath)
+  const catResult = await execWithTimeout(
+    kubeExec,
+    podName,
+    containerName,
+    ["cat", "/app/test_output.txt"],
+    testOutputWriteStream,
+    process.stderr,
+    null,
+    DEFAULT_TASK_TIMEOUT_MS, // could use a different/shorter timeout here
+  )
+  if (catResult.timedOut) {
+    throw "Running cat inside the container timed out"
+  }
   const testOutputBuffer = await fs.readFile(testOutputPath)
-  const testOutput = JSON.parse(testOutputBuffer.toString())
+  const testOutputString = testOutputBuffer.toString()
+  console.log(`got output ${testOutputString} end`)
+  const testOutput = JSON.parse(testOutputString)
 
   if (isRunResult(testOutput)) {
     let gradingProgress: GradingProgress = "Failed"
@@ -317,12 +331,41 @@ const gradeInPodInner = async (
       score_given: testOutput.testResults.flatMap((tr) => tr.points).length,
       score_maximum: points.length,
       feedback_text: feedbackText,
-      feedback_json: {
-        stdout: "stdout" in testOutput.logs ? testOutput.logs["stdout"] : "",
-        stderr: "stderr" in testOutput.logs ? testOutput.logs["stderr"] : "",
-      },
+      feedback_json: testOutput,
     }
   } else {
     throw "Unexpected results"
   }
+}
+
+// convenience function for executing stuff inside a container
+const execWithTimeout = async (
+  kubeExec: k8s.Exec,
+  podName: string,
+  containerName: string,
+  command: Array<string>,
+  stdout: internal.Writable,
+  stderr: internal.Writable,
+  stdin: internal.Readable | null,
+  timeoutMs: number,
+): Promise<{ timedOut: boolean }> => {
+  const execSocket = await kubeExec.exec(
+    "default",
+    podName,
+    containerName,
+    command,
+    stdout,
+    stderr,
+    stdin,
+    false,
+  )
+  const execPromise = new Promise<{ timedOut: boolean }>((resolve) => {
+    execSocket.onclose = () => resolve({ timedOut: false })
+  })
+  const timeoutPromise = new Promise<{ timedOut: boolean }>((resolve) => {
+    setTimeout(() => {
+      resolve({ timedOut: true })
+    }, timeoutMs)
+  })
+  return await Promise.race([execPromise, timeoutPromise])
 }

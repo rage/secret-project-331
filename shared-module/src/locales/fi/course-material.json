@@ -86,6 +86,7 @@
   "label-course-instance": "Kurssiversio",
   "label-exercise": "Tehtävä",
   "language-language": "Kieli: {{language}}",
+  "link-text-open-accessible-view-of-this-content": "Avaa saavutettava näkymä tästä sisällöstä",
   "loading": "Lataa",
   "max-points": "Maksimipisteet",
   "max-score-n-marks": "Maksimi pisteet: <2>{{marks}}</2>",

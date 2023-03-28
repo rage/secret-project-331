@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
@@ -6,8 +7,20 @@ import { baseTheme } from "../../../../../shared-module/styles/theme"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const THINGLINK = "thinglink"
+const GET_NUMERIC_ID_FROM_STRING_REGEX = /\/(\d+)\//
 
 export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
+  const { t } = useTranslation()
+  let id: string | null = null
+  try {
+    if (props.url) {
+      const groups = props.url.matchAll(GET_NUMERIC_ID_FROM_STRING_REGEX)
+      id = groups.next().value
+    }
+  } catch (e) {
+    // NOP
+  }
+
   return (
     <BreakFromCentered sidebar={false}>
       <figure
@@ -18,17 +31,18 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
         `}
       >
         <iframe
-          width="960"
-          height="630"
-          data-original-width="3992"
-          data-original-height="2621"
-          src="https://www.thinglink.com/card/1205257932048957445"
-          frameBorder="0"
-          allowFullScreen
-          scrolling="no"
+          className={css`
+            width: 100%;
+            height: 630px;
+            border: none;
+            overflow: hidden;
+          `}
+          src={props.url}
+          allow="fullscreen"
           title={THINGLINK}
-          sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation"
+          sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
         ></iframe>
+
         <figcaption
           className={css`
             text-align: center;
@@ -37,8 +51,16 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
             margin-bottom: 1em;
             color: ${baseTheme.colors.gray[400]};
           `}
-          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(props.caption ?? "") }}
-        ></figcaption>
+        >
+          {props.caption && (
+            <div dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(props.caption) }} />
+          )}
+          {id && (
+            <a href={`https://www.thinglink.com/view/scene/${id}/accessibility`}>
+              {t("link-text-open-accessible-view-of-this-content")}
+            </a>
+          )}
+        </figcaption>
       </figure>
     </BreakFromCentered>
   )

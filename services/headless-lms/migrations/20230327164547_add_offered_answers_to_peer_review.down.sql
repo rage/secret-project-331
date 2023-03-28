@@ -1,0 +1,1 @@
+DROP TABLE offered_answers_to_peer_review_temporary;

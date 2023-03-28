@@ -37,11 +37,16 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     new Map(),
   )
 
-  const query = useQuery([`exercise-${exerciseId}-peer-review`], () => {
-    return fetchPeerReviewDataByExerciseId(exerciseId)
-  })
+  const query = useQuery(
+    [`exercise-${exerciseId}-peer-review`],
+    () => {
+      return fetchPeerReviewDataByExerciseId(exerciseId)
+    },
+    // 23 hours in ms. Need to refetch at this time because the given peer review candidate expires in 24 hours, and someone might leave the peer review view open for longer than that
+    { refetchInterval: 82800000 },
+  )
 
-  const peerReviewData = query.data
+  const peerReviewData = query.data?.course_material_peer_review_data
 
   const isValid = useMemo(() => {
     if (!peerReviewData) {
@@ -70,13 +75,15 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
 
   const submitPeerReviewMutation = useToastMutation(
     async () => {
-      if (!peerReviewData || !peerReviewData.answer_to_review) {
+      const token = query.data?.token
+      if (!peerReviewData || !peerReviewData.answer_to_review || !token) {
         return
       }
       return await postPeerReviewSubmission(exerciseId, {
         exercise_slide_submission_id: peerReviewData.answer_to_review.exercise_slide_submission_id,
         peer_review_config_id: peerReviewData.peer_review_config.id,
         peer_review_question_answers: Array.from(answers.values()),
+        token,
       })
     },
     { notify: true, method: "POST" },

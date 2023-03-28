@@ -1456,6 +1456,13 @@
 <a href="#1456" id="1456">1456</a>
 <a href="#1457" id="1457">1457</a>
 <a href="#1458" id="1458">1458</a>
+<a href="#1459" id="1459">1459</a>
+<a href="#1460" id="1460">1460</a>
+<a href="#1461" id="1461">1461</a>
+<a href="#1462" id="1462">1462</a>
+<a href="#1463" id="1463">1463</a>
+<a href="#1464" id="1464">1464</a>
+<a href="#1465" id="1465">1465</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1590,6 +1597,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
 <span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
 </span><span class="kw">use </span>ts_rs::TS;
 <span class="kw">use </span>uuid::Uuid;
+
+<span class="kw">use </span><span class="kw">crate</span>::controllers::course_material::exercises::CourseMaterialPeerReviewDataWithToken;
 
 <span class="comment">// Helper function to avoid typing out Example::example()
 </span><span class="kw">fn </span>ex&lt;T: Example&gt;() -&gt; T {
@@ -1773,6 +1782,10 @@ This method is mainly useful for external/std types. For example, we cannot writ
             user_id: Uuid::parse_str(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).unwrap()
         }
     );
+    <span class="macro">doc!</span>(CourseMaterialPeerReviewDataWithToken {
+        course_material_peer_review_data,
+        token: <span class="prelude-val">Some</span>(<span class="string">&quot;eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs&quot;</span>.to_string())
+    });
 }
 
 <span class="kw">fn </span>models() {
@@ -2330,6 +2343,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
         exercise_slide_submission_id,
         peer_review_config_id,
         peer_review_question_answers,
+        token: <span class="string">&quot;eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs&quot;</span>.to_string()
     });
     <span class="macro">doc!</span>(
         T,
@@ -2915,4 +2929,4 @@ This method is mainly useful for external/std types. For example, we cannot writ
     );
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

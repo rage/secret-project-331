@@ -354,6 +354,48 @@
 <a href="#354" id="354">354</a>
 <a href="#355" id="355">355</a>
 <a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Contains helper functions that are passed to headless-lms-models where it needs to make requests to exercise services.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -710,5 +752,47 @@
         .boxed()
     }
 }
+
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>GivePeerReviewClaim {
+    <span class="kw">pub </span>exercise_slide_submission_id: Uuid,
+    <span class="kw">pub </span>peer_review_config_id: Uuid,
+    expiration_time: DateTime&lt;Utc&gt;,
+}
+
+<span class="kw">impl </span>GivePeerReviewClaim {
+    <span class="kw">pub fn </span>expiring_in_1_day(
+        exercise_slide_submission_id: Uuid,
+        peer_review_config_id: Uuid,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            exercise_slide_submission_id,
+            peer_review_config_id,
+            expiration_time: Utc::now() + Duration::days(<span class="number">1</span>),
+        }
+    }
+
+    <span class="kw">pub fn </span>sign(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; String {
+        <span class="self">self</span>.sign_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).expect(<span class="string">&quot;should never fail&quot;</span>)
+    }
+
+    <span class="kw">pub fn </span>validate(token: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>JwtKey) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ControllerError&gt; {
+        <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                <span class="macro">format!</span>(<span class="string">&quot;Invalid jwt key: {}&quot;</span>, err),
+                <span class="prelude-val">Some</span>(err.into()),
+            )
+        })<span class="question-mark">?</span>;
+        <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                <span class="string">&quot;The peer review has expired.&quot;</span>.to_string(),
+                <span class="prelude-val">None</span>,
+            ));
+        }
+        <span class="prelude-val">Ok</span>(claim)
+    }
+}
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

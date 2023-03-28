@@ -37,9 +37,9 @@ convenience vs performance.</p>
 valid, but excess padding is not.) Whitespace in the input is invalid, just like any other
 non-base64 byte.</p>
 <h2 id="read-and-write"><a href="#read-and-write"><code>Read</code> and <code>Write</code></a></h2>
-<p>To decode a <a href="https://doc.rust-lang.org/1.68.0/std/io/trait.Read.html" title="std::io::Read">std::io::Read</a> of b64 bytes, wrap a reader (file, network socket, etc) with
+<p>To decode a <a href="https://doc.rust-lang.org/1.68.2/std/io/trait.Read.html" title="std::io::Read">std::io::Read</a> of b64 bytes, wrap a reader (file, network socket, etc) with
 <a href="read/struct.DecoderReader.html" title="read::DecoderReader">read::DecoderReader</a>.</p>
-<p>To write raw bytes and have them b64 encoded on the fly, wrap a <a href="https://doc.rust-lang.org/1.68.0/std/io/trait.Write.html" title="std::io::Write">std::io::Write</a> with
+<p>To write raw bytes and have them b64 encoded on the fly, wrap a <a href="https://doc.rust-lang.org/1.68.2/std/io/trait.Write.html" title="std::io::Write">std::io::Write</a> with
 <a href="write/struct.EncoderWriter.html" title="write::EncoderWriter">write::EncoderWriter</a>.</p>
 <p>There is some performance overhead (15% or so) because of the necessary buffer shuffling –
 still fast enough that almost nobody cares. Also, these implementations do not heap allocate.</p>
@@ -57,4 +57,4 @@ Returns a <code>String</code>.</div></div><div class="item-row"><div class="item
 Returns a <code>String</code>.</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.encode_engine_slice.html" title="base64::encode_engine_slice fn">encode_engine_slice</a></div><div class="item-right docblock-short">Encode arbitrary octets as base64.
 Writes into the supplied output buffer.</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.encode_engine_string.html" title="base64::encode_engine_string fn">encode_engine_string</a></div><div class="item-right docblock-short">Encode arbitrary octets as base64.
 Writes into the supplied <code>String</code>, which may allocate if its internal buffer isn’t big enough.</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.encoded_len.html" title="base64::encoded_len fn">encoded_len</a></div><div class="item-right docblock-short">Calculate the base64 encoded length for a given input length, optionally including any
-appropriate padding bytes.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="base64" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+appropriate padding bytes.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="base64" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -13879,6 +13879,22 @@
     },
     "query": "\nSELECT language,\n  organization_id,\n  minimum_points_treshold\nFROM exams\nWHERE id = $1\n        "
   },
+  "b728d2fd12783d3a15d010514c3a2c9bfb2cdc2f947c5e849f297860e785ebe0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Text"]
+      }
+    },
+    "query": "\nSELECT name\nFROM file_uploads\nWHERE path = $1\n"
+  },
   "b7336ab75d3bb0066457bdff2f9f3506324004fcc44a1754c2eea93ebcdac888": {
     "describe": {
       "columns": [

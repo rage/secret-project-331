@@ -4,6 +4,7 @@ import _ from "lodash"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import { v4 } from "uuid"
 
 import StateRenderer from "../components/StateRenderer"
 import { ExerciseTaskSubmission } from "../shared-module/bindings"
@@ -12,9 +13,10 @@ import { isMessageToIframe } from "../shared-module/exercise-service-protocol-ty
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import {
+  CurrentStateMessageData,
   EditorExercisePublicSpec,
-  IframeMessage,
   IframeState,
+  MessageToParent,
   ModelSolutionSpec,
   PrivateSpec,
   PublicSpec,
@@ -22,6 +24,8 @@ import {
 } from "../util/stateInterfaces"
 
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const iframeId = v4().slice(0, 4)
+
   const [state, setState] = useState<IframeState | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -30,8 +34,31 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
     maxWidth = Number(rawMaxWidth)
   }
 
-  const port = useExerciseServiceParentConnection((messageData) => {
+  const setStateAndSend = (
+    port: MessagePort | null,
+    updater: (state: IframeState | null) => IframeState | null,
+  ) => {
+    if (!port) {
+      return
+    }
+    setState((old) => {
+      const newState = updater(old)
+      if (newState?.viewType == "exercise-editor" && newState.privateSpec) {
+        // send updated private spec
+        sendSpecToParent(port, { private_spec: newState.privateSpec })
+      } else if (newState?.viewType == "answer-exercise") {
+        // send user answer
+        sendSpecToParent(port, { private_spec: newState.userAnswer })
+      } else if (newState?.viewType == "view-submission") {
+        sendSpecToParent(port, { private_spec: newState.submission })
+      }
+      return newState
+    })
+  }
+
+  const port = useExerciseServiceParentConnection((messageData, port) => {
     if (isMessageToIframe(messageData)) {
+      debug(iframeId, "Received message:", messageData)
       if (messageData.message === "set-state") {
         ReactDOM.flushSync(() => {
           if (messageData.view_type === "exercise-editor") {
@@ -68,34 +95,42 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
             })
           } else {
             // eslint-disable-next-line i18next/no-literal-string
-            console.error("Unknown view type received from parent")
+            error(iframeId, "Unknown view type received from parent")
           }
         })
+      } else if (messageData.message === "upload-result") {
+        if (messageData.success) {
+          // using the wrapper here because we want to let the frontend know
+          setStateAndSend(port, (old) => {
+            if (old && old.viewType === "answer-exercise" && old.userAnswer.type === "editor") {
+              const state = { ...old }
+              let archiveDownloadUrl = "null"
+              messageData.urls.forEach((val) => {
+                archiveDownloadUrl = val
+              })
+              state.userAnswer = {
+                type: "editor",
+                archiveDownloadUrl,
+              }
+              return state
+            } else {
+              // unexpected upload-result
+              // todo: report error
+              return old
+            }
+          })
+        } else {
+          error(iframeId, "Failed to upload:", messageData.error)
+        }
       } else {
         // eslint-disable-next-line i18next/no-literal-string
-        console.error("Unexpected message from parent")
+        error(iframeId, "Unexpected message from parent")
       }
     } else {
       // eslint-disable-next-line i18next/no-literal-string
-      console.error("Frame received an unknown message from message port")
+      error(iframeId, "Frame received an unknown message from message port")
     }
   })
-
-  const setStateWrapper = (updater: (state: IframeState | null) => IframeState | null) => {
-    setState((old) => {
-      const newState = updater(old)
-      if (port && newState?.viewType == "exercise-editor" && newState.privateSpec) {
-        // send updated private spec
-        sendSpecToParent(port, { private_spec: newState.privateSpec })
-      } else if (port && newState?.viewType == "answer-exercise") {
-        // send user answer
-        sendSpecToParent(port, { private_spec: newState.userAnswer })
-      } else if (port && newState?.viewType == "view-submission") {
-        sendSpecToParent(port, { private_spec: newState.submission })
-      }
-      return newState
-    })
-  }
 
   return (
     <HeightTrackingContainer port={port}>
@@ -106,25 +141,37 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
           margin: 0 auto;
         `}
       >
-        <StateRenderer setState={setStateWrapper} state={state} />
+        <StateRenderer
+          setState={(updater) => setStateAndSend(port, updater)}
+          state={state}
+          sendFileUploadMessage={(files) => sendFileUploadMessage(port, files)}
+        />
       </div>
     </HeightTrackingContainer>
   )
 }
 
-const sendSpecToParent = (
-  port: MessagePort,
-  data: { private_spec: PrivateSpec | UserAnswer } | { public_spec: PublicSpec },
-) => {
+const sendSpecToParent = (port: MessagePort, data: CurrentStateMessageData) => {
   // eslint-disable-next-line i18next/no-literal-string
   console.info("Posting message to parent")
-  const currentStateMessage: IframeMessage = {
+
+  const currentStateMessage: MessageToParent = {
     message: "current-state",
     data,
     // we never construct invalid data
     valid: true,
   }
   port.postMessage(currentStateMessage)
+}
+
+const sendFileUploadMessage = (port: MessagePort | null, files: Map<string, string | Blob>) => {
+  if (port) {
+    const fileUploadRequest: MessageToParent = {
+      message: "file-upload",
+      files,
+    }
+    port.postMessage(fileUploadRequest)
+  }
 }
 
 const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
@@ -135,6 +182,14 @@ const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
   } else {
     throw "unreachable"
   }
+}
+
+const debug = (iframeId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.debug(`[tmc-iframe/${iframeId}]`, message, ...optionalParams)
+}
+
+const error = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.error(`[tmc-iframe/${requestId}]`, message, ...optionalParams)
 }
 
 export default withErrorBoundary(Iframe)

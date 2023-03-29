@@ -2,15 +2,11 @@
 Handlers for HTTP requests to `/api/v0/files`.
 
 */
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
-
 use super::helpers::file_uploading;
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
 use actix_files::NamedFile;
+use std::{collections::HashMap, path::Path};
 use tokio::fs::read;
 /**
 
@@ -49,8 +45,8 @@ async fn redirect_to_storage_service(
     let tail_path = Path::new(&inner);
 
     match file_store.get_direct_download_url(tail_path).await {
-        Ok(res) => HttpResponse::Found()
-            .append_header(("location", res))
+        Ok(url) => HttpResponse::Found()
+            .append_header(("location", url))
             .append_header(("cache-control", "max-age=300, private"))
             .finish(),
         Err(e) => {
@@ -76,9 +72,11 @@ The file.
 */
 #[instrument(skip(req))]
 async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     let base_folder = Path::new("uploads");
-    let relative_path = PathBuf::from(req.match_info().query("tail"));
+    let relative_path = req.match_info().query("tail");
     let path = base_folder.join(relative_path);
 
     let named_file = NamedFile::open(path).map_err(|_e| {
@@ -113,6 +111,12 @@ async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerRe
     if let Some(m) = mime_type {
         response.append_header(("content-type", m));
     }
+    if let Some(filename) = models::file_uploads::get_filename(&mut conn, relative_path)
+        .await
+        .optional()?
+    {
+        response.append_header(("Content-Disposition", format!("filename=\"{}\"", filename)));
+    }
 
     // this endpoint is only used for development
     let token = skip_authorize()?;
@@ -126,7 +130,7 @@ Used to upload data from exercise service iframes.
 # Returns
 The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
 */
-#[instrument(skip(payload, file_store, app_conf))]
+#[instrument(skip(payload, file_store, upload_claim, app_conf))]
 #[generated_doc]
 async fn upload_from_exercise_service(
     pool: web::Data<PgPool>,

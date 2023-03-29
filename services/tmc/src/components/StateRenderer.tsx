@@ -14,9 +14,14 @@ import ViewSubmission from "./ViewSubmission"
 interface Props {
   state: IframeState | null
   setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  sendFileUploadMessage: (files: Map<string, string | Blob>) => void
 }
 
-export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({ state, setState }) => {
+export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
+  state,
+  setState,
+  sendFileUploadMessage,
+}) => {
   const { t } = useTranslation()
 
   if (!state) {
@@ -32,7 +37,11 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({ state,
   } else if (state.viewType === "answer-exercise") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
-        <AnswerExercise initialPublicSpec={state.initialPublicSpec} setState={setState} />
+        <AnswerExercise
+          initialPublicSpec={state.initialPublicSpec}
+          setState={setState}
+          sendFileUploadMessage={sendFileUploadMessage}
+        />
       </div>
     )
   } else if (state.viewType === "view-submission") {

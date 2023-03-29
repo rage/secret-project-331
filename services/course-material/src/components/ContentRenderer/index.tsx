@@ -45,6 +45,7 @@ import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
+import { IframeBlock } from "./moocfi/IframeBlock"
 import InfoBox from "./moocfi/InfoBox"
 import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
@@ -137,6 +138,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
+  "moocfi/iframe": IframeBlock,
 }
 
 const highlightedBlockStyles = css`

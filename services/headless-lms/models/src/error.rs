@@ -313,7 +313,6 @@ mod test {
         )
         .await
         .unwrap_err();
-        dbg!(&err);
         if let ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
             assert_eq!(constraint, "user_details_email_check");
         } else {

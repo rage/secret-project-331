@@ -16,7 +16,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
 
     {
       key: "Permissions-Policy",
-      value: "fullscreen=(self)",
+      value: `fullscreen=(self "https://www.thinglink.com")`,
     },
     {
       key: "Content-Security-Policy",

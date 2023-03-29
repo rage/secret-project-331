@@ -122,3 +122,8 @@
     margin: 2px;
   }
 }
+
+// Hide learn more about embeds text
+.wp-block-embed .components-placeholder__learn-more {
+  display: none;
+}

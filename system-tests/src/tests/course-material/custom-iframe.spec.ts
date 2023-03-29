@@ -57,5 +57,7 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
     snapshotName: "custom-iframe",
     waitForTheseToBeVisibleAndStable: [iFrameHeadingLocator],
+    // The arial font used in the iframe has small differences on different machines
+    screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 })

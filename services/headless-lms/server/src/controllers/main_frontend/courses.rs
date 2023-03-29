@@ -1,5 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
+use bytes::Bytes;
+use chrono::Utc;
 use std::sync::Arc;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
@@ -23,8 +25,11 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
+use tokio_stream::wrappers::UnboundedReceiverStream;
+
 use crate::{
     domain::{
+        csv_export::{self, make_authorized_streamable, CSVExportAdapter},
         models_requests::{self, JwtKey},
         request_id::RequestId,
     },
@@ -883,6 +888,63 @@ async fn post_update_peer_review_queue_reviews_received(
     token.authorized_ok(web::Json(true))
 }
 
+#[instrument(skip(pool))]
+pub async fn submission_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit, // Teach  or Edit or something else ??
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course_id = *course_id;
+
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+
+    // spawn handle that writes the csv row by row into the sender
+    let mut handle_conn = pool.acquire().await?;
+    let _handle = tokio::spawn(async move {
+        let res = csv_export::export_course_submissions(
+            &mut handle_conn,
+            course_id,
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
+        )
+        .await;
+        if let Err(err) = res {
+            tracing::error!("Failed to export course submissions: {}", err);
+        }
+    });
+
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+
+    // return response that streams data from the receiver
+
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"{} - Submissions {}.csv\"",
+                    course.name,
+                    Utc::now().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -991,5 +1053,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/breadcrumb-info",
             web::get().to(get_course_breadcrumb_info),
+        )
+        .route(
+            "/{course_id}/export-submissions",
+            web::get().to(submission_export),
         );
 }

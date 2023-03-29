@@ -320,7 +320,6 @@
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
 <a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Contains error and result types for all the model functions.
 */
@@ -636,7 +635,6 @@ some_function_returning_an_error().map_err(|original_error| {
         )
         .<span class="kw">await
         </span>.unwrap_err();
-        <span class="macro">dbg!</span>(<span class="kw-2">&amp;</span>err);
         <span class="kw">if let </span>ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
             <span class="macro">assert_eq!</span>(constraint, <span class="string">&quot;user_details_email_check&quot;</span>);
         } <span class="kw">else </span>{

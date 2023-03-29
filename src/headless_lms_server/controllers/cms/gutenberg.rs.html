@@ -183,10 +183,27 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>headless_lms_utils::url_to_oembed_endpoint::{
-    mentimeter_oembed_response_builder, url_to_oembed_endpoint, OEmbedRequest, OEmbedResponse,
+    mentimeter_oembed_response_builder, thinglink_oembed_response_builder, url_to_oembed_endpoint,
+    OEmbedRequest, OEmbedResponse,
 };
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
@@ -341,12 +358,23 @@ Response:
     query_params: web::Query&lt;OEmbedRequest&gt;,
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,
     pool: web::Data&lt;PgPool&gt;,
-    user: AuthUser,
 ) -&gt; ControllerResult&lt;web::Json&lt;OEmbedResponse&gt;&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
     <span class="kw">let </span>url = query_params.url.to_string();
     <span class="kw">let </span>response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(response))
+}
+
+<span class="attr">#[generated_doc]
+#[instrument(skip(app_conf))]
+</span><span class="kw">async fn </span>get_thinglink_oembed_data(
+    query_params: web::Query&lt;OEmbedRequest&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;OEmbedResponse&gt;&gt; {
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>url = query_params.url.to_string();
+    <span class="kw">let </span>response = thinglink_oembed_response_builder(url, app_conf.base_url.to_string())<span class="question-mark">?</span>;
     token.authorized_ok(web::Json(response))
 }
 
@@ -366,6 +394,10 @@ We add the routes by calling the route method instead of using the route annotat
     .route(
         <span class="string">&quot;/oembed/mentimeter&quot;</span>,
         web::get().to(get_mentimeter_oembed_data),
+    )
+    .route(
+        <span class="string">&quot;/oembed/thinglink&quot;</span>,
+        web::get().to(get_thinglink_oembed_data),
     );
 }
 </code></pre></div>

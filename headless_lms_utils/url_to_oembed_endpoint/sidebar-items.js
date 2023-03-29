@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["mentimeter_oembed_response_builder",""],["oembed_url_builder",""],["url_to_oembed_endpoint",""]],"struct":[["OEmbedRequest",""],["OEmbedResponse",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["mentimeter_oembed_response_builder",""],["oembed_url_builder",""],["thinglink_oembed_response_builder",""],["url_to_oembed_endpoint",""]],"struct":[["OEmbedRequest",""],["OEmbedResponse",""]]};

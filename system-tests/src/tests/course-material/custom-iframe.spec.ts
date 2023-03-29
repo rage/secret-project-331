@@ -12,7 +12,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.route("https://example.com/iframe", (route) =>
     route.fulfill({
       status: 200,
-      body: `<body><style> body { background-color: black; color: white; } </style><h1>Example domain</h1><p>This is a mocked response from example.com.</p></body>`,
+      body: `<body><style> body { background-color: black; color: white; font-family: "Arial"; } </style><h1>Example domain</h1><p>This is a mocked response from example.com.</p></body>`,
     }),
   )
   await page.goto("http://project-331.local/")

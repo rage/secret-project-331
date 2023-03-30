@@ -34,7 +34,7 @@ export const IframeBlock: React.FC<BlockRendererProps<IframeAttributes>> = (prop
           src={props.data.attributes.url}
           allow="fullscreen"
           title={IFRAME}
-          sandbox="allow-scripts allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
+          sandbox="allow-scripts allow-same-origin allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
         ></iframe>
       </figure>
     </BreakFromCentered>

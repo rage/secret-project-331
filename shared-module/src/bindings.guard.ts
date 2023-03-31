@@ -52,6 +52,7 @@ import {
   CourseMaterialPeerReviewConfig,
   CourseMaterialPeerReviewData,
   CourseMaterialPeerReviewDataAnswerToReview,
+  CourseMaterialPeerReviewDataWithToken,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
@@ -316,6 +317,7 @@ export function isSpecRequest(obj: unknown): obj is SpecRequest {
   const typedObj = obj as SpecRequest
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["request_id"] === "string" &&
     (typedObj["upload_url"] === null || typeof typedObj["upload_url"] === "string")
   )
 }
@@ -1248,7 +1250,12 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
     (isCourseMaterialExerciseSlide(typedObj["current_exercise_slide"]) as boolean) &&
     (typedObj["exercise_status"] === null ||
       (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
-    (isPointMap(typedObj["exercise_slide_submission_counts"]) as boolean) &&
+    ((typedObj["exercise_slide_submission_counts"] !== null &&
+      typeof typedObj["exercise_slide_submission_counts"] === "object") ||
+      typeof typedObj["exercise_slide_submission_counts"] === "function") &&
+    Object.entries<any>(typedObj["exercise_slide_submission_counts"]).every(
+      ([key, value]) => typeof value === "number" && typeof key === "string",
+    ) &&
     (typedObj["peer_review_config"] === null ||
       (isCourseMaterialPeerReviewConfig(typedObj["peer_review_config"]) as boolean)) &&
     (typedObj["previous_exercise_slide_submission"] === null ||
@@ -1520,7 +1527,8 @@ export function isCourseMaterialPeerReviewSubmission(
     Array.isArray(typedObj["peer_review_question_answers"]) &&
     typedObj["peer_review_question_answers"].every(
       (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
-    )
+    ) &&
+    typeof typedObj["token"] === "string"
   )
 }
 
@@ -2649,6 +2657,17 @@ export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
       typedObj["tag"] === "NotYetStarted") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "StudentTimeUp")
+  )
+}
+
+export function isCourseMaterialPeerReviewDataWithToken(
+  obj: unknown,
+): obj is CourseMaterialPeerReviewDataWithToken {
+  const typedObj = obj as CourseMaterialPeerReviewDataWithToken
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isCourseMaterialPeerReviewData(typedObj["course_material_peer_review_data"]) as boolean) &&
+    (typedObj["token"] === null || typeof typedObj["token"] === "string")
   )
 }
 

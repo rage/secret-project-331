@@ -24,7 +24,10 @@ use models::{
 };
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::{
+        models_requests::{self, JwtKey},
+        request_id::RequestId,
+    },
     prelude::*,
 };
 
@@ -79,6 +82,7 @@ Content-Type: application/json
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn post_new_course(
+    request_id: RequestId,
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
@@ -107,7 +111,7 @@ async fn post_new_course(
         PKeyPolicy::Generate,
         new_course,
         user.id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

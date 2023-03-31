@@ -223,6 +223,7 @@ fn reqwest_err(err: reqwest::Error) -> ModelError {
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SpecRequest<'a> {
+    request_id: Uuid,
     private_spec: Option<&'a serde_json::Value>,
     upload_url: Option<String>,
 }
@@ -231,6 +232,7 @@ pub struct SpecRequest<'a> {
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
 pub fn make_spec_fetcher(
+    request_id: Uuid,
     jwt_key: Arc<JwtKey>,
 ) -> impl Fn(Url, &str, Option<&serde_json::Value>) -> BoxFuture<'static, ModelResult<serde_json::Value>>
 {
@@ -249,6 +251,7 @@ pub fn make_spec_fetcher(
             )
             .timeout(std::time::Duration::from_secs(120))
             .json(&SpecRequest {
+                request_id,
                 private_spec,
                 upload_url,
             })
@@ -349,5 +352,47 @@ pub fn make_grading_request_sender(
             Ok(obj)
         }
         .boxed()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GivePeerReviewClaim {
+    pub exercise_slide_submission_id: Uuid,
+    pub peer_review_config_id: Uuid,
+    expiration_time: DateTime<Utc>,
+}
+
+impl GivePeerReviewClaim {
+    pub fn expiring_in_1_day(
+        exercise_slide_submission_id: Uuid,
+        peer_review_config_id: Uuid,
+    ) -> Self {
+        Self {
+            exercise_slide_submission_id,
+            peer_review_config_id,
+            expiration_time: Utc::now() + Duration::days(1),
+        }
+    }
+
+    pub fn sign(self, key: &JwtKey) -> String {
+        self.sign_with_key(&key.0).expect("should never fail")
+    }
+
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!("Invalid jwt key: {}", err),
+                Some(err.into()),
+            )
+        })?;
+        if claim.expiration_time < Utc::now() {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "The peer review has expired.".to_string(),
+                None,
+            ));
+        }
+        Ok(claim)
     }
 }

@@ -8,4 +8,5 @@ pub mod error;
 pub mod exercise_repositories;
 pub mod models_requests;
 pub mod rate_limit_middleware_builder;
+pub mod request_id;
 pub mod request_span_middleware;

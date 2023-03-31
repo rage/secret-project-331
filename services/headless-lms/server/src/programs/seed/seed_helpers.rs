@@ -51,7 +51,7 @@ pub async fn create_page(
         conn,
         new_page,
         author,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -73,7 +73,7 @@ pub async fn create_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false,
         },
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -468,7 +468,7 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
-        models_requests::make_spec_fetcher(jwt_key),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), jwt_key),
         models_requests::fetch_service_info,
     )
     .await?;

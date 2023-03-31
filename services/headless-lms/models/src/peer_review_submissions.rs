@@ -164,6 +164,30 @@ WHERE user_id = $1
     Ok(res.count.unwrap_or(0).try_into()?)
 }
 
+pub async fn get_last_time_user_submitted_peer_review(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<DateTime<Utc>>> {
+    let res = sqlx::query!(
+        "
+SELECT MAX(created_at) as latest_submission_time
+FROM peer_review_submissions
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        exercise_id,
+        course_instance_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res.and_then(|o| o.latest_submission_time))
+}
+
 pub async fn count_peer_review_submissions_for_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,

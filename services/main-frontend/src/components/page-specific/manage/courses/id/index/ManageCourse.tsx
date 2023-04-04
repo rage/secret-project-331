@@ -161,6 +161,11 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             {t("link-export-user-details")}
           </a>
         </li>
+        <li>
+          <a href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}>
+            {t("link-export-exercise-tasks")}
+          </a>
+        </li>
       </ul>
     </>
   )

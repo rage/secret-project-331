@@ -8,7 +8,8 @@ use headless_lms_models::{
 };
 
 use models::{
-    course_module_completions::CourseModuleCompletionWithRegistrationInfo, library::progressing,
+    course_module_completions::CourseModuleCompletionWithRegistrationInfo, exercise_tasks,
+    library::progressing,
 };
 use serde::Serialize;
 use sqlx::PgConnection;
@@ -225,6 +226,41 @@ where
             next.first_name.unwrap_or_else(|| "".to_string()),
             next.last_name.unwrap_or_else(|| "".to_string()),
             next.email.to_string(),
+        ];
+        writer.write_record(csv_row);
+    }
+    let writer = writer.finish().await?;
+    Ok(writer)
+}
+
+pub async fn export_course_exercise_tasks<W>(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    writer: W,
+) -> Result<W>
+where
+    W: Write + Send + 'static,
+{
+    let headers = IntoIterator::into_iter([
+        "id".to_string(),
+        "created_at".to_string(),
+        "updated_at".to_string(),
+        "exercise_type".to_string(),
+        "private_spec".to_string(),
+    ]);
+
+    let mut stream = exercise_tasks::stream_course_exercise_tasks(conn, course_id);
+
+    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
+    while let Some(next) = stream.try_next().await? {
+        let csv_row = vec![
+            next.id.to_string(),
+            next.created_at.to_string(),
+            next.updated_at.to_string(),
+            next.exercise_type.to_string(),
+            next.private_spec
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| "".to_string()),
         ];
         writer.write_record(csv_row);
     }

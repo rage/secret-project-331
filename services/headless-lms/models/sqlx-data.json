@@ -12204,6 +12204,42 @@
     },
     "query": "\nUPDATE user_exercise_states\nSET score_given = $1,\n  activity_progress = $2,\n  reviewing_stage = $3,\n  grading_progress = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\n        "
   },
+  "a38113607035916d35463f3d2496532283338aee520851aabc879f96ab0f6537": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "exercise_type",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "private_spec",
+          "ordinal": 4,
+          "type_info": "Jsonb"
+        }
+      ],
+      "nullable": [false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT distinct (t.id),\n  t.created_at,\n  t.updated_at,\n  t.exercise_type,\n  t.private_spec\nfrom exercise_tasks t\nwhere t.exercise_slide_id in (\n    SELECT id\n    from exercise_slides s\n    where s.exercise_id in (\n        SELECT id\n        from exercises e\n        where e.course_id = $1\n      )\n  )\n  AND deleted_at IS NULL;\n        "
+  },
   "a54dccecd05081f97834f4f8654132d47eeff79664ba79fee7ebbb5ad4368cbf": {
     "describe": {
       "columns": [

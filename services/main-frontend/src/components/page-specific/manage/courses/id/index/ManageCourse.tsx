@@ -12,6 +12,7 @@ import OnlyRenderIfPermissions from "../../../../../../shared-module/components/
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
 import { courseMaterialFrontPageHref } from "../../../../../../shared-module/utils/cross-routing"
+import SubmissionsExportButton from "../submissions/SubmissionsExport"
 
 import UpdateCourseForm from "./UpdateCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
@@ -148,6 +149,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <p>{t("placeholder-text-reserved-for-course-overview")}</p>
       </div>
       <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+      <SubmissionsExportButton courseId={course.id} />
     </>
   )
 }

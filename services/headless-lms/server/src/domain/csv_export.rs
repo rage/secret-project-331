@@ -268,6 +268,38 @@ where
     Ok(writer)
 }
 
+pub async fn export_course_instances<W>(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    writer: W,
+) -> Result<W>
+where
+    W: Write + Send + 'static,
+{
+    let course_instances =
+        course_instances::get_course_instances_for_course(conn, course_id).await?;
+
+    let headers = IntoIterator::into_iter([
+        "id".to_string(),
+        "created_at".to_string(),
+        "updated_at".to_string(),
+        "name".to_string(),
+    ]);
+    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
+
+    for next in course_instances.into_iter() {
+        let csv_row = vec![
+            next.id.to_string(),
+            next.created_at.to_string(),
+            next.updated_at.to_string(),
+            next.name.unwrap_or_else(|| "".to_string()),
+        ];
+        writer.write_record(csv_row);
+    }
+    let writer = writer.finish().await?;
+    Ok(writer)
+}
+
 // Writes the points as csv into the writer
 pub async fn export_exam_points<W>(conn: &mut PgConnection, exam_id: Uuid, writer: W) -> Result<W>
 where

@@ -3,7 +3,8 @@ use bytes::Bytes;
 use csv::Writer;
 use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
 use headless_lms_models::{
-    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
+    chapters, course_instances, exercise_task_submissions, exercises, user_details,
+    user_exercise_states,
 };
 
 use models::{
@@ -179,12 +180,51 @@ where
             next.id.to_string(),
             next.user_id.to_string(),
             next.created_at.to_string(),
+            next.course_instance_id
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| "".to_string()),
             next.exercise_id.to_string(),
             next.exercise_task_id.to_string(),
             next.score_given.unwrap_or(0.0).to_string(),
             next.data_json
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| "".to_string()),
+        ];
+        writer.write_record(csv_row);
+    }
+    let writer = writer.finish().await?;
+    Ok(writer)
+}
+
+pub async fn export_course_user_details<W>(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    writer: W,
+) -> Result<W>
+where
+    W: Write + Send + 'static,
+{
+    let headers = IntoIterator::into_iter([
+        "user_id".to_string(),
+        "created_at".to_string(),
+        "updated_at".to_string(),
+        "first_name".to_string(),
+        "last_name".to_string(),
+        "email".to_string(),
+    ]);
+
+    let mut stream =
+        user_details::stream_users_details_having_user_exercise_states_on_course(conn, course_id);
+
+    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
+    while let Some(next) = stream.try_next().await? {
+        let csv_row = vec![
+            next.user_id.to_string(),
+            next.created_at.to_string(),
+            next.updated_at.to_string(),
+            next.first_name.unwrap_or_else(|| "".to_string()),
+            next.last_name.unwrap_or_else(|| "".to_string()),
+            next.email.to_string(),
         ];
         writer.write_record(csv_row);
     }

@@ -945,6 +945,63 @@ pub async fn submission_export(
     );
 }
 
+#[instrument(skip(pool))]
+pub async fn user_details_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit, // Teach  or Edit or something else ??
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course_id = *course_id;
+
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+
+    // spawn handle that writes the csv row by row into the sender
+    let mut handle_conn = pool.acquire().await?;
+    let _handle = tokio::spawn(async move {
+        let res = csv_export::export_course_user_details(
+            &mut handle_conn,
+            course_id,
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
+        )
+        .await;
+        if let Err(err) = res {
+            tracing::error!("Failed to export course user details: {}", err);
+        }
+    });
+
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+
+    // return response that streams data from the receiver
+
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"{} - User Details {}.csv\"",
+                    course.name,
+                    Utc::now().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -1057,5 +1114,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/export-submissions",
             web::get().to(submission_export),
+        )
+        .route(
+            "/{course_id}/export-user-details",
+            web::get().to(user_details_export),
         );
 }

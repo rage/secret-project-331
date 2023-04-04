@@ -250,6 +250,7 @@
   "link-export-completions": "Lataa suoritukset CSV-muodossa",
   "link-export-points": "Vie pisteet tiedostoon",
   "link-export-submissions": "Lataa palautukset CSV-muodossa",
+  "link-export-user-details": "Lataa käyttäjien tiedot CSV-muodossa",
   "link-feedback": "Palautteet",
   "link-glossary": "Sanasto",
   "link-history": "Historia",

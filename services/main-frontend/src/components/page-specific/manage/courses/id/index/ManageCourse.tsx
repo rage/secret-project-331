@@ -150,6 +150,18 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       </div>
       <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
       <SubmissionsExportButton courseId={course.id} />
+      <ul
+        className={css`
+          list-style-type: none;
+          padding-left: 0;
+        `}
+      >
+        <li>
+          <a href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}>
+            {t("link-export-user-details")}
+          </a>
+        </li>
+      </ul>
     </>
   )
 }

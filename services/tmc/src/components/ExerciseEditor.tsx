@@ -65,7 +65,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setSt
         {state.privateSpec?.type}
         <br />
         <CheckBox
-          label={t("solve-in-editor")}
+          label={t("solve-in-editor-label")}
           checked={state.privateSpec?.type === "editor"}
           onChange={() =>
             setState((old) => {

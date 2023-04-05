@@ -21,3 +21,17 @@ VALUES ($1, $2, $3, $4)
     .await?;
     Ok(())
 }
+
+pub async fn get_filename(conn: &mut PgConnection, path: &str) -> ModelResult<String> {
+    let res = sqlx::query!(
+        r#"
+SELECT name
+FROM file_uploads
+WHERE path = $1
+"#,
+        path,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.name)
+}

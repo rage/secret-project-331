@@ -41,6 +41,7 @@ export default async (
   try {
     postResult = await handlePost(req, res)
   } catch (e) {
+    console.error(JSON.stringify(e, null, 2))
     let message = "Internal server error"
     // check for langs error
     if (typeof e === "object" && e && "message" in e) {

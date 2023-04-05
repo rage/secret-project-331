@@ -740,6 +740,8 @@
 <a href="#740" id="740">740</a>
 <a href="#741" id="741">741</a>
 <a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{chapters, prelude::<span class="kw-2">*</span>};
@@ -939,9 +941,10 @@ INSERT INTO course_modules (
     automatic_completion,
     automatic_completion_number_of_exercises_attempted_treshold,
     automatic_completion_number_of_points_treshold,
-    automatic_completion_requires_exam
+    automatic_completion_requires_exam,
+    ects_credits
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *
         &quot;</span>,
         pkey_policy.into_uuid(),
@@ -952,6 +955,7 @@ RETURNING *
         exercises_treshold,
         points_treshold,
         requires_exam,
+        new_course_module.ects_credits,
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;

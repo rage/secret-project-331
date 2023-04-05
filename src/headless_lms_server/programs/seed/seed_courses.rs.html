@@ -4048,6 +4048,7 @@
 <a href="#4048" id="4048">4048</a>
 <a href="#4049" id="4049">4049</a>
 <a href="#4050" id="4050">4050</a>
+<a href="#4051" id="4051">4051</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4266,7 +4267,8 @@
     <span class="kw">let </span>second_module = course_modules::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Generate,
-        <span class="kw-2">&amp;</span>NewCourseModule::new(course.id, <span class="prelude-val">Some</span>(<span class="string">&quot;Another module&quot;</span>.to_string()), <span class="number">1</span>),
+        <span class="kw-2">&amp;</span>NewCourseModule::new(course.id, <span class="prelude-val">Some</span>(<span class="string">&quot;Another module&quot;</span>.to_string()), <span class="number">1</span>)
+            .set_ects_credits(<span class="prelude-val">Some</span>(<span class="number">5</span>)),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>new_chapter = NewChapter {

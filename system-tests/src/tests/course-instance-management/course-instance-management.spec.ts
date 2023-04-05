@@ -146,5 +146,6 @@ test("test", async ({ page, headless }, testInfo) => {
     snapshotName: "course-management-page-after-delete",
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "All course instances" })],
     screenshotTarget: page,
+    clearNotifications: true,
   })
 })

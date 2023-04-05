@@ -203,8 +203,16 @@ macro_rules! insert_data {
         .await
         .unwrap().0.id;
     };
-    // fix this?
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident; page: $page:ident) => {
+        let course_info = headless_lms_models::courses::get_course($tx.as_mut(), $course).await.unwrap();
+        let page_language_group_id = headless_lms_models::page_language_groups::insert(
+            $tx.as_mut(),
+            headless_lms_models::PKeyPolicy::Generate,
+            course_info.course_language_group_id,
+        )
+        .await
+        .unwrap();
+
         let $page = headless_lms_models::pages::insert_page(
             $tx.as_mut(),
             headless_lms_models::pages::NewPage {
@@ -219,7 +227,7 @@ macro_rules! insert_data {
                 chapter_id: Some($chapter),
                 front_page_of_chapter_id: Some($chapter),
                 content_search_language: None,
-                page_language_group_id: None,
+                page_language_group_id: Some(page_language_group_id),
             },
             $user,
             |_, _, _| unimplemented!(),

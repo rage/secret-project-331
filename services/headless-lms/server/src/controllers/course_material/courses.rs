@@ -630,6 +630,25 @@ async fn get_all_course_language_versions(
     token.authorized_ok(web::Json(language_versions))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_page_by_course_id_and_language_group(
+    info: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Page>> {
+    let mut conn = pool.acquire().await?;
+    let (course_id, page_language_group_id) = info.into_inner();
+
+    let page: Page = models::pages::get_page_by_course_id_and_language_group(
+        &mut conn,
+        course_id,
+        page_language_group_id,
+    )
+    .await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(page))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -653,7 +672,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/page-by-path/{url_path:.*}",
             web::get().to(get_course_page_by_path),
         )
-        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
         .route(
             "/{course_id}/search-pages-with-phrase",
             web::post().to(search_pages_with_phrase),
@@ -679,5 +697,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references",
             web::get().to(get_material_references_by_course_id),
-        );
+        )
+        .route(
+            "/{course_id}/pages/{page_language_group_id}",
+            web::get().to(get_page_by_course_id_and_language_group),
+        )
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages));
 }

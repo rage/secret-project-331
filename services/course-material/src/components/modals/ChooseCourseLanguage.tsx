@@ -4,6 +4,7 @@ import { useContext } from "react"
 import PageContext from "../../contexts/PageContext"
 import useCourseInfo from "../../hooks/useCourseInfo"
 import useCourseLanguageVersions from "../../hooks/useCourseLanguageVersions"
+import useNewPagePath from "../../hooks/useNewPagePath"
 import Language from "../../shared-module/components/LanguageSelection/Language"
 import { baseTheme } from "../../shared-module/styles"
 import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
@@ -16,7 +17,8 @@ export const formatLanguageVersionsQueryKey = (courseId: string): string => {
 const useFigureOutNewUrl = (selectedLangCourseId: string) => {
   const course = useCourseInfo(selectedLangCourseId)
   const pageState = useContext(PageContext)
-  const currentPagePath = pageState.pageData?.url_path ?? ""
+
+  const pageUrlPath = useNewPagePath(course.data?.id, pageState.pageData?.page_language_group_id)
   const orgSlug = window.location.pathname.split("/")
   const newUrl = window.location.origin.concat(
     "/",
@@ -27,7 +29,7 @@ const useFigureOutNewUrl = (selectedLangCourseId: string) => {
     orgSlug[3],
     "/",
     course.data?.slug || "",
-    currentPagePath,
+    pageUrlPath || "",
   )
   return newUrl
 }

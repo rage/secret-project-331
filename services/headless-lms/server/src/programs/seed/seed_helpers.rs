@@ -34,7 +34,6 @@ pub async fn create_page(
     page_data: CmsPageUpdate,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    // fix this?
     let new_page = NewPage {
         content: Value::Array(vec![]),
         url_path: page_data.url_path.to_string(),

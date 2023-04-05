@@ -444,3 +444,16 @@ export const fetchCourseLanguageVersions = async (courseId: string): Promise<Arr
   })
   return validateResponse(response, isArray(isCourse))
 }
+
+export const fetchPageByCourseIdAndLanguageGroupId = async (
+  course_id: string,
+  page_language_group_id: string,
+): Promise<Page> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/pages/${page_language_group_id}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isPage)
+}

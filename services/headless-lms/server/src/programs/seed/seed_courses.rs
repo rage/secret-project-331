@@ -314,8 +314,15 @@ pub async fn seed_sample_course(
         models_requests::fetch_service_info,
     )
     .await?;
-    //fix this
-    let page_language_group_id = Uuid::new_v5(&course_id, b"af3b467a-f5db-42ad-9b21-f42ca316b3c6");
+
+    let page_language_group_id = headless_lms_models::page_language_groups::insert(
+        &mut conn,
+        headless_lms_models::PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await
+    .unwrap();
+
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
@@ -1972,9 +1979,13 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
-    // fix this
 
-    let page_language_group_id = Uuid::new_v5(&course.id, b"77e95910-2779-452f-a1dd-8b8bf4a829a0");
+    let page_language_group_id = page_language_groups::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
 
     let (_page, _history) = pages::insert_course_page(
         &mut conn,
@@ -2646,8 +2657,13 @@ pub async fn seed_course_without_submissions(
         models_requests::fetch_service_info,
     )
     .await?;
-    // fix this
-    let page_language_group_id = Uuid::new_v5(&course_id, b"af3b997a-f5db-42ad-9b21-f42ca326b3c6");
+
+    let page_language_group_id = page_language_groups::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
 
     let welcome_page = NewCoursePage::new(
         course.id,
@@ -3833,7 +3849,7 @@ pub async fn seed_peer_review_course_without_submissions(
     .await?;
 
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
-    // fix this
+
     let page_language_group_id = page_language_groups::insert(
         &mut conn,
         PKeyPolicy::Generate,

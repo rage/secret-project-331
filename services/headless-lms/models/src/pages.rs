@@ -2871,6 +2871,40 @@ WHERE pages.id = $1
     Ok(res)
 }
 
+pub async fn get_page_by_course_id_and_language_group(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_language_group_id: Uuid,
+) -> ModelResult<Page> {
+    let page = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+    created_at,
+    updated_at,
+    course_id,
+    exam_id,
+    chapter_id,
+    url_path,
+    title,
+    deleted_at,
+    content,
+    order_number,
+    copied_from,
+    hidden,
+    page_language_group_id
+FROM pages p
+WHERE p.course_id = $1
+    AND p.page_language_group_id = $2
+    ",
+        course_id,
+        page_language_group_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(page)
+}
+
 /// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
 pub async fn reorder_pages(

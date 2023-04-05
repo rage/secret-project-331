@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+echo -e "${BLUE}Downloading baseimages to minikube. Baseimages are special docker images that are used as a starting point when building the different services in this project."
+echo -e "$RESET_EVERYTHING"
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-node-base
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-production-base
+
+echo ""
+echo -e "${BLUE}Baseimages have now been downloaded. Downloading now optional build cache images used in bin/test."
+echo -e "Doing this should allow you to skip building dependencies next time you run bin/test (given you haven't added or removed any dependencies.)"
+echo -e "$RESET_EVERYTHING"
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
+run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache

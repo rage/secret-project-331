@@ -79,6 +79,18 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> UtilResu
                 ),
             );
         }
+        if host.ends_with("thinglink.com") {
+            return oembed_url_builder(
+                &format!(
+                    "{}/api/v0/cms/gutenberg/oembed/thinglink",
+                    base_url.unwrap()
+                ),
+                &format!(
+                    "url={}",
+                    utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
+                ),
+            );
+        }
         if host.ends_with("imgur.com") {
             return oembed_url_builder(
                 "https://api.imgur.com/oembed",
@@ -162,6 +174,44 @@ pub fn mentimeter_oembed_response_builder(
     Ok(response)
 }
 
+pub fn thinglink_oembed_response_builder(
+    url: String,
+    base_url: String,
+) -> UtilResult<OEmbedResponse> {
+    let mut parsed_url = Url::parse(url.as_str()).unwrap();
+    // Get the height and title params
+    let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
+    // We want to remove the query params so that the iframe src url doesn't have them
+    parsed_url.set_query(None);
+    let decoded_title = percent_decode_str(
+        params
+            .get("title")
+            .unwrap_or(&"Thinlink%20embed".to_string()),
+    )
+    .decode_utf8()
+    .expect("Decoding title or default value for thinglink embed failed")
+    .to_string();
+
+    let response = OEmbedResponse {
+        author_name: "Mooc.fi".to_string(),
+        author_url: base_url,
+        html: format!(
+            "<iframe sandbox=\"allow-scripts allow-same-origin\" src={} style='width: 99%;' height={:?} title={:?}></iframe>",
+            parsed_url,
+            params.get("height").unwrap_or(&"500".to_string()),
+            decoded_title
+        ),
+        provider_name: "thinglink".to_string(),
+        provider_url: parsed_url
+            .host_str()
+            .unwrap_or("https://www.thinglink.com/")
+            .to_string(),
+        title: decoded_title,
+        version: "1.0".to_string(),
+    };
+    Ok(response)
+}
+
 fn oembed_url_builder(url: &str, query_params: &str) -> UtilResult<Url> {
     let mut endpoint_url = Url::parse(url)?;
     endpoint_url.set_query(Some(query_params));
@@ -216,6 +266,18 @@ mod tests {
             Url::parse(
                 "https://www.flickr.com/services/oembed?url=https://flic.kr/p/2jJ&format=json&maxwidth=780&maxheight=780"
             ).unwrap()
+        )
+    }
+
+    #[test]
+    fn works_with_thinglink() {
+        assert_eq!(
+            url_to_oembed_endpoint(
+                "https://www.thinglink.com/card/1205257932048957445".to_string(),
+                Some("http://project-331.local".to_string())
+            )
+            .unwrap().to_string(),
+            "http://project-331.local/api/v0/cms/gutenberg/oembed/thinglink?url=https%3A%2F%2Fwww%2Ethinglink%2Ecom%2Fcard%2F1205257932048957445"
         )
     }
 }

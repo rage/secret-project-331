@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseById, fetchCourseLanguageVersions } from "../../services/backend"
+import useCourseInfo from "../../hooks/useCourseInfo"
+import useCourseLanguageVersions from "../../hooks/useCourseLanguageVersions"
 import Language from "../../shared-module/components/LanguageSelection/Language"
 import { baseTheme } from "../../shared-module/styles"
 import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
@@ -13,15 +13,8 @@ export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   return `course-${courseId}-language-versions`
 }
 
-export const formatCourseQueryKey = (courseId: string): string => {
-  // eslint-disable-next-line i18next/no-literal-string
-  return `courses-${courseId}`
-}
-
-const FigureOutNewUrl = (selectedLangCourseId: string) => {
-  const course = useQuery([formatCourseQueryKey(selectedLangCourseId)], () =>
-    fetchCourseById(selectedLangCourseId ?? ""),
-  )
+const useFigureOutNewUrl = (selectedLangCourseId: string) => {
+  const course = useCourseInfo(selectedLangCourseId)
   const pageState = useContext(PageContext)
   const currentPagePath = pageState.pageData?.url_path ?? ""
   const orgSlug = window.location.pathname.split("/")
@@ -39,21 +32,16 @@ const FigureOutNewUrl = (selectedLangCourseId: string) => {
   return newUrl
 }
 
-const FigureOutNewLangCode = (selectedLangCourseId: string) => {
-  const course = useQuery([formatCourseQueryKey(selectedLangCourseId)], () =>
-    fetchCourseById(selectedLangCourseId ?? ""),
-  )
+const useFigureOutNewLangCode = (selectedLangCourseId: string) => {
+  const course = useCourseInfo(selectedLangCourseId)
   return course.data?.language_code
 }
 
-const FigureOutNewCourseId = (newLangCode: string) => {
+const useFigureOutNewCourseId = (newLangCode: string) => {
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
 
-  const CourseLanguageVersionsList = useQuery(
-    [formatLanguageVersionsQueryKey(currentCourseId ?? "")],
-    () => fetchCourseLanguageVersions(currentCourseId ?? ""),
-  )
+  const CourseLanguageVersionsList = useCourseLanguageVersions(currentCourseId ?? "")
   let newCourseId = ""
 
   CourseLanguageVersionsList.data?.map((course) => {
@@ -105,9 +93,9 @@ const GetLanguageFlag = (LangCode: string) => {
 }
 
 export {
-  FigureOutNewUrl,
-  FigureOutNewLangCode,
-  FigureOutNewCourseId,
+  useFigureOutNewUrl,
+  useFigureOutNewLangCode,
+  useFigureOutNewCourseId,
   GetLanguageName,
   GetLanguageFlag,
 }

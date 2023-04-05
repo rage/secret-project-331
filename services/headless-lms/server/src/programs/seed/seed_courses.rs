@@ -22,6 +22,7 @@ use headless_lms_models::{
     glossary, library,
     library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
+    page_language_groups,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
     peer_review_configs::PeerReviewAcceptingStrategy::{
@@ -313,12 +314,14 @@ pub async fn seed_sample_course(
         models_requests::fetch_service_info,
     )
     .await?;
-
+    //fix this
+    let page_language_group_id = Uuid::new_v5(&course_id, b"af3b467a-f5db-42ad-9b21-f42ca316b3c6");
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
         "/welcome",
         "Welcome to Introduction to Everything",
+        page_language_group_id,
     );
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
@@ -1969,9 +1972,13 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
+    // fix this
+
+    let page_language_group_id = Uuid::new_v5(&course.id, b"77e95910-2779-452f-a1dd-8b8bf4a829a0");
+
     let (_page, _history) = pages::insert_course_page(
         &mut conn,
-        &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
+        &NewCoursePage::new(course.id, 1, "/faq", "FAQ", page_language_group_id),
         admin,
     )
     .await?;
@@ -2639,13 +2646,17 @@ pub async fn seed_course_without_submissions(
         models_requests::fetch_service_info,
     )
     .await?;
+    // fix this
+    let page_language_group_id = Uuid::new_v5(&course_id, b"af3b997a-f5db-42ad-9b21-f42ca326b3c6");
 
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
         "/welcome",
         "Welcome to Introduction to Everything",
+        page_language_group_id,
     );
+
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
         .followed_by("/hidden", "Hidden Page")
@@ -3758,6 +3769,7 @@ pub async fn seed_peer_review_course_without_submissions(
         is_draft: false,
         is_test_mode: false,
     };
+
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
@@ -3821,12 +3833,20 @@ pub async fn seed_peer_review_course_without_submissions(
     .await?;
 
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
+    // fix this
+    let page_language_group_id = page_language_groups::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
 
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
         "/welcome",
         "Welcome to Introduction to peer reviews",
+        page_language_group_id,
     );
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page

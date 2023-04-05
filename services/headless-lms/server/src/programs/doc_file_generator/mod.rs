@@ -939,6 +939,7 @@ fn models() {
             limit_number_of_tries: true,
             needs_peer_review,
             use_course_default_peer_review_config,
+            exercise_language_group_id,
         }
     );
     doc!(
@@ -1080,6 +1081,7 @@ fn models() {
             order_number: 123,
             copied_from: None,
             hidden: false,
+            page_language_group_id: None,
         }
     );
     doc!(

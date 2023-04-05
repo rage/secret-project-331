@@ -276,9 +276,9 @@ mod tests {
 
         use crate::{
             chapters::{self, NewChapter},
-            exercise_slides,
+            courses, exercise_language_groups, exercise_slides,
             exercise_tasks::{self, NewExerciseTask},
-            exercises,
+            exercises, page_language_groups,
             pages::{self, NewCoursePage},
             user_exercise_slide_states, user_exercise_states,
         };
@@ -431,9 +431,26 @@ mod tests {
                 },
             )
             .await?;
+
+            let courser = courses::get_course(tx.as_mut(), course).await?;
+
+            let page_language_group_id = page_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                courser.course_language_group_id,
+            )
+            .await?;
+
+            let exercise_language_group_id = exercise_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                courser.course_language_group_id,
+            )
+            .await?;
+
             let (page_id, _history) = pages::insert_course_page(
                 tx.as_mut(),
-                &NewCoursePage::new(course, 1, "/test", "test"),
+                &NewCoursePage::new(course, 1, "/test", "test", page_language_group_id),
                 user,
             )
             .await?;
@@ -445,6 +462,7 @@ mod tests {
                 page_id,
                 chapter_id,
                 1,
+                exercise_language_group_id,
             )
             .await?;
             let slide_id =

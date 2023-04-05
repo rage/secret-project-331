@@ -284,7 +284,8 @@ async fn copy_course_pages_and_return_contents(
         chapter_id,
         order_number,
         copied_from,
-        content_search_language
+        content_search_language,
+        page_language_group_id
       )
     SELECT uuid_generate_v5($1, id::text),
       $1,
@@ -294,7 +295,8 @@ async fn copy_course_pages_and_return_contents(
       uuid_generate_v5($1, chapter_id::text),
       order_number,
       id,
-      content_search_language
+      content_search_language,
+      page_language_group_id
     FROM pages
     WHERE (course_id = $2)
     AND deleted_at IS NULL
@@ -329,7 +331,8 @@ async fn copy_exam_pages_and_return_contents(
         chapter_id,
         order_number,
         copied_from,
-        content_search_language
+        content_search_language,
+        page_language_group_id
       )
     SELECT uuid_generate_v5($1, id::text),
       $1,
@@ -339,7 +342,8 @@ async fn copy_exam_pages_and_return_contents(
       uuid_generate_v5($1, chapter_id::text),
       order_number,
       id,
-      content_search_language
+      content_search_language,
+      page_language_group_id
     FROM pages
     WHERE (exam_id = $2)
     AND deleted_at IS NULL

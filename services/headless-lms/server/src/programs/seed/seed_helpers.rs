@@ -24,7 +24,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
-
+// fix this
 #[allow(clippy::too_many_arguments)]
 pub async fn create_page(
     conn: &mut PgConnection,
@@ -34,6 +34,7 @@ pub async fn create_page(
     page_data: CmsPageUpdate,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
+    // fix this?
     let new_page = NewPage {
         content: Value::Array(vec![]),
         url_path: page_data.url_path.to_string(),
@@ -46,6 +47,7 @@ pub async fn create_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        page_language_group_id: None,
     };
     let page = pages::insert_page(
         conn,
@@ -466,6 +468,7 @@ pub async fn create_exam(
             chapter_id: None,
             front_page_of_chapter_id: None,
             content_search_language: None,
+            page_language_group_id: None,
         },
         teacher,
         models_requests::make_spec_fetcher(jwt_key),

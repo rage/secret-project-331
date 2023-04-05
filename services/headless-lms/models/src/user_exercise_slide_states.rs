@@ -222,8 +222,8 @@ mod tests {
         use headless_lms_utils::numbers::f32_approx_eq;
 
         use crate::{
-            chapters, chapters::NewChapter, exercise_slides, exercises, pages,
-            pages::NewCoursePage, user_exercise_states,
+            chapters, chapters::NewChapter, courses, exercise_language_groups, exercise_slides,
+            exercises, page_language_groups, pages, pages::NewCoursePage, user_exercise_states,
         };
 
         use super::*;
@@ -377,9 +377,26 @@ mod tests {
                 },
             )
             .await?;
+
+            let course_info = courses::get_course(tx.as_mut(), course).await?;
+
+            let page_language_group_id = page_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course_info.course_language_group_id,
+            )
+            .await?;
+
+            let exercise_language_group_id = exercise_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course_info.course_language_group_id,
+            )
+            .await?;
+
             let (page_id, _history) = pages::insert_course_page(
                 tx.as_mut(),
-                &NewCoursePage::new(course, 1, "/test", "test"),
+                &NewCoursePage::new(course, 1, "/test", "test", page_language_group_id),
                 user,
             )
             .await?;
@@ -391,6 +408,7 @@ mod tests {
                 page_id,
                 chapter_id,
                 1,
+                exercise_language_group_id,
             )
             .await?;
             let slide_1 =

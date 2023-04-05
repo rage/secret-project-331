@@ -44,6 +44,7 @@ pub struct Page {
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
     pub hidden: bool,
+    pub page_language_group_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -100,6 +101,7 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
+    pub page_language_group_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -215,11 +217,18 @@ pub struct NewCoursePage<'a> {
     pub title: &'a str,
     pub hidden: bool,
     pub url_path: &'a str,
+    pub page_language_group_id: Uuid,
 }
 
 impl<'a> NewCoursePage<'a> {
     /// Creates `NewCoursePage` with provided values that is public by default.
-    pub fn new(course_id: Uuid, order_number: i32, url_path: &'a str, title: &'a str) -> Self {
+    pub fn new(
+        course_id: Uuid,
+        order_number: i32,
+        url_path: &'a str,
+        title: &'a str,
+        page_language_group_id: Uuid,
+    ) -> Self {
         Self {
             content: Default::default(),
             course_id,
@@ -227,12 +236,19 @@ impl<'a> NewCoursePage<'a> {
             title,
             hidden: false,
             url_path,
+            page_language_group_id,
         }
     }
 
     /// Creates a new `NewCoursePage` for the same course as this one and increments the page number.
     pub fn followed_by(&self, url_path: &'a str, title: &'a str) -> Self {
-        Self::new(self.course_id, self.order_number + 1, url_path, title)
+        Self::new(
+            self.course_id,
+            self.order_number + 1,
+            url_path,
+            title,
+            self.page_language_group_id,
+        )
     }
 
     /// Sets the content of this page.
@@ -262,9 +278,10 @@ INSERT INTO pages (
     url_path,
     title,
     order_number,
-    hidden
+    hidden,
+    page_language_group_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 ",
         new_course_page.course_id,
@@ -273,6 +290,7 @@ RETURNING id
         new_course_page.title,
         new_course_page.order_number,
         new_course_page.hidden,
+        new_course_page.page_language_group_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -453,7 +471,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages
 WHERE course_id = $1
   AND hidden IS DISTINCT FROM $2
@@ -489,7 +508,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages p
 WHERE course_id = $1
   AND hidden IS DISTINCT FROM $2
@@ -526,7 +546,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages
 WHERE chapter_id = $1
   AND hidden IS DISTINCT FROM $2
@@ -556,7 +577,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages
 WHERE id = $1;
 ",
@@ -613,7 +635,8 @@ SELECT pages.id,
   pages.content,
   pages.order_number,
   pages.copied_from,
-  pages.hidden
+  pages.hidden,
+  pages.page_language_group_id
 FROM pages
 WHERE pages.course_id = $1
   AND url_path = $2
@@ -687,7 +710,8 @@ SELECT pages.id,
   pages.content,
   pages.order_number,
   pages.copied_from,
-  pages.hidden
+  pages.hidden,
+  pages.page_language_group_id
 FROM url_redirections
   JOIN pages on pages.id = url_redirections.destination_page_id
 WHERE url_redirections.course_id = $1
@@ -835,7 +859,8 @@ SELECT pages.id,
   pages.content,
   pages.order_number,
   pages.copied_from,
-  pages.hidden
+  pages.hidden,
+  pages.page_language_group_id
 FROM pages
 WHERE exam_id = $1
 AND pages.deleted_at IS NULL
@@ -1054,7 +1079,8 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  pages.hidden
+  pages.hidden,
+  pages.page_language_group_id
         ",
         page_update.page_id,
         serde_json::to_value(parsed_content)?,
@@ -1193,7 +1219,8 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
         ",
         new_content,
         page.id
@@ -1891,6 +1918,7 @@ pub async fn insert_new_content_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        page_language_group_id: new_page.page_language_group_id,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -1962,7 +1990,8 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  pages.hidden
+  pages.hidden,
+  page_language_group_id
           "#,
         new_page.course_id,
         new_page.exam_id,
@@ -2031,6 +2060,7 @@ RETURNING *;
         chapter_id: page.chapter_id,
         copied_from: page.copied_from,
         hidden: page.hidden,
+        page_language_group_id: page.page_language_group_id,
     })
 }
 
@@ -2057,7 +2087,8 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
           "#,
         page_id,
     )
@@ -2132,7 +2163,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -2513,7 +2545,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
@@ -2545,7 +2578,8 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  hidden
+  hidden,
+  page_language_group_id
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
@@ -3133,6 +3167,7 @@ mod test {
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
+                page_language_group_id: None,
             },
             user,
             |_, _, _| unimplemented!(),

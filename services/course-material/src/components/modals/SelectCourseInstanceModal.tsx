@@ -24,10 +24,10 @@ import {
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import {
-  FigureOutNewLangCode,
-  FigureOutNewUrl,
   GetLanguageFlag,
   GetLanguageName,
+  useFigureOutNewLangCode,
+  useFigureOutNewUrl,
 } from "./ChooseCourseLanguage"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
@@ -168,8 +168,8 @@ const CourseInstanceSelectModal: React.FC<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
-  const newUrl = FigureOutNewUrl(selectedLangCourseId)
-  const newLangcode = FigureOutNewLangCode(selectedLangCourseId)
+  const newUrl = useFigureOutNewUrl(selectedLangCourseId)
+  const newLangcode = useFigureOutNewLangCode(selectedLangCourseId)
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn

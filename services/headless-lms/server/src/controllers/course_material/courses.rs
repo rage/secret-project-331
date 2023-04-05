@@ -615,27 +615,18 @@ async fn get_public_top_level_pages(
 
 /**
 GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course.
-
-# Example
-Request:
-```http
-GET /api/v0/course-material/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
-Content-Type: application/json
-```
 */
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = skip_authorize()?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
-
     token.authorized_ok(web::Json(language_versions))
 }
 

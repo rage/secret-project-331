@@ -2,6 +2,7 @@
 import _ from "lodash"
 import React from "react"
 
+import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
 import { IframeState, PublicSpec } from "../util/stateInterfaces"
 
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
@@ -10,13 +11,15 @@ import AnswerEditorExercise from "./AnswerEditorExercise"
 interface Props {
   initialPublicSpec: PublicSpec
   setState: (updater: (state: IframeState | null) => IframeState | null) => void
-  sendFileUploadMessage: (files: Map<string, string | Blob>) => void
+  sendFileUploadMessage: (filename: string, file: File) => void
+  fileUploadResponse: UploadResultMessage | null
 }
 
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   initialPublicSpec,
   setState,
   sendFileUploadMessage,
+  fileUploadResponse,
 }) => {
   // student exercise view
   if (initialPublicSpec.type === "browser") {
@@ -26,11 +29,12 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
       <AnswerEditorExercise
         initialPublicSpec={initialPublicSpec}
         sendFileUploadMessage={sendFileUploadMessage}
+        fileUploadResponse={fileUploadResponse}
       />
     )
   } else {
     // eslint-disable-next-line i18next/no-literal-string
-    throw "Unhandled exercise type"
+    throw new Error("Unhandled exercise type")
   }
 }
 

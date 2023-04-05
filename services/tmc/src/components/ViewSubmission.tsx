@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { ViewSubmissionState } from "../util/stateInterfaces"
 
 interface Props {
@@ -5,6 +7,8 @@ interface Props {
 }
 
 const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => {
+  const { t } = useTranslation()
+
   if (state.submission.type === "browser") {
     return (
       <>
@@ -19,7 +23,12 @@ const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => 
       </>
     )
   } else if (state.submission.type === "editor") {
-    return <div>{state.submission.archiveDownloadUrl}</div>
+    return (
+      <div>
+        {t("submission-archive-download-label")}:{" "}
+        <a href={state.submission.archiveDownloadUrl}>{t("download-submission-button")}</a>
+      </div>
+    )
   } else {
     throw new Error("unreachable")
   }

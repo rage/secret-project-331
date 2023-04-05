@@ -92,7 +92,6 @@ const PlaygroundExerciseIframe: React.FC<
                   error: JSON.stringify(e, null, 2),
                 }
               }
-              console.log("posting", response)
               responsePort.postMessage(response)
             }
           }

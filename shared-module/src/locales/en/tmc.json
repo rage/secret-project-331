@@ -1,13 +1,21 @@
 {
   "download-exercise": "Download exercise",
+  "download-submission-button": "Download",
+  "file-upload-save-failure": "Failed to save file upload",
+  "file-upload-save-success": "File upload saved successfully.",
+  "no-file-saved-yet": "No file saved yet.",
   "reset": "Reset",
+  "reset-file": "Reset file",
+  "save-file-for-submission": "Save file for submission",
+  "select-file-for-submission": "Select file for submission",
   "select-repository-exercise": "Please select a repository exercise.",
   "selected-repository-exercise": "Selected repository exercise",
   "solve-in-browser": "Solve in the browser",
-  "solve-in-editor-label": "Solve in an external editor",
   "solve-in-editor-instructions": "This exercise is intended to be completed using the TestMyCode VSCode extension. You may also download the exercise and upload the solution using the links below.",
+  "solve-in-editor-label": "Solve in an external editor",
+  "submission-archive-download-label": "The submitted archive can be downloaded from the following link",
   "submit": "Submit",
-  "upload-solution-instructions": "Upload solution. Supported archive types: .tar.zst",
+  "upload-solution-instructions": "Upload solution archive. Supported archive types: .tar.zst",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port..."
 }

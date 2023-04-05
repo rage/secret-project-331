@@ -9,6 +9,7 @@ import { v4 } from "uuid"
 import StateRenderer from "../components/StateRenderer"
 import { ExerciseTaskSubmission } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
 import { isMessageToIframe } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
@@ -27,6 +28,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const iframeId = v4().slice(0, 4)
 
   const [state, setState] = useState<IframeState | null>(null)
+  const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = 500
@@ -99,6 +101,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
           }
         })
       } else if (messageData.message === "upload-result") {
+        setFileUploadResponse(messageData)
         if (messageData.success) {
           // using the wrapper here because we want to let the frontend know
           setStateAndSend(port, (old) => {
@@ -144,7 +147,12 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         <StateRenderer
           setState={(updater) => setStateAndSend(port, updater)}
           state={state}
-          sendFileUploadMessage={(files) => sendFileUploadMessage(port, files)}
+          sendFileUploadMessage={(filename, file) => {
+            const files = new Map()
+            files.set(filename, file)
+            sendFileUploadMessage(port, files)
+          }}
+          fileUploadResponse={fileUploadResponse}
         />
       </div>
     </HeightTrackingContainer>

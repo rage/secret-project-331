@@ -1,23 +1,25 @@
-import React, { createRef } from "react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
+import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
 import { PublicSpec } from "../util/stateInterfaces"
 
 interface Props {
   initialPublicSpec: PublicSpec & { type: "editor" }
-  sendFileUploadMessage: (files: Map<string, string | Blob>) => void
+  sendFileUploadMessage: (filename: string, file: File) => void
+  fileUploadResponse: UploadResultMessage | null
 }
-
-type FileInputElement = HTMLInputElement
 
 const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
   initialPublicSpec,
   sendFileUploadMessage,
+  fileUploadResponse,
 }) => {
   const { t } = useTranslation()
 
-  const fileInput = createRef<FileInputElement>()
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // solved in an external editor
   return (
@@ -33,21 +35,58 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
       <hr />
       <div>
         <label>{t("upload-solution-instructions")}</label>
+        <div>{t("select-file-for-submission")}</div>
         <br />
-        <input
-          type="file"
-          ref={fileInput}
-          onChange={(ev) => {
-            if (ev.target && ev.target.files) {
-              const map = new Map()
-              for (let i = 0; i < ev.target.files.length; i++) {
-                const fileToUpload = ev.target.files[i]
-                map.set(fileToUpload.name, fileToUpload)
+        <Button variant="primary" size="medium">
+          <input
+            type="file"
+            ref={inputRef}
+            onChange={(ev) => {
+              if (ev.target && ev.target.files && ev.target.files.length > 0) {
+                setFileToUpload(ev.target.files[0])
               }
-              sendFileUploadMessage(map)
+            }}
+          />
+        </Button>
+        <br />
+        <Button
+          variant="primary"
+          size="medium"
+          disabled={fileToUpload === null}
+          onClick={() => {
+            if (fileToUpload) {
+              console.log("uploading", fileToUpload)
+              // eslint-disable-next-line i18next/no-literal-string
+              sendFileUploadMessage(`submission-${initialPublicSpec.archiveName}`, fileToUpload)
             }
           }}
-        />
+        >
+          {t("save-file-for-submission")}
+        </Button>
+        <Button
+          variant="tertiary"
+          size="medium"
+          disabled={fileToUpload === null}
+          onClick={() => {
+            if (inputRef.current) {
+              inputRef.current.value = ""
+            }
+            setFileToUpload(null)
+          }}
+        >
+          {t("reset-file")}
+        </Button>
+        {fileUploadResponse !== null ? (
+          fileUploadResponse.success ? (
+            <div>{t("file-upload-save-success")}</div>
+          ) : (
+            <div>
+              {t("file-upload-save-failure")}: {fileUploadResponse.error}
+            </div>
+          )
+        ) : (
+          <div>{t("no-file-saved-yet")}</div>
+        )}
       </div>
     </>
   )

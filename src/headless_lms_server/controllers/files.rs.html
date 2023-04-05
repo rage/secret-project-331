@@ -208,19 +208,19 @@
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
 
 */
-</span><span class="kw">use </span>std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
-
-<span class="kw">use </span><span class="kw">super</span>::helpers::file_uploading;
+</span><span class="kw">use </span><span class="kw">super</span>::helpers::file_uploading;
 <span class="kw">pub use </span><span class="kw">crate</span>::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>actix_files::NamedFile;
+<span class="kw">use </span>std::{collections::HashMap, path::Path};
 <span class="kw">use </span>tokio::fs::read;
 <span class="doccomment">/**
 
@@ -259,8 +259,8 @@ Response headers:
     <span class="kw">let </span>tail_path = Path::new(<span class="kw-2">&amp;</span>inner);
 
     <span class="kw">match </span>file_store.get_direct_download_url(tail_path).<span class="kw">await </span>{
-        <span class="prelude-val">Ok</span>(res) =&gt; HttpResponse::Found()
-            .append_header((<span class="string">&quot;location&quot;</span>, res))
+        <span class="prelude-val">Ok</span>(url) =&gt; HttpResponse::Found()
+            .append_header((<span class="string">&quot;location&quot;</span>, url))
             .append_header((<span class="string">&quot;cache-control&quot;</span>, <span class="string">&quot;max-age=300, private&quot;</span>))
             .finish(),
         <span class="prelude-val">Err</span>(e) =&gt; {
@@ -286,9 +286,11 @@ The file.
 */
 </span><span class="attr">#[instrument(skip(req))]
 </span><span class="kw">async fn </span>serve_upload(req: HttpRequest, pool: web::Data&lt;PgPool&gt;) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     </span><span class="kw">let </span>base_folder = Path::new(<span class="string">&quot;uploads&quot;</span>);
-    <span class="kw">let </span>relative_path = PathBuf::from(req.match_info().query(<span class="string">&quot;tail&quot;</span>));
+    <span class="kw">let </span>relative_path = req.match_info().query(<span class="string">&quot;tail&quot;</span>);
     <span class="kw">let </span>path = base_folder.join(relative_path);
 
     <span class="kw">let </span>named_file = NamedFile::open(path).map_err(|_e| {
@@ -323,6 +325,12 @@ The file.
     <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = mime_type {
         response.append_header((<span class="string">&quot;content-type&quot;</span>, m));
     }
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(filename) = models::file_uploads::get_filename(<span class="kw-2">&amp;mut </span>conn, relative_path)
+        .<span class="kw">await
+        </span>.optional()<span class="question-mark">?
+    </span>{
+        response.append_header((<span class="string">&quot;Content-Disposition&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;filename=\&quot;{}\&quot;&quot;</span>, filename)));
+    }
 
     <span class="comment">// this endpoint is only used for development
     </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
@@ -336,7 +344,7 @@ Used to upload data from exercise service iframes.
 # Returns
 The randomly generated paths to each uploaded file in a `file_name =&gt; file_path` hash map.
 */
-</span><span class="attr">#[instrument(skip(payload, file_store, app_conf))]
+</span><span class="attr">#[instrument(skip(payload, file_store, app_conf, upload_claim))]
 #[generated_doc]
 </span><span class="kw">async fn </span>upload_from_exercise_service(
     pool: web::Data&lt;PgPool&gt;,

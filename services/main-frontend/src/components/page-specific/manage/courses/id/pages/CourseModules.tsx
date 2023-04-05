@@ -285,7 +285,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             module.automatic_completion_number_of_exercises_attempted_treshold !==
               initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
             module.automatic_completion_requires_exam !==
-              initialModule.automatic_completion_requires_exam
+              initialModule.automatic_completion_requires_exam ||
+            module.completion_registration_link_override !==
+              initialModule.completion_registration_link_override
           ) {
             modifiedModules.push({
               id: module.id,

@@ -98,7 +98,7 @@ pub async fn create_new_course(
     let default_module = crate::course_modules::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        &NewCourseModule::new_course_default(course.id),
+        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(5)),
     )
     .await?;
 

@@ -216,7 +216,8 @@ pub async fn seed_sample_course(
     let second_module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1),
+        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1)
+            .set_ects_credits(Some(5)),
     )
     .await?;
     let new_chapter = NewChapter {

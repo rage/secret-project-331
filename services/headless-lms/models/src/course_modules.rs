@@ -197,9 +197,10 @@ INSERT INTO course_modules (
     automatic_completion,
     automatic_completion_number_of_exercises_attempted_treshold,
     automatic_completion_number_of_points_treshold,
-    automatic_completion_requires_exam
+    automatic_completion_requires_exam,
+    ects_credits
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
@@ -210,6 +211,7 @@ RETURNING *
         exercises_treshold,
         points_treshold,
         requires_exam,
+        new_course_module.ects_credits,
     )
     .fetch_one(conn)
     .await?;

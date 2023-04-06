@@ -54,7 +54,7 @@ pub async fn seed_sample_course(
     users: &[Uuid],
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
+    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -217,7 +217,8 @@ pub async fn seed_sample_course(
     let second_module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1),
+        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1)
+            .set_ects_credits(Some(5)),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -1575,7 +1576,7 @@ pub async fn create_glossary_course(
             }),
             new_course,
             admin,
-            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -1619,7 +1620,7 @@ pub async fn create_glossary_course(
         )),
         &new_chapter,
         admin,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -1663,7 +1664,7 @@ pub async fn seed_cs_course_material(
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
-    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
+    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
@@ -2397,7 +2398,7 @@ pub async fn seed_course_without_submissions(
     student: Uuid,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
+    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -3771,7 +3772,7 @@ pub async fn seed_peer_review_course_without_submissions(
     admin: Uuid,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Arc::clone(&jwt_key));
+    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {

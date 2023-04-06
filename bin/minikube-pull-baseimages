@@ -1,7 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-source "$(dirname "$0")/.common"
-
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-node-base
-run_command minikube ssh "$@" -- docker pull eu.gcr.io/moocfi-public/project-331-headless-lms-production-base

@@ -159,7 +159,7 @@ async fn insert_data(
                 is_test_mode: false,
             },
             user_1,
-            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await

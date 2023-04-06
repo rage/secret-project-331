@@ -10,6 +10,7 @@ import getConfig from "next/config"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
@@ -241,6 +242,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
         throw new Error("This query should be disabled.")
       }
       const payload: SpecRequest = {
+        request_id: v4(),
         private_spec: privateSpecParsed,
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
@@ -313,6 +315,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {
+        console.log("Registered websocket", msg.data)
         setWebsocketId(msg.data)
       } else if (msg.tag == "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
@@ -335,6 +338,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
         throw new Error("This query should be disabled.")
       }
       const payload: SpecRequest = {
+        request_id: v4(),
         private_spec: privateSpecParsed,
         // eslint-disable-next-line i18next/no-literal-string
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,

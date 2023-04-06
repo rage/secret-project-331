@@ -30,6 +30,7 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("heading", { name: "Error 400: Bad Request" }),
     ],
+    clearNotifications: true,
   })
   await showToastNormally(page)
 })

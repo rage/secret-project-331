@@ -70,7 +70,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         new_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -109,7 +109,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         draft_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;

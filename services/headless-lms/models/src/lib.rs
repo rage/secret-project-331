@@ -34,6 +34,7 @@ pub mod file_uploads;
 pub mod glossary;
 pub mod library;
 pub mod material_references;
+pub mod offered_answers_to_peer_review_temporary;
 pub mod open_university_registration_links;
 pub mod organizations;
 pub mod other_domain_to_course_redirections;

@@ -1338,6 +1338,7 @@ dependencies = [
  "actix-web",
  "actix-web-actors",
  "anyhow",
+ "async-trait",
  "backtrace",
  "blake3",
  "bytes",

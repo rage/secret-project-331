@@ -14,10 +14,14 @@ use models::{
         },
     },
 };
+
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    domain::csv_export::{
+        self, general_export, make_authorized_streamable, points::PointExportOperation,
+        CSVExportAdapter,
+    },
     prelude::*,
 };
 
@@ -128,46 +132,25 @@ pub async fn point_export(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
-    let course_instance_id = *course_instance_id;
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_course_instance_points(
-            &mut handle_conn,
-            course_instance_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export course instance points: {}", err);
-        }
-    });
 
     let course_instance =
-        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let course = courses::get_course(&mut conn, course_instance.course_id).await?;
 
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"{} - {} - Point export {}.csv\"",
-                    course.name,
-                    course_instance.name.as_deref().unwrap_or("unnamed"),
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"{} - {} - Point export {}.csv\"",
+            course.name,
+            course_instance.name.as_deref().unwrap_or("unnamed"),
+            Utc::now().format("%Y-%m-%d")
+        ),
+        PointExportOperation {
+            course_instance_id: course_instance.id,
+        },
+        token,
+    )
+    .await
 }
 
 #[generated_doc]

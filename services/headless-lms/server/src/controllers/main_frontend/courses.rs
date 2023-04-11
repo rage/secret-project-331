@@ -949,7 +949,7 @@ pub async fn user_details_export(
 
     let token = authorize(
         &mut conn,
-        Act::Edit, // Teach  or Edit or something else ??
+        Act::Edit, // Teach  or Edit or Download maybe ??
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -1054,7 +1054,7 @@ pub async fn exercise_tasks_export(
 }
 
 #[instrument(skip(pool))]
-pub async fn exercise_course_instances(
+pub async fn course_instances_export(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -1233,6 +1233,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/export-course-instances",
-            web::get().to(exercise_course_instances),
+            web::get().to(course_instances_export),
         );
 }

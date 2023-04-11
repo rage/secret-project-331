@@ -119,7 +119,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Export completions as CSV)" }).click(),
+    page.getByRole("link", { name: "Export completions as CSV" }).click(),
   ])
 
   const completionsCsvContents = await downloadToString(download)

@@ -162,7 +162,7 @@ where
             next.id.to_string(),
             next.created_at.to_string(),
             next.updated_at.to_string(),
-            next.name.unwrap_or_else(|| "".to_string()),
+            next.name.unwrap_or_default(),
         ];
         writer.write_record(csv_row);
     }

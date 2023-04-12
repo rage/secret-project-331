@@ -71,8 +71,8 @@ where
             next.user_id.to_string(),
             next.created_at.to_string(),
             next.updated_at.to_string(),
-            next.first_name.unwrap_or_else(|| "".to_string()),
-            next.last_name.unwrap_or_else(|| "".to_string()),
+            next.first_name.unwrap_or_default(),
+            next.last_name.unwrap_or_default(),
             next.email.to_string(),
         ];
         writer.write_record(csv_row);

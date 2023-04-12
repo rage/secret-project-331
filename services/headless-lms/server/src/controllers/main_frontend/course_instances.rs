@@ -146,7 +146,7 @@ pub async fn point_export(
             Utc::now().format("%Y-%m-%d")
         ),
         PointExportOperation {
-            course_instance_id: course_instance.id,
+            course_instance_id: *course_instance_id,
         },
         token,
     )

@@ -238,8 +238,8 @@ pub async fn general_export(
     // spawn handle that writes the csv row by row into the sender
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
-        let lol = data_loader.load_data(sender, &mut handle_conn, token);
-        let res = lol.await;
+        let fut = data_loader.load_data(sender, &mut handle_conn, token);
+        let res = fut.await;
         if let Err(err) = res {
             tracing::error!("Failed to export: {}", err);
         }

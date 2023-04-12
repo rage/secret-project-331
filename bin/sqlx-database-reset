@@ -10,15 +10,18 @@ BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/migrations"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 RANDOM_POD_NAME="temporary-pod-$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
+RANDOM_DATABASE_NAME="temporary_database_$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
 
 trap 'run_command kubectl delete pod $RANDOM_POD_NAME --force' EXIT
 
 run_command kubectl run "$RANDOM_POD_NAME" --image=eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest --command -- sleep infinity
 
 run_command kubectl wait --for=condition=ready pod/"$RANDOM_POD_NAME"
-
-run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --if-exists --force headless_lms_dev
-
+# Copy migrations to pod
 run_command kubectl cp "$RELATIVE_PATH" "$RANDOM_POD_NAME":migrations
-
-run_command kubectl exec -it "$RANDOM_POD_NAME" -- cargo sqlx database setup --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_dev "$@"
+# Create new database with a random name
+run_command kubectl exec -it "$RANDOM_POD_NAME" -- cargo sqlx database setup --database-url "postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/$RANDOM_DATABASE_NAME" "$@"
+# Remove old headless_lms_dev database (if it exists)
+run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --if-exists --force headless_lms_dev
+# Rename new database to headless_lms_dev
+run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public psql postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/postgres --command "ALTER DATABASE $RANDOM_DATABASE_NAME RENAME TO headless_lms_dev"

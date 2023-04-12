@@ -402,7 +402,7 @@ mod test {
         assert_eq!(&paths[0].name, "01_exercise");
         assert_eq!(
             paths[0].checksum,
-            Hash::from_str("3a01c5d9a407deec294c4ac561cdeea1a7507464193e06387083853e3ca71c3a")
+            Hash::from_str("35285ed82274baf4eabf2a0c6a1287259dd45552acfa562d659c11a5e8eb1079")
                 .unwrap()
         );
 

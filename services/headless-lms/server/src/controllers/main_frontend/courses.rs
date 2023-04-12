@@ -1,6 +1,5 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
-use bytes::Bytes;
 use chrono::Utc;
 use std::sync::Arc;
 
@@ -25,11 +24,13 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
-use tokio_stream::wrappers::UnboundedReceiverStream;
-
 use crate::{
     domain::{
-        csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+        csv_export::{
+            course_instance_export::CourseInstancesExportOperation,
+            exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
+            submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
+        },
         models_requests::{self, JwtKey},
         request_id::RequestId,
     },
@@ -896,47 +897,29 @@ pub async fn submission_export(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
-    let course_id = *course_id;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
 
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_course_submissions(
-            &mut handle_conn,
-            course_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export course submissions: {}", err);
-        }
-    });
-
-    let course = models::courses::get_course(&mut conn, course_id).await?;
-
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"Course: {} - Submissions {}.csv\"",
-                    course.name,
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - Submissions {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseSubmissionExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
 }
 
 #[instrument(skip(pool))]
@@ -955,45 +938,21 @@ pub async fn user_details_export(
     )
     .await?;
 
-    let course_id = *course_id;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
 
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_course_user_details(
-            &mut handle_conn,
-            course_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export course user details: {}", err);
-        }
-    });
-
-    let course = models::courses::get_course(&mut conn, course_id).await?;
-
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"Course: {} - User Details {}.csv\"",
-                    course.name,
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - User Details {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        UsersExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
 }
 
 #[instrument(skip(pool))]
@@ -1012,45 +971,21 @@ pub async fn exercise_tasks_export(
     )
     .await?;
 
-    let course_id = *course_id;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
 
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_course_exercise_tasks(
-            &mut handle_conn,
-            course_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export course exercise tasks: {}", err);
-        }
-    });
-
-    let course = models::courses::get_course(&mut conn, course_id).await?;
-
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"Course: {} - Exercise tasks {}.csv\"",
-                    course.name,
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - Exercise tasks {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseExerciseTasksExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
 }
 
 #[instrument(skip(pool))]
@@ -1069,45 +1004,21 @@ pub async fn course_instances_export(
     )
     .await?;
 
-    let course_id = *course_id;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
 
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_course_instances(
-            &mut handle_conn,
-            course_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export course instances: {}", err);
-        }
-    });
-
-    let course = models::courses::get_course(&mut conn, course_id).await?;
-
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"Course: {} - Instances {}.csv\"",
-                    course.name,
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - Instances {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseInstancesExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
 }
 
 /**

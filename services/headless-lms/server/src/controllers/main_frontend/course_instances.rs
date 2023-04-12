@@ -1,6 +1,5 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-use bytes::Bytes;
 use chrono::Utc;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
@@ -15,12 +14,10 @@ use models::{
     },
 };
 
-use tokio_stream::wrappers::UnboundedReceiverStream;
-
 use crate::{
     domain::csv_export::{
-        self, general_export, make_authorized_streamable, points::PointExportOperation,
-        CSVExportAdapter,
+        course_instance_export::CompletionsExportOperation, general_export,
+        points::PointExportOperation,
     },
     prelude::*,
 };
@@ -308,43 +305,25 @@ pub async fn completions_export(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
-    let course_instance_id = *course_instance_id;
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_completions(
-            &mut handle_conn,
-            course_instance_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export completion points: {}", err);
-        }
-    });
 
     let course_instance =
-        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let course = courses::get_course(&mut conn, course_instance.course_id).await?;
 
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"{} - {} - Completions export {}.csv\"",
-                    course.name,
-                    course_instance.name.as_deref().unwrap_or("unnamed"),
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"{} - {} - Completions export {}.csv\"",
+            course.name,
+            course_instance.name.as_deref().unwrap_or("unnamed"),
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CompletionsExportOperation {
+            course_instance_id: *course_instance_id,
+        },
+        token,
+    )
+    .await
 }
 
 /**

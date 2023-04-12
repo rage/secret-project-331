@@ -21,7 +21,8 @@ npm run test-nohtml # runs tests without the html report
 npm run test-headed # runs tests with with a visible browser
 npm run test-slowmo # runs tests in slow motion
 npm run test-video # runs tests and records a video to `system-tests/test-results`
-npm run test-debug # see https://playwright.dev/docs/debug#run-in-debug-mode
+npm run test-debug # For debuggin a test https://playwright.dev/docs/debug#run-in-debug-mode
+npm run test-ui # opens the playwright ui
 npm run open # opens playwright without running tests
 ```
 

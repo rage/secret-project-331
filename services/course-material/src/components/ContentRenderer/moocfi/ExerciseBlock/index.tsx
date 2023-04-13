@@ -13,6 +13,7 @@ import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import {
   fetchExerciseById,
+  fetchExerciseTaskPreviousSubmission,
   postStartPeerReview,
   postSubmission,
 } from "../../../../services/backend"
@@ -130,7 +131,21 @@ const ExerciseBlock: React.FC<
         signedIn: Boolean(loginState.signedIn),
       })
       postSubmissionMutation.reset()
-      setAnswers(new Map())
+
+      setAnswers(answers)
+
+      // if answers were empty, because page refresh
+      if (answers.size === 0 && pageContext.settings?.user_id) {
+        const previousAnswer = await fetchExerciseTaskPreviousSubmission(
+          getCourseMaterialExercise.data.current_exercise_slide.id,
+          pageContext.settings.user_id,
+        )
+        const a = new Map()
+        previousAnswer.map((p) => {
+          a.set(p.id, { valid: true, data: p.data_json })
+        })
+        setAnswers(a)
+      }
     },
     {
       notify: false,

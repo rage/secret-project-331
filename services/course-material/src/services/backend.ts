@@ -12,6 +12,7 @@ import {
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
+  ExerciseTaskSubmission,
   IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
@@ -436,4 +437,18 @@ export const postNewReference = async (
 export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
   const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
   return validateResponse(response, isIsChapterFrontPage)
+}
+
+export const fetchExerciseTaskPreviousSubmission = async (
+  exerciseSlideId: string,
+  userId: string,
+): Promise<ExerciseTaskSubmission[]> => {
+  return (
+    await courseMaterialClient.get(`/exercises/${exerciseSlideId}/previous_submission`, {
+      responseType: "json",
+      data: userId,
+    })
+  ).data
+
+  // return validateResponse(res, isExerciseTaskSubmission)
 }

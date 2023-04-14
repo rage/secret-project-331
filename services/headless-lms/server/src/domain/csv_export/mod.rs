@@ -230,7 +230,7 @@ pub trait CsvExportDataLoader {
 
 pub async fn general_export(
     pool: web::Data<PgPool>,
-    filename: &str,
+    content_disposition: &str,
     data_loader: impl CsvExportDataLoader + std::marker::Send + 'static,
     token: AuthorizationToken,
 ) -> ControllerResult<HttpResponse> {
@@ -248,7 +248,7 @@ pub async fn general_export(
     // return response that streams data from the receiver
     return token.authorized_ok(
         HttpResponse::Ok()
-            .append_header(("Content-Disposition", filename))
+            .append_header(("Content-Disposition", content_disposition))
             .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
                 receiver,
             ))),

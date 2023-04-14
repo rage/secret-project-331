@@ -889,6 +889,11 @@ async fn post_update_peer_review_queue_reviews_received(
     token.authorized_ok(web::Json(true))
 }
 
+/**
+GET `/api/v0/main-frontend/courses/${courseId}/export-submissions`
+
+gets SCV of course exercise submissions
+*/
 #[instrument(skip(pool))]
 pub async fn submission_export(
     course_id: web::Path<Uuid>,
@@ -922,6 +927,11 @@ pub async fn submission_export(
     .await
 }
 
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-user-details`
+
+gets SCV of user details for all users having submitted an exercise in the course
+*/
 #[instrument(skip(pool))]
 pub async fn user_details_export(
     course_id: web::Path<Uuid>,
@@ -932,7 +942,7 @@ pub async fn user_details_export(
 
     let token = authorize(
         &mut conn,
-        Act::Edit, // Teach  or Edit or Download maybe ??
+        Act::Teach,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -955,6 +965,11 @@ pub async fn user_details_export(
     .await
 }
 
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`
+
+gets SCV all exercise-tasks' private specs in course
+*/
 #[instrument(skip(pool))]
 pub async fn exercise_tasks_export(
     course_id: web::Path<Uuid>,
@@ -965,7 +980,7 @@ pub async fn exercise_tasks_export(
 
     let token = authorize(
         &mut conn,
-        Act::Edit, // Teach or Edit or maybe Download ??
+        Act::Teach,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -988,6 +1003,11 @@ pub async fn exercise_tasks_export(
     .await
 }
 
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-course-instances`
+
+gets SCV course instances for course
+*/
 #[instrument(skip(pool))]
 pub async fn course_instances_export(
     course_id: web::Path<Uuid>,
@@ -998,7 +1018,7 @@ pub async fn course_instances_export(
 
     let token = authorize(
         &mut conn,
-        Act::Edit, // Teach or Edit or maybe Download ??
+        Act::Teach,
         Some(user.id),
         Res::Course(*course_id),
     )

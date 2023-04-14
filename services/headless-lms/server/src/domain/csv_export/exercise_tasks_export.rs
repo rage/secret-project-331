@@ -45,6 +45,7 @@ impl CsvExportDataLoader for CourseExerciseTasksExportOperation {
     }
 }
 
+// Writes the course exercise tasks with pravate spec as csv into the writer
 pub async fn export_course_exercise_tasks<W>(
     conn: &mut PgConnection,
     course_id: Uuid,

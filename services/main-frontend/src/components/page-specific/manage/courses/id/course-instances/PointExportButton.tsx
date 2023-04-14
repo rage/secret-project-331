@@ -6,8 +6,7 @@ const PointExportButton: React.FC<
   const { t } = useTranslation()
   return (
     <a
-      href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/points/export`}
-      download={`points-${courseInstanceId}.csv`}
+      href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points`}
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}
     >
       {t("link-export-points")}

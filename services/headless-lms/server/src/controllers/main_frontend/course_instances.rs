@@ -115,6 +115,9 @@ async fn get_email_templates_by_course_instance_id(
     token.authorized_ok(web::Json(email_templates))
 }
 
+/**
+GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` - gets CSV of course instance points based on course_instance ID.
+*/
 #[instrument(skip(pool))]
 pub async fn point_export(
     course_instance_id: web::Path<Uuid>,
@@ -344,7 +347,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_email_templates_by_course_instance_id),
         )
         .route(
-            "/{course_instance_id}/points/export",
+            "/{course_instance_id}/export-points",
             web::get().to(point_export),
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))

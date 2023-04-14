@@ -45,6 +45,7 @@ impl CsvExportDataLoader for UsersExportOperation {
     }
 }
 
+// Writes user details for users with any exercise submissions in courseas csv into the writer
 pub async fn export_course_user_details<W>(
     conn: &mut PgConnection,
     course_id: Uuid,

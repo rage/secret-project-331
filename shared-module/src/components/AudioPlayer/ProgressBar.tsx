@@ -14,14 +14,10 @@ const ProgressBarWrapper = styled.div`
   font-family: ${headingFont};
 `
 const time = css`
-  color: #97a0b6;
+  color: #687eaf;
   font-size: 13px;
   line-height: 46px;
   font-weight: 500;
-`
-
-const current = css`
-  color: #687eaf;
 `
 
 const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: any) => {
@@ -42,7 +38,7 @@ const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: any) 
 
   return (
     <ProgressBarWrapper className={cx(styledRangeInput)}>
-      <span className={cx(time, current)}>{formatTime(timeProgress)}</span>
+      <span className={cx(time)}>{formatTime(timeProgress)}</span>
       <input type="range" ref={progressBarRef} defaultValue="0" onChange={handleProgressChange} />
       <span className={cx(time)}>{formatTime(duration)}</span>
     </ProgressBarWrapper>

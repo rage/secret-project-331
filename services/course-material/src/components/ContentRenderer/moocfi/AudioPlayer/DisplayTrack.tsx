@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
+import React from "react"
 
-import { headingFont } from "../../styles"
+import { headingFont } from "../../../../shared-module/styles"
 
 const DisplayTrack = ({ currentTrack, audioRef, setDuration, progressBarRef }: any) => {
   const onLoadedMetadata = () => {

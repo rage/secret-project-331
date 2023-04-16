@@ -12,9 +12,9 @@ const DisplayTrack = ({ currentTrack, audioRef, setDuration, progressBarRef }: a
   return (
     <div>
       <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
+        <track kind="captions" />
         <source src={currentTrack.src.mp3} type="audio/mp3" />
         <source src={currentTrack.src.ogg} type="audio/ogg" />
-        <track kind="subtitles" srcLang="en" label="English" />
       </audio>
       <div
         className={css`

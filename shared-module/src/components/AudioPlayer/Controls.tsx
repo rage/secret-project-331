@@ -32,15 +32,15 @@ const styledVolume = css`
 `
 
 const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) => {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [volume, setVolume] = useState(60)
-  const [muteVolume, setMuteVolume] = useState(false)
+  const [isPlaying, setIsPlaying] = useState<boolean>(false)
+  const [volume, setVolume] = useState<number>(60)
+  const [muteVolume, setMuteVolume] = useState<boolean>(false)
 
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev)
   }
 
-  const playAnimationRef = useRef()
+  const playAnimationRef: any = useRef()
 
   const repeat = useCallback(() => {
     const currentTime = audioRef.current.currentTime
@@ -50,7 +50,6 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
       "--range-progress",
       `${(progressBarRef.current.value / duration) * 100}%`,
     )
-    console.log("run")
 
     playAnimationRef.current = requestAnimationFrame(repeat)
   }, [audioRef, duration, progressBarRef, setTimeProgress])
@@ -99,6 +98,7 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
             display: flex;
             border: none;
             margin-right: 6px;
+            margin-bottom: 5px;
             background-color: transparent;
             cursor: pointer;
             justify-content: center;
@@ -131,7 +131,8 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
           min={0}
           max={100}
           value={volume}
-          onChange={(e) => setVolume(e.target.value)}
+          onChange={(e) => setVolume(Number(e.target.value))}
+          // eslint-disable-next-line react/forbid-dom-props
           style={{
             background: `linear-gradient(to right, #b0c1e4 ${volume}%, #d5def2 ${volume}%)`,
           }}

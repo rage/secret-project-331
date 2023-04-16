@@ -7,12 +7,22 @@ import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"
 import { tracks } from "./data/tracks"
 
-const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = () => {
+export type AudioPlayerProps = React.HTMLAttributes<HTMLDivElement>
+
+export interface Track {
+  title: string
+  src?: { mp3: string; ogg: string }
+  author?: string
+}
+
+const AudioPlayer: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<AudioPlayerProps>>
+> = () => {
   // states
-  const [trackIndex, setTrackIndex] = useState(0)
-  const [currentTrack, setCurrentTrack] = useState(tracks[trackIndex])
-  const [timeProgress, setTimeProgress] = useState(0)
-  const [duration, setDuration] = useState(0)
+  const [trackIndex, setTrackIndex] = useState<number>(0)
+  const [currentTrack, setCurrentTrack] = useState<Track>(tracks[trackIndex])
+  const [timeProgress, setTimeProgress] = useState<number>(0)
+  const [duration, setDuration] = useState<number>(0)
 
   // reference
   const audioRef = useRef()

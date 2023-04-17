@@ -3916,22 +3916,6 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_maximum,\n  unscaled_score_given,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM exercise_task_gradings\nWHERE exercise_task_submission_id = $1\n  AND deleted_at IS NULL\n        "
   },
-  "4021f1113e2739175f3bf7e3468945793be9a5722ee7ee8e680facfe7da4d819": {
-    "describe": {
-      "columns": [
-        {
-          "name": "points!",
-          "ordinal": 0,
-          "type_info": "Float4"
-        }
-      ],
-      "nullable": [null],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\nSELECT COALESCE(SUM(score_given), 0) AS \"points!\"\nFROM user_exercise_states\nWHERE user_id = $2\n  AND exam_id = $1\n  AND deleted_at IS NULL\n        "
-  },
   "415630997608804ca8202e911e5d8b51cbfdfd965a3920aea7cdaa9a793cd7e8": {
     "describe": {
       "columns": [
@@ -8468,6 +8452,22 @@
       }
     },
     "query": "\nSELECT *\nFROM user_details\nWHERE user_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n"
+  },
+  "75bb3d48e36a7e1e5abc9299be4ba8557b5262870049b1b6ad09837db447d9ef": {
+    "describe": {
+      "columns": [
+        {
+          "name": "points",
+          "ordinal": 0,
+          "type_info": "Float4"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT SUM(score_given) AS \"points\"\nFROM user_exercise_states\nWHERE user_id = $2\n  AND exam_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "75c86b3ca30ccd7322ac790122f61827d673c3bdce6509a9c27b2b8103c012a2": {
     "describe": {

@@ -15,6 +15,7 @@ import {
   imageSavedPageYCoordinate,
   savePageYCoordinateToImage,
 } from "./imageMetadataTools"
+import { hideToasts } from "./notificationUtils"
 
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
 const PLAYWRIGHT_SCREENSHOT_NAME_SANITIZE_REGEX =
@@ -106,12 +107,8 @@ export default async function expectScreenshotsToMatchSnapshots({
           for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
             notif.remove()
           }
-          for (const notif of Array.from(
-            document.querySelectorAll<HTMLElement>(".toast-notification"),
-          )) {
-            notif.style.display = "none"
-          }
         })
+        await hideToasts(page)
       }
 
       if (!skipMobile) {

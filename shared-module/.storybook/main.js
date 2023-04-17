@@ -42,7 +42,7 @@ module.exports = {
             loader: "@svgr/webpack",
             options: {
               svgoConfig: {
-                plugins: ["cleanupIDs"],
+                plugins: ["cleanupIds"],
               },
             },
           },

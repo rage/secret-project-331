@@ -25,3 +25,7 @@ run_command kubectl exec -it "$RANDOM_POD_NAME" -- cargo sqlx database setup --d
 run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --if-exists --force headless_lms_dev
 # Rename new database to headless_lms_dev
 run_command kubectl exec -it "$RANDOM_POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public psql postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/postgres --command "ALTER DATABASE $RANDOM_DATABASE_NAME RENAME TO headless_lms_dev"
+
+echo ""
+echo -e "${GREEN}✅ The database headless_lms_dev has been reset and migrations have been ran on the new database. Note that the database is now empty. If you'd like to have some seed data in it, you'll need to run ${BOLD}bin/seed${RESET_EVERYTHING}${GREEN}.${RESET_EVERYTHING}"
+echo ""

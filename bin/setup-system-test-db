@@ -7,14 +7,6 @@ source "$(dirname "$0")/.common"
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
-
-CACHE_FOLDER_PATH="$BASEDIR/../.cache"
-mkdir -p "$CACHE_FOLDER_PATH"
-DATABASE_CHECKSUM_FILE_PATH="$CACHE_FOLDER_PATH/database-checksum"
-ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH=$(realpath "$DATABASE_CHECKSUM_FILE_PATH")
-touch "$ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH"
-RELATIVE_DATABASE_CHECKSUM_FILE_PATH=$(realpath --relative-to="$(pwd)" "$ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH")
-
 POD_NAME=$(kubectl get pods -l app=headless-lms -o name | head -n 1)
 [ -z "$POD_NAME" ] && { echo "Failed to find pod name"; exit 1; }
 
@@ -25,43 +17,20 @@ if [ "$NUMBER_OF_CARGO_FILES" -ne "0" ]; then
   exit 255
 fi
 
-DATABASE_TEMPLATE_NAME="template_headless_lms_test"
+RANDOM_DATABASE_NAME="temporary_database_$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
 
 run_command kubectl exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432
 
 run_command cd "$RELATIVE_PATH" || exit
 
-CHECKSUM=$(kubectl exec -it "$POD_NAME" -- find . -type f -not -path "./uploads/*" -exec md5sum '{}' \; | md5sum | cut -d ' ' -f 1)
-# Read old checksum from DATABASE_CHECKSUM_FILE_PATH
-OLD_CHECKSUM=$(cat "$ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH" 2> /dev/null || echo -n "")
-echo "Current checksum: $CHECKSUM. Old checksum: $OLD_CHECKSUM"
-# Check if the template database exits
-TEMPLATE_DATABASE_EXISTS=$(kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public psql postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/postgres --command "SELECT 1 FROM pg_database WHERE datname='$DATABASE_TEMPLATE_NAME'" | grep -c "1 row" || true)
-
-echo ""
-# If checksums are the same and the template database exists, we can reuse the database template from the previous run
-if [ "$CHECKSUM" = "$OLD_CHECKSUM" ] && [ "$TEMPLATE_DATABASE_EXISTS" = "1" ]; then
-  echo -e "${BLUE}ℹ️  Reusing a database template from the previous time this command was ran. If you'd like to create database from scratch, either change the code of headless-lms or the migrations, or alternatively remove this file: $RELATIVE_DATABASE_CHECKSUM_FILE_PATH. Please note that by using this template we should arrive at the same database state as if we created a new one from scratch. This approach is just a faster way to do that.${RESET_EVERYTHING}"
-  echo ""
-else
-  echo -e "${GREEN}ℹ️  Creating a new database template from scratch and using that one to create the database. If you don't change the source code of headless lms or the migrations, we'll be able safely reuse this database template the next time you run this command.${RESET_EVERYTHING}"
-  echo ""
-  # Reset the saved checksum in case this get interrupted
-  echo -n "" > "$ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH"
-  # Drop old database template (if it exists)
-  run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force "$DATABASE_TEMPLATE_NAME"
-  # Create new database to act as our template
-  run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url "postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/$DATABASE_TEMPLATE_NAME"
-  # Seed the new database
-  run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public DATABASE_URL=postgres://headless-lms:only-for-local-development-intentionally-public@postgres/$DATABASE_TEMPLATE_NAME ./headless-lms-entrypoint seed "$@"
-  # Save checksum to ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH
-  echo -n "$CHECKSUM" > "$ABSOLUTE_DATABASE_CHECKSUM_FILE_PATH"
-fi
-
+# Create new database with a random name
+run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url "postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/$RANDOM_DATABASE_NAME"
 # Drop old headless_lms_test database (if it exists)
 run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test
-# Create new headless_lms_test database using our template
-run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public createdb --host=postgres --port=5432 --username=headless-lms --template="$DATABASE_TEMPLATE_NAME" headless_lms_test
+# Rename new database to headless_lms_test
+run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public psql postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/postgres --command "ALTER DATABASE $RANDOM_DATABASE_NAME RENAME TO headless_lms_test"
+
+run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public ./headless-lms-entrypoint seed "$@"
 
 echo ""
 echo -e "${GREEN}✅ Now you have a fresh headless_lms_test database you can use for testing.${RESET_EVERYTHING}"

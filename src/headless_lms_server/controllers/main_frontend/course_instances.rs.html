@@ -374,45 +374,9 @@
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-</span><span class="kw">use </span>bytes::Bytes;
-<span class="kw">use </span>chrono::Utc;
+</span><span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>models::{
     course_instances::{<span class="self">self</span>, CourseInstance, CourseInstanceForm, Points},
     courses,
@@ -425,10 +389,12 @@
         },
     },
 };
-<span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
 
 <span class="kw">use crate</span>::{
-    domain::csv_export::{<span class="self">self</span>, make_authorized_streamable, CSVExportAdapter},
+    domain::csv_export::{
+        course_instance_export::CompletionsExportOperation, general_export,
+        points::PointExportOperation,
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -525,7 +491,10 @@ Reprocesses all module completions for the given course instance. Only available
     token.authorized_ok(web::Json(email_templates))
 }
 
-<span class="attr">#[instrument(skip(pool))]
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` - gets CSV of course instance points based on course_instance ID.
+*/
+</span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>point_export(
     course_instance_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
@@ -539,47 +508,26 @@ Reprocesses all module completions for the given course instance. Only available
         Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>course_instance_id = <span class="kw-2">*</span>course_instance_id;
-    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
-    <span class="comment">// spawn handle that writes the csv row by row into the sender
-    </span><span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
-        <span class="kw">let </span>res = csv_export::export_course_instance_points(
-            <span class="kw-2">&amp;mut </span>handle_conn,
-            course_instance_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .<span class="kw">await</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export course instance points: {}&quot;</span>, err);
-        }
-    });
 
     <span class="kw">let </span>course_instance =
-        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course = courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// return response that streams data from the receiver
-
-    </span><span class="kw">return </span>token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                <span class="string">&quot;Content-Disposition&quot;</span>,
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;attachment; filename=\&quot;{} - {} - Point export {}.csv\&quot;&quot;</span>,
-                    course.name,
-                    course_instance.name.as_deref().unwrap_or(<span class="string">&quot;unnamed&quot;</span>),
-                    Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
-}
+    general_export(
+        pool,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">&quot;attachment; filename=\&quot;{} - {} - Point export {}.csv\&quot;&quot;</span>,
+            course.name,
+            course_instance.name.as_deref().unwrap_or(<span class="string">&quot;unnamed&quot;</span>),
+            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+        ),
+        PointExportOperation {
+            course_instance_id: <span class="kw-2">*</span>course_instance_id,
+        },
+        token,
+    )
+    .<span class="kw">await
+</span>}
 
 <span class="attr">#[generated_doc]
 #[instrument(skip(pool))]
@@ -736,44 +684,26 @@ GET /course-instances/:id/export-completions - gets CSV of course completion bas
         Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>course_instance_id = <span class="kw-2">*</span>course_instance_id;
-    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
-    <span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
-        <span class="kw">let </span>res = csv_export::export_completions(
-            <span class="kw-2">&amp;mut </span>handle_conn,
-            course_instance_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .<span class="kw">await</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export completion points: {}&quot;</span>, err);
-        }
-    });
 
     <span class="kw">let </span>course_instance =
-        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course = courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">return </span>token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                <span class="string">&quot;Content-Disposition&quot;</span>,
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;attachment; filename=\&quot;{} - {} - Completions export {}.csv\&quot;&quot;</span>,
-                    course.name,
-                    course_instance.name.as_deref().unwrap_or(<span class="string">&quot;unnamed&quot;</span>),
-                    Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
-}
+    general_export(
+        pool,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">&quot;attachment; filename=\&quot;{} - {} - Completions export {}.csv\&quot;&quot;</span>,
+            course.name,
+            course_instance.name.as_deref().unwrap_or(<span class="string">&quot;unnamed&quot;</span>),
+            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+        ),
+        CompletionsExportOperation {
+            course_instance_id: <span class="kw-2">*</span>course_instance_id,
+        },
+        token,
+    )
+    .<span class="kw">await
+</span>}
 
 <span class="doccomment">/**
 Add a route for each controller in this module.
@@ -793,7 +723,7 @@ We add the routes by calling the route method instead of using the route annotat
             web::get().to(get_email_templates_by_course_instance_id),
         )
         .route(
-            <span class="string">&quot;/{course_instance_id}/points/export&quot;</span>,
+            <span class="string">&quot;/{course_instance_id}/export-points&quot;</span>,
             web::get().to(point_export),
         )
         .route(<span class="string">&quot;/{course_instance_id}/edit&quot;</span>, web::post().to(edit))

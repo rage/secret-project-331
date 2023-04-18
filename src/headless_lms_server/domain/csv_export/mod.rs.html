@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/csv_export.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>csv_export.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/csv_export/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -466,184 +466,29 @@
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
 <a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
-<a href="#493" id="493">493</a>
-<a href="#494" id="494">494</a>
-<a href="#495" id="495">495</a>
-<a href="#496" id="496">496</a>
-<a href="#497" id="497">497</a>
-<a href="#498" id="498">498</a>
-<a href="#499" id="499">499</a>
-<a href="#500" id="500">500</a>
-<a href="#501" id="501">501</a>
-<a href="#502" id="502">502</a>
-<a href="#503" id="503">503</a>
-<a href="#504" id="504">504</a>
-<a href="#505" id="505">505</a>
-<a href="#506" id="506">506</a>
-<a href="#507" id="507">507</a>
-<a href="#508" id="508">508</a>
-<a href="#509" id="509">509</a>
-<a href="#510" id="510">510</a>
-<a href="#511" id="511">511</a>
-<a href="#512" id="512">512</a>
-<a href="#513" id="513">513</a>
-<a href="#514" id="514">514</a>
-<a href="#515" id="515">515</a>
-<a href="#516" id="516">516</a>
-<a href="#517" id="517">517</a>
-<a href="#518" id="518">518</a>
-<a href="#519" id="519">519</a>
-<a href="#520" id="520">520</a>
-<a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
-<a href="#523" id="523">523</a>
-<a href="#524" id="524">524</a>
-<a href="#525" id="525">525</a>
-<a href="#526" id="526">526</a>
-<a href="#527" id="527">527</a>
-<a href="#528" id="528">528</a>
-<a href="#529" id="529">529</a>
-<a href="#530" id="530">530</a>
-<a href="#531" id="531">531</a>
-<a href="#532" id="532">532</a>
-<a href="#533" id="533">533</a>
-<a href="#534" id="534">534</a>
-<a href="#535" id="535">535</a>
-<a href="#536" id="536">536</a>
-<a href="#537" id="537">537</a>
-<a href="#538" id="538">538</a>
-<a href="#539" id="539">539</a>
-<a href="#540" id="540">540</a>
-<a href="#541" id="541">541</a>
-<a href="#542" id="542">542</a>
-<a href="#543" id="543">543</a>
-<a href="#544" id="544">544</a>
-<a href="#545" id="545">545</a>
-<a href="#546" id="546">546</a>
-<a href="#547" id="547">547</a>
-<a href="#548" id="548">548</a>
-<a href="#549" id="549">549</a>
-<a href="#550" id="550">550</a>
-<a href="#551" id="551">551</a>
-<a href="#552" id="552">552</a>
-<a href="#553" id="553">553</a>
-<a href="#554" id="554">554</a>
-<a href="#555" id="555">555</a>
-<a href="#556" id="556">556</a>
-<a href="#557" id="557">557</a>
-<a href="#558" id="558">558</a>
-<a href="#559" id="559">559</a>
-<a href="#560" id="560">560</a>
-<a href="#561" id="561">561</a>
-<a href="#562" id="562">562</a>
-<a href="#563" id="563">563</a>
-<a href="#564" id="564">564</a>
-<a href="#565" id="565">565</a>
-<a href="#566" id="566">566</a>
-<a href="#567" id="567">567</a>
-<a href="#568" id="568">568</a>
-<a href="#569" id="569">569</a>
-<a href="#570" id="570">570</a>
-<a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
-<a href="#580" id="580">580</a>
-<a href="#581" id="581">581</a>
-<a href="#582" id="582">582</a>
-<a href="#583" id="583">583</a>
-<a href="#584" id="584">584</a>
-<a href="#585" id="585">585</a>
-<a href="#586" id="586">586</a>
-<a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
-<a href="#590" id="590">590</a>
-<a href="#591" id="591">591</a>
-<a href="#592" id="592">592</a>
-<a href="#593" id="593">593</a>
-<a href="#594" id="594">594</a>
-<a href="#595" id="595">595</a>
-<a href="#596" id="596">596</a>
-<a href="#597" id="597">597</a>
-<a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
-<a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
-<a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-</pre><pre class="rust"><code><span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
+</pre><pre class="rust"><code><span class="kw">pub mod </span>course_instance_export;
+<span class="kw">pub mod </span>exercise_tasks_export;
+<span class="kw">pub mod </span>points;
+<span class="kw">pub mod </span>submissions;
+<span class="kw">pub mod </span>users_export;
+
+<span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>csv::Writer;
-<span class="kw">use </span>futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
-<span class="kw">use </span>headless_lms_models::{
-    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
-};
+<span class="kw">use </span>futures::{stream::FuturesUnordered, Stream, StreamExt};
 
-<span class="kw">use </span>models::{
-    course_module_completions::CourseModuleCompletionWithRegistrationInfo, library::progressing,
-};
+<span class="kw">use </span>async_trait::async_trait;
+
+<span class="kw">use </span>models::course_module_completions::CourseModuleCompletionWithRegistrationInfo;
 <span class="kw">use </span>serde::Serialize;
 <span class="kw">use </span>sqlx::PgConnection;
 <span class="kw">use </span>std::{
-    collections::HashMap,
     io,
     io::Write,
     sync::{Arc, Mutex},
 };
 <span class="kw">use </span>tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 <span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
-<span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
@@ -727,205 +572,6 @@
         .<span class="kw">await</span><span class="question-mark">??</span>;
         <span class="prelude-val">Ok</span>(writer)
     }
-}
-
-<span class="comment">// Writes the points as csv into the writer
-</span><span class="kw">pub async fn </span>export_course_instance_points&lt;W&gt;(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    course_instance_id: Uuid,
-    writer: W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
-<span class="kw">where
-    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">let </span>csv_fields_before_headers = <span class="number">1</span>;
-
-    <span class="kw">let </span>course_instance = course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>chapters = chapters::course_chapters(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    chapters.sort_by_key(|c| c.chapter_number);
-    <span class="kw">let </span><span class="kw-2">mut </span>chapter_number_to_header_idx = HashMap::new();
-    <span class="kw">for </span>(idx, chapter) <span class="kw">in </span>chapters.iter().enumerate() {
-        chapter_number_to_header_idx
-            .insert(chapter.chapter_number, csv_fields_before_headers + idx);
-    }
-
-    <span class="kw">let </span>header_count = csv_fields_before_headers + chapters.len();
-    <span class="comment">// remember to update csv_fields_before_headers if this changes!
-    </span><span class="kw">let </span>headers = IntoIterator::into_iter([<span class="string">&quot;user_id&quot;</span>.to_string()])
-        .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
-
-    <span class="kw">let </span><span class="kw-2">mut </span>stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
-
-    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>csv_row = <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.to_string(); header_count];
-        csv_row[<span class="number">0</span>] = next.user_id.to_string();
-        <span class="kw">for </span>points <span class="kw">in </span>next.points_for_each_chapter {
-            <span class="kw">let </span>idx = chapter_number_to_header_idx
-                .get(<span class="kw-2">&amp;</span>points.chapter_number)
-                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Unexpected chapter number {}&quot;</span>, points.chapter_number))<span class="question-mark">?</span>;
-            <span class="kw">let </span>item = csv_row
-                .get_mut(<span class="kw-2">*</span>idx)
-                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Invalid chapter number {}&quot;</span>, idx))<span class="question-mark">?</span>;
-            <span class="kw-2">*</span>item = points.points_for_chapter.to_string();
-        }
-        writer.write_record(csv_row);
-    }
-    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(writer)
-}
-
-<span class="comment">// Writes the points as csv into the writer
-</span><span class="kw">pub async fn </span>export_exam_points&lt;W&gt;(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid, writer: W) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
-<span class="kw">where
-    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">let </span>csv_fields_before_headers = <span class="number">2</span>;
-
-    <span class="kw">let </span><span class="kw-2">mut </span>exercises = exercises::get_exercises_by_exam_id(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// I&#39;s fine to sort just by order number because exams have no chapters
-    </span>exercises.sort_by(|a, b| a.order_number.cmp(<span class="kw-2">&amp;</span>b.order_number));
-
-    <span class="kw">let </span><span class="kw-2">mut </span>exercise_id_to_header_idx = HashMap::new();
-    <span class="kw">for </span>(idx, exercise) <span class="kw">in </span>exercises.iter().enumerate() {
-        exercise_id_to_header_idx.insert(exercise.id, csv_fields_before_headers + idx);
-    }
-
-    <span class="kw">let </span>header_count = csv_fields_before_headers + exercises.len();
-    <span class="comment">// remember to update csv_fields_before_headers if this changes!
-    </span><span class="kw">let </span>headers = IntoIterator::into_iter([<span class="string">&quot;user_id&quot;</span>.to_string(), <span class="string">&quot;email&quot;</span>.to_string()]).chain(
-        exercises
-            .into_iter()
-            .map(|e| <span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, e.order_number, e.name)),
-    );
-
-    <span class="kw">let </span><span class="kw-2">mut </span>stream = user_exercise_states::stream_exam_points(conn, exam_id);
-
-    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>csv_row = <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.to_string(); header_count];
-        csv_row[<span class="number">0</span>] = next.user_id.to_string();
-        csv_row[<span class="number">1</span>] = next.email;
-        <span class="kw">for </span>points <span class="kw">in </span>next.points_for_exercise {
-            <span class="kw">let </span>idx = exercise_id_to_header_idx
-                .get(<span class="kw-2">&amp;</span>points.exercise_id)
-                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Unexpected exercise id {}&quot;</span>, points.exercise_id))<span class="question-mark">?</span>;
-            <span class="kw">let </span>item = csv_row
-                .get_mut(<span class="kw-2">*</span>idx)
-                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Invalid index {}&quot;</span>, idx))<span class="question-mark">?</span>;
-            <span class="kw-2">*</span>item = points.score_given.to_string();
-        }
-        writer.write_record(csv_row);
-    }
-    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(writer)
-}
-
-<span class="comment">// Writes the submissions as csv into the writer
-</span><span class="kw">pub async fn </span>export_exam_submissions&lt;W&gt;(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    exam_id: Uuid,
-    writer: W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
-<span class="kw">where
-    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">let </span>headers = IntoIterator::into_iter([
-        <span class="string">&quot;id&quot;</span>.to_string(),
-        <span class="string">&quot;user_id&quot;</span>.to_string(),
-        <span class="string">&quot;created_at&quot;</span>.to_string(),
-        <span class="string">&quot;exercise_id&quot;</span>.to_string(),
-        <span class="string">&quot;exercise_task_id&quot;</span>.to_string(),
-        <span class="string">&quot;score_given&quot;</span>.to_string(),
-        <span class="string">&quot;data_json&quot;</span>.to_string(),
-    ]);
-
-    <span class="kw">let </span><span class="kw-2">mut </span>stream = exercise_task_submissions::stream_exam_submissions(conn, exam_id);
-
-    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
-        <span class="kw">let </span>csv_row = <span class="macro">vec!</span>[
-            next.id.to_string(),
-            next.user_id.to_string(),
-            next.created_at.to_string(),
-            next.exercise_id.to_string(),
-            next.exercise_task_id.to_string(),
-            next.score_given.unwrap_or(<span class="number">0.0</span>).to_string(),
-            next.data_json
-                .map(|o| o.to_string())
-                .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string()),
-        ];
-        writer.write_record(csv_row);
-    }
-    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(writer)
-}
-
-<span class="comment">// Writes the submissions as csv into the writer
-</span><span class="kw">pub async fn </span>export_completions&lt;W&gt;(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    course_instance_id: Uuid,
-    writer: W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
-<span class="kw">where
-    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
-{
-    <span class="comment">// fetch summary
-    </span><span class="kw">let </span>course_instance = course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>summary =
-        progressing::get_course_instance_completion_summary(conn, <span class="kw-2">&amp;</span>course_instance).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// sort modules
-    </span><span class="kw">let </span><span class="kw-2">mut </span>modules = summary.course_modules;
-    modules.sort_by_key(|m| m.order_number);
-
-    <span class="comment">// prepare headers
-    </span><span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="macro">vec!</span>[
-        <span class="string">&quot;user_id&quot;</span>.to_string(),
-        <span class="string">&quot;first_name&quot;</span>.to_string(),
-        <span class="string">&quot;last_name&quot;</span>.to_string(),
-        <span class="string">&quot;email&quot;</span>.to_string(),
-    ];
-    <span class="kw">for </span>module <span class="kw">in </span><span class="kw-2">&amp;</span>modules {
-        <span class="kw">let </span>module_name = module.name.as_deref().unwrap_or(<span class="string">&quot;default_module&quot;</span>);
-        headers.push(<span class="macro">format!</span>(<span class="string">&quot;{module_name}_grade&quot;</span>));
-        headers.push(<span class="macro">format!</span>(<span class="string">&quot;{module_name}_registered&quot;</span>));
-    }
-
-    <span class="comment">// write rows
-    </span><span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">for </span>user <span class="kw">in </span>summary.users_with_course_module_completions {
-        <span class="kw">let </span><span class="kw-2">mut </span>has_completed_some_module = <span class="bool-val">false</span>;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>csv_row = <span class="macro">vec!</span>[
-            user.user_id.to_string(),
-            user.first_name.unwrap_or_default(),
-            user.last_name.unwrap_or_default(),
-            user.email,
-        ];
-        <span class="kw">for </span>module <span class="kw">in </span><span class="kw-2">&amp;</span>modules {
-            <span class="kw">let </span>user_completion = user
-                .completed_modules
-                .iter()
-                .find(|cm| cm.course_module_id == module.id);
-            <span class="kw">if </span>user_completion.is_some() {
-                has_completed_some_module = <span class="bool-val">true</span>;
-            }
-            <span class="kw">let </span>grade = course_module_completion_info_to_grade_string(user_completion);
-            csv_row.push(grade);
-            <span class="kw">let </span>registered = user_completion
-                .map(|cm| cm.registered.to_string())
-                .unwrap_or_default();
-            csv_row.push(registered);
-        }
-        <span class="comment">// To avoid confusion with some people potentially not understanding that &#39;-&#39; means not completed,
-        // we&#39;ll skip the users that don&#39;t have any completions from any modules. The confusion is less likely in cases where there are more than one module, and only in those cases the teachers would see the &#39;-&#39; entries in this file.
-        </span><span class="kw">if </span>has_completed_some_module {
-            writer.write_record(csv_row);
-        }
-    }
-    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(writer)
 }
 
 <span class="doccomment">/**
@@ -1040,9 +686,47 @@ HttpResponse::Ok()
     </span>res_stream.chain(tokio_stream::iter(<span class="macro">vec!</span>[<span class="prelude-val">Ok</span>(Bytes::from_static(<span class="string">b&quot;]&quot;</span>))]))
 }
 
+<span class="attr">#[async_trait]
+</span><span class="kw">pub trait </span>CsvExportDataLoader {
+    <span class="kw">async fn </span>load_data(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        sender: UnboundedSender&lt;<span class="prelude-ty">Result</span>&lt;AuthorizedResponse&lt;Bytes&gt;, ControllerError&gt;&gt;,
+        conn: <span class="kw-2">&amp;mut </span>PgConnection,
+        token: AuthorizationToken,
+    ) -&gt; anyhow::Result&lt;CSVExportAdapter&gt;;
+}
+
+<span class="kw">pub async fn </span>general_export(
+    pool: web::Data&lt;PgPool&gt;,
+    content_disposition: <span class="kw-2">&amp;</span>str,
+    data_loader: <span class="kw">impl </span>CsvExportDataLoader + std::marker::Send + <span class="lifetime">&#39;static</span>,
+    token: AuthorizationToken,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
+    <span class="comment">// spawn handle that writes the csv row by row into the sender
+    </span><span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
+        <span class="kw">let </span>fut = data_loader.load_data(sender, <span class="kw-2">&amp;mut </span>handle_conn, token);
+        <span class="kw">let </span>res = fut.<span class="kw">await</span>;
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
+            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export: {}&quot;</span>, err);
+        }
+    });
+
+    <span class="comment">// return response that streams data from the receiver
+    </span><span class="kw">return </span>token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((<span class="string">&quot;Content-Disposition&quot;</span>, content_disposition))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
+}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span>std::{
+        collections::HashMap,
         io::{<span class="self">self</span>, Cursor},
         sync::mpsc::Sender,
     };
@@ -1056,15 +740,19 @@ HttpResponse::Ok()
         library::grading::{
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
         },
+        user_exercise_states,
         user_exercise_states::ExerciseWithUserState,
         users,
     };
-    <span class="kw">use </span>models::chapters::NewChapter;
+    <span class="kw">use </span>models::chapters::{<span class="self">self</span>, NewChapter};
     <span class="kw">use </span>serde_json::Value;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{
-        domain::models_requests::{<span class="self">self</span>, JwtKey},
+        domain::{
+            csv_export::points::export_course_instance_points,
+            models_requests::{<span class="self">self</span>, JwtKey},
+        },
         test_helper::<span class="kw-2">*</span>,
     };
 
@@ -1247,4 +935,4 @@ HttpResponse::Ok()
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

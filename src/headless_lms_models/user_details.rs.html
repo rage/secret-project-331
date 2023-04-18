@@ -54,7 +54,37 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+
+<span class="kw">use </span>futures::Stream;
 
 <span class="kw">use crate</span>::{prelude::<span class="kw-2">*</span>, users::User};
 
@@ -109,6 +139,32 @@ WHERE user_id IN (
         res.insert(d.user_id, d);
     });
     <span class="prelude-val">Ok</span>(res)
+}
+
+<span class="doccomment">/// Includes all users who have returned an exercise on a course
+</span><span class="kw">pub fn </span>stream_users_details_having_user_exercise_states_on_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;UserDetail&gt;&gt; + <span class="lifetime">&#39;_ </span>{
+    <span class="macro">sqlx::query_as!</span>(
+        UserDetail,
+        <span class="string">&quot;
+SELECT *
+FROM user_details
+WHERE user_id in (
+    SELECT DISTINCT (user_id)
+    FROM user_exercise_states
+    WHERE course_instance_id IN (
+        SELECT id
+        FROM course_instances
+        WHERE course_id = $1
+      )
+      AND deleted_at IS NULL
+  );
+        &quot;</span>,
+        course_id
+    )
+    .fetch(conn)
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

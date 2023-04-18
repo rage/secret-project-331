@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["export_course_submissions","Writes the course submissions as csv into the writer"],["export_exam_submissions","Writes the exam submissions as csv into the writer"]],"struct":[["CourseSubmissionExportOperation",""],["ExamSubmissionExportOperation",""]]};

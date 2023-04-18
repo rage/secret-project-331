@@ -182,65 +182,17 @@
 <a href="#182" id="182">182</a>
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-</pre><pre class="rust"><code><span class="kw">use </span>bytes::Bytes;
-<span class="kw">use </span>chrono::Utc;
+</pre><pre class="rust"><code><span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>models::{
     course_exams,
     exams::{<span class="self">self</span>, Exam, NewExam},
 };
-<span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
 
 <span class="kw">use crate</span>::{
-    domain::csv_export::{<span class="self">self</span>, make_authorized_streamable, CSVExportAdapter},
+    domain::csv_export::{
+        general_export, points::ExamPointExportOperation,
+        submissions::ExamSubmissionExportOperation,
+    },
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -316,47 +268,22 @@ GET `/api/v0/main-frontend/exams/:id/export-points`
     user: AuthUser,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>exam_id = exam_id.into_inner();
-    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
+    <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// spawn handle that writes the csv row by row into the sender
-    </span><span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
-        <span class="kw">let </span>res = csv_export::export_exam_points(
-            <span class="kw-2">&amp;mut </span>handle_conn,
-            exam_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .<span class="kw">await</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export exam points: {}&quot;</span>, err);
-        }
-    });
-
-    <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// return response that streams data from the receiver
-
-    </span><span class="kw">return </span>token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                <span class="string">&quot;Content-Disposition&quot;</span>,
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;attachment; filename=\&quot;Exam: {} - Point export {}.csv\&quot;&quot;</span>,
-                    exam.name,
-                    Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
-}
+    general_export(
+        pool,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">&quot;attachment; filename=\&quot;Exam: {} - Point export {}.csv\&quot;&quot;</span>,
+            exam.name,
+            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+        ),
+        ExamPointExportOperation { exam_id: <span class="kw-2">*</span>exam_id },
+        token,
+    )
+    .<span class="kw">await
+</span>}
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exams/:id/export-submissions`
@@ -368,47 +295,22 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
     user: AuthUser,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>exam_id = exam_id.into_inner();
-    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
+    <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// spawn handle that writes the csv row by row into the sender
-    </span><span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
-        <span class="kw">let </span>res = csv_export::export_exam_submissions(
-            <span class="kw-2">&amp;mut </span>handle_conn,
-            exam_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .<span class="kw">await</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export exam submissions: {}&quot;</span>, err);
-        }
-    });
-
-    <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// return response that streams data from the receiver
-
-    </span><span class="kw">return </span>token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                <span class="string">&quot;Content-Disposition&quot;</span>,
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;attachment; filename=\&quot;Exam: {} - Submissions {}.csv\&quot;&quot;</span>,
-                    exam.name,
-                    Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
-}
+    general_export(
+        pool,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">&quot;attachment; filename=\&quot;Exam: {} - Submissions {}.csv\&quot;&quot;</span>,
+            exam.name,
+            Utc::now().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+        ),
+        ExamSubmissionExportOperation { exam_id: <span class="kw-2">*</span>exam_id },
+        token,
+    )
+    .<span class="kw">await
+</span>}
 
 <span class="doccomment">/**
  * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.

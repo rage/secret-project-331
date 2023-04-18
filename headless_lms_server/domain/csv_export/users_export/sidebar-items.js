@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["export_course_user_details","Writes user details for users with any exercise submissions in courseas csv into the writer"]],"struct":[["UsersExportOperation",""]]};

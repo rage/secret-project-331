@@ -1,25 +1,26 @@
+pub mod course_instance_export;
+pub mod exercise_tasks_export;
+pub mod points;
+pub mod submissions;
+pub mod users_export;
+
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
-use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
-use headless_lms_models::{
-    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
-};
+use futures::{stream::FuturesUnordered, Stream, StreamExt};
 
-use models::{
-    course_module_completions::CourseModuleCompletionWithRegistrationInfo, library::progressing,
-};
+use async_trait::async_trait;
+
+use models::course_module_completions::CourseModuleCompletionWithRegistrationInfo;
 use serde::Serialize;
 use sqlx::PgConnection;
 use std::{
-    collections::HashMap,
     io,
     io::Write,
     sync::{Arc, Mutex},
 };
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use uuid::Uuid;
 
 use crate::prelude::*;
 
@@ -103,205 +104,6 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
         .await??;
         Ok(writer)
     }
-}
-
-// Writes the points as csv into the writer
-pub async fn export_course_instance_points<W>(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-    writer: W,
-) -> Result<W>
-where
-    W: Write + Send + 'static,
-{
-    let csv_fields_before_headers = 1;
-
-    let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
-    let mut chapters = chapters::course_chapters(conn, course_instance.course_id).await?;
-    chapters.sort_by_key(|c| c.chapter_number);
-    let mut chapter_number_to_header_idx = HashMap::new();
-    for (idx, chapter) in chapters.iter().enumerate() {
-        chapter_number_to_header_idx
-            .insert(chapter.chapter_number, csv_fields_before_headers + idx);
-    }
-
-    let header_count = csv_fields_before_headers + chapters.len();
-    // remember to update csv_fields_before_headers if this changes!
-    let headers = IntoIterator::into_iter(["user_id".to_string()])
-        .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
-
-    let mut stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
-
-    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
-    while let Some(next) = stream.try_next().await? {
-        let mut csv_row = vec!["0".to_string(); header_count];
-        csv_row[0] = next.user_id.to_string();
-        for points in next.points_for_each_chapter {
-            let idx = chapter_number_to_header_idx
-                .get(&points.chapter_number)
-                .with_context(|| format!("Unexpected chapter number {}", points.chapter_number))?;
-            let item = csv_row
-                .get_mut(*idx)
-                .with_context(|| format!("Invalid chapter number {}", idx))?;
-            *item = points.points_for_chapter.to_string();
-        }
-        writer.write_record(csv_row);
-    }
-    let writer = writer.finish().await?;
-    Ok(writer)
-}
-
-// Writes the points as csv into the writer
-pub async fn export_exam_points<W>(conn: &mut PgConnection, exam_id: Uuid, writer: W) -> Result<W>
-where
-    W: Write + Send + 'static,
-{
-    let csv_fields_before_headers = 2;
-
-    let mut exercises = exercises::get_exercises_by_exam_id(conn, exam_id).await?;
-    // I's fine to sort just by order number because exams have no chapters
-    exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
-
-    let mut exercise_id_to_header_idx = HashMap::new();
-    for (idx, exercise) in exercises.iter().enumerate() {
-        exercise_id_to_header_idx.insert(exercise.id, csv_fields_before_headers + idx);
-    }
-
-    let header_count = csv_fields_before_headers + exercises.len();
-    // remember to update csv_fields_before_headers if this changes!
-    let headers = IntoIterator::into_iter(["user_id".to_string(), "email".to_string()]).chain(
-        exercises
-            .into_iter()
-            .map(|e| format!("{}: {}", e.order_number, e.name)),
-    );
-
-    let mut stream = user_exercise_states::stream_exam_points(conn, exam_id);
-
-    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
-    while let Some(next) = stream.try_next().await? {
-        let mut csv_row = vec!["0".to_string(); header_count];
-        csv_row[0] = next.user_id.to_string();
-        csv_row[1] = next.email;
-        for points in next.points_for_exercise {
-            let idx = exercise_id_to_header_idx
-                .get(&points.exercise_id)
-                .with_context(|| format!("Unexpected exercise id {}", points.exercise_id))?;
-            let item = csv_row
-                .get_mut(*idx)
-                .with_context(|| format!("Invalid index {}", idx))?;
-            *item = points.score_given.to_string();
-        }
-        writer.write_record(csv_row);
-    }
-    let writer = writer.finish().await?;
-    Ok(writer)
-}
-
-// Writes the submissions as csv into the writer
-pub async fn export_exam_submissions<W>(
-    conn: &mut PgConnection,
-    exam_id: Uuid,
-    writer: W,
-) -> Result<W>
-where
-    W: Write + Send + 'static,
-{
-    let headers = IntoIterator::into_iter([
-        "id".to_string(),
-        "user_id".to_string(),
-        "created_at".to_string(),
-        "exercise_id".to_string(),
-        "exercise_task_id".to_string(),
-        "score_given".to_string(),
-        "data_json".to_string(),
-    ]);
-
-    let mut stream = exercise_task_submissions::stream_exam_submissions(conn, exam_id);
-
-    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
-    while let Some(next) = stream.try_next().await? {
-        let csv_row = vec![
-            next.id.to_string(),
-            next.user_id.to_string(),
-            next.created_at.to_string(),
-            next.exercise_id.to_string(),
-            next.exercise_task_id.to_string(),
-            next.score_given.unwrap_or(0.0).to_string(),
-            next.data_json
-                .map(|o| o.to_string())
-                .unwrap_or_else(|| "".to_string()),
-        ];
-        writer.write_record(csv_row);
-    }
-    let writer = writer.finish().await?;
-    Ok(writer)
-}
-
-// Writes the submissions as csv into the writer
-pub async fn export_completions<W>(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-    writer: W,
-) -> Result<W>
-where
-    W: Write + Send + 'static,
-{
-    // fetch summary
-    let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
-    let summary =
-        progressing::get_course_instance_completion_summary(conn, &course_instance).await?;
-
-    // sort modules
-    let mut modules = summary.course_modules;
-    modules.sort_by_key(|m| m.order_number);
-
-    // prepare headers
-    let mut headers = vec![
-        "user_id".to_string(),
-        "first_name".to_string(),
-        "last_name".to_string(),
-        "email".to_string(),
-    ];
-    for module in &modules {
-        let module_name = module.name.as_deref().unwrap_or("default_module");
-        headers.push(format!("{module_name}_grade"));
-        headers.push(format!("{module_name}_registered"));
-    }
-
-    // write rows
-    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
-    for user in summary.users_with_course_module_completions {
-        let mut has_completed_some_module = false;
-
-        let mut csv_row = vec![
-            user.user_id.to_string(),
-            user.first_name.unwrap_or_default(),
-            user.last_name.unwrap_or_default(),
-            user.email,
-        ];
-        for module in &modules {
-            let user_completion = user
-                .completed_modules
-                .iter()
-                .find(|cm| cm.course_module_id == module.id);
-            if user_completion.is_some() {
-                has_completed_some_module = true;
-            }
-            let grade = course_module_completion_info_to_grade_string(user_completion);
-            csv_row.push(grade);
-            let registered = user_completion
-                .map(|cm| cm.registered.to_string())
-                .unwrap_or_default();
-            csv_row.push(registered);
-        }
-        // To avoid confusion with some people potentially not understanding that '-' means not completed,
-        // we'll skip the users that don't have any completions from any modules. The confusion is less likely in cases where there are more than one module, and only in those cases the teachers would see the '-' entries in this file.
-        if has_completed_some_module {
-            writer.write_record(csv_row);
-        }
-    }
-    let writer = writer.finish().await?;
-    Ok(writer)
 }
 
 /**
@@ -416,9 +218,47 @@ pub fn serializable_sqlx_result_stream_to_json_stream(
     res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
 }
 
+#[async_trait]
+pub trait CsvExportDataLoader {
+    async fn load_data(
+        &self,
+        sender: UnboundedSender<Result<AuthorizedResponse<Bytes>, ControllerError>>,
+        conn: &mut PgConnection,
+        token: AuthorizationToken,
+    ) -> anyhow::Result<CSVExportAdapter>;
+}
+
+pub async fn general_export(
+    pool: web::Data<PgPool>,
+    content_disposition: &str,
+    data_loader: impl CsvExportDataLoader + std::marker::Send + 'static,
+    token: AuthorizationToken,
+) -> ControllerResult<HttpResponse> {
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    // spawn handle that writes the csv row by row into the sender
+    let mut handle_conn = pool.acquire().await?;
+    let _handle = tokio::spawn(async move {
+        let fut = data_loader.load_data(sender, &mut handle_conn, token);
+        let res = fut.await;
+        if let Err(err) = res {
+            tracing::error!("Failed to export: {}", err);
+        }
+    });
+
+    // return response that streams data from the receiver
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header(("Content-Disposition", content_disposition))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
+}
+
 #[cfg(test)]
 mod test {
     use std::{
+        collections::HashMap,
         io::{self, Cursor},
         sync::mpsc::Sender,
     };
@@ -432,15 +272,19 @@ mod test {
         library::grading::{
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
         },
+        user_exercise_states,
         user_exercise_states::ExerciseWithUserState,
         users,
     };
-    use models::chapters::NewChapter;
+    use models::chapters::{self, NewChapter};
     use serde_json::Value;
 
     use super::*;
     use crate::{
-        domain::models_requests::{self, JwtKey},
+        domain::{
+            csv_export::points::export_course_instance_points,
+            models_requests::{self, JwtKey},
+        },
         test_helper::*,
     };
 

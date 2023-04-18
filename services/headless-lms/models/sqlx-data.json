@@ -7518,6 +7518,47 @@
     },
     "query": "\nSELECT\n    course_id,\n    exam_id\nFROM exercises\nWHERE id = (\n    SELECT s.exercise_id\n    FROM exercise_slides s\n      JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)\n    WHERE s.deleted_at IS NULL\n      AND t.id = $1\n      AND t.deleted_at IS NULL\n  )\n"
   },
+  "6cec1b04cf71dd7bb136282cc8fa0394824a1f2109be65e2d4ed0b685eabafa2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "first_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "last_name",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "email",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, true, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_details\nWHERE user_id in (\n    SELECT DISTINCT (user_id)\n    FROM user_exercise_states\n    WHERE course_instance_id IN (\n        SELECT id\n        FROM course_instances\n        WHERE course_id = $1\n      )\n      AND deleted_at IS NULL\n  );\n        "
+  },
   "6d67760ed5e869f8dc268d933d039919f1d354580efddbdccc668f03f0a73289": {
     "describe": {
       "columns": [
@@ -12285,6 +12326,42 @@
     },
     "query": "\nUPDATE user_exercise_states\nSET score_given = $1,\n  activity_progress = $2,\n  reviewing_stage = $3,\n  grading_progress = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\n        "
   },
+  "a38113607035916d35463f3d2496532283338aee520851aabc879f96ab0f6537": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "exercise_type",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "private_spec",
+          "ordinal": 4,
+          "type_info": "Jsonb"
+        }
+      ],
+      "nullable": [false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT distinct (t.id),\n  t.created_at,\n  t.updated_at,\n  t.exercise_type,\n  t.private_spec\nfrom exercise_tasks t\nwhere t.exercise_slide_id in (\n    SELECT id\n    from exercise_slides s\n    where s.exercise_id in (\n        SELECT id\n        from exercises e\n        where e.course_id = $1\n      )\n  )\n  AND deleted_at IS NULL;\n        "
+  },
   "a54dccecd05081f97834f4f8654132d47eeff79664ba79fee7ebbb5ad4368cbf": {
     "describe": {
       "columns": [
@@ -12836,6 +12913,57 @@
       }
     },
     "query": "\nSELECT *\nFROM exercise_slides\nWHERE id = $1\n  AND deleted_at IS NULL;\n    "
+  },
+  "a9dc52e4a43f9ebb2699af00a000ca381ae1eb74978d7f4513702a62d344a52a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_task_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "score_given",
+          "ordinal": 6,
+          "type_info": "Float4"
+        },
+        {
+          "name": "data_json",
+          "ordinal": 7,
+          "type_info": "Jsonb"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, true, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT exercise_task_submissions.id,\n  user_id,\n  exercise_task_submissions.created_at,\n  exercise_slide_submissions.course_instance_id,\n  exercise_slide_submissions.exercise_id,\n  exercise_task_submissions.exercise_task_id,\n  exercise_task_gradings.score_given,\n  exercise_task_submissions.data_json\nFROM exercise_task_submissions\n  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id\n  JOIN exercise_task_gradings ON exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id\n  JOIN exercises ON exercise_slide_submissions.exercise_id = exercises.id\nWHERE exercise_slide_submissions.course_id = $1\n  AND exercise_task_submissions.deleted_at IS NULL\n  AND exercise_task_gradings.deleted_at IS NULL\n  AND exercises.deleted_at IS NULL;\n        "
   },
   "a9e6bf7e1afec5191482ce2cfaca22c670d50759540e166270fa2881e5db1dc4": {
     "describe": {

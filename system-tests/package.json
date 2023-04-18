@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "env HTML=1 LANGUAGE=en_US npm run test-nohtml",
+    "test-ui": "npm run test-nohtml -- --ui",
     "test-nohtml": "env LANGUAGE=en_US npx playwright test",
     "test-without-database-reset": "npx playwright test",
     "test-headed": "npm run test-nohtml -- --headed",
@@ -28,14 +29,14 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.31.2",
-    "@types/node": "^18.15.3",
-    "playwright": "^1.31.2",
-    "typescript": "^4.9.5"
+    "@playwright/test": "^1.32.3",
+    "@types/node": "^18.15.11",
+    "playwright": "^1.32.3",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.6.0",
-    "@types/which": "^2.0.2",
+    "@axe-core/playwright": "^4.6.1",
+    "@types/which": "^3.0.0",
     "axe-core": "^4.6.3",
     "png-metadata": "^1.0.2",
     "which": "^3.0.0"

@@ -21,7 +21,8 @@ npm run test-nohtml # runs tests without the html report
 npm run test-headed # runs tests with with a visible browser
 npm run test-slowmo # runs tests in slow motion
 npm run test-video # runs tests and records a video to `system-tests/test-results`
-npm run test-debug # see https://playwright.dev/docs/debug#run-in-debug-mode
+npm run test-debug # For debuggin a test https://playwright.dev/docs/debug#run-in-debug-mode
+npm run test-ui # opens the playwright ui
 npm run open # opens playwright without running tests
 ```
 
@@ -42,9 +43,9 @@ Once you've recorded, copy the code automatically written by the recorder to you
 
 - getLocatorForNthExerciseServiceIframe - Locator for either interacting with an exercise service iframe or for taking a screenshot of the iframe. See [example](https://github.com/rage/secret-project-331/blob/11f8dc9ff998277618eb77f4f0d2830da9e6344a/system-tests/src/tests/quizzes/feedback/multiple-choice.spec.ts#L41-L57).
 - selectCourseInstanceIfPrompted - Selects course instance in course material if the prompt appears. Useful if there are many tests that access the same course using the same user because every user gets the dialog only the first time they access the course. Always select the course instance using this funciton instead of writing custom code to interact with the dialog.
-- showToastInfinitely / showToastNormally
+- showNextToastsInfinitely / showToastsNormally
 
-  Sometimes we want to take a screenshot that has a toast notfication. However, this causes a race condition because by default toasts disappear automatically. To avoid this, one can call `showToastInfinetly` before clicking the thing that causes the notification to appear and then call `showToastNormally` afterwar the screenshot has been taken.
+  Sometimes we want to take a screenshot that has a toast notfication. However, this causes a race condition because by default toasts disappear automatically. To avoid this, one can call `showToastInfinetly` before clicking the thing that causes the notification to appear and then call `showToastsNormally` afterwar the screenshot has been taken.
 
 ### Example tests
 

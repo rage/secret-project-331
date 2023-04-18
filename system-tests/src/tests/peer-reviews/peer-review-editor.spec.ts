@@ -1,6 +1,6 @@
 import { test } from "@playwright/test"
 
-import { showToastInfinitely, showToastNormally } from "../../utils/notificationUtils"
+import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -99,7 +99,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   // Fill text=General comments
   await page1.locator("text=General comments").fill("test")
 
-  await showToastInfinitely(page1)
+  await showNextToastsInfinitely(page1)
   await page1.locator("text=Save").click()
   await page1.getByText(`Operation successful`).waitFor()
   await expectScreenshotsToMatchSnapshots({
@@ -109,5 +109,5 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
     snapshotName: "default-peer-review-editor-after-save",
     waitForTheseToBeVisibleAndStable: [page1.locator('text="Add peer review question"')],
   })
-  await showToastNormally(page1)
+  await showToastsNormally(page1)
 })

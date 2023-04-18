@@ -13,3 +13,6 @@ if [ "$NUMBER_OF_CARGO_FILES" -eq "0" ]; then
 fi
 
 run_command kubectl exec -it "$POD_NAME" -- cargo run -- seed "$@"
+
+echo ""
+echo -e "${GREEN}✅ The database headless_lms_dev has been seeded with test data.${RESET_EVERYTHING}"

@@ -1480,6 +1480,11 @@ export function isColumnsAttributes(obj: unknown): obj is ColumnsAttributes {
     (typeof typedObj["verticalAlignment"] === "undefined" ||
       typeof typedObj["verticalAlignment"] === "string") &&
     typeof typedObj["isStackedOnMobile"] === "boolean" &&
+    (typeof typedObj["templateLock"] === "undefined" ||
+      typedObj["templateLock"] === false ||
+      typedObj["templateLock"] === "all" ||
+      typedObj["templateLock"] === "insert" ||
+      typedObj["templateLock"] === "contentOnly") &&
     (typeof typedObj["align"] === "undefined" ||
       typedObj["align"] === "" ||
       typedObj["align"] === "left" ||

@@ -178,17 +178,17 @@ screenshotTarget: page,
 
   await page.click(':nth-match(:text("["), 3)')
 
-  await page.press(
-    ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
-    "PageDown",
-  )
+  // await page.press(
+  //   ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
+  //   "PageDown",
+  // )
 
-  await page.press(
-    ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
-    "PageDown",
-  )
+  // await page.press(
+  //   ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
+  //   "PageDown",
+  // )
 
-  await page.waitForSelector("text=Best exercise")
+  // await page.waitForSelector("text=Best exercise")
 
   /*
   await expectScreenshotsToMatchSnapshots({

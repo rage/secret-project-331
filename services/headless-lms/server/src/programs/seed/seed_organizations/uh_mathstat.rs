@@ -5,7 +5,9 @@ use headless_lms_models::{
     courses::NewCourse,
     library,
     library::content_management::CreateNewCourseFixedIds,
-    organizations, PKeyPolicy,
+    organizations,
+    roles::{self, RoleDomain, UserRole},
+    PKeyPolicy,
 };
 use uuid::Uuid;
 
@@ -27,7 +29,7 @@ pub async fn seed_organization_uh_mathstat(
 
     let SeedUsersResult {
         admin_user_id,
-        teacher_user_id: _,
+        teacher_user_id,
         language_teacher_user_id: _,
         assistant_user_id: _,
         course_or_exam_creator_user_id: _,
@@ -123,6 +125,27 @@ pub async fn seed_organization_uh_mathstat(
         student_user_id,
         &example_normal_user_ids,
         Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    let preview_unopened_chapters = seed_sample_course(
+        &db_pool,
+        uh_mathstat_id,
+        Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
+        "Preview unopened chapters",
+        "preview-unopened-chapters",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(preview_unopened_chapters),
     )
     .await?;
 

@@ -259,9 +259,7 @@ pub fn skip_authorize() -> Result<AuthorizationToken, ControllerError> {
     Ok(AuthorizationToken(()))
 }
 
-/**  Can be used to check whether user is allowed to view some course material
-
-*/
+/**  Can be used to check whether user is allowed to view some course material */
 pub async fn authorize_access_to_course_material(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
@@ -280,6 +278,19 @@ pub async fn authorize_access_to_course_material(
         skip_authorize()?
     };
     Ok(token)
+}
+
+/**  Can be used to check whether user is allowed to view some course material */
+pub async fn can_user_view_not_open_chapter(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+) -> Result<bool, ControllerError> {
+    if user_id.is_none() {
+        return Ok(false);
+    }
+    let permission = authorize(conn, Act::Edit, user_id, Res::Course(course_id)).await;
+    Ok(permission.is_ok())
 }
 
 /**

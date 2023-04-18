@@ -101,7 +101,6 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
-    pub page_language_group_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -217,18 +216,11 @@ pub struct NewCoursePage<'a> {
     pub title: &'a str,
     pub hidden: bool,
     pub url_path: &'a str,
-    pub page_language_group_id: Uuid,
 }
 
 impl<'a> NewCoursePage<'a> {
     /// Creates `NewCoursePage` with provided values that is public by default.
-    pub fn new(
-        course_id: Uuid,
-        order_number: i32,
-        url_path: &'a str,
-        title: &'a str,
-        page_language_group_id: Uuid,
-    ) -> Self {
+    pub fn new(course_id: Uuid, order_number: i32, url_path: &'a str, title: &'a str) -> Self {
         Self {
             content: Default::default(),
             course_id,
@@ -236,19 +228,12 @@ impl<'a> NewCoursePage<'a> {
             title,
             hidden: false,
             url_path,
-            page_language_group_id,
         }
     }
 
     /// Creates a new `NewCoursePage` for the same course as this one and increments the page number.
     pub fn followed_by(&self, url_path: &'a str, title: &'a str) -> Self {
-        Self::new(
-            self.course_id,
-            self.order_number + 1,
-            url_path,
-            title,
-            self.page_language_group_id,
-        )
+        Self::new(self.course_id, self.order_number + 1, url_path, title)
     }
 
     /// Sets the content of this page.
@@ -269,6 +254,14 @@ pub async fn insert_course_page(
     new_course_page: &NewCoursePage<'_>,
     author: Uuid,
 ) -> ModelResult<(Uuid, Uuid)> {
+    let course = crate::courses::get_course(&mut *conn, new_course_page.course_id).await?;
+    let page_language_group_id = crate::page_language_groups::insert(
+        &mut *conn,
+        crate::PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
+
     let mut tx = conn.begin().await?;
     let page_res = sqlx::query!(
         "
@@ -290,7 +283,7 @@ RETURNING id
         new_course_page.title,
         new_course_page.order_number,
         new_course_page.hidden,
-        new_course_page.page_language_group_id,
+        page_language_group_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -1308,6 +1301,29 @@ async fn upsert_exercises(
             Uuid::new_v4()
         };
 
+        // check if exercise exits
+        let db_exercise = crate::exercises::get_by_id(&mut *conn, safe_for_db_exercise_id)
+            .await
+            .optional()?;
+
+        let mut exercise_language_group_id = None;
+
+        if let Some(db_exercise) = db_exercise {
+            exercise_language_group_id = db_exercise.exercise_language_group_id;
+        }
+        if let Some(course_id) = page.course_id {
+            let course = crate::courses::get_course(&mut *conn, course_id).await?;
+
+            exercise_language_group_id = Some(
+                crate::exercise_language_groups::insert(
+                    &mut *conn,
+                    PKeyPolicy::Generate,
+                    course.course_language_group_id,
+                )
+                .await?,
+            );
+        }
+
         let exercise = sqlx::query_as!(
             Exercise,
             "
@@ -1324,7 +1340,8 @@ INSERT INTO exercises(
     limit_number_of_tries,
     deadline,
     needs_peer_review,
-    use_course_default_peer_review_config
+    use_course_default_peer_review_config,
+    exercise_language_group_id
   )
 VALUES (
     $1,
@@ -1339,7 +1356,8 @@ VALUES (
     $10,
     $11,
     $12,
-    $13
+    $13,
+    $14
   ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
@@ -1354,6 +1372,7 @@ SET course_id = $2,
   deadline = $11,
   needs_peer_review = $12,
   use_course_default_peer_review_config = $13,
+  exercise_language_group_id = $14,
   deleted_at = NULL
 RETURNING *;
             ",
@@ -1369,7 +1388,8 @@ RETURNING *;
             exercise_update.limit_number_of_tries,
             exercise_update.deadline,
             exercise_update.needs_peer_review,
-            exercise_update.use_course_default_peer_review_config
+            exercise_update.use_course_default_peer_review_config,
+            exercise_language_group_id,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -1918,7 +1938,6 @@ pub async fn insert_new_content_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
-        page_language_group_id: new_page.page_language_group_id,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -1944,6 +1963,19 @@ pub async fn insert_page(
     ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
+    let mut page_language_group_id = None;
+    if let Some(course_id) = new_page.course_id {
+        // insert language group
+        let course = crate::courses::get_course(&mut *conn, course_id).await?;
+        let new_language_group_id = crate::page_language_groups::insert(
+            &mut *conn,
+            crate::PKeyPolicy::Generate,
+            course.course_language_group_id,
+        )
+        .await?;
+        page_language_group_id = Some(new_language_group_id);
+    }
+
     let next_order_number = match (new_page.chapter_id, new_page.course_id) {
         (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
         (None, Some(course_id)) => {
@@ -1951,6 +1983,7 @@ pub async fn insert_page(
         }
         (None, None) => 1,
     };
+
     let course: OptionFuture<_> = new_page
         .course_id
         .map(|id| crate::courses::get_course(conn, id))
@@ -1963,7 +1996,6 @@ pub async fn insert_page(
         .and_then(|c| c.content_search_language)
         .or(new_page.content_search_language)
         .unwrap_or_else(|| "simple".to_string());
-
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -1975,9 +2007,10 @@ INSERT INTO pages(
     title,
     order_number,
     chapter_id,
-    content_search_language
+    content_search_language,
+    page_language_group_id
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig, $9)
 RETURNING id,
   created_at,
   updated_at,
@@ -2000,7 +2033,8 @@ RETURNING id,
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
-        content_search_language as _
+        content_search_language as _,
+        page_language_group_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -3201,7 +3235,6 @@ mod test {
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
-                page_language_group_id: None,
             },
             user,
             |_, _, _| unimplemented!(),

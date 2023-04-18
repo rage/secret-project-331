@@ -330,7 +330,6 @@ async fn create_exam(
             exercises: vec![],
             title: "exam page".to_string(),
             url_path: "/".to_string(),
-            page_language_group_id: None,
         },
         user.id,
     )

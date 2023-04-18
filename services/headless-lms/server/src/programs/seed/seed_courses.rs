@@ -22,7 +22,6 @@ use headless_lms_models::{
     glossary, library,
     library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
-    page_language_groups,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
     peer_review_configs::PeerReviewAcceptingStrategy::{
@@ -316,20 +315,11 @@ pub async fn seed_sample_course(
     )
     .await?;
 
-    let page_language_group_id = headless_lms_models::page_language_groups::insert(
-        &mut conn,
-        headless_lms_models::PKeyPolicy::Generate,
-        course.course_language_group_id,
-    )
-    .await
-    .unwrap();
-
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
         "/welcome",
         "Welcome to Introduction to Everything",
-        page_language_group_id,
     );
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
@@ -1981,16 +1971,9 @@ pub async fn seed_cs_course_material(
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
 
-    let page_language_group_id = page_language_groups::insert(
-        &mut conn,
-        PKeyPolicy::Generate,
-        course.course_language_group_id,
-    )
-    .await?;
-
     let (_page, _history) = pages::insert_course_page(
         &mut conn,
-        &NewCoursePage::new(course.id, 1, "/faq", "FAQ", page_language_group_id),
+        &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
         admin,
     )
     .await?;
@@ -2659,19 +2642,11 @@ pub async fn seed_course_without_submissions(
     )
     .await?;
 
-    let page_language_group_id = page_language_groups::insert(
-        &mut conn,
-        PKeyPolicy::Generate,
-        course.course_language_group_id,
-    )
-    .await?;
-
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
         "/welcome",
         "Welcome to Introduction to Everything",
-        page_language_group_id,
     );
 
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
@@ -3851,19 +3826,11 @@ pub async fn seed_peer_review_course_without_submissions(
 
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
 
-    let page_language_group_id = page_language_groups::insert(
-        &mut conn,
-        PKeyPolicy::Generate,
-        course.course_language_group_id,
-    )
-    .await?;
-
     let welcome_page = NewCoursePage::new(
         course.id,
         1,
         "/welcome",
         "Welcome to Introduction to peer reviews",
-        page_language_group_id,
     );
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page

@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
-  storageState: "src/states/admin@example.com.json",
+  storageState: "src/states/user@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
@@ -19,12 +19,13 @@ test("test", async ({ page, headless }) => {
   await page.getByRole("button", { name: "Settings" }).click()
 
   await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "course-lang-selection-eng-to-fi",
-    waitForThisToBeVisibleAndStable: "text=Choose your preferred language",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Choose your preferred language")],
   })
-  const value = await page.$("#changeLanguage")
+  const value = page.locator("#changeLanguage")
   value?.selectOption([{ label: "Suomi" }, { value: "af01f8cd-d40c-42af-a4e1-3dc9573765ce,fi-FI" }])
 
   await page.getByText("Default").first().click()
@@ -39,13 +40,14 @@ test("test", async ({ page, headless }) => {
   await page.getByRole("button", { name: "Asetukset" }).click()
 
   await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
-    waitForThisToBeVisibleAndStable: "text=Valitse Kieli",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Valitse kieli")],
   })
 
-  const value1 = await page.$("#changeLanguage")
+  const value1 = page.locator("#changeLanguage")
   value1?.selectOption([
     { label: "English" },
     { value: "049061ba-ac30-49f1-aa9d-b7566dc22b78,en-US" },

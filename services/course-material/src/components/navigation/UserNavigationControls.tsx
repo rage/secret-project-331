@@ -53,32 +53,35 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           }}
           manualOpen={showSettings}
         />
-      )}{" "}
-      {courseId && (
-        <Menu>
-          <OnlyRenderIfPermissions
-            action={{
-              type: "teach",
-            }}
-            resource={{
-              type: "course",
-              id: courseId,
-            }}
-          >
-            <li>
-              <a href={manageCourseRoute(courseId)}>
-                <Button
-                  className={css`
-                    color: ${baseTheme.colors.green[600]}!important;
-                  `}
-                  variant="primary"
-                  size="medium"
-                >
-                  {t("button-text-manage-course")}
-                </Button>
-              </a>
-            </li>
-          </OnlyRenderIfPermissions>
+      )}
+
+      <Menu>
+        <>
+          {courseId && (
+            <OnlyRenderIfPermissions
+              action={{
+                type: "teach",
+              }}
+              resource={{
+                type: "course",
+                id: courseId,
+              }}
+            >
+              <li>
+                <a href={manageCourseRoute(courseId)}>
+                  <Button
+                    className={css`
+                      color: ${baseTheme.colors.green[600]}!important;
+                    `}
+                    variant="primary"
+                    size="medium"
+                  >
+                    {t("button-text-manage-course")}
+                  </Button>
+                </a>
+              </li>
+            </OnlyRenderIfPermissions>
+          )}
           <li>
             <Button
               className={css`
@@ -104,39 +107,41 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
             >
               {t("log-out")}
             </Button>
-          </li>{" "}
-        </Menu>
-      )}
+          </li>
+        </>
+      </Menu>
     </>
   ) : (
-    <Menu>
-      <li className={cx(styles)}>
-        <a href={signUpPathWithReturnTo}>
-          <Button
-            className={css`
-              color: ${baseTheme.colors.green[600]}!important;
-            `}
-            size="medium"
-            variant="primary"
-          >
-            {t("create-new-account")}
-          </Button>
-        </a>
-      </li>
-      <li className={cx(styles)}>
-        <a href={loginPathWithReturnTo}>
-          <Button
-            className={css`
-              color: ${baseTheme.colors.green[600]}!important;
-            `}
-            size="medium"
-            variant="primary"
-          >
-            {t("log-in")}
-          </Button>
-        </a>
-      </li>
-    </Menu>
+    <>
+      <Menu>
+        <li className={cx(styles)}>
+          <a href={signUpPathWithReturnTo}>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+            >
+              {t("create-new-account")}
+            </Button>
+          </a>
+        </li>
+        <li className={cx(styles)}>
+          <a href={loginPathWithReturnTo}>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+            >
+              {t("log-in")}
+            </Button>
+          </a>
+        </li>
+      </Menu>
+    </>
   )
 }
 

@@ -21,6 +21,7 @@ import {
   primaryFont,
   typography,
 } from "../../shared-module/styles"
+import { LANGUAGE_COOKIE_KEY } from "../../shared-module/utils/constants"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import {
@@ -180,7 +181,6 @@ const CourseInstanceSelectModal: React.FC<
 
   const handleSubmitAndClose = useCallback(
     async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
-      const LANGUAGE_COOKIE_KEY = "selected-language"
       const newLanguage = newLangcode ?? ""
       const selectedLanguage = newLanguage.split("-")
       i18n.changeLanguage(newLanguage)

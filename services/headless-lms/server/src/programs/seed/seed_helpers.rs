@@ -46,7 +46,6 @@ pub async fn create_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
-        page_language_group_id: None,
     };
     let page = pages::insert_page(
         conn,
@@ -467,7 +466,6 @@ pub async fn create_exam(
             chapter_id: None,
             front_page_of_chapter_id: None,
             content_search_language: None,
-            page_language_group_id: None,
         },
         teacher,
         models_requests::make_spec_fetcher(Uuid::new_v4(), jwt_key),

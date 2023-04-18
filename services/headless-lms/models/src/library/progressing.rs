@@ -939,14 +939,6 @@ mod tests {
             .await
             .unwrap();
 
-            let course_info = courses::get_course(tx.as_mut(), course).await.unwrap();
-            let exercise_language_group_id = crate::exercise_language_groups::insert(
-                tx.as_mut(),
-                PKeyPolicy::Generate,
-                course_info.course_language_group_id,
-            )
-            .await
-            .unwrap();
             let exercise_2 = exercises::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -955,7 +947,6 @@ mod tests {
                 page2.id,
                 chapter_2.id,
                 0,
-                exercise_language_group_id,
             )
             .await
             .unwrap();

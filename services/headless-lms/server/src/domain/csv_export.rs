@@ -425,7 +425,7 @@ mod test {
 
     use bytes::Bytes;
     use headless_lms_models::{
-        courses, exercise_language_groups, exercise_slides,
+        exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
@@ -474,26 +474,9 @@ mod test {
         .await
         .unwrap();
 
-        let course_info = courses::get_course(tx.as_mut(), course).await.unwrap();
-        let exercise_language_group_id = exercise_language_groups::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            course_info.course_language_group_id,
-        )
-        .await
-        .unwrap();
-        let e2 = exercises::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            course,
-            "",
-            page,
-            c2,
-            0,
-            exercise_language_group_id,
-        )
-        .await
-        .unwrap();
+        let e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, "", page, c2, 0)
+            .await
+            .unwrap();
         let s2 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e2, 0)
             .await
             .unwrap();
@@ -512,26 +495,10 @@ mod test {
         )
         .await
         .unwrap();
-        let exercise_language_group_id = exercise_language_groups::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            course_info.course_language_group_id,
-        )
-        .await
-        .unwrap();
 
-        let e3 = exercises::insert(
-            tx.as_mut(),
-            PKeyPolicy::Generate,
-            course,
-            "",
-            page,
-            c2,
-            1,
-            exercise_language_group_id,
-        )
-        .await
-        .unwrap();
+        let e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, "", page, c2, 1)
+            .await
+            .unwrap();
         let s3 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e3, 0)
             .await
             .unwrap();

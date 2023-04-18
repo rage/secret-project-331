@@ -204,14 +204,6 @@ macro_rules! insert_data {
         .unwrap().0.id;
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident; page: $page:ident) => {
-        let course_info = headless_lms_models::courses::get_course($tx.as_mut(), $course).await.unwrap();
-        let page_language_group_id = headless_lms_models::page_language_groups::insert(
-            $tx.as_mut(),
-            headless_lms_models::PKeyPolicy::Generate,
-            course_info.course_language_group_id,
-        )
-        .await
-        .unwrap();
 
         let $page = headless_lms_models::pages::insert_page(
             $tx.as_mut(),
@@ -227,7 +219,6 @@ macro_rules! insert_data {
                 chapter_id: Some($chapter),
                 front_page_of_chapter_id: Some($chapter),
                 content_search_language: None,
-                page_language_group_id: Some(page_language_group_id),
             },
             $user,
             |_, _, _| unimplemented!(),
@@ -237,17 +228,8 @@ macro_rules! insert_data {
         .unwrap().id;
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
-        let course_info = headless_lms_models::courses::get_course($tx.as_mut(), $course).await.unwrap();
-        let exercise_language_group_id = headless_lms_models::exercise_language_groups::insert(
-            $tx.as_mut(),
-            headless_lms_models::PKeyPolicy::Generate,
-            course_info.course_language_group_id,
-        )
-        .await
-        .unwrap();
-
         let $exercise =
-        headless_lms_models::exercises::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, $course, "", $page, $chapter, 0, exercise_language_group_id)
+        headless_lms_models::exercises::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, $course, "", $page, $chapter, 0)
             .await
             .unwrap();
     };

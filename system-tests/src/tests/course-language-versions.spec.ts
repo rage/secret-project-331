@@ -79,7 +79,7 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "wrong-course-banner",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Looks like you're already on a different language version"),
+      page.locator("text=Vaikuttaa että olet kurssilla jo toisella kielellä"),
     ],
   })
 

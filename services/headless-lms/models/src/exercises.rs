@@ -167,8 +167,15 @@ pub async fn insert(
     page_id: Uuid,
     chapter_id: Uuid,
     order_number: i32,
-    exercise_language_group_id: Uuid,
 ) -> ModelResult<Uuid> {
+    let course = crate::courses::get_course(conn, course_id).await?;
+    let exercise_language_group_id = crate::exercise_language_groups::insert(
+        conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
+
     let res = sqlx::query!(
         "
 INSERT INTO exercises (

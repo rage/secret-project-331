@@ -9,7 +9,6 @@ use crate::{
     course_modules::{CourseModule, NewCourseModule},
     courses::{self, Course, NewCourse},
     exercise_service_info::ExerciseServiceInfoApi,
-    page_language_groups,
     pages::{self, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
@@ -58,10 +57,6 @@ pub async fn create_new_course(
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])?;
 
-    let page_language_group_id =
-        page_language_groups::insert(&mut tx, PKeyPolicy::Generate, course_language_group_id)
-            .await?;
-
     let course_front_page = NewPage {
         chapter_id: None,
         content: course_front_page_content,
@@ -74,7 +69,6 @@ pub async fn create_new_course(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
-        page_language_group_id: Some(page_language_group_id),
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -166,14 +160,6 @@ pub async fn create_new_chapter(
     let mut tx = conn.begin().await?;
     let chapter_id = chapters::insert(&mut tx, pkey_policy.map_ref(|x| x.0), new_chapter).await?;
     let chapter = chapters::get_chapter(&mut tx, chapter_id).await?;
-    let course = courses::get_course(&mut tx, chapter.course_id).await?;
-
-    let page_language_group_id = page_language_groups::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        course.course_language_group_id,
-    )
-    .await?;
 
     let chapter_frontpage_content = serde_json::to_value(vec![
         GutenbergBlock::hero_section(&chapter.name, ""),
@@ -192,7 +178,6 @@ pub async fn create_new_chapter(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
-        page_language_group_id: Some(page_language_group_id),
     };
     let page = pages::insert_page(
         &mut tx,

@@ -132,6 +132,7 @@ async fn user_is_eligible_for_automatic_completion(
             .await?;
             if eligible {
                 if requirements.requires_exam {
+                    info!("To complete this module automatically, the user must pass an exam.");
                     user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
                         .await
                 } else {
@@ -206,8 +207,10 @@ async fn user_has_passed_exam_for_the_course(
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
-            if points >= exam.minimum_points_treshold as f32 {
-                return Ok(true);
+            if let Some(points) = points {
+                if points >= exam.minimum_points_treshold as f32 {
+                    return Ok(true);
+                }
             }
         }
     }

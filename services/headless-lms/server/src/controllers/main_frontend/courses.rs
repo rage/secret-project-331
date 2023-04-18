@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
+use chrono::Utc;
 use std::sync::Arc;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
@@ -25,6 +26,11 @@ use models::{
 
 use crate::{
     domain::{
+        csv_export::{
+            course_instance_export::CourseInstancesExportOperation,
+            exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
+            submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
+        },
         models_requests::{self, JwtKey},
         request_id::RequestId,
     },
@@ -884,6 +890,158 @@ async fn post_update_peer_review_queue_reviews_received(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/${courseId}/export-submissions`
+
+gets SCV of course exercise submissions
+*/
+#[instrument(skip(pool))]
+pub async fn submission_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - Submissions {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseSubmissionExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-user-details`
+
+gets SCV of user details for all users having submitted an exercise in the course
+*/
+#[instrument(skip(pool))]
+pub async fn user_details_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - User Details {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        UsersExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`
+
+gets SCV all exercise-tasks' private specs in course
+*/
+#[instrument(skip(pool))]
+pub async fn exercise_tasks_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - Exercise tasks {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseExerciseTasksExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-course-instances`
+
+gets SCV course instances for course
+*/
+#[instrument(skip(pool))]
+pub async fn course_instances_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - Instances {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseInstancesExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -991,5 +1149,21 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/breadcrumb-info",
             web::get().to(get_course_breadcrumb_info),
+        )
+        .route(
+            "/{course_id}/export-submissions",
+            web::get().to(submission_export),
+        )
+        .route(
+            "/{course_id}/export-user-details",
+            web::get().to(user_details_export),
+        )
+        .route(
+            "/{course_id}/export-exercise-tasks",
+            web::get().to(exercise_tasks_export),
+        )
+        .route(
+            "/{course_id}/export-course-instances",
+            web::get().to(course_instances_export),
         );
 }

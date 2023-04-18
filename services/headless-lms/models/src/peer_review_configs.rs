@@ -379,7 +379,8 @@ SELECT id,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
 FROM peer_review_configs
-where course_id = $1
+WHERE course_id = $1
+  AND exercise_id IS NULL
   AND deleted_at IS NULL;
 "#,
         course_id

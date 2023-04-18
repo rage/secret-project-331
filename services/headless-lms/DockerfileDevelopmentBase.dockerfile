@@ -10,7 +10,7 @@ RUN apt-get update \
 RUN git clone https://github.com/rui314/mold.git \
   && mkdir mold/build \
   && cd mold/build \
-  && git checkout v1.7.0 \
+  && git checkout v1.11.0 \
   && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. \
   && cmake --build . -j $(nproc)
 
@@ -55,3 +55,6 @@ COPY --from=dep-builder /ips-to-country /ips-to-country
 WORKDIR /app
 
 RUN useradd -ms /usr/sbin/nologin user
+
+ENV CARGO_HOME=/home/user/.cargo \
+  PATH=/home/user/.cargo/bin:$PATH

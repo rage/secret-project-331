@@ -1028,6 +1028,9 @@
 <a href="#1028" id="1028">1028</a>
 <a href="#1029" id="1029">1029</a>
 <a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
 </pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1162,6 +1165,7 @@
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">if </span>eligible {
                 <span class="kw">if </span>requirements.requires_exam {
+                    <span class="macro">info!</span>(<span class="string">&quot;To complete this module automatically, the user must pass an exam.&quot;</span>);
                     user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
                         .<span class="kw">await
                 </span>} <span class="kw">else </span>{
@@ -1236,8 +1240,10 @@
         <span class="kw">if </span>exam.ended_at_or(now, <span class="bool-val">false</span>) {
             <span class="kw">let </span>points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">if </span>points &gt;= exam.minimum_points_treshold <span class="kw">as </span>f32 {
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(points) = points {
+                <span class="kw">if </span>points &gt;= exam.minimum_points_treshold <span class="kw">as </span>f32 {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+                }
             }
         }
     }

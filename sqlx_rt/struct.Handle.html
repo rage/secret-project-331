@@ -41,9 +41,9 @@ thread::spawn(<span class="kw">move </span>|| {
 <p>This spawns the given future onto the runtime’s executor, usually a
 thread pool. The thread pool is then responsible for polling the future
 until it completes.</p>
-<p>You do not have to <code>.await</code> the returned <code>JoinHandle</code> to make the
-provided future start execution. It will start running in the background
-immediately when <code>spawn</code> is called.</p>
+<p>The provided future will start running in the background immediately
+when <code>spawn</code> is called, even if you don’t await the returned
+<code>JoinHandle</code>.</p>
 <p>See <a href="index.html">module level</a> documentation for more details.</p>
 <h5 id="examples-1"><a href="#examples-1">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::runtime::Runtime;
@@ -57,7 +57,7 @@ immediately when <code>spawn</code> is called.</p>
 </span>handle.spawn(<span class="kw">async </span>{
     <span class="macro">println!</span>(<span class="string">&quot;now running on a worker thread&quot;</span>);
 });</code></pre></div>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.spawn_blocking" class="method has-srclink"><a class="srclink rightside" href="../src/tokio/runtime/handle.rs.html#175-178">source</a><h4 class="code-header">pub fn <a href="#method.spawn_blocking" class="fn">spawn_blocking</a>&lt;F, R&gt;(&amp;self, func: F) -&gt; <a class="struct" href="../tokio/runtime/task/join/struct.JoinHandle.html" title="struct tokio::runtime::task::join::JoinHandle">JoinHandle</a>&lt;R&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/1.68.2/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; R + <a class="trait" href="https://doc.rust-lang.org/1.68.2/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="https://doc.rust-lang.org/1.68.2/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,</span></h4></section></summary><div class="docblock"><p>Runs the provided function on an executor dedicated to blocking.
+</div></details><details class="toggle method-toggle" open><summary><section id="method.spawn_blocking" class="method has-srclink"><a class="srclink rightside" href="../src/tokio/runtime/handle.rs.html#175-178">source</a><h4 class="code-header">pub fn <a href="#method.spawn_blocking" class="fn">spawn_blocking</a>&lt;F, R&gt;(&amp;self, func: F) -&gt; <a class="struct" href="../tokio/runtime/task/join/struct.JoinHandle.html" title="struct tokio::runtime::task::join::JoinHandle">JoinHandle</a>&lt;R&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/1.68.2/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; R + <a class="trait" href="https://doc.rust-lang.org/1.68.2/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="https://doc.rust-lang.org/1.68.2/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,</span></h4></section></summary><div class="docblock"><p>Runs the provided function on an executor dedicated to blocking
 operations.</p>
 <h5 id="examples-2"><a href="#examples-2">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>tokio::runtime::Runtime;

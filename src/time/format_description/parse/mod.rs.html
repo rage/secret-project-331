@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.17/src/format_description/parse/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../time/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.20/src/format_description/parse/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../time/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -192,29 +192,88 @@
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Parser for format descriptions.
 
-</span><span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::ops::{RangeFrom, RangeTo};
+</span><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::vec::Vec;
+
+<span class="doccomment">/// A helper macro to make version restrictions simpler to read and write.
+</span><span class="macro">macro_rules! </span>version {
+    (<span class="macro-nonterminal">$range</span>:expr) =&gt; {
+        <span class="macro-nonterminal">$range</span>.contains(<span class="kw-2">&amp;</span>VERSION)
+    };
+}
+
+<span class="doccomment">/// A helper macro to statically validate the version (when used as a const parameter).
+</span><span class="macro">macro_rules! </span>validate_version {
+    (<span class="macro-nonterminal">$version</span>:ident) =&gt; {
+        <span class="attr">#[allow(clippy::let_unit_value)]
+        </span><span class="kw">let _ </span>= <span class="macro-nonterminal">$crate::format_description::parse::Version</span>::&lt;<span class="macro-nonterminal">$version</span>&gt;::IS_VALID;
+    };
+}
 
 <span class="kw">mod </span>ast;
 <span class="kw">mod </span>format_item;
 <span class="kw">mod </span>lexer;
 
-<span class="doccomment">/// Parse a sequence of items from the format description.
-///
-/// The syntax for the format description can be found in [the
-/// book](https://time-rs.github.io/book/api/format-description.html).
-</span><span class="kw">pub fn </span>parse(
-    s: <span class="kw-2">&amp;</span>str,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">crate</span>::format_description::FormatItem&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, <span class="kw">crate</span>::error::InvalidFormatDescription&gt;
-{
-    <span class="kw">let </span>lexed = lexer::lex(s.as_bytes());
-    <span class="kw">let </span>ast = ast::parse(lexed);
-    <span class="kw">let </span>format_items = format_item::parse(ast);
-    <span class="prelude-val">Ok</span>(format_items
-        .map(|res| res.map(Into::into))
-        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>)
+<span class="doccomment">/// A struct that is used to ensure that the version is valid.
+</span><span class="kw">struct </span>Version&lt;<span class="kw">const </span>N: usize&gt;;
+<span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; Version&lt;N&gt; {
+    <span class="doccomment">/// A constant that panics if the version is not valid. This results in a post-monomorphization
+    /// error.
+    </span><span class="kw">const </span>IS_VALID: () = <span class="macro">assert!</span>(N &gt;= <span class="number">1 </span>&amp;&amp; N &lt;= <span class="number">2</span>);
 }
 
 <span class="doccomment">/// Parse a sequence of items from the format description.
@@ -222,43 +281,76 @@
 /// The syntax for the format description can be found in [the
 /// book](https://time-rs.github.io/book/api/format-description.html).
 ///
+/// This function exists for backward compatibility reasons. It is equivalent to calling
+/// `parse_borrowed::&lt;1&gt;(s)`. In the future, this function will be deprecated in favor of
+/// `parse_borrowed`.
+</span><span class="kw">pub fn </span>parse(
+    s: <span class="kw-2">&amp;</span>str,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">crate</span>::format_description::FormatItem&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, <span class="kw">crate</span>::error::InvalidFormatDescription&gt;
+{
+    parse_borrowed::&lt;<span class="number">1</span>&gt;(s)
+}
+
+<span class="doccomment">/// Parse a sequence of items from the format description.
+///
+/// The syntax for the format description can be found in [the
+/// book](https://time-rs.github.io/book/api/format-description.html). The version of the format
+/// description is provided as the const parameter. **It is recommended to use version 2.**
+</span><span class="kw">pub fn </span>parse_borrowed&lt;<span class="kw">const </span>VERSION: usize&gt;(
+    s: <span class="kw-2">&amp;</span>str,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">crate</span>::format_description::FormatItem&lt;<span class="lifetime">&#39;_</span>&gt;&gt;, <span class="kw">crate</span>::error::InvalidFormatDescription&gt;
+{
+    <span class="macro">validate_version!</span>(VERSION);
+    <span class="kw">let </span><span class="kw-2">mut </span>lexed = lexer::lex::&lt;VERSION&gt;(s.as_bytes());
+    <span class="kw">let </span>ast = ast::parse::&lt;<span class="kw">_</span>, VERSION&gt;(<span class="kw-2">&amp;mut </span>lexed);
+    <span class="kw">let </span>format_items = format_item::parse(ast);
+    <span class="prelude-val">Ok</span>(format_items
+        .map(|res| res.and_then(TryInto::try_into))
+        .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>)
+}
+
+<span class="doccomment">/// Parse a sequence of items from the format description.
+///
+/// The syntax for the format description can be found in [the
+/// book](https://time-rs.github.io/book/api/format-description.html). The version of the format
+/// description is provided as the const parameter.
+///
 /// Unlike [`parse`], this function returns [`OwnedFormatItem`], which owns its contents. This means
-/// that there is no lifetime that needs to be handled.
+/// that there is no lifetime that needs to be handled. **It is recommended to use version 2.**
 ///
 /// [`OwnedFormatItem`]: crate::format_description::OwnedFormatItem
-</span><span class="kw">pub fn </span>parse_owned(
+</span><span class="kw">pub fn </span>parse_owned&lt;<span class="kw">const </span>VERSION: usize&gt;(
     s: <span class="kw-2">&amp;</span>str,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::format_description::OwnedFormatItem, <span class="kw">crate</span>::error::InvalidFormatDescription&gt; {
-    <span class="kw">let </span>lexed = lexer::lex(s.as_bytes());
-    <span class="kw">let </span>ast = ast::parse(lexed);
+    <span class="macro">validate_version!</span>(VERSION);
+    <span class="kw">let </span><span class="kw-2">mut </span>lexed = lexer::lex::&lt;VERSION&gt;(s.as_bytes());
+    <span class="kw">let </span>ast = ast::parse::&lt;<span class="kw">_</span>, VERSION&gt;(<span class="kw-2">&amp;mut </span>lexed);
     <span class="kw">let </span>format_items = format_item::parse(ast);
     <span class="kw">let </span>items = format_items
         .map(|res| res.map(Into::into))
-        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?
-        </span>.into_boxed_slice();
-    <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::format_description::OwnedFormatItem::Compound(items))
+        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(items.into())
 }
 
 <span class="doccomment">/// A location within a string.
 </span><span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">struct </span>Location {
-    <span class="doccomment">/// The one-indexed line of the string.
-    </span>line: usize,
-    <span class="doccomment">/// The one-indexed column of the string.
-    </span>column: usize,
     <span class="doccomment">/// The zero-indexed byte of the string.
-    </span>byte: usize,
+    </span>byte: u32,
 }
 
 <span class="kw">impl </span>Location {
+    <span class="doccomment">/// Create a new [`Span`] from `self` to `other`.
+    </span><span class="kw">const fn </span>to(<span class="self">self</span>, end: <span class="self">Self</span>) -&gt; Span {
+        Span { start: <span class="self">self</span>, end }
+    }
+
     <span class="doccomment">/// Offset the location by the provided amount.
     ///
     /// Note that this assumes the resulting location is on the same line as the original location.
     </span><span class="attr">#[must_use = <span class="string">&quot;this does not modify the original value&quot;</span>]
-    </span><span class="kw">const fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: usize) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">const fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: u32) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            line: <span class="self">self</span>.line,
-            column: <span class="self">self</span>.column + offset,
             byte: <span class="self">self</span>.byte + offset,
         }
     }
@@ -285,17 +377,6 @@
 }
 
 <span class="kw">impl </span>Span {
-    <span class="doccomment">/// Create a new `Span` from the provided start and end locations.
-    </span><span class="kw">const fn </span>start_end(start: Location, end: Location) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ start, end }
-    }
-
-    <span class="doccomment">/// Reduce this span to the provided range.
-    </span><span class="attr">#[must_use = <span class="string">&quot;this does not modify the original value&quot;</span>]
-    </span><span class="kw">fn </span>subspan(<span class="kw-2">&amp;</span><span class="self">self</span>, range: <span class="kw">impl </span>Subspan) -&gt; <span class="self">Self </span>{
-        range.subspan(<span class="self">self</span>)
-    }
-
     <span class="doccomment">/// Obtain a `Span` pointing at the start of the pre-existing span.
     </span><span class="attr">#[must_use = <span class="string">&quot;this does not modify the original value&quot;</span>]
     </span><span class="kw">const fn </span>shrink_to_start(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -314,6 +395,28 @@
         }
     }
 
+    <span class="doccomment">/// Obtain a `Span` that ends before the provided position of the pre-existing span.
+    </span><span class="attr">#[must_use = <span class="string">&quot;this does not modify the original value&quot;</span>]
+    </span><span class="kw">const fn </span>shrink_to_before(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            start: <span class="self">self</span>.start,
+            end: Location {
+                byte: <span class="self">self</span>.start.byte + pos - <span class="number">1</span>,
+            },
+        }
+    }
+
+    <span class="doccomment">/// Obtain a `Span` that starts after provided position to the end of the pre-existing span.
+    </span><span class="attr">#[must_use = <span class="string">&quot;this does not modify the original value&quot;</span>]
+    </span><span class="kw">const fn </span>shrink_to_after(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            start: Location {
+                byte: <span class="self">self</span>.start.byte + pos + <span class="number">1</span>,
+            },
+            end: <span class="self">self</span>.end,
+        }
+    }
+
     <span class="doccomment">/// Create an error with the provided message at this span.
     </span><span class="kw">const fn </span>error(<span class="self">self</span>, message: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; ErrorInner {
         ErrorInner {
@@ -321,46 +424,34 @@
             _span: <span class="self">self</span>,
         }
     }
+}
 
-    <span class="doccomment">/// Get the byte index that the span starts at.
-    </span><span class="kw">const fn </span>start_byte(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.start.byte
+<span class="doccomment">/// A value with an associated [`Span`].
+</span><span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">struct </span>Spanned&lt;T&gt; {
+    <span class="doccomment">/// The value.
+    </span>value: T,
+    <span class="doccomment">/// Where the value was in the format string.
+    </span>span: Span,
+}
+
+<span class="kw">impl</span>&lt;T&gt; core::ops::Deref <span class="kw">for </span>Spanned&lt;T&gt; {
+    <span class="kw">type </span>Target = T;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.value
     }
 }
 
-<span class="doccomment">/// A trait for types that can be used to reduce a `Span`.
-</span><span class="kw">trait </span>Subspan {
-    <span class="doccomment">/// Reduce the provided `Span` to a new `Span`.
-    </span><span class="kw">fn </span>subspan(<span class="self">self</span>, span: <span class="kw-2">&amp;</span>Span) -&gt; Span;
+<span class="doccomment">/// Helper trait to attach a [`Span`] to a value.
+</span><span class="kw">trait </span>SpannedValue: Sized {
+    <span class="doccomment">/// Attach a [`Span`] to a value.
+    </span><span class="kw">fn </span>spanned(<span class="self">self</span>, span: Span) -&gt; Spanned&lt;<span class="self">Self</span>&gt;;
 }
 
-<span class="kw">impl </span>Subspan <span class="kw">for </span>RangeFrom&lt;usize&gt; {
-    <span class="kw">fn </span>subspan(<span class="self">self</span>, span: <span class="kw-2">&amp;</span>Span) -&gt; Span {
-        <span class="macro">assert_eq!</span>(span.start.line, span.end.line);
-
-        Span {
-            start: Location {
-                line: span.start.line,
-                column: span.start.column + <span class="self">self</span>.start,
-                byte: span.start.byte + <span class="self">self</span>.start,
-            },
-            end: span.end,
-        }
-    }
-}
-
-<span class="kw">impl </span>Subspan <span class="kw">for </span>RangeTo&lt;usize&gt; {
-    <span class="kw">fn </span>subspan(<span class="self">self</span>, span: <span class="kw-2">&amp;</span>Span) -&gt; Span {
-        <span class="macro">assert_eq!</span>(span.start.line, span.end.line);
-
-        Span {
-            start: span.start,
-            end: Location {
-                line: span.start.line,
-                column: span.start.column + <span class="self">self</span>.end - <span class="number">1</span>,
-                byte: span.start.byte + <span class="self">self</span>.end - <span class="number">1</span>,
-            },
-        }
+<span class="kw">impl</span>&lt;T&gt; SpannedValue <span class="kw">for </span>T {
+    <span class="kw">fn </span>spanned(<span class="self">self</span>, span: Span) -&gt; Spanned&lt;<span class="self">Self</span>&gt; {
+        Spanned { value: <span class="self">self</span>, span }
     }
 }
 
@@ -375,7 +466,7 @@
 <span class="doccomment">/// A complete error description.
 </span><span class="kw">struct </span>Error {
     <span class="doccomment">/// The internal error.
-    </span>_inner: ErrorInner,
+    </span>_inner: Unused&lt;ErrorInner&gt;,
     <span class="doccomment">/// The error needed for interoperability with the rest of `time`.
     </span>public: <span class="kw">crate</span>::error::InvalidFormatDescription,
 }
@@ -384,6 +475,19 @@
     <span class="kw">fn </span>from(error: Error) -&gt; <span class="self">Self </span>{
         error.public
     }
+}
+
+<span class="doccomment">/// A value that may be used in the future, but currently is not.
+///
+/// This struct exists so that data can semantically be passed around without _actually_ passing it
+/// around. This way the data still exists if it is needed in the future.
+</span><span class="comment">// `PhantomData` is not used directly because we don&#39;t want to introduce any trait implementations.
+</span><span class="kw">struct </span>Unused&lt;T&gt;(core::marker::PhantomData&lt;T&gt;);
+
+<span class="doccomment">/// Indicate that a value is currently unused.
+</span><span class="attr">#[allow(clippy::missing_const_for_fn)] </span><span class="comment">// false positive
+</span><span class="kw">fn </span>unused&lt;T&gt;(<span class="kw">_</span>: T) -&gt; Unused&lt;T&gt; {
+    Unused(core::marker::PhantomData)
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

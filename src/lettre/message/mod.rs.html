@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.4/src/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -779,6 +779,8 @@
 <a href="#778" id="778">778</a>
 <a href="#779" id="779">779</a>
 <a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Provides a strongly typed way to build emails
 //!
 //! ## Usage
@@ -795,7 +797,7 @@
 //! The easiest way of creating a message, which uses a plain text body.
 //!
 //! ```rust
-//! use lettre::message::Message;
+//! use lettre::message::{header::ContentType, Message};
 //!
 //! # use std::error::Error;
 //! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
@@ -804,6 +806,7 @@
 //!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
 //!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
 //!     .subject(&quot;Happy new year&quot;)
+//!     .header(ContentType::TEXT_PLAIN)
 //!     .body(String::from(&quot;Be happy!&quot;))?;
 //! # Ok(())
 //! # }
@@ -819,6 +822,7 @@
 //! To: Hei &lt;hei@domain.tld&gt;
 //! Subject: Happy new year
 //! Date: Sat, 12 Dec 2020 16:33:19 GMT
+//! Content-Type: text/plain; charset=utf-8
 //! Content-Transfer-Encoding: 7bit
 //!
 //! Be happy!
@@ -1124,9 +1128,9 @@
                 </span><span class="kw">let </span>hostname = hostname::get()
                     .map_err(|<span class="kw">_</span>| ())
                     .and_then(|s| s.into_string().map_err(|<span class="kw">_</span>| ()))
-                    .unwrap_or_else(|<span class="kw">_</span>| DEFAULT_MESSAGE_ID_DOMAIN.to_string());
+                    .unwrap_or_else(|<span class="kw">_</span>| DEFAULT_MESSAGE_ID_DOMAIN.to_owned());
                 <span class="attr">#[cfg(not(feature = <span class="string">&quot;hostname&quot;</span>))]
-                </span><span class="kw">let </span>hostname = DEFAULT_MESSAGE_ID_DOMAIN.to_string();
+                </span><span class="kw">let </span>hostname = DEFAULT_MESSAGE_ID_DOMAIN.to_owned();
 
                 <span class="self">self</span>.header(header::MessageId::from(
                     <span class="comment">// https://tools.ietf.org/html/rfc5322#section-3.6.4
@@ -1137,7 +1141,7 @@
     }
 
     <span class="doccomment">/// Set [User-Agent
-    /// header](https://tools.ietf.org/html/draft-melnikov-email-user-agent-004)
+    /// header](https://tools.ietf.org/html/draft-melnikov-email-user-agent-00)
     </span><span class="kw">pub fn </span>user_agent(<span class="self">self</span>, id: String) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.header(header::UserAgent::from(id))
     }
@@ -1320,7 +1324,7 @@
     ///     .reply_to(&quot;Bob &lt;bob@example.org&gt;&quot;.parse().unwrap())
     ///     .to(&quot;Carla &lt;carla@example.net&gt;&quot;.parse().unwrap())
     ///     .subject(&quot;Hello&quot;)
-    ///     .body(&quot;Hi there, it&#39;s a test email, with utf-8 chars ë!\n\n\n&quot;.to_string())
+    ///     .body(&quot;Hi there, it&#39;s a test email, with utf-8 chars ë!\n\n\n&quot;.to_owned())
     ///     .unwrap();
     /// let key = &quot;-----BEGIN RSA PRIVATE KEY-----
     /// MIIEowIBAAKCAQEAt2gawjoybf0mAz0mSX0cq1ah5F9cPazZdCwLnFBhRufxaZB8
@@ -1351,8 +1355,8 @@
     /// -----END RSA PRIVATE KEY-----&quot;;
     /// let signing_key = DkimSigningKey::new(key, DkimSigningAlgorithm::Rsa).unwrap();
     /// message.sign(&amp;DkimConfig::default_config(
-    ///     &quot;dkimtest&quot;.to_string(),
-    ///     &quot;example.org&quot;.to_string(),
+    ///     &quot;dkimtest&quot;.to_owned(),
+    ///     &quot;example.org&quot;.to_owned(),
     ///     signing_key,
     /// ));
     /// println!(
@@ -1454,7 +1458,7 @@
                 <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
                 <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
                 <span class="string">&quot;To: \&quot;Pony O.P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>,
-                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvQ==?=!\r\n&quot;</span>,
+                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvSE=?=\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
                 <span class="string">&quot;Happy new year!&quot;
@@ -1492,7 +1496,7 @@
                 <span class="string">&quot;Bcc: hidden@example.com\r\n&quot;</span>,
                 <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
                 <span class="string">&quot;To: \&quot;Pony O.P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>,
-                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvQ==?=!\r\n&quot;</span>,
+                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvSE=?=\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
                 <span class="string">&quot;Happy new year!&quot;

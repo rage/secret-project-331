@@ -7,7 +7,7 @@ distributes connections with a round-robin strategy.</p>
 <p>The <a href="struct.Server.html" title="Server">Server</a> must be awaited or polled in order to start running. It will resolve when the
 server has fully shut down.</p>
 <h2 id="shutdown-signals"><a href="#shutdown-signals">Shutdown Signals</a></h2>
-<p>On UNIX systems, <code>SIGQUIT</code> will start a graceful shutdown and <code>SIGTERM</code> or <code>SIGINT</code> will start a
+<p>On UNIX systems, <code>SIGTERM</code> will start a graceful shutdown and <code>SIGQUIT</code> or <code>SIGINT</code> will start a
 forced shutdown. On Windows, a Ctrl-C signal will start a forced shutdown.</p>
 <p>A graceful shutdown will wait for all workers to stop first.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>

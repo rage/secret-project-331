@@ -465,6 +465,7 @@
 <a href="#465" id="465">465</a>
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
@@ -846,7 +847,8 @@ SELECT id,
   accepting_threshold,
   accepting_strategy AS &quot;accepting_strategy: _&quot;
 FROM peer_review_configs
-where course_id = $1
+WHERE course_id = $1
+  AND exercise_id IS NULL
   AND deleted_at IS NULL;
 &quot;#</span>,
         course_id

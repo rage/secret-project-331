@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/base64-0.20.0/src/decode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../base64/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/base64-0.21.0/src/decode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../base64/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -347,34 +347,7 @@
 <a href="#347" id="347">347</a>
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-</pre><pre class="rust"><code><span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
-</span><span class="kw">use </span><span class="kw">crate</span>::engine::DecodeEstimate;
-<span class="kw">use </span><span class="kw">crate</span>::engine::Engine;
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
-</span><span class="kw">use </span><span class="kw">crate</span>::engine::DEFAULT_ENGINE;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::engine::{general_purpose::STANDARD, DecodeEstimate, Engine};
 <span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt;
@@ -418,153 +391,121 @@
 
 <span class="attr">#[cfg(any(feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">impl </span>error::Error <span class="kw">for </span>DecodeError {
-    <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            <span class="self">Self</span>::InvalidByte(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">&quot;invalid byte&quot;</span>,
-            <span class="self">Self</span>::InvalidLength =&gt; <span class="string">&quot;invalid length&quot;</span>,
-            <span class="self">Self</span>::InvalidLastSymbol(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">&quot;invalid last symbol&quot;</span>,
-            <span class="self">Self</span>::InvalidPadding =&gt; <span class="string">&quot;invalid padding&quot;</span>,
-        }
-    }
-
     <span class="kw">fn </span>cause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>error::Error&gt; {
         <span class="prelude-val">None
     </span>}
 }
 
-<span class="doccomment">///Decode base64 using the [default engine](DEFAULT_ENGINE).
-///Returns a `Result` containing a `Vec&lt;u8&gt;`.
-///
-///# Example
-///
-///```rust
-/// let bytes = base64::decode(&quot;aGVsbG8gd29ybGQ=&quot;).unwrap();
-/// println!(&quot;{:?}&quot;, bytes);
-///```
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
-</span><span class="kw">pub fn </span>decode&lt;T: AsRef&lt;[u8]&gt;&gt;(input: T) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, DecodeError&gt; {
-    decode_engine(input, <span class="kw-2">&amp;</span>DEFAULT_ENGINE)
+<span class="doccomment">/// Errors that can occur while decoding into a slice.
+</span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>DecodeSliceError {
+    <span class="doccomment">/// A [DecodeError] occurred
+    </span>DecodeError(DecodeError),
+    <span class="doccomment">/// The provided slice _may_ be too small.
+    ///
+    /// The check is conservative (assumes the last triplet of output bytes will all be needed).
+    </span>OutputSliceTooSmall,
 }
 
-<span class="doccomment">///Decode from string reference as octets using the specified [Engine].
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>DecodeSliceError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::DecodeError(e) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;DecodeError: {}&quot;</span>, e),
+            <span class="self">Self</span>::OutputSliceTooSmall =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Output slice too small&quot;</span>),
+        }
+    }
+}
+
+<span class="attr">#[cfg(any(feature = <span class="string">&quot;std&quot;</span>, test))]
+</span><span class="kw">impl </span>error::Error <span class="kw">for </span>DecodeSliceError {
+    <span class="kw">fn </span>cause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>error::Error&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            DecodeSliceError::DecodeError(e) =&gt; <span class="prelude-val">Some</span>(e),
+            DecodeSliceError::OutputSliceTooSmall =&gt; <span class="prelude-val">None</span>,
+        }
+    }
+}
+
+<span class="kw">impl </span>From&lt;DecodeError&gt; <span class="kw">for </span>DecodeSliceError {
+    <span class="kw">fn </span>from(e: DecodeError) -&gt; <span class="self">Self </span>{
+        DecodeSliceError::DecodeError(e)
+    }
+}
+
+<span class="doccomment">/// Decode base64 using the [`STANDARD` engine](STANDARD).
+///
+/// See [Engine::decode].
+</span><span class="attr">#[deprecated(since = <span class="string">&quot;0.21.0&quot;</span>, note = <span class="string">&quot;Use Engine::decode&quot;</span>)]
+#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
+</span><span class="kw">pub fn </span>decode&lt;T: AsRef&lt;[u8]&gt;&gt;(input: T) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, DecodeError&gt; {
+    STANDARD.decode(input)
+}
+
+<span class="doccomment">/// Decode from string reference as octets using the specified [Engine].
+///
+/// See [Engine::decode].
 ///Returns a `Result` containing a `Vec&lt;u8&gt;`.
-///
-///# Example
-///
-///```rust
-///    let bytes = base64::decode_engine(
-///        &quot;aGVsbG8gd29ybGR+Cg==&quot;,
-///        &amp;base64::engine::DEFAULT_ENGINE,
-///    ).unwrap();
-///    println!(&quot;{:?}&quot;, bytes);
-///
-///    // custom engine setup
-///    let bytes_url = base64::decode_engine(
-///        &quot;aGVsbG8gaW50ZXJuZXR-Cg&quot;,
-///        &amp;base64::engine::fast_portable::FastPortable::from(
-///            &amp;base64::alphabet::URL_SAFE,
-///            base64::engine::fast_portable::NO_PAD),
-///
-///    ).unwrap();
-///    println!(&quot;{:?}&quot;, bytes_url);
-///```
-</span><span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
+</span><span class="attr">#[deprecated(since = <span class="string">&quot;0.21.0&quot;</span>, note = <span class="string">&quot;Use Engine::decode&quot;</span>)]
+#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
 </span><span class="kw">pub fn </span>decode_engine&lt;E: Engine, T: AsRef&lt;[u8]&gt;&gt;(
     input: T,
     engine: <span class="kw-2">&amp;</span>E,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, DecodeError&gt; {
-    <span class="kw">let </span>decoded_length_estimate = (input
-        .as_ref()
-        .len()
-        .checked_add(<span class="number">3</span>)
-        .expect(<span class="string">&quot;decoded length calculation overflow&quot;</span>))
-        / <span class="number">4
-        </span>* <span class="number">3</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::&lt;u8&gt;::with_capacity(decoded_length_estimate);
-    decode_engine_vec(input, <span class="kw-2">&amp;mut </span>buffer, engine).map(|<span class="kw">_</span>| buffer)
+    engine.decode(input)
 }
 
-<span class="doccomment">///Decode from string reference as octets.
-///Writes into the supplied `Vec`, which may allocate if its internal buffer isn&#39;t big enough.
-///Returns a `Result` containing an empty tuple, aka `()`.
+<span class="doccomment">/// Decode from string reference as octets.
 ///
-///# Example
-///
-///```rust
-///const URL_SAFE_ENGINE: base64::engine::fast_portable::FastPortable =
-///    base64::engine::fast_portable::FastPortable::from(
-///        &amp;base64::alphabet::URL_SAFE,
-///        base64::engine::fast_portable::PAD);
-///
-///fn main() {
-///    let mut buffer = Vec::&lt;u8&gt;::new();
-///    // with the default engine
-///    base64::decode_engine_vec(
-///        &quot;aGVsbG8gd29ybGR+Cg==&quot;,
-///        &amp;mut buffer,
-///        &amp;base64::engine::DEFAULT_ENGINE
-///    ).unwrap();
-///    println!(&quot;{:?}&quot;, buffer);
-///
-///    buffer.clear();
-///
-///    // with a custom engine
-///    base64::decode_engine_vec(
-///        &quot;aGVsbG8gaW50ZXJuZXR-Cg==&quot;,
-///        &amp;mut buffer,
-///        &amp;URL_SAFE_ENGINE
-///    ).unwrap();
-///    println!(&quot;{:?}&quot;, buffer);
-///}
-///```
+/// See [Engine::decode_vec].
 </span><span class="attr">#[cfg(any(feature = <span class="string">&quot;alloc&quot;</span>, feature = <span class="string">&quot;std&quot;</span>, test))]
+#[deprecated(since = <span class="string">&quot;0.21.0&quot;</span>, note = <span class="string">&quot;Use Engine::decode_vec&quot;</span>)]
 </span><span class="kw">pub fn </span>decode_engine_vec&lt;E: Engine, T: AsRef&lt;[u8]&gt;&gt;(
     input: T,
     buffer: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;,
     engine: <span class="kw-2">&amp;</span>E,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodeError&gt; {
-    <span class="kw">let </span>input_bytes = input.as_ref();
-
-    <span class="kw">let </span>starting_output_len = buffer.len();
-
-    <span class="kw">let </span>estimate = engine.decoded_length_estimate(input_bytes.len());
-    <span class="kw">let </span>total_len_estimate = estimate
-        .decoded_length_estimate()
-        .checked_add(starting_output_len)
-        .expect(<span class="string">&quot;Overflow when calculating output buffer length&quot;</span>);
-    buffer.resize(total_len_estimate, <span class="number">0</span>);
-
-    <span class="kw">let </span>buffer_slice = <span class="kw-2">&amp;mut </span>buffer.as_mut_slice()[starting_output_len..];
-    <span class="kw">let </span>bytes_written = engine.decode(input_bytes, buffer_slice, estimate)<span class="question-mark">?</span>;
-
-    buffer.truncate(starting_output_len + bytes_written);
-
-    <span class="prelude-val">Ok</span>(())
+    engine.decode_vec(input, buffer)
 }
 
 <span class="doccomment">/// Decode the input into the provided output slice.
 ///
-/// This will not write any bytes past exactly what is decoded (no stray garbage bytes at the end).
-///
-/// If you don&#39;t know ahead of time what the decoded length should be, size your buffer with a
-/// conservative estimate for the decoded length of an input: 3 bytes of output for every 4 bytes of
-/// input, rounded up, or in other words `(input_len + 3) / 4 * 3`.
-///
-/// # Panics
-///
-/// If the slice is not large enough, this will panic.
+/// See [Engine::decode_slice].
+</span><span class="attr">#[deprecated(since = <span class="string">&quot;0.21.0&quot;</span>, note = <span class="string">&quot;Use Engine::decode_slice&quot;</span>)]
 </span><span class="kw">pub fn </span>decode_engine_slice&lt;E: Engine, T: AsRef&lt;[u8]&gt;&gt;(
     input: T,
     output: <span class="kw-2">&amp;mut </span>[u8],
     engine: <span class="kw-2">&amp;</span>E,
-) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DecodeError&gt; {
-    <span class="kw">let </span>input_bytes = input.as_ref();
+) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DecodeSliceError&gt; {
+    engine.decode_slice(input, output)
+}
 
-    engine.decode(
-        input_bytes,
-        output,
-        engine.decoded_length_estimate(input_bytes.len()),
-    )
+<span class="doccomment">/// Returns a conservative estimate of the decoded size of `encoded_len` base64 symbols (rounded up
+/// to the next group of 3 decoded bytes).
+///
+/// The resulting length will be a safe choice for the size of a decode buffer, but may have up to
+/// 2 trailing bytes that won&#39;t end up being needed.
+///
+/// # Examples
+///
+/// ```
+/// use base64::decoded_len_estimate;
+///
+/// assert_eq!(3, decoded_len_estimate(1));
+/// assert_eq!(3, decoded_len_estimate(2));
+/// assert_eq!(3, decoded_len_estimate(3));
+/// assert_eq!(3, decoded_len_estimate(4));
+/// // start of the next quad of encoded symbols
+/// assert_eq!(6, decoded_len_estimate(5));
+/// ```
+///
+/// # Panics
+///
+/// Panics if decoded length estimation overflows.
+/// This would happen for sizes within a few bytes of the maximum value of `usize`.
+</span><span class="kw">pub fn </span>decoded_len_estimate(encoded_len: usize) -&gt; usize {
+    STANDARD
+        .internal_decoded_len_estimate(encoded_len)
+        .decoded_len_estimate()
 }
 
 <span class="attr">#[cfg(test)]
@@ -572,8 +513,7 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{
         alphabet,
-        encode::encode_engine_string,
-        engine::{fast_portable, fast_portable::FastPortable, Config},
+        engine::{general_purpose, Config, GeneralPurpose},
         tests::{assert_encode_sanity, random_engine},
     };
     <span class="kw">use </span>rand::{
@@ -608,7 +548,7 @@
             }
 
             <span class="kw">let </span>engine = random_engine(<span class="kw-2">&amp;mut </span>rng);
-            encode_engine_string(<span class="kw-2">&amp;</span>orig_data, <span class="kw-2">&amp;mut </span>encoded_data, <span class="kw-2">&amp;</span>engine);
+            engine.encode_string(<span class="kw-2">&amp;</span>orig_data, <span class="kw-2">&amp;mut </span>encoded_data);
             assert_encode_sanity(<span class="kw-2">&amp;</span>encoded_data, engine.config().encode_padding(), input_len);
 
             <span class="kw">let </span>prefix_len = prefix_len_range.sample(<span class="kw-2">&amp;mut </span>rng);
@@ -622,9 +562,13 @@
             decoded_with_prefix.copy_from_slice(<span class="kw-2">&amp;</span>prefix);
 
             <span class="comment">// decode into the non-empty buf
-            </span>decode_engine_vec(<span class="kw-2">&amp;</span>encoded_data, <span class="kw-2">&amp;mut </span>decoded_with_prefix, <span class="kw-2">&amp;</span>engine).unwrap();
+            </span>engine
+                .decode_vec(<span class="kw-2">&amp;</span>encoded_data, <span class="kw-2">&amp;mut </span>decoded_with_prefix)
+                .unwrap();
             <span class="comment">// also decode into the empty buf
-            </span>decode_engine_vec(<span class="kw-2">&amp;</span>encoded_data, <span class="kw-2">&amp;mut </span>decoded_without_prefix, <span class="kw-2">&amp;</span>engine).unwrap();
+            </span>engine
+                .decode_vec(<span class="kw-2">&amp;</span>encoded_data, <span class="kw-2">&amp;mut </span>decoded_without_prefix)
+                .unwrap();
 
             <span class="macro">assert_eq!</span>(
                 prefix_len + decoded_without_prefix.len(),
@@ -640,7 +584,66 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>decode_into_slice_doesnt_clobber_existing_prefix_or_suffix() {
+    </span><span class="kw">fn </span>decode_slice_doesnt_clobber_existing_prefix_or_suffix() {
+        do_decode_slice_doesnt_clobber_existing_prefix_or_suffix(|e, input, output| {
+            e.decode_slice(input, output).unwrap()
+        })
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>decode_slice_unchecked_doesnt_clobber_existing_prefix_or_suffix() {
+        do_decode_slice_doesnt_clobber_existing_prefix_or_suffix(|e, input, output| {
+            e.decode_slice_unchecked(input, output).unwrap()
+        })
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>decode_engine_estimation_works_for_various_lengths() {
+        <span class="kw">let </span>engine = GeneralPurpose::new(<span class="kw-2">&amp;</span>alphabet::STANDARD, general_purpose::NO_PAD);
+        <span class="kw">for </span>num_prefix_quads <span class="kw">in </span><span class="number">0</span>..<span class="number">100 </span>{
+            <span class="kw">for </span>suffix <span class="kw">in </span><span class="kw-2">&amp;</span>[<span class="string">&quot;AA&quot;</span>, <span class="string">&quot;AAA&quot;</span>, <span class="string">&quot;AAAA&quot;</span>] {
+                <span class="kw">let </span><span class="kw-2">mut </span>prefix = <span class="string">&quot;AAAA&quot;</span>.repeat(num_prefix_quads);
+                prefix.push_str(suffix);
+                <span class="comment">// make sure no overflow (and thus a panic) occurs
+                </span><span class="kw">let </span>res = engine.decode(prefix);
+                <span class="macro">assert!</span>(res.is_ok());
+            }
+        }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>decode_slice_output_length_errors() {
+        <span class="kw">for </span>num_quads <span class="kw">in </span><span class="number">1</span>..<span class="number">100 </span>{
+            <span class="kw">let </span>input = <span class="string">&quot;AAAA&quot;</span>.repeat(num_quads);
+            <span class="kw">let </span><span class="kw-2">mut </span>vec = <span class="macro">vec!</span>[<span class="number">0</span>; (num_quads - <span class="number">1</span>) * <span class="number">3</span>];
+            <span class="macro">assert_eq!</span>(
+                DecodeSliceError::OutputSliceTooSmall,
+                STANDARD.decode_slice(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;mut </span>vec).unwrap_err()
+            );
+            vec.push(<span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(
+                DecodeSliceError::OutputSliceTooSmall,
+                STANDARD.decode_slice(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;mut </span>vec).unwrap_err()
+            );
+            vec.push(<span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(
+                DecodeSliceError::OutputSliceTooSmall,
+                STANDARD.decode_slice(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;mut </span>vec).unwrap_err()
+            );
+            vec.push(<span class="number">0</span>);
+            <span class="comment">// now it works
+            </span><span class="macro">assert_eq!</span>(
+                num_quads * <span class="number">3</span>,
+                STANDARD.decode_slice(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;mut </span>vec).unwrap()
+            );
+        }
+    }
+
+    <span class="kw">fn </span>do_decode_slice_doesnt_clobber_existing_prefix_or_suffix&lt;
+        F: Fn(<span class="kw-2">&amp;</span>GeneralPurpose, <span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;mut </span>[u8]) -&gt; usize,
+    &gt;(
+        call_decode: F,
+    ) {
         <span class="kw">let </span><span class="kw-2">mut </span>orig_data = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>encoded_data = String::new();
         <span class="kw">let </span><span class="kw-2">mut </span>decode_buf = Vec::new();
@@ -663,7 +666,7 @@
             }
 
             <span class="kw">let </span>engine = random_engine(<span class="kw-2">&amp;mut </span>rng);
-            encode_engine_string(<span class="kw-2">&amp;</span>orig_data, <span class="kw-2">&amp;mut </span>encoded_data, <span class="kw-2">&amp;</span>engine);
+            engine.encode_string(<span class="kw-2">&amp;</span>orig_data, <span class="kw-2">&amp;mut </span>encoded_data);
             assert_encode_sanity(<span class="kw-2">&amp;</span>encoded_data, engine.config().encode_padding(), input_len);
 
             <span class="comment">// fill the buffer with random garbage, long enough to have some room before and after
@@ -678,7 +681,7 @@
 
             <span class="comment">// decode into the non-empty buf
             </span><span class="kw">let </span>decode_bytes_written =
-                decode_engine_slice(<span class="kw-2">&amp;</span>encoded_data, <span class="kw-2">&amp;mut </span>decode_buf[offset..], <span class="kw-2">&amp;</span>engine).unwrap();
+                call_decode(<span class="kw-2">&amp;</span>engine, encoded_data.as_bytes(), <span class="kw-2">&amp;mut </span>decode_buf[offset..]);
 
             <span class="macro">assert_eq!</span>(orig_data.len(), decode_bytes_written);
             <span class="macro">assert_eq!</span>(
@@ -690,55 +693,6 @@
                 <span class="kw-2">&amp;</span>decode_buf_copy[offset + decode_bytes_written..],
                 <span class="kw-2">&amp;</span>decode_buf[offset + decode_bytes_written..]
             );
-        }
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>decode_into_slice_fits_in_precisely_sized_slice() {
-        <span class="kw">let </span><span class="kw-2">mut </span>orig_data = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>encoded_data = String::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>decode_buf = Vec::new();
-
-        <span class="kw">let </span>input_len_range = Uniform::new(<span class="number">0</span>, <span class="number">1000</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::rngs::SmallRng::from_entropy();
-
-        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">10_000 </span>{
-            orig_data.clear();
-            encoded_data.clear();
-            decode_buf.clear();
-
-            <span class="kw">let </span>input_len = input_len_range.sample(<span class="kw-2">&amp;mut </span>rng);
-
-            <span class="kw">for _ in </span><span class="number">0</span>..input_len {
-                orig_data.push(rng.gen());
-            }
-
-            <span class="kw">let </span>engine = random_engine(<span class="kw-2">&amp;mut </span>rng);
-            encode_engine_string(<span class="kw-2">&amp;</span>orig_data, <span class="kw-2">&amp;mut </span>encoded_data, <span class="kw-2">&amp;</span>engine);
-            assert_encode_sanity(<span class="kw-2">&amp;</span>encoded_data, engine.config().encode_padding(), input_len);
-
-            decode_buf.resize(input_len, <span class="number">0</span>);
-
-            <span class="comment">// decode into the non-empty buf
-            </span><span class="kw">let </span>decode_bytes_written =
-                decode_engine_slice(<span class="kw-2">&amp;</span>encoded_data, <span class="kw-2">&amp;mut </span>decode_buf[..], <span class="kw-2">&amp;</span>engine).unwrap();
-
-            <span class="macro">assert_eq!</span>(orig_data.len(), decode_bytes_written);
-            <span class="macro">assert_eq!</span>(orig_data, decode_buf);
-        }
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>decode_engine_estimation_works_for_various_lengths() {
-        <span class="kw">let </span>engine = FastPortable::from(<span class="kw-2">&amp;</span>alphabet::STANDARD, fast_portable::NO_PAD);
-        <span class="kw">for </span>num_prefix_quads <span class="kw">in </span><span class="number">0</span>..<span class="number">100 </span>{
-            <span class="kw">for </span>suffix <span class="kw">in </span><span class="kw-2">&amp;</span>[<span class="string">&quot;AA&quot;</span>, <span class="string">&quot;AAA&quot;</span>, <span class="string">&quot;AAAA&quot;</span>] {
-                <span class="kw">let </span><span class="kw-2">mut </span>prefix = <span class="string">&quot;AAAA&quot;</span>.repeat(num_prefix_quads);
-                prefix.push_str(suffix);
-                <span class="comment">// make sure no overflow (and thus a panic) occurs
-                </span><span class="kw">let </span>res = decode_engine(prefix, <span class="kw-2">&amp;</span>engine);
-                <span class="macro">assert!</span>(res.is_ok());
-            }
         }
     }
 }

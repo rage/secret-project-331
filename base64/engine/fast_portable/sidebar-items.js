@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":[["NO_PAD","Don’t add padding when encoding, and require no padding when decoding."],["PAD","Include padding bytes when encoding, and require that they be present when decoding."]],"struct":[["FastPortable","A general-purpose base64 engine."],["FastPortableConfig","Contains configuration parameters for base64 encoding and decoding."]]};

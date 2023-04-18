@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["JsonFieldError",""]],"struct":[["Json","Deserialize from JSON."],["JsonConfig","Configuration for the [`Json`] field reader."]]};

@@ -15,7 +15,7 @@ name of handler is used.</li>
 <p>Function name can be specified as any expression that is going to be accessible to the generate
 code, e.g <code>my_guard</code> or <code>my_module::my_guard</code>.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[route(<span class="string">&quot;/test&quot;</span>, method = <span class="string">&quot;GET&quot;</span>, method = <span class="string">&quot;HEAD&quot;</span>)]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[route(<span class="string">&quot;/test&quot;</span>, method = <span class="string">&quot;GET&quot;</span>, method = <span class="string">&quot;HEAD&quot;</span>, method = <span class="string">&quot;CUSTOM&quot;</span>)]
 </span><span class="kw">async fn </span>example() -&gt; HttpResponse {
     HttpResponse::Ok().finish()
 }</code></pre></div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/index.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>index.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.17.0/src/index.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>index.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -890,6 +890,43 @@
 <a href="#890" id="890">890</a>
 <a href="#891" id="891">891</a>
 <a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::ffi::{CStr, CString};
 <span class="kw">use </span>std::marker;
 <span class="kw">use </span>std::ops::Range;
@@ -937,7 +974,7 @@
 <span class="doccomment">/// A callback function to filter index matches.
 ///
 /// Used by `Index::{add_all,remove_all,update_all}`.  The first argument is the
-/// path, and the second is the patchspec that matched it.  Return 0 to confirm
+/// path, and the second is the pathspec that matched it.  Return 0 to confirm
 /// the operation on the item, &gt; 0 to skip the item, and &lt; 0 to abort the scan.
 </span><span class="kw">pub type </span>IndexMatchedPath&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>[u8]) -&gt; i32 + <span class="lifetime">&#39;a</span>;
 
@@ -1488,6 +1525,22 @@
             <span class="prelude-val">Ok</span>(Binding::from_raw(<span class="kw-2">&amp;</span>raw <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>))
         }
     }
+
+    <span class="doccomment">/// Find the first position of any entries matching a prefix.
+    ///
+    /// To find the first position of a path inside a given folder, suffix the prefix with a &#39;/&#39;.
+    </span><span class="kw">pub fn </span>find_prefix&lt;T: IntoCString&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, prefix: T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>at_pos: size_t = <span class="number">0</span>;
+        <span class="kw">let </span>entry_path = prefix.into_c_string()<span class="question-mark">?</span>;
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_index_find_prefix(
+                <span class="kw-2">&amp;mut </span>at_pos,
+                <span class="self">self</span>.raw,
+                entry_path
+            ));
+            <span class="prelude-val">Ok</span>(at_pos)
+        }
+    }
 }
 
 <span class="kw">impl </span>Binding <span class="kw">for </span>Index {
@@ -1638,7 +1691,7 @@
     <span class="kw">use </span>std::path::Path;
     <span class="kw">use </span>tempfile::TempDir;
 
-    <span class="kw">use crate</span>::{Index, IndexEntry, IndexTime, Oid, Repository, ResetType};
+    <span class="kw">use crate</span>::{ErrorCode, Index, IndexEntry, IndexTime, Oid, Repository, ResetType};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>smoke() {
@@ -1747,6 +1800,27 @@
         index.add(<span class="kw-2">&amp;</span>e).unwrap();
         <span class="kw">let </span>e = index.get(<span class="number">0</span>).unwrap();
         <span class="macro">assert_eq!</span>(e.path.len(), <span class="number">6</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>add_then_find() {
+        <span class="kw">let </span><span class="kw-2">mut </span>index = Index::new().unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>e = entry();
+        e.path = <span class="string">b&quot;foo/bar&quot;</span>.to_vec();
+        index.add(<span class="kw-2">&amp;</span>e).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>e = entry();
+        e.path = <span class="string">b&quot;foo2/bar&quot;</span>.to_vec();
+        index.add(<span class="kw-2">&amp;</span>e).unwrap();
+        <span class="macro">assert_eq!</span>(index.get(<span class="number">0</span>).unwrap().path, <span class="string">b&quot;foo/bar&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            index.get_path(Path::new(<span class="string">&quot;foo/bar&quot;</span>), <span class="number">0</span>).unwrap().path,
+            <span class="string">b&quot;foo/bar&quot;
+        </span>);
+        <span class="macro">assert_eq!</span>(index.find_prefix(Path::new(<span class="string">&quot;foo2/&quot;</span>)), <span class="prelude-val">Ok</span>(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(
+            index.find_prefix(Path::new(<span class="string">&quot;empty/&quot;</span>)).unwrap_err().code(),
+            ErrorCode::NotFound
+        );
     }
 
     <span class="attr">#[test]

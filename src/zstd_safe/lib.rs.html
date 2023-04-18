@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-safe-6.0.2+zstd.1.5.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zstd_safe/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-safe-6.0.5+zstd.1.5.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../zstd_safe/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2134,6 +2134,104 @@
 <a href="#2134" id="2134">2134</a>
 <a href="#2135" id="2135">2135</a>
 <a href="#2136" id="2136">2136</a>
+<a href="#2137" id="2137">2137</a>
+<a href="#2138" id="2138">2138</a>
+<a href="#2139" id="2139">2139</a>
+<a href="#2140" id="2140">2140</a>
+<a href="#2141" id="2141">2141</a>
+<a href="#2142" id="2142">2142</a>
+<a href="#2143" id="2143">2143</a>
+<a href="#2144" id="2144">2144</a>
+<a href="#2145" id="2145">2145</a>
+<a href="#2146" id="2146">2146</a>
+<a href="#2147" id="2147">2147</a>
+<a href="#2148" id="2148">2148</a>
+<a href="#2149" id="2149">2149</a>
+<a href="#2150" id="2150">2150</a>
+<a href="#2151" id="2151">2151</a>
+<a href="#2152" id="2152">2152</a>
+<a href="#2153" id="2153">2153</a>
+<a href="#2154" id="2154">2154</a>
+<a href="#2155" id="2155">2155</a>
+<a href="#2156" id="2156">2156</a>
+<a href="#2157" id="2157">2157</a>
+<a href="#2158" id="2158">2158</a>
+<a href="#2159" id="2159">2159</a>
+<a href="#2160" id="2160">2160</a>
+<a href="#2161" id="2161">2161</a>
+<a href="#2162" id="2162">2162</a>
+<a href="#2163" id="2163">2163</a>
+<a href="#2164" id="2164">2164</a>
+<a href="#2165" id="2165">2165</a>
+<a href="#2166" id="2166">2166</a>
+<a href="#2167" id="2167">2167</a>
+<a href="#2168" id="2168">2168</a>
+<a href="#2169" id="2169">2169</a>
+<a href="#2170" id="2170">2170</a>
+<a href="#2171" id="2171">2171</a>
+<a href="#2172" id="2172">2172</a>
+<a href="#2173" id="2173">2173</a>
+<a href="#2174" id="2174">2174</a>
+<a href="#2175" id="2175">2175</a>
+<a href="#2176" id="2176">2176</a>
+<a href="#2177" id="2177">2177</a>
+<a href="#2178" id="2178">2178</a>
+<a href="#2179" id="2179">2179</a>
+<a href="#2180" id="2180">2180</a>
+<a href="#2181" id="2181">2181</a>
+<a href="#2182" id="2182">2182</a>
+<a href="#2183" id="2183">2183</a>
+<a href="#2184" id="2184">2184</a>
+<a href="#2185" id="2185">2185</a>
+<a href="#2186" id="2186">2186</a>
+<a href="#2187" id="2187">2187</a>
+<a href="#2188" id="2188">2188</a>
+<a href="#2189" id="2189">2189</a>
+<a href="#2190" id="2190">2190</a>
+<a href="#2191" id="2191">2191</a>
+<a href="#2192" id="2192">2192</a>
+<a href="#2193" id="2193">2193</a>
+<a href="#2194" id="2194">2194</a>
+<a href="#2195" id="2195">2195</a>
+<a href="#2196" id="2196">2196</a>
+<a href="#2197" id="2197">2197</a>
+<a href="#2198" id="2198">2198</a>
+<a href="#2199" id="2199">2199</a>
+<a href="#2200" id="2200">2200</a>
+<a href="#2201" id="2201">2201</a>
+<a href="#2202" id="2202">2202</a>
+<a href="#2203" id="2203">2203</a>
+<a href="#2204" id="2204">2204</a>
+<a href="#2205" id="2205">2205</a>
+<a href="#2206" id="2206">2206</a>
+<a href="#2207" id="2207">2207</a>
+<a href="#2208" id="2208">2208</a>
+<a href="#2209" id="2209">2209</a>
+<a href="#2210" id="2210">2210</a>
+<a href="#2211" id="2211">2211</a>
+<a href="#2212" id="2212">2212</a>
+<a href="#2213" id="2213">2213</a>
+<a href="#2214" id="2214">2214</a>
+<a href="#2215" id="2215">2215</a>
+<a href="#2216" id="2216">2216</a>
+<a href="#2217" id="2217">2217</a>
+<a href="#2218" id="2218">2218</a>
+<a href="#2219" id="2219">2219</a>
+<a href="#2220" id="2220">2220</a>
+<a href="#2221" id="2221">2221</a>
+<a href="#2222" id="2222">2222</a>
+<a href="#2223" id="2223">2223</a>
+<a href="#2224" id="2224">2224</a>
+<a href="#2225" id="2225">2225</a>
+<a href="#2226" id="2226">2226</a>
+<a href="#2227" id="2227">2227</a>
+<a href="#2228" id="2228">2228</a>
+<a href="#2229" id="2229">2229</a>
+<a href="#2230" id="2230">2230</a>
+<a href="#2231" id="2231">2231</a>
+<a href="#2232" id="2232">2232</a>
+<a href="#2233" id="2233">2233</a>
+<a href="#2234" id="2234">2234</a>
 </pre><pre class="rust"><code><span class="attr">#![no_std]
 </span><span class="doccomment">//! Minimal safe wrapper around zstd-sys.
 //!
@@ -2212,7 +2310,8 @@
 
 <span class="doccomment">/// Returns true if code represents error.
 </span><span class="kw">fn </span>is_error(code: usize) -&gt; bool {
-    <span class="kw">unsafe </span>{ zstd_sys::ZSTD_isError(code) != <span class="number">0 </span>}
+    <span class="comment">// Safety: Just FFI
+    </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_isError(code) != <span class="number">0 </span>}
 }
 
 <span class="doccomment">/// Parse the result code
@@ -2253,26 +2352,30 @@
 /// Returns `major * 10_000 + minor * 100 + patch`.
 /// So 1.5.3 would be returned as `10_503`.
 </span><span class="kw">pub fn </span>version_number() -&gt; u32 {
-    <span class="kw">unsafe </span>{ zstd_sys::ZSTD_versionNumber() <span class="kw">as </span>u32 }
+    <span class="comment">// Safety: Just FFI
+    </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_versionNumber() <span class="kw">as </span>u32 }
 }
 
 <span class="doccomment">/// Returns a string representation of the ZSTD version.
 ///
 /// For example &quot;1.5.3&quot;.
 </span><span class="kw">pub fn </span>version_string() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-    <span class="kw">unsafe </span>{ c_char_to_str(zstd_sys::ZSTD_versionString()) }
+    <span class="comment">// Safety: Assumes `ZSTD_versionString` returns a valid utf8 string.
+    </span><span class="kw">unsafe </span>{ c_char_to_str(zstd_sys::ZSTD_versionString()) }
 }
 
 <span class="doccomment">/// Returns the minimum (fastest) compression level supported.
 ///
 /// This is likely going to be a _very_ large negative number.
 </span><span class="kw">pub fn </span>min_c_level() -&gt; CompressionLevel {
-    <span class="kw">unsafe </span>{ zstd_sys::ZSTD_minCLevel() <span class="kw">as </span>CompressionLevel }
+    <span class="comment">// Safety: Just FFI
+    </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_minCLevel() <span class="kw">as </span>CompressionLevel }
 }
 
 <span class="doccomment">/// Returns the maximum (slowest) compression level supported.
 </span><span class="kw">pub fn </span>max_c_level() -&gt; CompressionLevel {
-    <span class="kw">unsafe </span>{ zstd_sys::ZSTD_maxCLevel() <span class="kw">as </span>CompressionLevel }
+    <span class="comment">// Safety: Just FFI
+    </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_maxCLevel() <span class="kw">as </span>CompressionLevel }
 }
 
 <span class="doccomment">/// Wraps the `ZSTD_compress` function.
@@ -2287,7 +2390,8 @@
     src: <span class="kw-2">&amp;</span>[u8],
     compression_level: CompressionLevel,
 ) -&gt; SafeResult {
-    <span class="kw">unsafe </span>{
+    <span class="comment">// Safety: ZSTD_compress indeed returns how many bytes have been written.
+    </span><span class="kw">unsafe </span>{
         dst.write_from(|buffer, capacity| {
             parse_code(zstd_sys::ZSTD_compress(
                 buffer,
@@ -2305,7 +2409,8 @@
     dst: <span class="kw-2">&amp;mut </span>C,
     src: <span class="kw-2">&amp;</span>[u8],
 ) -&gt; SafeResult {
-    <span class="kw">unsafe </span>{
+    <span class="comment">// Safety: ZSTD_decompress indeed returns how many bytes have been written.
+    </span><span class="kw">unsafe </span>{
         dst.write_from(|buffer, capacity| {
             parse_code(zstd_sys::ZSTD_decompress(
                 buffer,
@@ -2322,14 +2427,16 @@
 /// Returns `None` if the size could not be found, or if the content is actually empty.
 </span><span class="attr">#[deprecated(note = <span class="string">&quot;Use ZSTD_getFrameContentSize instead&quot;</span>)]
 </span><span class="kw">pub fn </span>get_decompressed_size(src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroU64&gt; {
-    NonZeroU64::new(<span class="kw">unsafe </span>{
+    <span class="comment">// Safety: Just FFI
+    </span>NonZeroU64::new(<span class="kw">unsafe </span>{
         zstd_sys::ZSTD_getDecompressedSize(ptr_void(src), src.len()) <span class="kw">as </span>u64
     })
 }
 
 <span class="doccomment">/// Maximum compressed size in worst case single-pass scenario
 </span><span class="kw">pub fn </span>compress_bound(src_size: usize) -&gt; usize {
-    <span class="kw">unsafe </span>{ zstd_sys::ZSTD_compressBound(src_size) }
+    <span class="comment">// Safety: Just FFI
+    </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_compressBound(src_size) }
 }
 
 <span class="doccomment">/// Compression context
@@ -2349,7 +2456,8 @@
     ///
     /// Returns `None` if zstd returns a NULL pointer - may happen if allocation fails.
     </span><span class="kw">pub fn </span>try_create() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Some</span>(CCtx(
+        <span class="comment">// Safety: Just FFI
+        </span><span class="prelude-val">Some</span>(CCtx(
             NonNull::new(<span class="kw">unsafe </span>{ zstd_sys::ZSTD_createCCtx() })<span class="question-mark">?</span>,
             PhantomData,
         ))
@@ -2372,7 +2480,8 @@
         src: <span class="kw-2">&amp;</span>[u8],
         compression_level: CompressionLevel,
     ) -&gt; SafeResult {
-        <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: ZSTD_compressCCtx returns how many bytes were written.
+        </span><span class="kw">unsafe </span>{
             dst.write_from(|buffer, capacity| {
                 parse_code(zstd_sys::ZSTD_compressCCtx(
                     <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
@@ -2392,7 +2501,8 @@
         dst: <span class="kw-2">&amp;mut </span>C,
         src: <span class="kw-2">&amp;</span>[u8],
     ) -&gt; SafeResult {
-        <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: ZSTD_compress2 returns how many bytes were written.
+        </span><span class="kw">unsafe </span>{
             dst.write_from(|buffer, capacity| {
                 parse_code(zstd_sys::ZSTD_compress2(
                     <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
@@ -2413,7 +2523,8 @@
         dict: <span class="kw-2">&amp;</span>[u8],
         compression_level: CompressionLevel,
     ) -&gt; SafeResult {
-        <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: ZSTD_compress_usingDict returns how many bytes were written.
+        </span><span class="kw">unsafe </span>{
             dst.write_from(|buffer, capacity| {
                 parse_code(zstd_sys::ZSTD_compress_usingDict(
                     <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
@@ -2436,7 +2547,8 @@
         src: <span class="kw-2">&amp;</span>[u8],
         cdict: <span class="kw-2">&amp;</span>CDict&lt;<span class="lifetime">&#39;_</span>&gt;,
     ) -&gt; SafeResult {
-        <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: ZSTD_compress_usingCDict returns how many bytes were written.
+        </span><span class="kw">unsafe </span>{
             dst.write_from(|buffer, capacity| {
                 parse_code(zstd_sys::ZSTD_compress_usingCDict(
                     <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
@@ -2456,7 +2568,8 @@
     /// * `reset()`
     /// * `set_parameter(CompressionLevel, compression_level)`
     </span><span class="kw">pub fn </span>init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, compression_level: CompressionLevel) -&gt; SafeResult {
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_initCStream(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), compression_level)
         };
         parse_code(code)
@@ -2471,7 +2584,8 @@
         compression_level: CompressionLevel,
         pledged_src_size: u64,
     ) -&gt; SafeResult {
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_initCStream_srcSize(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 compression_level <span class="kw">as </span>c_int,
@@ -2490,7 +2604,8 @@
         dict: <span class="kw-2">&amp;</span>[u8],
         compression_level: CompressionLevel,
     ) -&gt; SafeResult {
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_initCStream_usingDict(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 ptr_void(dict),
@@ -2509,7 +2624,8 @@
     <span class="kw">where
         </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, <span class="comment">// Dictionary outlives the stream.
     </span>{
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_initCStream_usingCDict(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 cdict.<span class="number">0</span>.as_ptr(),
@@ -2528,7 +2644,8 @@
     ///
     /// The dictionary will apply to all compressed frames, until a new dictionary is set.
     </span><span class="kw">pub fn </span>load_dictionary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dict: <span class="kw-2">&amp;</span>[u8]) -&gt; SafeResult {
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_loadDictionary(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 ptr_void(dict),
@@ -2544,7 +2661,8 @@
     <span class="kw">where
         </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
     {
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_refCDict(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), cdict.<span class="number">0</span>.as_ptr())
         })
     }
@@ -2553,7 +2671,8 @@
     ///
     /// This will disable any dictionary/prefix previously registered for future frames.
     </span><span class="kw">pub fn </span>disable_dictionary(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SafeResult {
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_loadDictionary(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 core::ptr::null(),
@@ -2571,7 +2690,8 @@
     <span class="kw">where
         </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
     {
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_refPrefix(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 ptr_void(prefix),
@@ -2598,7 +2718,8 @@
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
         <span class="kw">let </span><span class="kw-2">mut </span>input = input.wrap();
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_compressStream(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 ptr_mut(<span class="kw-2">&amp;mut </span>output),
@@ -2631,7 +2752,8 @@
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
         <span class="kw">let </span><span class="kw-2">mut </span>input = input.wrap();
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_compressStream2(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 ptr_mut(<span class="kw-2">&amp;mut </span>output),
@@ -2651,7 +2773,8 @@
         output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_flushStream(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), ptr_mut(<span class="kw-2">&amp;mut </span>output))
         };
         parse_code(code)
@@ -2667,7 +2790,8 @@
         output: <span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, C&gt;,
     ) -&gt; SafeResult {
         <span class="kw">let </span><span class="kw-2">mut </span>output = output.wrap();
-        <span class="kw">let </span>code = <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>code = <span class="kw">unsafe </span>{
             zstd_sys::ZSTD_endStream(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), ptr_mut(<span class="kw-2">&amp;mut </span>output))
         };
         parse_code(code)
@@ -2677,7 +2801,8 @@
     ///
     /// This may change over time.
     </span><span class="kw">pub fn </span>sizeof(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">unsafe </span>{ zstd_sys::ZSTD_sizeof_CCtx(<span class="self">self</span>.<span class="number">0</span>.as_ptr()) }
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_sizeof_CCtx(<span class="self">self</span>.<span class="number">0</span>.as_ptr()) }
     }
 
     <span class="doccomment">/// Resets the state of the context.
@@ -2686,7 +2811,8 @@
     ///
     /// Wraps the `ZSTD_CCtx_reset()` function.
     </span><span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, reset: ResetDirective) -&gt; SafeResult {
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_reset(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), reset.as_sys())
         })
     }
@@ -2706,6 +2832,10 @@
             ZSTD_c_experimentalParam13 <span class="kw">as </span>ZSTD_c_useBlockSplitter,
             ZSTD_c_experimentalParam14 <span class="kw">as </span>ZSTD_c_useRowMatchFinder,
             ZSTD_c_experimentalParam15 <span class="kw">as </span>ZSTD_c_deterministicRefPrefix,
+            ZSTD_c_experimentalParam16 <span class="kw">as </span>ZSTD_c_prefetchCDictTables,
+            ZSTD_c_experimentalParam17 <span class="kw">as </span>ZSTD_c_enableSeqProducerFallback,
+            ZSTD_c_experimentalParam18 <span class="kw">as </span>ZSTD_c_maxBlockSize,
+            ZSTD_c_experimentalParam19 <span class="kw">as </span>ZSTD_c_searchForExternalRepcodes,
             ZSTD_c_experimentalParam2 <span class="kw">as </span>ZSTD_c_format,
             ZSTD_c_experimentalParam3 <span class="kw">as </span>ZSTD_c_forceMaxWindow,
             ZSTD_c_experimentalParam4 <span class="kw">as </span>ZSTD_c_forceAttachDict,
@@ -2728,6 +2858,10 @@
             </span>ForceMaxWindow(force) =&gt; (ZSTD_c_forceMaxWindow, force <span class="kw">as </span>c_int),
             <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
             </span>ForceAttachDict(force) =&gt; (ZSTD_c_forceAttachDict, force <span class="kw">as </span>c_int),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>LiteralCompressionMode(mode) =&gt; {
+                (ZSTD_c_literalCompressionMode, mode <span class="kw">as </span>c_int)
+            }
             <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
             </span>TargetCBlockSize(value) =&gt; {
                 (ZSTD_c_targetCBlockSize, value <span class="kw">as </span>c_int)
@@ -2762,6 +2896,20 @@
             </span>DeterministicRefPrefix(deterministic) =&gt; {
                 (ZSTD_c_deterministicRefPrefix, deterministic <span class="kw">as </span>c_int)
             }
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>PrefetchCDictTables(prefetch) =&gt; {
+                (ZSTD_c_prefetchCDictTables, prefetch <span class="kw">as </span>c_int)
+            }
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>EnableSeqProducerFallback(enable) =&gt; {
+                (ZSTD_c_enableSeqProducerFallback, enable <span class="kw">as </span>c_int)
+            }
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>MaxBlockSize(value) =&gt; (ZSTD_c_maxBlockSize, value <span class="kw">as </span>c_int),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+            </span>SearchForExternalRepcodes(value) =&gt; {
+                (ZSTD_c_searchForExternalRepcodes, value <span class="kw">as </span>c_int)
+            }
             CompressionLevel(level) =&gt; (ZSTD_c_compressionLevel, level),
             WindowLog(value) =&gt; (ZSTD_c_windowLog, value <span class="kw">as </span>c_int),
             HashLog(value) =&gt; (ZSTD_c_hashLog, value <span class="kw">as </span>c_int),
@@ -2770,10 +2918,6 @@
             MinMatch(value) =&gt; (ZSTD_c_minMatch, value <span class="kw">as </span>c_int),
             TargetLength(value) =&gt; (ZSTD_c_targetLength, value <span class="kw">as </span>c_int),
             Strategy(strategy) =&gt; (ZSTD_c_strategy, strategy <span class="kw">as </span>c_int),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
-            </span>LiteralCompressionMode(mode) =&gt; {
-                (ZSTD_c_literalCompressionMode, mode <span class="kw">as </span>c_int)
-            }
             EnableLongDistanceMatching(flag) =&gt; {
                 (ZSTD_c_enableLongDistanceMatching, flag <span class="kw">as </span>c_int)
             }
@@ -2794,7 +2938,8 @@
             OverlapSizeLog(value) =&gt; (ZSTD_c_overlapLog, value <span class="kw">as </span>c_int),
         };
 
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_setParameter(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), param, value)
         })
     }
@@ -2811,7 +2956,8 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         pledged_src_size: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     ) -&gt; SafeResult {
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_CCtx_setPledgedSrcSize(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 pledged_src_size.unwrap_or(CONTENTSIZE_UNKNOWN) <span class="kw">as </span>c_ulonglong,
@@ -2829,10 +2975,12 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         pledged_src_size: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ErrorCode&gt; {
-        <span class="kw">let </span>context = NonNull::new(<span class="kw">unsafe </span>{ zstd_sys::ZSTD_createCCtx() })
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">let </span>context = NonNull::new(<span class="kw">unsafe </span>{ zstd_sys::ZSTD_createCCtx() })
             .ok_or(<span class="number">0usize</span>)<span class="question-mark">?</span>;
 
-        parse_code(<span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span>parse_code(<span class="kw">unsafe </span>{
             zstd_sys::ZSTD_copyCCtx(
                 context.as_ptr(),
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
@@ -2847,7 +2995,8 @@
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
     #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
     </span><span class="kw">pub fn </span>get_block_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">unsafe </span>{ zstd_sys::ZSTD_getBlockSize(<span class="self">self</span>.<span class="number">0</span>.as_ptr()) }
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_getBlockSize(<span class="self">self</span>.<span class="number">0</span>.as_ptr()) }
     }
 
     <span class="doccomment">/// Wraps the `ZSTD_compressBlock()` function.
@@ -2858,7 +3007,8 @@
         dst: <span class="kw-2">&amp;mut </span>C,
         src: <span class="kw-2">&amp;</span>[u8],
     ) -&gt; SafeResult {
-        <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: ZSTD_compressBlock returns the number of bytes written.
+        </span><span class="kw">unsafe </span>{
             dst.write_from(|buffer, capacity| {
                 parse_code(zstd_sys::ZSTD_compressBlock(
                     <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
@@ -2875,20 +3025,23 @@
     ///
     /// Using this size may result in minor performance boost.
     </span><span class="kw">pub fn </span>in_size() -&gt; usize {
-        <span class="kw">unsafe </span>{ zstd_sys::ZSTD_CStreamInSize() }
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_CStreamInSize() }
     }
 
     <span class="doccomment">/// Returns the recommended output buffer size.
     ///
     /// Using this may result in minor performance boost.
     </span><span class="kw">pub fn </span>out_size() -&gt; usize {
-        <span class="kw">unsafe </span>{ zstd_sys::ZSTD_CStreamOutSize() }
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_CStreamOutSize() }
     }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>CCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">unsafe </span>{
+        <span class="comment">// Safety: Just FFI
+        </span><span class="kw">unsafe </span>{
             zstd_sys::ZSTD_freeCCtx(<span class="self">self</span>.<span class="number">0</span>.as_ptr());
         }
     }
@@ -2902,7 +3055,6 @@
     </span>{
         <span class="comment">// To be safe, we need to compute right now its length
         </span><span class="kw">let </span>len = libc::strlen(text);
-
         <span class="comment">// Cast it to a slice
         </span><span class="kw">let </span>slice = core::slice::from_raw_parts(text <span class="kw">as </span><span class="kw-2">*mut </span>u8, len);
         <span class="comment">// And hope it&#39;s still text.
@@ -2920,7 +3072,8 @@
 <span class="doccomment">/// Returns the error string associated with an error code.
 </span><span class="kw">pub fn </span>get_error_name(code: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
     <span class="kw">unsafe </span>{
-        <span class="kw">let </span>name = zstd_sys::ZSTD_getErrorName(code);
+        <span class="comment">// Safety: assumes ZSTD returns a well-formed utf8 string.
+        </span><span class="kw">let </span>name = zstd_sys::ZSTD_getErrorName(code);
         c_char_to_str(name)
     }
 }
@@ -3791,9 +3944,9 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     ///
     /// # Panics
     ///
-    /// If `pos &gt;= dst.capacity()`.
+    /// If `pos &gt; dst.capacity()`.
     </span><span class="kw">pub fn </span>around_pos(dst: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>C, pos: usize) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>pos &gt;= dst.capacity() {
+        <span class="kw">if </span>pos &gt; dst.capacity() {
             <span class="macro">panic!</span>(<span class="string">&quot;Given position outside of the buffer bounds.&quot;</span>);
         }
 
@@ -4126,6 +4279,22 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
     </span>DeterministicRefPrefix(bool),
 
+    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span>PrefetchCDictTables(ParamSwitch),
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span>EnableSeqProducerFallback(bool),
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span>MaxBlockSize(u32),
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+    #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+    </span>SearchForExternalRepcodes(ParamSwitch),
+
     <span class="doccomment">/// Compression level to use.
     ///
     /// Compression levels are global presets for the other compression parameters.
@@ -4269,6 +4438,33 @@ unsafe impl&lt;&#39;a&gt; WriteBuf for OutBuffer&lt;&#39;a, [u8]&gt; {
     } <span class="kw">else </span>{
         <span class="prelude-val">Ok</span>(bound)
     }
+}
+
+<span class="doccomment">/// Given a buffer of size `src_size`, returns the maximum number of sequences that can ge
+/// generated.
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="kw">pub fn </span>sequence_bound(src_size: usize) -&gt; usize {
+    <span class="comment">// Safety: Just FFI.
+    </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_sequenceBound(src_size) }
+}
+
+<span class="doccomment">/// Returns the minimum extra space when output and input buffer overlap.
+///
+/// When using in-place decompression, the output buffer must be at least this much bigger (in
+/// bytes) than the input buffer. The extra space must be at the front of the output buffer (the
+/// input buffer must be at the end of the output buffer).
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+#[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+</span><span class="kw">pub fn </span>decompression_margin(
+    compressed_data: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrorCode&gt; {
+    parse_code(<span class="kw">unsafe </span>{
+        zstd_sys::ZSTD_decompressionMargin(
+            ptr_void(compressed_data),
+            compressed_data.len(),
+        )
+    })
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_safe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

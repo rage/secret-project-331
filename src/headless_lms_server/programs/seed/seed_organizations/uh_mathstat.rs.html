@@ -128,6 +128,29 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -135,7 +158,9 @@
     courses::NewCourse,
     library,
     library::content_management::CreateNewCourseFixedIds,
-    organizations, PKeyPolicy,
+    organizations,
+    roles::{<span class="self">self</span>, RoleDomain, UserRole},
+    PKeyPolicy,
 };
 <span class="kw">use </span>uuid::Uuid;
 
@@ -157,7 +182,7 @@
 
     <span class="kw">let </span>SeedUsersResult {
         admin_user_id,
-        teacher_user_id: <span class="kw">_</span>,
+        teacher_user_id,
         language_teacher_user_id: <span class="kw">_</span>,
         assistant_user_id: <span class="kw">_</span>,
         course_or_exam_creator_user_id: <span class="kw">_</span>,
@@ -253,6 +278,27 @@
         student_user_id,
         <span class="kw-2">&amp;</span>example_normal_user_ids,
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>preview_unopened_chapters = seed_sample_course(
+        <span class="kw-2">&amp;</span>db_pool,
+        uh_mathstat_id,
+        Uuid::parse_str(<span class="string">&quot;dc276e05-6152-4a45-b31d-97a0c2700a68&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Preview unopened chapters&quot;</span>,
+        <span class="string">&quot;preview-unopened-chapters&quot;</span>,
+        admin_user_id,
+        student_user_id,
+        <span class="kw-2">&amp;</span>example_normal_user_ids,
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(preview_unopened_chapters),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

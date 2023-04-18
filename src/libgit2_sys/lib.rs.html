@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libgit2-sys-0.14.0+1.5.0/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../libgit2_sys/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libgit2-sys-0.15.0+1.6.3/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../libgit2_sys/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4204,7 +4204,66 @@
 <a href="#4204" id="4204">4204</a>
 <a href="#4205" id="4205">4205</a>
 <a href="#4206" id="4206">4206</a>
-</pre><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/libgit2-sys/0.14&quot;</span>)]
+<a href="#4207" id="4207">4207</a>
+<a href="#4208" id="4208">4208</a>
+<a href="#4209" id="4209">4209</a>
+<a href="#4210" id="4210">4210</a>
+<a href="#4211" id="4211">4211</a>
+<a href="#4212" id="4212">4212</a>
+<a href="#4213" id="4213">4213</a>
+<a href="#4214" id="4214">4214</a>
+<a href="#4215" id="4215">4215</a>
+<a href="#4216" id="4216">4216</a>
+<a href="#4217" id="4217">4217</a>
+<a href="#4218" id="4218">4218</a>
+<a href="#4219" id="4219">4219</a>
+<a href="#4220" id="4220">4220</a>
+<a href="#4221" id="4221">4221</a>
+<a href="#4222" id="4222">4222</a>
+<a href="#4223" id="4223">4223</a>
+<a href="#4224" id="4224">4224</a>
+<a href="#4225" id="4225">4225</a>
+<a href="#4226" id="4226">4226</a>
+<a href="#4227" id="4227">4227</a>
+<a href="#4228" id="4228">4228</a>
+<a href="#4229" id="4229">4229</a>
+<a href="#4230" id="4230">4230</a>
+<a href="#4231" id="4231">4231</a>
+<a href="#4232" id="4232">4232</a>
+<a href="#4233" id="4233">4233</a>
+<a href="#4234" id="4234">4234</a>
+<a href="#4235" id="4235">4235</a>
+<a href="#4236" id="4236">4236</a>
+<a href="#4237" id="4237">4237</a>
+<a href="#4238" id="4238">4238</a>
+<a href="#4239" id="4239">4239</a>
+<a href="#4240" id="4240">4240</a>
+<a href="#4241" id="4241">4241</a>
+<a href="#4242" id="4242">4242</a>
+<a href="#4243" id="4243">4243</a>
+<a href="#4244" id="4244">4244</a>
+<a href="#4245" id="4245">4245</a>
+<a href="#4246" id="4246">4246</a>
+<a href="#4247" id="4247">4247</a>
+<a href="#4248" id="4248">4248</a>
+<a href="#4249" id="4249">4249</a>
+<a href="#4250" id="4250">4250</a>
+<a href="#4251" id="4251">4251</a>
+<a href="#4252" id="4252">4252</a>
+<a href="#4253" id="4253">4253</a>
+<a href="#4254" id="4254">4254</a>
+<a href="#4255" id="4255">4255</a>
+<a href="#4256" id="4256">4256</a>
+<a href="#4257" id="4257">4257</a>
+<a href="#4258" id="4258">4258</a>
+<a href="#4259" id="4259">4259</a>
+<a href="#4260" id="4260">4260</a>
+<a href="#4261" id="4261">4261</a>
+<a href="#4262" id="4262">4262</a>
+<a href="#4263" id="4263">4263</a>
+<a href="#4264" id="4264">4264</a>
+<a href="#4265" id="4265">4265</a>
+</pre><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/libgit2-sys/0.15&quot;</span>)]
 #![allow(non_camel_case_types, unused_extern_crates)]
 
 </span><span class="comment">// This is required to link libz when libssh2-sys is not included.
@@ -4231,6 +4290,7 @@
 <span class="kw">pub const </span>GIT_CHERRYPICK_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 <span class="kw">pub const </span>GIT_APPLY_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 <span class="kw">pub const </span>GIT_REVERT_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
+<span class="kw">pub const </span>GIT_INDEXER_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 
 <span class="macro">macro_rules! </span>git_enum {
     (<span class="kw">pub enum </span><span class="macro-nonterminal">$name</span>:ident { $(<span class="macro-nonterminal">$variants</span>:tt)* }) =&gt; {
@@ -4297,6 +4357,7 @@
 <span class="kw">pub enum </span>git_worktree {}
 <span class="kw">pub enum </span>git_transaction {}
 <span class="kw">pub enum </span>git_mailmap {}
+<span class="kw">pub enum </span>git_indexer {}
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_revspec {
@@ -4540,7 +4601,7 @@
 }
 
 <span class="attr">#[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 </span><span class="kw">pub struct </span>git_indexer_progress {
     <span class="kw">pub </span>total_objects: c_uint,
     <span class="kw">pub </span>indexed_objects: c_uint,
@@ -4559,6 +4620,14 @@
     note = <span class="string">&quot;renamed to `git_indexer_progress` to match upstream&quot;
 </span>)]
 </span><span class="kw">pub type </span>git_transfer_progress = git_indexer_progress;
+
+<span class="attr">#[repr(C)]
+</span><span class="kw">pub struct </span>git_indexer_options {
+    <span class="kw">pub </span>version: c_uint,
+    <span class="kw">pub </span>progress_cb: git_indexer_progress_cb,
+    <span class="kw">pub </span>progress_cb_payload: <span class="kw-2">*mut </span>c_void,
+    <span class="kw">pub </span>verify: c_uchar,
+}
 
 <span class="kw">pub type </span>git_remote_ready_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_remote, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
@@ -4695,6 +4764,10 @@
         GIT_CERT_SSH_RAW_TYPE_UNKNOWN = <span class="number">0</span>,
         GIT_CERT_SSH_RAW_TYPE_RSA = <span class="number">1</span>,
         GIT_CERT_SSH_RAW_TYPE_DSS = <span class="number">2</span>,
+        GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_256 = <span class="number">3</span>,
+        GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_384 = <span class="number">4</span>,
+        GIT_CERT_SSH_RAW_TYPE_KEY_ECDSA_521 = <span class="number">5</span>,
+        GIT_CERT_SSH_RAW_TYPE_KEY_ED25519 = <span class="number">6</span>,
     }
 }
 
@@ -4898,6 +4971,7 @@
         GIT_FILEMODE_UNREADABLE = <span class="number">0o000000</span>,
         GIT_FILEMODE_TREE = <span class="number">0o040000</span>,
         GIT_FILEMODE_BLOB = <span class="number">0o100644</span>,
+        GIT_FILEMODE_BLOB_GROUP_WRITABLE = <span class="number">0o100664</span>,
         GIT_FILEMODE_BLOB_EXECUTABLE = <span class="number">0o100755</span>,
         GIT_FILEMODE_LINK = <span class="number">0o120000</span>,
         GIT_FILEMODE_COMMIT = <span class="number">0o160000</span>,
@@ -5362,37 +5436,40 @@
 <span class="kw">pub type </span>git_diff_progress_cb =
     <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="kw">pub type </span>git_diff_option_t = i32;
-<span class="kw">pub const </span>GIT_DIFF_NORMAL: git_diff_option_t = <span class="number">0</span>;
-<span class="kw">pub const </span>GIT_DIFF_REVERSE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_IGNORED: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
-<span class="kw">pub const </span>GIT_DIFF_RECURSE_IGNORED_DIRS: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_UNTRACKED: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
-<span class="kw">pub const </span>GIT_DIFF_RECURSE_UNTRACKED_DIRS: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_UNMODIFIED: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_TYPECHANGE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_TYPECHANGE_TREES: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">7</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_FILEMODE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">8</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_SUBMODULES: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">9</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_CASE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">10</span>;
-<span class="kw">pub const </span>GIT_DIFF_DISABLE_PATHSPEC_MATCH: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">12</span>;
-<span class="kw">pub const </span>GIT_DIFF_SKIP_BINARY_CHECK: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">13</span>;
-<span class="kw">pub const </span>GIT_DIFF_ENABLE_FAST_UNTRACKED_DIRS: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>;
-<span class="kw">pub const </span>GIT_DIFF_UPDATE_INDEX: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">15</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_UNREADABLE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">16</span>;
-<span class="kw">pub const </span>GIT_DIFF_INCLUDE_UNREADABLE_AS_UNTRACKED: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">17</span>;
-<span class="kw">pub const </span>GIT_DIFF_INDENT_HEURISTIC: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">18</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_BLANK_LINES: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">19</span>;
-<span class="kw">pub const </span>GIT_DIFF_FORCE_TEXT: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">20</span>;
-<span class="kw">pub const </span>GIT_DIFF_FORCE_BINARY: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">21</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_WHITESPACE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">22</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_WHITESPACE_CHANGE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">23</span>;
-<span class="kw">pub const </span>GIT_DIFF_IGNORE_WHITESPACE_EOL: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">24</span>;
-<span class="kw">pub const </span>GIT_DIFF_SHOW_UNTRACKED_CONTENT: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">25</span>;
-<span class="kw">pub const </span>GIT_DIFF_SHOW_UNMODIFIED: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">26</span>;
-<span class="kw">pub const </span>GIT_DIFF_PATIENCE: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">28</span>;
-<span class="kw">pub const </span>GIT_DIFF_MINIMAL: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">29</span>;
-<span class="kw">pub const </span>GIT_DIFF_SHOW_BINARY: git_diff_option_t = <span class="number">1 </span>&lt;&lt; <span class="number">30</span>;
+<span class="macro">git_enum! </span>{
+    <span class="kw">pub enum </span>git_diff_option_t {
+        GIT_DIFF_NORMAL = <span class="number">0</span>,
+        GIT_DIFF_REVERSE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
+        GIT_DIFF_INCLUDE_IGNORED = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
+        GIT_DIFF_RECURSE_IGNORED_DIRS = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>,
+        GIT_DIFF_INCLUDE_UNTRACKED = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>,
+        GIT_DIFF_RECURSE_UNTRACKED_DIRS = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>,
+        GIT_DIFF_INCLUDE_UNMODIFIED = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>,
+        GIT_DIFF_INCLUDE_TYPECHANGE = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>,
+        GIT_DIFF_INCLUDE_TYPECHANGE_TREES = <span class="number">1 </span>&lt;&lt; <span class="number">7</span>,
+        GIT_DIFF_IGNORE_FILEMODE = <span class="number">1 </span>&lt;&lt; <span class="number">8</span>,
+        GIT_DIFF_IGNORE_SUBMODULES = <span class="number">1 </span>&lt;&lt; <span class="number">9</span>,
+        GIT_DIFF_IGNORE_CASE = <span class="number">1 </span>&lt;&lt; <span class="number">10</span>,
+        GIT_DIFF_DISABLE_PATHSPEC_MATCH = <span class="number">1 </span>&lt;&lt; <span class="number">12</span>,
+        GIT_DIFF_SKIP_BINARY_CHECK = <span class="number">1 </span>&lt;&lt; <span class="number">13</span>,
+        GIT_DIFF_ENABLE_FAST_UNTRACKED_DIRS = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>,
+        GIT_DIFF_UPDATE_INDEX = <span class="number">1 </span>&lt;&lt; <span class="number">15</span>,
+        GIT_DIFF_INCLUDE_UNREADABLE = <span class="number">1 </span>&lt;&lt; <span class="number">16</span>,
+        GIT_DIFF_INCLUDE_UNREADABLE_AS_UNTRACKED = <span class="number">1 </span>&lt;&lt; <span class="number">17</span>,
+        GIT_DIFF_INDENT_HEURISTIC = <span class="number">1 </span>&lt;&lt; <span class="number">18</span>,
+        GIT_DIFF_IGNORE_BLANK_LINES = <span class="number">1 </span>&lt;&lt; <span class="number">19</span>,
+        GIT_DIFF_FORCE_TEXT = <span class="number">1 </span>&lt;&lt; <span class="number">20</span>,
+        GIT_DIFF_FORCE_BINARY = <span class="number">1 </span>&lt;&lt; <span class="number">21</span>,
+        GIT_DIFF_IGNORE_WHITESPACE = <span class="number">1 </span>&lt;&lt; <span class="number">22</span>,
+        GIT_DIFF_IGNORE_WHITESPACE_CHANGE = <span class="number">1 </span>&lt;&lt; <span class="number">23</span>,
+        GIT_DIFF_IGNORE_WHITESPACE_EOL = <span class="number">1 </span>&lt;&lt; <span class="number">24</span>,
+        GIT_DIFF_SHOW_UNTRACKED_CONTENT = <span class="number">1 </span>&lt;&lt; <span class="number">25</span>,
+        GIT_DIFF_SHOW_UNMODIFIED = <span class="number">1 </span>&lt;&lt; <span class="number">26</span>,
+        GIT_DIFF_PATIENCE = <span class="number">1 </span>&lt;&lt; <span class="number">28</span>,
+        GIT_DIFF_MINIMAL = <span class="number">1 </span>&lt;&lt; <span class="number">29</span>,
+        GIT_DIFF_SHOW_BINARY = <span class="number">1 </span>&lt;&lt; <span class="number">30</span>,
+    }
+}
 
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_diff_find_options {
@@ -6453,6 +6530,7 @@
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_remote_get_refspec(remote: <span class="kw-2">*const </span>git_remote, n: size_t) -&gt; <span class="kw-2">*const </span>git_refspec;
     <span class="kw">pub fn </span>git_remote_is_valid_name(remote_name: <span class="kw-2">*const </span>c_char) -&gt; c_int;
+    <span class="kw">pub fn </span>git_remote_name_is_valid(valid: <span class="kw-2">*mut </span>c_int, remote_name: <span class="kw-2">*const </span>c_char) -&gt; c_int;
     <span class="kw">pub fn </span>git_remote_list(out: <span class="kw-2">*mut </span>git_strarray, repo: <span class="kw-2">*mut </span>git_repository) -&gt; c_int;
     <span class="kw">pub fn </span>git_remote_rename(
         problems: <span class="kw-2">*mut </span>git_strarray,
@@ -6604,6 +6682,7 @@
     <span class="kw">pub fn </span>git_reference_is_remote(r: <span class="kw-2">*const </span>git_reference) -&gt; c_int;
     <span class="kw">pub fn </span>git_reference_is_tag(r: <span class="kw-2">*const </span>git_reference) -&gt; c_int;
     <span class="kw">pub fn </span>git_reference_is_valid_name(name: <span class="kw-2">*const </span>c_char) -&gt; c_int;
+    <span class="kw">pub fn </span>git_reference_name_is_valid(valid: <span class="kw-2">*mut </span>c_int, refname: <span class="kw-2">*const </span>c_char) -&gt; c_int;
     <span class="kw">pub fn </span>git_reference_lookup(
         out: <span class="kw-2">*mut *mut </span>git_reference,
         repo: <span class="kw-2">*mut </span>git_repository,
@@ -6641,6 +6720,12 @@
         out: <span class="kw-2">*mut *mut </span>git_reference,
         r: <span class="kw-2">*mut </span>git_reference,
         id: <span class="kw-2">*const </span>git_oid,
+        log_message: <span class="kw-2">*const </span>c_char,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>git_reference_symbolic_set_target(
+        out: <span class="kw-2">*mut *mut </span>git_reference,
+        r: <span class="kw-2">*mut </span>git_reference,
+        target: <span class="kw-2">*const </span>c_char,
         log_message: <span class="kw-2">*const </span>c_char,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_reference_type(r: <span class="kw-2">*const </span>git_reference) -&gt; git_reference_t;
@@ -6765,6 +6850,11 @@
     <span class="kw">pub fn </span>git_submodule_ignore(submodule: <span class="kw-2">*mut </span>git_submodule) -&gt; git_submodule_ignore_t;
     <span class="kw">pub fn </span>git_submodule_index_id(submodule: <span class="kw-2">*mut </span>git_submodule) -&gt; <span class="kw-2">*const </span>git_oid;
     <span class="kw">pub fn </span>git_submodule_init(submodule: <span class="kw-2">*mut </span>git_submodule, overwrite: c_int) -&gt; c_int;
+    <span class="kw">pub fn </span>git_submodule_repo_init(
+        repo: <span class="kw-2">*mut *mut </span>git_repository,
+        submodule: <span class="kw-2">*const </span>git_submodule,
+        use_gitlink: c_int,
+    ) -&gt; c_int;
     <span class="kw">pub fn </span>git_submodule_location(status: <span class="kw-2">*mut </span>c_uint, submodule: <span class="kw-2">*mut </span>git_submodule) -&gt; c_int;
     <span class="kw">pub fn </span>git_submodule_lookup(
         out: <span class="kw-2">*mut *mut </span>git_submodule,
@@ -7153,6 +7243,11 @@
     <span class="kw">pub fn </span>git_index_entrycount(entry: <span class="kw-2">*const </span>git_index) -&gt; size_t;
     <span class="kw">pub fn </span>git_index_find(at_pos: <span class="kw-2">*mut </span>size_t, index: <span class="kw-2">*mut </span>git_index, path: <span class="kw-2">*const </span>c_char)
         -&gt; c_int;
+    <span class="kw">pub fn </span>git_index_find_prefix(
+        at_pos: <span class="kw-2">*mut </span>size_t,
+        index: <span class="kw-2">*mut </span>git_index,
+        prefix: <span class="kw-2">*const </span>c_char,
+    ) -&gt; c_int;
     <span class="kw">pub fn </span>git_index_free(index: <span class="kw-2">*mut </span>git_index);
     <span class="kw">pub fn </span>git_index_get_byindex(index: <span class="kw-2">*mut </span>git_index, n: size_t) -&gt; <span class="kw-2">*const </span>git_index_entry;
     <span class="kw">pub fn </span>git_index_get_bypath(
@@ -7415,6 +7510,7 @@
     <span class="kw">pub fn </span>git_tag_target(target_out: <span class="kw-2">*mut *mut </span>git_object, tag: <span class="kw-2">*const </span>git_tag) -&gt; c_int;
     <span class="kw">pub fn </span>git_tag_target_id(tag: <span class="kw-2">*const </span>git_tag) -&gt; <span class="kw-2">*const </span>git_oid;
     <span class="kw">pub fn </span>git_tag_target_type(tag: <span class="kw-2">*const </span>git_tag) -&gt; git_object_t;
+    <span class="kw">pub fn </span>git_tag_name_is_valid(valid: <span class="kw-2">*mut </span>c_int, tag_name: <span class="kw-2">*const </span>c_char) -&gt; c_int;
 
     <span class="comment">// checkout
     </span><span class="kw">pub fn </span>git_checkout_head(repo: <span class="kw-2">*mut </span>git_repository, opts: <span class="kw-2">*const </span>git_checkout_options)
@@ -7996,6 +8092,28 @@
         progress_cb_payload: <span class="kw-2">*mut </span>c_void,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_packbuilder_free(pb: <span class="kw-2">*mut </span>git_packbuilder);
+
+    <span class="comment">// indexer
+    </span><span class="kw">pub fn </span>git_indexer_new(
+        out: <span class="kw-2">*mut *mut </span>git_indexer,
+        path: <span class="kw-2">*const </span>c_char,
+        mode: c_uint,
+        odb: <span class="kw-2">*mut </span>git_odb,
+        opts: <span class="kw-2">*mut </span>git_indexer_options,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>git_indexer_append(
+        idx: <span class="kw-2">*mut </span>git_indexer,
+        data: <span class="kw-2">*const </span>c_void,
+        size: size_t,
+        stats: <span class="kw-2">*mut </span>git_indexer_progress,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>git_indexer_commit(idx: <span class="kw-2">*mut </span>git_indexer, stats: <span class="kw-2">*mut </span>git_indexer_progress) -&gt; c_int;
+    <span class="attr">#[deprecated = <span class="string">&quot;use `git_indexer_name` to retrieve the filename&quot;</span>]
+    </span><span class="kw">pub fn </span>git_indexer_hash(idx: <span class="kw-2">*const </span>git_indexer) -&gt; <span class="kw-2">*const </span>git_oid;
+    <span class="kw">pub fn </span>git_indexer_name(idx: <span class="kw-2">*const </span>git_indexer) -&gt; <span class="kw-2">*const </span>c_char;
+    <span class="kw">pub fn </span>git_indexer_free(idx: <span class="kw-2">*mut </span>git_indexer);
+
+    <span class="kw">pub fn </span>git_indexer_options_init(opts: <span class="kw-2">*mut </span>git_indexer_options, version: c_uint) -&gt; c_int;
 
     <span class="comment">// odb
     </span><span class="kw">pub fn </span>git_repository_odb(out: <span class="kw-2">*mut *mut </span>git_odb, repo: <span class="kw-2">*mut </span>git_repository) -&gt; c_int;

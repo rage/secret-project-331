@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.4/src/writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -343,6 +343,38 @@
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
 </pre><pre class="rust"><code><span class="kw">use </span>core;
 <span class="attr">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">use </span>std::io::{<span class="self">self</span>, Error, ErrorKind, Write};
@@ -429,6 +461,21 @@
     }
 }
 
+<span class="attr">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;W: Write,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8 : Allocator&lt;u8&gt;,
+     AllocU32 : Allocator&lt;u32&gt;,
+     AllocHC : Allocator&lt;HuffmanCode&gt; &gt; DecompressorWriterCustomAlloc&lt;W,
+                                                                         BufferType,
+                                                                         AllocU8,
+                                                                         AllocU32,
+                                                                         AllocHC&gt; {
+    <span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;{
+        <span class="self">self</span>.<span class="number">0</span>.close()
+    }
+}
+
 
 <span class="attr">#[cfg(not(any(feature=<span class="string">&quot;unsafe&quot;</span>, not(feature=<span class="string">&quot;std&quot;</span>))))]
 </span><span class="kw">pub struct </span>DecompressorWriter&lt;W: Write&gt;(DecompressorWriterCustomAlloc&lt;W,
@@ -512,7 +559,12 @@
   }
 }
 
-
+<span class="attr">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;W: Write&gt; DecompressorWriter&lt;W&gt; {
+    <span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;{
+        <span class="self">self</span>.<span class="number">0</span>.close()
+    }
+}
 <span class="attr">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">impl</span>&lt;W: Write&gt; Write <span class="kw">for </span>DecompressorWriter&lt;W&gt; {
   	<span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
@@ -579,7 +631,7 @@
             error_if_invalid_data : <span class="prelude-val">Some</span>(invalid_data_error_type),
         }
     }
-    <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrType&gt;{
+    <span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrType&gt;{
         <span class="kw">loop </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>avail_in : usize = <span class="number">0</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>input_offset : usize = <span class="number">0</span>;
@@ -594,15 +646,21 @@
                 <span class="self">self</span>.output_buffer.slice_mut(),                
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.total_out,
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.state);
+          <span class="comment">// already closed.
+          </span><span class="kw">if </span><span class="self">self</span>.error_if_invalid_data.is_none() {
+              <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+          }
           <span class="kw">match </span>write_all(<span class="self">self</span>.output.as_mut().unwrap(), <span class="kw-2">&amp;</span><span class="self">self</span>.output_buffer.slice_mut()[..output_offset]) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {},
             <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
            }
            <span class="kw">match </span>ret {
-           BrotliResult::NeedsMoreInput =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error_if_invalid_data.take().unwrap()),
+           BrotliResult::NeedsMoreInput =&gt; <span class="kw">return </span><span class="self">self</span>.error_if_invalid_data.take().map(|e|<span class="prelude-val">Err</span>(e)).unwrap_or(<span class="prelude-val">Ok</span>(())),
            BrotliResult::NeedsMoreOutput =&gt; {},
-           BrotliResult::ResultSuccess =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
-           BrotliResult::ResultFailure =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error_if_invalid_data.take().unwrap()),
+           BrotliResult::ResultSuccess =&gt; {
+               <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+           },
+           BrotliResult::ResultFailure =&gt; <span class="kw">return </span><span class="self">self</span>.error_if_invalid_data.take().map(|e|<span class="prelude-val">Err</span>(e)).unwrap_or(<span class="prelude-val">Ok</span>(()))
            }
         }
     }
@@ -674,9 +732,16 @@
          <span class="kw">match </span>op_result {
           BrotliResult::NeedsMoreInput =&gt; <span class="macro">assert_eq!</span>(avail_in, <span class="number">0</span>),
           BrotliResult::NeedsMoreOutput =&gt; <span class="kw">continue</span>,
-          BrotliResult::ResultSuccess =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((buf.len())),
-          BrotliResult::ResultFailure =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error_if_invalid_data.take().unwrap()),
-        }
+          BrotliResult::ResultSuccess =&gt; {
+              <span class="kw">if </span>input_offset != buf.len() {
+                  <span class="comment">// Did not utilize the full buffer; return error.
+                  </span><span class="kw">return </span><span class="self">self</span>.error_if_invalid_data.take().map(
+                      |e|<span class="prelude-val">Err</span>(e)).unwrap_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>));
+              }
+              <span class="kw">return </span><span class="prelude-val">Ok</span>((buf.len()));
+          }
+          BrotliResult::ResultFailure =&gt; <span class="kw">return </span><span class="self">self</span>.error_if_invalid_data.take().map(|e|<span class="prelude-val">Err</span>(e)).unwrap_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>)),
+       }
         <span class="kw">if </span>avail_in == <span class="number">0 </span>{
            <span class="kw">break
         </span>}
@@ -687,6 +752,5 @@
        <span class="self">self</span>.output.as_mut().unwrap().flush()
     }
 }
-
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="brotli_decompressor" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

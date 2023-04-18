@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.17/src/primitive_date_time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>primitive_date_time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.20/src/primitive_date_time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>primitive_date_time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -884,80 +884,27 @@
 <a href="#883" id="883">883</a>
 <a href="#884" id="884">884</a>
 <a href="#885" id="885">885</a>
-<a href="#886" id="886">886</a>
-<a href="#887" id="887">887</a>
-<a href="#888" id="888">888</a>
-<a href="#889" id="889">889</a>
-<a href="#890" id="890">890</a>
-<a href="#891" id="891">891</a>
-<a href="#892" id="892">892</a>
-<a href="#893" id="893">893</a>
-<a href="#894" id="894">894</a>
-<a href="#895" id="895">895</a>
-<a href="#896" id="896">896</a>
-<a href="#897" id="897">897</a>
-<a href="#898" id="898">898</a>
-<a href="#899" id="899">899</a>
-<a href="#900" id="900">900</a>
-<a href="#901" id="901">901</a>
-<a href="#902" id="902">902</a>
-<a href="#903" id="903">903</a>
-<a href="#904" id="904">904</a>
-<a href="#905" id="905">905</a>
-<a href="#906" id="906">906</a>
-<a href="#907" id="907">907</a>
-<a href="#908" id="908">908</a>
-<a href="#909" id="909">909</a>
-<a href="#910" id="910">910</a>
-<a href="#911" id="911">911</a>
-<a href="#912" id="912">912</a>
-<a href="#913" id="913">913</a>
-<a href="#914" id="914">914</a>
-<a href="#915" id="915">915</a>
-<a href="#916" id="916">916</a>
-<a href="#917" id="917">917</a>
-<a href="#918" id="918">918</a>
-<a href="#919" id="919">919</a>
-<a href="#920" id="920">920</a>
-<a href="#921" id="921">921</a>
-<a href="#922" id="922">922</a>
-<a href="#923" id="923">923</a>
-<a href="#924" id="924">924</a>
-<a href="#925" id="925">925</a>
-<a href="#926" id="926">926</a>
-<a href="#927" id="927">927</a>
-<a href="#928" id="928">928</a>
-<a href="#929" id="929">929</a>
-<a href="#930" id="930">930</a>
-<a href="#931" id="931">931</a>
-<a href="#932" id="932">932</a>
-<a href="#933" id="933">933</a>
-<a href="#934" id="934">934</a>
-<a href="#935" id="935">935</a>
-<a href="#936" id="936">936</a>
-<a href="#937" id="937">937</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The [`PrimitiveDateTime`] struct and its associated `impl`s.
 
 </span><span class="kw">use </span>core::fmt;
-<span class="kw">use </span>core::ops::{Add, Sub};
+<span class="kw">use </span>core::ops::{Add, AddAssign, Sub, SubAssign};
 <span class="kw">use </span>core::time::Duration <span class="kw">as </span>StdDuration;
 <span class="attr">#[cfg(feature = <span class="string">&quot;formatting&quot;</span>)]
 </span><span class="kw">use </span>std::io;
 
+<span class="kw">use </span><span class="kw">crate</span>::date_time::offset_kind;
 <span class="attr">#[cfg(feature = <span class="string">&quot;formatting&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::formatting::Formattable;
 <span class="attr">#[cfg(feature = <span class="string">&quot;parsing&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::parsing::Parsable;
-<span class="kw">use crate</span>::{error, util, Date, Duration, Month, OffsetDateTime, Time, UtcOffset, Weekday};
+<span class="kw">use crate</span>::{error, Date, DateTime, Duration, Month, OffsetDateTime, Time, UtcOffset, Weekday};
+
+<span class="doccomment">/// The actual type doing all the work.
+</span><span class="kw">type </span>Inner = DateTime&lt;offset_kind::None&gt;;
 
 <span class="doccomment">/// Combined date and time.
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-</span><span class="kw">pub struct </span>PrimitiveDateTime {
-    <span class="attr">#[allow(clippy::missing_docs_in_private_items)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) date: Date,
-    <span class="attr">#[allow(clippy::missing_docs_in_private_items)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) time: Time,
-}
+</span><span class="kw">pub struct </span>PrimitiveDateTime(<span class="attr">#[allow(clippy::missing_docs_in_private_items)] </span><span class="kw">pub</span>(<span class="kw">crate</span>) Inner);
 
 <span class="kw">impl </span>PrimitiveDateTime {
     <span class="doccomment">/// The smallest value that can be represented by `PrimitiveDateTime`.
@@ -987,7 +934,7 @@
         doc = <span class="string">&quot;assert_eq!(PrimitiveDateTime::MIN, datetime!(-9999-01-01 0:00));&quot;
     </span>)]
     </span><span class="doccomment">/// ```
-    </span><span class="kw">pub const </span>MIN: <span class="self">Self </span>= <span class="self">Self</span>::new(Date::MIN, Time::MIN);
+    </span><span class="kw">pub const </span>MIN: <span class="self">Self </span>= <span class="self">Self</span>(Inner::MIN);
 
     <span class="doccomment">/// The largest value that can be represented by `PrimitiveDateTime`.
     ///
@@ -1016,7 +963,7 @@
         doc = <span class="string">&quot;assert_eq!(PrimitiveDateTime::MAX, datetime!(+9999-12-31 23:59:59.999_999_999));&quot;
     </span>)]
     </span><span class="doccomment">/// ```
-    </span><span class="kw">pub const </span>MAX: <span class="self">Self </span>= <span class="self">Self</span>::new(Date::MAX, Time::MAX);
+    </span><span class="kw">pub const </span>MAX: <span class="self">Self </span>= <span class="self">Self</span>(Inner::MAX);
 
     <span class="doccomment">/// Create a new `PrimitiveDateTime` from the provided [`Date`] and [`Time`].
     ///
@@ -1029,7 +976,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>new(date: Date, time: Time) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ date, time }
+        <span class="self">Self</span>(Inner::new(date, time))
     }
 
     <span class="comment">// region: component getters
@@ -1040,7 +987,7 @@
     /// assert_eq!(datetime!(2019-01-01 0:00).date(), date!(2019-01-01));
     /// ```
     </span><span class="kw">pub const fn </span>date(<span class="self">self</span>) -&gt; Date {
-        <span class="self">self</span>.date
+        <span class="self">self</span>.<span class="number">0</span>.date()
     }
 
     <span class="doccomment">/// Get the [`Time`] component of the `PrimitiveDateTime`.
@@ -1049,7 +996,7 @@
     /// # use time_macros::{datetime, time};
     /// assert_eq!(datetime!(2019-01-01 0:00).time(), time!(0:00));
     </span><span class="kw">pub const fn </span>time(<span class="self">self</span>) -&gt; Time {
-        <span class="self">self</span>.time
+        <span class="self">self</span>.<span class="number">0</span>.time()
     }
     <span class="comment">// endregion component getters
 
@@ -1063,7 +1010,7 @@
     /// assert_eq!(datetime!(2020-01-01 0:00).year(), 2020);
     /// ```
     </span><span class="kw">pub const fn </span>year(<span class="self">self</span>) -&gt; i32 {
-        <span class="self">self</span>.date.year()
+        <span class="self">self</span>.<span class="number">0</span>.year()
     }
 
     <span class="doccomment">/// Get the month of the date.
@@ -1075,7 +1022,7 @@
     /// assert_eq!(datetime!(2019-12-31 0:00).month(), Month::December);
     /// ```
     </span><span class="kw">pub const fn </span>month(<span class="self">self</span>) -&gt; Month {
-        <span class="self">self</span>.date.month()
+        <span class="self">self</span>.<span class="number">0</span>.month()
     }
 
     <span class="doccomment">/// Get the day of the date.
@@ -1088,7 +1035,7 @@
     /// assert_eq!(datetime!(2019-12-31 0:00).day(), 31);
     /// ```
     </span><span class="kw">pub const fn </span>day(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.date.day()
+        <span class="self">self</span>.<span class="number">0</span>.day()
     }
 
     <span class="doccomment">/// Get the day of the year.
@@ -1101,7 +1048,7 @@
     /// assert_eq!(datetime!(2019-12-31 0:00).ordinal(), 365);
     /// ```
     </span><span class="kw">pub const fn </span>ordinal(<span class="self">self</span>) -&gt; u16 {
-        <span class="self">self</span>.date.ordinal()
+        <span class="self">self</span>.<span class="number">0</span>.ordinal()
     }
 
     <span class="doccomment">/// Get the ISO week number.
@@ -1117,7 +1064,7 @@
     /// assert_eq!(datetime!(2021-01-01 0:00).iso_week(), 53);
     /// ```
     </span><span class="kw">pub const fn </span>iso_week(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.date.iso_week()
+        <span class="self">self</span>.<span class="number">0</span>.iso_week()
     }
 
     <span class="doccomment">/// Get the week number where week 1 begins on the first Sunday.
@@ -1132,7 +1079,7 @@
     /// assert_eq!(datetime!(2021-01-01 0:00).sunday_based_week(), 0);
     /// ```
     </span><span class="kw">pub const fn </span>sunday_based_week(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.date.sunday_based_week()
+        <span class="self">self</span>.<span class="number">0</span>.sunday_based_week()
     }
 
     <span class="doccomment">/// Get the week number where week 1 begins on the first Monday.
@@ -1147,7 +1094,7 @@
     /// assert_eq!(datetime!(2021-01-01 0:00).monday_based_week(), 0);
     /// ```
     </span><span class="kw">pub const fn </span>monday_based_week(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.date.monday_based_week()
+        <span class="self">self</span>.<span class="number">0</span>.monday_based_week()
     }
 
     <span class="doccomment">/// Get the year, month, and day.
@@ -1161,7 +1108,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>to_calendar_date(<span class="self">self</span>) -&gt; (i32, Month, u8) {
-        <span class="self">self</span>.date.to_calendar_date()
+        <span class="self">self</span>.<span class="number">0</span>.to_calendar_date()
     }
 
     <span class="doccomment">/// Get the year and ordinal day number.
@@ -1171,7 +1118,7 @@
     /// assert_eq!(datetime!(2019-01-01 0:00).to_ordinal_date(), (2019, 1));
     /// ```
     </span><span class="kw">pub const fn </span>to_ordinal_date(<span class="self">self</span>) -&gt; (i32, u16) {
-        <span class="self">self</span>.date.to_ordinal_date()
+        <span class="self">self</span>.<span class="number">0</span>.to_ordinal_date()
     }
 
     <span class="doccomment">/// Get the ISO 8601 year, week number, and weekday.
@@ -1201,7 +1148,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>to_iso_week_date(<span class="self">self</span>) -&gt; (i32, u8, Weekday) {
-        <span class="self">self</span>.date.to_iso_week_date()
+        <span class="self">self</span>.<span class="number">0</span>.to_iso_week_date()
     }
 
     <span class="doccomment">/// Get the weekday.
@@ -1223,7 +1170,7 @@
     /// assert_eq!(datetime!(2019-12-01 0:00).weekday(), Sunday);
     /// ```
     </span><span class="kw">pub const fn </span>weekday(<span class="self">self</span>) -&gt; Weekday {
-        <span class="self">self</span>.date.weekday()
+        <span class="self">self</span>.<span class="number">0</span>.weekday()
     }
 
     <span class="doccomment">/// Get the Julian day for the date. The time is not taken into account for this calculation.
@@ -1239,7 +1186,7 @@
     /// assert_eq!(datetime!(2019-12-31 0:00).to_julian_day(), 2_458_849);
     /// ```
     </span><span class="kw">pub const fn </span>to_julian_day(<span class="self">self</span>) -&gt; i32 {
-        <span class="self">self</span>.date.to_julian_day()
+        <span class="self">self</span>.<span class="number">0</span>.to_julian_day()
     }
     <span class="comment">// endregion date getters
 
@@ -1252,7 +1199,7 @@
     /// assert_eq!(datetime!(2020-01-01 23:59:59).as_hms(), (23, 59, 59));
     /// ```
     </span><span class="kw">pub const fn </span>as_hms(<span class="self">self</span>) -&gt; (u8, u8, u8) {
-        <span class="self">self</span>.time.as_hms()
+        <span class="self">self</span>.<span class="number">0</span>.as_hms()
     }
 
     <span class="doccomment">/// Get the clock hour, minute, second, and millisecond.
@@ -1266,7 +1213,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>as_hms_milli(<span class="self">self</span>) -&gt; (u8, u8, u8, u16) {
-        <span class="self">self</span>.time.as_hms_milli()
+        <span class="self">self</span>.<span class="number">0</span>.as_hms_milli()
     }
 
     <span class="doccomment">/// Get the clock hour, minute, second, and microsecond.
@@ -1280,7 +1227,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>as_hms_micro(<span class="self">self</span>) -&gt; (u8, u8, u8, u32) {
-        <span class="self">self</span>.time.as_hms_micro()
+        <span class="self">self</span>.<span class="number">0</span>.as_hms_micro()
     }
 
     <span class="doccomment">/// Get the clock hour, minute, second, and nanosecond.
@@ -1294,7 +1241,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>as_hms_nano(<span class="self">self</span>) -&gt; (u8, u8, u8, u32) {
-        <span class="self">self</span>.time.as_hms_nano()
+        <span class="self">self</span>.<span class="number">0</span>.as_hms_nano()
     }
 
     <span class="doccomment">/// Get the clock hour.
@@ -1307,7 +1254,7 @@
     /// assert_eq!(datetime!(2019-01-01 23:59:59).hour(), 23);
     /// ```
     </span><span class="kw">pub const fn </span>hour(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.time.hour()
+        <span class="self">self</span>.<span class="number">0</span>.hour()
     }
 
     <span class="doccomment">/// Get the minute within the hour.
@@ -1320,7 +1267,7 @@
     /// assert_eq!(datetime!(2019-01-01 23:59:59).minute(), 59);
     /// ```
     </span><span class="kw">pub const fn </span>minute(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.time.minute()
+        <span class="self">self</span>.<span class="number">0</span>.minute()
     }
 
     <span class="doccomment">/// Get the second within the minute.
@@ -1333,7 +1280,7 @@
     /// assert_eq!(datetime!(2019-01-01 23:59:59).second(), 59);
     /// ```
     </span><span class="kw">pub const fn </span>second(<span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.time.second()
+        <span class="self">self</span>.<span class="number">0</span>.second()
     }
 
     <span class="doccomment">/// Get the milliseconds within the second.
@@ -1346,7 +1293,7 @@
     /// assert_eq!(datetime!(2019-01-01 23:59:59.999).millisecond(), 999);
     /// ```
     </span><span class="kw">pub const fn </span>millisecond(<span class="self">self</span>) -&gt; u16 {
-        <span class="self">self</span>.time.millisecond()
+        <span class="self">self</span>.<span class="number">0</span>.millisecond()
     }
 
     <span class="doccomment">/// Get the microseconds within the second.
@@ -1362,7 +1309,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>microsecond(<span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.time.microsecond()
+        <span class="self">self</span>.<span class="number">0</span>.microsecond()
     }
 
     <span class="doccomment">/// Get the nanoseconds within the second.
@@ -1378,7 +1325,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>nanosecond(<span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.time.nanosecond()
+        <span class="self">self</span>.<span class="number">0</span>.nanosecond()
     }
     <span class="comment">// endregion time getters
 
@@ -1402,10 +1349,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>assume_offset(<span class="self">self</span>, offset: UtcOffset) -&gt; OffsetDateTime {
-        OffsetDateTime {
-            local_datetime: <span class="self">self</span>,
-            offset,
-        }
+        OffsetDateTime(<span class="self">self</span>.<span class="number">0</span>.assume_offset(offset))
     }
 
     <span class="doccomment">/// Assuming that the existing `PrimitiveDateTime` represents a moment in UTC, return an
@@ -1419,7 +1363,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>assume_utc(<span class="self">self</span>) -&gt; OffsetDateTime {
-        <span class="self">self</span>.assume_offset(UtcOffset::UTC)
+        OffsetDateTime(<span class="self">self</span>.<span class="number">0</span>.assume_utc())
     }
     <span class="comment">// endregion attach offset
 
@@ -1441,17 +1385,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>checked_add(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>(date_adjustment, time) = <span class="self">self</span>.time.adjusting_add(duration);
-        <span class="kw">let </span>date = <span class="macro">const_try_opt!</span>(<span class="self">self</span>.date.checked_add(duration));
-
-        <span class="prelude-val">Some</span>(<span class="self">Self </span>{
-            date: <span class="kw">match </span>date_adjustment {
-                util::DateAdjustment::Previous =&gt; <span class="macro">const_try_opt!</span>(date.previous_day()),
-                util::DateAdjustment::Next =&gt; <span class="macro">const_try_opt!</span>(date.next_day()),
-                util::DateAdjustment::None =&gt; date,
-            },
-            time,
-        })
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>(<span class="macro">const_try_opt!</span>(<span class="self">self</span>.<span class="number">0</span>.checked_add(duration))))
     }
 
     <span class="doccomment">/// Computes `self - duration`, returning `None` if an overflow occurred.
@@ -1471,17 +1405,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>checked_sub(<span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>(date_adjustment, time) = <span class="self">self</span>.time.adjusting_sub(duration);
-        <span class="kw">let </span>date = <span class="macro">const_try_opt!</span>(<span class="self">self</span>.date.checked_sub(duration));
-
-        <span class="prelude-val">Some</span>(<span class="self">Self </span>{
-            date: <span class="kw">match </span>date_adjustment {
-                util::DateAdjustment::Previous =&gt; <span class="macro">const_try_opt!</span>(date.previous_day()),
-                util::DateAdjustment::Next =&gt; <span class="macro">const_try_opt!</span>(date.next_day()),
-                util::DateAdjustment::None =&gt; date,
-            },
-            time,
-        })
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>(<span class="macro">const_try_opt!</span>(<span class="self">self</span>.<span class="number">0</span>.checked_sub(duration))))
     }
     <span class="comment">// endregion: checked arithmetic
 
@@ -1507,13 +1431,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>saturating_add(<span class="self">self</span>, duration: Duration) -&gt; <span class="self">Self </span>{
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(datetime) = <span class="self">self</span>.checked_add(duration) {
-            datetime
-        } <span class="kw">else if </span>duration.is_negative() {
-            <span class="self">Self</span>::MIN
-        } <span class="kw">else </span>{
-            <span class="self">Self</span>::MAX
-        }
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.saturating_add(duration))
     }
 
     <span class="doccomment">/// Computes `self - duration`, saturating value on overflow.
@@ -1537,13 +1455,7 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>saturating_sub(<span class="self">self</span>, duration: Duration) -&gt; <span class="self">Self </span>{
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(datetime) = <span class="self">self</span>.checked_sub(duration) {
-            datetime
-        } <span class="kw">else if </span>duration.is_negative() {
-            <span class="self">Self</span>::MAX
-        } <span class="kw">else </span>{
-            <span class="self">Self</span>::MIN
-        }
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.saturating_sub(duration))
     }
     <span class="comment">// endregion: saturating arithmetic
 </span>}
@@ -1562,7 +1474,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_time(<span class="self">self</span>, time: Time) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.date.with_time(time)
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.replace_time(time))
     }
 
     <span class="doccomment">/// Replace the date, preserving the time.
@@ -1576,7 +1488,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_date(<span class="self">self</span>, date: Date) -&gt; <span class="self">Self </span>{
-        date.with_time(<span class="self">self</span>.time)
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.replace_date(date))
     }
 
     <span class="doccomment">/// Replace the year. The month and day will be unchanged.
@@ -1592,7 +1504,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_year(<span class="self">self</span>, year: i32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.date.replace_year(year)).with_time(<span class="self">self</span>.time))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_year(year))))
     }
 
     <span class="doccomment">/// Replace the month of the year.
@@ -1608,7 +1520,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_month(<span class="self">self</span>, month: Month) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.date.replace_month(month)).with_time(<span class="self">self</span>.time))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_month(month))))
     }
 
     <span class="doccomment">/// Replace the day of the month.
@@ -1624,7 +1536,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_day(<span class="self">self</span>, day: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.date.replace_day(day)).with_time(<span class="self">self</span>.time))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_day(day))))
     }
 
     <span class="doccomment">/// Replace the clock hour.
@@ -1639,9 +1551,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_hour(<span class="self">self</span>, hour: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.date()
-            .with_time(<span class="macro">const_try!</span>(<span class="self">self</span>.time.replace_hour(hour))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_hour(hour))))
     }
 
     <span class="doccomment">/// Replace the minutes within the hour.
@@ -1656,9 +1566,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_minute(<span class="self">self</span>, minute: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.date()
-            .with_time(<span class="macro">const_try!</span>(<span class="self">self</span>.time.replace_minute(minute))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_minute(minute))))
     }
 
     <span class="doccomment">/// Replace the seconds within the minute.
@@ -1673,9 +1581,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_second(<span class="self">self</span>, second: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.date()
-            .with_time(<span class="macro">const_try!</span>(<span class="self">self</span>.time.replace_second(second))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_second(second))))
     }
 
     <span class="doccomment">/// Replace the milliseconds within the second.
@@ -1693,9 +1599,7 @@
         <span class="self">self</span>,
         millisecond: u16,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.date()
-            .with_time(<span class="macro">const_try!</span>(<span class="self">self</span>.time.replace_millisecond(millisecond))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_millisecond(millisecond))))
     }
 
     <span class="doccomment">/// Replace the microseconds within the second.
@@ -1713,9 +1617,7 @@
         <span class="self">self</span>,
         microsecond: u32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.date()
-            .with_time(<span class="macro">const_try!</span>(<span class="self">self</span>.time.replace_microsecond(microsecond))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_microsecond(microsecond))))
     }
 
     <span class="doccomment">/// Replace the nanoseconds within the second.
@@ -1730,9 +1632,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `PrimitiveDateTime`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_nanosecond(<span class="self">self</span>, nanosecond: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self
-            </span>.date()
-            .with_time(<span class="macro">const_try!</span>(<span class="self">self</span>.time.replace_nanosecond(nanosecond))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="macro">const_try!</span>(<span class="self">self</span>.<span class="number">0</span>.replace_nanosecond(nanosecond))))
     }
 }
 <span class="comment">// endregion replacement
@@ -1747,7 +1647,7 @@
         output: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>io::Write,
         format: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>Formattable + <span class="question-mark">?</span>Sized),
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize, error::Format&gt; {
-        format.format_into(output, <span class="prelude-val">Some</span>(<span class="self">self</span>.date), <span class="prelude-val">Some</span>(<span class="self">self</span>.time), <span class="prelude-val">None</span>)
+        <span class="self">self</span>.<span class="number">0</span>.format_into(output, format)
     }
 
     <span class="doccomment">/// Format the `PrimitiveDateTime` using the provided [format
@@ -1764,7 +1664,7 @@
     /// # Ok::&lt;_, time::Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>format(<span class="self">self</span>, format: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>Formattable + <span class="question-mark">?</span>Sized)) -&gt; <span class="prelude-ty">Result</span>&lt;String, error::Format&gt; {
-        format.format(<span class="prelude-val">Some</span>(<span class="self">self</span>.date), <span class="prelude-val">Some</span>(<span class="self">self</span>.time), <span class="prelude-val">None</span>)
+        <span class="self">self</span>.<span class="number">0</span>.format(format)
     }
 }
 
@@ -1787,13 +1687,13 @@
         input: <span class="kw-2">&amp;</span>str,
         description: <span class="kw-2">&amp;</span>(<span class="kw">impl </span>Parsable + <span class="question-mark">?</span>Sized),
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::Parse&gt; {
-        description.parse_date_time(input.as_bytes())
+        Inner::parse(input, description).map(<span class="self">Self</span>)
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>PrimitiveDateTime {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{} {}&quot;</span>, <span class="self">self</span>.date, <span class="self">self</span>.time)
+        <span class="self">self</span>.<span class="number">0</span>.fmt(f)
     }
 }
 
@@ -1809,8 +1709,7 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, duration: Duration) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.checked_add(duration)
-            .expect(<span class="string">&quot;resulting value is out of range&quot;</span>)
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.add(duration))
     }
 }
 
@@ -1818,29 +1717,27 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, duration: StdDuration) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>(is_next_day, time) = <span class="self">self</span>.time.adjusting_add_std(duration);
-
-        <span class="self">Self </span>{
-            date: <span class="kw">if </span>is_next_day {
-                (<span class="self">self</span>.date + duration)
-                    .next_day()
-                    .expect(<span class="string">&quot;resulting value is out of range&quot;</span>)
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.date + duration
-            },
-            time,
-        }
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.add(duration))
     }
 }
 
-<span class="macro">impl_add_assign!</span>(PrimitiveDateTime: Duration, StdDuration);
+<span class="kw">impl </span>AddAssign&lt;Duration&gt; <span class="kw">for </span>PrimitiveDateTime {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: Duration) {
+        <span class="self">self</span>.<span class="number">0</span>.add_assign(duration);
+    }
+}
+
+<span class="kw">impl </span>AddAssign&lt;StdDuration&gt; <span class="kw">for </span>PrimitiveDateTime {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: StdDuration) {
+        <span class="self">self</span>.<span class="number">0</span>.add_assign(duration);
+    }
+}
 
 <span class="kw">impl </span>Sub&lt;Duration&gt; <span class="kw">for </span>PrimitiveDateTime {
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, duration: Duration) -&gt; <span class="self">Self</span>::Output {
-        <span class="self">self</span>.checked_sub(duration)
-            .expect(<span class="string">&quot;resulting value is out of range&quot;</span>)
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.sub(duration))
     }
 }
 
@@ -1848,28 +1745,27 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, duration: StdDuration) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>(is_previous_day, time) = <span class="self">self</span>.time.adjusting_sub_std(duration);
-
-        <span class="self">Self </span>{
-            date: <span class="kw">if </span>is_previous_day {
-                (<span class="self">self</span>.date - duration)
-                    .previous_day()
-                    .expect(<span class="string">&quot;resulting value is out of range&quot;</span>)
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.date - duration
-            },
-            time,
-        }
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.sub(duration))
     }
 }
 
-<span class="macro">impl_sub_assign!</span>(PrimitiveDateTime: Duration, StdDuration);
+<span class="kw">impl </span>SubAssign&lt;Duration&gt; <span class="kw">for </span>PrimitiveDateTime {
+    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: Duration) {
+        <span class="self">self</span>.<span class="number">0</span>.sub_assign(duration);
+    }
+}
+
+<span class="kw">impl </span>SubAssign&lt;StdDuration&gt; <span class="kw">for </span>PrimitiveDateTime {
+    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: StdDuration) {
+        <span class="self">self</span>.<span class="number">0</span>.sub_assign(duration);
+    }
+}
 
 <span class="kw">impl </span>Sub <span class="kw">for </span>PrimitiveDateTime {
     <span class="kw">type </span>Output = Duration;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
-        (<span class="self">self</span>.date - rhs.date) + (<span class="self">self</span>.time - rhs.time)
+        <span class="self">self</span>.<span class="number">0</span>.sub(rhs.<span class="number">0</span>)
     }
 }
 <span class="comment">// endregion trait impls

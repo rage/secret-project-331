@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/build.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>build.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.17.0/src/build.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>build.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -851,6 +851,14 @@
 <a href="#851" id="851">851</a>
 <a href="#852" id="852">852</a>
 <a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Builder-pattern objects for configuration various git operations.
 
 </span><span class="kw">use </span>libc::{c_char, c_int, c_uint, c_void, size_t};
@@ -913,11 +921,19 @@
 
 <span class="doccomment">/// Type of callback passed to `RepoBuilder::remote_create`.
 ///
-/// The second and third arguments are the remote&#39;s name and the remote&#39;s url.
+/// The second and third arguments are the remote&#39;s name and the remote&#39;s URL.
 </span><span class="kw">pub type </span>RemoteCreate&lt;<span class="lifetime">&#39;cb</span>&gt; =
     <span class="kw">dyn for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnMut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Repository, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Remote&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; + <span class="lifetime">&#39;cb</span>;
 
-<span class="doccomment">/// A builder struct for git tree updates, for use with `git_tree_create_updated`.
+<span class="doccomment">/// A builder struct for git tree updates.
+///
+/// Paths passed to `remove` and `upsert` can be multi-component paths, i.e. they
+/// may contain slashes.
+///
+/// This is a higher-level tree update facility.  There is also [`TreeBuilder`]
+/// which is lower-level (and operates only on one level of the tree at a time).
+///
+/// [`TreeBuilder`]: crate::TreeBuilder
 </span><span class="kw">pub struct </span>TreeUpdateBuilder {
     updates: Vec&lt;raw::git_tree_update&gt;,
     paths: Vec&lt;CString&gt;,
@@ -942,7 +958,7 @@
 
 <span class="doccomment">/// Checkout progress notification callback.
 ///
-/// The first argument is the path for the notification, the next is the numver
+/// The first argument is the path for the notification, the next is the number
 /// of completed steps so far, and the final is the total number of steps.
 </span><span class="kw">pub type </span>Progress&lt;<span class="lifetime">&#39;a</span>&gt; = <span class="kw">dyn </span>FnMut(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;, usize, usize) + <span class="lifetime">&#39;a</span>;
 
@@ -974,10 +990,10 @@
     <span class="doccomment">/// Auto-detect (default)
     ///
     /// Here libgit2 will bypass the git-aware transport for local paths, but
-    /// use a normal fetch for `file://` urls.
+    /// use a normal fetch for `file://` URLs.
     </span>Auto = raw::GIT_CLONE_LOCAL_AUTO <span class="kw">as </span>isize,
 
-    <span class="doccomment">/// Bypass the git-aware transport even for `file://` urls.
+    <span class="doccomment">/// Bypass the git-aware transport even for `file://` URLs.
     </span>Local = raw::GIT_CLONE_LOCAL <span class="kw">as </span>isize,
 
     <span class="doccomment">/// Never bypass the git-aware transport
@@ -1083,7 +1099,7 @@
 
     <span class="doccomment">/// Clone a remote repository.
     ///
-    /// This will use the options configured so far to clone the specified url
+    /// This will use the options configured so far to clone the specified URL
     /// into the specified local path.
     </span><span class="kw">pub fn </span>clone(<span class="kw-2">&amp;mut </span><span class="self">self</span>, url: <span class="kw-2">&amp;</span>str, into: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;Repository, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>opts: raw::git_clone_options = <span class="kw">unsafe </span>{ mem::zeroed() };
@@ -1207,7 +1223,7 @@
     </span>}
 
     <span class="doccomment">/// Indicate that the checkout should be performed safely, allowing new
-    /// files to be created but not overwriting extisting files or changes.
+    /// files to be created but not overwriting existing files or changes.
     ///
     /// This is the default.
     </span><span class="kw">pub fn </span>safe(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CheckoutBuilder&lt;<span class="lifetime">&#39;cb</span>&gt; {

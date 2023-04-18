@@ -60,8 +60,8 @@ emails directly to the destination server.</p>
 </span><span class="kw">let </span>sender = SmtpTransport::starttls_relay(<span class="string">&quot;smtp.example.com&quot;</span>)<span class="question-mark">?
     </span><span class="comment">// Add credentials for authentication
     </span>.credentials(Credentials::new(
-        <span class="string">&quot;username&quot;</span>.to_string(),
-        <span class="string">&quot;password&quot;</span>.to_string(),
+        <span class="string">&quot;username&quot;</span>.to_owned(),
+        <span class="string">&quot;password&quot;</span>.to_owned(),
     ))
     <span class="comment">// Configure expected authentication mechanism
     </span>.authentication(<span class="macro">vec!</span>[Mechanism::Plain])
@@ -87,7 +87,7 @@ emails directly to the destination server.</p>
     .body(String::from(<span class="string">&quot;Be happy!&quot;</span>))<span class="question-mark">?</span>;
 
 <span class="comment">// Custom TLS configuration
-</span><span class="kw">let </span>tls = TlsParameters::builder(<span class="string">&quot;smtp.example.com&quot;</span>.to_string())
+</span><span class="kw">let </span>tls = TlsParameters::builder(<span class="string">&quot;smtp.example.com&quot;</span>.to_owned())
     .dangerous_accept_invalid_certs(<span class="bool-val">true</span>)
     .build()<span class="question-mark">?</span>;
 

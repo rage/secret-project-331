@@ -967,6 +967,11 @@
 <a href="#967" id="967">967</a>
 <a href="#968" id="968">968</a>
 <a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     collections::{HashMap, HashSet},
     convert::TryFrom,
@@ -1260,7 +1265,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span>headless_lms_utils::numbers::f32_approx_eq;
-    <span class="kw">use </span>mockito::Matcher;
+    <span class="kw">use </span>mockito::{Matcher, ServerGuard};
     <span class="kw">use </span>models::{
         exercise_services,
         exercise_task_gradings::{ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -1341,11 +1346,12 @@
         )
         .<span class="kw">await
         </span>.unwrap();
-
-        <span class="kw">let </span>_m = mockito::mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span>_m = server
+            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
             .with_body(serde_json::to_string(<span class="kw-2">&amp;</span>grading_result).unwrap())
             .create();
-        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>)
+        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>services = HashMap::from([(<span class="string">&quot;test-exercise&quot;</span>.to_string(), service)]);
@@ -1433,11 +1439,12 @@
         )
         .<span class="kw">await
         </span>.unwrap();
-
-        <span class="kw">let </span>_m = mockito::mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span>_m = server
+            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
             .with_body(serde_json::to_string(<span class="kw-2">&amp;</span>grading_result).unwrap())
             .create();
-        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>)
+        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>services = HashMap::from([(<span class="string">&quot;test-exercise&quot;</span>.to_string(), service)]);
@@ -1596,14 +1603,15 @@
             .exercise_task_submission_results
             .first()
             .unwrap();
-
-        <span class="kw">let </span>_m = mockito::mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span>_m = server
+            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
             .with_body(serde_json::to_string(<span class="kw-2">&amp;</span>grading_result).unwrap())
             .create();
-        <span class="kw">let </span>service_1 = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise-1&quot;</span>.to_string(), <span class="number">1</span>)
+        <span class="kw">let </span>service_1 = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise-1&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
-        <span class="kw">let </span>service_2 = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise-2&quot;</span>.to_string(), <span class="number">0</span>)
+        <span class="kw">let </span>service_2 = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise-2&quot;</span>.to_string(), <span class="number">0</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>services = HashMap::from([
@@ -1715,8 +1723,9 @@
         )
         .<span class="kw">await
         </span>.unwrap();
-
-        <span class="kw">let </span>_m = mockito::mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
+        <span class="kw">let </span><span class="kw-2">mut </span>server = mockito::Server::new();
+        <span class="kw">let </span>_m = server
+            .mock(<span class="string">&quot;POST&quot;</span>, Matcher::Any)
             .with_body(
                 serde_json::to_string(<span class="kw-2">&amp;</span>ExerciseTaskGradingResult {
                     grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -1729,7 +1738,7 @@
                 .unwrap(),
             )
             .create();
-        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>)
+        <span class="kw">let </span>service = create_mock_service(tx.as_mut(), <span class="string">&quot;test-exercise&quot;</span>.to_string(), <span class="number">1</span>, <span class="kw-2">&amp;</span>server)
             .<span class="kw">await
             </span>.unwrap();
         <span class="kw">let </span>services = HashMap::from([(<span class="string">&quot;test-exercise&quot;</span>.to_string(), service)]);
@@ -1909,6 +1918,7 @@
         conn: <span class="kw-2">&amp;mut </span>PgConnection,
         service_slug: String,
         max_reprocessing_submissions_at_once: i32,
+        server: <span class="kw-2">&amp;</span>ServerGuard,
     ) -&gt; ModelResult&lt;(ExerciseService, ExerciseServiceInfo)&gt; {
         <span class="kw">let </span>exercise_service = models::exercise_services::insert_exercise_service(
             conn,
@@ -1916,7 +1926,7 @@
                 name: <span class="string">&quot;&quot;</span>.to_string(),
                 slug: service_slug,
                 public_url: <span class="string">&quot;&quot;</span>.to_string(),
-                internal_url: <span class="prelude-val">Some</span>(mockito::server_url()),
+                internal_url: <span class="prelude-val">Some</span>(server.url()),
                 max_reprocessing_submissions_at_once,
             },
         )

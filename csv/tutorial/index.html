@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><meta name="keywords" content="rust, rustlang, rust-lang, tutorial"><title>csv::tutorial - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../csv/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../csv/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module tutorial</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">tutorial</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/csv/tutorial.rs.html#1-2520">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A tutorial for handling CSV data in Rust."><meta name="keywords" content="rust, rustlang, rust-lang, tutorial"><title>csv::tutorial - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../csv/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../csv/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module tutorial</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">tutorial</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/csv/tutorial.rs.html#1-2477">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A tutorial for handling CSV data in Rust.</p>
 <p>This tutorial will cover basic CSV reading and writing, automatic
 (de)serialization with Serde, CSV transformations and performance.</p>
 <p>This tutorial is targeted at beginner Rust programmers. Experienced Rust
@@ -181,9 +181,9 @@ header1,header2
 foo,bar
 quux,baz,foobar
 $ ./target/debug/csvtutor &lt; invalid
-StringRecord { position: Some(Position { byte: 16, line: 2, record: 1 }), fields: [&quot;foo&quot;, &quot;bar&quot;] }
-thread &#39;main&#39; panicked at &#39;called `Result::unwrap()` on an `Err` value: UnequalLengths { pos: Some(Position { byte: 24, line: 3, record: 2 }), expected_len: 2, len: 3 }&#39;, /checkout/src/libcore/result.rs:859
-note: Run with `RUST_BACKTRACE=1` for a backtrace.
+StringRecord([&quot;foo&quot;, &quot;bar&quot;])
+thread &#39;main&#39; panicked at &#39;a CSV record: Error(UnequalLengths { pos: Some(Position { byte: 24, line: 3, record: 2 }), expected_len: 2, len: 3 })&#39;, src/main.rs:13:29
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 </code></pre></div>
 <p>What happened here? First and foremost, we should talk about why the CSV data
 is invalid. The CSV data consists of three records: a header and two data
@@ -236,8 +236,7 @@ unrecoverable errors throughout the rest of the tutorial.</p>
 let’s get rid of the panic and print an error message manually:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-error-02.rs
-</span><span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{io, process};
 
 <span class="kw">fn </span>main() {
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
@@ -269,9 +268,7 @@ into a separate function. This function then has the option of <em>returning</em
 error, which our <code>main</code> function can then inspect and decide what to do with.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-error-03.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{error::Error, io, process};
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
@@ -305,9 +302,7 @@ error message and exit the program.</p>
 special Rust language feature: the question mark.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-error-04.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{error::Error, io, process};
 
 <span class="kw">fn </span>main() {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = run() {
@@ -353,11 +348,13 @@ delimiters and quoting strategies.</p>
 path argument instead of stdin.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-read-01.rs
-</span><span class="kw">use </span>std::env;
-<span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::ffi::OsString;
-<span class="kw">use </span>std::fs::File;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{
+    env,
+    error::Error,
+    ffi::OsString,
+    fs::File,
+    process,
+};
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span>file_path = get_first_arg()<span class="question-mark">?</span>;
@@ -694,11 +691,8 @@ code required to populate our struct from a CSV record. The next example shows
 how. Don’t miss the new Serde imports!</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-read-serde-04.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
 
-<span class="comment">// This lets us write `#[derive(Deserialize)]`.
+// This lets us write `#[derive(Deserialize)]`.
 </span><span class="kw">use </span>serde::Deserialize;
 
 <span class="comment">// We don&#39;t need to derive `Debug` (which doesn&#39;t require Serde), but it&#39;s a
@@ -896,9 +890,7 @@ control the output format.</p>
 <p>Let’s start with the most basic example: writing a few CSV records to <code>stdout</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-write-01.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{error::Error, io, process};
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>wtr = csv::Writer::from_writer(io::stdout());
@@ -987,10 +979,12 @@ strings satisfy the <code>AsRef&lt;[u8]&gt;</code> bound, this ends up being a l
 of <code>stdout</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-write-02.rs
-</span><span class="kw">use </span>std::env;
-<span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::ffi::OsString;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{
+    env,
+    error::Error,
+    ffi::OsString,
+    process,
+};
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span>file_path = get_first_arg()<span class="question-mark">?</span>;
@@ -1124,9 +1118,7 @@ we’ll need to add a couple crates to our <code>[dependencies]</code> section i
 shown in the example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-write-serde-02.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{error::Error, io, process};
 
 <span class="kw">use </span>serde::Serialize;
 
@@ -1235,10 +1227,7 @@ positional argument, and it will produce as output CSV data that only contains
 rows with a field that matches the query.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-pipeline-search-01.rs
-</span><span class="kw">use </span>std::env;
-<span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{env, error::Error, io, process};
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="comment">// Get the query from the positional arguments.
@@ -1383,12 +1372,8 @@ aren’t already there:</p>
 <p>Now here’s the code:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-pipeline-pop-01.rs
-</span><span class="kw">use </span>std::env;
-<span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
 
-<span class="kw">use </span>serde::{Deserialize, Serialize};
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="comment">// Unlike previous examples, we derive both Deserialize and Serialize. This
 // means we&#39;ll be able to automatically deserialize and serialize this type.
@@ -1499,9 +1484,7 @@ adapting a previous example to count the number of records in
 <code>worldcitiespop.csv</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-perf-alloc-01.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{error::Error, io, process};
 
 <span class="kw">fn </span>run() -&gt; <span class="prelude-ty">Result</span>&lt;u64, Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rdr = csv::Reader::from_reader(io::stdin());
@@ -1657,9 +1640,7 @@ guessed it—amortize allocation.</p>
 example using Serde in a previous section:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">//tutorial-perf-serde-01.rs
-</span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::io;
-<span class="kw">use </span>std::process;
+</span><span class="kw">use </span>std::{error::Error, io, process};
 
 <span class="kw">use </span>serde::Deserialize;
 

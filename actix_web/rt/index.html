@@ -21,7 +21,7 @@ architecture in <a href="https://docs.rs/actix-rt"><code>actix-rt</code></a>’s
     )
 }</code></pre></div>
 <h2 id="running-actix-web-using-tokiomain"><a href="#running-actix-web-using-tokiomain">Running Actix Web Using <code>#[tokio::main]</code></a></h2>
-<p>If you need to run something alongside Actix Web that uses Tokio’s work stealing functionality,
+<p>If you need to run something that uses Tokio’s work stealing functionality alongside Actix Web,
 you can run Actix Web under <code>#[tokio::main]</code>. The <a href="../dev/struct.Server.html"><code>Server</code></a> object returned
 from <a href="../struct.HttpServer.html#method.run"><code>HttpServer::run</code></a> can also be <a href="https://docs.rs/tokio/1/tokio/fn.spawn.html"><code>spawn</code></a>ed, if preferred.</p>
 <p>Note that <code>actix</code> actor support (and therefore WebSocket support through <code>actix-web-actors</code>)

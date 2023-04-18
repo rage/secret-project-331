@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/submodule.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>submodule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.17.0/src/submodule.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>submodule.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -412,6 +412,63 @@
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::marker;
 <span class="kw">use </span>std::mem;
 <span class="kw">use </span>std::os::raw::c_int;
@@ -466,21 +523,21 @@
         }
     }
 
-    <span class="doccomment">/// Get the submodule&#39;s url.
+    <span class="doccomment">/// Get the submodule&#39;s URL.
     ///
-    /// Returns `None` if the url is not valid utf-8 or if the URL isn&#39;t present
+    /// Returns `None` if the URL is not valid utf-8 or if the URL isn&#39;t present
     </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="self">self</span>.opt_url_bytes().and_then(|b| str::from_utf8(b).ok())
     }
 
-    <span class="doccomment">/// Get the url for the submodule.
+    <span class="doccomment">/// Get the URL for the submodule.
     </span><span class="attr">#[doc(hidden)]
     #[deprecated(note = <span class="string">&quot;renamed to `opt_url_bytes`&quot;</span>)]
     </span><span class="kw">pub fn </span>url_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="self">self</span>.opt_url_bytes().unwrap()
     }
 
-    <span class="doccomment">/// Get the url for the submodule.
+    <span class="doccomment">/// Get the URL for the submodule.
     ///
     /// Returns `None` if the URL isn&#39;t present
     </span><span class="comment">// TODO: delete this method and fix the signature of `url_bytes` on next
@@ -551,6 +608,25 @@
             <span class="macro">try_call!</span>(raw::git_submodule_init(<span class="self">self</span>.raw, overwrite));
         }
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Set up the subrepository for a submodule in preparation for clone.
+    ///
+    /// This function can be called to init and set up a submodule repository
+    /// from a submodule in preparation to clone it from its remote.
+
+    /// use_gitlink: Should the workdir contain a gitlink to the repo in
+    /// .git/modules vs. repo directly in workdir.
+    </span><span class="kw">pub fn </span>repo_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, use_gitlink: bool) -&gt; <span class="prelude-ty">Result</span>&lt;Repository, Error&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>raw_repo = ptr::null_mut();
+            <span class="macro">try_call!</span>(raw::git_submodule_repo_init(
+                <span class="kw-2">&amp;mut </span>raw_repo,
+                <span class="self">self</span>.raw,
+                use_gitlink
+            ));
+            <span class="prelude-val">Ok</span>(Binding::from_raw(raw_repo))
+        }
     }
 
     <span class="doccomment">/// Open the repository for a submodule.
@@ -813,17 +889,55 @@
         <span class="kw">let </span>(_td, parent) = <span class="kw">crate</span>::test::repo_init();
 
         <span class="kw">let </span>url1 = Url::from_file_path(<span class="kw-2">&amp;</span>repo1.workdir().unwrap()).unwrap();
-        <span class="kw">let </span>url3 = Url::from_file_path(<span class="kw-2">&amp;</span>repo2.workdir().unwrap()).unwrap();
+        <span class="kw">let </span>url2 = Url::from_file_path(<span class="kw-2">&amp;</span>repo2.workdir().unwrap()).unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s1 = parent
             .submodule(<span class="kw-2">&amp;</span>url1.to_string(), Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
             .unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>s2 = parent
-            .submodule(<span class="kw-2">&amp;</span>url3.to_string(), Path::new(<span class="string">&quot;bar2&quot;</span>), <span class="bool-val">true</span>)
+            .submodule(<span class="kw-2">&amp;</span>url2.to_string(), Path::new(<span class="string">&quot;bar2&quot;</span>), <span class="bool-val">true</span>)
             .unwrap();
         <span class="comment">// -----------------------------------
 
         </span><span class="macro">t!</span>(s1.clone(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>SubmoduleUpdateOptions::default())));
         <span class="macro">t!</span>(s2.clone(<span class="prelude-val">None</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>repo_init_submodule() {
+        <span class="comment">// -----------------------------------
+        // Same as `clone_submodule()`
+        </span><span class="kw">let </span>(_td, child) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span>(_td, parent) = <span class="kw">crate</span>::test::repo_init();
+
+        <span class="kw">let </span>url_child = Url::from_file_path(<span class="kw-2">&amp;</span>child.workdir().unwrap()).unwrap();
+        <span class="kw">let </span>url_parent = Url::from_file_path(<span class="kw-2">&amp;</span>parent.workdir().unwrap()).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>sub = parent
+            .submodule(<span class="kw-2">&amp;</span>url_child.to_string(), Path::new(<span class="string">&quot;bar&quot;</span>), <span class="bool-val">true</span>)
+            .unwrap();
+
+        <span class="comment">// -----------------------------------
+        // Let&#39;s commit the submodule for later clone
+        </span><span class="macro">t!</span>(sub.clone(<span class="prelude-val">None</span>));
+        <span class="macro">t!</span>(sub.add_to_index(<span class="bool-val">true</span>));
+        <span class="macro">t!</span>(sub.add_finalize());
+
+        <span class="kw">crate</span>::test::commit(<span class="kw-2">&amp;</span>parent);
+
+        <span class="comment">// Clone the parent to init its submodules
+        </span><span class="kw">let </span>td = TempDir::new().unwrap();
+        <span class="kw">let </span>new_parent = Repository::clone(<span class="kw-2">&amp;</span>url_parent.to_string(), <span class="kw-2">&amp;</span>td).unwrap();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>submodules = new_parent.submodules().unwrap();
+        <span class="kw">let </span>child = submodules.first_mut().unwrap();
+
+        <span class="comment">// First init child
+        </span><span class="macro">t!</span>(child.init(<span class="bool-val">false</span>));
+        <span class="macro">assert_eq!</span>(child.url().unwrap(), url_child.as_str());
+
+        <span class="comment">// open() is not possible before initializing the repo
+        </span><span class="macro">assert!</span>(child.open().is_err());
+        <span class="macro">t!</span>(child.repo_init(<span class="bool-val">true</span>));
+        <span class="macro">assert!</span>(child.open().is_ok());
     }
 }
 </code></pre></div>

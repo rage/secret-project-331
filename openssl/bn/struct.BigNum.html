@@ -2,7 +2,7 @@
 <p>Perform large number mathematics.  Create a new BigNum
 with <a href="struct.BigNum.html#method.new"><code>new</code></a>.  Perform standard mathematics on large numbers using
 methods from <a href="struct.BigNum.html#deref-methods"><code>Dref&lt;Target = BigNumRef&gt;</code></a></p>
-<p>OpenSSL documentation at <a href="https://www.openssl.org/docs/man1.1.0/crypto/BN_new.html"><code>BN_new</code></a>.</p>
+<p>OpenSSL documentation at <a href="https://www.openssl.org/docs/manmaster/crypto/BN_new.html"><code>BN_new</code></a>.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>openssl::bn::BigNum;
 <span class="kw">let </span>little_big = BigNum::from_u32(std::u32::MAX)<span class="question-mark">?</span>;
@@ -50,7 +50,7 @@ of magnitude of <code>2 ^ 8192</code>.  This number is used during calculated ke
 exchanges such as Diffie-Hellman.  This number is labeled MODP group 18.</p>
 <p>This corresponds to <a href="https://www.openssl.org/docs/manmaster/man3/BN_get_rfc3526_prime_8192.html"><code>BN_get_rfc3526_prime_8192</code></a>.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.from_slice" class="method has-srclink"><a class="srclink rightside" href="../../src/openssl/bn.rs.html#1075-1087">source</a><h4 class="code-header">pub fn <a href="#method.from_slice" class="fn">from_slice</a>(n: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.68.2/std/primitive.u8.html">u8</a>]) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.68.2/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="struct.BigNum.html" title="struct openssl::bn::BigNum">BigNum</a>, <a class="struct" href="../error/struct.ErrorStack.html" title="struct openssl::error::ErrorStack">ErrorStack</a>&gt;</h4></section></summary><div class="docblock"><p>Creates a new <code>BigNum</code> from an unsigned, big-endian encoded number of arbitrary length.</p>
-<p>OpenSSL documentation at <a href="https://www.openssl.org/docs/man1.1.0/crypto/BN_bin2bn.html"><code>BN_bin2bn</code></a></p>
+<p>OpenSSL documentation at <a href="https://www.openssl.org/docs/manmaster/crypto/BN_bin2bn.html"><code>BN_bin2bn</code></a></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bignum = BigNum::from_slice(<span class="kw-2">&amp;</span>[<span class="number">0x12</span>, <span class="number">0x00</span>, <span class="number">0x34</span>]).unwrap();
 

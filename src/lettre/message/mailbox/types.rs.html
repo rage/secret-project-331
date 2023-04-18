@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mailbox/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.4/src/message/mailbox/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -598,6 +598,37 @@
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
 <a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{
     fmt::{Display, Formatter, <span class="prelude-ty">Result </span><span class="kw">as </span>FmtResult, Write},
     mem,
@@ -670,7 +701,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>EmailWriter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="kw-2">&amp;</span><span class="self">self</span>.name {
             email_encoding::headers::quoted_string::encode(name, w)<span class="question-mark">?</span>;
-            w.space();
+            w.optional_breakpoint();
             w.write_char(<span class="string">&#39;&lt;&#39;</span>)<span class="question-mark">?</span>;
         }
 
@@ -875,7 +906,7 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
         <span class="kw">for </span>mailbox <span class="kw">in </span><span class="self">self</span>.iter() {
             <span class="kw">if </span>!mem::take(<span class="kw-2">&amp;mut </span>first) {
                 w.write_char(<span class="string">&#39;,&#39;</span>)<span class="question-mark">?</span>;
-                w.space();
+                w.optional_breakpoint();
             }
 
             mailbox.encode(w)<span class="question-mark">?</span>;
@@ -997,7 +1028,7 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
     } <span class="kw">else </span>{
         <span class="comment">// Quoted string: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.5
         </span>f.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for </span><span class="kw-2">&amp;</span>c <span class="kw">in </span>s.as_bytes() {
+        <span class="kw">for </span>c <span class="kw">in </span>s.chars() {
             write_quoted_string_char(f, c)<span class="question-mark">?</span>;
         }
         f.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
@@ -1041,34 +1072,37 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
 }
 
 <span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.5
-</span><span class="kw">fn </span>write_quoted_string_char(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, c: u8) -&gt; FmtResult {
+</span><span class="kw">fn </span>write_quoted_string_char(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, c: char) -&gt; FmtResult {
     <span class="kw">match </span>c {
-		<span class="comment">// NO-WS-CTL: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.1
-		</span><span class="number">1</span>..=<span class="number">8 </span>| <span class="number">11 </span>| <span class="number">12 </span>| <span class="number">14</span>..=<span class="number">31 </span>| <span class="number">127 </span>|
+        <span class="comment">// Can not be encoded.
+        </span><span class="string">&#39;\n&#39; </span>| <span class="string">&#39;\r&#39; </span>=&gt; <span class="prelude-val">Err</span>(std::fmt::Error),
 
-		<span class="comment">// Note, not qcontent but can be put before or after any qcontent.
-		</span><span class="string">b&#39;\t&#39; </span>|
-		<span class="string">b&#39; &#39; </span>|
+        <span class="comment">// Note, not qcontent but can be put before or after any qcontent.
+        </span><span class="string">&#39;\t&#39; </span>| <span class="string">&#39; &#39; </span>=&gt; f.write_char(c),
 
-		<span class="comment">// The rest of the US-ASCII except \ and &quot;
-		</span><span class="number">33 </span>|
-		<span class="number">35</span>..=<span class="number">91 </span>|
-		<span class="number">93</span>..=<span class="number">126 </span>|
+        c <span class="kw">if match </span>c <span class="kw">as </span>u32 {
+            <span class="comment">// NO-WS-CTL: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.1
+            </span><span class="number">1</span>..=<span class="number">8 </span>| <span class="number">11 </span>| <span class="number">12 </span>| <span class="number">14</span>..=<span class="number">31 </span>| <span class="number">127 </span>|
 
-		<span class="comment">// Non-ascii characters will be escaped separately later.
-		</span><span class="number">128</span>..=<span class="number">255
+            <span class="comment">// The rest of the US-ASCII except \ and &quot;
+            </span><span class="number">33 </span>|
+            <span class="number">35</span>..=<span class="number">91 </span>|
+            <span class="number">93</span>..=<span class="number">126 </span>|
 
-		</span>=&gt; f.write_char(c.into()),
+            <span class="comment">// Non-ascii characters will be escaped separately later.
+            </span><span class="number">128</span>.. =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+        } =&gt;
+        {
+            f.write_char(c)
+        }
 
-		<span class="comment">// Can not be encoded.
-		</span><span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39; </span>=&gt; <span class="prelude-val">Err</span>(std::fmt::Error),
-
-		c =&gt; {
-			<span class="comment">// quoted-pair https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.2
-			</span>f.write_char(<span class="string">&#39;\\&#39;</span>)<span class="question-mark">?</span>;
-			f.write_char(c.into())
-		}
-	}
+        <span class="kw">_ </span>=&gt; {
+            <span class="comment">// quoted-pair https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.2
+            </span>f.write_char(<span class="string">&#39;\\&#39;</span>)<span class="question-mark">?</span>;
+            f.write_char(c)
+        }
+    }
 }
 
 <span class="attr">#[cfg(test)]
@@ -1112,6 +1146,34 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
                 )
             ),
             <span class="string">r#&quot;&quot;Last, First&quot; &lt;kayo@example.com&gt;&quot;#
+        </span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>mailbox_format_address_with_comma_and_non_ascii() {
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">format!</span>(
+                <span class="string">&quot;{}&quot;</span>,
+                Mailbox::new(
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;Laşt, First&quot;</span>.into()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()
+                )
+            ),
+            <span class="string">r#&quot;&quot;Laşt, First&quot; &lt;kayo@example.com&gt;&quot;#
+        </span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>mailbox_format_address_with_comma_and_quoted_non_ascii() {
+        <span class="macro">assert_eq!</span>(
+            <span class="macro">format!</span>(
+                <span class="string">&quot;{}&quot;</span>,
+                Mailbox::new(
+                    <span class="prelude-val">Some</span>(<span class="string">r#&quot;Laşt, &quot;First&quot;&quot;#</span>.into()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()
+                )
+            ),
+            <span class="string">r#&quot;&quot;Laşt, \&quot;First\&quot;&quot; &lt;kayo@example.com&gt;&quot;#
         </span>);
     }
 
@@ -1189,7 +1251,7 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse_address_from_tuple() {
         <span class="macro">assert_eq!</span>(
-            (<span class="string">&quot;K.&quot;</span>.to_string(), <span class="string">&quot;kayo@example.com&quot;</span>.to_string()).try_into(),
+            (<span class="string">&quot;K.&quot;</span>.to_owned(), <span class="string">&quot;kayo@example.com&quot;</span>.to_owned()).try_into(),
             <span class="prelude-val">Ok</span>(Mailbox::new(
                 <span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.into()),
                 <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()

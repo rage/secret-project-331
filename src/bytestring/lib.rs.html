@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bytestring-1.2.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../bytestring/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bytestring-1.3.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../bytestring/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -383,6 +383,28 @@
 <a href="#383" id="383">383</a>
 <a href="#384" id="384">384</a>
 <a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
 </pre><pre class="rust"><code><span class="doccomment">//! A UTF-8 encoded read-only string using Bytes as storage.
 
 </span><span class="attr">#![no_std]
@@ -436,28 +458,39 @@
         <span class="self">Self</span>(src)
     }
 
-    <span class="doccomment">/// Returns a byte string that is equivalent to the given `subset`.
+    <span class="doccomment">/// Returns a new byte string that is equivalent to the given `subset`.
     ///
     /// When processing a `ByteString` buffer with other tools, one often gets a `&amp;str` which is in
-    /// fact a slice of the `ByteString`; i.e., a subset of it. This function turns that `&amp;str` into
-    /// another `ByteString`, as if one had sliced the `ByteString` with the offsets that correspond
-    /// to `subset`.
+    /// fact a slice of the original `ByteString`; i.e., a subset of it. This function turns that
+    /// `&amp;str` into another `ByteString`, as if one had sliced the `ByteString` with the offsets
+    /// that correspond to `subset`.
     ///
     /// Corresponds to [`Bytes::slice_ref`].
     ///
     /// This operation is `O(1)`.
     ///
     /// # Panics
-    /// Requires that the given `subset` str is in fact contained within the `ByteString` buffer;
-    /// otherwise this function will panic.
+    ///
+    /// Panics if `subset` is not a sub-slice of this byte string.
+    ///
+    /// Note that strings which are only subsets from an equality perspective do not uphold this
+    /// requirement; see examples.
     ///
     /// # Examples
+    ///
     /// ```
     /// # use bytestring::ByteString;
     /// let string = ByteString::from_static(&quot; foo &quot;);
     /// let subset = string.trim();
     /// let substring = string.slice_ref(subset);
     /// assert_eq!(substring, &quot;foo&quot;);
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use bytestring::ByteString;
+    /// // panics because the given slice is not derived from the original byte string, despite
+    /// // being a logical subset of the string
+    /// ByteString::from_static(&quot;foo bar&quot;).slice_ref(&quot;foo&quot;);
     /// ```
     </span><span class="kw">pub fn </span>slice_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, subset: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.slice_ref(subset.as_bytes()))
@@ -474,6 +507,12 @@
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>T) -&gt; bool {
         <span class="kw-2">&amp;</span><span class="self">self</span>[..] == other.as_ref()
     }
+}
+
+<span class="kw">impl </span>AsRef&lt;ByteString&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ByteString {
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>ByteString {
@@ -661,7 +700,10 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span>alloc::borrow::ToOwned;
-    <span class="kw">use </span>core::hash::{Hash, Hasher};
+    <span class="kw">use </span>core::{
+        hash::{Hash, Hasher},
+        panic::{RefUnwindSafe, UnwindSafe},
+    };
 
     <span class="kw">use </span>ahash::AHasher;
     <span class="kw">use </span>static_assertions::assert_impl_all;
@@ -671,16 +713,7 @@
     <span class="macro">assert_impl_all!</span>(ByteString: Send, Sync, Unpin, Sized);
     <span class="macro">assert_impl_all!</span>(ByteString: Clone, Default, Eq, PartialOrd, Ord);
     <span class="macro">assert_impl_all!</span>(ByteString: fmt::Debug, fmt::Display);
-
-    <span class="attr">#[rustversion::since(<span class="number">1.56</span>)]
-    </span><span class="kw">mod </span>above_1_56_impls {
-        <span class="comment">// `[Ref]UnwindSafe` traits were only in std until rust 1.56
-
-        </span><span class="kw">use </span>core::panic::{RefUnwindSafe, UnwindSafe};
-
-        <span class="kw">use super</span>::<span class="kw-2">*</span>;
-        <span class="macro">assert_impl_all!</span>(ByteString: UnwindSafe, RefUnwindSafe);
-    }
+    <span class="macro">assert_impl_all!</span>(ByteString: UnwindSafe, RefUnwindSafe);
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_partial_eq() {
@@ -763,9 +796,20 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>slice_ref() {
+        <span class="kw">let </span>string = ByteString::from_static(<span class="string">&quot; foo &quot;</span>);
+        <span class="kw">let </span>subset = string.trim();
+        <span class="comment">// subset is derived from original byte string
+        </span><span class="kw">let </span>substring = string.slice_ref(subset);
+        <span class="macro">assert_eq!</span>(substring, <span class="string">&quot;foo&quot;</span>);
+    }
+
+    <span class="attr">#[test]
     #[should_panic]
     </span><span class="kw">fn </span>test_slice_ref_catches_not_a_subset() {
-        ByteString::from_static(<span class="string">&quot;foo bar&quot;</span>).slice_ref(<span class="string">&quot;foo&quot;</span>);
+        <span class="comment">// panics because the given slice is not derived from the original byte string, despite
+        // being a logical subset of the string
+        </span>ByteString::from_static(<span class="string">&quot;foo bar&quot;</span>).slice_ref(<span class="string">&quot;foo&quot;</span>);
     }
 }
 </code></pre></div>

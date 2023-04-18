@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Bytes","Read the field into memory."]]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.3.1/src/resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -798,6 +798,45 @@
 <a href="#797" id="797">797</a>
 <a href="#798" id="798">798</a>
 <a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, fmt, future::Future, rc::Rc};
 
 <span class="kw">use </span>actix_http::Extensions;
@@ -813,8 +852,9 @@
     body::MessageBody,
     data::Data,
     dev::{ensure_leading_slash, AppService, ResourceDef},
-    guard::Guard,
+    guard::{<span class="self">self</span>, Guard},
     handler::Handler,
+    http::header,
     route::{Route, RouteService},
     service::{
         BoxedHttpService, BoxedHttpServiceFactory, HttpServiceFactory, ServiceRequest,
@@ -840,8 +880,11 @@
 ///         .route(web::get().to(|| HttpResponse::Ok())));
 /// ```
 ///
-/// If no matching route could be found, *405* response code get returned. Default behavior could be
-/// overridden with `default_resource()` method.
+/// If no matching route is found, [a 405 response is returned with an appropriate Allow header][RFC
+/// 9110 §15.5.6]. This default behavior can be overridden using
+/// [`default_service()`](Self::default_service).
+///
+/// [RFC 9110 §15.5.6]: https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.6
 </span><span class="kw">pub struct </span>Resource&lt;T = ResourceEndpoint&gt; {
     endpoint: T,
     rdef: Patterns,
@@ -866,7 +909,19 @@
             guards: Vec::new(),
             app_data: <span class="prelude-val">None</span>,
             default: boxed::factory(fn_service(|req: ServiceRequest| <span class="kw">async </span>{
-                <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::MethodNotAllowed()))
+                <span class="kw">use </span><span class="kw">crate</span>::HttpMessage <span class="kw">as _</span>;
+
+                <span class="kw">let </span>allowed = req.extensions().get::&lt;guard::RegisteredMethods&gt;().cloned();
+
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(methods) = allowed {
+                    <span class="prelude-val">Ok</span>(req.into_response(
+                        HttpResponse::MethodNotAllowed()
+                            .insert_header(header::Allow(methods.<span class="number">0</span>))
+                            .finish(),
+                    ))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::MethodNotAllowed()))
+                }
             })),
         }
     }
@@ -1109,13 +1164,28 @@
         }
     }
 
-    <span class="doccomment">/// Default service to be used if no matching route could be found.
+    <span class="doccomment">/// Sets the default service to be used if no matching route is found.
     ///
-    /// You can use a [`Route`] as default service.
+    /// Unlike [`Scope`]s, a `Resource` does _not_ inherit its parent&#39;s default service. You can
+    /// use a [`Route`] as default service.
     ///
-    /// If a default service is not registered, an empty `405 Method Not Allowed` response will be
-    /// sent to the client instead. Unlike [`Scope`](crate::Scope)s, a [`Resource`] does **not**
-    /// inherit its parent&#39;s default service.
+    /// If a custom default service is not registered, an empty `405 Method Not Allowed` response
+    /// with an appropriate Allow header will be sent instead.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{App, HttpResponse, web};
+    ///
+    /// let resource = web::resource(&quot;/test&quot;)
+    ///     .route(web::get().to(HttpResponse::Ok))
+    ///     .default_service(web::to(|| {
+    ///         HttpResponse::BadRequest()
+    ///     }));
+    ///
+    /// App::new().service(resource);
+    /// ```
+    ///
+    /// [`Scope`]: crate::Scope
     </span><span class="kw">pub fn </span>default_service&lt;F, U&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>F: IntoServiceFactory&lt;U, ServiceRequest&gt;,
@@ -1406,7 +1476,11 @@
     </span><span class="kw">async fn </span>test_default_resource() {
         <span class="kw">let </span>srv = init_service(
             App::new()
-                .service(web::resource(<span class="string">&quot;/test&quot;</span>).route(web::get().to(HttpResponse::Ok)))
+                .service(
+                    web::resource(<span class="string">&quot;/test&quot;</span>)
+                        .route(web::get().to(HttpResponse::Ok))
+                        .route(web::delete().to(HttpResponse::Ok)),
+                )
                 .default_service(|r: ServiceRequest| {
                     ok(r.into_response(HttpResponse::BadRequest()))
                 }),
@@ -1421,6 +1495,10 @@
             .to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::METHOD_NOT_ALLOWED);
+        <span class="macro">assert_eq!</span>(
+            resp.headers().get(header::ALLOW).unwrap().as_bytes(),
+            <span class="string">b&quot;GET, DELETE&quot;
+        </span>);
 
         <span class="kw">let </span>srv = init_service(
             App::new().service(

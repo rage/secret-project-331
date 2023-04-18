@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/object-0.30.0/src/read/elf/relocation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>relocation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../object/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/object-0.30.3/src/read/elf/relocation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>relocation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../object/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -555,6 +555,20 @@
 <a href="#555" id="555">555</a>
 <a href="#556" id="556">556</a>
 <a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
 </pre><pre class="rust"><code><span class="kw">use </span>alloc::fmt;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
@@ -797,19 +811,28 @@
     <span class="kw">let </span><span class="kw-2">mut </span>encoding = RelocationEncoding::Generic;
     <span class="kw">let </span>is_mips64el = header.is_mips64el(endian);
     <span class="kw">let </span>(kind, size) = <span class="kw">match </span>header.e_machine(endian) {
-        elf::EM_AARCH64 =&gt; <span class="kw">match </span>reloc.r_type(endian, <span class="bool-val">false</span>) {
-            elf::R_AARCH64_ABS64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            elf::R_AARCH64_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_AARCH64_ABS16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            elf::R_AARCH64_PREL64 =&gt; (RelocationKind::Relative, <span class="number">64</span>),
-            elf::R_AARCH64_PREL32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            elf::R_AARCH64_PREL16 =&gt; (RelocationKind::Relative, <span class="number">16</span>),
-            elf::R_AARCH64_CALL26 =&gt; {
-                encoding = RelocationEncoding::AArch64Call;
-                (RelocationKind::PltRelative, <span class="number">26</span>)
+        elf::EM_AARCH64 =&gt; {
+            <span class="kw">if </span>header.is_type_64() {
+                <span class="kw">match </span>reloc.r_type(endian, <span class="bool-val">false</span>) {
+                    elf::R_AARCH64_ABS64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
+                    elf::R_AARCH64_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
+                    elf::R_AARCH64_ABS16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
+                    elf::R_AARCH64_PREL64 =&gt; (RelocationKind::Relative, <span class="number">64</span>),
+                    elf::R_AARCH64_PREL32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
+                    elf::R_AARCH64_PREL16 =&gt; (RelocationKind::Relative, <span class="number">16</span>),
+                    elf::R_AARCH64_CALL26 =&gt; {
+                        encoding = RelocationEncoding::AArch64Call;
+                        (RelocationKind::PltRelative, <span class="number">26</span>)
+                    }
+                    r_type =&gt; (RelocationKind::Elf(r_type), <span class="number">0</span>),
+                }
+            } <span class="kw">else </span>{
+                <span class="kw">match </span>reloc.r_type(endian, <span class="bool-val">false</span>) {
+                    elf::R_AARCH64_P32_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
+                    r_type =&gt; (RelocationKind::Elf(r_type), <span class="number">0</span>),
+                }
             }
-            r_type =&gt; (RelocationKind::Elf(r_type), <span class="number">0</span>),
-        },
+        }
         elf::EM_ARM =&gt; <span class="kw">match </span>reloc.r_type(endian, <span class="bool-val">false</span>) {
             elf::R_ARM_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
             r_type =&gt; (RelocationKind::Elf(r_type), <span class="number">0</span>),
@@ -940,6 +963,11 @@
                 encoding = RelocationEncoding::S390xDbl;
                 (RelocationKind::GotBaseRelative, <span class="number">32</span>)
             }
+            r_type =&gt; (RelocationKind::Elf(r_type), <span class="number">0</span>),
+        },
+        elf::EM_SBF =&gt; <span class="kw">match </span>reloc.r_type(endian, <span class="bool-val">false</span>) {
+            elf::R_SBF_64_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
+            elf::R_SBF_64_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
             r_type =&gt; (RelocationKind::Elf(r_type), <span class="number">0</span>),
         },
         elf::EM_SPARC | elf::EM_SPARC32PLUS | elf::EM_SPARCV9 =&gt; {

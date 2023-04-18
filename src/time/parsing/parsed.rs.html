@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.17/src/parsing/parsed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parsed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../time/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.20/src/parsing/parsed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parsed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../time/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -758,20 +758,96 @@
 <a href="#757" id="757">757</a>
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Information parsed from an input and format description.
 
 </span><span class="kw">use </span>core::mem::MaybeUninit;
 <span class="kw">use </span>core::num::{NonZeroU16, NonZeroU8};
 
+<span class="kw">use </span><span class="kw">crate</span>::date_time::{maybe_offset_from_offset, offset_kind, DateTime, MaybeOffset};
 <span class="kw">use </span><span class="kw">crate</span>::error::TryFromParsed::InsufficientInformation;
 <span class="kw">use </span><span class="kw">crate</span>::format_description::modifier::{WeekNumberRepr, YearRepr};
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::format_description::OwnedFormatItem;
 <span class="kw">use </span><span class="kw">crate</span>::format_description::{Component, FormatItem};
 <span class="kw">use </span><span class="kw">crate</span>::parsing::component::{
-    parse_day, parse_hour, parse_minute, parse_month, parse_offset_hour, parse_offset_minute,
-    parse_offset_second, parse_ordinal, parse_period, parse_second, parse_subsecond,
-    parse_week_number, parse_weekday, parse_year, Period,
+    parse_day, parse_hour, parse_ignore, parse_minute, parse_month, parse_offset_hour,
+    parse_offset_minute, parse_offset_second, parse_ordinal, parse_period, parse_second,
+    parse_subsecond, parse_unix_timestamp, parse_week_number, parse_weekday, parse_year, Period,
 };
 <span class="kw">use </span><span class="kw">crate</span>::parsing::ParsedItem;
 <span class="kw">use crate</span>::{error, Date, Month, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset, Weekday};
@@ -858,6 +934,10 @@
     }
 }
 
+<span class="doccomment">/// The type of the `flags` field in [`Parsed`]. Allows for changing a single location and having it
+/// effect all uses.
+</span><span class="kw">type </span>Flag = u32;
+
 <span class="doccomment">/// All information parsed.
 ///
 /// This information is directly used to construct the final values.
@@ -867,7 +947,7 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 </span><span class="kw">pub struct </span>Parsed {
     <span class="doccomment">/// Bitflags indicating whether a particular field is present.
-    </span>flags: u16,
+    </span>flags: Flag,
     <span class="doccomment">/// Calendar year.
     </span>year: MaybeUninit&lt;i32&gt;,
     <span class="doccomment">/// The last two digits of the calendar year.
@@ -909,26 +989,35 @@
     </span>offset_minute: MaybeUninit&lt;i8&gt;,
     <span class="doccomment">/// Seconds within the minute of the UTC offset.
     </span>offset_second: MaybeUninit&lt;i8&gt;,
+    <span class="doccomment">/// The Unix timestamp in nanoseconds.
+    </span>unix_timestamp_nanos: MaybeUninit&lt;i128&gt;,
 }
 
 <span class="attr">#[allow(clippy::missing_docs_in_private_items)]
 </span><span class="kw">impl </span>Parsed {
-    <span class="kw">const </span>YEAR_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>;
-    <span class="kw">const </span>YEAR_LAST_TWO_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
-    <span class="kw">const </span>ISO_YEAR_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
-    <span class="kw">const </span>ISO_YEAR_LAST_TWO_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
-    <span class="kw">const </span>SUNDAY_WEEK_NUMBER_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
-    <span class="kw">const </span>MONDAY_WEEK_NUMBER_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
-    <span class="kw">const </span>HOUR_24_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>;
-    <span class="kw">const </span>MINUTE_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">7</span>;
-    <span class="kw">const </span>SECOND_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">8</span>;
-    <span class="kw">const </span>SUBSECOND_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">9</span>;
-    <span class="kw">const </span>OFFSET_HOUR_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">10</span>;
-    <span class="kw">const </span>OFFSET_MINUTE_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">11</span>;
-    <span class="kw">const </span>OFFSET_SECOND_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">12</span>;
+    <span class="kw">const </span>YEAR_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>;
+    <span class="kw">const </span>YEAR_LAST_TWO_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
+    <span class="kw">const </span>ISO_YEAR_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
+    <span class="kw">const </span>ISO_YEAR_LAST_TWO_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
+    <span class="kw">const </span>SUNDAY_WEEK_NUMBER_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
+    <span class="kw">const </span>MONDAY_WEEK_NUMBER_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
+    <span class="kw">const </span>HOUR_24_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>;
+    <span class="kw">const </span>MINUTE_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">7</span>;
+    <span class="kw">const </span>SECOND_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">8</span>;
+    <span class="kw">const </span>SUBSECOND_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">9</span>;
+    <span class="kw">const </span>OFFSET_HOUR_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">10</span>;
+    <span class="kw">const </span>OFFSET_MINUTE_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">11</span>;
+    <span class="kw">const </span>OFFSET_SECOND_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">12</span>;
     <span class="doccomment">/// Indicates whether a leap second is permitted to be parsed. This is required by some
     /// well-known formats.
-    </span><span class="kw">const </span>LEAP_SECOND_ALLOWED_FLAG: u16 = <span class="number">1 </span>&lt;&lt; <span class="number">13</span>;
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>LEAP_SECOND_ALLOWED_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">13</span>;
+    <span class="doccomment">/// Indicates whether the `UtcOffset` is negative. This information is obtained when parsing the
+    /// offset hour, but may not otherwise be stored due to &quot;-0&quot; being equivalent to &quot;0&quot;.
+    </span><span class="kw">const </span>OFFSET_IS_NEGATIVE_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>;
+    <span class="doccomment">/// Does the value at `OFFSET_IS_NEGATIVE_FLAG` have any semantic meaning, or is it just the
+    /// default value? If the latter, the value should be considered to have no meaning.
+    </span><span class="kw">const </span>OFFSET_IS_NEGATIVE_FLAG_IS_INITIALIZED: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">15</span>;
+    <span class="kw">const </span>UNIX_TIMESTAMP_NANOS_FLAG: Flag = <span class="number">1 </span>&lt;&lt; <span class="number">16</span>;
 }
 
 <span class="kw">impl </span>Parsed {
@@ -956,6 +1045,7 @@
             offset_hour: MaybeUninit::uninit(),
             offset_minute: MaybeUninit::uninit(),
             offset_second: MaybeUninit::uninit(),
+            unix_timestamp_nanos: MaybeUninit::uninit(),
         }
     }
 
@@ -1075,7 +1165,13 @@
                 .and_then(|parsed| parsed.consume_value(|value| <span class="self">self</span>.set_subsecond(value)))
                 .ok_or(InvalidComponent(<span class="string">&quot;subsecond&quot;</span>)),
             Component::OffsetHour(modifiers) =&gt; parse_offset_hour(input, modifiers)
-                .and_then(|parsed| parsed.consume_value(|value| <span class="self">self</span>.set_offset_hour(value)))
+                .and_then(|parsed| {
+                    parsed.consume_value(|(value, is_negative)| {
+                        <span class="self">self</span>.set_flag(<span class="self">Self</span>::OFFSET_IS_NEGATIVE_FLAG_IS_INITIALIZED, <span class="bool-val">true</span>);
+                        <span class="self">self</span>.set_flag(<span class="self">Self</span>::OFFSET_IS_NEGATIVE_FLAG, is_negative);
+                        <span class="self">self</span>.set_offset_hour(value)
+                    })
+                })
                 .ok_or(InvalidComponent(<span class="string">&quot;offset hour&quot;</span>)),
             Component::OffsetMinute(modifiers) =&gt; parse_offset_minute(input, modifiers)
                 .and_then(|parsed| {
@@ -1087,6 +1183,28 @@
                     parsed.consume_value(|value| <span class="self">self</span>.set_offset_second_signed(value))
                 })
                 .ok_or(InvalidComponent(<span class="string">&quot;offset second&quot;</span>)),
+            Component::Ignore(modifiers) =&gt; parse_ignore(input, modifiers)
+                .map(ParsedItem::&lt;()&gt;::into_inner)
+                .ok_or(InvalidComponent(<span class="string">&quot;ignore&quot;</span>)),
+            Component::UnixTimestamp(modifiers) =&gt; parse_unix_timestamp(input, modifiers)
+                .and_then(|parsed| {
+                    parsed.consume_value(|value| <span class="self">self</span>.set_unix_timestamp_nanos(value))
+                })
+                .ok_or(InvalidComponent(<span class="string">&quot;unix_timestamp&quot;</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Get the value of the provided flag.
+    </span><span class="kw">const fn </span>get_flag(<span class="kw-2">&amp;</span><span class="self">self</span>, flag: Flag) -&gt; bool {
+        <span class="self">self</span>.flags &amp; flag == flag
+    }
+
+    <span class="doccomment">/// Set the value of the provided flag.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>set_flag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flag: Flag, value: bool) {
+        <span class="kw">if </span>value {
+            <span class="self">self</span>.flags |= flag;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.flags &amp;= !flag;
         }
     }
 }
@@ -1105,7 +1223,7 @@
     (! @<span class="macro-nonterminal">$flag</span>:ident <span class="macro-nonterminal">$name</span>:ident : <span class="macro-nonterminal">$ty</span>:ty) =&gt; {
         <span class="doccomment">/// Obtain the named component.
         </span><span class="kw">pub const fn </span><span class="macro-nonterminal">$name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$ty</span>&gt; {
-            <span class="kw">if </span><span class="self">self</span>.flags &amp; <span class="self">Self</span>::<span class="macro-nonterminal">$flag </span>!= <span class="self">Self</span>::<span class="macro-nonterminal">$flag </span>{
+            <span class="kw">if </span>!<span class="self">self</span>.get_flag(<span class="self">Self</span>::<span class="macro-nonterminal">$flag</span>) {
                 <span class="prelude-val">None
             </span>} <span class="kw">else </span>{
                 <span class="comment">// SAFETY: We just checked if the field is present.
@@ -1136,6 +1254,7 @@
         @SECOND_FLAG second: u8,
         @SUBSECOND_FLAG subsecond: u32,
         @OFFSET_HOUR_FLAG offset_hour: i8,
+        @UNIX_TIMESTAMP_NANOS_FLAG unix_timestamp_nanos: i128,
     }
 
     <span class="doccomment">/// Obtain the absolute value of the offset minute.
@@ -1146,11 +1265,19 @@
 
     <span class="doccomment">/// Obtain the offset minute as an `i8`.
     </span><span class="kw">pub const fn </span>offset_minute_signed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i8&gt; {
-        <span class="kw">if </span><span class="self">self</span>.flags &amp; <span class="self">Self</span>::OFFSET_MINUTE_FLAG != <span class="self">Self</span>::OFFSET_MINUTE_FLAG {
+        <span class="kw">if </span>!<span class="self">self</span>.get_flag(<span class="self">Self</span>::OFFSET_MINUTE_FLAG) {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
             <span class="comment">// SAFETY: We just checked if the field is present.
-            </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="self">self</span>.offset_minute.assume_init() })
+            </span><span class="kw">let </span>value = <span class="kw">unsafe </span>{ <span class="self">self</span>.offset_minute.assume_init() };
+
+            <span class="kw">if </span><span class="self">self</span>.get_flag(<span class="self">Self</span>::OFFSET_IS_NEGATIVE_FLAG_IS_INITIALIZED)
+                &amp;&amp; (value.is_negative() != <span class="self">self</span>.get_flag(<span class="self">Self</span>::OFFSET_IS_NEGATIVE_FLAG))
+            {
+                <span class="prelude-val">Some</span>(-value)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(value)
+            }
         }
     }
 
@@ -1162,17 +1289,20 @@
 
     <span class="doccomment">/// Obtain the offset second as an `i8`.
     </span><span class="kw">pub const fn </span>offset_second_signed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i8&gt; {
-        <span class="kw">if </span><span class="self">self</span>.flags &amp; <span class="self">Self</span>::OFFSET_SECOND_FLAG != <span class="self">Self</span>::OFFSET_SECOND_FLAG {
+        <span class="kw">if </span>!<span class="self">self</span>.get_flag(<span class="self">Self</span>::OFFSET_SECOND_FLAG) {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
             <span class="comment">// SAFETY: We just checked if the field is present.
-            </span><span class="prelude-val">Some</span>(<span class="kw">unsafe </span>{ <span class="self">self</span>.offset_second.assume_init() })
-        }
-    }
+            </span><span class="kw">let </span>value = <span class="kw">unsafe </span>{ <span class="self">self</span>.offset_second.assume_init() };
 
-    <span class="doccomment">/// Obtain whether leap seconds are permitted in the current format.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>leap_second_allowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.flags &amp; <span class="self">Self</span>::LEAP_SECOND_ALLOWED_FLAG == <span class="self">Self</span>::LEAP_SECOND_ALLOWED_FLAG
+            <span class="kw">if </span><span class="self">self</span>.get_flag(<span class="self">Self</span>::OFFSET_IS_NEGATIVE_FLAG_IS_INITIALIZED)
+                &amp;&amp; (value.is_negative() != <span class="self">self</span>.get_flag(<span class="self">Self</span>::OFFSET_IS_NEGATIVE_FLAG))
+            {
+                <span class="prelude-val">Some</span>(-value)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(value)
+            }
+        }
     }
 }
 
@@ -1194,7 +1324,7 @@
         <span class="doccomment">/// Set the named component.
         </span><span class="kw">pub fn </span><span class="macro-nonterminal">$setter_name</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="macro-nonterminal">$ty</span>) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
             <span class="self">self</span>.<span class="macro-nonterminal">$name </span>= MaybeUninit::new(value);
-            <span class="self">self</span>.flags |= <span class="self">Self</span>::<span class="macro-nonterminal">$flag</span>;
+            <span class="self">self</span>.set_flag(<span class="self">Self</span>::<span class="macro-nonterminal">$flag</span>, <span class="bool-val">true</span>);
             <span class="prelude-val">Some</span>(())
         }
     };
@@ -1224,6 +1354,7 @@
         @SECOND_FLAG set_second second: u8,
         @SUBSECOND_FLAG set_subsecond subsecond: u32,
         @OFFSET_HOUR_FLAG set_offset_hour offset_hour: i8,
+        @UNIX_TIMESTAMP_NANOS_FLAG set_unix_timestamp_nanos unix_timestamp_nanos: i128,
     }
 
     <span class="doccomment">/// Set the named component.
@@ -1242,7 +1373,7 @@
     <span class="doccomment">/// Set the `offset_minute` component.
     </span><span class="kw">pub fn </span>set_offset_minute_signed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: i8) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="self">self</span>.offset_minute = MaybeUninit::new(value);
-        <span class="self">self</span>.flags |= <span class="self">Self</span>::OFFSET_MINUTE_FLAG;
+        <span class="self">self</span>.set_flag(<span class="self">Self</span>::OFFSET_MINUTE_FLAG, <span class="bool-val">true</span>);
         <span class="prelude-val">Some</span>(())
     }
 
@@ -1262,17 +1393,8 @@
     <span class="doccomment">/// Set the `offset_second` component.
     </span><span class="kw">pub fn </span>set_offset_second_signed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: i8) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         <span class="self">self</span>.offset_second = MaybeUninit::new(value);
-        <span class="self">self</span>.flags |= <span class="self">Self</span>::OFFSET_SECOND_FLAG;
+        <span class="self">self</span>.set_flag(<span class="self">Self</span>::OFFSET_SECOND_FLAG, <span class="bool-val">true</span>);
         <span class="prelude-val">Some</span>(())
-    }
-
-    <span class="doccomment">/// Set the leap second allowed flag.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_leap_second_allowed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) {
-        <span class="kw">if </span>value {
-            <span class="self">self</span>.flags |= <span class="self">Self</span>::LEAP_SECOND_ALLOWED_FLAG;
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.flags &amp;= !<span class="self">Self</span>::LEAP_SECOND_ALLOWED_FLAG;
-        }
     }
 }
 
@@ -1324,6 +1446,7 @@
         @SECOND_FLAG with_second second: u8,
         @SUBSECOND_FLAG with_subsecond subsecond: u32,
         @OFFSET_HOUR_FLAG with_offset_hour offset_hour: i8,
+        @UNIX_TIMESTAMP_NANOS_FLAG with_unix_timestamp_nanos unix_timestamp_nanos: i128,
     }
 
     <span class="doccomment">/// Set the named component and return `self`.
@@ -1478,31 +1601,58 @@
 }
 
 <span class="kw">impl </span>TryFrom&lt;Parsed&gt; <span class="kw">for </span>PrimitiveDateTime {
-    <span class="kw">type </span>Error = error::TryFromParsed;
+    <span class="kw">type </span>Error = &lt;DateTime&lt;offset_kind::None&gt; <span class="kw">as </span>TryFrom&lt;Parsed&gt;&gt;::Error;
 
     <span class="kw">fn </span>try_from(parsed: Parsed) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new(parsed.try_into()<span class="question-mark">?</span>, parsed.try_into()<span class="question-mark">?</span>))
+        parsed.try_into().map(<span class="self">Self</span>)
     }
 }
 
 <span class="kw">impl </span>TryFrom&lt;Parsed&gt; <span class="kw">for </span>OffsetDateTime {
+    <span class="kw">type </span>Error = &lt;DateTime&lt;offset_kind::Fixed&gt; <span class="kw">as </span>TryFrom&lt;Parsed&gt;&gt;::Error;
+
+    <span class="kw">fn </span>try_from(parsed: Parsed) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        parsed.try_into().map(<span class="self">Self</span>)
+    }
+}
+
+<span class="kw">impl</span>&lt;O: MaybeOffset&gt; TryFrom&lt;Parsed&gt; <span class="kw">for </span>DateTime&lt;O&gt; {
     <span class="kw">type </span>Error = error::TryFromParsed;
 
     <span class="attr">#[allow(clippy::unwrap_in_result)] </span><span class="comment">// We know the values are valid.
     </span><span class="kw">fn </span>try_from(<span class="kw-2">mut </span>parsed: Parsed) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if </span>O::HAS_LOGICAL_OFFSET {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(timestamp) = parsed.unix_timestamp_nanos() {
+                <span class="kw">let </span>DateTime { date, time, offset } =
+                    DateTime::&lt;offset_kind::Fixed&gt;::from_unix_timestamp_nanos(timestamp)<span class="question-mark">?</span>;
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                    date,
+                    time,
+                    offset: maybe_offset_from_offset::&lt;O&gt;(offset),
+                });
+            }
+        }
+
         <span class="comment">// Some well-known formats explicitly allow leap seconds. We don&#39;t currently support them,
         // so treat it as the nearest preceding moment that can be represented. Because leap seconds
         // always fall at the end of a month UTC, reject any that are at other times.
-        </span><span class="kw">let </span>leap_second_input = <span class="kw">if </span>parsed.leap_second_allowed() &amp;&amp; parsed.second() == <span class="prelude-val">Some</span>(<span class="number">60</span>) {
-            parsed.set_second(<span class="number">59</span>).expect(<span class="string">&quot;59 is a valid second&quot;</span>);
-            parsed
-                .set_subsecond(<span class="number">999_999_999</span>)
-                .expect(<span class="string">&quot;999_999_999 is a valid subsecond&quot;</span>);
-            <span class="bool-val">true
-        </span>} <span class="kw">else </span>{
-            <span class="bool-val">false
-        </span>};
-        <span class="kw">let </span>dt = PrimitiveDateTime::try_from(parsed)<span class="question-mark">?</span>.assume_offset(parsed.try_into()<span class="question-mark">?</span>);
+        </span><span class="kw">let </span>leap_second_input =
+            <span class="kw">if </span>parsed.get_flag(Parsed::LEAP_SECOND_ALLOWED_FLAG) &amp;&amp; parsed.second() == <span class="prelude-val">Some</span>(<span class="number">60</span>) {
+                parsed.set_second(<span class="number">59</span>).expect(<span class="string">&quot;59 is a valid second&quot;</span>);
+                parsed
+                    .set_subsecond(<span class="number">999_999_999</span>)
+                    .expect(<span class="string">&quot;999_999_999 is a valid subsecond&quot;</span>);
+                <span class="bool-val">true
+            </span>} <span class="kw">else </span>{
+                <span class="bool-val">false
+            </span>};
+
+        <span class="kw">let </span>dt = <span class="self">Self </span>{
+            date: Date::try_from(parsed)<span class="question-mark">?</span>,
+            time: Time::try_from(parsed)<span class="question-mark">?</span>,
+            offset: O::try_from_parsed(parsed)<span class="question-mark">?</span>,
+        };
+
         <span class="kw">if </span>leap_second_input &amp;&amp; !dt.is_valid_leap_second_stand_in() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(error::TryFromParsed::ComponentRange(
                 error::ComponentRange {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/remote.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>remote.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.17.0/src/remote.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>remote.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1001,6 +1001,110 @@
 <a href="#1001" id="1001">1001</a>
 <a href="#1002" id="1002">1002</a>
 <a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
 </pre><pre class="rust"><code><span class="kw">use </span>libc;
 <span class="kw">use </span>raw::git_strarray;
 <span class="kw">use </span>std::marker;
@@ -1013,7 +1117,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::string_array::StringArray;
 <span class="kw">use </span><span class="kw">crate</span>::util::Binding;
-<span class="kw">use crate</span>::{raw, Buf, Direction, Error, FetchPrune, Oid, ProxyOptions, Refspec};
+<span class="kw">use crate</span>::{call, raw, Buf, Direction, Error, FetchPrune, Oid, ProxyOptions, Refspec};
 <span class="kw">use crate</span>::{AutotagOption, Progress, RemoteCallbacks, Repository};
 
 <span class="doccomment">/// A structure representing a [remote][1] of a git repository.
@@ -1095,12 +1199,20 @@
     </span><span class="kw">pub fn </span>is_valid_name(remote_name: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">crate</span>::init();
         <span class="kw">let </span>remote_name = CString::new(remote_name).unwrap();
-        <span class="kw">unsafe </span>{ raw::git_remote_is_valid_name(remote_name.as_ptr()) == <span class="number">1 </span>}
-    }
+        <span class="kw">let </span><span class="kw-2">mut </span>valid: libc::c_int = <span class="number">0</span>;
+        <span class="kw">unsafe </span>{
+            call::c_try(raw::git_remote_name_is_valid(
+                <span class="kw-2">&amp;mut </span>valid,
+                remote_name.as_ptr(),
+            ))
+            .unwrap();
+        }
+        valid == <span class="number">1
+    </span>}
 
     <span class="doccomment">/// Create a detached remote
     ///
-    /// Create a remote with the given url in-memory. You can use this
+    /// Create a remote with the given URL in-memory. You can use this
     /// when you have a URL instead of a remote&#39;s name.
     /// Contrasted with an anonymous remote, a detached remote will not
     /// consider any repo configuration values.
@@ -1129,14 +1241,14 @@
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_remote_name(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the remote&#39;s url.
+    <span class="doccomment">/// Get the remote&#39;s URL.
     ///
-    /// Returns `None` if the url is not valid utf-8
+    /// Returns `None` if the URL is not valid utf-8
     </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         str::from_utf8(<span class="self">self</span>.url_bytes()).ok()
     }
 
-    <span class="doccomment">/// Get the remote&#39;s url as a byte array.
+    <span class="doccomment">/// Get the remote&#39;s URL as a byte array.
     </span><span class="kw">pub fn </span>url_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_remote_url(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)).unwrap() }
     }
@@ -1249,7 +1361,7 @@
     <span class="doccomment">/// Cancel the operation
     ///
     /// At certain points in its operation, the network code checks whether the
-    /// operation has been cancelled and if so stops the operation.
+    /// operation has been canceled and if so stops the operation.
     </span><span class="kw">pub fn </span>stop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">try_call!</span>(raw::git_remote_stop(<span class="self">self</span>.raw));
@@ -1854,9 +1966,15 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>is_valid() {
+    </span><span class="kw">fn </span>is_valid_name() {
         <span class="macro">assert!</span>(Remote::is_valid_name(<span class="string">&quot;foobar&quot;</span>));
         <span class="macro">assert!</span>(!Remote::is_valid_name(<span class="string">&quot;\x01&quot;</span>));
+    }
+
+    <span class="attr">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>is_valid_name_for_invalid_remote() {
+        Remote::is_valid_name(<span class="string">&quot;ab\012&quot;</span>);
     }
 
     <span class="attr">#[test]
@@ -2002,6 +2120,96 @@
         </span>});
         remote.prune(<span class="prelude-val">Some</span>(callbacks)).unwrap();
         assert_branch_count(<span class="kw-2">&amp;</span>repo, <span class="number">0</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>push_negotiation() {
+        <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span>oid = repo.head().unwrap().target().unwrap();
+
+        <span class="kw">let </span>td2 = TempDir::new().unwrap();
+        <span class="kw">let </span>url = <span class="kw">crate</span>::test::path2url(td2.path());
+        <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="kw">crate</span>::RepositoryInitOptions::new();
+        opts.bare(<span class="bool-val">true</span>);
+        opts.initial_head(<span class="string">&quot;main&quot;</span>);
+        <span class="kw">let </span>remote_repo = Repository::init_opts(td2.path(), <span class="kw-2">&amp;</span>opts).unwrap();
+
+        <span class="comment">// reject pushing a branch
+        </span><span class="kw">let </span><span class="kw-2">mut </span>remote = repo.remote(<span class="string">&quot;origin&quot;</span>, <span class="kw-2">&amp;</span>url).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>updated = <span class="bool-val">false</span>;
+        {
+            <span class="kw">let </span><span class="kw-2">mut </span>callbacks = RemoteCallbacks::new();
+            callbacks.push_negotiation(|updates| {
+                <span class="macro">assert!</span>(!updated);
+                updated = <span class="bool-val">true</span>;
+                <span class="macro">assert_eq!</span>(updates.len(), <span class="number">1</span>);
+                <span class="kw">let </span>u = <span class="kw-2">&amp;</span>updates[<span class="number">0</span>];
+                <span class="macro">assert_eq!</span>(u.src_refname().unwrap(), <span class="string">&quot;refs/heads/main&quot;</span>);
+                <span class="macro">assert!</span>(u.src().is_zero());
+                <span class="macro">assert_eq!</span>(u.dst_refname().unwrap(), <span class="string">&quot;refs/heads/main&quot;</span>);
+                <span class="macro">assert_eq!</span>(u.dst(), oid);
+                <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::from_str(<span class="string">&quot;rejected&quot;</span>))
+            });
+            <span class="kw">let </span><span class="kw-2">mut </span>options = PushOptions::new();
+            options.remote_callbacks(callbacks);
+            <span class="macro">assert!</span>(remote
+                .push(<span class="kw-2">&amp;</span>[<span class="string">&quot;refs/heads/main&quot;</span>], <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options))
+                .is_err());
+        }
+        <span class="macro">assert!</span>(updated);
+        <span class="macro">assert_eq!</span>(remote_repo.branches(<span class="prelude-val">None</span>).unwrap().count(), <span class="number">0</span>);
+
+        <span class="comment">// push 3 branches
+        </span><span class="kw">let </span>commit = repo.find_commit(oid).unwrap();
+        repo.branch(<span class="string">&quot;new1&quot;</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
+        repo.branch(<span class="string">&quot;new2&quot;</span>, <span class="kw-2">&amp;</span>commit, <span class="bool-val">true</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>flag = <span class="number">0</span>;
+        updated = <span class="bool-val">false</span>;
+        {
+            <span class="kw">let </span><span class="kw-2">mut </span>callbacks = RemoteCallbacks::new();
+            callbacks.push_negotiation(|updates| {
+                <span class="macro">assert!</span>(!updated);
+                updated = <span class="bool-val">true</span>;
+                <span class="macro">assert_eq!</span>(updates.len(), <span class="number">3</span>);
+                <span class="kw">for </span>u <span class="kw">in </span>updates {
+                    <span class="macro">assert!</span>(u.src().is_zero());
+                    <span class="macro">assert_eq!</span>(u.dst(), oid);
+                    <span class="kw">let </span>src_name = u.src_refname().unwrap();
+                    <span class="kw">let </span>dst_name = u.dst_refname().unwrap();
+                    <span class="kw">match </span>src_name {
+                        <span class="string">&quot;refs/heads/main&quot; </span>=&gt; {
+                            <span class="macro">assert_eq!</span>(dst_name, src_name);
+                            flag |= <span class="number">1</span>;
+                        }
+                        <span class="string">&quot;refs/heads/new1&quot; </span>=&gt; {
+                            <span class="macro">assert_eq!</span>(dst_name, <span class="string">&quot;refs/heads/dev1&quot;</span>);
+                            flag |= <span class="number">2</span>;
+                        }
+                        <span class="string">&quot;refs/heads/new2&quot; </span>=&gt; {
+                            <span class="macro">assert_eq!</span>(dst_name, <span class="string">&quot;refs/heads/dev2&quot;</span>);
+                            flag |= <span class="number">4</span>;
+                        }
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected refname: {}&quot;</span>, src_name),
+                    }
+                }
+                <span class="prelude-val">Ok</span>(())
+            });
+            <span class="kw">let </span><span class="kw-2">mut </span>options = PushOptions::new();
+            options.remote_callbacks(callbacks);
+            remote
+                .push(
+                    <span class="kw-2">&amp;</span>[
+                        <span class="string">&quot;refs/heads/main&quot;</span>,
+                        <span class="string">&quot;refs/heads/new1:refs/heads/dev1&quot;</span>,
+                        <span class="string">&quot;refs/heads/new2:refs/heads/dev2&quot;</span>,
+                    ],
+                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>options),
+                )
+                .unwrap();
+        }
+        <span class="macro">assert!</span>(updated);
+        <span class="macro">assert_eq!</span>(flag, <span class="number">7</span>);
+        <span class="macro">assert_eq!</span>(remote_repo.branches(<span class="prelude-val">None</span>).unwrap().count(), <span class="number">3</span>);
     }
 }
 </code></pre></div>

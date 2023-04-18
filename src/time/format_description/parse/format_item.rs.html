@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.17/src/format_description/parse/format_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>format_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../time/index.html">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.20/src/format_description/parse/format_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>format_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../time/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -385,11 +385,170 @@
 <a href="#384" id="384">384</a>
 <a href="#385" id="385">385</a>
 <a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Typed, validated representation of a parsed format description.
 
-</span><span class="kw">use </span>alloc::string::String;
+</span><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::string::String;
+<span class="kw">use </span>core::num::NonZeroU16;
+<span class="kw">use </span>core::str::{<span class="self">self</span>, FromStr};
 
-<span class="kw">use super</span>::{ast, Error};
+<span class="kw">use super</span>::{ast, unused, Error, Span, Spanned};
 
 <span class="doccomment">/// Parse an AST iterator into a sequence of format items.
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse&lt;<span class="lifetime">&#39;a</span>&gt;(
@@ -399,12 +558,25 @@
 }
 
 <span class="doccomment">/// A description of how to format and parse one part of a type.
-</span><span class="attr">#[allow(variant_size_differences)]
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>Item&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// A literal string.
     </span>Literal(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]),
     <span class="doccomment">/// Part of a type, along with its modifiers.
     </span>Component(Component),
+    <span class="doccomment">/// A sequence of optional items.
+    </span>Optional {
+        <span class="doccomment">/// The items themselves.
+        </span>value: Box&lt;[<span class="self">Self</span>]&gt;,
+        <span class="doccomment">/// The span of the full sequence.
+        </span>span: Span,
+    },
+    <span class="doccomment">/// The first matching parse of a sequence of format descriptions.
+    </span>First {
+        <span class="doccomment">/// The sequence of format descriptions.
+        </span>value: Box&lt;[Box&lt;[<span class="self">Self</span>]&gt;]&gt;,
+        <span class="doccomment">/// The span of the full sequence.
+        </span>span: Span,
+    },
 }
 
 <span class="kw">impl </span>Item&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -419,20 +591,86 @@
                 _trailing_whitespace: <span class="kw">_</span>,
                 _closing_bracket: <span class="kw">_</span>,
             } =&gt; Item::Component(component_from_ast(<span class="kw-2">&amp;</span>name, <span class="kw-2">&amp;</span>modifiers)<span class="question-mark">?</span>),
-            ast::Item::Literal { value, _span: <span class="kw">_ </span>} =&gt; Item::Literal(value),
+            ast::Item::Literal(Spanned { value, span: <span class="kw">_ </span>}) =&gt; Item::Literal(value),
             ast::Item::EscapedBracket {
                 _first: <span class="kw">_</span>,
                 _second: <span class="kw">_</span>,
             } =&gt; Item::Literal(<span class="string">b&quot;[&quot;</span>),
+            ast::Item::Optional {
+                opening_bracket,
+                _leading_whitespace: <span class="kw">_</span>,
+                _optional_kw: <span class="kw">_</span>,
+                _whitespace: <span class="kw">_</span>,
+                nested_format_description,
+                closing_bracket,
+            } =&gt; {
+                <span class="kw">let </span>items = nested_format_description
+                    .items
+                    .into_vec()
+                    .into_iter()
+                    .map(Item::from_ast)
+                    .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+                Item::Optional {
+                    value: items,
+                    span: opening_bracket.to(closing_bracket),
+                }
+            }
+            ast::Item::First {
+                opening_bracket,
+                _leading_whitespace: <span class="kw">_</span>,
+                _first_kw: <span class="kw">_</span>,
+                _whitespace: <span class="kw">_</span>,
+                nested_format_descriptions,
+                closing_bracket,
+            } =&gt; {
+                <span class="kw">let </span>items = nested_format_descriptions
+                    .into_vec()
+                    .into_iter()
+                    .map(|nested_format_description| {
+                        nested_format_description
+                            .items
+                            .into_vec()
+                            .into_iter()
+                            .map(Item::from_ast)
+                            .collect()
+                    })
+                    .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+                Item::First {
+                    value: items,
+                    span: opening_bracket.to(closing_bracket),
+                }
+            }
         })
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Item&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span><span class="kw">crate</span>::format_description::FormatItem&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(item: Item&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;Item&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span><span class="kw">crate</span>::format_description::FormatItem&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Error = Error;
+
+    <span class="kw">fn </span>try_from(item: Item&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>item {
-            Item::Literal(literal) =&gt; <span class="self">Self</span>::Literal(literal),
-            Item::Component(component) =&gt; <span class="self">Self</span>::Component(component.into()),
+            Item::Literal(literal) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Literal(literal)),
+            Item::Component(component) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Component(component.into())),
+            Item::Optional { value: <span class="kw">_</span>, span } =&gt; <span class="prelude-val">Err</span>(Error {
+                _inner: unused(span.error(
+                    <span class="string">&quot;optional items are not supported in runtime-parsed format descriptions&quot;</span>,
+                )),
+                public: <span class="kw">crate</span>::error::InvalidFormatDescription::NotSupported {
+                    what: <span class="string">&quot;optional item&quot;</span>,
+                    context: <span class="string">&quot;runtime-parsed format descriptions&quot;</span>,
+                    index: span.start.byte <span class="kw">as _</span>,
+                },
+            }),
+            Item::First { value: <span class="kw">_</span>, span } =&gt; <span class="prelude-val">Err</span>(Error {
+                _inner: unused(span.error(
+                    <span class="string">&quot;&#39;first&#39; items are not supported in runtime-parsed format descriptions&quot;</span>,
+                )),
+                public: <span class="kw">crate</span>::error::InvalidFormatDescription::NotSupported {
+                    what: <span class="string">&quot;&#39;first&#39; item&quot;</span>,
+                    context: <span class="string">&quot;runtime-parsed format descriptions&quot;</span>,
+                    index: span.start.byte <span class="kw">as _</span>,
+                },
+            }),
         }
     }
 }
@@ -442,17 +680,43 @@
         <span class="kw">match </span>item {
             Item::Literal(literal) =&gt; <span class="self">Self</span>::Literal(literal.to_vec().into_boxed_slice()),
             Item::Component(component) =&gt; <span class="self">Self</span>::Component(component.into()),
+            Item::Optional { value, span: <span class="kw">_ </span>} =&gt; <span class="self">Self</span>::Optional(Box::new(value.into())),
+            Item::First { value, span: <span class="kw">_ </span>} =&gt; {
+                <span class="self">Self</span>::First(value.into_vec().into_iter().map(Into::into).collect())
+            }
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Box&lt;[Item&lt;<span class="lifetime">&#39;a</span>&gt;]&gt;&gt; <span class="kw">for </span><span class="kw">crate</span>::format_description::OwnedFormatItem {
+    <span class="kw">fn </span>from(items: Box&lt;[Item&lt;<span class="lifetime">&#39;a</span>&gt;]&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>items = items.into_vec();
+        <span class="kw">if </span>items.len() == <span class="number">1 </span>{
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>([item]) = &lt;[<span class="kw">_</span>; <span class="number">1</span>]&gt;::try_from(items) {
+                item.into()
+            } <span class="kw">else </span>{
+                <span class="macro">bug!</span>(<span class="string">&quot;the length was just checked to be 1&quot;</span>)
+            }
+        } <span class="kw">else </span>{
+            <span class="self">Self</span>::Compound(items.into_iter().map(<span class="self">Self</span>::from).collect())
         }
     }
 }
 
 <span class="doccomment">/// Declare the `Component` struct.
 </span><span class="macro">macro_rules! </span>component_definition {
+    (@if_required required then { $(<span class="macro-nonterminal">$then</span>:tt)* } $(<span class="kw">else </span>{ $(<span class="macro-nonterminal">$</span><span class="kw">else</span>:<span class="macro-nonterminal">tt</span>)* })<span class="question-mark">?</span>) =&gt; { $(<span class="macro-nonterminal">$then</span>)* };
+    (@if_required then { $(<span class="macro-nonterminal">$then</span>:tt)* } $(<span class="kw">else </span>{ $(<span class="macro-nonterminal">$</span><span class="kw">else</span>:<span class="macro-nonterminal">tt</span>)* })<span class="question-mark">?</span>) =&gt; { $($(<span class="macro-nonterminal">$</span><span class="kw">else</span>)<span class="kw-2">*</span>)<span class="question-mark">? </span>};
+    (@<span class="macro-nonterminal">if_from_str </span>from_str then { $(<span class="macro-nonterminal">$then</span>:tt)* } $(<span class="kw">else </span>{ $(<span class="macro-nonterminal">$</span><span class="kw">else</span>:<span class="macro-nonterminal">tt</span>)* })<span class="question-mark">?</span>) =&gt; { $(<span class="macro-nonterminal">$then</span>)* };
+    (@if_from_str then { $(<span class="macro-nonterminal">$then</span>:tt)* } $(<span class="kw">else </span>{ $(<span class="macro-nonterminal">$</span><span class="kw">else</span>:<span class="macro-nonterminal">tt</span>)* })<span class="question-mark">?</span>) =&gt; { $($(<span class="macro-nonterminal">$</span><span class="kw">else</span>)<span class="kw-2">*</span>)<span class="question-mark">? </span>};
+
     (<span class="macro-nonterminal">$vis</span>:vis <span class="kw">enum </span><span class="macro-nonterminal">$name</span>:ident {
-        $(<span class="macro-nonterminal">$variant</span>:ident = <span class="macro-nonterminal">$parse_variant</span>:literal {
-            $(<span class="macro-nonterminal">$field</span>:ident = <span class="macro-nonterminal">$parse_field</span>:literal:
-                <span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$field_type</span>:ty&gt; =&gt; <span class="macro-nonterminal">$target_field</span>:ident),* $(,)<span class="question-mark">?
-        </span>}),* $(,)<span class="question-mark">?
+        $(<span class="macro-nonterminal">$variant</span>:ident = <span class="macro-nonterminal">$parse_variant</span>:literal {$(
+            $(<span class="attr">#[<span class="macro-nonterminal">$required</span>:tt]</span>)<span class="question-mark">?
+            </span><span class="macro-nonterminal">$field</span>:ident = <span class="macro-nonterminal">$parse_field</span>:literal:
+            <span class="prelude-ty">Option</span>&lt;$(<span class="attr">#[<span class="macro-nonterminal">$from_str</span>:tt]</span>)<span class="question-mark">? </span><span class="macro-nonterminal">$field_type</span>:ty&gt;
+            =&gt; <span class="macro-nonterminal">$target_field</span>:ident
+        ),* $(,)<span class="question-mark">?</span>}),* $(,)<span class="question-mark">?
     </span>}) =&gt; {
         <span class="macro-nonterminal">$vis </span><span class="kw">enum </span><span class="macro-nonterminal">$name </span>{
             $(<span class="macro-nonterminal">$variant</span>(<span class="macro-nonterminal">$variant</span>),)*
@@ -464,24 +728,47 @@
 
         $(<span class="kw">impl </span><span class="macro-nonterminal">$variant </span>{
             <span class="doccomment">/// Parse the component from the AST, given its modifiers.
-            </span><span class="kw">fn </span>with_modifiers(modifiers: <span class="kw-2">&amp;</span>[ast::Modifier&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+            </span><span class="kw">fn </span>with_modifiers(
+                modifiers: <span class="kw-2">&amp;</span>[ast::Modifier&lt;<span class="lifetime">&#39;_</span>&gt;],
+                _component_span: Span,
+            ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+            {
                 <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">Self </span>{
                     $(<span class="macro-nonterminal">$field</span>: <span class="prelude-val">None</span>),*
                 };
 
                 <span class="kw">for </span>modifier <span class="kw">in </span>modifiers {
-                    $(<span class="kw">if </span>modifier.key.value.eq_ignore_ascii_case(<span class="macro-nonterminal">$parse_field</span>) {
-                        this.<span class="macro-nonterminal">$field </span>= &lt;<span class="macro-nonterminal">$field_type</span>&gt;::from_modifier_value(<span class="kw-2">&amp;</span>modifier.value)<span class="question-mark">?</span>;
+                    $(<span class="attr">#[allow(clippy::string_lit_as_bytes)]
+                    </span><span class="kw">if </span>modifier.key.eq_ignore_ascii_case(<span class="macro-nonterminal">$parse_field</span>.as_bytes()) {
+                        this.<span class="macro-nonterminal">$field </span>= <span class="macro">component_definition!</span>(@if_from_str $(<span class="macro-nonterminal">$from_str</span>)<span class="question-mark">?
+                            </span>then {
+                                parse_from_modifier_value::&lt;<span class="macro-nonterminal">$field_type</span>&gt;(<span class="kw-2">&amp;</span>modifier.value)<span class="question-mark">?
+                            </span>} <span class="kw">else </span>{
+                                &lt;<span class="macro-nonterminal">$field_type</span>&gt;::from_modifier_value(<span class="kw-2">&amp;</span>modifier.value)<span class="question-mark">?
+                            </span>});
                         <span class="kw">continue</span>;
                     })*
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
-                        _inner: modifier.key.span.error(<span class="string">&quot;invalid modifier key&quot;</span>),
+                        _inner: unused(modifier.key.span.error(<span class="string">&quot;invalid modifier key&quot;</span>)),
                         public: <span class="kw">crate</span>::error::InvalidFormatDescription::InvalidModifier {
-                            value: String::from_utf8_lossy(modifier.key.value).into_owned(),
-                            index: modifier.key.span.start_byte(),
+                            value: String::from_utf8_lossy(<span class="kw-2">*</span>modifier.key).into_owned(),
+                            index: modifier.key.span.start.byte <span class="kw">as _</span>,
                         }
                     });
                 }
+
+                $(<span class="macro">component_definition! </span>{ @if_required $(<span class="macro-nonterminal">$required</span>)<span class="question-mark">? </span>then {
+                    <span class="kw">if </span>this.<span class="macro-nonterminal">$field</span>.is_none() {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error {
+                            _inner: unused(_component_span.error(<span class="string">&quot;missing required modifier&quot;</span>)),
+                            public:
+                                <span class="kw">crate</span>::error::InvalidFormatDescription::MissingRequiredModifier {
+                                    name: <span class="macro-nonterminal">$parse_field</span>,
+                                    index: _component_span.start.byte <span class="kw">as _</span>,
+                                }
+                        });
+                    }
+                }})*
 
                 <span class="prelude-val">Ok</span>(this)
             }
@@ -493,7 +780,16 @@
                     <span class="macro-nonterminal">$name</span>::<span class="macro-nonterminal">$variant</span>(<span class="macro-nonterminal">$variant </span>{ $(<span class="macro-nonterminal">$field</span>),* }) =&gt; {
                         <span class="macro-nonterminal">$crate::format_description::component::Component</span>::<span class="macro-nonterminal">$variant</span>(
                             <span class="macro-nonterminal">$crate::format_description::modifier</span>::<span class="macro-nonterminal">$variant </span>{$(
-                                <span class="macro-nonterminal">$target_field</span>: <span class="macro-nonterminal">$field</span>.unwrap_or_default().into()
+                                <span class="macro-nonterminal">$target_field</span>: <span class="macro">component_definition! </span>{ @if_required $(<span class="macro-nonterminal">$required</span>)<span class="question-mark">?
+                                    </span>then {
+                                        <span class="kw">match </span><span class="macro-nonterminal">$field </span>{
+                                            <span class="prelude-val">Some</span>(value) =&gt; value.into(),
+                                            <span class="prelude-val">None </span>=&gt; <span class="macro">bug!</span>(<span class="string">&quot;required modifier was not set&quot;</span>),
+                                        }
+                                    } <span class="kw">else </span>{
+                                        <span class="macro-nonterminal">$field</span>.unwrap_or_default().into()
+                                    }
+                                }
                             ),<span class="kw-2">*</span>}
                         )
                     }
@@ -503,17 +799,18 @@
 
         <span class="doccomment">/// Parse a component from the AST, given its name and modifiers.
         </span><span class="kw">fn </span>component_from_ast(
-            name: <span class="kw-2">&amp;</span>ast::Name&lt;<span class="lifetime">&#39;_</span>&gt;,
+            name: <span class="kw-2">&amp;</span>Spanned&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
             modifiers: <span class="kw-2">&amp;</span>[ast::Modifier&lt;<span class="lifetime">&#39;_</span>&gt;],
         ) -&gt; <span class="prelude-ty">Result</span>&lt;Component, Error&gt; {
-            $(<span class="kw">if </span>name.value.eq_ignore_ascii_case(<span class="macro-nonterminal">$parse_variant</span>) {
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(Component::<span class="macro-nonterminal">$variant</span>(<span class="macro-nonterminal">$variant::with_modifiers</span>(<span class="kw-2">&amp;</span>modifiers)<span class="question-mark">?</span>));
+            $(<span class="attr">#[allow(clippy::string_lit_as_bytes)]
+            </span><span class="kw">if </span>name.eq_ignore_ascii_case(<span class="macro-nonterminal">$parse_variant</span>.as_bytes()) {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(Component::<span class="macro-nonterminal">$variant</span>(<span class="macro-nonterminal">$variant::with_modifiers</span>(<span class="kw-2">&amp;</span>modifiers, name.span)<span class="question-mark">?</span>,));
             })*
             <span class="prelude-val">Err</span>(Error {
-                _inner: name.span.error(<span class="string">&quot;invalid component&quot;</span>),
+                _inner: unused(name.span.error(<span class="string">&quot;invalid component&quot;</span>)),
                 public: <span class="kw">crate</span>::error::InvalidFormatDescription::InvalidComponentName {
-                    name: String::from_utf8_lossy(name.value).into_owned(),
-                    index: name.span.start_byte(),
+                    name: String::from_utf8_lossy(name).into_owned(),
+                    index: name.span.start.byte <span class="kw">as _</span>,
                 },
             })
         }
@@ -523,58 +820,66 @@
 <span class="comment">// Keep in alphabetical order.
 </span><span class="macro">component_definition! </span>{
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>Component {
-        Day = <span class="string">b&quot;day&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        Day = <span class="string">&quot;day&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        Hour = <span class="string">b&quot;hour&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
-            base = <span class="string">b&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;HourBase&gt; =&gt; is_12_hour_clock,
+        Hour = <span class="string">&quot;hour&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+            base = <span class="string">&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;HourBase&gt; =&gt; is_12_hour_clock,
         },
-        Minute = <span class="string">b&quot;minute&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        Ignore = <span class="string">&quot;ignore&quot; </span>{
+            <span class="attr">#[required]
+            </span>count = <span class="string">&quot;count&quot;</span>: <span class="prelude-ty">Option</span>&lt;<span class="attr">#[from_str] </span>NonZeroU16&gt; =&gt; count,
         },
-        Month = <span class="string">b&quot;month&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
-            repr = <span class="string">b&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;MonthRepr&gt; =&gt; repr,
-            case_sensitive = <span class="string">b&quot;case_sensitive&quot;</span>: <span class="prelude-ty">Option</span>&lt;MonthCaseSensitive&gt; =&gt; case_sensitive,
+        Minute = <span class="string">&quot;minute&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        OffsetHour = <span class="string">b&quot;offset_hour&quot; </span>{
-            sign_behavior = <span class="string">b&quot;sign&quot;</span>: <span class="prelude-ty">Option</span>&lt;SignBehavior&gt; =&gt; sign_is_mandatory,
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        Month = <span class="string">&quot;month&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+            repr = <span class="string">&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;MonthRepr&gt; =&gt; repr,
+            case_sensitive = <span class="string">&quot;case_sensitive&quot;</span>: <span class="prelude-ty">Option</span>&lt;MonthCaseSensitive&gt; =&gt; case_sensitive,
         },
-        OffsetMinute = <span class="string">b&quot;offset_minute&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        OffsetHour = <span class="string">&quot;offset_hour&quot; </span>{
+            sign_behavior = <span class="string">&quot;sign&quot;</span>: <span class="prelude-ty">Option</span>&lt;SignBehavior&gt; =&gt; sign_is_mandatory,
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        OffsetSecond = <span class="string">b&quot;offset_second&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        OffsetMinute = <span class="string">&quot;offset_minute&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        Ordinal = <span class="string">b&quot;ordinal&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        OffsetSecond = <span class="string">&quot;offset_second&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        Period = <span class="string">b&quot;period&quot; </span>{
-            case = <span class="string">b&quot;case&quot;</span>: <span class="prelude-ty">Option</span>&lt;PeriodCase&gt; =&gt; is_uppercase,
-            case_sensitive = <span class="string">b&quot;case_sensitive&quot;</span>: <span class="prelude-ty">Option</span>&lt;PeriodCaseSensitive&gt; =&gt; case_sensitive,
+        Ordinal = <span class="string">&quot;ordinal&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        Second = <span class="string">b&quot;second&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+        Period = <span class="string">&quot;period&quot; </span>{
+            case = <span class="string">&quot;case&quot;</span>: <span class="prelude-ty">Option</span>&lt;PeriodCase&gt; =&gt; is_uppercase,
+            case_sensitive = <span class="string">&quot;case_sensitive&quot;</span>: <span class="prelude-ty">Option</span>&lt;PeriodCaseSensitive&gt; =&gt; case_sensitive,
         },
-        Subsecond = <span class="string">b&quot;subsecond&quot; </span>{
-            digits = <span class="string">b&quot;digits&quot;</span>: <span class="prelude-ty">Option</span>&lt;SubsecondDigits&gt; =&gt; digits,
+        Second = <span class="string">&quot;second&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
         },
-        Weekday = <span class="string">b&quot;weekday&quot; </span>{
-            repr = <span class="string">b&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekdayRepr&gt; =&gt; repr,
-            one_indexed = <span class="string">b&quot;one_indexed&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekdayOneIndexed&gt; =&gt; one_indexed,
-            case_sensitive = <span class="string">b&quot;case_sensitive&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekdayCaseSensitive&gt; =&gt; case_sensitive,
+        Subsecond = <span class="string">&quot;subsecond&quot; </span>{
+            digits = <span class="string">&quot;digits&quot;</span>: <span class="prelude-ty">Option</span>&lt;SubsecondDigits&gt; =&gt; digits,
         },
-        WeekNumber = <span class="string">b&quot;week_number&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
-            repr = <span class="string">b&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekNumberRepr&gt; =&gt; repr,
+        UnixTimestamp = <span class="string">&quot;unix_timestamp&quot; </span>{
+            precision = <span class="string">&quot;precision&quot;</span>: <span class="prelude-ty">Option</span>&lt;UnixTimestampPrecision&gt; =&gt; precision,
+            sign_behavior = <span class="string">&quot;sign&quot;</span>: <span class="prelude-ty">Option</span>&lt;SignBehavior&gt; =&gt; sign_is_mandatory,
         },
-        Year = <span class="string">b&quot;year&quot; </span>{
-            padding = <span class="string">b&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
-            repr = <span class="string">b&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;YearRepr&gt; =&gt; repr,
-            base = <span class="string">b&quot;base&quot;</span>: <span class="prelude-ty">Option</span>&lt;YearBase&gt; =&gt; iso_week_based,
-            sign_behavior = <span class="string">b&quot;sign&quot;</span>: <span class="prelude-ty">Option</span>&lt;SignBehavior&gt; =&gt; sign_is_mandatory,
+        Weekday = <span class="string">&quot;weekday&quot; </span>{
+            repr = <span class="string">&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekdayRepr&gt; =&gt; repr,
+            one_indexed = <span class="string">&quot;one_indexed&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekdayOneIndexed&gt; =&gt; one_indexed,
+            case_sensitive = <span class="string">&quot;case_sensitive&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekdayCaseSensitive&gt; =&gt; case_sensitive,
+        },
+        WeekNumber = <span class="string">&quot;week_number&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+            repr = <span class="string">&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;WeekNumberRepr&gt; =&gt; repr,
+        },
+        Year = <span class="string">&quot;year&quot; </span>{
+            padding = <span class="string">&quot;padding&quot;</span>: <span class="prelude-ty">Option</span>&lt;Padding&gt; =&gt; padding,
+            repr = <span class="string">&quot;repr&quot;</span>: <span class="prelude-ty">Option</span>&lt;YearRepr&gt; =&gt; repr,
+            base = <span class="string">&quot;base&quot;</span>: <span class="prelude-ty">Option</span>&lt;YearBase&gt; =&gt; iso_week_based,
+            sign_behavior = <span class="string">&quot;sign&quot;</span>: <span class="prelude-ty">Option</span>&lt;SignBehavior&gt; =&gt; sign_is_mandatory,
         },
     }
 }
@@ -597,19 +902,6 @@
     (<span class="macro-nonterminal">$name</span>:ident <span class="macro-nonterminal">$variant</span>:ident) =&gt; {
         <span class="macro-nonterminal">$crate::format_description::modifier</span>::<span class="macro-nonterminal">$name</span>::<span class="macro-nonterminal">$variant
     </span>};
-}
-
-<span class="comment">// TODO use `#[derive(Default)]` on enums once MSRV is 1.62 (NET 2022-12-30)
-</span><span class="doccomment">/// Simulate `#[derive(Default)]` on enums.
-</span><span class="macro">macro_rules! </span>derived_default_on_enum {
-    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>; <span class="macro-nonterminal">$default</span>:expr) =&gt; {};
-    (<span class="macro-nonterminal">$attr</span>:meta <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>; <span class="macro-nonterminal">$default</span>:expr) =&gt; {
-        <span class="kw">impl </span>Default <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
-            <span class="kw">fn </span><span class="macro-nonterminal">default</span>() -&gt; <span class="self">Self </span>{
-                <span class="macro-nonterminal">$default
-            </span>}
-        }
-    };
 }
 
 <span class="doccomment">/// Declare the various modifiers.
@@ -638,25 +930,22 @@
             ),* $(,)<span class="question-mark">?
         </span>}
     )+) =&gt; {$(
-        <span class="kw">enum </span><span class="macro-nonterminal">$name </span>{
-            $(<span class="macro-nonterminal">$variant</span>),*
+        <span class="attr">#[derive(Default)]
+        </span><span class="kw">enum </span><span class="macro-nonterminal">$name </span>{
+            $($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)<span class="question-mark">? </span><span class="macro-nonterminal">$variant</span>),*
         }
-
-        $(<span class="macro">derived_default_on_enum! </span>{
-            $(<span class="macro-nonterminal">$attr</span>)<span class="question-mark">? </span><span class="macro-nonterminal">$name</span>; <span class="macro-nonterminal">$name</span>::<span class="macro-nonterminal">$variant
-        </span>})*
 
         <span class="kw">impl </span><span class="macro-nonterminal">$name </span>{
             <span class="doccomment">/// Parse the modifier from its string representation.
-            </span><span class="kw">fn </span>from_modifier_value(value: <span class="kw-2">&amp;</span>ast::Value&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;, Error&gt; {
-                $(<span class="kw">if </span>value.value.eq_ignore_ascii_case(<span class="macro-nonterminal">$parse_variant</span>) {
+            </span><span class="kw">fn </span>from_modifier_value(value: <span class="kw-2">&amp;</span>Spanned&lt;<span class="kw-2">&amp;</span>[u8]&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;, Error&gt; {
+                $(<span class="kw">if </span>value.eq_ignore_ascii_case(<span class="macro-nonterminal">$parse_variant</span>) {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$variant</span>));
                 })*
                 <span class="prelude-val">Err</span>(Error {
-                    _inner: value.span.error(<span class="string">&quot;invalid modifier value&quot;</span>),
+                    _inner: unused(value.span.error(<span class="string">&quot;invalid modifier value&quot;</span>)),
                     public: <span class="kw">crate</span>::error::InvalidFormatDescription::InvalidModifier {
-                        value: String::from_utf8_lossy(value.value).into_owned(),
-                        index: value.span.start_byte(),
+                        value: String::from_utf8_lossy(value).into_owned(),
+                        index: value.span.start.byte <span class="kw">as _</span>,
                     },
                 })
             }
@@ -732,6 +1021,14 @@
         </span>OneOrMore = <span class="string">b&quot;1+&quot;</span>,
     }
 
+    <span class="kw">enum </span>UnixTimestampPrecision {
+        <span class="attr">#[default]
+        </span>Second = <span class="string">b&quot;second&quot;</span>,
+        Millisecond = <span class="string">b&quot;millisecond&quot;</span>,
+        Microsecond = <span class="string">b&quot;microsecond&quot;</span>,
+        Nanosecond = <span class="string">b&quot;nanosecond&quot;</span>,
+    }
+
     <span class="kw">enum </span>WeekNumberRepr {
         <span class="attr">#[default]
         </span>Iso = <span class="string">b&quot;iso&quot;</span>,
@@ -770,6 +1067,21 @@
         </span>Full = <span class="string">b&quot;full&quot;</span>,
         LastTwo = <span class="string">b&quot;last_two&quot;</span>,
     }
+}
+
+<span class="doccomment">/// Parse a modifier value using `FromStr`. Requires the modifier value to be valid UTF-8.
+</span><span class="kw">fn </span>parse_from_modifier_value&lt;T: FromStr&gt;(value: <span class="kw-2">&amp;</span>Spanned&lt;<span class="kw-2">&amp;</span>[u8]&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, Error&gt; {
+    str::from_utf8(value)
+        .ok()
+        .and_then(|val| val.parse::&lt;T&gt;().ok())
+        .map(|val| <span class="prelude-val">Some</span>(val))
+        .ok_or_else(|| Error {
+            _inner: unused(value.span.error(<span class="string">&quot;invalid modifier value&quot;</span>)),
+            public: <span class="kw">crate</span>::error::InvalidFormatDescription::InvalidModifier {
+                value: String::from_utf8_lossy(value).into_owned(),
+                index: value.span.start.byte <span class="kw">as _</span>,
+            },
+        })
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

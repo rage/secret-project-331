@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use futures::{future::BoxFuture, TryStreamExt};
+use futures::{future::BoxFuture, Stream, TryStreamExt};
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
@@ -50,6 +50,14 @@ pub struct NewExerciseTask {
     pub private_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub order_number: i32,
+}
+
+pub struct ExerciseTaskSpec {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub exercise_type: String,
+    pub private_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -477,4 +485,33 @@ WHERE deleted_at IS NULL
     .fetch_all(&mut *conn)
     .await?;
     Ok(res)
+}
+
+pub fn stream_course_exercise_tasks(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<ExerciseTaskSpec>> + '_ {
+    sqlx::query_as!(
+        ExerciseTaskSpec,
+        r#"
+SELECT distinct (t.id),
+  t.created_at,
+  t.updated_at,
+  t.exercise_type,
+  t.private_spec
+from exercise_tasks t
+where t.exercise_slide_id in (
+    SELECT id
+    from exercise_slides s
+    where s.exercise_id in (
+        SELECT id
+        from exercises e
+        where e.course_id = $1
+      )
+  )
+  AND deleted_at IS NULL;
+        "#,
+        course_id
+    )
+    .fetch(conn)
 }

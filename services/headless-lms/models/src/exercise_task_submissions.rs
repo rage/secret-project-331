@@ -62,6 +62,19 @@ pub struct ExportedSubmission {
     pub data_json: Option<serde_json::Value>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExportedCourseSubmission {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub course_instance_id: Option<Uuid>,
+    pub exercise_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub score_given: Option<f32>,
+    pub data_json: Option<serde_json::Value>,
+}
+
 pub async fn get_submission(
     conn: &mut PgConnection,
     submission_id: Uuid,
@@ -313,6 +326,35 @@ WHERE exercise_slide_submissions.exam_id = $1
   AND exercises.deleted_at IS NULL;
         ",
         exam_id
+    )
+    .fetch(conn)
+}
+
+pub fn stream_course_submissions(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<ExportedCourseSubmission>> + '_ {
+    sqlx::query_as!(
+        ExportedCourseSubmission,
+        "
+SELECT exercise_task_submissions.id,
+  user_id,
+  exercise_task_submissions.created_at,
+  exercise_slide_submissions.course_instance_id,
+  exercise_slide_submissions.exercise_id,
+  exercise_task_submissions.exercise_task_id,
+  exercise_task_gradings.score_given,
+  exercise_task_submissions.data_json
+FROM exercise_task_submissions
+  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id
+  JOIN exercise_task_gradings ON exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id
+  JOIN exercises ON exercise_slide_submissions.exercise_id = exercises.id
+WHERE exercise_slide_submissions.course_id = $1
+  AND exercise_task_submissions.deleted_at IS NULL
+  AND exercise_task_gradings.deleted_at IS NULL
+  AND exercises.deleted_at IS NULL;
+        ",
+        course_id
     )
     .fetch(conn)
 }

@@ -1,13 +1,14 @@
-use bytes::Bytes;
 use chrono::Utc;
 use models::{
     course_exams,
     exams::{self, Exam, NewExam},
 };
-use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    domain::csv_export::{
+        general_export, points::ExamPointExportOperation,
+        submissions::ExamSubmissionExportOperation,
+    },
     prelude::*,
 };
 
@@ -83,46 +84,21 @@ pub async fn export_points(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let exam_id = exam_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    let exam = exams::get(&mut conn, *exam_id).await?;
 
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_exam_points(
-            &mut handle_conn,
-            exam_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export exam points: {}", err);
-        }
-    });
-
-    let exam = exams::get(&mut conn, exam_id).await?;
-
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"Exam: {} - Point export {}.csv\"",
-                    exam.name,
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Exam: {} - Point export {}.csv\"",
+            exam.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        ExamPointExportOperation { exam_id: *exam_id },
+        token,
+    )
+    .await
 }
 
 /**
@@ -135,46 +111,21 @@ pub async fn export_submissions(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let exam_id = exam_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
+    let exam = exams::get(&mut conn, *exam_id).await?;
 
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_exam_submissions(
-            &mut handle_conn,
-            exam_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export exam submissions: {}", err);
-        }
-    });
-
-    let exam = exams::get(&mut conn, exam_id).await?;
-
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
-                    exam.name,
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+            exam.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        ExamSubmissionExportOperation { exam_id: *exam_id },
+        token,
+    )
+    .await
 }
 
 /**

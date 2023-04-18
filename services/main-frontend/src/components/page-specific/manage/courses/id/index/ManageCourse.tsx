@@ -148,6 +148,55 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <p>{t("placeholder-text-reserved-for-course-overview")}</p>
       </div>
       <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+      <OnlyRenderIfPermissions
+        action={{
+          type: "teach",
+        }}
+        resource={{
+          type: "course",
+          id: course.id,
+        }}
+      >
+        <ul
+          className={css`
+            list-style-type: none;
+            padding-left: 0;
+          `}
+        >
+          <li>
+            <a
+              href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
+              aria-label={t("link-export-submissions")}
+            >
+              {t("link-export-submissions")}
+            </a>
+          </li>
+          <li>
+            <a
+              href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
+              aria-label={t("link-export-user-details")}
+            >
+              {t("link-export-user-details")}
+            </a>
+          </li>
+          <li>
+            <a
+              href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
+              aria-label={t("link-export-exercise-tasks")}
+            >
+              {t("link-export-exercise-tasks")}
+            </a>
+          </li>
+          <li>
+            <a
+              href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
+              aria-label={t("link-export-course-instances")}
+            >
+              {t("link-export-course-instances")}
+            </a>
+          </li>
+        </ul>
+      </OnlyRenderIfPermissions>
     </>
   )
 }

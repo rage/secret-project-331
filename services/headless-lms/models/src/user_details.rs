@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use futures::Stream;
+
 use crate::{prelude::*, users::User};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -53,4 +55,30 @@ WHERE user_id IN (
         res.insert(d.user_id, d);
     });
     Ok(res)
+}
+
+/// Includes all users who have returned an exercise on a course
+pub fn stream_users_details_having_user_exercise_states_on_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<UserDetail>> + '_ {
+    sqlx::query_as!(
+        UserDetail,
+        "
+SELECT *
+FROM user_details
+WHERE user_id in (
+    SELECT DISTINCT (user_id)
+    FROM user_exercise_states
+    WHERE course_instance_id IN (
+        SELECT id
+        FROM course_instances
+        WHERE course_id = $1
+      )
+      AND deleted_at IS NULL
+  );
+        ",
+        course_id
+    )
+    .fetch(conn)
 }

@@ -377,10 +377,10 @@ pub async fn get_user_total_exam_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     exam_id: Uuid,
-) -> ModelResult<f32> {
+) -> ModelResult<Option<f32>> {
     let res = sqlx::query!(
         r#"
-SELECT COALESCE(SUM(score_given), 0) AS "points!"
+SELECT SUM(score_given) AS "points"
 FROM user_exercise_states
 WHERE user_id = $2
   AND exam_id = $1

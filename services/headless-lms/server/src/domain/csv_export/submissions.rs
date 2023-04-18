@@ -45,7 +45,7 @@ impl CsvExportDataLoader for ExamSubmissionExportOperation {
     }
 }
 
-// Writes the exam submissions as csv into the writer
+/// Writes the exam submissions as csv into the writer
 pub async fn export_exam_submissions<W>(
     conn: &mut PgConnection,
     exam_id: Uuid,
@@ -109,7 +109,7 @@ impl CsvExportDataLoader for CourseSubmissionExportOperation {
     }
 }
 
-// Writes the course submissions as csv into the writer
+/// Writes the course submissions as csv into the writer
 pub async fn export_course_submissions<W>(
     conn: &mut PgConnection,
     course_id: Uuid,

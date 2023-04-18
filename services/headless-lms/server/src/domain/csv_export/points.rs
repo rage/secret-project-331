@@ -45,7 +45,7 @@ impl CsvExportDataLoader for PointExportOperation {
     }
 }
 
-// Writes the course points as csv into the writer
+/// Writes the course points as csv into the writer
 pub async fn export_course_instance_points<W>(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -95,7 +95,7 @@ pub struct ExamPointExportOperation {
     pub exam_id: Uuid,
 }
 
-// Writes the exam points as csv into the writer
+/// Writes the exam points as csv into the writer
 #[async_trait]
 impl CsvExportDataLoader for ExamPointExportOperation {
     async fn load_data(
@@ -116,7 +116,7 @@ impl CsvExportDataLoader for ExamPointExportOperation {
     }
 }
 
-// Writes the points as csv into the writer
+/// Writes the points as csv into the writer
 pub async fn export_exam_points<W>(conn: &mut PgConnection, exam_id: Uuid, writer: W) -> Result<W>
 where
     W: Write + Send + 'static,

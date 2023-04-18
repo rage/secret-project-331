@@ -1,6 +1,7 @@
 const path = require("path")
 const fs = require("fs")
 const { merge } = require("webpack-merge")
+const svgoConfig = require("../src/utils/svgoConfig")
 
 module.exports = {
   core: {
@@ -41,9 +42,7 @@ module.exports = {
             issuer: /\.[jt]sx?$/,
             loader: "@svgr/webpack",
             options: {
-              svgoConfig: {
-                plugins: ["cleanupIds"],
-              },
+              svgoConfig: svgoConfig,
             },
           },
         ],

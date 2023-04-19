@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -12,8 +13,7 @@ test("test", async ({ page, headless }, testInfo) => {
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
   await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
-  await page.getByText("Default").first().check()
-  await page.getByRole("button", { name: "Continue" }).click()
+  await selectCourseInstanceIfPrompted(page)
 
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Settings" }).click()
@@ -26,7 +26,7 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Choose your preferred language")],
   })
   const value = page.locator("#changeLanguage")
-  value?.selectOption([{ label: "Suomi" }, { value: "af01f8cd-d40c-42af-a4e1-3dc9573765ce,fi-FI" }])
+  value?.selectOption({ label: "Suomi" })
 
   await page.getByText("Default").first().click()
   await page.getByRole("button", { name: "Continue" }).click()
@@ -48,10 +48,7 @@ test("test", async ({ page, headless }, testInfo) => {
   })
 
   const value1 = page.locator("#changeLanguage")
-  value1?.selectOption([
-    { label: "English" },
-    { value: "049061ba-ac30-49f1-aa9d-b7566dc22b78,en-US" },
-  ])
+  value1?.selectOption({ label: "English" })
 
   await page.getByText("Oletus").first().click()
   await page.getByRole("button", { name: "Jatka" }).click()

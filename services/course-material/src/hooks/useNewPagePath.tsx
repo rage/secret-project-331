@@ -8,7 +8,7 @@ const useNewPagePath = (
   page_language_group_id: string | undefined,
 ) => {
   const query = useQuery(
-    [`courses-${course_id}-pages-${page_language_group_id}`],
+    [`courses-${course_id}-pages-by-language-group-id-${page_language_group_id}`],
     () => {
       return fetchPageByCourseIdAndLanguageGroupId(
         assertNotNullOrUndefined(course_id),

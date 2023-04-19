@@ -638,6 +638,9 @@ async fn get_all_course_language_versions(
     token.authorized_ok(web::Json(language_versions))
 }
 
+/**
+GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id}
+ */
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page_by_course_id_and_language_group(
@@ -707,7 +710,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_material_references_by_course_id),
         )
         .route(
-            "/{course_id}/pages/{page_language_group_id}",
+            "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
             web::get().to(get_page_by_course_id_and_language_group),
         )
         .route("/{course_id}/pages", web::get().to(get_public_course_pages));

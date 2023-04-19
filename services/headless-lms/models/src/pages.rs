@@ -2933,6 +2933,7 @@ SELECT id,
 FROM pages p
 WHERE p.course_id = $1
     AND p.page_language_group_id = $2
+    AND p.deleted_at IS NULL
     ",
         course_id,
         page_language_group_id

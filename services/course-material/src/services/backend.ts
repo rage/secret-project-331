@@ -450,7 +450,7 @@ export const fetchPageByCourseIdAndLanguageGroupId = async (
   page_language_group_id: string,
 ): Promise<Page> => {
   const response = await courseMaterialClient.get(
-    `/courses/${course_id}/pages/${page_language_group_id}`,
+    `/courses/${course_id}/pages/by-language-group-id/${page_language_group_id}`,
     {
       responseType: "json",
     },

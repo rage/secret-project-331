@@ -7,7 +7,7 @@ import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
  *
  * to: parent
  */
-export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage
+export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage | FileUploadMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
@@ -20,12 +20,17 @@ export interface HeightChangedMessage {
   data: number
 }
 
+export interface FileUploadMessage {
+  message: "file-upload"
+  files: Map<string, string | Blob>
+}
+
 /**
  * from: Parent
  *
  * to: IFrame
  */
-export type MessageToIframe = SetLanguageMessage | SetStateMessage
+export type MessageToIframe = SetLanguageMessage | SetStateMessage | UploadResultMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
@@ -33,7 +38,22 @@ export interface SetLanguageMessage {
   data: string
 }
 
-export type SetStateMessage = { message: "set-state" } & IframeState
+export type SetStateMessage = {
+  message: "set-state"
+} & IframeState
+
+export type UploadResultMessage = {
+  message: "upload-result"
+} & (
+  | {
+      success: true
+      urls: Map<string, string>
+    }
+  | {
+      success: false
+      error: string
+    }
+)
 
 /**
  * Checks if the message is a set state messages but doesn't require all the fields in the object to match
@@ -69,8 +89,6 @@ export type IframeState =
       view_type: "answer-exercise"
       exercise_task_id: string
       user_information: UserInformation
-      files_to_upload?: Map<string, string | Blob>
-      uploaded_files?: Map<string, string>
       /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
       user_variables?: UserVariablesMap | null
       data: {
@@ -82,8 +100,6 @@ export type IframeState =
       view_type: "view-submission"
       exercise_task_id: string
       user_information: UserInformation
-      files_to_upload?: Map<string, string | Blob>
-      uploaded_files?: Map<string, string>
       /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
       user_variables?: UserVariablesMap | null
       data: {
@@ -97,8 +113,6 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
-      files_to_upload?: Map<string, string | Blob>
-      uploaded_files?: Map<string, string>
       repository_exercises?: Array<RepositoryExercise>
       data: { private_spec: unknown }
     }

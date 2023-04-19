@@ -1,6 +1,6 @@
 import { test } from "@playwright/test"
 
-import { showToastInfinitely, showToastNormally } from "../../utils/notificationUtils"
+import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -21,7 +21,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
-  await showToastInfinitely(page)
+  await showNextToastsInfinitely(page)
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -30,6 +30,7 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("heading", { name: "Error 400: Bad Request" }),
     ],
+    clearNotifications: true,
   })
-  await showToastNormally(page)
+  await showToastsNormally(page)
 })

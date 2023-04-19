@@ -1,8 +1,13 @@
-use std::collections::{hash_map, HashMap};
+use std::{
+    collections::{hash_map, HashMap},
+    path::PathBuf,
+};
 
 use futures::future::{BoxFuture, OptionFuture};
-use headless_lms_utils::document_schema_processor::{
-    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+use headless_lms_utils::{
+    document_schema_processor::{contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock},
+    file_store::FileStore,
+    ApplicationConfiguration,
 };
 use itertools::Itertools;
 use sqlx::{Postgres, QueryBuilder, Row};
@@ -29,6 +34,25 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct DatabasePage {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
+    pub chapter_id: Option<Uuid>,
+    pub url_path: String,
+    pub title: String,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub page_audio_path: Option<String>,
+    pub content: serde_json::Value,
+    pub order_number: i32,
+    pub copied_from: Option<Uuid>,
+    pub hidden: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -39,11 +63,41 @@ pub struct Page {
     pub url_path: String,
     pub title: String,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub page_audio_path: Option<String>,
     // should always be a Vec<GutenbergBlock>, but is more convenient to keep as Value for sqlx
     pub content: serde_json::Value,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
     pub hidden: bool,
+}
+
+impl Page {
+    pub fn from_database_page(
+        page: &DatabasePage,
+        file_store: &dyn FileStore,
+        app_conf: &ApplicationConfiguration,
+    ) -> Self {
+        let page_audio_path = page.page_audio_path.as_ref().map(|audio| {
+            let path = PathBuf::from(audio);
+            file_store.get_download_url(path.as_path(), app_conf)
+        });
+        Self {
+            id: page.id,
+            created_at: page.created_at,
+            updated_at: page.updated_at,
+            course_id: page.course_id,
+            exam_id: page.exam_id,
+            chapter_id: page.chapter_id,
+            url_path: page.url_path,
+            title: page.title.clone(),
+            deleted_at: page.deleted_at,
+            page_audio_path,
+            content: page.content,
+            order_number: page.order_number,
+            copied_from: page.copied_from,
+            hidden: page.hidden,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -1263,6 +1317,26 @@ RETURNING id,
         peer_review_questions: history_content.peer_review_questions,
         organization_id,
     })
+}
+
+pub async fn update_page_audio_path(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_audio_path: Option<String>,
+) -> ModelResult<DatabasePage> {
+    let updated_page = sqlx::query_as!(
+        DatabasePage,
+        "
+UPDATE pages
+SET page_audio_path = $1
+WHERE id = $2
+RETURNING *;",
+        page_audio_path,
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(updated_page)
 }
 
 /// Remaps ids from updates to exercises that may have their ids regenerated.

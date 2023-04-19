@@ -1007,6 +1007,7 @@ export interface Page {
   course_id: string | null
   exam_id: string | null
   chapter_id: string | null
+  page_audio_path: string | null
   url_path: string
   title: string
   deleted_at: Date | null

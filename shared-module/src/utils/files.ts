@@ -38,6 +38,18 @@ export function fileMatchesType(file: File, typesAndExtensions: string[] | undef
   })
 }
 
+export function fileMatchAudio(file: File): { [key: string]: string | undefined } | undefined {
+  if (!file) {
+    return
+  }
+
+  const extensionIndex = file.name.lastIndexOf(".")
+  const fileExtension = extensionIndex > 0 ? file.name.substring(extensionIndex) : undefined
+  const fileType = file.type || undefined
+
+  return { extension: fileExtension, type: fileType }
+}
+
 /**
  * Validates a file based on its size and a whitelist of allowed mimetypes and extensions. Throws
  * an error detailing a reason for disqualification if the validation fails.
@@ -52,7 +64,17 @@ export function validateFile(file: File, allowedTypes: string[], maxSize = TEN_M
     throw new Error(formatError(file, `You sent an empty file.`))
   }
 
-  if (file.size > maxSize) {
+  // we need to the limit of the size for audio; prefered - 42MB
+  const audio = fileMatchAudio(file)
+  if (audio && (audio.extension === "mp3" || "oga") && file.size > maxSize * 4) {
+    const fileSizeMb = Math.ceil(file.size * 0.000001)
+    throw new Error(
+      formatError(
+        file,
+        `The audio ile is too big. Your file was ${fileSizeMb}MB while the limit is 10MB.`,
+      ),
+    )
+  } else if (file.size > maxSize) {
     const fileSizeMb = Math.ceil(file.size * 0.000001)
     throw new Error(
       formatError(file, `File is too big. Your file was ${fileSizeMb}MB while the limit is 10MB.`),

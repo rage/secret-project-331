@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
@@ -47,6 +46,7 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
     setTimeProgress(currentTime)
     progressBarRef.current.value = currentTime
     progressBarRef.current.style.setProperty(
+      // eslint-disable-next-line i18next/no-literal-string
       "--range-progress",
       `${(progressBarRef.current.value / duration) * 100}%`,
     )

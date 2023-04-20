@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - db-docs-improvements
 
 jobs:
   generate-db-docs:

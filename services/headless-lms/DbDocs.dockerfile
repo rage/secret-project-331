@@ -1,14 +1,18 @@
-FROM rust as rust-builder
+FROM rust:bullseye as rust-builder
 
-RUN cargo install sqlx-cli --no-default-features --features postgres
+RUN cargo install sqlx-cli --no-default-features --features rustls,postgres
 
-FROM golang:buster
+FROM golang:bullseye as go-builder
+
+RUN go install github.com/achiku/planter@latest \
+  && go install github.com/k1LoW/tbls@latest
+
+FROM debian:bullseye-slim
 
 RUN apt-get update \
-  && apt-get install -y plantuml postgresql-client \
+  && apt-get install -y plantuml postgresql-client pandoc git coreutils sed \
   && rm -rf /var/lib/apt/lists/*
 
-RUN go get -u github.com/achiku/planter \
-  && go get github.com/k1LoW/tbls
-
 COPY --from=rust-builder /usr/local/cargo/bin/sqlx /bin/sqlx
+COPY --from=go-builder /go/bin/planter /bin/planter
+COPY --from=go-builder /go/bin/tbls /bin/tbls

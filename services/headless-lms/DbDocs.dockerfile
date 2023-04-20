@@ -1,14 +1,15 @@
 FROM rust as rust-builder
 
-RUN cargo install sqlx-cli --no-default-features --features postgres
+RUN cargo install sqlx-cli --no-default-features --features rustls,postgres
+
 
 FROM golang:buster
 
 RUN apt-get update \
-  && apt-get install -y plantuml postgresql-client \
+  && apt-get install -y plantuml postgresql-client pandoc \
   && rm -rf /var/lib/apt/lists/*
 
-RUN go get -u github.com/achiku/planter \
-  && go get github.com/k1LoW/tbls
+RUN go install github.com/achiku/planter@latest \
+  && go install github.com/k1LoW/tbls@latest
 
 COPY --from=rust-builder /usr/local/cargo/bin/sqlx /bin/sqlx

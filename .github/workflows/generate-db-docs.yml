@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - db-docs-improvements
 
 jobs:
   generate-db-docs:
@@ -62,6 +63,17 @@ jobs:
 
       - name: Generate plantuml svg
         run: plantuml -tsvg schema.uml
+        working-directory: ./db-docs
+
+      - name: Generate html with Pandoc
+        run: |
+          for f in *.md; do
+            # remove .md extension
+            f2=${f%.md}
+            # convert to html
+            pandoc -f markdown -t html5 "$f" -o "$f2.html" --lua-filter=../misc/db-docs/pandoc-links-md-extension-to-html-extension.lua --template ../misc/db-docs/template.html
+            cp README.html index.html
+          done
         working-directory: ./db-docs
 
       - name: Commit files

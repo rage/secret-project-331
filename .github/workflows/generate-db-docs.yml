@@ -46,7 +46,7 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_dev
 
       - name: Generate tbls docs
-        run: tbls doc 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' db-docs --force
+        run: tbls doc 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' db-docs --force --sort
 
       # Column comments can be quite long and they are a bit too much text for the whole
       # entity relationship diagram so we'll remove them from the diagram.
@@ -62,6 +62,17 @@ jobs:
 
       - name: Generate plantuml svg
         run: plantuml -tsvg schema.uml
+        working-directory: ./db-docs
+
+      - name: Generate html with Pandoc
+        run: |
+          for f in *.md; do
+            # remove .md extension
+            f2=${f%.md}
+            # convert to html
+            pandoc -f markdown -t html5 "$f" -o "$f2.html" --lua-filter=../misc/db-docs/pandoc-links-md-extension-to-html-extension.lua --template ../misc/db-docs/template.html
+            cp README.html index.html
+          done
         working-directory: ./db-docs
 
       - name: Commit files

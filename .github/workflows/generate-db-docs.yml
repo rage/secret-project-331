@@ -47,7 +47,7 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_dev
 
       - name: Generate tbls docs
-        run: tbls doc 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' db-docs --force
+        run: tbls doc 'postgres://postgres:postgres@postgres/headless_lms_dev?sslmode=disable' db-docs --force --sort
 
       # Column comments can be quite long and they are a bit too much text for the whole
       # entity relationship diagram so we'll remove them from the diagram.

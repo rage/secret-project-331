@@ -1122,7 +1122,7 @@ mod tests {
             Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
         )
         .set_timestamps(timestamp, timestamp, None)
-        .set_registration_info(None, Some(5), None)];
+        .set_registration_info(None, Some(5), None, false)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{chapters, prelude::*};
 
+/// Matches the columns in the database.
 struct CourseModulesSchema {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -18,8 +19,11 @@ struct CourseModulesSchema {
     automatic_completion_requires_exam: bool,
     completion_registration_link_override: Option<String>,
     ects_credits: Option<i32>,
+    enable_registering_completion_to_uh_open_university: bool,
 }
-
+/**
+ * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModule {
@@ -36,6 +40,7 @@ pub struct CourseModule {
     /// If set, use this link rather than the default one when registering course completions.
     pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<i32>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 impl CourseModule {
@@ -53,6 +58,7 @@ impl CourseModule {
             completion_policy: CompletionPolicy::Manual,
             completion_registration_link_override: None,
             ects_credits: None,
+            enable_registering_completion_to_uh_open_university: false,
         }
     }
     pub fn set_timestamps(
@@ -84,10 +90,13 @@ impl CourseModule {
         uh_course_code: Option<String>,
         ects_credits: Option<i32>,
         completion_registration_link_override: Option<String>,
+        enable_registering_completion_to_uh_open_university: bool,
     ) -> Self {
         self.uh_course_code = uh_course_code;
         self.ects_credits = ects_credits;
         self.completion_registration_link_override = completion_registration_link_override;
+        self.enable_registering_completion_to_uh_open_university =
+            enable_registering_completion_to_uh_open_university;
         self
     }
 
@@ -122,6 +131,8 @@ impl From<CourseModulesSchema> for CourseModule {
             completion_policy,
             completion_registration_link_override: schema.completion_registration_link_override,
             ects_credits: schema.ects_credits,
+            enable_registering_completion_to_uh_open_university: schema
+                .enable_registering_completion_to_uh_open_university,
         }
     }
 }
@@ -136,6 +147,7 @@ pub struct NewCourseModule {
     name: Option<String>,
     order_number: i32,
     uh_course_code: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
 }
 
 impl NewCourseModule {
@@ -148,6 +160,7 @@ impl NewCourseModule {
             name,
             order_number,
             uh_course_code: None,
+            enable_registering_completion_to_uh_open_university: false,
         }
     }
 
@@ -177,6 +190,15 @@ impl NewCourseModule {
         self.ects_credits = ects_credits;
         self
     }
+
+    pub fn set_enable_registering_completion_to_uh_open_university(
+        mut self,
+        enable_registering_completion_to_uh_open_university: bool,
+    ) -> Self {
+        self.enable_registering_completion_to_uh_open_university =
+            enable_registering_completion_to_uh_open_university;
+        self
+    }
 }
 
 pub async fn insert(
@@ -198,9 +220,10 @@ INSERT INTO course_modules (
     automatic_completion_number_of_exercises_attempted_treshold,
     automatic_completion_number_of_points_treshold,
     automatic_completion_requires_exam,
-    ects_credits
+    ects_credits,
+    enable_registering_completion_to_uh_open_university
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
@@ -212,6 +235,7 @@ RETURNING *
         points_treshold,
         requires_exam,
         new_course_module.ects_credits,
+        new_course_module.enable_registering_completion_to_uh_open_university
     )
     .fetch_one(conn)
     .await?;
@@ -527,6 +551,7 @@ pub struct NewModule {
     ects_credits: Option<i32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -539,6 +564,7 @@ pub struct ModifiedModule {
     ects_credits: Option<i32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -590,7 +616,8 @@ SET name = COALESCE($2, name),
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
   automatic_completion_requires_exam = $9,
-  completion_registration_link_override = $10
+  completion_registration_link_override = $10,
+  enable_registering_completion_to_uh_open_university = $11
 WHERE id = $1
         ",
         id,
@@ -603,6 +630,7 @@ WHERE id = $1
         points_treshold,
         requires_exam,
         updated_course_module.completion_registration_link_override,
+        updated_course_module.enable_registering_completion_to_uh_open_university,
     )
     .execute(conn)
     .await?;
@@ -637,7 +665,10 @@ pub async fn update_modules(
                     new.completion_registration_link_override,
                 )
                 .set_ects_credits(new.ects_credits)
-                .set_uh_course_code(new.uh_course_code);
+                .set_uh_course_code(new.uh_course_code)
+                .set_enable_registering_completion_to_uh_open_university(
+                    new.enable_registering_completion_to_uh_open_university,
+                );
         let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
         for chapter in new.chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
@@ -651,6 +682,8 @@ pub async fn update_modules(
             ects_credits: new.ects_credits,
             completion_policy: new.completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university: module
+                .enable_registering_completion_to_uh_open_university,
         })
     }
     // update modified and new modules
@@ -664,7 +697,10 @@ pub async fn update_modules(
                     module.completion_registration_link_override,
                 )
                 .set_ects_credits(module.ects_credits)
-                .set_uh_course_code(module.uh_course_code),
+                .set_uh_course_code(module.uh_course_code)
+                .set_enable_registering_completion_to_uh_open_university(
+                    module.enable_registering_completion_to_uh_open_university,
+                ),
         )
         .await?;
     }

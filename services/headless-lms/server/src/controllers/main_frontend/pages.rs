@@ -213,7 +213,44 @@ async fn set_page_audio(
     )
     .await?;
 
-    // revisit the functions below...
+    // get mime format
+    let audio_type;
+
+    /*     let next_payload = payload.next().await.ok_or_else(|| {
+           ControllerError::new(
+               ControllerErrorType::BadRequest,
+               "Missing form data".into(),
+               None,
+           )
+       })?;
+    */
+    match payload {
+        Ok(field) => {
+            audio_type = match field
+                .content_type()
+                .map(|ct| ct.to_string())
+                .unwrap_or("".to_string())
+                .as_str()
+            {
+                "audio/mpeg" => ".mp3",
+                "audio/ogg" => ".oga",
+                unsupported => {
+                    return Err(ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        format!("Unsupported audio Mime type: {}", unsupported),
+                        None,
+                    ))
+                }
+            };
+        }
+        Err(err) => Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            None,
+        )),
+    }
+
+    // ----------------------------------------------------------------------------------
 
     let course = models::courses::get_course(&mut conn, page.id).await?;
     let page_audio = upload_file_from_cms(
@@ -230,12 +267,13 @@ async fn set_page_audio(
     .to_string();
 
     let updated_page =
-        models::pages::update_page_audio_path(&mut conn, chapter.id, Some(chapter_image)).await?;
+        models::pages::insert_page_audio(&mut conn, page.id, Some(page_audio), audio_type).await?;
 
     let response = Page::from_database_page(&updated_page, file_store.as_ref(), app_conf.as_ref());
 
     token.authorized_ok(web::Json(response))
 }
+
 /**
 DELETE `/api/v0/main-frontend/pages/:page_id/audio` - Removes the chapter image.
 
@@ -272,7 +310,7 @@ async fn remove_page_audio(
                 Some(original_error.into()),
             )
         })?;
-        let response = models::pages::update_page_audio_path(&mut conn, page.id, None).await?;
+        let response = models::pages::delete_page_audio(&mut conn, page.id, None).await?;
         file_store.delete(&file).await.map_err(|original_error| {
             ControllerError::new(
                 ControllerErrorType::InternalServerError,

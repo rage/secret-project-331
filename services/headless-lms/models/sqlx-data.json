@@ -779,6 +779,22 @@
     },
     "query": "\nUPDATE course_modules\nSET deleted_at = now()\nWHERE id = $1\n"
   },
+  "0cedc391b28ab18cdd947de4d19c64d8e1a56fee230f772674768b835726bbe7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "uh_course_code",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [true],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nSELECT DISTINCT uh_course_code\nFROM course_modules\nWHERE uh_course_code IS NOT NULL\n  AND enable_registering_completion_to_uh_open_university = true\n  AND deleted_at IS NULL\n"
+  },
   "0cfed7b8d16e3ecf6a4fe2c4f7f7f62fe0b14a0e33062d4742bd3face374ad0c": {
     "describe": {
       "columns": [
@@ -15597,22 +15613,6 @@
       }
     },
     "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\n  starts_at = $3,\n  ends_at = $4,\n  time_minutes = $5\nWHERE id = $1\n"
-  },
-  "c621b6ffa2f217244e02b155b36b55aae80dbec02f5d5640f74ce202478009e3": {
-    "describe": {
-      "columns": [
-        {
-          "name": "uh_course_code",
-          "ordinal": 0,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [true],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "\nSELECT DISTINCT uh_course_code\nFROM course_modules\nWHERE uh_course_code IS NOT NULL\n  AND deleted_at IS NULL\n"
   },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
     "describe": {

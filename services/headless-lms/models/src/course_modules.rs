@@ -409,6 +409,7 @@ pub async fn get_all_uh_course_codes(conn: &mut PgConnection) -> ModelResult<Vec
 SELECT DISTINCT uh_course_code
 FROM course_modules
 WHERE uh_course_code IS NOT NULL
+  AND enable_registering_completion_to_uh_open_university = true
   AND deleted_at IS NULL
 "
     )

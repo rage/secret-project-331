@@ -83,6 +83,12 @@ pub async fn seed_sample_course(
             models_requests::fetch_service_info,
         )
         .await?;
+    course_modules::update_enable_registering_completion_to_uh_open_university(
+        &mut conn,
+        default_module.id,
+        true,
+    )
+    .await?;
     course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::new_v5(
@@ -267,7 +273,8 @@ pub async fn seed_sample_course(
     let module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2),
+        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2)
+            .set_enable_registering_completion_to_uh_open_university(true),
     )
     .await?;
     let new_chapter = NewChapter {

@@ -590,6 +590,7 @@ fn models() {
         completion_policy: CompletionPolicy::Manual,
         ects_credits: None,
         completion_registration_link_override: None,
+        enable_registering_completion_to_uh_open_university: false,
     });
     example!(UserCourseModuleCompletion {
         course_module_id,
@@ -1230,6 +1231,7 @@ fn models() {
         email: "student@example.com".to_string(),
         uh_course_code: "ABC123".to_string(),
         ects_credits: Some(5),
+        enable_registering_completion_to_uh_open_university: true,
     });
     doc!(
         Vec<UserModuleCompletionStatus>,
@@ -1243,6 +1245,7 @@ fn models() {
                 passed: Some(true),
                 grade: Some(4),
                 prerequisite_modules_completed: false,
+                enable_registering_completion_to_uh_open_university: true,
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1253,6 +1256,7 @@ fn models() {
                 passed: Some(true),
                 grade: Some(4),
                 prerequisite_modules_completed: false,
+                enable_registering_completion_to_uh_open_university: false,
             }
         ]
     );

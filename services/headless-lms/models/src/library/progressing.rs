@@ -627,6 +627,7 @@ pub struct UserCompletionInformation {
     pub uh_course_code: String,
     pub email: String,
     pub ects_credits: Option<i32>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 pub async fn get_user_completion_information(
@@ -671,6 +672,8 @@ pub async fn get_user_completion_information(
         uh_course_code,
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
+        enable_registering_completion_to_uh_open_university: course_module
+            .enable_registering_completion_to_uh_open_university,
     })
 }
 
@@ -685,6 +688,7 @@ pub struct UserModuleCompletionStatus {
     pub prerequisite_modules_completed: bool,
     pub grade: Option<i32>,
     pub passed: Option<bool>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -720,6 +724,8 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(false, |x| x.prerequisite_modules_completed),
+                enable_registering_completion_to_uh_open_university: module
+                    .enable_registering_completion_to_uh_open_university,
             }
         })
         .collect();
@@ -737,6 +743,13 @@ pub async fn get_completion_registration_link_and_save_attempt(
     user_id: Uuid,
     course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
+    if !course_module.enable_registering_completion_to_uh_open_university {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Completion registration is not enabled for this course module.".to_string(),
+            None,
+        ));
+    }
     let user = users::get_by_id(conn, user_id).await?;
     let course = courses::get_course(conn, course_module.course_id).await?;
     let user_settings =

@@ -60,12 +60,12 @@ pub struct PageInfo {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageAudioFiles {
+    pub id: Uuid,
     pub page_id: Uuid,
     pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub url_path: String,
-    pub mime: String,
+    pub path: String,
+    pub mime_type: String,
 }
 
 impl Page {
@@ -377,63 +377,74 @@ pub async fn set_chapter(
 pub async fn insert_page_audio(
     conn: &mut PgConnection,
     page_id: Uuid,
-    audio_file_path: Option<String>,
-    mime: Option<String>,
-) -> ModelResult<PageAudioFiles> {
-    let res = sqlx::query!(
+    audio_file_path: &str,
+    mime_type: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
         r"
 INSERT INTO page_audio_files (
     page_id,
     path,
-    mime
+    mime_type
   )
 VALUES($1, $2, $3)
-UPDATE
-SET created_at = now()
-RETURNING id
         ",
         page_id,
         audio_file_path,
-        mime,
+        mime_type,
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(())
 }
 
-pub async fn delete_page_audio(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-) -> ModelResult<PageAudioFiles> {
-    let deleted_file = sqlx::query_as!(
-        PageAudioFiles,
+pub async fn delete_page_audio(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
         r#"
 UPDATE page_audio_files
 SET deleted_at = now()
 WHERE page_id = $1
-RETURNING *
         "#,
         page_id
     )
     .fetch_one(conn)
     .await?;
-    Ok(deleted_file)
+    Ok(())
 }
 
 pub async fn get_page_audio_files(
     conn: &mut PgConnection,
     page_id: Uuid,
-) -> ModelResult<PageAudioFiles> {
+) -> ModelResult<Vec<PageAudioFiles>> {
     let audio_files = sqlx::query_as!(
-        Page,
+        PageAudioFiles,
         "
 SELECT *
-FROM pages
-WHERE id = $1;
+FROM page_audio_files
+WHERE page_id = $1;
 ",
         page_id
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
+    .await?;
+    Ok(audio_files)
+}
+
+pub async fn get_page_audio_files_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<Vec<PageAudioFiles>> {
+    let audio_files = sqlx::query_as!(
+        PageAudioFiles,
+        "
+SELECT *
+FROM page_audio_files
+WHERE id = $1;
+RETURNING path
+",
+        page_id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(audio_files)
 }

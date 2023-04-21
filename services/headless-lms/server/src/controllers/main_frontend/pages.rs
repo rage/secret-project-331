@@ -214,8 +214,6 @@ async fn set_page_audio(
     .await?;
 
     // get mime format
-    let audio_type;
-
     /*     let next_payload = payload.next().await.ok_or_else(|| {
            ControllerError::new(
                ControllerErrorType::BadRequest,
@@ -224,16 +222,15 @@ async fn set_page_audio(
            )
        })?;
     */
-    match payload {
+    let mime_type = match payload {
         Ok(field) => {
-            audio_type = match field
+            let mime_type = field
                 .content_type()
                 .map(|ct| ct.to_string())
                 .unwrap_or("".to_string())
-                .as_str()
-            {
-                "audio/mpeg" => ".mp3",
-                "audio/ogg" => ".oga",
+                .as_str();
+            match mime_type {
+                "audio/mpeg" | "audio/ogg" => mime_type,
                 unsupported => {
                     return Err(ControllerError::new(
                         ControllerErrorType::BadRequest,
@@ -241,14 +238,14 @@ async fn set_page_audio(
                         None,
                     ))
                 }
-            };
+            }
         }
         Err(err) => Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
             None,
         )),
-    }
+    };
 
     // ----------------------------------------------------------------------------------
 
@@ -263,11 +260,9 @@ async fn set_page_audio(
     )
     .await?
     .data
-    .to_string_lossy()
-    .to_string();
-
+    .to_string_lossy();
     let updated_page =
-        models::pages::insert_page_audio(&mut conn, page.id, Some(page_audio), audio_type).await?;
+        models::pages::insert_page_audio(&mut conn, page.id, &page_audio, mime_type).await?;
 
     let response = Page::from_database_page(&updated_page, file_store.as_ref(), app_conf.as_ref());
 
@@ -288,7 +283,7 @@ DELETE /api/v0/main-frontend/pages/d332f3d9-39a5-4a18-80f4-251727693c37/audio HT
 #[generated_doc]
 #[instrument(skip(pool, file_store))]
 async fn remove_page_audio(
-    page_id: web::Path<Uuid>,
+    page_audio_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
@@ -299,27 +294,55 @@ async fn remove_page_audio(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::Course(chapter.course_id),
+        Res::Course(page.course_id)
+            .await
+            .map_err(|original_error| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    original_error.to_string(),
+                    Some(original_error.into()),
+                )
+            })?,
     )
     .await?;
-    if let Some(page_audio_path) = page.page_audio_path {
-        let file = PathBuf::from_str(&page_audio_path).map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
-        let response = models::pages::delete_page_audio(&mut conn, page.id, None).await?;
-        file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
-    }
+    // let page_audio = get_page_audio(page_audio_id)
+    let page_audio = models::pages::get_page_audio_files_by_id(&mut conn, *page_audio_id).await?;
+
+    let file = PathBuf::from_str(&page_audio.path).map_err(|original_error| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            original_error.to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    let response = models::pages::delete_page_audio(&mut conn, page.id, None).await?;
+    file_store.delete(&file).await.map_err(|original_error| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            original_error.to_string(),
+            Some(original_error.into()),
+        )
+    })?;
     token.authorized_ok(web::Json(()))
+}
+
+/**
+GET `/api/v0/main-fronted/pages/:page_id/audio_files` - Get a pages audio files
+
+Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/audio_files`
+*/
+#[generated_doc]
+async fn get_page_audio(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PageInfo>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+    let page_audio_file = models::pages::get_page_audio_files(&mut conn, *page_id).await?;
+
+    token.authorized_ok(web::Json(page_audio_file))
 }
 
 /**
@@ -337,5 +360,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{page_id}/history_count", web::get().to(history_count))
         .route("/{page_id}/audio", web::put().to(set_page_audio))
         .route("/{page_id}/audio", web::delete().to(remove_page_audio))
+        .route("/{page_id}/audio_files", web::get().to(get_page_audio))
         .route("/{history_id}/restore", web::post().to(restore));
 }

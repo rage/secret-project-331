@@ -35,14 +35,16 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
   }
   return (
     <CTAWrapper>
-      <a
-        href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
-        aria-label={`Register completion for ${module.name}`}
-      >
-        <Button variant="tertiary" size="large" disabled={!module.completed}>
-          {t("register")}
-        </Button>
-      </a>
+      {module.enable_registering_completion_to_uh_open_university && (
+        <a
+          href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
+          aria-label={`Register completion for ${module.name}`}
+        >
+          <Button variant="tertiary" size="large" disabled={!module.completed}>
+            {t("register")}
+          </Button>
+        </a>
+      )}
       {isReady && <StyledLink>{t("generate-certicate")}</StyledLink>}
     </CTAWrapper>
   )

@@ -94,6 +94,14 @@ export interface CongratulationsProps {
 
 const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
   const { t } = useTranslation()
+
+  const someModuleCompleted = modules.some((module) => module.completed)
+  const anyCompletedModuleAllowsRegisteringCompletion = modules.some(
+    (module) =>
+      module.enable_registering_completion_to_uh_open_university &&
+      someModuleCompleted &&
+      module.completed,
+  )
   return (
     <Wrapper>
       <StyledBackground />
@@ -101,7 +109,11 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
         <StyledSVG />
         <h1 className="heading">{t("congratulations")}!</h1>
         <span className="subtitle">
-          {t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")}
+          {anyCompletedModuleAllowsRegisteringCompletion
+            ? t(
+                "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links",
+              )
+            : t("you-have-completed-the-course-to-receive-certificate-use-following-links")}
         </span>
 
         <ModuleWrapper>

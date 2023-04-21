@@ -1,0 +1,4 @@
+ALTER TABLE course_modules
+ADD COLUMN enable_registering_completion_to_uh_open_university BOOLEAN NOT NULL DEFAULT FALSE;
+UPDATE course_modules
+SET enable_registering_completion_to_uh_open_university = TRUE;

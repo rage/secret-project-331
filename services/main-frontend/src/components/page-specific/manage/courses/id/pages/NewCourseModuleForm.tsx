@@ -25,6 +25,7 @@ export interface Fields {
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   override_completion_link: boolean
   completion_registration_link_override: string
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
@@ -125,7 +126,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         >
           <span
             className={css`
-              margin-bottom: 0.6rem;
+              margin-bottom: 1rem;
               display: inline-block;
               font-size: 18px;
               color: ${baseTheme.colors.gray[700]};
@@ -138,31 +139,13 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               display: grid;
               grid-template-columns: repeat(2, 1fr);
               grid-template-areas:
-                "a b"
                 "c c"
                 "d e"
-                "f g";
+                "f f"
+                "a b";
               column-gap: 10px;
             `}
           >
-            <TextField
-              className={css`
-                grid-area: a;
-              `}
-              label={t("course-code")}
-              placeholder={t("course-code")}
-              register={register("uh_course_code")}
-              error={errors["name"]?.message}
-            />
-            <TextField
-              className={css`
-                grid-area: b;
-              `}
-              label={t("ects-credits")}
-              placeholder={t("ects-credits")}
-              type="number"
-              register={register("ects_credits", { valueAsNumber: true })}
-            />
             <Checkbox
               label={t("enable-automatic-completion")}
               register={register("automatic_completion")}
@@ -170,6 +153,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 grid-area: c;
               `}
             />
+
             <TextField
               className={css`
                 grid-area: d;
@@ -195,6 +179,31 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 disabled: !isChecked,
               })}
               error={errors["name"]?.message}
+            />
+            <Checkbox
+              label={t("label-enable-registering-completion-to-uh-open-university")}
+              register={register("enable_registering_completion_to_uh_open_university")}
+              className={css`
+                grid-area: f;
+              `}
+            />
+            <TextField
+              className={css`
+                grid-area: a;
+              `}
+              label={t("uh-course-code")}
+              placeholder={t("uh-course-code")}
+              register={register("uh_course_code")}
+              error={errors["name"]?.message}
+            />
+            <TextField
+              className={css`
+                grid-area: b;
+              `}
+              label={t("ects-credits")}
+              placeholder={t("ects-credits")}
+              type="number"
+              register={register("ects_credits", { valueAsNumber: true })}
             />
           </div>
         </div>

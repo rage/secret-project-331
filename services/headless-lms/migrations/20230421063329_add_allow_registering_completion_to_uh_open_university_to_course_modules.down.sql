@@ -1,0 +1,1 @@
+ALTER TABLE course_modules DROP COLUMN enable_registering_completion_to_uh_open_university;

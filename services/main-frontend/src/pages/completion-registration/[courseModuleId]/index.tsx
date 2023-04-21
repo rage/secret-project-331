@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import Layout from "../../../components/Layout"
 import RegisterCompletion from "../../../components/page-specific/register-completion/RegisterCompletion"
@@ -20,12 +21,25 @@ export interface CompletionPageProps {
 }
 
 const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = ({ query }) => {
+  const { t } = useTranslation()
   const { courseModuleId } = query
   const router = useRouter()
   const userCompletionInformation = useQuery(
     [`course-module-${courseModuleId}-completion-information`],
     () => fetchUserCompletionInformation(courseModuleId),
   )
+
+  if (
+    userCompletionInformation.isSuccess &&
+    !userCompletionInformation.data.enable_registering_completion_to_uh_open_university
+  ) {
+    return (
+      <ErrorBanner
+        error={t("error-registering-to-the-uh-open-university-not-enabled-for-this-course-module")}
+        variant={"readOnly"}
+      />
+    )
+  }
   return (
     <Layout>
       {userCompletionInformation.isError && (

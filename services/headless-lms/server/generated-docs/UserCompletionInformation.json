@@ -3,5 +3,6 @@
   "course_name": "Course",
   "uh_course_code": "ABC123",
   "email": "student@example.com",
-  "ects_credits": 5
+  "ects_credits": 5,
+  "enable_registering_completion_to_uh_open_university": true
 }

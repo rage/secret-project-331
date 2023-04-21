@@ -269,6 +269,7 @@ export interface CourseModule {
   completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
   ects_credits: number | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface ModifiedModule {
@@ -279,6 +280,7 @@ export interface ModifiedModule {
   ects_credits: number | null
   completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface ModuleUpdates {
@@ -296,6 +298,7 @@ export interface NewCourseModule {
   name: string | null
   order_number: number
   uh_course_code: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface NewModule {
@@ -306,6 +309,7 @@ export interface NewModule {
   ects_credits: number | null
   completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface Course {
@@ -843,6 +847,7 @@ export interface UserCompletionInformation {
   uh_course_code: string
   email: string
   ects_credits: number | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface UserCourseModuleCompletion {
@@ -860,6 +865,7 @@ export interface UserModuleCompletionStatus {
   prerequisite_modules_completed: boolean
   grade: number | null
   passed: boolean | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface UserWithModuleCompletions {

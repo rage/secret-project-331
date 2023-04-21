@@ -4,4 +4,5 @@ type UserCompletionInformation = {
   uh_course_code: string
   email: string
   ects_credits: number | null
+  enable_registering_completion_to_uh_open_university: boolean
 }

@@ -403,7 +403,9 @@ pub async fn get_by_course_id_as_map(
     Ok(res)
 }
 
-pub async fn get_all_uh_course_codes(conn: &mut PgConnection) -> ModelResult<Vec<String>> {
+pub async fn get_all_uh_course_codes_for_open_university(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<String>> {
     let res = sqlx::query!(
         "
 SELECT DISTINCT uh_course_code
@@ -535,6 +537,28 @@ WHERE id = $2
 RETURNING *
         ",
         uh_course_code,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.into())
+}
+
+pub async fn update_enable_registering_completion_to_uh_open_university(
+    conn: &mut PgConnection,
+    id: Uuid,
+    enable_registering_completion_to_uh_open_university: bool,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+UPDATE course_modules
+SET enable_registering_completion_to_uh_open_university = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        enable_registering_completion_to_uh_open_university,
         id,
     )
     .fetch_one(conn)

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Bots","Wrapper struct to maintain bot regular expression patterns"]]};
+window.SIDEBAR_ITEMS = {"struct":["Bots"]};

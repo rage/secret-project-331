@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Ctr128BE","128-bit big endian counter flavor."],["Ctr128LE","128-bit big endian counter flavor."],["Ctr32BE","32-bit big endian counter flavor."],["Ctr32LE","32-bit big endian counter flavor."],["Ctr64BE","64-bit big endian counter flavor."],["Ctr64LE","64-bit big endian counter flavor."]],"trait":[["CtrFlavor","Trait implemented by different CTR flavors."]]};
+window.SIDEBAR_ITEMS = {"enum":["Ctr128BE","Ctr128LE","Ctr32BE","Ctr32LE","Ctr64BE","Ctr64LE"],"trait":["CtrFlavor"]};

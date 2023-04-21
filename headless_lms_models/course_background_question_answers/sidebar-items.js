@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_background_question_answers_for_background_questions",""],["upsert_backround_question_answers",""]],"struct":[["CourseBackgroundQuestionAnswer",""],["NewCourseBackgroundQuestionAnswer",""]]};
+window.SIDEBAR_ITEMS = {"fn":["get_background_question_answers_for_background_questions","upsert_backround_question_answers"],"struct":["CourseBackgroundQuestionAnswer","NewCourseBackgroundQuestionAnswer"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["all_organizations",""],["get_organization",""],["get_organization_by_slug",""],["insert",""],["update_organization_image_path",""]],"struct":[["DatabaseOrganization",""],["Organization",""]]};
+window.SIDEBAR_ITEMS = {"fn":["all_organizations","get_organization","get_organization_by_slug","insert","update_organization_image_path"],"struct":["DatabaseOrganization","Organization","Record"]};

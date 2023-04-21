@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"derive":[["MultipartForm","Implements `MultipartCollect` for a struct so that it can be used with the `MultipartForm` extractor."]]};
+window.SIDEBAR_ITEMS = {"derive":["MultipartForm"]};

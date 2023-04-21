@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["BlockAttributes",""]],"fn":[["process_content_to_html",""],["process_content_to_plaintext",""]],"static":[["ALL_TAG_REGEX",""],["DOUBLE_QUOTE_REGEX",""],["LI_END_TAG_REGEX",""],["LI_START_TAG_REGEX",""]],"struct":[["EmailGutenbergBlock",""]]};
+window.SIDEBAR_ITEMS = {"enum":["BlockAttributes"],"fn":["process_content_to_html","process_content_to_plaintext"],"static":["ALL_TAG_REGEX","DOUBLE_QUOTE_REGEX","LI_END_TAG_REGEX","LI_START_TAG_REGEX"],"struct":["EmailGutenbergBlock"]};

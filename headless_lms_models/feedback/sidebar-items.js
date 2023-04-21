@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_feedback_count_for_course",""],["get_feedback_for_course",""],["insert",""],["mark_as_read",""]],"struct":[["Feedback",""],["FeedbackBlock",""],["FeedbackCount",""],["NewFeedback",""]]};
+window.SIDEBAR_ITEMS = {"fn":["get_feedback_count_for_course","get_feedback_for_course","insert","mark_as_read"],"struct":["Feedback","FeedbackBlock","FeedbackCount","NewFeedback","Record"]};

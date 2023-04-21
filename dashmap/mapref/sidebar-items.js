@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["entry",""],["multiple",""],["one",""]]};
+window.SIDEBAR_ITEMS = {"mod":["entry","multiple","one"]};

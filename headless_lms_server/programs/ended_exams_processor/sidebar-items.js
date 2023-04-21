@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["main",""],["process_ended_exam","Processes completions for courses associated with the given exam."],["process_ended_exams","Fetches ended exams that haven’t yet been processed and updates completions for them."]]};
+window.SIDEBAR_ITEMS = {"fn":["main","process_ended_exam","process_ended_exams"],"static":["CALLSITE","META"]};

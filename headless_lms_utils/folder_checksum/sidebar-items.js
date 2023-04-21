@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["determine_permissions_mode_for_hashing",""],["hash_folder","Recursively hashes a folder returning a checksum."]]};
+window.SIDEBAR_ITEMS = {"fn":["determine_permissions_mode_for_hashing","hash_folder"]};

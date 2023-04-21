@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["BrotliSubclassableAllocator",""],["SendableMemoryBlock",""]]};
+window.SIDEBAR_ITEMS = {"struct":["BrotliSubclassableAllocator","SendableMemoryBlock"]};

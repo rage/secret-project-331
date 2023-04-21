@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Counter","Simple counter with ability to notify task on reaching specific number"],["CounterGuard","An RAII structure that keeps the underlying counter incremented until this guard is dropped."]]};
+window.SIDEBAR_ITEMS = {"struct":["Counter","CounterGuard"]};

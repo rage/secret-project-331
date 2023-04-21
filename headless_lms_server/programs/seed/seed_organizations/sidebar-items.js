@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["uh_cs",""],["uh_mathstat",""]]};
+window.SIDEBAR_ITEMS = {"mod":["uh_cs","uh_mathstat"]};

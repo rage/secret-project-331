@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_by_domain",""]],"struct":[["OtherDomainToCourseRedirection",""]]};
+window.SIDEBAR_ITEMS = {"fn":["get_by_domain"],"struct":["OtherDomainToCourseRedirection"]};

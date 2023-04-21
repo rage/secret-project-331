@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["DIGEST_LENGTH","The length of a SHA1 digest in bytes"]],"struct":[["Digest","Digest generated from a `Sha1` instance."],["DigestParseError","Indicates that a digest couldn’t be parsed."],["Sha1","Represents a Sha1 hash object in memory."]]};
+window.SIDEBAR_ITEMS = {"constant":["DIGEST_LENGTH"],"struct":["Digest","DigestParseError","Sha1"]};

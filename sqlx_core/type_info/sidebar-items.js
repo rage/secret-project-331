@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["TypeInfo","Provides information about a SQL type for the database driver."]]};
+window.SIDEBAR_ITEMS = {"trait":["TypeInfo"]};

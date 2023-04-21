@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["MigrateError",""],["MigrationType","Migration Type represents the type of migration"]],"struct":[["AppliedMigration",""],["Migration",""],["Migrator",""]],"trait":[["Migrate",""],["MigrateDatabase",""],["MigrationSource",""]]};
+window.SIDEBAR_ITEMS = {"enum":["MigrateError","MigrationType"],"struct":["AppliedMigration","Migration","Migrator"],"trait":["Migrate","MigrateDatabase","MigrationSource"]};

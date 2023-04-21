@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["DEFAULT_MECHANISMS","Accepted authentication mechanisms"]],"enum":[["Mechanism","Represents authentication mechanisms"]],"struct":[["Credentials","Contains user credentials"]]};
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_MECHANISMS"],"enum":["Mechanism"],"struct":["Credentials"]};

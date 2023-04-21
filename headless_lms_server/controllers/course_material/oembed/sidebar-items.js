@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["get_mentimeter_oembed_data","GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`"]]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_mentimeter_oembed_data"]};

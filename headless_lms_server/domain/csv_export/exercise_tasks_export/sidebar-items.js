@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["export_course_exercise_tasks","Writes the course exercise tasks with pravate spec as csv into the writer"]],"struct":[["CourseExerciseTasksExportOperation",""]]};
+window.SIDEBAR_ITEMS = {"fn":["export_course_exercise_tasks"],"struct":["CourseExerciseTasksExportOperation"]};

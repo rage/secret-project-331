@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["counter","Task-notifying counter."],["future","Helpers for constructing futures."]]};
+window.SIDEBAR_ITEMS = {"mod":["counter","future"]};

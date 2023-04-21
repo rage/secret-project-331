@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["RefMulti",""],["RefMutMulti",""]]};
+window.SIDEBAR_ITEMS = {"struct":["RefMulti","RefMutMulti"]};

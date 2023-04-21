@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["export_course_instance_points","Writes the course points as csv into the writer"],["export_exam_points","Writes the points as csv into the writer"]],"struct":[["ExamPointExportOperation",""],["PointExportOperation",""]]};
+window.SIDEBAR_ITEMS = {"fn":["export_course_instance_points","export_exam_points"],"struct":["ExamPointExportOperation","PointExportOperation"]};

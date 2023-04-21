@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["hash_anonymous_identifier",""]]};
+window.SIDEBAR_ITEMS = {"fn":["hash_anonymous_identifier"]};

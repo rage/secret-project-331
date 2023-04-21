@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["get_organization_id","GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id."]]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_organization_id"],"static":["CALLSITE","META"]};

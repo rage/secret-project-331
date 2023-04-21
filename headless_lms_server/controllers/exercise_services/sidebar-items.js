@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["grading",""]]};
+window.SIDEBAR_ITEMS = {"mod":["grading"]};

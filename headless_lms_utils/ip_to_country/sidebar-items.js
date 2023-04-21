@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["IpToCountryMapper",""]]};
+window.SIDEBAR_ITEMS = {"static":["CALLSITE","META"],"struct":["IpToCountryMapper"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["_add_routes",""],["get_submission_info","GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info\"`- Returns data necessary for rendering a submission."],["update_answer_requiring_attention","PUT `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention\"` - Given a teacher grading decision, updates an answer by giving it a manual score given."]]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_submission_info","update_answer_requiring_attention"],"static":["CALLSITE","META"]};

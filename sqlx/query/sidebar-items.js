@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Map","SQL query that will map its results to owned Rust types."],["Query","Raw SQL query with bind parameters. Returned by [`query`][crate::query::query]."],["QueryAs","Raw SQL query with bind parameters, mapped to a concrete type using [`FromRow`]. Returned from [`query_as`][crate::query_as::query_as]."],["QueryScalar","Raw SQL query with bind parameters, mapped to a concrete type using [`FromRow`] on `(O,)`. Returned from [`query_scalar`]."]]};
+window.SIDEBAR_ITEMS = {"struct":["Map","Query","QueryAs","QueryScalar"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["insert",""]]};
+window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["Record"]};

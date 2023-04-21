@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Claims","Generic JWT claims with defined fields for registered and private claims."],["RegisteredClaims","Registered claims according to the JWT specification."]],"type":[["SecondsSinceEpoch",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Claims","RegisteredClaims"],"type":["SecondsSinceEpoch"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"static":[["LANGUAGE_TAG_TO_NAME",""]]};
+window.SIDEBAR_ITEMS = {"static":["LANGUAGE_TAG_TO_NAME"]};

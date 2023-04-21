@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["insert",""]],"struct":[["CourseLanguageVersion",""]]};
+window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["CourseLanguageVersion","Record"]};

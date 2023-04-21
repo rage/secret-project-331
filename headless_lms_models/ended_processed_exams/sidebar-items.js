@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_unprocessed_ended_exams_by_timestamp","Get ids for exams that have ended but haven’t yet been added to the table for processed ones."],["upsert","Creates a record for the given `exam_id` or makes sure that it is undeleted."]]};
+window.SIDEBAR_ITEMS = {"fn":["get_unprocessed_ended_exams_by_timestamp","upsert"],"struct":["Record"]};

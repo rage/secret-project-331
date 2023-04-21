@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["FixtureSnapshot","A snapshot of the current state of the database."],["TestArgs",""],["TestContext",""],["TestFixture",""]],"trait":[["TestFn",""],["TestSupport",""],["TestTermination",""]]};
+window.SIDEBAR_ITEMS = {"struct":["FixtureSnapshot","TestArgs","TestContext","TestFixture"],"trait":["TestFn","TestSupport","TestTermination"]};

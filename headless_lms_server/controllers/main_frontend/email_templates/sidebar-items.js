@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["delete_email_template","DELETE `/api/v0/main-frontend/email-templates/:id`"]]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_email_template"],"static":["CALLSITE","META"]};

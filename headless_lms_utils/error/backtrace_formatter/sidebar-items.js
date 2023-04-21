@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["format_backtrace","Formats backtraces for printing but omits unnecessary stack frames."],["print_filtered_frame_placeholder",""]]};
+window.SIDEBAR_ITEMS = {"fn":["format_backtrace","print_filtered_frame_placeholder"]};

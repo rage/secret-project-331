@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["generate_random_string",""],["is_ietf_language_code_like","Checks whether the string is IETF language code where subtags are separated with underscore."]],"static":[["IETF_LANGUAGE_CODE_REGEX",""]]};
+window.SIDEBAR_ITEMS = {"fn":["generate_random_string","is_ietf_language_code_like"],"static":["IETF_LANGUAGE_CODE_REGEX"]};

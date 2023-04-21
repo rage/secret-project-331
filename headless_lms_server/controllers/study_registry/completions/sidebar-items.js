@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_completions","GET `/api/v0/study-registry/completions/[:course_id | :uh_course_code | :course_slug]` – Get completions from all modules in a course."],["get_module_completions","GET `/api/v0/study-registry/completions/[:course_id | :uh_course_code | :course_slug]/:course_module_id` – Get completions from a single course module."]]};
+window.SIDEBAR_ITEMS = {"fn":["get_completions","get_module_completions"],"static":["CALLSITE","META"]};

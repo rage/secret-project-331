@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ExamEnrollmentData",""]],"fn":[["_add_routes","Add a route for each controller in this module."],["enroll","POST /api/v0/course-material/exams/:id/enroll"],["enrollment","GET /api/v0/course-material/exams/:id/enrollment"],["fetch_exam_for_user","GET /api/v0/course-material/exams/:id"]],"struct":[["ExamData",""]]};
+window.SIDEBAR_ITEMS = {"enum":["ExamEnrollmentData"],"fn":["_add_routes","enroll","enrollment","fetch_exam_for_user"],"static":["CALLSITE","META"],"struct":["ExamData"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["delete",""],["update",""]]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete","update"],"static":["CALLSITE","META"]};

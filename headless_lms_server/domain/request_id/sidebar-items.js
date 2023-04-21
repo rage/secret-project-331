@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["RequestId","Extractor for a request’s id. The id is generated on extraction if it does not exist."]]};
+window.SIDEBAR_ITEMS = {"struct":["RequestId"]};

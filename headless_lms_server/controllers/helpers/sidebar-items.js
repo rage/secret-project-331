@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["file_uploading","Helper functions related to uploading to file storage."]]};
+window.SIDEBAR_ITEMS = {"mod":["file_uploading"]};

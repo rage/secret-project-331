@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["RoleDomain",""],["UserRole",""]],"fn":[["get",""],["get_roles",""],["insert",""],["remove",""]],"struct":[["Role",""],["RoleInfo",""],["RoleUser",""]]};
+window.SIDEBAR_ITEMS = {"enum":["RoleDomain","UserRole"],"fn":["get","get_roles","insert","remove"],"struct":["Record","Role","RoleInfo","RoleUser"]};

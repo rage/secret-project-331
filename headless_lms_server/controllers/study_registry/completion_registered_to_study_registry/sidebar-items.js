@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["post_completions","POST `/api/v0/completion-registered-to-study-registry` - Post an array of registered completions to be marked as registered to the study registry."]]};
+window.SIDEBAR_ITEMS = {"fn":["post_completions"],"static":["CALLSITE","META"]};

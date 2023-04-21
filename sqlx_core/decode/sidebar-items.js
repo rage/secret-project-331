@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["Decode","A type that can be decoded from the database."]]};
+window.SIDEBAR_ITEMS = {"trait":["Decode"]};

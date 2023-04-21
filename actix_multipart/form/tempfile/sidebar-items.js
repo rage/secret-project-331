@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TempFileError",""]],"struct":[["TempFile","Write the field to a temporary file on disk."],["TempFileConfig","Configuration for the [`TempFile`] field reader."]]};
+window.SIDEBAR_ITEMS = {"enum":["TempFileError"],"struct":["TempFile","TempFileConfig"]};

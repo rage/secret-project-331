@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Auth","AUTH command"],["Data","DATA command"],["Ehlo","EHLO command"],["Expn","EXPN command"],["Help","HELP command"],["Mail","MAIL command"],["Noop","NOOP command"],["Quit","QUIT command"],["Rcpt","RCPT command"],["Rset","RSET command"],["Starttls","STARTTLS command"],["Vrfy","VRFY command"]]};
+window.SIDEBAR_ITEMS = {"struct":["Auth","Data","Ehlo","Expn","Help","Mail","Noop","Quit","Rcpt","Rset","Starttls","Vrfy"]};

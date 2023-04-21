@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["delete",""],["get_course_ids_by_exam_id","Gets all course ids associated with the given exam id."],["get_exam_ids_by_course_id",""],["upsert",""]]};
+window.SIDEBAR_ITEMS = {"fn":["delete","get_course_ids_by_exam_id","get_exam_ids_by_course_id","upsert"],"struct":["Record"]};

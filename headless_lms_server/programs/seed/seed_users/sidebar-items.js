@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["seed_users",""]],"struct":[["SeedUsersResult",""]]};
+window.SIDEBAR_ITEMS = {"fn":["seed_users"],"static":["CALLSITE","META"],"struct":["SeedUsersResult"]};

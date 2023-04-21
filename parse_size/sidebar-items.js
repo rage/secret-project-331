@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ByteSuffix","How to deal with the “B” suffix."],["Error","The error returned when parse failed."],["UnitSystem","The system to use when parsing prefixes like “KB” and “GB”."]],"fn":[["parse_size","Parses the string input into the number of bytes it represents using the default configuration."]],"struct":[["Config","Configuration of the parser."]]};
+window.SIDEBAR_ITEMS = {"enum":["ByteSuffix","Error","UnitSystem"],"fn":["parse_size"],"struct":["Config"]};

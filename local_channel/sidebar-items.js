@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["mpsc","A non-thread-safe multi-producer, single-consumer, futures-aware, FIFO queue."]]};
+window.SIDEBAR_ITEMS = {"mod":["mpsc"]};

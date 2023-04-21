@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Error","Error type used when parsing an address."]],"struct":[["EmailAddress","Type representing a single email address. This is basically a wrapper around a String, the email address is parsed for correctness with `FromStr::from_str`, which is the only want to create an instance. The various components of the email are not parsed out to be accessible independently."]]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"struct":["EmailAddress"]};

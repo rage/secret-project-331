@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ClientId","Client identifier, the parameter to `EHLO`"],["Extension","Supported ESMTP keywords"],["MailBodyParameter","Values for the `BODY` parameter to `MAIL FROM`"],["MailParameter","A `MAIL FROM` extension parameter"],["RcptParameter","A `RCPT TO` extension parameter"]],"struct":[["ServerInfo","Contains information about an SMTP server"]]};
+window.SIDEBAR_ITEMS = {"enum":["ClientId","Extension","MailBodyParameter","MailParameter","RcptParameter"],"struct":["ServerInfo"]};

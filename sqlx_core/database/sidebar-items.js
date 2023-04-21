@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["Database","A database driver."],["HasArguments","Associate [`Database`] with an `Arguments` of a generic lifetime."],["HasStatement","Associate [`Database`] with a `Statement` of a generic lifetime."],["HasStatementCache","A [`Database`] that maintains a client-side cache of prepared statements."],["HasValueRef","Associate [`Database`] with a `ValueRef` of a generic lifetime."]]};
+window.SIDEBAR_ITEMS = {"trait":["Database","HasArguments","HasStatement","HasStatementCache","HasValueRef"]};

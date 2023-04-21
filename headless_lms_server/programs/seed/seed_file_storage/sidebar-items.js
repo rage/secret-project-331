@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["REPOSITORY_EXERCISE_1",""],["REPOSITORY_EXERCISE_2",""]],"fn":[["seed_file_storage",""]]};
+window.SIDEBAR_ITEMS = {"constant":["REPOSITORY_EXERCISE_1","REPOSITORY_EXERCISE_2"],"fn":["seed_file_storage"],"static":["CALLSITE","META"]};

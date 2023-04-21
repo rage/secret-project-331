@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["grading_update","POST `/api/v0/exercise-services/grading/grading-update`"]]};
+window.SIDEBAR_ITEMS = {"fn":["grading_update"],"static":["CALLSITE","META"]};

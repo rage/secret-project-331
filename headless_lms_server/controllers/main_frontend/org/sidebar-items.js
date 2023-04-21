@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["get_organization_by_slug","GET `/api/v0/main-frontend/org/:slug"]]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_organization_by_slug"],"static":["CALLSITE","META"]};

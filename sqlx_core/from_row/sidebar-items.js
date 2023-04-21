@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["FromRow","A record that can be built from a row returned by the database."]]};
+window.SIDEBAR_ITEMS = {"trait":["FromRow"]};

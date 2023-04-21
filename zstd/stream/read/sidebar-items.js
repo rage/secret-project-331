@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Decoder","A decoder that decompress input data from another `Read`."],["Encoder","An encoder that compress input data from another `Read`."]]};
+window.SIDEBAR_ITEMS = {"struct":["Decoder","Encoder"]};

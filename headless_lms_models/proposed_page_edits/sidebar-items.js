@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["get_proposal_count_for_course",""],["get_proposals_for_course",""],["insert",""],["process_proposal",""],["update_page_edit_status",""]],"struct":[["EditProposalInfo",""],["NewProposedPageEdits",""],["PageProposal",""],["ProposalCount",""]]};
+window.SIDEBAR_ITEMS = {"fn":["get_proposal_count_for_course","get_proposals_for_course","insert","process_proposal","update_page_edit_status"],"struct":["EditProposalInfo","NewProposedPageEdits","PageProposal","ProposalCount","Record"]};

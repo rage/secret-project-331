@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Encoding","A possible email `Content-Transfer-Encoding`"],["StrOrBytes","A borrowed `str` or `[u8]`"]],"mod":[["base64","Base64 email body encoder."]]};
+window.SIDEBAR_ITEMS = {"enum":["Encoding","StrOrBytes"],"mod":["base64"]};

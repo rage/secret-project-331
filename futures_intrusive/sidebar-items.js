@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["buffer","Buffer types"],["channel","Asynchronous channels."],["sync","Asynchronous synchronization primitives based on intrusive collections."],["timer","Asynchronous timers."]],"struct":[["NoopLock","An unsafe (non-thread-safe) lock, equivalent to UnsafeCell"]]};
+window.SIDEBAR_ITEMS = {"mod":["buffer","channel","sync","timer"],"struct":["NoopLock"]};

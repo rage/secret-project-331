@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Transaction","An in-progress database transaction or savepoint."]]};
+window.SIDEBAR_ITEMS = {"struct":["Transaction"]};

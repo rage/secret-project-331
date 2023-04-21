@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["HeaderContentType",""],["HeaderType",""]],"struct":[["Header","Generic JWT header with defined fields for common fields."],["PrecomputedAlgorithmOnlyHeader","A header that only contains the algorithm type. The `ToBase64` implementation uses static strings for faster serialization."]],"trait":[["JoseHeader","A trait for any header than can conform to the JWT specification."]]};
+window.SIDEBAR_ITEMS = {"enum":["HeaderContentType","HeaderType"],"struct":["Header","PrecomputedAlgorithmOnlyHeader"],"trait":["JoseHeader"]};

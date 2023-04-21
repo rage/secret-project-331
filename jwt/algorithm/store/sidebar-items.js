@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["Store","A store of keys that can be retrieved by key id."]]};
+window.SIDEBAR_ITEMS = {"trait":["Store"]};

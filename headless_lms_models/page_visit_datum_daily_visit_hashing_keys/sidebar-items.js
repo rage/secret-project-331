@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["generate_anonymous_identifier",""],["get_key_for_the_day",""],["try_get_key_for_the_day_internal",""],["try_insert_key_for_the_day_internal",""]],"struct":[["GenerateAnonymousIdentifierInput",""]]};
+window.SIDEBAR_ITEMS = {"fn":["generate_anonymous_identifier","get_key_for_the_day","try_get_key_for_the_day_internal","try_insert_key_for_the_day_internal"],"struct":["GenerateAnonymousIdentifierInput","Record"]};

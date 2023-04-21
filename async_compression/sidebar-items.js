@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Level","Level of compression data should be compressed with."]],"mod":[["tokio","Implementations for IO traits exported by `tokio` v1.0."]]};
+window.SIDEBAR_ITEMS = {"enum":["Level"],"mod":["tokio"]};

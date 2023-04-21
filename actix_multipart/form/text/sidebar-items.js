@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TextError",""]],"struct":[["Text","Deserialize from plain text."],["TextConfig","Configuration for the [`Text`] field reader."]]};
+window.SIDEBAR_ITEMS = {"enum":["TextError"],"struct":["Text","TextConfig"]};

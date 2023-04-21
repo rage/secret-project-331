@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ParseError","Errors returned by `LanguageTag` parsing"],["ValidationError","Errors returned by the `LanguageTag` validation"]],"struct":[["LanguageTag","A language tag as described in RFC 5646."]]};
+window.SIDEBAR_ITEMS = {"enum":["ParseError","ValidationError"],"struct":["LanguageTag"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/course_modules.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>course_modules.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-93196c7a1c3542a8.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-4743e13df3dfe8c4.css"><link rel="stylesheet" disabled href="../../static.files/dark-0e1b889528bd466b.css"><link rel="stylesheet" disabled href="../../static.files/ayu-65289d5d067c7c66.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-ea63cb6500f71309.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-3367e395607fafc1.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/course_modules.rs`."><title>course_modules.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -742,11 +742,73 @@
 <a href="#742" id="742">742</a>
 <a href="#743" id="743">743</a>
 <a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{chapters, prelude::<span class="kw-2">*</span>};
 
-<span class="kw">struct </span>CourseModulesSchema {
+<span class="doccomment">/// Matches the columns in the database.
+</span><span class="kw">struct </span>CourseModulesSchema {
     id: Uuid,
     created_at: DateTime&lt;Utc&gt;,
     updated_at: DateTime&lt;Utc&gt;,
@@ -762,9 +824,12 @@
     automatic_completion_requires_exam: bool,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    enable_registering_completion_to_uh_open_university: bool,
 }
-
-<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+<span class="doccomment">/**
+ * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ */
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>CourseModule {
     <span class="kw">pub </span>id: Uuid,
@@ -780,6 +845,7 @@
     <span class="doccomment">/// If set, use this link rather than the default one when registering course completions.
     </span><span class="kw">pub </span>completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>enable_registering_completion_to_uh_open_university: bool,
 }
 
 <span class="kw">impl </span>CourseModule {
@@ -797,6 +863,7 @@
             completion_policy: CompletionPolicy::Manual,
             completion_registration_link_override: <span class="prelude-val">None</span>,
             ects_credits: <span class="prelude-val">None</span>,
+            enable_registering_completion_to_uh_open_university: <span class="bool-val">false</span>,
         }
     }
     <span class="kw">pub fn </span>set_timestamps(
@@ -828,10 +895,13 @@
         uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
         ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
         completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        enable_registering_completion_to_uh_open_university: bool,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.uh_course_code = uh_course_code;
         <span class="self">self</span>.ects_credits = ects_credits;
         <span class="self">self</span>.completion_registration_link_override = completion_registration_link_override;
+        <span class="self">self</span>.enable_registering_completion_to_uh_open_university =
+            enable_registering_completion_to_uh_open_university;
         <span class="self">self
     </span>}
 
@@ -866,6 +936,8 @@
             completion_policy,
             completion_registration_link_override: schema.completion_registration_link_override,
             ects_credits: schema.ects_credits,
+            enable_registering_completion_to_uh_open_university: schema
+                .enable_registering_completion_to_uh_open_university,
         }
     }
 }
@@ -880,6 +952,7 @@
     name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     order_number: i32,
     uh_course_code: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    enable_registering_completion_to_uh_open_university: bool,
 }
 
 <span class="kw">impl </span>NewCourseModule {
@@ -892,6 +965,7 @@
             name,
             order_number,
             uh_course_code: <span class="prelude-val">None</span>,
+            enable_registering_completion_to_uh_open_university: <span class="bool-val">false</span>,
         }
     }
 
@@ -921,6 +995,15 @@
         <span class="self">self</span>.ects_credits = ects_credits;
         <span class="self">self
     </span>}
+
+    <span class="kw">pub fn </span>set_enable_registering_completion_to_uh_open_university(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        enable_registering_completion_to_uh_open_university: bool,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.enable_registering_completion_to_uh_open_university =
+            enable_registering_completion_to_uh_open_university;
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">pub async fn </span>insert(
@@ -942,9 +1025,10 @@ INSERT INTO course_modules (
     automatic_completion_number_of_exercises_attempted_treshold,
     automatic_completion_number_of_points_treshold,
     automatic_completion_requires_exam,
-    ects_credits
+    ects_credits,
+    enable_registering_completion_to_uh_open_university
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *
         &quot;</span>,
         pkey_policy.into_uuid(),
@@ -956,6 +1040,7 @@ RETURNING *
         points_treshold,
         requires_exam,
         new_course_module.ects_credits,
+        new_course_module.enable_registering_completion_to_uh_open_university
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1123,12 +1208,15 @@ WHERE (
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub async fn </span>get_all_uh_course_codes(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;Vec&lt;String&gt;&gt; {
+<span class="kw">pub async fn </span>get_all_uh_course_codes_for_open_university(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+) -&gt; ModelResult&lt;Vec&lt;String&gt;&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT DISTINCT uh_course_code
 FROM course_modules
 WHERE uh_course_code IS NOT NULL
+  AND enable_registering_completion_to_uh_open_university = true
   AND deleted_at IS NULL
 &quot;
     </span>)
@@ -1261,6 +1349,28 @@ RETURNING *
     <span class="prelude-val">Ok</span>(res.into())
 }
 
+<span class="kw">pub async fn </span>update_enable_registering_completion_to_uh_open_university(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    enable_registering_completion_to_uh_open_university: bool,
+) -&gt; ModelResult&lt;CourseModule&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModulesSchema,
+        <span class="string">&quot;
+UPDATE course_modules
+SET enable_registering_completion_to_uh_open_university = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        &quot;</span>,
+        enable_registering_completion_to_uh_open_university,
+        id,
+    )
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res.into())
+}
+
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewModule {
@@ -1271,6 +1381,7 @@ RETURNING *
     ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    enable_registering_completion_to_uh_open_university: bool,
 }
 
 <span class="attr">#[derive(Debug, Deserialize)]
@@ -1283,6 +1394,7 @@ RETURNING *
     ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    enable_registering_completion_to_uh_open_university: bool,
 }
 
 <span class="attr">#[derive(Debug, Deserialize)]
@@ -1334,7 +1446,8 @@ SET name = COALESCE($2, name),
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
   automatic_completion_requires_exam = $9,
-  completion_registration_link_override = $10
+  completion_registration_link_override = $10,
+  enable_registering_completion_to_uh_open_university = $11
 WHERE id = $1
         &quot;</span>,
         id,
@@ -1347,6 +1460,7 @@ WHERE id = $1
         points_treshold,
         requires_exam,
         updated_course_module.completion_registration_link_override,
+        updated_course_module.enable_registering_completion_to_uh_open_university,
     )
     .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1381,7 +1495,10 @@ WHERE id = $1
                     new.completion_registration_link_override,
                 )
                 .set_ects_credits(new.ects_credits)
-                .set_uh_course_code(new.uh_course_code);
+                .set_uh_course_code(new.uh_course_code)
+                .set_enable_registering_completion_to_uh_open_university(
+                    new.enable_registering_completion_to_uh_open_university,
+                );
         <span class="kw">let </span>module = insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, <span class="kw-2">&amp;</span>new_course_module).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">for </span>chapter <span class="kw">in </span>new.chapters {
             chapters::set_module(<span class="kw-2">&amp;mut </span>tx, chapter, module.id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1395,6 +1512,8 @@ WHERE id = $1
             ects_credits: new.ects_credits,
             completion_policy: new.completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university: module
+                .enable_registering_completion_to_uh_open_university,
         })
     }
     <span class="comment">// update modified and new modules
@@ -1408,7 +1527,10 @@ WHERE id = $1
                     module.completion_registration_link_override,
                 )
                 .set_ects_credits(module.ects_credits)
-                .set_uh_course_code(module.uh_course_code),
+                .set_uh_course_code(module.uh_course_code)
+                .set_enable_registering_completion_to_uh_open_university(
+                    module.enable_registering_completion_to_uh_open_university,
+                ),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
@@ -1487,4 +1609,4 @@ WHERE id = $1
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["create_new_chapter","Creates a new chapter with a front page."],["create_new_course","Creates a new course with a front page and default instances."]],"struct":[["CreateNewCourseFixedIds",""]]};
+window.SIDEBAR_ITEMS = {"fn":["create_new_chapter","create_new_course"],"struct":["CreateNewCourseFixedIds"]};

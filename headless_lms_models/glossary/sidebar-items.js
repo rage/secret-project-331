@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["delete",""],["fetch_for_course",""],["insert",""],["update",""]],"struct":[["Term",""],["TermUpdate",""]]};
+window.SIDEBAR_ITEMS = {"fn":["delete","fetch_for_course","insert","update"],"struct":["Record","Term","TermUpdate"]};

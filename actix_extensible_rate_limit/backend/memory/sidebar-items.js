@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["DEFAULT_GC_INTERVAL_SECONDS",""]],"struct":[["Builder",""],["InMemoryBackend","A Fixed Window rate limiter [Backend] that uses Dashmap to store keys in memory."]]};
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_GC_INTERVAL_SECONDS"],"struct":["Builder","InMemoryBackend"]};

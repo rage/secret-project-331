@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["constant_time_eq","Compares two equal-sized byte strings in constant time."],["constant_time_eq_16","Compares two 128-bit byte strings in constant time."],["constant_time_eq_32","Compares two 256-bit byte strings in constant time."],["constant_time_eq_64","Compares two 512-bit byte strings in constant time."],["constant_time_eq_n","Compares two fixed-size byte strings in constant time."]]};
+window.SIDEBAR_ITEMS = {"fn":["constant_time_eq","constant_time_eq_16","constant_time_eq_32","constant_time_eq_64","constant_time_eq_n"]};

@@ -79,7 +79,7 @@ const Scale: React.FC<
                   type="radio"
                   key={value}
                   value={value}
-                  // checked={user_quiz_item_answer?.optionAnswers?.includes(value)}
+                  checked={user_quiz_item_answer?.optionAnswers?.includes(value)}
                   disabled
                 />
               </label>

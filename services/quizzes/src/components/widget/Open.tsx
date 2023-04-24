@@ -1,6 +1,8 @@
 import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/publicSpec"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -9,12 +11,9 @@ import CloseEndedQuestionWrapper from "../Shared/CloseEndedQuestionWrapper"
 
 import { QuizItemComponentProps } from "."
 
-const Open: React.FC<QuizItemComponentProps> = ({
-  quizDirection,
-  quizItem,
-  quizItemAnswerState,
-  setQuizItemAnswerState,
-}) => {
+const Open: React.FC<
+  QuizItemComponentProps<PublicSpecQuizItemClosedEndedQuestion, UserItemAnswerClosedEndedQuestion>
+> = ({ quizDirection, quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const fieldId = useId()
   const [showFormatError, setShowFormatError] = useState(false)

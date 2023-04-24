@@ -2,18 +2,17 @@ import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemAnswer } from "../../../types/types"
+import { UserItemAnswerEssay } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemEssay } from "../../../types/quizTypes/publicSpec"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import { wordCount } from "../../shared-module/utils/strings"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
 
-const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItemAnswerState,
-  quizItem,
-  setQuizItemAnswerState,
-}) => {
+const Essay: React.FunctionComponent<
+  QuizItemComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
+> = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
@@ -75,7 +74,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
               if (quizItem.maxWords && quizItem.maxWords < wordCount(newValue)) {
                 valid = false
               }
-              const newQuizItemAnswerState: QuizItemAnswer = {
+              const newQuizItemAnswerState: UserItemAnswerEssay = {
                 ...quizItemAnswerState,
                 textData: newValue,
                 valid: valid,

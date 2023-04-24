@@ -2,7 +2,8 @@ import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
-import { QuizItemAnswer } from "../../../../types/types"
+import { UserItemAnswerMatrix } from "../../../../types/quizTypes/answer"
+import { PublicSpecQuizItemMatrix } from "../../../../types/quizTypes/publicSpec"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 import MatrixCell from "./MatrixCell"
@@ -35,13 +36,12 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItemAnswerState,
-  setQuizItemAnswerState,
-}) => {
+const Matrix: React.FunctionComponent<
+  QuizItemComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
+> = ({ quizItemAnswerState, setQuizItemAnswerState }) => {
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
   const matrixVariable = useMemo(() => {
-    const res = quizItemAnswerState?.optionCells
+    const res = quizItemAnswerState?.matrix
     if (res !== null && res !== undefined && Array.isArray(res)) {
       return res
     }
@@ -55,7 +55,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
       newAnswerMatrix.push(columnArray)
     }
     return newAnswerMatrix
-  }, [quizItemAnswerState?.optionCells])
+  }, [quizItemAnswerState?.matrix])
   const handleSizeChange = useCallback((matrix: string[][]) => {
     const sizeOfTheMatrix = [0, 0]
     for (let i = 0; i < 6; i++) {
@@ -93,8 +93,8 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
     let newOptionCells: string[][] = [[]]
     if (newMatrix) {
       newOptionCells = newMatrix
-    } else if (quizItemAnswerState?.optionCells) {
-      newOptionCells = quizItemAnswerState?.optionCells
+    } else if (quizItemAnswerState?.matrix) {
+      newOptionCells = quizItemAnswerState?.matrix
     }
     let isValid = null
     for (let i = 0; i <= tempMatrixActiveSize[0]; i++) {
@@ -107,9 +107,9 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
     if (isValid === null) {
       isValid = true
     }
-    const newItemAnswer: QuizItemAnswer = {
+    const newItemAnswer: UserItemAnswerMatrix = {
       ...quizItemAnswerState,
-      optionCells: newOptionCells,
+      matrix: newOptionCells,
       valid: isValid,
     }
     setQuizItemAnswerState(newItemAnswer)

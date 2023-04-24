@@ -39,6 +39,7 @@ export interface UserItemAnswerScale {
   valid: boolean
   quizItemId: string
   intData: number
+  optionAnswers: string[] | null
 }
 
 export interface UserItemAnswerCheckbox {

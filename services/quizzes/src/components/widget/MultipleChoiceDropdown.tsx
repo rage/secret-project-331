@@ -2,7 +2,8 @@ import { css } from "@emotion/css"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemAnswer } from "../../../types/types"
+import { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -10,7 +11,12 @@ import { quizTheme } from "../../styles/QuizStyles"
 import { QuizItemComponentProps } from "."
 
 const MultipleChoiceDropdown: React.FunctionComponent<
-  React.PropsWithChildren<QuizItemComponentProps>
+  React.PropsWithChildren<
+    QuizItemComponentProps<
+      PublicSpecQuizItemMultiplechoiceDropdown,
+      UserItemAnswerMultiplechoiceDropdown
+    >
+  >
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const handleOptionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -20,20 +26,20 @@ const MultipleChoiceDropdown: React.FunctionComponent<
 
     const selectedOptionId = event.currentTarget.value
 
-    const newItemAnswer: QuizItemAnswer = {
+    const newItemAnswer: UserItemAnswerMultiplechoiceDropdown = {
       ...quizItemAnswerState,
-      optionAnswers: [selectedOptionId],
+      selectedOptionIds: [selectedOptionId],
       valid: true,
     }
     setQuizItemAnswerState(newItemAnswer)
   }
   const selectedOptionId = useMemo(() => {
-    const optionAnswers = quizItemAnswerState?.optionAnswers
+    const optionAnswers = quizItemAnswerState?.selectedOptionIds
     if (!optionAnswers || !Array.isArray(optionAnswers) || optionAnswers.length === 0) {
       return null
     }
     return optionAnswers[0] ?? null
-  }, [quizItemAnswerState?.optionAnswers])
+  }, [quizItemAnswerState?.selectedOptionIds])
   return (
     <div
       className={css`

@@ -2,7 +2,8 @@ import { css } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
 
-import { QuizItemAnswer } from "../../../types/types"
+import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemChooseN } from "../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -10,19 +11,19 @@ import { quizTheme } from "../../styles/QuizStyles"
 import { QuizItemComponentProps } from "."
 
 const MultipleChoiceClickable: React.FunctionComponent<
-  React.PropsWithChildren<QuizItemComponentProps>
+  React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!quizItemAnswerState) {
       return
     }
     const selectedOptionId = event.currentTarget.value
-    const selectedIds = _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId])
+    const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
     const validAnswer = selectedIds.length > 0
 
-    const newItemAnswer: QuizItemAnswer = {
+    const newItemAnswer: UserItemAnswerChooseN = {
       ...quizItemAnswerState,
-      optionAnswers: selectedIds,
+      selectedOptionIds: selectedIds,
       valid: validAnswer,
     }
 
@@ -66,7 +67,7 @@ const MultipleChoiceClickable: React.FunctionComponent<
               flex-grow: 1;
               margin: 0.5rem;
               border: none;
-              ${quizItemAnswerState?.optionAnswers?.includes(o.id) &&
+              ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
               `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
             `}
           >

@@ -3,6 +3,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerTimeline } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemTimeline } from "../../../types/quizTypes/publicSpec"
 import { PublicTimelineItem, TimelineChoice } from "../../../types/types"
 import TimelineSelect from "../../shared-module/components/TimelineSelect"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -155,11 +157,9 @@ export interface Time {
   text: string
 }
 
-const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItemAnswerState,
-  quizItem,
-  setQuizItemAnswerState,
-}) => {
+const Timeline: React.FunctionComponent<
+  QuizItemComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
+> = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   return (
     <TimelineWrapper>
@@ -170,7 +170,7 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
             (tc) => tc.timelineItemId === timelineItem.id,
           )
 
-          const selectedTimelineEventDetails = quizItem.timelineItemEvents.find(
+          const selectedTimelineEventDetails = quizItem.events.find(
             (te) => te.id === selectedTimelineItem?.chosenEventId,
           )
 
@@ -202,7 +202,7 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
                 {!selectedTimelineItem && (
                   <TimelineSelect
                     id={`select-${timelineItem.id}`}
-                    options={quizItem.timelineItemEvents.map((tie) => {
+                    options={quizItem.events.map((tie) => {
                       return { label: tie.name, value: tie.id }
                     })}
                     onChange={(event) => {

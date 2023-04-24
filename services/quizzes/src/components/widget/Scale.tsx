@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
+import { UserItemAnswerScale } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemScale } from "../../../types/quizTypes/publicSpec"
 import { primaryFont } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -8,7 +10,7 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Scale: React.FC<QuizItemComponentProps> = ({
+const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>> = ({
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,

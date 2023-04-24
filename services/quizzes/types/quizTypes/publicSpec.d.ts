@@ -56,6 +56,7 @@ export interface PublicSpecQuizItemScale {
   minValue: number | null
   maxLabel: string | null
   minLabel: string | null
+  optionAnswers: string[] | null
   title: string
   body: string
 }

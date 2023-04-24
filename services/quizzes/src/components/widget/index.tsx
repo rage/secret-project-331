@@ -53,19 +53,19 @@ export interface WidgetReducerState {
   quiz_answer_is_valid: boolean
 }
 
-type QuizItemAnswerWithoutId = Omit<UserItemAnswer, "quiz_item_id">
+type QuizItemAnswerWithoutId<T extends UserItemAnswer> = Omit<T, "quiz_item_id">
 
 type Action = {
   quiz_item_answer: UserItemAnswer
   type: "set-answer-state"
 }
 
-export interface QuizItemComponentProps {
+export interface QuizItemComponentProps<T extends PublicSpecQuizItem, K extends UserItemAnswer> {
   quizDirection: FlexDirection
-  quizItem: PublicSpecQuizItem
-  quizItemAnswerState: UserItemAnswer | null
+  quizItem: T
+  quizItemAnswerState: K | null
   user_information: UserInformation
-  setQuizItemAnswerState: (newQuizItemAnswer: QuizItemAnswerWithoutId) => void
+  setQuizItemAnswerState: (newQuizItemAnswer: K) => void
 }
 
 function reducer(state: WidgetReducerState, action: Action): WidgetReducerState {

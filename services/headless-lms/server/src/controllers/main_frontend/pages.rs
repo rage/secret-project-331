@@ -1,10 +1,11 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
-use std::sync::Arc;
+use std::{path::PathBuf, str::FromStr, sync::Arc};
 
+use futures::StreamExt;
 use models::{
     page_history::PageHistory,
-    pages::{HistoryRestoreData, NewPage, Page, PageInfo},
+    pages::{HistoryRestoreData, NewPage, Page, PageAudioFiles, PageInfo},
 };
 
 use crate::{
@@ -196,77 +197,77 @@ BINARY_DATA
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_page_audio(
     request: HttpRequest,
-    payload: Multipart,
+    mut payload: Multipart,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<Page>> {
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_page(&mut conn, *page_id).await?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::Course(chapter.course_id),
-    )
-    .await?;
+    if let Some(course_id) = page.course_id {
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    // get mime format
-    /*     let next_payload = payload.next().await.ok_or_else(|| {
-           ControllerError::new(
-               ControllerErrorType::BadRequest,
-               "Missing form data".into(),
-               None,
-           )
-       })?;
-    */
-    let mime_type = match payload {
-        Ok(field) => {
-            let mime_type = field
-                .content_type()
-                .map(|ct| ct.to_string())
-                .unwrap_or("".to_string())
-                .as_str();
-            match mime_type {
-                "audio/mpeg" | "audio/ogg" => mime_type,
-                unsupported => {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::BadRequest,
-                        format!("Unsupported audio Mime type: {}", unsupported),
-                        None,
-                    ))
+        let next_payload = payload.next().await.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Didn't upload any files".into(),
+                None,
+            )
+        })?;
+
+        let mime_type = match next_payload {
+            Ok(field) => {
+                let mime_type = field
+                    .content_type()
+                    .map(|ct| ct.to_string())
+                    .unwrap_or("".to_string());
+                match mime_type.as_str() {
+                    "audio/mpeg" | "audio/ogg" => mime_type,
+                    unsupported => {
+                        return Err(ControllerError::new(
+                            ControllerErrorType::BadRequest,
+                            format!("Unsupported audio Mime type: {}", unsupported),
+                            None,
+                        ))
+                    }
                 }
             }
-        }
-        Err(err) => Err(ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            err.to_string(),
+            Err(err) => {
+                return Err(ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    err.to_string(),
+                    None,
+                ))
+            }
+        };
+
+        // ----------------------------------------------------------------------------------
+
+        let course = models::courses::get_course(&mut conn, page.id).await?;
+        let media_path = upload_file_from_cms(
+            request.headers(),
+            payload,
+            StoreKind::Course(course.id),
+            file_store.as_ref(),
+            pool,
+            user,
+        )
+        .await?;
+
+        let download_url =
+            file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
+        models::pages::insert_page_audio(&mut conn, page.id, &download_url, &mime_type).await?;
+
+        token.authorized_ok(web::Json(true))
+    } else {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            format!("The page needs to be related to a course."),
             None,
-        )),
-    };
-
-    // ----------------------------------------------------------------------------------
-
-    let course = models::courses::get_course(&mut conn, page.id).await?;
-    let page_audio = upload_file_from_cms(
-        request.headers(),
-        payload,
-        StoreKind::Course(course.id),
-        file_store.as_ref(),
-        pool,
-        user,
-    )
-    .await?
-    .data
-    .to_string_lossy();
-    let updated_page =
-        models::pages::insert_page_audio(&mut conn, page.id, &page_audio, mime_type).await?;
-
-    let response = Page::from_database_page(&updated_page, file_store.as_ref(), app_conf.as_ref());
-
-    token.authorized_ok(web::Json(response))
+        ));
+    }
 }
 
 /**
@@ -289,41 +290,36 @@ async fn remove_page_audio(
     file_store: web::Data<dyn FileStore>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let page = models::pages::get_page(&mut conn, *page_id).await?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::Course(page.course_id)
-            .await
-            .map_err(|original_error| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    original_error.to_string(),
-                    Some(original_error.into()),
-                )
-            })?,
-    )
-    .await?;
-    // let page_audio = get_page_audio(page_audio_id)
-    let page_audio = models::pages::get_page_audio_files_by_id(&mut conn, *page_audio_id).await?;
+    let audio = models::pages::get_page_audio_files_by_id(&mut conn, *page_audio_id).await?;
+    let page = models::pages::get_page(&mut conn, audio.page_id).await?;
+    if let Some(course_id) = page.course_id {
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    let file = PathBuf::from_str(&page_audio.path).map_err(|original_error| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            original_error.to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-    let response = models::pages::delete_page_audio(&mut conn, page.id, None).await?;
-    file_store.delete(&file).await.map_err(|original_error| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            original_error.to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-    token.authorized_ok(web::Json(()))
+        // update the delete function to return PATH
+        let file = PathBuf::from_str(&audio.path).map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+
+        models::pages::delete_page_audio(&mut conn, page.id).await?;
+        file_store.delete(&file).await.map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+        token.authorized_ok(web::Json(()))
+    } else {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            format!("The page needs to be related to a course."),
+            None,
+        ));
+    }
 }
 
 /**
@@ -336,7 +332,7 @@ async fn get_page_audio(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<PageInfo>> {
+) -> ControllerResult<web::Json<Vec<PageAudioFiles>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 

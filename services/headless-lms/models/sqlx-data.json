@@ -3672,6 +3672,16 @@
     },
     "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE exercise_id = $1 AND user_id = $2 AND course_instance_id = $3\n"
   },
+  "3b76005e49fe72742c23e42fc45a788fe7a6adecf0708c785b36f8ae1c2c1c7d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO page_audio_files (\n    page_id,\n    path,\n    mime_type\n  )\nVALUES($1, $2, $3)\n        "
+  },
   "3c54ad6a3cc0b88764f80e64680724a116966367fb28fcb0c85eb1a04c4e8624": {
     "describe": {
       "columns": [
@@ -5590,6 +5600,16 @@
     },
     "query": "\nSELECT opens_at\nFROM chapters\nWHERE id = $1\n"
   },
+  "57cf85a664a73c704aa96182034f62e0782c402306d960bbb516d7a06c813aa5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE page_id = $1\n        "
+  },
   "5866622c871cf13ddcf8be4db233bc7b1773b3fc978f96b6ccee1386e6e3a48e": {
     "describe": {
       "columns": [],
@@ -5625,6 +5645,47 @@
       }
     },
     "query": "\nUPDATE exercise_repositories\nSET status = 'success'\nWHERE id = $1\n"
+  },
+  "5a401f2d5269eb3af203ecf3849da6c3cd45633157e25d56e93f385e8a4538c9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "path",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "mime_type",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_audio_files\nWHERE id = $1\n"
   },
   "5a540e7832d883d03e1aa9e24e816f3dd434cd1f754395d0e23b3a3b587ec75c": {
     "describe": {
@@ -18257,6 +18318,47 @@
       }
     },
     "query": "\nSELECT *\nfrom chapters\nwhere id = $1;"
+  },
+  "e97a962b5116a4da3984d15c924d6fe2f4b2e59fb26a3a0a2da36e7fe1e9ea94": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "path",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "mime_type",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_audio_files\nWHERE page_id = $1;\n"
   },
   "ea1cf40426369528975ef35ee1410e8288388f7d392b0464945dc2add9e2787f": {
     "describe": {

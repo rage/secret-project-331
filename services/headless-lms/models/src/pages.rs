@@ -404,6 +404,7 @@ pub async fn delete_page_audio(conn: &mut PgConnection, page_id: Uuid) -> ModelR
 UPDATE page_audio_files
 SET deleted_at = now()
 WHERE page_id = $1
+RETURNING path
         "#,
         page_id
     )
@@ -433,18 +434,17 @@ WHERE page_id = $1;
 pub async fn get_page_audio_files_by_id(
     conn: &mut PgConnection,
     id: Uuid,
-) -> ModelResult<Vec<PageAudioFiles>> {
+) -> ModelResult<PageAudioFiles> {
     let audio_files = sqlx::query_as!(
         PageAudioFiles,
         "
 SELECT *
 FROM page_audio_files
-WHERE id = $1;
-RETURNING path
+WHERE id = $1
 ",
-        page_id
+        id
     )
-    .fetch_all(conn)
+    .fetch_one(conn)
     .await?;
     Ok(audio_files)
 }

@@ -93,7 +93,7 @@ export interface PublicSpecQuizItemTimeline {
   type: "timeline"
   id: string
   order: number
-  timelineItems: PublicSpecQuizItemTimelineItem[] | null
+  timelineItems: PublicSpecQuizItemTimelineItem[]
   events: PublicTimelineEvent[]
 }
 

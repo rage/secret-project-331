@@ -2,6 +2,8 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { UserItemAnswerCheckbox } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemCheckbox } from "../../../types/quizTypes/publicSpec"
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { baseTheme } from "../../shared-module/styles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -23,12 +25,10 @@ const Option = styled.div<StyledProps>`
   padding: 5px;
 `
 
-const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  user_quiz_item_answer,
-  quiz_item_feedback,
-}) => {
-  const checked = user_quiz_item_answer.intData === 1
+const CheckBoxFeedback: React.FC<
+  QuizItemSubmissionComponentProps<PublicSpecQuizItemCheckbox, UserItemAnswerCheckbox>
+> = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback }) => {
+  const checked = user_quiz_item_answer.checked
 
   return (
     <div>

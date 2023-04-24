@@ -2,6 +2,8 @@ import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/publicSpec"
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -35,12 +37,12 @@ const incorrectAnswer = css`
   border-radius: 5px;
 `
 
-const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  quiz_direction,
-  quiz_item_feedback,
-  user_quiz_item_answer,
-}) => {
+const OpenFeedback: React.FC<
+  QuizItemSubmissionComponentProps<
+    PublicSpecQuizItemClosedEndedQuestion,
+    UserItemAnswerClosedEndedQuestion
+  >
+> = ({ public_quiz_item, quiz_direction, quiz_item_feedback, user_quiz_item_answer }) => {
   const { t } = useTranslation()
   const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
   const fieldId = useId()

@@ -1,6 +1,9 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
+import { ModelSolutionQuizItemChooseN } from "../../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuizItemChooseN } from "../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -8,8 +11,11 @@ import { quizTheme } from "../../styles/QuizStyles"
 import { QuizItemSubmissionComponentProps } from "."
 
 const MultipleChoiceClickableFeedback: React.FC<
-  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+  React.PropsWithChildren<
+    QuizItemSubmissionComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>
+  >
 > = ({ user_quiz_item_answer, public_quiz_item, quiz_item_model_solution }) => {
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemChooseN
   return (
     <div
       className={css`
@@ -34,8 +40,8 @@ const MultipleChoiceClickableFeedback: React.FC<
         `}
       >
         {public_quiz_item.options.map((o) => {
-          const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
-          const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
+          const optionSelected = user_quiz_item_answer.selectedOptionIds?.includes(o.id)
+          const correct = modelSolution?.options.find((mo) => o.id === mo.id)?.correct
 
           const backgroundColor = correct
             ? quizTheme.gradingCorrectItemBackground

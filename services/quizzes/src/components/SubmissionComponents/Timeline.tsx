@@ -5,6 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerTimeline } from "../../../types/quizTypes/answer"
+import { ModelSolutionQuizItemTimeline } from "../../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuizItemTimeline } from "../../../types/quizTypes/publicSpec"
 import { baseTheme, headingFont } from "../../shared-module/styles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -126,9 +129,14 @@ export interface Time {
 }
 
 const Timeline: React.FunctionComponent<
-  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+  React.PropsWithChildren<
+    QuizItemSubmissionComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
+  >
 > = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
   const { t } = useTranslation()
+
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemTimeline
+
   return (
     <TimelineWrapper>
       {public_quiz_item.timelineItems
@@ -138,7 +146,7 @@ const Timeline: React.FunctionComponent<
             (tc) => tc.timelineItemId === timelineItem.id,
           )
 
-          const selectedTimelineEventDetails = public_quiz_item.timelineItemEvents.find(
+          const selectedTimelineEventDetails = public_quiz_item.events.find(
             (te) => te.id === selectedTimelineItem?.chosenEventId,
           )
 
@@ -147,10 +155,10 @@ const Timeline: React.FunctionComponent<
           )
 
           const whatWasChosenWasCorrect = timelinemItemFeedback?.what_was_chosen_was_correct
-          const modelSolutionCorrectEventId = quiz_item_model_solution?.timelineItems?.find(
+          const modelSolutionCorrectEventId = modelSolution?.timelineItems?.find(
             (ti) => ti.id === timelineItem.id,
           )?.correctEventId
-          const modelSolutionCorrectEventName = public_quiz_item.timelineItemEvents.find(
+          const modelSolutionCorrectEventName = public_quiz_item.events.find(
             (te) => te.id === modelSolutionCorrectEventId,
           )?.name
 

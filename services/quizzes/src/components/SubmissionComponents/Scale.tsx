@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
+import { UserItemAnswerScale } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemScale } from "../../../types/quizTypes/publicSpec"
 import { primaryFont } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -8,10 +10,9 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
-const Scale: React.FC<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  user_quiz_item_answer,
-}) => {
+const Scale: React.FC<
+  QuizItemSubmissionComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>
+> = ({ public_quiz_item, user_quiz_item_answer }) => {
   const minValue = public_quiz_item.minValue ?? 1
   const maxValue = public_quiz_item.maxValue ?? 7
   const radioIdentifier = useId()
@@ -78,7 +79,7 @@ const Scale: React.FC<QuizItemSubmissionComponentProps> = ({
                   type="radio"
                   key={value}
                   value={value}
-                  checked={user_quiz_item_answer?.optionAnswers?.includes(value)}
+                  // checked={user_quiz_item_answer?.optionAnswers?.includes(value)}
                   disabled
                 />
               </label>

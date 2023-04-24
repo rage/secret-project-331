@@ -35,6 +35,7 @@ export interface EditCourseModuleFormFields {
   automatic_completion_requires_exam: boolean
   override_completion_link: boolean
   completion_registration_link_override: string
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
@@ -52,6 +53,8 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseMo
     automatic_completion_requires_exam: module.automatic_completion_requires_exam,
     override_completion_link: module.completion_registration_link_override !== null,
     completion_registration_link_override: module.completion_registration_link_override ?? "",
+    enable_registering_completion_to_uh_open_university:
+      module.enable_registering_completion_to_uh_open_university,
   }
 }
 
@@ -91,6 +94,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
       onSubmit={handleSubmit(onSubmitFormWrapper)}
       className={css`
         display: flex;
+        flex-direction: row;
         flex-wrap: wrap;
         background-color: ${theme.primary.bg};
         color: ${theme.primary.text};
@@ -130,14 +134,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
       </div>
       <div
         className={css`
-          display: flex;
-          flex-wrap: wrap;
-          align-items: flex-end;
-          flex-grow: 1;
-          justify-content: space-between;
+          ${active && `width: 100%;`}
         `}
       >
-        {active ? (
+        {active && (
           <div
             className={css`
               margin-left: 1rem;
@@ -152,7 +152,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 flex-direction: column;
                 justify-content: left;
                 column-gap: 1rem;
-                margin-bottom: 2rem;
+                margin-bottom: 1rem;
 
                 ${respondToOrLarger.md} {
                   align-items: flex-end;
@@ -171,6 +171,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   className={css`
                     flex: 1;
                     min-width: 5rem;
+                    margin-bottom: 0;
                   `}
                   id="editing-module-start"
                   label={t("starts")}
@@ -187,6 +188,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   className={css`
                     flex: 1;
                     min-width: 5rem;
+                    margin-bottom: 0;
                   `}
                   id="editing-module-ends"
                   label={t("ends")}
@@ -200,35 +202,8 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   error={errors["ends"]?.message}
                 />
               </div>
-              <TextField
-                className={css`
-                  flex: 1;
-                  min-width: 8rem;
-                `}
-                label={t("course-code")}
-                placeholder={t("course-code")}
-                labelStyle={css`
-                  color: #fff;
-                `}
-                register={register("uh_course_code")}
-                error={errors["name"]?.message}
-              />
-              <TextField
-                className={css`
-                  flex: 1;
-                  min-width: 8rem;
-                `}
-                label={t("ects-credits")}
-                labelStyle={css`
-                  color: #fff;
-                `}
-                placeholder={t("ects-credits")}
-                type="number"
-                register={register("ects_credits", {
-                  valueAsNumber: true,
-                })}
-              />
             </div>
+
             <Checkbox
               label={t("enable-automatic-completion")}
               register={register("automatic_completion")}
@@ -240,15 +215,16 @@ const EditCourseModuleForm: React.FC<Props> = ({
             />
             <div
               className={css`
-                align-items: flex-end;
+                align-items: center;
                 display: flex;
                 column-gap: 1rem;
-                margin-bottom: 2rem;
+                margin-bottom: 1rem;
               `}
             >
               <TextField
                 className={css`
                   flex: 1;
+                  margin-bottom: 0;
                 `}
                 type="number"
                 label={t("automatic-completion-points-treshold")}
@@ -265,6 +241,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               <TextField
                 className={css`
                   flex: 1;
+                  margin-bottom: 0;
                 `}
                 label={t("automatic-completion-exercise-treshold")}
                 labelStyle={css`
@@ -291,6 +268,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
                       disabled: !isChecked,
                     })}
                     className={css`
+                      margin-bottom: 0;
+                      position: relative;
+                      top: 10px;
+
                       label {
                         color: #fff !important;
                       }
@@ -299,30 +280,92 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 </div>
               )}
             </div>
+            <div
+              className={css`
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+              `}
+            >
+              <Checkbox
+                label={t("override-completion-registration-link")}
+                register={register("override_completion_link")}
+                className={css`
+                  label {
+                    color: #fff !important;
+                  }
+                `}
+              />
+              <TextField
+                label={t("completion-registration-link")}
+                placeholder={t("completion-registration-link")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                className={css`
+                  margin-bottom: 0;
+                `}
+                register={register("completion_registration_link_override", {
+                  disabled: !overrideLink,
+                  minLength: 10,
+                })}
+                error={errors["completion_registration_link_override"]?.message}
+              />
+            </div>
             <Checkbox
-              label={t("override-completion-registration-link")}
-              register={register("override_completion_link")}
+              label={t("label-enable-registering-completion-to-uh-open-university")}
+              register={register("enable_registering_completion_to_uh_open_university")}
               className={css`
                 label {
                   color: #fff !important;
                 }
               `}
             />
-            <TextField
-              label={t("completion-registration-link")}
-              placeholder={t("completion-registration-link")}
-              labelStyle={css`
-                color: #fff;
+            <div
+              className={css`
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                justify-content: left;
+                column-gap: 1rem;
+
+                ${respondToOrLarger.md} {
+                  align-items: flex-end;
+                  flex-direction: row;
+                }
               `}
-              register={register("completion_registration_link_override", {
-                disabled: !overrideLink,
-                minLength: 10,
-              })}
-              error={errors["completion_registration_link_override"]?.message}
-            />
+            >
+              <TextField
+                className={css`
+                  flex: 1;
+                  min-width: 8rem;
+                  margin-bottom: 0;
+                `}
+                label={t("uh-course-code")}
+                placeholder={t("uh-course-code")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                register={register("uh_course_code")}
+                error={errors["name"]?.message}
+              />
+              <TextField
+                className={css`
+                  flex: 1;
+                  min-width: 8rem;
+                  margin-bottom: 0;
+                `}
+                label={t("ects-credits")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                placeholder={t("ects-credits")}
+                type="number"
+                register={register("ects_credits", {
+                  valueAsNumber: true,
+                })}
+              />
+            </div>
           </div>
-        ) : (
-          <div></div>
         )}
         <div
           className={css`
@@ -330,6 +373,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
             align-items: flex-end;
           `}
         >
+          <div
+            className={css`
+              flex-grow: 1;
+            `}
+          />
           {active ? (
             <>
               <IconButton

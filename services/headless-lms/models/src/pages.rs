@@ -400,12 +400,12 @@ VALUES($1, $2, $3)
 
 pub async fn delete_page_audio(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<()> {
     sqlx::query!(
-        r"
+        r#"
 UPDATE page_audio_files
 SET deleted_at = now()
 WHERE page_id = $1
-RETURNING path;
-        ",
+RETURNING path
+        "#,
         page_id
     )
     .fetch_one(conn)

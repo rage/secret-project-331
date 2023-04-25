@@ -264,7 +264,7 @@ async fn set_page_audio(
     } else {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            format!("The page needs to be related to a course."),
+            "The page needs to be related to a course.".to_string(),
             None,
         ));
     }
@@ -308,7 +308,7 @@ async fn remove_page_audio(
         file_store.delete(&file).await.map_err(|_| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                format!("Could not delete the file from the file store"),
+                "Could not delete the file from the file store".to_string(),
                 None,
             )
         })?;
@@ -316,7 +316,7 @@ async fn remove_page_audio(
     } else {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            format!("The page needs to be related to a course."),
+            "The page needs to be related to a course.".to_string(),
             None,
         ));
     }

@@ -5,9 +5,9 @@
 pub mod font_loader;
 
 use core::fmt;
-use headless_lms_models::prelude::PgConnection;
+use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
-use headless_lms_utils::prelude::UtilResult;
+use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 use resvg::FitTo;
 use std::time::Instant;
 use usvg::{fontdb, TreeParsing, TreeTextToPath};
@@ -41,7 +41,7 @@ pub async fn generate_certificate_wrapper(
             ..Default::default()
         },
         TextToRender {
-            text: get_current_date_as_localized_string("fi"),
+            text: get_current_date_as_localized_string("fi")?,
             font_size: "30px".to_string(),
             x_pos: "15%".to_string(),
             y_pos: "88.5%".to_string(),
@@ -83,10 +83,23 @@ fn generate_certificate(
         ..Default::default()
     };
 
-    let mut pixmap = tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px()).unwrap();
+    let mut pixmap = tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px())
+        .ok_or_else(|| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not create a pixmap".to_string(),
+                None,
+            )
+        })?;
     println!("Setup time {:?}", start_setup.elapsed());
     let parse_background_svg_start = Instant::now();
-    let mut rtree = usvg::Tree::from_data(background_svg, &opt).unwrap();
+    let mut rtree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse background svg".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
     rtree.convert_text(fontdb);
     println!(
         "Parse background svg time {:?}",
@@ -100,66 +113,126 @@ fn generate_certificate(
         tiny_skia::Transform::default(),
         pixmap.as_mut(),
     )
-    .unwrap();
+    .ok_or_else(|| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not render background svg".to_string(),
+            None,
+        )
+    })?;
 
     println!(
         "Render background time {:?}",
         start_render_background.elapsed()
     );
 
-    let name_svg_data = generate_text_svg(texts, text_generation_options, paper_size);
-    println!("{}", String::from_utf8_lossy(&name_svg_data));
-    let parse_name_svg_start = Instant::now();
-    let mut name_rtree = usvg::Tree::from_data(&name_svg_data, &opt).unwrap();
-    name_rtree.convert_text(fontdb);
-    println!("Parse name svg time {:?}", parse_name_svg_start.elapsed());
+    let text_svg_data = generate_text_svg(texts, text_generation_options, paper_size)?;
+    println!("{}", String::from_utf8_lossy(&text_svg_data));
+    let parse_text_svg_start = Instant::now();
+    let mut text_rtree = usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse text svg".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    text_rtree.convert_text(fontdb);
+    println!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
 
-    let render_name_start = Instant::now();
+    let render_text_start = Instant::now();
     resvg::render(
-        &name_rtree,
+        &text_rtree,
         FitTo::Original,
         tiny_skia::Transform::default(),
         pixmap.as_mut(),
     )
-    .unwrap();
-    println!("Render name time {:?}", render_name_start.elapsed());
+    .ok_or_else(|| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not render text svg".to_string(),
+            None,
+        )
+    })?;
+    println!("Render text time {:?}", render_text_start.elapsed());
 
     if let Some(overlay_svg) = overlay_svg {
         let start_render_overlay = Instant::now();
-        let overlay_rtree = usvg::Tree::from_data(overlay_svg, &opt).unwrap();
+        let overlay_rtree = usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not parse overlay svg".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
         resvg::render(
             &overlay_rtree,
             FitTo::Size(paper_size.width_px(), paper_size.height_px()),
             tiny_skia::Transform::default(),
             pixmap.as_mut(),
         )
-        .unwrap();
+        .ok_or_else(|| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not render overlay svg".to_string(),
+                None,
+            )
+        })?;
 
         println!("Overlay time {:?}", start_render_overlay.elapsed());
     }
 
     let save_png_start = Instant::now();
-    let png = pixmap.encode_png().unwrap();
+    let png = pixmap.encode_png().map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could convert pixmap to png".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
     println!("Save png time {:?}", save_png_start.elapsed());
     Ok(png)
 }
 
-fn get_current_date_as_localized_string(locale: &str) -> String {
+fn get_current_date_as_localized_string(locale: &str) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
 
     let dtf = DateTimeFormatter::try_new_unstable(
         &icu_testdata::unstable(),
-        &DataLocale::from(locale.parse::<Locale>().unwrap()),
+        &DataLocale::from(locale.parse::<Locale>().map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not parse locale".to_string(),
+                Some(original_error.into()),
+            )
+        })?),
         options,
     )
-    .expect("Failed to create DateTimeFormatter instance.");
+    .map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Failed to create DateTimeFormatter instance.".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
 
     let date =
-        DateTime::try_new_iso_datetime(2020, 9, 12, 12, 35, 0).expect("Failed to parse date.");
+        DateTime::try_new_iso_datetime(2020, 9, 12, 12, 35, 0).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Failed to parse date.".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
     let date = date.to_any();
 
-    let formatted_date = dtf.format(&date).expect("Formatting failed");
-    formatted_date.to_string()
+    let formatted_date = dtf.format(&date).map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Formatting date failed.".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    Ok(formatted_date.to_string())
 }
 
 #[derive(Default)]
@@ -232,7 +305,7 @@ fn generate_text_svg(
     texts: &[TextToRender],
     options: &TextGenerationOptions,
     paper_size: &PaperSize,
-) -> Vec<u8> {
+) -> UtilResult<Vec<u8>> {
     let mut writer = Writer::new(Cursor::new(Vec::new()));
     writer
         .create_element("svg")
@@ -241,7 +314,7 @@ fn generate_text_svg(
         // .with_attribute(("viewBox", "0 0 297 210"))
         .with_attribute(("xmlns", "http://www.w3.org/2000/svg"))
         .write_inner_content(|writer| {
-            texts.iter().for_each(|text| {
+            for text in texts {
                 writer
                     .create_element("text")
                     .with_attribute(("x", text.x_pos.as_str()))
@@ -256,7 +329,10 @@ fn generate_text_svg(
                     ))
                     .with_attribute(("text-anchor", text.text_anchor.to_string().as_str()))
                     .write_text_content(BytesText::from_escaped(&text.text))
-                    .unwrap();
+                    .map_err(|_original_error| {
+                        // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
+                        quick_xml::Error::UnexpectedToken("Could not write text to svg".to_string())
+                    })?;
 
                 if options.debug_show_anchoring_points {
                     writer
@@ -266,7 +342,12 @@ fn generate_text_svg(
                         .with_attribute(("r", "5"))
                         .with_attribute(("fill", "#da2e2e"))
                         .write_empty()
-                        .unwrap();
+                        .map_err(|_original_error| {
+                            // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
+                            quick_xml::Error::UnexpectedToken(
+                                "Could not write debug point to svg".to_string(),
+                            )
+                        })?;
                     writer
                         .create_element("circle")
                         .with_attribute(("cx", text.x_pos.as_str()))
@@ -274,12 +355,23 @@ fn generate_text_svg(
                         .with_attribute(("r", "3"))
                         .with_attribute(("fill", "#ff9b9b"))
                         .write_empty()
-                        .unwrap();
+                        .map_err(|_original_error| {
+                            // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
+                            quick_xml::Error::UnexpectedToken(
+                                "Could not write debug point to svg".to_string(),
+                            )
+                        })?;
                 }
-            });
+            }
             Ok(())
         })
-        .unwrap();
+        .map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not write text svg".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
 
-    writer.into_inner().into_inner()
+    Ok(writer.into_inner().into_inner())
 }

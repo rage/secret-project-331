@@ -1460,6 +1460,7 @@ dependencies = [
 name = "headless-lms-certificates"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "headless-lms-models",
  "headless-lms-utils",
  "icu",
@@ -1801,10 +1802,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c200640729e9f7cf6a7a1140dbf797121b70e8f2d1f347090aff8394f7e8f863"
 dependencies = [
  "icu_calendar",
+ "icu_casemapping",
  "icu_collator",
  "icu_collections",
  "icu_datetime",
  "icu_decimal",
+ "icu_displaynames",
  "icu_list",
  "icu_locid",
  "icu_locid_transform",
@@ -1812,6 +1815,7 @@ dependencies = [
  "icu_plurals",
  "icu_properties",
  "icu_provider",
+ "icu_relativetime",
  "icu_segmenter",
  "icu_timezone",
 ]
@@ -1827,6 +1831,20 @@ dependencies = [
  "icu_provider",
  "tinystr",
  "writeable",
+ "zerovec",
+]
+
+[[package]]
+name = "icu_casemapping"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44be22dcbc418f34dbf0fc444a538fdeac5bd52c8688ad6f328603a90af9c2e0"
+dependencies = [
+ "displaydoc",
+ "icu_collections",
+ "icu_locid",
+ "icu_provider",
+ "yoke",
  "zerovec",
 ]
 
@@ -1892,6 +1910,19 @@ dependencies = [
  "icu_locid",
  "icu_provider",
  "writeable",
+]
+
+[[package]]
+name = "icu_displaynames"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a689e3da02298e6681cda6d02e30bb449f46e941664e5f372a64c15bf934369"
+dependencies = [
+ "icu_collections",
+ "icu_locid",
+ "icu_provider",
+ "tinystr",
+ "zerovec",
 ]
 
 [[package]]
@@ -2013,6 +2044,21 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "icu_relativetime"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28810733e575bda56b7b20581b202908138125904ed87fd5c3db242a79232471"
+dependencies = [
+ "displaydoc",
+ "fixed_decimal",
+ "icu_decimal",
+ "icu_plurals",
+ "icu_provider",
+ "writeable",
+ "zerovec",
 ]
 
 [[package]]

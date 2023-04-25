@@ -291,7 +291,7 @@ struct GradingData {
 #[cfg(test)]
 mod test {
     use headless_lms_utils::numbers::f32_approx_eq;
-    use mockito::Matcher;
+    use mockito::{Matcher, ServerGuard};
     use models::{
         exercise_services,
         exercise_task_gradings::{ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -372,11 +372,12 @@ mod test {
         )
         .await
         .unwrap();
-
-        let _m = mockito::mock("POST", Matcher::Any)
+        let mut server = mockito::Server::new();
+        let _m = server
+            .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
-        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1)
+        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1, &server)
             .await
             .unwrap();
         let services = HashMap::from([("test-exercise".to_string(), service)]);
@@ -464,11 +465,12 @@ mod test {
         )
         .await
         .unwrap();
-
-        let _m = mockito::mock("POST", Matcher::Any)
+        let mut server = mockito::Server::new();
+        let _m = server
+            .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
-        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1)
+        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1, &server)
             .await
             .unwrap();
         let services = HashMap::from([("test-exercise".to_string(), service)]);
@@ -627,14 +629,15 @@ mod test {
             .exercise_task_submission_results
             .first()
             .unwrap();
-
-        let _m = mockito::mock("POST", Matcher::Any)
+        let mut server = mockito::Server::new();
+        let _m = server
+            .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
-        let service_1 = create_mock_service(tx.as_mut(), "test-exercise-1".to_string(), 1)
+        let service_1 = create_mock_service(tx.as_mut(), "test-exercise-1".to_string(), 1, &server)
             .await
             .unwrap();
-        let service_2 = create_mock_service(tx.as_mut(), "test-exercise-2".to_string(), 0)
+        let service_2 = create_mock_service(tx.as_mut(), "test-exercise-2".to_string(), 0, &server)
             .await
             .unwrap();
         let services = HashMap::from([
@@ -746,8 +749,9 @@ mod test {
         )
         .await
         .unwrap();
-
-        let _m = mockito::mock("POST", Matcher::Any)
+        let mut server = mockito::Server::new();
+        let _m = server
+            .mock("POST", Matcher::Any)
             .with_body(
                 serde_json::to_string(&ExerciseTaskGradingResult {
                     grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -760,7 +764,7 @@ mod test {
                 .unwrap(),
             )
             .create();
-        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1)
+        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1, &server)
             .await
             .unwrap();
         let services = HashMap::from([("test-exercise".to_string(), service)]);
@@ -940,6 +944,7 @@ mod test {
         conn: &mut PgConnection,
         service_slug: String,
         max_reprocessing_submissions_at_once: i32,
+        server: &ServerGuard,
     ) -> ModelResult<(ExerciseService, ExerciseServiceInfo)> {
         let exercise_service = models::exercise_services::insert_exercise_service(
             conn,
@@ -947,7 +952,7 @@ mod test {
                 name: "".to_string(),
                 slug: service_slug,
                 public_url: "".to_string(),
-                internal_url: Some(mockito::server_url()),
+                internal_url: Some(server.url()),
                 max_reprocessing_submissions_at_once,
             },
         )

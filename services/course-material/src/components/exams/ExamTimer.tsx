@@ -90,7 +90,7 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
                   text-transform: lowercase;
                 `}
               >
-                {{ marks: maxScore }} marks
+                {maxScore} marks
               </div>
             </Trans>
           </div>

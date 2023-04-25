@@ -13,7 +13,7 @@ use crate::{
         self, course_chapters, get_chapter, get_chapter_by_page_id, Chapter, DatabaseChapter,
     },
     course_instances::{self, CourseInstance},
-    courses::{get_nondeleted_course_id_by_slug, Course},
+    courses::{Course, CourseContextData},
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
@@ -630,10 +630,10 @@ WHERE pages.course_id = $1
 pub async fn get_page_with_user_data_by_path(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    course_slug: &str,
+    course_data: &CourseContextData,
     url_path: &str,
+    can_view_not_open_chapters: bool,
 ) -> ModelResult<CoursePageWithUserData> {
-    let course_data = get_nondeleted_course_id_by_slug(conn, course_slug).await?;
     let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
 
     if let Some(page) = page_option {
@@ -643,6 +643,7 @@ pub async fn get_page_with_user_data_by_path(
             page,
             false,
             course_data.is_test_mode,
+            can_view_not_open_chapters,
         )
         .await;
     } else {
@@ -655,6 +656,7 @@ pub async fn get_page_with_user_data_by_path(
                 redirected_page,
                 true,
                 course_data.is_test_mode,
+                can_view_not_open_chapters,
             )
             .await;
         }
@@ -709,12 +711,13 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     page: Page,
     was_redirected: bool,
     is_test_mode: bool,
+    can_view_not_open_chapters: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
-        if !crate::chapters::is_open(conn, chapter_id).await? {
+        if !can_view_not_open_chapters && !crate::chapters::is_open(conn, chapter_id).await? {
             return Err(ModelError::new(
                 ModelErrorType::PreconditionFailed,
-                "Chapter is not open yet".to_string(),
+                "Chapter is not open yet.".to_string(),
                 None,
             ));
         }
@@ -3026,10 +3029,15 @@ pub async fn reorder_chapters(
                 let pages = get_chapter_pages(&mut tx, chapter.id).await?;
 
                 for page in pages {
-                    let old_path = &page.url_path;
-                    let new_path = old_path.replacen(
+                    let path_with_temp_random_number = &page.url_path;
+                    let new_path = path_with_temp_random_number.replacen(
                         &randomized_chapter_number.to_string(),
                         &new_chapter_number.to_string(),
+                        1,
+                    );
+                    let old_path = path_with_temp_random_number.replacen(
+                        &randomized_chapter_number.to_string(),
+                        &chapter.chapter_number.to_string(),
                         1,
                     );
                     // update each page path associated with the modified chapter

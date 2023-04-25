@@ -379,7 +379,8 @@ SELECT id,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
 FROM peer_review_configs
-where course_id = $1
+WHERE course_id = $1
+  AND exercise_id IS NULL
   AND deleted_at IS NULL;
 "#,
         course_id
@@ -426,12 +427,23 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     .await?;
 
     // Upsert peer review questions
-    let _peer_review_question_ids =
+    let previous_peer_review_question_ids =
         delete_peer_review_questions_by_peer_review_config_ids(conn, &[peer_review_config.id])
             .await?;
     let peer_review_questions = upsert_multiple_peer_review_questions(
         conn,
-        &peer_review_configuration.peer_review_questions,
+        &peer_review_configuration
+            .peer_review_questions
+            .iter()
+            .map(|prq| {
+                let id = if previous_peer_review_question_ids.contains(&prq.id) {
+                    prq.id
+                } else {
+                    Uuid::new_v4()
+                };
+                CmsPeerReviewQuestion { id, ..prq.clone() }
+            })
+            .collect::<Vec<_>>(),
     )
     .await?;
 

@@ -14,6 +14,7 @@ import ExerciseTask from "./ExerciseTask"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import HightlightBox from "./HighlightBox"
+import Iframe from "./Iframe"
 import InfoBox from "./InfoBox"
 import InstructionBox from "./InstructionBox"
 import LandingPageCopyText from "./LandingPageCopyText"
@@ -49,6 +50,7 @@ export const blockTypeMapForPages = [
   ["moocfi/highlightbox", HightlightBox],
   ["moocfi/instructionbox", InstructionBox],
   ["moocfi/tablebox", TableBox],
+  ["moocfi/iframe", Iframe],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -64,6 +66,7 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/landing-page-copy-text", LandingPageCopyText],
+  ["moocfi/iframe", Iframe],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

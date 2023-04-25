@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test"
+import { Page } from "@playwright/test"
 
 /**
  * Check if path is correct by skipping specific ids. For example `await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")` would expect the path to match the given structure, but it would allow the id to be any uuid.
@@ -9,9 +9,7 @@ const expectUrlPathWithRandomUuid = async (page: Page, path: string): Promise<vo
   // e.g. http://project-331.local
   const urlBeginning = new URL(page.url()).origin
   const items = path.startsWith("/") ? path.split("/").slice(1) : path.split("/")
-  const url = page.url().split("/").slice(3)
   let regexBuffer = `${urlBeginning}/`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  expect(url.length === items.length)
   for (let i = 0; i < items.length; i++) {
     if (items[i] === "[id]") {
       regexBuffer += "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"

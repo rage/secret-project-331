@@ -1,3 +1,5 @@
+use std::pin::Pin;
+
 use crate::prelude::*;
 
 use actix_http::Payload;
@@ -5,8 +7,8 @@ use actix_session::Session;
 use actix_session::SessionExt;
 use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
-use chrono::{DateTime, Utc};
-use futures::future::{err, ok, Ready};
+use chrono::{DateTime, Duration, Utc};
+use futures::Future;
 use headless_lms_models::{self as models, roles::UserRole};
 use models::{roles::Role, CourseOrExamId};
 use serde::{Deserialize, Serialize};
@@ -26,6 +28,7 @@ pub struct AuthUser {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub fetched_from_db_at: Option<DateTime<Utc>>,
     upstream_id: Option<i32>,
 }
 
@@ -46,28 +49,77 @@ impl AuthUser {
 
 impl FromRequest for AuthUser {
     type Error = ControllerError;
-    type Future = Ready<Result<Self, Self::Error>>;
+    type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let session = req.get_session();
-        match session.get::<AuthUser>(SESSION_KEY) {
-            Ok(Some(user)) => ok(user),
-            Ok(None) => err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Unauthorized.".to_string(),
-                None,
-            )),
-            Err(_) => {
-                // session had an invalid value
-                session.remove(SESSION_KEY);
-                err(ControllerError::new(
+        let req = req.clone();
+        Box::pin(async move {
+            let req = req.clone();
+            let session = req.get_session();
+            let pool: Option<&web::Data<PgPool>> = req.app_data();
+            match session.get::<AuthUser>(SESSION_KEY) {
+                Ok(Some(user)) => Ok(verify_auth_user_exists(user, pool, &session).await?),
+                Ok(None) => Err(ControllerError::new(
                     ControllerErrorType::Unauthorized,
                     "Unauthorized.".to_string(),
-                    // Don't want to leak too many details from the error to the user
                     None,
-                ))
+                )),
+                Err(_) => {
+                    // session had an invalid value
+                    session.remove(SESSION_KEY);
+                    Err(ControllerError::new(
+                        ControllerErrorType::Unauthorized,
+                        "Unauthorized.".to_string(),
+                        // Don't want to leak too many details from the error to the user
+                        None,
+                    ))
+                }
             }
+        })
+    }
+}
+
+/**
+ * For making sure the user saved in the session still exists in the database. Check the user's existance when the session is at least 3 hours old, updates the session automatically, and returns an up-to-date AuthUser.
+ */
+async fn verify_auth_user_exists(
+    auth_user: AuthUser,
+    pool: Option<&web::Data<PgPool>>,
+    session: &Session,
+) -> Result<AuthUser, ControllerError> {
+    if let Some(fetched_from_db_at) = auth_user.fetched_from_db_at {
+        let time_now = Utc::now();
+        let time_hour_ago = time_now - Duration::hours(3);
+        if fetched_from_db_at > time_hour_ago {
+            // No need to check for the auth user yet
+            return Ok(auth_user);
         }
+    }
+    if let Some(pool) = pool {
+        info!("Checking whether the user saved in the session still exists in the database.");
+        let mut conn = pool.acquire().await?;
+        let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
+        remember(session, user)?;
+        match session.get::<AuthUser>(SESSION_KEY) {
+            Ok(Some(session_user)) => Ok(session_user),
+            Ok(None) => Err(ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "User did not persist in the session".to_string(),
+                None,
+            )),
+            Err(e) => Err(ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "User did not persist in the session".to_string(),
+                Some(e.into()),
+            )),
+        }
+    } else {
+        warn!("No database pool provided to verify_auth_user_exists");
+        Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "No database pool provided to verify_auth_user_exists".to_string(),
+            None,
+        ))
     }
 }
 
@@ -79,6 +131,7 @@ pub fn remember(session: &Session, user: models::users::User) -> Result<()> {
         updated_at: user.updated_at,
         deleted_at: user.deleted_at,
         upstream_id: user.upstream_id,
+        fetched_from_db_at: Some(Utc::now()),
     };
     session
         .insert(SESSION_KEY, auth_user)
@@ -86,8 +139,15 @@ pub fn remember(session: &Session, user: models::users::User) -> Result<()> {
 }
 
 /// Checks if the user is authenticated in the given session.
-pub fn has_auth_user_session(session: &Session) -> bool {
-    session.entries().get(SESSION_KEY).is_some()
+pub async fn has_auth_user_session(session: &Session, pool: web::Data<PgPool>) -> bool {
+    match session.get::<AuthUser>(SESSION_KEY) {
+        Ok(Some(sesssion_auth_user)) => {
+            verify_auth_user_exists(sesssion_auth_user, Some(&pool), session)
+                .await
+                .is_ok()
+        }
+        _ => false,
+    }
 }
 
 /// Forgets authentication from the current session, if any.
@@ -199,9 +259,7 @@ pub fn skip_authorize() -> Result<AuthorizationToken, ControllerError> {
     Ok(AuthorizationToken(()))
 }
 
-/**  Can be used to check whether user is allowed to view some course material
-
-*/
+/**  Can be used to check whether user is allowed to view some course material */
 pub async fn authorize_access_to_course_material(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
@@ -220,6 +278,19 @@ pub async fn authorize_access_to_course_material(
         skip_authorize()?
     };
     Ok(token)
+}
+
+/**  Can be used to check whether user is allowed to view some course material */
+pub async fn can_user_view_not_open_chapter(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+) -> Result<bool, ControllerError> {
+    if user_id.is_none() {
+        return Ok(false);
+    }
+    let permission = authorize(conn, Act::Edit, user_id, Res::Course(course_id)).await;
+    Ok(permission.is_ok())
 }
 
 /**

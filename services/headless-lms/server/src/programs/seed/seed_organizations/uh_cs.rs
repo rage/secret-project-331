@@ -311,7 +311,7 @@ pub async fn seed_organization_uh_cs(
             }),
             new_course,
             admin_user_id,
-            models_requests::make_spec_fetcher(Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -350,6 +350,18 @@ async fn courses_group_1(
         Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
         "Introduction to everything",
         "introduction-to-everything",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+    let _model_course = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("4dde368a-5e5d-4001-b8aa-13079390f818")?,
+        "Model solutions",
+        "model-solutions",
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,

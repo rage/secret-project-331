@@ -45,6 +45,7 @@ import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
+import { IframeBlock } from "./moocfi/IframeBlock"
 import InfoBox from "./moocfi/InfoBox"
 import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
@@ -137,6 +138,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
+  "moocfi/iframe": IframeBlock,
 }
 
 const highlightedBlockStyles = css`
@@ -252,15 +254,15 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         text-decoration-thickness: 1.6px;
 
         a {
-          color: #4290f2;
+          color: #1072ea;
           &:hover {
-            color: #378cf8;
+            color: #096df1;
           }
           &:active {
-            color: #61adfa;
+            color: #0870d9;
           }
           &:visited {
-            color: #8c60f3;
+            color: #8050f2;
           }
         }
       `}

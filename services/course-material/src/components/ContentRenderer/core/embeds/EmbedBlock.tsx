@@ -6,6 +6,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import { MentimeterEmbedBlock } from "./variants/MentimeterEmbedBlock"
 import { SpotifyEmbedBlock } from "./variants/SpotifyEmbedBlock"
+import { ThingLinkEmbedBlock } from "./variants/ThingLinkEmbedBlock"
 import { TwitterEmbedBlock } from "./variants/TwitterEmbedBlock"
 import { VimeoEmbedBlock } from "./variants/VimeoEmbedBlock"
 import { YoutubeEmbedBlock } from "./variants/YoutubeEmbedBlock"
@@ -23,6 +24,7 @@ const EmbedBlock: React.FC<React.PropsWithChildren<BlockRendererProps<EmbedAttri
       {type === "spotify" && <SpotifyEmbedBlock {...props.data.attributes} />}
       {type === "vimeo" && <VimeoEmbedBlock {...props.data.attributes} />}
       {type === "mentimeter" && <MentimeterEmbedBlock {...props.data.attributes} />}
+      {type === "thinglink" && <ThingLinkEmbedBlock {...props.data.attributes} />}
     </div>
   )
 }

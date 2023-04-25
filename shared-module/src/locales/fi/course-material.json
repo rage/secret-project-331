@@ -72,7 +72,6 @@
   "grade": "Arvosana",
   "grading-failed": "Tehtävän arvostelu epäonnistui",
   "grading-fully-graded": "Tehtävä arvioitu",
-  "grading-not-ready": "Tehtävää ei ole vielä arvosteltu",
   "grading-pending": "Tehtävän arvostelu odottaa",
   "grading-pending-manual": "Tehtävä odottaa manuaalista arviointia",
   "help-text-answer-has-been-reviewed-and-locked": "Vastauksesi on arvioitu ja arvosteltu. Uusia palautuksia ei enää hyväksytä",
@@ -87,6 +86,7 @@
   "label-course-instance": "Kurssiversio",
   "label-exercise": "Tehtävä",
   "language-language": "Kieli: {{language}}",
+  "link-text-open-accessible-view-of-this-content": "Avaa saavutettava näkymä tästä sisällöstä",
   "loading": "Lataa",
   "max-points": "Maksimipisteet",
   "max-score-n-marks": "Maksimi pisteet: <2>{{marks}}</2>",
@@ -159,6 +159,7 @@
   "write-your-feedback-here": "Kirjoita palaute tähän",
   "written-feedback": "Kirjallinen palaute",
   "you-are-not-eligible-for-taking-this-exam": "Et ole täyttänyt esivaatimuksia tämän kokeen suorittamiseen.",
+  "you-have-completed-the-course-to-receive-certificate-use-following-links": "Olet suorittanut kurssin onnistuneesti! Voit käyttää oheisia linkkejä sertifikaatin luomiseen.",
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "Olet suorittanut kurssin onnistuneesti! Voit käyttää oheisia linkkejä opintopisteiden saamiseksi tai sertifikaatin luomiseen.",
   "youve-made-changes": "Olet tehnyt muutoksia",
   "youve-selected-material-for-editing": "Olet valinnut materiaalia muokkaukseen"

@@ -2,27 +2,26 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
-import waitForFunction from "../utils/waitForFunction"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  scrollLocatorsParentIframeToViewIfNeeded,
+} from "../utils/iframeLocators"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
 test("test", async ({ page }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  // Click text=Add course
   await page.click(`button:text("Create")`)
 
-  // Click input[type="text"]
   await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
@@ -33,81 +32,67 @@ test("test", async ({ page }) => {
 
   await page.fill('textarea:below(:text("Description"))', "Course description")
 
-  // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  // Click :nth-match(:text("Manage"), 3)
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg"),
+    await page
+      .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
+      .click(),
   ])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
-  // Click text=Manage pages
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
-    page.click("text=Pages"),
+    page.locator("text=Pages").click(),
   ])
 
-  // Click button:has-text("Add new chapter")
   await page.locator(`button:has-text("New chapter")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of testing")
 
-  // Press ArrowRight
   await page.press("text=Chapter number", "ArrowRight")
 
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of Testing")
 
-  // Click button:has-text("Create chapter")
   await page.click('button:text("Create")')
 
-  // Click :nth-match(button:has-text("New page"), 2)
   await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "Unit testing")
 
-  // Click button:has-text("Create")
   await page.click('button:text("Create")')
 
-  // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "Integration Testing")
 
-  // Click button:has-text("Create")
   await page.click('button:text("Create")')
 
-  // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "System Testing")
 
-  // Click button:has-text("Create")
   await page.click('button:text("Create")')
 
-  // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "Acceptance Testing")
 
-  // Click button:has-text("Create")
   await page.click('button:text("Create")')
 
-  // Click text=System Testing
   await Promise.all([
     page.waitForNavigation(),
     page.click(`button:text("Edit page"):right-of(:text("System Testing"))`),
   ])
   expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
-  // Click text=Type / to choose a block
   await page.click('[aria-label="Add block"]')
   await page.keyboard.type("/paragraph")
   await page.click('button[role="option"]:has-text("Paragraph")')
@@ -115,85 +100,61 @@ test("test", async ({ page }) => {
   await page.keyboard.press("Enter")
   await page.keyboard.type("/exercise")
 
-  // Click :nth-match(:text("Exercise"), 3
   await page.click(`button:text("Exercise")`)
 
-  // Click [placeholder="Exercise name"]
   await page.click('[placeholder="Exercise name"]')
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "What is system testing")
 
-  // Click text=Add slide
-  await page.click("text=Add slide")
+  await page.locator("text=Add slide").click()
 
   // The block needs to be focused for the button to work
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
-  await page.click("text=Slide 1")
+  await page.locator("text=Slide 1").click()
 
-  // Click text=Add task
-  await page.click("text=Add task")
+  await page.locator("text=Add task").click()
 
-  // Click [aria-label="Block: ExerciseTask"] div[role="button"]
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
-  // Click text=Type / to choose a block
-  await page.click("text=Type / to choose a block")
+  await page.locator("text=Type / to choose a block").click()
 
   await page.keyboard.type("Please select the most correct alternative.")
 
-  // Click text=Example Exercise
-  await page.click("text=Example Exercise")
+  await page.locator("text=Example Exercise").click()
 
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
+  await frame.locator("text=New").first().click()
 
-  // Click text=New
-  await frame.click("text=New")
-
-  // Click :nth-match(input, 2)
-  await frame.click(':nth-match([placeholder="Option text"], 1)')
+  await frame.locator(':nth-match([placeholder="Option text"], 1)').first().click()
 
   // Fill :nth-match(input, 2)
-  await frame.fill(
-    ':nth-match([placeholder="Option text"], 1)',
-    "Manually reviewing the final system",
-  )
+  await frame
+    .locator(':nth-match([placeholder="Option text"], 1)')
+    .fill("Manually reviewing the final system")
 
-  // Click text=New
-  await frame.click("text=New")
+  await frame.locator("text=New").first().click()
 
-  // Click :nth-match(input, 4)
-  await frame.click(':nth-match([placeholder="Option text"], 2)')
+  await frame.locator(':nth-match([placeholder="Option text"], 2)').first().click()
 
   // Fill :nth-match(input, 4)
-  await frame.fill(
-    ':nth-match([placeholder="Option text"], 2)',
-    "Automatically testing the whole system",
-  )
+  await frame
+    .locator(':nth-match([placeholder="Option text"], 2)')
+    .fill("Automatically testing the whole system")
 
-  // Click text=New
-  await frame.click("text=New")
+  await frame.locator("text=New").first().click()
 
-  // Click div:nth-child(3) .css-16b3rht
-  await frame.click(':nth-match([placeholder="Option text"], 3)')
+  await frame.locator(':nth-match([placeholder="Option text"], 3)').first().click()
 
   // Fill div:nth-child(3) .css-16b3rht
-  await frame.fill(
-    ':nth-match([placeholder="Option text"], 3)',
-    "Testing one part of the system in isolation",
-  )
+  await frame
+    .locator(':nth-match([placeholder="Option text"], 3)')
+    .fill("Testing one part of the system in isolation")
 
   // Check :nth-match(input[type="checkbox"], 2)
-  await frame.check(':nth-match(input[type="checkbox"], 2)')
+  await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
-  // Click button:text-is("Save")
   await page.click('button:text-is("Save") >> visible=true')
   await page.waitForSelector(`text="Operation successful!"`)
 
@@ -203,44 +164,32 @@ test("test", async ({ page }) => {
 
   await page.goto(`http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing`)
 
-  // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 
-  // Click text=Chapter 1: The Levels of Testing
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1' }*/),
-    page.click("text=The Levels of Testing"),
+    page.locator("text=The Levels of Testing").click(),
   ])
   await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1",
   )
 
-  // Click text=System Testing
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
-    await page.click("text=System Testing"),
+    await page.locator("text=System Testing").first().click(),
   ])
   await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing",
   )
 
-  const frame2 = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
-  if (!frame2) {
-    throw new Error("Could not find frame2")
-  }
-  await (await frame2.frameElement()).scrollIntoViewIfNeeded()
+  const frame2 = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
+  await scrollLocatorsParentIframeToViewIfNeeded(frame2)
 
-  // Click text=Automatically testing the whole system
-  await frame2.click("text=Automatically testing the whole system")
+  await frame2.locator("text=Automatically testing the whole system").first().click()
 
-  // Click #content >> text=Submit
-  await page.click("#content >> text=Submit")
+  await page.locator("#content >> text=Submit").click()
 
   await page.waitForSelector("text=Points:1/1")
 })

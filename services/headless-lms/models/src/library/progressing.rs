@@ -12,7 +12,9 @@ use crate::{
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, exams, open_university_registration_links,
     prelude::*,
-    user_course_settings, user_exercise_states,
+    user_course_settings,
+    user_details::UserDetail,
+    user_exercise_states,
     users::{self, User},
 };
 
@@ -82,6 +84,8 @@ async fn create_automatic_course_module_completion_if_eligible(
         if eligible {
             let course = courses::get_course(conn, course_module.course_id).await?;
             let user = users::get_by_id(conn, user_id).await?;
+            let user_details =
+                crate::user_details::get_user_details_by_user_id(conn, user.id).await?;
             let _completion_id = course_module_completions::insert(
                 conn,
                 PKeyPolicy::Generate,
@@ -94,7 +98,7 @@ async fn create_automatic_course_module_completion_if_eligible(
                     completion_registration_attempt_date: None,
                     completion_language: course.language_code,
                     eligible_for_ects: true,
-                    email: user.email,
+                    email: user_details.email,
                     grade: None,
                     passed: true,
                 },
@@ -128,6 +132,7 @@ async fn user_is_eligible_for_automatic_completion(
             .await?;
             if eligible {
                 if requirements.requires_exam {
+                    info!("To complete this module automatically, the user must pass an exam.");
                     user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
                         .await
                 } else {
@@ -202,8 +207,10 @@ async fn user_has_passed_exam_for_the_course(
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
-            if points >= exam.minimum_points_treshold as f32 {
-                return Ok(true);
+            if let Some(points) = points {
+                if points >= exam.minimum_points_treshold as f32 {
+                    return Ok(true);
+                }
             }
         }
     }
@@ -386,13 +393,13 @@ impl From<CourseModuleCompletion> for UserCourseModuleCompletion {
     }
 }
 
-impl From<User> for UserWithModuleCompletions {
-    fn from(user: User) -> Self {
+impl UserWithModuleCompletions {
+    fn from_user_and_details(user: User, user_details: UserDetail) -> Self {
         Self {
             user_id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: user.email,
+            first_name: user_details.first_name,
+            last_name: user_details.last_name,
+            email: user_details.email,
             completed_modules: vec![],
         }
     }
@@ -403,11 +410,26 @@ pub async fn get_course_instance_completion_summary(
     course_instance: &CourseInstance,
 ) -> ModelResult<CourseInstanceCompletionSummary> {
     let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
+    let users_with_course_module_completions_list =
+        users::get_users_by_course_instance_enrollment(conn, course_instance.id).await?;
+    let user_id_to_details_map = crate::user_details::get_users_details_by_user_id_map(
+        conn,
+        &users_with_course_module_completions_list,
+    )
+    .await?;
     let mut users_with_course_module_completions: HashMap<Uuid, UserWithModuleCompletions> =
-        users::get_users_by_course_instance_enrollment(conn, course_instance.id)
-            .await?
+        users_with_course_module_completions_list
             .into_iter()
-            .map(|u| (u.id, u.into()))
+            .filter_map(|o| {
+                let details = user_id_to_details_map.get(&o.id);
+                details.map(|details| (o, details))
+            })
+            .map(|u| {
+                (
+                    u.0.id,
+                    UserWithModuleCompletions::from_user_and_details(u.0, u.1.clone()),
+                )
+            })
             .collect();
     let completions =
         course_module_completions::get_all_with_registration_information_by_course_instance_id(
@@ -464,6 +486,9 @@ pub async fn add_manual_completions(
     let mut tx = conn.begin().await?;
     for completion in manual_completion_request.new_completions.iter() {
         let completion_receiver = users::get_by_id(&mut tx, completion.user_id).await?;
+        let completion_receiver_user_details =
+            crate::user_details::get_user_details_by_user_id(&mut tx, completion_receiver.id)
+                .await?;
         let module_completed =
             course_module_completions::user_has_completed_course_module_on_instance(
                 &mut tx,
@@ -494,7 +519,7 @@ pub async fn add_manual_completions(
                     completion_registration_attempt_date: None,
                     completion_language: course.language_code.clone(),
                     eligible_for_ects: true,
-                    email: completion_receiver.email,
+                    email: completion_receiver_user_details.email,
                     grade: completion.grade,
                     // Should passed be false if grade == Some(0)?
                     passed: true,
@@ -555,10 +580,11 @@ pub async fn get_manual_completion_result_preview(
     let mut non_enrolled_users = vec![];
     for completion in manual_completion_request.new_completions.iter() {
         let user = users::get_by_id(conn, completion.user_id).await?;
+        let user_details = crate::user_details::get_user_details_by_user_id(conn, user.id).await?;
         let user = ManualCompletionPreviewUser {
             user_id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
+            first_name: user_details.first_name,
+            last_name: user_details.last_name,
             grade: completion.grade,
             passed: true,
         };
@@ -601,6 +627,7 @@ pub struct UserCompletionInformation {
     pub uh_course_code: String,
     pub email: String,
     pub ects_credits: Option<i32>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 pub async fn get_user_completion_information(
@@ -645,6 +672,8 @@ pub async fn get_user_completion_information(
         uh_course_code,
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
+        enable_registering_completion_to_uh_open_university: course_module
+            .enable_registering_completion_to_uh_open_university,
     })
 }
 
@@ -659,6 +688,7 @@ pub struct UserModuleCompletionStatus {
     pub prerequisite_modules_completed: bool,
     pub grade: Option<i32>,
     pub passed: Option<bool>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -694,6 +724,8 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(false, |x| x.prerequisite_modules_completed),
+                enable_registering_completion_to_uh_open_university: module
+                    .enable_registering_completion_to_uh_open_university,
             }
         })
         .collect();
@@ -711,6 +743,13 @@ pub async fn get_completion_registration_link_and_save_attempt(
     user_id: Uuid,
     course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
+    if !course_module.enable_registering_completion_to_uh_open_university {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Completion registration is not enabled for this course module.".to_string(),
+            None,
+        ));
+    }
     let user = users::get_by_id(conn, user_id).await?;
     let course = courses::get_course(conn, course_module.course_id).await?;
     let user_settings =

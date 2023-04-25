@@ -317,7 +317,11 @@ const ExerciseBlock: React.FC<
             ))}
 
           {getCourseMaterialExercise.data.peer_review_config && gradingState && reviewingStage && (
-            <GradingState gradingProgress={gradingState} reviewingStage={reviewingStage} />
+            <GradingState
+              gradingProgress={gradingState}
+              reviewingStage={reviewingStage}
+              peerReviewConfig={getCourseMaterialExercise.data.peer_review_config}
+            />
           )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&

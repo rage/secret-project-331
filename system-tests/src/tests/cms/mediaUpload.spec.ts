@@ -27,20 +27,20 @@ test.describe("Uploading media as admin", async () => {
     },
   )
 
-  test("test", async ({ page, headless }) => {
+  test("test", async ({ page, headless }, testInfo) => {
     await Promise.all([
       page.waitForNavigation(),
-      await page.click("text=University of Helsinki, Department of Computer Science"),
+      await page.locator("text=University of Helsinki, Department of Computer Science").click(),
     ])
     expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
 
     await Promise.all([
       page.waitForNavigation(),
-      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+      page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click(),
     ])
     expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
-    await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
+    await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
 
     await Promise.all([
       page.waitForNavigation(),
@@ -55,7 +55,6 @@ test.describe("Uploading media as admin", async () => {
       .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
       .type(`/image`)
 
-    // Click :nth-match(:text("Image"), 2)
     await page.click('text="Image"')
 
     // Upload file with fileChooser
@@ -67,10 +66,12 @@ test.describe("Uploading media as admin", async () => {
 
     // This is needed so we get another Gutenberg popup "disabled".
     await page.click('img[alt="Add alt"]')
-    await page.click("text=Replace")
+    await page.locator("text=Replace").click()
 
-    // Click image direct link to open the uploaded image
-    const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
+    const [newPage] = await Promise.all([
+      page.waitForEvent("popup"),
+      page.locator("a[href$='.png']").click(),
+    ])
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: [
@@ -80,10 +81,10 @@ test.describe("Uploading media as admin", async () => {
         "page-has-heading-one",
         "region",
       ],
-      page: newPage,
-      snapshotName: "uploadMediaPicture.png",
-      toMatchSnapshotOptions: { threshold: 0.2 },
+      screenshotTarget: newPage,
+      snapshotName: "uploadMediaPicture",
       headless,
+      testInfo,
     })
   })
 })

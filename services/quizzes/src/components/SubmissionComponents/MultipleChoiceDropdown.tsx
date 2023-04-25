@@ -103,7 +103,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
             justify-content: center;
           `}
         >
-          {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map((of) => (
+          {quiz_item_feedback?.quiz_item_option_feedbacks?.map((of) => (
             <p key={of.option_id}>{of.option_feedback}</p>
           ))}
         </div>

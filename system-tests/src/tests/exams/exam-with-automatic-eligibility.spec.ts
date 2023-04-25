@@ -7,18 +7,21 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("Can take exam after enough course points", async ({ headless, page }) => {
+test("Can take exam after enough course points", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/exams/b2168b2f-f721-4771-a35d-ca75ca0937b1")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    page,
+    testInfo,
+    screenshotTarget: page,
     snapshotName: "cant-take-exam-before-meeting-exercise-requirements",
-    waitForThisToBeVisibleAndStable: [
-      "text=Automatic course exam",
-      "text=Submissions are no longer accepted after",
-      "text=You have 1 minutes to complete the exam after starting",
-      "text=You are not eligible for taking this exam.",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Automatic course exam"),
+      page.locator("text=Submissions are no longer accepted after"),
+      page.locator("text=You have 1 minutes to complete the exam after starting"),
+      page.locator(
+        "text=The exam is not open yet. Use this button to access the exam once the exam starts.",
+      ),
     ],
   })
 
@@ -40,12 +43,13 @@ test("Can take exam after enough course points", async ({ headless, page }) => {
 
   await expectScreenshotsToMatchSnapshots({
     headless,
-    page,
+    testInfo,
+    screenshotTarget: page,
     snapshotName: "can-take-exam-after-meeting-exercise-requirements",
-    waitForThisToBeVisibleAndStable: [
-      "text=Automatic course exam",
-      "text=Submissions are no longer accepted after",
-      "text=You have 1 minutes to complete the exam after starting",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Automatic course exam"),
+      page.locator("text=Submissions are no longer accepted after"),
+      page.locator("text=You have 1 minutes to complete the exam after starting"),
     ],
   })
 

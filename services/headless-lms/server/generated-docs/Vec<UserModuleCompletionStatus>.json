@@ -7,7 +7,8 @@
     "order_number": 0,
     "prerequisite_modules_completed": false,
     "grade": 4,
-    "passed": true
+    "passed": true,
+    "enable_registering_completion_to_uh_open_university": true
   },
   {
     "completed": true,
@@ -17,6 +18,7 @@
     "order_number": 1,
     "prerequisite_modules_completed": false,
     "grade": 4,
-    "passed": true
+    "passed": true,
+    "enable_registering_completion_to_uh_open_university": false
   }
 ]

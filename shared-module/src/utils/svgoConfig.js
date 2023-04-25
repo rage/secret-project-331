@@ -5,14 +5,17 @@ const config = {
       name: "preset-default",
       params: {
         overrides: {
-          prefixIds: {
-            prefixIds: true,
-            prefixClassNames: false,
-          },
-          cleanupIDs: {
+          cleanupIds: {
             minify: false,
           },
         },
+      },
+    },
+    {
+      name: "prefixIds",
+      params: {
+        prefixIds: true,
+        prefixClassNames: false,
       },
     },
   ],

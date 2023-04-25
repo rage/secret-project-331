@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-frontend
+spec:
+  template:
+    spec:
+      containers:
+        - name: main-frontend
+          env:
+            - name: PUBLIC_ADDRESS
+              value: "http://project-331.local"

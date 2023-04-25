@@ -124,6 +124,7 @@ use headless_lms_models::{
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
     },
+    user_details::UserDetail,
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -131,6 +132,8 @@ use std::{collections::HashMap, fs};
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
+
+use crate::controllers::course_material::exercises::CourseMaterialPeerReviewDataWithToken;
 
 // Helper function to avoid typing out Example::example()
 fn ex<T: Example>() -> T {
@@ -314,6 +317,10 @@ fn controllers() {
             user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
         }
     );
+    doc!(CourseMaterialPeerReviewDataWithToken {
+        course_material_peer_review_data,
+        token: Some("eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs".to_string())
+    });
 }
 
 fn models() {
@@ -583,6 +590,7 @@ fn models() {
         completion_policy: CompletionPolicy::Manual,
         ects_credits: None,
         completion_registration_link_override: None,
+        enable_registering_completion_to_uh_open_university: false,
     });
     example!(UserCourseModuleCompletion {
         course_module_id,
@@ -871,6 +879,7 @@ fn models() {
         exercise_slide_submission_id,
         peer_review_config_id,
         peer_review_question_answers,
+        token: "eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs".to_string()
     });
     doc!(
         T,
@@ -1126,13 +1135,19 @@ fn models() {
     });
     doc!(User {
         id,
-        first_name: Some("User".to_string()),
-        last_name: Some("Example".to_string()),
         created_at,
         updated_at,
         deleted_at: None,
         upstream_id: None,
-        email: "email@example.com".to_string(),
+        email_domain: Some("example.com".to_string()),
+    });
+    doc!(UserDetail {
+        user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),
+        created_at,
+        updated_at,
+        email: "example@example.com".to_string(),
+        first_name: Some("Example".to_string()),
+        last_name: Some("User".to_string()),
     });
     doc!(CourseCount { count: 1234 });
     doc!(
@@ -1216,6 +1231,7 @@ fn models() {
         email: "student@example.com".to_string(),
         uh_course_code: "ABC123".to_string(),
         ects_credits: Some(5),
+        enable_registering_completion_to_uh_open_university: true,
     });
     doc!(
         Vec<UserModuleCompletionStatus>,
@@ -1229,6 +1245,7 @@ fn models() {
                 passed: Some(true),
                 grade: Some(4),
                 prerequisite_modules_completed: false,
+                enable_registering_completion_to_uh_open_university: true,
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1239,6 +1256,7 @@ fn models() {
                 passed: Some(true),
                 grade: Some(4),
                 prerequisite_modules_completed: false,
+                enable_registering_completion_to_uh_open_university: false,
             }
         ]
     );

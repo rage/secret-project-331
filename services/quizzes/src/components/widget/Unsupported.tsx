@@ -1,12 +1,8 @@
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswer } from "../../../types/quizTypes/answer"
-import { PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
-import { QuizItemComponentProps } from "."
-
-const Unsupported: React.FC<QuizItemComponentProps<PublicSpecQuizItem, UserItemAnswer>> = () => {
+const Unsupported: React.FC = () => {
   const { t } = useTranslation()
   return (
     <div>

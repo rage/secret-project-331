@@ -1,9 +1,32 @@
 import { useReducer } from "react"
 import { v4 } from "uuid"
 
-import { UserAnswer, UserItemAnswer } from "../../../types/quizTypes/answer"
-import { QuizItemType } from "../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
+import {
+  UserAnswer,
+  UserItemAnswer,
+  UserItemAnswerCheckbox,
+  UserItemAnswerChooseN,
+  UserItemAnswerClosedEndedQuestion,
+  UserItemAnswerEssay,
+  UserItemAnswerMatrix,
+  UserItemAnswerMultiplechoice,
+  UserItemAnswerMultiplechoiceDropdown,
+  UserItemAnswerScale,
+  UserItemAnswerTimeline,
+} from "../../../types/quizTypes/answer"
+import {
+  PublicSpecQuiz,
+  PublicSpecQuizItem,
+  PublicSpecQuizItemCheckbox,
+  PublicSpecQuizItemChooseN,
+  PublicSpecQuizItemClosedEndedQuestion,
+  PublicSpecQuizItemEssay,
+  PublicSpecQuizItemMatrix,
+  PublicSpecQuizItemMultiplechoice,
+  PublicSpecQuizItemMultiplechoiceDropdown,
+  PublicSpecQuizItemScale,
+  PublicSpecQuizItemTimeline,
+} from "../../../types/quizTypes/publicSpec"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
@@ -26,25 +49,6 @@ interface WidgetProps {
   publicSpec: PublicSpecQuiz
   user_information: UserInformation
   previousSubmission: UserAnswer | null
-}
-
-const componentsByTypeNames = (typeName: QuizItemType) => {
-  const mapTypeToComponent: {
-    [key: string]: React.ComponentClass<QuizItemComponentProps>
-  } = {
-    essay: Essay,
-    "multiple-choice": MultipleChoice,
-    checkbox: Checkbox,
-    scale: Scale,
-    open: Open,
-    "custom-frontend-accept-data": Unsupported,
-    "multiple-choice-dropdown": MultipleChoiceDropdown,
-    "clickable-multiple-choice": MultipleChoiceClickable,
-    matrix: Matrix,
-    timeline: Timeline,
-  }
-
-  return mapTypeToComponent[typeName]
 }
 
 export interface WidgetReducerState {
@@ -100,64 +104,245 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
     quiz: publicSpec,
+    quiz_answer_is_valid: false,
     quiz_answer: previousSubmission || {
       id: quiz_answer_id,
-      quizId: publicSpec.id,
-      createdAt: Date.now().toString(),
-      updatedAt: Date.now().toString(),
-      // eslint-disable-next-line i18next/no-literal-string
-      status: "open",
-      itemAnswers: publicSpec.items.map((qi) => {
-        return {
-          id: v4(),
-          createdAt: Date.now().toString(),
-          updatedAt: Date.now().toString(),
-          quizItemId: qi.id,
-          quizAnswerId: quiz_answer_id,
-          correct: false,
-          valid: false,
-          intData: null,
-          textData: null,
-          optionAnswers: null,
-          optionCells: null,
-          timelineChoices: null,
-        }
-      }),
+      itemAnswers: [],
     },
-    quiz_answer_is_valid: false,
   }
   const [state, dispatch] = useReducer(reducer, widget_state)
 
   useSendQuizAnswerOnChange(port, state)
 
-  const direction = sanitizeFlexDirection(state.quiz.direction, COLUMN)
+  // set wide screen direction to row if there is multiple-choice item
+  // in quiz items
+  let direction: FlexDirection = COLUMN
+  state.quiz.items.every((item) => {
+    if (item.type == "multiple-choice") {
+      direction = sanitizeFlexDirection(item.direction, COLUMN)
+      return
+    }
+  })
 
   return (
     <FlexWrapper wideScreenDirection={direction}>
       {state.quiz.items
         .sort((i1, i2) => i1.order - i2.order)
-        .map((quizItem) => {
-          const Component = componentsByTypeNames(quizItem.type as QuizItemType)
-          const quizItemAnswerState =
+        .map((quizItem, idx) => {
+          let quizItemAnswerState =
             state.quiz_answer.itemAnswers.find((qia) => qia.quizItemId === quizItem.id) ?? null
-          return (
-            <Component
-              key={quizItem.id}
-              quizDirection={direction}
-              quizItem={quizItem}
-              quizItemAnswerState={quizItemAnswerState}
-              user_information={user_information}
-              setQuizItemAnswerState={(newQuizItemAnswer: QuizItemAnswerWithoutId) => {
-                dispatch({
-                  type: "set-answer-state",
-                  quiz_item_answer: {
-                    ...newQuizItemAnswer,
-                    quizItemId: quizItem.id,
-                  },
-                })
-              }}
-            />
-          )
+          switch (quizItem.type) {
+            case "checkbox":
+              quizItem = quizItem as PublicSpecQuizItemCheckbox
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerCheckbox
+              return (
+                <Checkbox
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerCheckbox>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "choose-n":
+              quizItem = quizItem as PublicSpecQuizItemChooseN
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerChooseN
+              return (
+                <MultipleChoiceClickable
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerChooseN>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "closed-ended-question":
+              quizItem = quizItem as PublicSpecQuizItemClosedEndedQuestion
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerClosedEndedQuestion
+              return (
+                <Open
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerClosedEndedQuestion>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "essay":
+              quizItem = quizItem as PublicSpecQuizItemEssay
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerEssay
+              return (
+                <Essay
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerEssay>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "matrix":
+              quizItem = quizItem as PublicSpecQuizItemMatrix
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerMatrix
+              return (
+                <Matrix
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMatrix>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "multiple-choice":
+              quizItem = quizItem as PublicSpecQuizItemMultiplechoice
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerMultiplechoice
+              return (
+                <MultipleChoice
+                  key={quizItem.id}
+                  quizDirection={sanitizeFlexDirection(quizItem.direction, COLUMN)}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoice>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "multiple-choice-dropdown":
+              quizItem = quizItem as PublicSpecQuizItemMultiplechoiceDropdown
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerMultiplechoiceDropdown
+              return (
+                <MultipleChoiceDropdown
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoiceDropdown>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "scale":
+              quizItem = quizItem as PublicSpecQuizItemScale
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerScale
+              return (
+                <Scale
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerScale>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            case "timeline":
+              quizItem = quizItem as PublicSpecQuizItemTimeline
+              quizItemAnswerState = quizItemAnswerState as UserItemAnswerTimeline
+              return (
+                <Timeline
+                  key={quizItem.id}
+                  quizDirection={COLUMN}
+                  quizItem={quizItem}
+                  quizItemAnswerState={quizItemAnswerState}
+                  user_information={user_information}
+                  setQuizItemAnswerState={(
+                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerTimeline>,
+                  ) => {
+                    dispatch({
+                      type: "set-answer-state",
+                      quiz_item_answer: {
+                        ...newQuizItemAnswer,
+                        quizItemId: quizItem.id,
+                      },
+                    })
+                  }}
+                />
+              )
+            default:
+              break
+          }
+          return <Unsupported key={idx} />
         })}
     </FlexWrapper>
   )

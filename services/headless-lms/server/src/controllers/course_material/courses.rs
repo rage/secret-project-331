@@ -639,7 +639,7 @@ async fn get_all_course_language_versions(
 }
 
 /**
-GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id}
+GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
 #[generated_doc]
 #[instrument(skip(pool))]

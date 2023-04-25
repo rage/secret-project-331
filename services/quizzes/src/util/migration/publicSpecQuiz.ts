@@ -55,6 +55,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         minLabel: quizItem.minLabel ? quizItem.minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
+        optionAnswers: [],
       } satisfies PublicSpecQuizItemScale
     case "checkbox":
       return {

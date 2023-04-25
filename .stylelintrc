@@ -11,7 +11,8 @@
           "/POSTCSS_.*/"
         ]
       }
-    ]
+    ],
+    "selector-anb-no-unmatchable": null
   },
   "overrides": [
     {

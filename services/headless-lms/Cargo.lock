@@ -1460,6 +1460,7 @@ dependencies = [
 name = "headless-lms-certificates"
 version = "0.1.0"
 dependencies = [
+ "headless-lms-models",
  "headless-lms-utils",
  "icu",
  "icu_provider",

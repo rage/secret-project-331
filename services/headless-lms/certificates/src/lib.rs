@@ -5,7 +5,9 @@
 pub mod font_loader;
 
 use core::fmt;
-use headless_lms_utils::prelude::{UtilError, UtilResult};
+use headless_lms_models::prelude::PgConnection;
+use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::prelude::UtilResult;
 use resvg::FitTo;
 use std::time::Instant;
 use usvg::{fontdb, TreeParsing, TreeTextToPath};
@@ -17,57 +19,75 @@ use icu::datetime::{options::length, DateTimeFormatter};
 use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
 
-pub fn generate_certificate_wrapper() {
-    let mut fontdb = fontdb::Database::new();
-    // Not loading system fonts because that would introduce a hidden dependency to them, and I don't want this to break whenever a random system font changes in the base image.
-    for entry in std::fs::read_dir("./src/data/fonts").unwrap() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        println!("Loading font: {:?}", path);
-        if path.is_file() {
-            fontdb.load_font_file(&path).unwrap();
-        }
-    }
-    println!("Loaded {} fonts", fontdb.faces().count());
-    fontdb.faces().for_each(|f| {
-        println!("Font: {:?}", f);
-    });
+pub async fn generate_certificate_wrapper(
+    conn: &mut PgConnection,
+    file_store: &impl FileStore,
+    background_svg: &[u8],
+) -> UtilResult<Vec<u8>> {
+    let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
+    let texts_to_render = vec![
+        TextToRender {
+            text: "Loller 74".to_string(),
+            y_pos: "70%".to_string(),
+            ..Default::default()
+        },
+        TextToRender {
+            text: "https://courses.mooc.fi/certificates/validate/xxxxxxxx-xxxxxxxxxxxxxxx"
+                .to_string(),
+            font_size: "30px".to_string(),
+            x_pos: "80%".to_string(),
+            y_pos: "88.5%".to_string(),
+            text_anchor: TextAnchorValue::End,
+            ..Default::default()
+        },
+        TextToRender {
+            text: get_current_date_as_localized_string("fi"),
+            font_size: "30px".to_string(),
+            x_pos: "15%".to_string(),
+            y_pos: "88.5%".to_string(),
+            text_anchor: TextAnchorValue::Start,
+            text_color: "#c86dc0".to_string(),
+            ..Default::default()
+        },
+    ];
+    let paper_size = PaperSize::HorizontalA4;
+    let text_generation_options = TextGenerationOptions {
+        debug_show_anchoring_points: true,
+    };
+    let res = generate_certificate(
+        background_svg,
+        None,
+        &texts_to_render,
+        &paper_size,
+        &text_generation_options,
+        &fontdb,
+    )?;
+    Ok(res)
 }
 
-pub fn generate_certificate(
+fn generate_certificate(
     background_svg: &[u8],
+    overlay_svg: Option<&[u8]>,
     texts: &[TextToRender],
     paper_size: &PaperSize,
     text_generation_options: &TextGenerationOptions,
+    fontdb: &fontdb::Database,
 ) -> UtilResult<Vec<u8>> {
     let start_setup = Instant::now();
-    let mut opt = usvg::Options::default();
-
-    let mut fontdb = fontdb::Database::new();
-    opt.font_family = "Josefin Sans".to_string();
-    opt.dpi = 600.0;
-    opt.image_rendering = usvg::ImageRendering::OptimizeQuality;
-    opt.shape_rendering = usvg::ShapeRendering::GeometricPrecision;
-    opt.text_rendering = usvg::TextRendering::OptimizeLegibility;
-    // Not loading system fonts because that would introduce a hidden dependency to them, and I don't want this to break whenever a random system font changes in the base image.
-    for entry in std::fs::read_dir("./src/data/fonts").unwrap() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        println!("Loading font: {:?}", path);
-        if path.is_file() {
-            fontdb.load_font_file(&path).unwrap();
-        }
-    }
-    println!("Loaded {} fonts", fontdb.faces().count());
-    fontdb.faces().for_each(|f| {
-        println!("Font: {:?}", f);
-    });
+    let opt = usvg::Options {
+        font_family: "Josefin Sans".to_string(),
+        dpi: 600.0,
+        image_rendering: usvg::ImageRendering::OptimizeQuality,
+        shape_rendering: usvg::ShapeRendering::GeometricPrecision,
+        text_rendering: usvg::TextRendering::OptimizeLegibility,
+        ..Default::default()
+    };
 
     let mut pixmap = tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px()).unwrap();
     println!("Setup time {:?}", start_setup.elapsed());
     let parse_background_svg_start = Instant::now();
     let mut rtree = usvg::Tree::from_data(background_svg, &opt).unwrap();
-    rtree.convert_text(&fontdb);
+    rtree.convert_text(fontdb);
     println!(
         "Parse background svg time {:?}",
         parse_background_svg_start.elapsed()
@@ -87,43 +107,11 @@ pub fn generate_certificate(
         start_render_background.elapsed()
     );
 
-    // let name_svg_data = generate_text_svg(
-    //     vec![
-    //         TextToRender {
-    //             text: "Loller 74".to_string(),
-    //             y_pos: "70%".to_string(),
-    //             ..Default::default()
-    //         },
-    //         TextToRender {
-    //             text: "https://courses.mooc.fi/certificates/validate/xxxxxxxx-xxxxxxxxxxxxxxx"
-    //                 .to_string(),
-    //             font_size: "30px".to_string(),
-    //             x_pos: "80%".to_string(),
-    //             y_pos: "88.5%".to_string(),
-    //             text_anchor: TextAnchorValue::End,
-    //             ..Default::default()
-    //         },
-    //         TextToRender {
-    //             text: get_current_date_as_localized_string("fi"),
-    //             font_size: "30px".to_string(),
-    //             x_pos: "15%".to_string(),
-    //             y_pos: "88.5%".to_string(),
-    //             text_anchor: TextAnchorValue::Start,
-    //             text_color: "#c86dc0".to_string(),
-    //             ..Default::default()
-    //         },
-    //     ],
-    //     TextGenerationOptions {
-    //         debug_show_anchoring_points: true,
-    //         paper_size,
-    //         ..Default::default()
-    //     },
-    // );
-    let name_svg_data = generate_text_svg(texts, text_generation_options);
+    let name_svg_data = generate_text_svg(texts, text_generation_options, paper_size);
     println!("{}", String::from_utf8_lossy(&name_svg_data));
     let parse_name_svg_start = Instant::now();
     let mut name_rtree = usvg::Tree::from_data(&name_svg_data, &opt).unwrap();
-    name_rtree.convert_text(&fontdb);
+    name_rtree.convert_text(fontdb);
     println!("Parse name svg time {:?}", parse_name_svg_start.elapsed());
 
     let render_name_start = Instant::now();
@@ -136,21 +124,21 @@ pub fn generate_certificate(
     .unwrap();
     println!("Render name time {:?}", render_name_start.elapsed());
 
-    // let start_render_overlay = Instant::now();
-    // let overlay_data = include_bytes!("./data/overlay.svg").to_vec();
-    // let overlay_rtree = usvg::Tree::from_data(&overlay_data, &opt).unwrap();
-    // resvg::render(
-    //     &overlay_rtree,
-    //     FitTo::Size(3508, 2480),
-    //     tiny_skia::Transform::default(),
-    //     pixmap.as_mut(),
-    // )
-    // .unwrap();
+    if let Some(overlay_svg) = overlay_svg {
+        let start_render_overlay = Instant::now();
+        let overlay_rtree = usvg::Tree::from_data(overlay_svg, &opt).unwrap();
+        resvg::render(
+            &overlay_rtree,
+            FitTo::Size(paper_size.width_px(), paper_size.height_px()),
+            tiny_skia::Transform::default(),
+            pixmap.as_mut(),
+        )
+        .unwrap();
 
-    // println!("Overlay time {:?}", start_render_overlay.elapsed());
+        println!("Overlay time {:?}", start_render_overlay.elapsed());
+    }
 
     let save_png_start = Instant::now();
-    pixmap.save_png("res2.png").unwrap();
     let png = pixmap.encode_png().unwrap();
     println!("Save png time {:?}", save_png_start.elapsed());
     Ok(png)
@@ -174,9 +162,8 @@ fn get_current_date_as_localized_string(locale: &str) -> String {
     formatted_date.to_string()
 }
 
+#[derive(Default)]
 pub struct TextGenerationOptions {
-    /// Size of the whole svg -- not just the text.
-    pub paper_size: PaperSize,
     pub debug_show_anchoring_points: bool,
 }
 
@@ -227,15 +214,6 @@ impl PaperSize {
     }
 }
 
-impl Default for TextGenerationOptions {
-    fn default() -> Self {
-        Self {
-            paper_size: PaperSize::HorizontalA4,
-            debug_show_anchoring_points: false,
-        }
-    }
-}
-
 impl Default for TextToRender {
     fn default() -> Self {
         Self {
@@ -250,18 +228,16 @@ impl Default for TextToRender {
     }
 }
 
-fn generate_text_svg(texts: &[TextToRender], options: &TextGenerationOptions) -> Vec<u8> {
+fn generate_text_svg(
+    texts: &[TextToRender],
+    options: &TextGenerationOptions,
+    paper_size: &PaperSize,
+) -> Vec<u8> {
     let mut writer = Writer::new(Cursor::new(Vec::new()));
     writer
         .create_element("svg")
-        .with_attribute((
-            "width",
-            format!("{}px", options.paper_size.width_px()).as_str(),
-        ))
-        .with_attribute((
-            "height",
-            format!("{}px", options.paper_size.height_px()).as_str(),
-        ))
+        .with_attribute(("width", format!("{}px", paper_size.width_px()).as_str()))
+        .with_attribute(("height", format!("{}px", paper_size.height_px()).as_str()))
         // .with_attribute(("viewBox", "0 0 297 210"))
         .with_attribute(("xmlns", "http://www.w3.org/2000/svg"))
         .write_inner_content(|writer| {

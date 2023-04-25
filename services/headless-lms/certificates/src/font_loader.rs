@@ -1,35 +1,53 @@
 //! Provides a font database singleton and functions for loading fonts to the font database.
 
-use headless_lms_utils::{
-    file_store::file_utils::FileContentFetcherWithFilesystemCache, prelude::UtilResult,
-};
+use std::path::Path;
+
+use headless_lms_models::prelude::PgConnection;
+use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::prelude::*;
+use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
+use tracing::info;
+use tracing::log::warn;
 use usvg::fontdb;
 
+/// Creates an empty [fontdb::Database] and loads all the fonts specified in the database table `certificate_fonts` into it. Note that the font database will not contain any system fonts to prevent us from creating any accidential hidden dependencies on the system fonts.
 pub async fn get_font_database_with_fonts(
-    url_loader: &FileContentFetcherWithFilesystemCache,
-    font_urls: &[String],
+    conn: &mut PgConnection,
+    file_store: &impl FileStore,
 ) -> UtilResult<fontdb::Database> {
-    let mut db = fontdb::Database::new();
-    for url_string in font_urls {
-        match get_font_data(url_loader, url_string).await {
+    let mut fontdb = fontdb::Database::new();
+    let certificate_fonts = headless_lms_models::certificate_fonts::get_all(&mut *conn)
+        .await
+        .map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not get a list of fonts".into(),
+                Some(original_error.into()),
+            )
+        })?;
+    for certificate_font in certificate_fonts {
+        match get_font_data(&certificate_font.file_path, file_store).await {
             Ok(font_data) => {
-                db.load_font_data(font_data);
+                fontdb.load_font_data(font_data);
             }
             Err(e) => {
                 warn!("Could not load font: {}", e);
             }
         }
     }
-    Ok(db)
+
+    info!("Loaded {} fonts", fontdb.faces().count());
+    fontdb.faces().for_each(|f| {
+        info!("Font: {:?}", f);
+    });
+
+    Ok(fontdb)
 }
 
-async fn get_font_data(
-    url_loader: &FileContentFetcherWithFilesystemCache,
-    font_url: &str,
-) -> UtilResult<Vec<u8>> {
-    let parsed = url::Url::parse(font_url)?;
-    let font_data = url_loader
-        .fetch_file_content_or_use_filesystem_cache(&parsed)
+async fn get_font_data(font_path: &str, file_store: &impl FileStore) -> UtilResult<Vec<u8>> {
+    let path = Path::new(font_path);
+    let font_data = file_store
+        .fetch_file_content_or_use_filesystem_cache(path)
         .await?;
     Ok(font_data)
 }

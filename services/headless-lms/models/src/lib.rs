@@ -3,6 +3,7 @@ Functions and structs for interacting with the database.
 
 Each submodule corresponds to a database table.
 */
+pub mod certificate_fonts;
 pub mod chapters;
 pub mod course_background_question_answers;
 pub mod course_background_questions;

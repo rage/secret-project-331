@@ -3,19 +3,21 @@ use std::path::{Path, PathBuf};
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::{Stream, StreamExt};
+
 use tokio::{
     fs::{self, OpenOptions},
     io::{self, AsyncWriteExt, BufWriter},
 };
 use tokio_util::io::ReaderStream;
 
-use super::{path_to_str, FileStore, GenericPayload};
+use super::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
 use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
     pub base_path: PathBuf,
     pub base_url: String,
+    pub cache_files_path: PathBuf,
 }
 
 impl LocalFileStore {
@@ -32,9 +34,11 @@ impl LocalFileStore {
         } else {
             std::fs::create_dir_all(&base_path)?;
         }
+        let cache_files_path = generate_cache_folder_dir()?;
         Ok(Self {
             base_path,
             base_url,
+            cache_files_path,
         })
     }
 }
@@ -131,6 +135,10 @@ impl FileStore for LocalFileStore {
         let reader = io::BufReader::new(file);
         let stream = ReaderStream::new(reader);
         Ok(Box::new(stream))
+    }
+
+    fn get_cache_files_folder_path(&self) -> UtilResult<&Path> {
+        Ok(&self.cache_files_path)
     }
 }
 

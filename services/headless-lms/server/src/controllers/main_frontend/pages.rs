@@ -296,22 +296,25 @@ async fn remove_page_audio(
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
         // update the delete function to return PATH
-        let file = PathBuf::from_str(&audio.path).map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
+        // let file = PathBuf::from_str(&audio.path).map_err(|original_error| {
+        //     ControllerError::new(
+        //         ControllerErrorType::InternalServerError,
+        //         original_error.to_string(),
+        //         Some(original_error.into()),
+        //     )
+        // })?;
 
-        models::pages::delete_page_audio(&mut conn, page.id).await?;
-        file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
+        let deleted_audio_path = models::pages::delete_page_audio(&mut conn, page.id).await?;
+        file_store
+            .delete(&deleted_audio_path)
+            .await
+            .map_err(|original_error| {
+                ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    format!("Could not delete the file from file store"),
+                    None,
+                )
+            })?;
         token.authorized_ok(web::Json(()))
     } else {
         return Err(ControllerError::new(

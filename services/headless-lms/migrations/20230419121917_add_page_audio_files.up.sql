@@ -7,7 +7,7 @@ CREATE TABLE page_audio_files (
   path VARCHAR(255) NOT NULL,
   mime_type VARCHAR(32) NOT NULL
 );
-COMMENT ON TABLE page_audio_files IS 'Stores data regarding audio files uploaded to any page by users.';
+COMMENT ON TABLE page_audio_files IS 'An audio file can be played on a course material page. This table stores data regarding files uploaded to any page by teachers.';
 COMMENT ON COLUMN page_audio_files.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN page_audio_files.page_id IS 'The page the audio files belong to.';
 COMMENT ON COLUMN page_audio_files.created_at IS 'Timestamp when the record was created.';

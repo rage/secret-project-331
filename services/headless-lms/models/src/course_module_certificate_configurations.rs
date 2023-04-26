@@ -73,8 +73,8 @@ pub struct CourseModuleCertificateConfiguration {
     pub paper_size: PaperSize,
     pub background_svg_path: String,
     pub background_svg_file_upload_id: Uuid,
-    pub overlay_svg_path: String,
-    pub overlay_svg_file_upload_id: Uuid,
+    pub overlay_svg_path: Option<String>,
+    pub overlay_svg_file_upload_id: Option<Uuid>,
 }
 
 pub async fn get_course_module_certificate_configuration_by_course_module_and_course_instance(

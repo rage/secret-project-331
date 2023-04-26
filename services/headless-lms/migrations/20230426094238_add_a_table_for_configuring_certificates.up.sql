@@ -26,8 +26,8 @@ CREATE TABLE course_module_certificate_configurations (
   paper_size certificate_paper_size NOT NULL DEFAULT 'horizontal-a4',
   background_svg_path VARCHAR(255) NOT NULL,
   background_svg_file_upload_id UUID NOT NULL REFERENCES file_uploads(id),
-  overlay_svg_path VARCHAR(255) NOT NULL,
-  overlay_svg_file_upload_id UUID NOT NULL REFERENCES file_uploads(id)
+  overlay_svg_path VARCHAR(255),
+  overlay_svg_file_upload_id UUID REFERENCES file_uploads(id)
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_module_certificate_configurations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -57,5 +57,5 @@ COMMENT ON COLUMN course_module_certificate_configurations.certificate_locale IS
 COMMENT ON COLUMN course_module_certificate_configurations.paper_size IS 'The paper size of the certificate. Available options are horizontal-a4 and vertical-a4.';
 COMMENT ON COLUMN course_module_certificate_configurations.background_svg_path IS 'The path to the background svg file in the file store.';
 COMMENT ON COLUMN course_module_certificate_configurations.background_svg_file_upload_id IS 'The file upload record for the background svg.';
-COMMENT ON COLUMN course_module_certificate_configurations.overlay_svg_path IS 'The path to the overlay svg file in the file store. The overlay svg is rendered on top of the certificate after everything else has been rendered.';
-COMMENT ON COLUMN course_module_certificate_configurations.overlay_svg_file_upload_id IS 'The file upload record for the overlay svg.';
+COMMENT ON COLUMN course_module_certificate_configurations.overlay_svg_path IS 'Optional. The path to the overlay svg file in the file store. The overlay svg is rendered on top of the certificate after everything else has been rendered.';
+COMMENT ON COLUMN course_module_certificate_configurations.overlay_svg_file_upload_id IS 'Optional. The file upload record for the overlay svg.';

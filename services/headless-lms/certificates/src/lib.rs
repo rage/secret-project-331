@@ -5,6 +5,7 @@
 pub mod font_loader;
 
 use chrono::{Datelike, NaiveDate};
+use futures::future::OptionFuture;
 use headless_lms_models::course_module_certificate_configurations::{
     get_course_module_certificate_configuration_by_course_module_and_course_instance,
     CertificateTextAnchor, PaperSize,
@@ -13,6 +14,7 @@ use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 use resvg::FitTo;
+use std::path::Path;
 use std::time::Instant;
 use usvg::{fontdb, TreeParsing, TreeTextToPath};
 use uuid::Uuid;
@@ -35,13 +37,12 @@ Generates a certificate as a png.
 pub async fn generate_certificate_wrapper(
     conn: &mut PgConnection,
     file_store: &impl FileStore,
-    background_svg: &[u8],
     certificate_url_identifier: &str,
     cerificate_owner_name: &str,
     certificate_date: &NaiveDate,
-    debug_show_anchoring_points: bool,
     course_module_id: Uuid,
     course_instance_id: Uuid,
+    debug_show_anchoring_points: bool,
 ) -> UtilResult<Vec<u8>> {
     let config = get_course_module_certificate_configuration_by_course_module_and_course_instance(
         &mut *conn,
@@ -56,6 +57,18 @@ pub async fn generate_certificate_wrapper(
             Some(original_error.into()),
         )
     })?;
+    let background_svg = file_store
+        .fetch_file_content_or_use_filesystem_cache(Path::new(&config.background_svg_path))
+        .await?;
+    let overlay_svg = OptionFuture::from(
+        config
+            .overlay_svg_path
+            .as_ref()
+            .map(|path| file_store.fetch_file_content_or_use_filesystem_cache(Path::new(path))),
+    )
+    .await
+    .transpose()?;
+
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let texts_to_render = vec![
         TextToRender {
@@ -91,8 +104,8 @@ pub async fn generate_certificate_wrapper(
     let paper_size = config.paper_size;
 
     let res = generate_certificate(
-        background_svg,
-        None,
+        &background_svg,
+        overlay_svg.as_deref(),
         &texts_to_render,
         &paper_size,
         debug_show_anchoring_points,

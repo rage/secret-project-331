@@ -26,14 +26,17 @@ pub async fn get_font_database_with_fonts(
             )
         })?;
     for certificate_font in certificate_fonts {
-        match get_font_data(&certificate_font.file_path, file_store).await {
+        match file_store
+            .fetch_file_content_or_use_filesystem_cache(Path::new(&certificate_font.file_path))
+            .await
+        {
             Ok(font_data) => {
                 fontdb.load_font_data(font_data);
             }
             Err(e) => {
                 warn!("Could not load font: {}", e);
             }
-        }
+        };
     }
 
     info!("Loaded {} fonts", fontdb.faces().count());
@@ -42,12 +45,4 @@ pub async fn get_font_database_with_fonts(
     });
 
     Ok(fontdb)
-}
-
-async fn get_font_data(font_path: &str, file_store: &impl FileStore) -> UtilResult<Vec<u8>> {
-    let path = Path::new(font_path);
-    let font_data = file_store
-        .fetch_file_content_or_use_filesystem_cache(path)
-        .await?;
-    Ok(font_data)
 }

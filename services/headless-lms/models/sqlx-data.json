@@ -20033,6 +20033,208 @@
     },
     "query": "\n    INSERT INTO user_course_instance_exercise_service_variables (\n        exercise_service_slug,\n        user_id,\n        course_instance_id,\n        variable_key,\n        variable_value\n      )\n    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (\n        variable_key,\n        user_id,\n        course_instance_id,\n        exercise_service_slug\n      ) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL DO\n    UPDATE\n    SET variable_value = $5;\n    "
   },
+  "fec39a3e64b3e84a8362eb22e8f0d6de965ec924ab15a8078505c54b59dfa3ad": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "certificate_owner_name_y_pos",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_x_pos",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_font_size",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_color",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_anchor: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_validate_url_y_pos",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_x_pos",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_font_size",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_color",
+          "ordinal": 14,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_anchor: _",
+          "ordinal": 15,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_date_y_pos",
+          "ordinal": 16,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_x_pos",
+          "ordinal": 17,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_font_size",
+          "ordinal": 18,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_color",
+          "ordinal": 19,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_anchor: _",
+          "ordinal": 20,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_locale",
+          "ordinal": 21,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "paper_size: _",
+          "ordinal": 22,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["horizontal-a4", "vertical-a4"]
+              },
+              "name": "certificate_paper_size"
+            }
+          }
+        },
+        {
+          "name": "background_svg_path",
+          "ordinal": 23,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "background_svg_file_upload_id",
+          "ordinal": 24,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "overlay_svg_path",
+          "ordinal": 25,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "overlay_svg_file_upload_id",
+          "ordinal": 26,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_instance_id,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\nFROM course_module_certificate_configurations\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\n        "
+  },
   "fefaaa5c5e1de08eb78712713351fe1623b3a9b9a9e416bfd8135c4d571cb4fb": {
     "describe": {
       "columns": [

@@ -4,13 +4,18 @@
 //!
 pub mod font_loader;
 
-use core::fmt;
+use chrono::{Datelike, NaiveDate};
+use headless_lms_models::course_module_certificate_configurations::{
+    get_course_module_certificate_configuration_by_course_module_and_course_instance,
+    CertificateTextAnchor, PaperSize,
+};
 use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 use resvg::FitTo;
 use std::time::Instant;
 use usvg::{fontdb, TreeParsing, TreeTextToPath};
+use uuid::Uuid;
 
 use quick_xml::{events::BytesText, Writer};
 use std::io::Cursor;
@@ -19,47 +24,78 @@ use icu::datetime::{options::length, DateTimeFormatter};
 use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
 
+/**
+Generates a certificate as a png.
+
+## Arguments
+
+- debug_show_anchoring_points: If true, the certificate will have a red dot at the anchoring points. Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
+*/
+#[allow(clippy::too_many_arguments)]
 pub async fn generate_certificate_wrapper(
     conn: &mut PgConnection,
     file_store: &impl FileStore,
     background_svg: &[u8],
+    certificate_url_identifier: &str,
+    cerificate_owner_name: &str,
+    certificate_date: &NaiveDate,
+    debug_show_anchoring_points: bool,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
 ) -> UtilResult<Vec<u8>> {
+    let config = get_course_module_certificate_configuration_by_course_module_and_course_instance(
+        &mut *conn,
+        course_module_id,
+        course_instance_id,
+    )
+    .await
+    .map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Certificate configuration not found".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let texts_to_render = vec![
         TextToRender {
-            text: "Loller 74".to_string(),
-            y_pos: "70%".to_string(),
+            text: cerificate_owner_name.to_string(),
+            y_pos: config.certificate_owner_name_y_pos,
+            x_pos: config.certificate_owner_name_x_pos,
+            font_size: config.certificate_owner_name_font_size,
+            text_anchor: config.certificate_owner_name_text_anchor,
+            text_color: config.certificate_owner_name_text_color,
             ..Default::default()
         },
         TextToRender {
-            text: "https://courses.mooc.fi/certificates/validate/xxxxxxxx-xxxxxxxxxxxxxxx"
-                .to_string(),
-            font_size: "30px".to_string(),
-            x_pos: "80%".to_string(),
-            y_pos: "88.5%".to_string(),
-            text_anchor: TextAnchorValue::End,
+            text: format!(
+                "https://courses.mooc.fi/certificates/validate/{certificate_url_identifier}"
+            ),
+            y_pos: config.certificate_validate_url_y_pos,
+            x_pos: config.certificate_validate_url_x_pos,
+            font_size: config.certificate_validate_url_font_size,
+            text_anchor: config.certificate_validate_url_text_anchor,
+            text_color: config.certificate_validate_url_text_color,
             ..Default::default()
         },
         TextToRender {
-            text: get_current_date_as_localized_string("fi")?,
-            font_size: "30px".to_string(),
-            x_pos: "15%".to_string(),
-            y_pos: "88.5%".to_string(),
-            text_anchor: TextAnchorValue::Start,
-            text_color: "#c86dc0".to_string(),
+            text: get_date_as_localized_string(&config.certificate_locale, certificate_date)?,
+            y_pos: config.certificate_date_y_pos,
+            x_pos: config.certificate_date_x_pos,
+            font_size: config.certificate_date_font_size,
+            text_anchor: config.certificate_date_text_anchor,
+            text_color: config.certificate_date_text_color,
             ..Default::default()
         },
     ];
-    let paper_size = PaperSize::HorizontalA4;
-    let text_generation_options = TextGenerationOptions {
-        debug_show_anchoring_points: true,
-    };
+    let paper_size = config.paper_size;
+
     let res = generate_certificate(
         background_svg,
         None,
         &texts_to_render,
         &paper_size,
-        &text_generation_options,
+        debug_show_anchoring_points,
         &fontdb,
     )?;
     Ok(res)
@@ -70,12 +106,12 @@ fn generate_certificate(
     overlay_svg: Option<&[u8]>,
     texts: &[TextToRender],
     paper_size: &PaperSize,
-    text_generation_options: &TextGenerationOptions,
+    debug_show_anchoring_points: bool,
     fontdb: &fontdb::Database,
 ) -> UtilResult<Vec<u8>> {
     let start_setup = Instant::now();
     let opt = usvg::Options {
-        font_family: "Josefin Sans".to_string(),
+        font_family: "Lato".to_string(),
         dpi: 600.0,
         image_rendering: usvg::ImageRendering::OptimizeQuality,
         shape_rendering: usvg::ShapeRendering::GeometricPrecision,
@@ -126,7 +162,7 @@ fn generate_certificate(
         start_render_background.elapsed()
     );
 
-    let text_svg_data = generate_text_svg(texts, text_generation_options, paper_size)?;
+    let text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)?;
     println!("{}", String::from_utf8_lossy(&text_svg_data));
     let parse_text_svg_start = Instant::now();
     let mut text_rtree = usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
@@ -193,7 +229,7 @@ fn generate_certificate(
     Ok(png)
 }
 
-fn get_current_date_as_localized_string(locale: &str) -> UtilResult<String> {
+fn get_date_as_localized_string(locale: &str, certificate_date: &NaiveDate) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
 
     let dtf = DateTimeFormatter::try_new_unstable(
@@ -215,15 +251,22 @@ fn get_current_date_as_localized_string(locale: &str) -> UtilResult<String> {
         )
     })?;
 
-    let date =
-        DateTime::try_new_iso_datetime(2020, 9, 12, 12, 35, 0).map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Failed to parse date.".to_string(),
-                Some(original_error.into()),
-            )
-        })?;
-    let date = date.to_any();
+    let icu_date = DateTime::try_new_iso_datetime(
+        certificate_date.year(),
+        certificate_date.month() as u8,
+        certificate_date.day() as u8,
+        12,
+        35,
+        0,
+    )
+    .map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Failed to parse date.".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    let date = icu_date.to_any();
 
     let formatted_date = dtf.format(&date).map_err(|original_error| {
         UtilError::new(
@@ -235,11 +278,6 @@ fn get_current_date_as_localized_string(locale: &str) -> UtilResult<String> {
     Ok(formatted_date.to_string())
 }
 
-#[derive(Default)]
-pub struct TextGenerationOptions {
-    pub debug_show_anchoring_points: bool,
-}
-
 pub struct TextToRender {
     pub text: String,
     pub font_family: String,
@@ -248,62 +286,26 @@ pub struct TextToRender {
     pub x_pos: String,
     pub y_pos: String,
     /// How to align the text related to x_pos and y_pos. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor.
-    pub text_anchor: TextAnchorValue,
-}
-
-pub enum TextAnchorValue {
-    Start,
-    Middle,
-    End,
-}
-
-impl fmt::Display for TextAnchorValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TextAnchorValue::Start => f.write_str("start"),
-            TextAnchorValue::Middle => f.write_str("middle"),
-            TextAnchorValue::End => f.write_str("end"),
-        }
-    }
-}
-
-pub enum PaperSize {
-    HorizontalA4,
-    VerticalA4,
-}
-
-impl PaperSize {
-    fn width_px(&self) -> u32 {
-        match self {
-            PaperSize::HorizontalA4 => 3508,
-            PaperSize::VerticalA4 => 248,
-        }
-    }
-    fn height_px(&self) -> u32 {
-        match self {
-            PaperSize::HorizontalA4 => 2480,
-            PaperSize::VerticalA4 => 3508,
-        }
-    }
+    pub text_anchor: CertificateTextAnchor,
 }
 
 impl Default for TextToRender {
     fn default() -> Self {
         Self {
-            font_family: "Josefin Sans".to_string(),
+            font_family: "Lato".to_string(),
             font_size: "150px".to_string(),
             text_color: "black".to_string(),
             x_pos: "50%".to_string(),
             y_pos: "50%".to_string(),
             text: "Example text".to_string(),
-            text_anchor: TextAnchorValue::Middle,
+            text_anchor: CertificateTextAnchor::Middle,
         }
     }
 }
 
 fn generate_text_svg(
     texts: &[TextToRender],
-    options: &TextGenerationOptions,
+    debug_show_anchoring_points: bool,
     paper_size: &PaperSize,
 ) -> UtilResult<Vec<u8>> {
     let mut writer = Writer::new(Cursor::new(Vec::new()));
@@ -334,7 +336,7 @@ fn generate_text_svg(
                         quick_xml::Error::UnexpectedToken("Could not write text to svg".to_string())
                     })?;
 
-                if options.debug_show_anchoring_points {
+                if debug_show_anchoring_points {
                     writer
                         .create_element("circle")
                         .with_attribute(("cx", text.x_pos.as_str()))

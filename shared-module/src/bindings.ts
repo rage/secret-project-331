@@ -1017,6 +1017,15 @@ export interface Page {
   hidden: boolean
 }
 
+export interface PageAudioFile {
+  id: string
+  page_id: string
+  created_at: Date
+  deleted_at: Date | null
+  path: string
+  mime_type: string
+}
+
 export interface PageChapterAndCourseInformation {
   chapter_name: string | null
   chapter_number: number | null

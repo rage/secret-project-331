@@ -5,7 +5,6 @@ import React, { useRef, useState } from "react"
 import Controls from "./Controls"
 import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"
-import { tracks } from "./data/tracks"
 
 export type AudioPlayerProps = React.HTMLAttributes<HTMLDivElement>
 
@@ -15,14 +14,24 @@ export interface Track {
   author?: string
 }
 
-const AudioPlayer: React.FC<
-  React.PropsWithChildren<React.PropsWithChildren<AudioPlayerProps>>
-> = () => {
+const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<AudioPlayerProps>>> = (
+  props,
+) => {
   // states
   const [trackIndex, setTrackIndex] = useState<number>(0)
-  const [currentTrack, setCurrentTrack] = useState<Track>(tracks[trackIndex])
+  const [currentTrack, setCurrentTrack] = useState<Track>({
+    src: props.data.innerBlocks[0].attributes.src,
+    title: "Example",
+  })
   const [timeProgress, setTimeProgress] = useState<number>(0)
   const [duration, setDuration] = useState<number>(0)
+
+  // call end point by page id by useContext
+
+  const tracks = {
+    src: "www.google.com",
+    title: "Example",
+  }
 
   // reference
   const audioRef = useRef()

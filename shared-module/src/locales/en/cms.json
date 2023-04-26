@@ -97,5 +97,8 @@
   "use-course-default-peer-review-config": "Use course default peer review config",
   "use-default-text-for-label": "Use default text for label",
   "welcome-message-for-course": "Welcome message for course...",
-  "width-of-table": "Width of table"
+  "width-of-table": "Width of table",
+  "audio-upload": "Audio upload",
+  "audio-upload-description": "A custom block for uploading audio on a page",
+  "audio-addedd-successfully": "Audio successfully uploaded"
 }

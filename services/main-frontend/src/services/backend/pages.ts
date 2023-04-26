@@ -2,10 +2,16 @@ import {
   HistoryRestoreData,
   NewPage,
   Page,
+  PageAudioFile,
   PageHistory,
   PageInfo,
 } from "../../shared-module/bindings"
-import { isPage, isPageHistory, isPageInfo } from "../../shared-module/bindings.guard"
+import {
+  isPage,
+  isPageAudioFile,
+  isPageHistory,
+  isPageInfo,
+} from "../../shared-module/bindings.guard"
 import { isArray, isNumber, isString, validateResponse } from "../../shared-module/utils/fetching"
 import { validateFile } from "../../shared-module/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
@@ -51,16 +57,21 @@ export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
   return validateResponse(response, isPageInfo)
 }
 
-export const setPageAudio = async (pageId: string, file: File): Promise<Page> => {
+export const postPageAudioFile = async (pageId: string, file: File): Promise<PageAudioFile> => {
   // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["audio"])
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
-  const response = await mainFrontendClient.put(`/pages/${pageId}/audio`, data)
-  return validateResponse(response, isPage)
+  const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data)
+  return validateResponse(response, isPageAudioFile)
 }
 
-export const removePageAudio = async (pageId: string): Promise<void> => {
-  await mainFrontendClient.delete(`pages/${pageId}/audio`)
+export const removePageAudioFile = async (fileId: string): Promise<void> => {
+  await mainFrontendClient.delete(`page_audio/${fileId}`)
+}
+
+export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile> => {
+  const response = await mainFrontendClient.get(`page_audio/${pageId}`)
+  return validateResponse(response, isPageAudioFile)
 }

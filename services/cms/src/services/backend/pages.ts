@@ -1,15 +1,18 @@
 import {
   CmsPageUpdate,
   ContentManagementPage,
+  PageAudioFile,
   PageInfo,
   PageNavigationInformation,
 } from "../../shared-module/bindings"
 import {
   isContentManagementPage,
+  isPageAudioFile,
   isPageInfo,
   isPageNavigationInformation,
 } from "../../shared-module/bindings.guard"
 import { isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
+import { validateFile } from "../../shared-module/utils/files"
 
 import { cmsClient } from "./cmsClient"
 
@@ -38,4 +41,26 @@ export const updateExistingPage = async (
     headers: { "Content-Type": "application/json" },
   })
   return validateResponse(response, isContentManagementPage)
+}
+
+// Audio page endpoints
+
+export const postPageAudioFile = async (pageId: string, file: File): Promise<PageAudioFile> => {
+  // eslint-disable-next-line i18next/no-literal-string
+  console.log("pageId", pageId, "file", file)
+  validateFile(file, ["audio"])
+  const data = new FormData()
+  // eslint-disable-next-line i18next/no-literal-string
+  data.append("file", file, file.name || "unknown")
+  const response = await cmsClient.post(`/page_audio/${pageId}`, data)
+  return validateResponse(response, isPageAudioFile)
+}
+
+export const removePageAudioFile = async (fileId: string): Promise<void> => {
+  await cmsClient.delete(`page_audio/${fileId}`)
+}
+
+export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile> => {
+  const response = await cmsClient.get(`page_audio/${pageId}`)
+  return validateResponse(response, isPageAudioFile)
 }

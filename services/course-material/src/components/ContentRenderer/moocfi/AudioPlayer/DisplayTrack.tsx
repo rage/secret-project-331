@@ -14,8 +14,8 @@ const DisplayTrack = ({ currentTrack, audioRef, setDuration, progressBarRef }: a
     <div>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
-        <source src={currentTrack.src.mp3} type="audio/mp3" />
-        <source src={currentTrack.src.ogg} type="audio/ogg" />
+        <source src={currentTrack.src} type="audio/mp3" />
+        {/* <source src={currentTrack.src.ogg} type="audio/ogg" /> */}
       </audio>
       <div
         className={css`

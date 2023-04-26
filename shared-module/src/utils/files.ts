@@ -71,10 +71,12 @@ export function validateFile(file: File, allowedTypes: string[], maxSize = TEN_M
     throw new Error(
       formatError(
         file,
-        `The audio ile is too big. Your file was ${fileSizeMb}MB while the limit is 10MB.`,
+        `The audio ile is too big. Your file was ${fileSizeMb}MB while the limit is 40MB.`,
       ),
     )
-  } else if (file.size > maxSize) {
+  }
+
+  if (file.size > maxSize) {
     const fileSizeMb = Math.ceil(file.size * 0.000001)
     throw new Error(
       formatError(file, `File is too big. Your file was ${fileSizeMb}MB while the limit is 10MB.`),

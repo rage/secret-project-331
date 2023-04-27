@@ -25,6 +25,7 @@ use std::io::Cursor;
 use icu::datetime::{options::length, DateTimeFormatter};
 use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
+use tracing::log::info;
 
 /**
 Generates a certificate as a png.
@@ -141,7 +142,7 @@ fn generate_certificate_impl(
                 None,
             )
         })?;
-    println!("Setup time {:?}", start_setup.elapsed());
+    info!("Setup time {:?}", start_setup.elapsed());
     let parse_background_svg_start = Instant::now();
     let mut rtree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
         UtilError::new(
@@ -151,7 +152,7 @@ fn generate_certificate_impl(
         )
     })?;
     rtree.convert_text(fontdb);
-    println!(
+    info!(
         "Parse background svg time {:?}",
         parse_background_svg_start.elapsed()
     );
@@ -171,13 +172,13 @@ fn generate_certificate_impl(
         )
     })?;
 
-    println!(
+    info!(
         "Render background time {:?}",
         start_render_background.elapsed()
     );
 
     let text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)?;
-    println!("{}", String::from_utf8_lossy(&text_svg_data));
+    info!("{}", String::from_utf8_lossy(&text_svg_data));
     let parse_text_svg_start = Instant::now();
     let mut text_rtree = usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
         UtilError::new(
@@ -187,7 +188,7 @@ fn generate_certificate_impl(
         )
     })?;
     text_rtree.convert_text(fontdb);
-    println!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
+    info!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
 
     let render_text_start = Instant::now();
     resvg::render(
@@ -203,7 +204,7 @@ fn generate_certificate_impl(
             None,
         )
     })?;
-    println!("Render text time {:?}", render_text_start.elapsed());
+    info!("Render text time {:?}", render_text_start.elapsed());
 
     if let Some(overlay_svg) = overlay_svg {
         let start_render_overlay = Instant::now();
@@ -228,7 +229,7 @@ fn generate_certificate_impl(
             )
         })?;
 
-        println!("Overlay time {:?}", start_render_overlay.elapsed());
+        info!("Overlay time {:?}", start_render_overlay.elapsed());
     }
 
     let save_png_start = Instant::now();
@@ -239,7 +240,7 @@ fn generate_certificate_impl(
             Some(original_error.into()),
         )
     })?;
-    println!("Save png time {:?}", save_png_start.elapsed());
+    info!("Save png time {:?}", save_png_start.elapsed());
     Ok(png)
 }
 

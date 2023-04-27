@@ -82,6 +82,8 @@ export default function useToastMutation<
     },
     onSuccess: (data: TData, variables: TVariables, context) => {
       if (notificationOptions.notify) {
+        // Remove old toasts
+        toast.remove()
         switch (notificationOptions.method) {
           case "PUT":
             displaySuccessNotification(notificationOptions)
@@ -112,7 +114,8 @@ export default function useToastMutation<
     },
     onError: (error: TError, variables: TVariables, context) => {
       if (notificationOptions.notify) {
-        console.log({ error })
+        // Remove old toasts
+        toast.remove()
         let errorMessage = notificationOptions.errorMessage
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!errorMessage && (error as any)?.data?.message) {

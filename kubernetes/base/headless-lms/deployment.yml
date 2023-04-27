@@ -48,6 +48,17 @@ spec:
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /cache
+      volumes:
+        - name: cache-volume
+          emptyDir:
+            sizeLimit: 2000Mi
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms

@@ -525,7 +525,6 @@ RETURNING id,
 }
 
 pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
-    println!("hi!");
     let course = sqlx::query_as!(
         Course,
         "

@@ -4,6 +4,7 @@ pub mod google_cloud_file_store;
 pub mod local_file_store;
 
 use std::{
+    os::unix::prelude::OsStrExt,
     path::{Path, PathBuf},
     pin::Pin,
 };
@@ -11,6 +12,8 @@ use std::{
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::Stream;
+use rand::distributions::DistString;
+
 use uuid::Uuid;
 
 use crate::{prelude::*, ApplicationConfiguration};
@@ -50,6 +53,54 @@ pub trait FileStore {
     }
     /// Delete a file.
     async fn delete(&self, path: &Path) -> UtilResult<()>;
+
+    /// This function returns a path to a folder where downloaded files can be cached.
+    fn get_cache_files_folder_path(&self) -> UtilResult<&Path>;
+
+    async fn fetch_file_content_or_use_filesystem_cache(
+        &self,
+        file_path: &Path,
+    ) -> UtilResult<Vec<u8>> {
+        let cache_folder = self.get_cache_files_folder_path()?;
+        let hash = blake3::hash(file_path.as_os_str().as_bytes());
+        let cached_file_path = cache_folder.join(hash.to_hex().as_str());
+        match tokio::fs::read(&cached_file_path).await {
+            Ok(string) => return Ok(string),
+            Err(_) => {
+                info!(
+                    "File not found in cache, fetching from file store using path: {}",
+                    file_path.to_str().unwrap_or_default()
+                );
+            }
+        }
+
+        let random_filename =
+            rand::distributions::Alphanumeric.sample_string(&mut rand::thread_rng(), 32);
+        let temp_path = cache_folder.join(random_filename.as_str());
+
+        let file_content = self.download(file_path).await?;
+
+        tokio::fs::write(&temp_path, &file_content).await?;
+        tokio::fs::rename(&temp_path, &cached_file_path).await?;
+        Ok(file_content.to_vec())
+    }
+}
+
+fn generate_cache_folder_dir() -> UtilResult<PathBuf> {
+    let cache_files_path =
+        std::env::var("HEADLESS_LMS_CACHE_FILES_PATH").map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "You need to define the HEADLESS_LMS_CACHE_FILES_PATH environment variable."
+                    .to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+    let path = PathBuf::from(cache_files_path).join("headlesss-lms-cached-files");
+    if !path.exists() {
+        std::fs::create_dir_all(&path)?;
+    }
+    Ok(path)
 }
 
 fn path_to_str(path: &Path) -> UtilResult<&str> {

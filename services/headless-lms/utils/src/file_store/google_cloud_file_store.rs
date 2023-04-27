@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::prelude::*;
 use async_trait::async_trait;
@@ -7,13 +7,14 @@ use cloud_storage::Client;
 use futures::{future::try_join, StreamExt};
 use tokio_stream::wrappers::ReceiverStream;
 
-use super::{path_to_str, FileStore, GenericPayload};
+use super::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
 
 const BUFFER_SIZE: usize = 512;
 
 pub struct GoogleCloudFileStore {
     bucket_name: String,
     client: Client,
+    pub cache_files_path: PathBuf,
 }
 
 impl GoogleCloudFileStore {
@@ -21,10 +22,12 @@ impl GoogleCloudFileStore {
     #[instrument]
     pub fn new(bucket_name: String) -> UtilResult<Self> {
         let client = Client::default();
+        let cache_files_path = generate_cache_folder_dir()?;
 
         Ok(Self {
             bucket_name,
             client,
+            cache_files_path,
         })
     }
 }
@@ -119,5 +122,9 @@ impl FileStore for GoogleCloudFileStore {
                     .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
             });
         Ok(Box::new(stream_with_corrected_type))
+    }
+
+    fn get_cache_files_folder_path(&self) -> UtilResult<&Path> {
+        Ok(&self.cache_files_path)
     }
 }

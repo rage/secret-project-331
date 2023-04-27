@@ -19,7 +19,7 @@
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    "editor.defaultFormatter": "ms-vsliveshare.vsliveshare"
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,

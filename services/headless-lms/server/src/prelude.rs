@@ -1,7 +1,9 @@
 //! Re-exports commonly used types for convenient use across the crate.
 //! Intended to be glob-imported like `use crate::prelude::*;`.
 
-pub use crate::controllers::helpers::file_uploading::{upload_file_from_cms, StoreKind};
+pub use crate::controllers::helpers::file_uploading::{
+    upload_field_from_cms, upload_file_from_cms, StoreKind,
+};
 pub use crate::controllers::UploadResult;
 pub use crate::domain::authorization::{
     authorize, parse_secret_key_from_header, skip_authorize, Action as Act, AuthUser,

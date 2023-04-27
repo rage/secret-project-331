@@ -1,12 +1,14 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
 import { Page } from "../../../../../../../shared-module/bindings"
 import DropdownMenu from "../../../../../../../shared-module/components/DropdownMenu"
 import { baseTheme } from "../../../../../../../shared-module/styles"
+
+import PageAudioWidget from "./PageAudioWidget"
 
 export const MOVING_ALLOWED: MovePolicy = "allowed"
 export const MOVING_NOT_ALLOWED: MovePolicy = "not-allowed"
@@ -44,95 +46,108 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
   onDeletePage,
 }) => {
   const { t } = useTranslation()
+  const [showDialog, setShowDialog] = useState<boolean>(false)
 
   const canMoveUp = moving === "allowed" || moving === "only-up"
   const canMoveDown = moving === "allowed" || moving === "only-down"
 
   return (
-    <tr
-      className={css`
-        background-color: ${baseTheme.colors.clear[100]};
-        border: 1px solid ${baseTheme.colors.clear[300]};
-      `}
-      key={page.id}
-    >
-      <td
+    <>
+      {showDialog && (
+        <PageAudioWidget id={page.id} open={showDialog} onClose={() => setShowDialog(false)} />
+      )}
+      <tr
         className={css`
-          padding: 1rem;
+          background-color: ${baseTheme.colors.clear[100]};
+          border: 1px solid ${baseTheme.colors.clear[300]};
         `}
+        key={page.id}
       >
-        {page.title}
-      </td>
-      <td
-        className={css`
-          padding: 1rem;
-        `}
-      >
-        {page.url_path}
-      </td>
-      <td>{page.hidden ? t("yes") : ""}</td>
-      <td
-        className={css`
-          padding: 1rem;
-        `}
-      >
-        <div
+        <td
           className={css`
-            display: flex;
-            justify-content: flex-end;
+            padding: 1rem;
           `}
         >
-          <a href={`/cms/pages/${page.id}`}>
-            <ActionButton>{t("button-text-edit-page")}</ActionButton>
-          </a>
-          <DropdownMenu
-            items={[
-              {
-                label: t("link-history"),
-                // eslint-disable-next-line i18next/no-literal-string
-                href: `/manage/pages/${page.id}/history`,
-              },
-              canMoveUp
-                ? {
-                    label: t("button-text-move-up"),
-                    onClick: () => {
-                      pageOrderDispatch({
-                        // eslint-disable-next-line i18next/no-literal-string
-                        type: "move",
-                        // eslint-disable-next-line i18next/no-literal-string
-                        payload: { pageId: page.id, chapterId: page.chapter_id, direction: "up" },
-                      })
-                    },
-                  }
-                : null,
-              canMoveDown
-                ? {
-                    label: t("button-text-move-down"),
-                    onClick: () => {
-                      pageOrderDispatch({
-                        // eslint-disable-next-line i18next/no-literal-string
-                        type: "move",
-                        payload: {
-                          pageId: page.id,
-                          chapterId: page.chapter_id,
-                          // eslint-disable-next-line i18next/no-literal-string
-                          direction: "down",
-                        },
-                      })
-                    },
-                  }
-                : null,
-              onDeletePage && {
-                label: t("button-text-delete"),
-                onClick: () => {
-                  onDeletePage()
+          {page.title}
+        </td>
+        <td
+          className={css`
+            padding: 1rem;
+          `}
+        >
+          {page.url_path}
+        </td>
+        <td>{page.hidden ? t("yes") : ""}</td>
+        <td
+          className={css`
+            padding: 1rem;
+          `}
+        >
+          <div
+            className={css`
+              display: flex;
+              justify-content: flex-end;
+            `}
+          >
+            <a href={`/cms/pages/${page.id}`}>
+              <ActionButton>{t("button-text-edit-page")}</ActionButton>
+            </a>
+            <DropdownMenu
+              items={[
+                {
+                  label: t("link-history"),
+                  // eslint-disable-next-line i18next/no-literal-string
+                  href: `/manage/pages/${page.id}/history`,
                 },
-              },
-            ]}
-          />
-        </div>
-      </td>
-    </tr>
+                {
+                  label: t("upload-file"),
+                  // eslint-disable-next-line i18next/no-literal-string
+                  onClick: () => {
+                    setShowDialog(true)
+                  },
+                },
+                canMoveUp
+                  ? {
+                      label: t("button-text-move-up"),
+                      onClick: () => {
+                        pageOrderDispatch({
+                          // eslint-disable-next-line i18next/no-literal-string
+                          type: "move",
+                          // eslint-disable-next-line i18next/no-literal-string
+                          payload: { pageId: page.id, chapterId: page.chapter_id, direction: "up" },
+                        })
+                      },
+                    }
+                  : null,
+                canMoveDown
+                  ? {
+                      label: t("button-text-move-down"),
+                      onClick: () => {
+                        pageOrderDispatch({
+                          // eslint-disable-next-line i18next/no-literal-string
+                          type: "move",
+                          payload: {
+                            pageId: page.id,
+                            chapterId: page.chapter_id,
+                            // eslint-disable-next-line i18next/no-literal-string
+                            direction: "down",
+                          },
+                        })
+                      },
+                    }
+                  : null,
+                onDeletePage && {
+                  label: t("button-text-delete"),
+                  onClick: () => {
+                    onDeletePage()
+                  },
+                },
+              ]}
+            />
+          </div>
+        </td>
+      </tr>
+    </>
   )
 }
 

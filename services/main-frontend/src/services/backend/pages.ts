@@ -63,6 +63,7 @@ export const postPageAudioFile = async (pageId: string, file: File): Promise<Pag
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
+  console.log("data", data)
   const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data)
   return validateResponse(response, isPageAudioFile)
 }
@@ -71,7 +72,7 @@ export const removePageAudioFile = async (fileId: string): Promise<void> => {
   await mainFrontendClient.delete(`page_audio/${fileId}`)
 }
 
-export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile> => {
-  const response = await mainFrontendClient.get(`page_audio/${pageId}`)
-  return validateResponse(response, isPageAudioFile)
+export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
+  const response = await mainFrontendClient.get(`page_audio/${pageId}/files`)
+  return validateResponse(response, isArray(isPageAudioFile))
 }

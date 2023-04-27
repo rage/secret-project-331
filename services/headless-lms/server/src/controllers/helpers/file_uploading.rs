@@ -53,7 +53,7 @@ pub enum StoreKind {
 }
 
 /// Processes an upload from CMS.
-pub async fn upload_file_from_cms<'a>(
+pub async fn upload_file_from_cms(
     headers: &HeaderMap,
     mut payload: Multipart,
     store_kind: StoreKind,
@@ -61,8 +61,6 @@ pub async fn upload_file_from_cms<'a>(
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<PathBuf> {
-    let mut conn = pool.acquire().await?;
-    validate_media_headers(headers, &user, &pool).await?;
     let file_payload = payload.next().await.ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -72,15 +70,7 @@ pub async fn upload_file_from_cms<'a>(
     })?;
     match file_payload {
         Ok(field) => {
-            let path: AuthorizedResponse<PathBuf> = match field.content_type().map(|ct| ct.type_())
-            {
-                Some(mime::AUDIO) => generate_audio_path(&field, store_kind, &user, &pool).await?,
-                Some(mime::IMAGE) => generate_image_path(&field, store_kind, &user, &pool).await?,
-                _ => generate_file_path(&field, store_kind, &user, &pool).await?,
-            };
-            upload_file_to_storage(&mut conn, &path.data, field, file_store, Some(&user)).await?;
-            let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-            token.authorized_ok(path.data)
+            upload_field_from_cms(headers, field, store_kind, file_store, pool, user).await
         }
         Err(err) => Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
@@ -88,6 +78,27 @@ pub async fn upload_file_from_cms<'a>(
             None,
         )),
     }
+}
+
+/// Processes an upload from CMS.
+pub async fn upload_field_from_cms(
+    headers: &HeaderMap,
+    field: Field,
+    store_kind: StoreKind,
+    file_store: &dyn FileStore,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<PathBuf> {
+    let mut conn = pool.acquire().await?;
+    validate_media_headers(headers, &user, &pool).await?;
+    let path: AuthorizedResponse<PathBuf> = match field.content_type().map(|ct| ct.type_()) {
+        Some(mime::AUDIO) => generate_audio_path(&field, store_kind, &user, &pool).await?,
+        Some(mime::IMAGE) => generate_image_path(&field, store_kind, &user, &pool).await?,
+        _ => generate_file_path(&field, store_kind, &user, &pool).await?,
+    };
+    upload_file_to_storage(&mut conn, &path.data, field, file_store, Some(&user)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(path.data)
 }
 
 /// Processes an upload for an organization's image.

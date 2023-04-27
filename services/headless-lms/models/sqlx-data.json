@@ -517,6 +517,16 @@
     },
     "query": "DELETE FROM user_details WHERE user_id = $1"
   },
+  "055e64672243c81e7679ea2829bf22812302e147b35cf40077a62ef746a62f7b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO page_audio_files (\n  page_id,\n  path,\n  mime_type\n)\nVALUES($1, $2, $3)\n      "
+  },
   "05fe496775c0bd71fedcd7398bcc1d281087874580d0006704e9c1c65fdc98db": {
     "describe": {
       "columns": [],
@@ -2222,6 +2232,22 @@
     },
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3)\nRETURNING id\n        "
   },
+  "2390eb6815d0e6db79e70f37abb89ee57f3196176eb27a0e0bd94af0111ad9aa": {
+    "describe": {
+      "columns": [
+        {
+          "name": "path",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE page_id = $1\nRETURNING path\n      "
+  },
   "247ce34ced565d6b5ab3632640e747c76e28961d4cddeb6b1c07c2571120b4b3": {
     "describe": {
       "columns": [
@@ -3712,16 +3738,6 @@
       }
     },
     "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE exercise_id = $1 AND user_id = $2 AND course_instance_id = $3\n"
-  },
-  "3b76005e49fe72742c23e42fc45a788fe7a6adecf0708c785b36f8ae1c2c1c7d": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar"]
-      }
-    },
-    "query": "\nINSERT INTO page_audio_files (\n    page_id,\n    path,\n    mime_type\n  )\nVALUES($1, $2, $3)\n        "
   },
   "3c54ad6a3cc0b88764f80e64680724a116966367fb28fcb0c85eb1a04c4e8624": {
     "describe": {
@@ -5819,22 +5835,6 @@
       }
     },
     "query": "\nSELECT *\nFROM exercise_slides\nWHERE exercise_id = ANY($1)\n  AND deleted_at IS NULL;\n        "
-  },
-  "5b0d4ef324521917d5dcfa14542bed2b5e0b0c6a3612abd7e9ffd9f7819615be": {
-    "describe": {
-      "columns": [
-        {
-          "name": "path",
-          "ordinal": 0,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE page_id = $1\nRETURNING path\n        "
   },
   "5bf296199f464130717be2910f6d241261334a31a65e9a6911d6e795d1435d8f": {
     "describe": {

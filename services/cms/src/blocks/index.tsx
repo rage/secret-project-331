@@ -2,7 +2,6 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
-import AudioUpload from "./AudioUpload"
 import ChapterProgress from "./ChapterProgress"
 import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -52,7 +51,6 @@ export const blockTypeMapForPages = [
   ["moocfi/instructionbox", InstructionBox],
   ["moocfi/tablebox", TableBox],
   ["moocfi/iframe", Iframe],
-  ["moocfi/audio-upload", AudioUpload],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

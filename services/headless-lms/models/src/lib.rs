@@ -63,6 +63,7 @@ pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
 pub mod users;
+pub mod page_audio_files;
 
 pub mod error;
 pub mod prelude;

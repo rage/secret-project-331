@@ -1,11 +1,10 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
-use std::{path::PathBuf, str::FromStr, sync::Arc};
+use std::sync::Arc;
 
-use futures::StreamExt;
 use models::{
     page_history::PageHistory,
-    pages::{HistoryRestoreData, NewPage, Page, PageAudioFiles, PageInfo},
+    pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
 use crate::{

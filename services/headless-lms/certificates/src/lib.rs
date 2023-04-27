@@ -34,7 +34,7 @@ Generates a certificate as a png.
 - debug_show_anchoring_points: If true, the certificate will have a red dot at the anchoring points. Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
 */
 #[allow(clippy::too_many_arguments)]
-pub async fn generate_certificate_wrapper(
+pub async fn generate_certificate(
     conn: &mut PgConnection,
     file_store: &impl FileStore,
     certificate_url_identifier: &str,
@@ -82,6 +82,7 @@ pub async fn generate_certificate_wrapper(
         },
         TextToRender {
             text: format!(
+                // TODO: use base url here
                 "https://courses.mooc.fi/certificates/validate/{certificate_url_identifier}"
             ),
             y_pos: config.certificate_validate_url_y_pos,
@@ -103,7 +104,7 @@ pub async fn generate_certificate_wrapper(
     ];
     let paper_size = config.paper_size;
 
-    let res = generate_certificate(
+    let res = generate_certificate_impl(
         &background_svg,
         overlay_svg.as_deref(),
         &texts_to_render,
@@ -114,7 +115,7 @@ pub async fn generate_certificate_wrapper(
     Ok(res)
 }
 
-fn generate_certificate(
+fn generate_certificate_impl(
     background_svg: &[u8],
     overlay_svg: Option<&[u8]>,
     texts: &[TextToRender],
@@ -244,7 +245,7 @@ fn generate_certificate(
 
 fn get_date_as_localized_string(locale: &str, certificate_date: &NaiveDate) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
-
+    // TODO: load locale data using this https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html
     let dtf = DateTimeFormatter::try_new_unstable(
         &icu_testdata::unstable(),
         &DataLocale::from(locale.parse::<Locale>().map_err(|original_error| {

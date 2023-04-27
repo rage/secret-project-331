@@ -327,7 +327,6 @@ fn generate_text_svg(
         .create_element("svg")
         .with_attribute(("width", format!("{}px", paper_size.width_px()).as_str()))
         .with_attribute(("height", format!("{}px", paper_size.height_px()).as_str()))
-        // .with_attribute(("viewBox", "0 0 297 210"))
         .with_attribute(("xmlns", "http://www.w3.org/2000/svg"))
         .write_inner_content(|writer| {
             for text in texts {

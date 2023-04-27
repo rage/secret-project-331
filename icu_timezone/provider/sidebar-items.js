@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["MetazoneId","MetazonePeriodV1","MetazonePeriodV1Marker","TimeZoneBcp47Id"]};

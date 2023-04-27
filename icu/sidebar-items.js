@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["calendar","collator","collections","datetime","decimal","list","locid","locid_transform","normalizer","plurals","properties","segmenter","timezone"]};

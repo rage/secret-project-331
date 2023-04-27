@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="📚 This module documents ICU4X constructor signatures."><title>icu_provider::constructors - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../icu_provider/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module constructors</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">icu_provider</a>::<wbr><a class="mod" href="#">constructors</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/icu_provider/constructors.rs.html#5-101">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>📚 <em>This module documents ICU4X constructor signatures.</em></p>
+<p>One of the key differences between ICU4X and its parent projects, ICU4C and ICU4J, is in how
+it deals with locale data.</p>
+<p>In ICU4X, the data provider is an <em>explicit argument</em> whenever it is required by the library.
+This enables ICU4X to achieve the following value propositions:</p>
+<ol>
+<li>Configurable data sources (machine-readable data file, baked into code, JSON, etc).</li>
+<li>Dynamic data loading at runtime (load data on demand).</li>
+<li>Reduced overhead and code size (data is resolved locally at each call site).</li>
+<li>Explicit support for multiple ICU4X instances sharing data.</li>
+</ol>
+<p>In order to achieve these goals, there are 3 versions of all Rust ICU4X functions that
+take a data provider argument:</p>
+<ol>
+<li><code>*_unstable</code></li>
+<li><code>*_with_any_provider</code></li>
+<li><code>*_with_buffer_provider</code></li>
+</ol>
+<h2 id="which-constructor-should-i-use"><a href="#which-constructor-should-i-use">Which constructor should I use?</a></h2><h3 id="when-to-use-_unstable"><a href="#when-to-use-_unstable">When to use <code>*_unstable</code></a></h3>
+<p>Use this constructor if your data provider implements the <a href="../trait.DataProvider.html" title="trait icu_provider::DataProvider"><code>DataProvider</code></a> trait for all
+data structs in <em>current and future</em> ICU4X versions. Examples:</p>
+<ol>
+<li><code>BakedDataProvider</code> auto-regenerated on new ICU4X versions</li>
+<li>Anything with a <em>blanket</em> <a href="../trait.DataProvider.html" title="trait icu_provider::DataProvider"><code>DataProvider</code></a> impl</li>
+</ol>
+<p>Since the exact set of bounds may change at any time, including in minor SemVer releases,
+it is the client’s responsibility to guarantee that the requirement is upheld.</p>
+<h3 id="when-to-use-_with_any_provider"><a href="#when-to-use-_with_any_provider">When to use <code>*_with_any_provider</code></a></h3>
+<p>Use this constructor if you need to use a provider that implements <a href="../any/trait.AnyProvider.html" title="trait icu_provider::any::AnyProvider"><code>AnyProvider</code></a> but not
+<a href="../trait.DataProvider.html" title="trait icu_provider::DataProvider"><code>DataProvider</code></a>. Examples:</p>
+<ol>
+<li><a href="../../icu_provider_adapters/any_payload/struct.AnyPayloadProvider.html"><code>AnyPayloadProvider</code></a></li>
+<li><a href="../../icu_provider_adapters/fork/struct.ForkByKeyProvider.html"><code>ForkByKeyProvider</code></a> between two providers implementing <a href="../any/trait.AnyProvider.html" title="trait icu_provider::any::AnyProvider"><code>AnyProvider</code></a></li>
+<li>Providers that cache or override certain keys but not others and therefore
+can’t implement <a href="../trait.DataProvider.html" title="trait icu_provider::DataProvider"><code>DataProvider</code></a></li>
+</ol>
+<h3 id="when-to-use-_with_buffer_provider"><a href="#when-to-use-_with_buffer_provider">When to use <code>*_with_buffer_provider</code></a></h3>
+<p>Use this constructor if your data originates as byte buffers that need to be deserialized.
+All such providers should implement <a href="../buf/trait.BufferProvider.html" title="trait icu_provider::buf::BufferProvider"><code>BufferProvider</code></a>. Examples:</p>
+<ol>
+<li><a href="../../icu_provider_blob/struct.BlobDataProvider.html"><code>BlobDataProvider</code></a></li>
+<li><a href="../../icu_provider_blob/struct.FsDataProvider.html"><code>FsDataProvider</code></a></li>
+<li><a href="../../icu_provider_adapters/fork/struct.ForkByKeyProvider.html"><code>ForkByKeyProvider</code></a> between any of the above</li>
+</ol>
+<p>Please note that you must enable the <code>&quot;serde&quot;</code> Cargo feature on each crate in which you use the
+<code>*_with_buffer_provider</code> constructor.</p>
+<h2 id="data-versioning-policy"><a href="#data-versioning-policy">Data Versioning Policy</a></h2>
+<p>The <code>*_with_any_provider</code> and <code>*_with_buffer_provider</code> functions will succeed to compile and
+run if given a data provider supporting all of the keys required for the object being
+constructed, either the current or any previous version within the same SemVer major release.
+For example, if a data file is built to support FooFormatter version 1.1, then FooFormatter
+version 1.2 will be able to read the same data file. Likewise, backwards-compatible keys can
+always be included by <code>icu_datagen</code> to support older library versions.</p>
+<p>The <code>*_unstable</code> functions are only guaranteed to work on data built for the exact same version
+of ICU4X. The advantage of the <code>*_unstable</code> functions is that they result in the smallest code
+size and allow for automatic data slicing when <code>BakedDataProvider</code> is used. However, the type
+bounds of this function may change over time, breaking SemVer guarantees. These functions
+should therefore only be used when you have full control over your data lifecycle at compile
+time.</p>
+<h2 id="data-providers-over-ffi"><a href="#data-providers-over-ffi">Data Providers Over FFI</a></h2>
+<p>Over FFI, there is only one data provider type: <a href="../../icu_capi/provider/ffi/struct.ICU4XDataProvider.html"><code>ICU4XDataProvider</code></a>. Internally, it is an
+<code>enum</code> between <code>dyn </code><a href="../any/trait.AnyProvider.html" title="trait icu_provider::any::AnyProvider"><code>AnyProvider</code></a> and <code>dyn </code><a href="../buf/trait.BufferProvider.html" title="trait icu_provider::buf::BufferProvider"><code>BufferProvider</code></a>.</p>
+<p>To control for code size, there are two Cargo features, <code>any_provider</code> and <code>buffer_provider</code>,
+that enable the corresponding items in the enum.</p>
+<p>In Rust ICU4X, a similar buffer/any enum approach was not taken because:</p>
+<ol>
+<li>Feature-gating the enum branches gets complex across crates.</li>
+<li>Without feature gating, users need to carry Serde code even if they’re not using it,
+violating one of the core value propositions of ICU4X.</li>
+<li>We could reduce the number of constructors from 3 to 2 but not to 1, so the educational
+benefit is limited.</li>
+</ol>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

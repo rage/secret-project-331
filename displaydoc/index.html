@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This library provides a convenient derive macro for the standard library’s `core::fmt::Display` trait."><title>displaydoc - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../static.files/ayu-be46fdc453a55015.css"><script src="../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../displaydoc/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../displaydoc/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate displaydoc</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.2.3</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#derives">Derive Macros</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">displaydoc</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/displaydoc/lib.rs.html#1-122">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This library provides a convenient derive macro for the standard library’s
+<a href="https://doc.rust-lang.org/std/fmt/trait.Display.html"><code>core::fmt::Display</code></a> trait.</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+displaydoc = &quot;0.2&quot;
+</code></pre></div>
+<p><em>Compiler support: requires rustc 1.31+</em></p>
+<br>
+<h3 id="example"><a href="#example">Example</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>displaydoc::Display;
+<span class="kw">use </span>thiserror::Error;
+
+<span class="attr">#[derive(Display, Error, Debug)]
+</span><span class="kw">pub enum </span>DataStoreError {
+    <span class="doccomment">/// data store disconnected
+    </span>Disconnect(<span class="attr">#[source] </span>io::Error),
+    <span class="doccomment">/// the data for key `{0}` is not available
+    </span>Redaction(String),
+    <span class="doccomment">/// invalid header (expected {expected:?}, found {found:?})
+    </span>InvalidHeader {
+        expected: String,
+        found: String,
+    },
+    <span class="doccomment">/// unknown data store error
+    </span>Unknown,
+}</code></pre></div>
+<br>
+<h3 id="details"><a href="#details">Details</a></h3>
+<ul>
+<li>
+<p>A <code>Display</code> impl is generated for your type if you provide doc comment
+messages on the struct or each variant of your enum, as shown above in the
+example.</p>
+<p>The messages support a shorthand for interpolating fields from the error.</p>
+<ul>
+<li><code>/// {var}</code> ⟶ <code>write!(&quot;{}&quot;, self.var)</code></li>
+<li><code>/// {0}</code> ⟶ <code>write!(&quot;{}&quot;, self.0)</code></li>
+<li><code>/// {var:?}</code> ⟶ <code>write!(&quot;{:?}&quot;, self.var)</code></li>
+<li><code>/// {0:?}</code> ⟶ <code>write!(&quot;{:?}&quot;, self.0)</code></li>
+</ul>
+</li>
+<li>
+<p>Two optional attributes can be added to your types next to the derive:</p>
+<ul>
+<li>
+<p><code>#[ignore_extra_doc_attributes]</code> makes the macro ignore any doc
+comment attributes (or <code>///</code> lines) after the first. Multi-line
+comments using <code>///</code> are otherwise treated as an error, so use this
+attribute or consider switching to block doc comments (<code>/** */</code>).</p>
+</li>
+<li>
+<p><code>#[prefix_enum_doc_attributes]</code> combines the doc comment message on
+your enum itself with the messages for each variant, in the format
+“enum: variant”. When added to an enum, the doc comment on the enum
+becomes mandatory. When added to any other type, it has no effect.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>In case you want to have an independent doc comment, the
+<code>#[displaydoc(&quot;...&quot;)</code> atrribute may be used on the variant or struct to
+override it.</p>
+</li>
+</ul>
+<br>
+<h3 id="faq"><a href="#faq">FAQ</a></h3>
+<ol>
+<li>
+<p><strong>Is this crate <code>no_std</code> compatible?</strong></p>
+<ul>
+<li>Yes! This crate implements the <code>core::fmt::Display</code> trait not the <code>std::fmt::Display</code> trait so it should work in <code>std</code> and <code>no_std</code> environments. Just add <code>default-features = false</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Does this crate work with <code>Path</code> and <code>PathBuf</code> via the <code>Display</code> trait?</strong></p>
+<ul>
+<li>Yuuup. This crate uses @dtolnay’s <a href="https://github.com/dtolnay/case-studies/blob/master/autoref-specialization/README.md">autoref specialization technique</a> to add a special trait for types to get the display impl, it then specializes for <code>Path</code> and <code>PathBuf</code> and when either of these types are found it calls <code>self.display()</code> to get a <code>std::path::Display&lt;'_&gt;</code> type which can be used with the Display format specifier!</li>
+</ul>
+</li>
+</ol>
+</div></details><h2 id="derives" class="small-section-header"><a href="#derives">Derive Macros</a></h2><ul class="item-table"><li><div class="item-name"><a class="derive" href="derive.Display.html" title="derive displaydoc::Display">Display</a></div><div class="desc docblock-short">Derive macro for implementing <code>Display</code> via doc comment attributes</div></li></ul></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="displaydoc" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

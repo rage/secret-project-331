@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LocaleTransformError","TransformResult"],"mod":["provider"],"struct":["LocaleCanonicalizer","LocaleExpander"]};

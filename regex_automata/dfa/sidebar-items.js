@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["dense","regex","sparse"],"struct":["OverlappingState"],"trait":["Automaton"]};

@@ -121,7 +121,14 @@
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::path::Path;
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+</pre><pre class="rust"><code><span class="kw">use </span>std::path::{Path, PathBuf};
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>async_trait::async_trait;
@@ -130,13 +137,14 @@
 <span class="kw">use </span>futures::{future::try_join, StreamExt};
 <span class="kw">use </span>tokio_stream::wrappers::ReceiverStream;
 
-<span class="kw">use super</span>::{path_to_str, FileStore, GenericPayload};
+<span class="kw">use super</span>::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
 
 <span class="kw">const </span>BUFFER_SIZE: usize = <span class="number">512</span>;
 
 <span class="kw">pub struct </span>GoogleCloudFileStore {
     bucket_name: String,
     client: Client,
+    <span class="kw">pub </span>cache_files_path: PathBuf,
 }
 
 <span class="kw">impl </span>GoogleCloudFileStore {
@@ -144,10 +152,12 @@
     </span><span class="attr">#[instrument]
     </span><span class="kw">pub fn </span>new(bucket_name: String) -&gt; UtilResult&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>client = Client::default();
+        <span class="kw">let </span>cache_files_path = generate_cache_folder_dir()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             bucket_name,
             client,
+            cache_files_path,
         })
     }
 }
@@ -242,6 +252,10 @@
                     .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
             });
         <span class="prelude-val">Ok</span>(Box::new(stream_with_corrected_type))
+    }
+
+    <span class="kw">fn </span>get_cache_files_folder_path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UtilResult&lt;<span class="kw-2">&amp;</span>Path&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.cache_files_path)
     }
 }
 </code></pre></div>

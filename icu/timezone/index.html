@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Types for resolving and manipulating time zones."><title>icu::timezone - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../crates.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../icu/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../icu/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate timezone</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 1.2.0</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a href="../index.html">icu</a>::<wbr><a class="mod" href="#">timezone</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/icu_timezone/lib.rs.html#5-136">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Types for resolving and manipulating time zones.</p>
+<h2 id="fields-1"><a href="#fields-1">Fields</a></h2>
+<p>In ICU4X, a <a href="struct.CustomTimeZone.html" title="struct icu::timezone::CustomTimeZone">formattable time zone</a> consists of four different fields:</p>
+<ol>
+<li>The offset from GMT</li>
+<li>The time zone ID</li>
+<li>The metazone ID</li>
+<li>The zone variant (standard or daylight time)</li>
+</ol>
+<h3 id="gmt-offset"><a href="#gmt-offset">GMT Offset</a></h3>
+<p>The GMT offset precisely states the time difference between the time zone in question and
+Greenwich Mean Time (GMT) or Coordinated Universal Time (UTC).</p>
+<p>In localized strings, it is often rendered as “GMT-6”, meaning 6 hours less than GMT.</p>
+<h3 id="time-zone"><a href="#time-zone">Time Zone</a></h3>
+<p>The time zone ID corresponds to a time zone from the time zone database. The time zone ID
+usually corresponds to the largest city in the time zone.</p>
+<p>There are two mostly-interchangeable standards for time zone IDs:</p>
+<ol>
+<li>IANA time zone IDs, like <code>&quot;America/Chicago&quot;</code></li>
+<li>BCP-47 time zone IDs, like <code>&quot;uschi&quot;</code></li>
+</ol>
+<p>ICU4X uses BCP-47 time zone IDs for all of its APIs.</p>
+<h3 id="metazone"><a href="#metazone">Metazone</a></h3>
+<p>A metazone is a collection of multiple time zones that share the same localized formatting
+at a particular date and time.</p>
+<p>For example, “America/Chicago” and “America/Indiana/Knox” both map to US Central Time, or
+<code>&quot;America_Central&quot;</code>.</p>
+<p>The mapping from time zone to metazone depends on the date. For example, from 1991 to 2006,
+“America/Indiana/Knox” mapped to US Eastern Time instead of US Central Time.</p>
+<p>As with time zone IDs, there are two interchangeable forms:</p>
+<ol>
+<li>Long form, like <code>&quot;America_Central&quot;</code></li>
+<li>Short form compatible with BCP-47, like <code>&quot;amce&quot;</code></li>
+</ol>
+<p>ICU4X uses the short form.</p>
+<p>Note: in ICU4X, “metazone” is one word and “time zone” is two words, except for this crate
+and module name, where “timezone” is used with no separators.</p>
+<h3 id="zone-variant"><a href="#zone-variant">Zone Variant</a></h3>
+<p>Many metazones use different names and offsets in the summer than in the winter. In ICU4X,
+this is called the <em>zone variant</em>. There are two zone variants:</p>
+<ol>
+<li><code>&quot;dt&quot;</code> = daylight or summer time</li>
+<li><code>&quot;st&quot;</code> = standard or winter time</li>
+</ol>
+<p>Note: It is optional (not required) to set the zone variant when constructing a
+<a href="struct.CustomTimeZone.html" title="struct icu::timezone::CustomTimeZone"><code>CustomTimeZone</code></a>. Therefore, the list of possible variants does not include a generic variant
+to represent the lack of a preference.</p>
+<h2 id="calculations"><a href="#calculations">Calculations</a></h2>
+<p>In date/time processing, normally only a subset of information is available, and the other
+fields must be computed from it.</p>
+<p>The following calculations are currently supported or will be supported:</p>
+<ol>
+<li>Time Zone + Local DateTime → Meta Zone (<a href="struct.MetazoneCalculator.html" title="struct icu::timezone::MetazoneCalculator"><code>MetazoneCalculator</code></a>)</li>
+<li>Time Zone + Absolute Time → Offset + Zone Variant (not yet supported)</li>
+</ol>
+<h2 id="examples"><a href="#examples">Examples</a></h2>
+<p>Create a time zone for which the offset and time zone ID are already known, and calculate
+the metazone based on a certain local datetime:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>icu_calendar::DateTime;
+<span class="kw">use </span>icu_timezone::CustomTimeZone;
+<span class="kw">use </span>icu_timezone::GmtOffset;
+<span class="kw">use </span>icu_timezone::MetazoneCalculator;
+<span class="kw">use </span>tinystr::TinyAsciiStr;
+
+<span class="comment">// Create a time zone for America/Chicago at GMT-6:
+</span><span class="kw">let </span><span class="kw-2">mut </span>time_zone = CustomTimeZone::new_empty();
+time_zone.gmt_offset = <span class="string">&quot;-0600&quot;</span>.parse::&lt;GmtOffset&gt;().ok();
+time_zone.time_zone_id =
+    <span class="string">&quot;uschi&quot;</span>.parse::&lt;TinyAsciiStr&lt;<span class="number">8</span>&gt;&gt;().ok().map(Into::into);
+
+<span class="comment">// Compute the metazone at January 1, 2022:
+</span><span class="kw">let </span>mzc = MetazoneCalculator::try_new_unstable(<span class="kw-2">&amp;</span>icu_testdata::unstable())
+    .unwrap();
+<span class="kw">let </span>datetime = DateTime::try_new_iso_datetime(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap();
+time_zone.maybe_calculate_metazone(<span class="kw-2">&amp;</span>mzc, <span class="kw-2">&amp;</span>datetime);
+
+<span class="macro">assert_eq!</span>(<span class="string">&quot;amce&quot;</span>, time_zone.metazone_id.unwrap().<span class="number">0</span>.as_str());</code></pre></div>
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="provider/index.html" title="mod icu::timezone::provider">provider</a></div><div class="desc docblock-short">🚧 [Unstable] Data provider struct definitions for this ICU4X component.</div></li></ul><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.CustomTimeZone.html" title="struct icu::timezone::CustomTimeZone">CustomTimeZone</a></div><div class="desc docblock-short">A utility type that can hold time zone information.</div></li><li><div class="item-name"><a class="struct" href="struct.GmtOffset.html" title="struct icu::timezone::GmtOffset">GmtOffset</a></div><div class="desc docblock-short">The GMT offset in seconds for a timezone</div></li><li><div class="item-name"><a class="struct" href="struct.MetazoneCalculator.html" title="struct icu::timezone::MetazoneCalculator">MetazoneCalculator</a></div><div class="desc docblock-short"><a href="struct.MetazoneCalculator.html" title="struct icu::timezone::MetazoneCalculator"><code>MetazoneCalculator</code></a> uses data from the <a href="../../icu_provider/index.html" title="mod icu_provider">data provider</a> to calculate metazone id.</div></li><li><div class="item-name"><a class="struct" href="struct.MetazoneId.html" title="struct icu::timezone::MetazoneId">MetazoneId</a></div><div class="desc docblock-short">Metazone ID in a compact format</div></li><li><div class="item-name"><a class="struct" href="struct.TimeZoneBcp47Id.html" title="struct icu::timezone::TimeZoneBcp47Id">TimeZoneBcp47Id</a></div><div class="desc docblock-short">TimeZone ID in BCP47 format</div></li><li><div class="item-name"><a class="struct" href="struct.ZoneVariant.html" title="struct icu::timezone::ZoneVariant">ZoneVariant</a></div><div class="desc docblock-short">A time zone variant: currently either daylight time or standard time.</div></li></ul><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.Error.html" title="enum icu::timezone::Error">Error</a></div><div class="desc docblock-short">A list of error outcomes for various operations in this module.</div></li><li><div class="item-name"><a class="enum" href="enum.TimeZoneError.html" title="enum icu::timezone::TimeZoneError">TimeZoneError</a></div><div class="desc docblock-short">A list of error outcomes for various operations in this module.</div></li></ul></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

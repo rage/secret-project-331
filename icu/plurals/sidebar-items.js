@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","PluralCategory","PluralRuleType","PluralsError"],"mod":["provider","rules"],"struct":["PluralOperands","PluralRules"]};

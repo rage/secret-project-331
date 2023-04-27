@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error"],"mod":["encoding","escape","events","name","reader","writer"],"struct":["NsReader"],"type":["Result"]};

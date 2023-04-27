@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["make_ule","make_varule"],"enum":["VarZeroVec","ZeroVecError"],"mod":["maps","ule","vecs"],"struct":["VarZeroSlice","ZeroMap","ZeroMap2d","ZeroSlice","ZeroVec"]};

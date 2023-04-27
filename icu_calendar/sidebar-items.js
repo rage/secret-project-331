@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CalendarError"],"mod":["any_calendar","buddhist","coptic","ethiopian","gregorian","indian","iso","japanese","julian","provider","types","week"],"struct":["Date","DateTime","Ref"],"trait":["AsCalendar","Calendar"]};

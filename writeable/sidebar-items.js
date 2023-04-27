@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["assert_writeable_eq","assert_writeable_parts_eq","impl_display_with_writeable"],"struct":["LengthHint","Part"],"trait":["PartsWrite","Writeable"]};

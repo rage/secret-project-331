@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BufferClusterLevel","Direction"],"fn":["shape"],"mod":["script"],"struct":["Face","Feature","GlyphBuffer","GlyphInfo","GlyphPosition","Language","Script","SerializeFlags","Tag","UnicodeBuffer","Variation"]};

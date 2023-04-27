@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","TimeZoneError"],"mod":["provider"],"struct":["CustomTimeZone","GmtOffset","MetazoneCalculator","MetazoneId","TimeZoneBcp47Id","ZoneVariant"]};

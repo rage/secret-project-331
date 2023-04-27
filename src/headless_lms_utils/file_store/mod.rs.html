@@ -94,12 +94,64 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Allows storing files to a file storage backend.
 </span><span class="kw">pub mod </span>file_utils;
 <span class="kw">pub mod </span>google_cloud_file_store;
 <span class="kw">pub mod </span>local_file_store;
 
 <span class="kw">use </span>std::{
+    os::unix::prelude::OsStrExt,
     path::{Path, PathBuf},
     pin::Pin,
 };
@@ -107,6 +159,8 @@
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>futures::Stream;
+<span class="kw">use </span>rand::distributions::DistString;
+
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use crate</span>::{prelude::<span class="kw-2">*</span>, ApplicationConfiguration};
@@ -146,6 +200,54 @@ Allows storing files to a file storage backend.
     }
     <span class="doccomment">/// Delete a file.
     </span><span class="kw">async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;()&gt;;
+
+    <span class="doccomment">/// This function returns a path to a folder where downloaded files can be cached.
+    </span><span class="kw">fn </span>get_cache_files_folder_path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UtilResult&lt;<span class="kw-2">&amp;</span>Path&gt;;
+
+    <span class="kw">async fn </span>fetch_file_content_or_use_filesystem_cache(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        file_path: <span class="kw-2">&amp;</span>Path,
+    ) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span>cache_folder = <span class="self">self</span>.get_cache_files_folder_path()<span class="question-mark">?</span>;
+        <span class="kw">let </span>hash = blake3::hash(file_path.as_os_str().as_bytes());
+        <span class="kw">let </span>cached_file_path = cache_folder.join(hash.to_hex().as_str());
+        <span class="kw">match </span>tokio::fs::read(<span class="kw-2">&amp;</span>cached_file_path).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(string) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(string),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="macro">info!</span>(
+                    <span class="string">&quot;File not found in cache, fetching from file store using path: {}&quot;</span>,
+                    file_path.to_str().unwrap_or_default()
+                );
+            }
+        }
+
+        <span class="kw">let </span>random_filename =
+            rand::distributions::Alphanumeric.sample_string(<span class="kw-2">&amp;mut </span>rand::thread_rng(), <span class="number">32</span>);
+        <span class="kw">let </span>temp_path = cache_folder.join(random_filename.as_str());
+
+        <span class="kw">let </span>file_content = <span class="self">self</span>.download(file_path).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        tokio::fs::write(<span class="kw-2">&amp;</span>temp_path, <span class="kw-2">&amp;</span>file_content).<span class="kw">await</span><span class="question-mark">?</span>;
+        tokio::fs::rename(<span class="kw-2">&amp;</span>temp_path, <span class="kw-2">&amp;</span>cached_file_path).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(file_content.to_vec())
+    }
+}
+
+<span class="kw">fn </span>generate_cache_folder_dir() -&gt; UtilResult&lt;PathBuf&gt; {
+    <span class="kw">let </span>cache_files_path =
+        std::env::var(<span class="string">&quot;HEADLESS_LMS_CACHE_FILES_PATH&quot;</span>).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                <span class="string">&quot;You need to define the HEADLESS_LMS_CACHE_FILES_PATH environment variable.&quot;
+                    </span>.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
+            )
+        })<span class="question-mark">?</span>;
+    <span class="kw">let </span>path = PathBuf::from(cache_files_path).join(<span class="string">&quot;headlesss-lms-cached-files&quot;</span>);
+    <span class="kw">if </span>!path.exists() {
+        std::fs::create_dir_all(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+    }
+    <span class="prelude-val">Ok</span>(path)
 }
 
 <span class="kw">fn </span>path_to_str(path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;<span class="kw-2">&amp;</span>str&gt; {

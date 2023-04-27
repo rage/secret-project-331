@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CertificateTextAnchor","PaperSize"],"fn":["get_course_module_certificate_configuration_by_course_module_and_course_instance"],"struct":["CourseModuleCertificateConfiguration"]};

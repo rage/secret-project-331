@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DecimalError","Error"],"mod":["options","provider"],"struct":["FixedDecimalFormatter","FormattedFixedDecimal"]};

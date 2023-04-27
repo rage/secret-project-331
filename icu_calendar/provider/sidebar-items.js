@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["EraStartDate","EraStartDateULE","JapaneseErasV1","JapaneseErasV1Marker","JapaneseExtendedErasV1Marker","WeekDataV1","WeekDataV1Marker"]};

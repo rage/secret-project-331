@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["decompress_svgz"],"struct":["ImageHrefResolver","Options"],"trait":["TreeParsing"]};

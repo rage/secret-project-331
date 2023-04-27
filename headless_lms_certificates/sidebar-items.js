@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["generate_certificate","generate_certificate_impl","generate_text_svg","get_date_as_localized_string"],"mod":["font_loader"],"struct":["TextToRender"]};

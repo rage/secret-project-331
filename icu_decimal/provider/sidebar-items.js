@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AffixesV1","DecimalSymbolsV1","DecimalSymbolsV1Marker","GroupingSizesV1"]};

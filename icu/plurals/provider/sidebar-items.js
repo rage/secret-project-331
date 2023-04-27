@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CardinalV1Marker","OrdinalV1Marker","PluralRulesV1"]};

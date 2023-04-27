@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AliasesV1","AliasesV1Marker","LikelySubtagsExtendedV1","LikelySubtagsExtendedV1Marker","LikelySubtagsForLanguageV1","LikelySubtagsForLanguageV1Marker","LikelySubtagsForScriptRegionV1","LikelySubtagsForScriptRegionV1Marker","LikelySubtagsV1","LikelySubtagsV1Marker","StrStrPair","StrStrPairVarULE"]};

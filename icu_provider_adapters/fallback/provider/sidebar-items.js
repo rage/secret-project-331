@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DEFAULT_REGION","DEFAULT_SCRIPT"],"struct":["CollationFallbackSupplementV1Marker","LocaleFallbackLikelySubtagsV1","LocaleFallbackLikelySubtagsV1Marker","LocaleFallbackParentsV1","LocaleFallbackParentsV1Marker","LocaleFallbackSupplementV1"]};

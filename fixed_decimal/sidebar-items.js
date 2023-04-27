@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","Sign","SignDisplay"],"struct":["CompactDecimal","FixedDecimal","FixedInteger","ScientificDecimal"]};

@@ -201,24 +201,36 @@
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
 <a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::{Path, PathBuf};
 
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>futures::{Stream, StreamExt};
+
 <span class="kw">use </span>tokio::{
     fs::{<span class="self">self</span>, OpenOptions},
     io::{<span class="self">self</span>, AsyncWriteExt, BufWriter},
 };
 <span class="kw">use </span>tokio_util::io::ReaderStream;
 
-<span class="kw">use super</span>::{path_to_str, FileStore, GenericPayload};
+<span class="kw">use super</span>::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>LocalFileStore {
     <span class="kw">pub </span>base_path: PathBuf,
     <span class="kw">pub </span>base_url: String,
+    <span class="kw">pub </span>cache_files_path: PathBuf,
 }
 
 <span class="kw">impl </span>LocalFileStore {
@@ -235,9 +247,11 @@
         } <span class="kw">else </span>{
             std::fs::create_dir_all(<span class="kw-2">&amp;</span>base_path)<span class="question-mark">?</span>;
         }
+        <span class="kw">let </span>cache_files_path = generate_cache_folder_dir()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             base_path,
             base_url,
+            cache_files_path,
         })
     }
 }
@@ -335,11 +349,15 @@
         <span class="kw">let </span>stream = ReaderStream::new(reader);
         <span class="prelude-val">Ok</span>(Box::new(stream))
     }
+
+    <span class="kw">fn </span>get_cache_files_folder_path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UtilResult&lt;<span class="kw-2">&amp;</span>Path&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.cache_files_path)
+    }
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>std::path::Path;
+    <span class="kw">use </span>std::{env, path::Path};
 
     <span class="kw">use </span>tempdir::TempDir;
 
@@ -348,6 +366,7 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>upload_download_delete_works() {
+        env::set_var(<span class="string">&quot;HEADLESS_LMS_CACHE_FILES_PATH&quot;</span>, <span class="string">&quot;/tmp&quot;</span>);
         <span class="kw">let </span>dir = TempDir::new(<span class="string">&quot;test-local-filestore&quot;</span>).expect(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
         <span class="kw">let </span>base_path = dir.into_path();
         <span class="kw">let </span>local_file_store =
@@ -379,6 +398,7 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>get_download_url_works() {
+        env::set_var(<span class="string">&quot;HEADLESS_LMS_CACHE_FILES_PATH&quot;</span>, <span class="string">&quot;/tmp&quot;</span>);
         <span class="kw">let </span>dir = TempDir::new(<span class="string">&quot;test-local-filestore&quot;</span>).expect(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
         <span class="kw">let </span>base_path = dir.into_path();
         <span class="kw">let </span>local_file_store =

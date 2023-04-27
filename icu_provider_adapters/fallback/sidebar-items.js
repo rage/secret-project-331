@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["provider"],"struct":["LocaleFallbackConfig","LocaleFallbackIterator","LocaleFallbackProvider","LocaleFallbacker","LocaleFallbackerWithConfig"]};

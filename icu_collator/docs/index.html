@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This module exists to contain implementation docs and notes for people who want to contribute."><title>icu_collator::docs - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../icu_collator/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../icu_collator/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module docs</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../index.html">icu_collator</a>::<wbr><a class="mod" href="#">docs</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/icu_collator/docs.rs.html#5-158">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This module exists to contain implementation docs and notes for people who want to contribute.</p>
+<h2 id="contributor-notes"><a href="#contributor-notes">Contributor Notes</a></h2><h3 id="development-environment-on-linux-for-fuzzing-and-generating-data"><a href="#development-environment-on-linux-for-fuzzing-and-generating-data">Development environment (on Linux) for fuzzing and generating data</a></h3>
+<p>These notes assume that ICU4X itself has been cloned to <code>$PROJECTS/icu4x</code>.</p>
+<p>Clone ICU4C from <a href="https://github.com/hsivonen/icu">https://github.com/hsivonen/icu</a> to <code>$PROJECTS/icu</code> and switch
+to the branch <code>icu4x-collator</code>.</p>
+<p>Create a directory <code>$PROJECTS/localicu</code></p>
+<p>Create a directory <code>$PROJECTS/icu-build</code> and <code>cd</code> into it.</p>
+<p>Run <code>../icu/icu4c/source/runConfigureICU --enable-debug Linux --prefix $PROJECTS/localicu --enable-static</code></p>
+<p>Run <code>make</code></p>
+<h4 id="generating-data"><a href="#generating-data">Generating data</a></h4><h4 id="testing"><a href="#testing">Testing</a></h4>
+<p><code>cargo test --features serde</code></p>
+<p>Note: some tests depend on collation test data files.
+These files are copied from the ICU and CLDR codebases,
+and they are stored in <code>tests/data/</code>.
+New versions of collation data from CLDR/ICU are kept in sync with these collation test data files.
+When updating ICU4X to pick up new Unicode data, including collation data, from ICU,
+the copies of collation test data files in maintained in ICU4X’s icu_collator will need to be overridden with their newer corresponding versions.
+See the Readme in <code>/tests/data/README.md</code> for details.</p>
+<h4 id="fuzzing"><a href="#fuzzing">Fuzzing</a></h4>
+<p><code>cargo install cargo-fuzz</code></p>
+<p>Clone <code>rust_icu</code> from <a href="https://github.com/google/rust_icu">https://github.com/google/rust_icu</a> to <code>$PROJECTS/rust_icu</code>.</p>
+<p>In <code>$PROJECTS/icu-build</code> run <code>make install</code>.</p>
+<p><code>cd $PROJECTS/icu4x/components/collator</code></p>
+<p>Run the fuzzer until a panic:</p>
+<p><code>PKG_CONFIG_PATH=&quot;$PROJECTS/localicu/lib/pkgconfig&quot; PATH=&quot;$PROJECTS/localicu/bin:$PATH&quot; LD_LIBRARY_PATH=&quot;/$PROJECTS/localicu/lib&quot; RUSTC_BOOTSTRAP=1 cargo +stable fuzz run compare_utf16</code></p>
+<p>Once there is a panic, recompile with debug symbols by adding <code>--dev</code>:</p>
+<p><code>PKG_CONFIG_PATH=&quot;$PROJECTS/localicu/lib/pkgconfig&quot; PATH=&quot;$PROJECTS/localicu/bin:$PATH&quot; LD_LIBRARY_PATH=&quot;$PROJECTS/localicu/lib&quot; RUSTC_BOOTSTRAP=1 cargo +stable fuzz run --dev compare_utf16 fuzz/artifacts/compare_utf16/crash-$ARTIFACTHASH</code></p>
+<p>Record with</p>
+<p><code>LD_LIBRARY_PATH=&quot;$PROJECTS/localicu/lib&quot; rr fuzz/target/x86_64-unknown-linux-gnu/debug/compare_utf16 -artifact_prefix=$PROJECTS/icu4x/components/collator/fuzz/artifacts/compare_utf16/ fuzz/artifacts/compare_utf16/crash-$ARTIFACTHASH</code></p>
+<h2 id="design-notes"><a href="#design-notes">Design notes</a></h2>
+<ul>
+<li>The collation element design comes from ICU4C. Some parts of the ICU4C design, notably,
+<code>Tag::BuilderDataTag</code>, <code>Tag::LeadSurrogateTag</code>, <code>Tag::LatinExpansionTag</code>, <code>Tag::U0000Tag</code>,
+and <code>Tag::HangulTag</code> are unused.
+<ul>
+<li><code>Tag::LatinExpansionTag</code> might be reallocated to search expansions for archaic jamo
+in the future.</li>
+<li><code>Tag::HangulTag</code> might be reallocated to compressed hanja expansions in the future.
+See <a href="https://github.com/unicode-org/icu4x/issues/1315">issue 1315</a>.</li>
+</ul>
+</li>
+<li>The key design difference between ICU4C and ICU4X is that ICU4C puts the canonical
+closure in the data (larger data) to enable lookup directly by precomposed characters
+while ICU4X always omits the canonical closure and always normalizes to NFD on the fly.</li>
+<li>Compared to ICU4C, normalization cannot be turned off. There also isn’t a separate
+“Fast Latin” mode.</li>
+<li>The normalization is fused into the collation element lookup algorithm to optimize the
+case where an input character decomposes into two BMP characters: a base letter and a
+diacritic.
+<ul>
+<li>To optimize away a trie lookup when the combining diacritic doesn’t contract,
+there is a linear lookup table for the combining diacritics block. Three languages
+tailor diacritics: Ewe, Lithuanian, and Vietnamese. Vietnamese and Ewe load an
+alternative table. The Lithuanian special cases are hard-coded and activatable by
+a metadata bit.</li>
+</ul>
+</li>
+<li>Unfortunately, contractions that contract starters don’t fit this model nicely. Therefore,
+there’s duplicated normalization code for normalizing the lookahead for contractions.
+This code can, in principle, do duplicative work, but it shouldn’t be excessive with
+real-world inputs.</li>
+<li>As a result, in terms of code provenance, the algorithms come from ICU4C, except the
+normalization part of the code is novel to ICU4X, and the contraction code is custom
+to ICU4X despite being informed by ICU4C.</li>
+<li>The way input characters are iterated over and resulting collation elements are
+buffered is novel to ICU4X.</li>
+<li>ICU4C can iterate backwards but ICU4X cannot. ICU4X keeps a buffer of the two most
+recent characters for handling prefixes. As of CLDR 40, there were only two kinds
+of prefixes: a single starter and a starter followed by a kana voicing mark.</li>
+<li>ICU4C sorts unpaired surrogates in their lexical order. ICU4X operates on Unicode
+<a href="https://unicode.org/glossary/#unicode_scalar_value">scalar values</a> (any Unicode
+code point except high-surrogate and low-surrogate code points), so unpaired
+surrogates sort as REPLACEMENT CHARACTERs. Therefore, all unpaired
+surrogates are equal with each other.</li>
+<li>Skipping over a bit-identical prefix and then going back over “backward-unsafe”
+characters is currently unimplemented but isn’t architecturally precluded.</li>
+<li>Hangul is handled specially:
+<ul>
+<li>
+<p>Precomposed syllables are checked for as the first step of processing an
+incoming character.</p>
+</li>
+<li>
+<p>Individual jamo are lookup up from a linear table instead of a trie. Unlike
+in ICU4C, this table covers the whole Unicode block whereas in ICU4C it covers
+only modern jamo for use in decomposing the precomposed syllables. The point
+is that search collations have a lot of duplicative (across multiple search)
+collations data for making archaic jamo searchable by modern jamo.
+Unfortunately, the shareable part isn’t currently actually shareable, because
+the tailored CE32s refer to the expansions table in each collation. To make
+them truly shareable, the archaic jamo expansions need to become self-contained
+the way Latin mini expansions in ICU4C are self-contained.</p>
+<p>One possible alternative to loading a different table for “search” would be
+performing the mapping of archaic jamo to the modern approximations as a
+special preprocessing step for the incoming characters, which would allow
+the lookup of the resulting modern jamo from the normal root jamo table.</p>
+<p>“searchjl” is even more problematic than “search”, since “searchjl” uses
+prefixes matches with jamo, and currently Hangul is assumed not to participate
+in prefix or contraction matching.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="notes-about-index-generation"><a href="#notes-about-index-generation">Notes about index generation</a></h2>
+<p>ICU4X currently does not have code or data for generating <a href="https://www.unicode.org/reports/tr35/tr35-collation.html#Collation_Indexes">collation
+indexes</a>.</p>
+<p>On the data side, ICU4X doesn’t have data for <code>&lt;exemplarCharacters type=&quot;index&quot;&gt;</code>
+(or when that’s missing, plain <code>&lt;exemplarCharacters&gt;</code>).</p>
+<p>Of the collations, <code>zh-u-co-pinyin</code>, <code>zh-u-co-stroke</code>, <code>zh-u-co-zhuyin</code>, and
+<code>*-u-co-unihan</code> are special: They bake a contraction of U+FDD0 and an index
+character in the collation order. ICU4X collation data already includes this.
+For <code>*-u-co-unihan</code> this index character data is repeated in all three tailorings
+instead of being in the root. If it was in the root, code for extracting the
+index characters from the collation data would need to avoid confusing the
+<code>unihan</code> index contractions (if they were in the root) and the <code>zh-u-co-pinyin</code>,
+<code>zh-u-co-stroke</code>, and <code>zh-u-co-zhuyin</code> in the tailoring. This seems feasible,
+but isn’t how CLDR and ICU4C do it. (If the index characters for
+<code>*-u-co-unihan</code> were in the root, <code>ko-u-co-unihan</code> would become a mere
+script reordering.)</p>
+<p>It’s unclear how useful it would be size-wise to have code to extract the
+index characters from the collations: For <code>zh-u-co-pinyin</code>, <code>zh-u-co-stroke</code>,
+<code>zh-u-co-zhuyin</code>, the index characters are contiguous ranges that could be
+efficiently stored as start and end. Moreover, the in-data index character
+for <code>stroke</code> isn’t the label to be rendered to the user, so special-casing
+is needed anyway.</p>
+<p>This means that there’s a tradeoff between having duplicate data (relative to
+the collation tailorings) for the <code>unihan</code> index character list vs. having
+code for extracting the list from the tailorings. It’s not at all clear that
+having the code is better for size than having the list of 238 ideographs
+itself as data (476 bytes as UTF-16).</p>
+<p>Note: Investigate <a href="https://github.com/unicode-org/icu4x/issues/2723">#2723</a></p>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_collator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Block","ColorOutput","Decoded","DecodingError","DisposalMethod","EncodingError","Extension","ExtensionData","Extensions","Repeat","Version"],"struct":["AnyExtension","DecodeOptions","Decoder","DecodingFormatError","Encoder","Frame","MemoryLimit","StreamingDecoder"]};

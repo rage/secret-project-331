@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","GeneralCategory","PropertiesError"],"mod":["bidi_data","exemplar_chars","maps","names","provider","script","sets"],"struct":["BidiClass","CanonicalCombiningClass","EastAsianWidth","GeneralCategoryGroup","GraphemeClusterBreak","LineBreak","Script","SentenceBreak","WordBreak"]};

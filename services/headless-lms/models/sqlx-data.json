@@ -1085,6 +1085,52 @@
     },
     "query": "\nSELECT t.*\nFROM exercise_tasks t\n  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)\nWHERE s.exercise_id = $1\n  AND s.deleted_at IS NULL\n  AND t.deleted_at IS NULL;\n        "
   },
+  "14d555538d7846c3af1d8c101c22e93812804154147c2163c9ce5db5d2a776d9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "file_path",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "file_upload_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "display_name",
+          "ordinal": 6,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nSELECT *\nFROM certificate_fonts\nWHERE deleted_at IS NULL\n"
+  },
   "158633e7670cf155cedada52d8da51d9a51fac5558c95bc5b4157ab76571e300": {
     "describe": {
       "columns": [
@@ -18676,6 +18722,52 @@
     },
     "query": "\nINSERT INTO page_visit_datum_daily_visit_hashing_keys(valid_for_date)\nVALUES ($1)\nON CONFLICT (valid_for_date) DO NOTHING\n    "
   },
+  "f12efa71dc05026650020ae1f7abc1afef7c13cebd3d9d10391230524771f59c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "file_path",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "file_upload_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "display_name",
+          "ordinal": 6,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false],
+      "parameters": {
+        "Left": ["Text", "Uuid", "Text"]
+      }
+    },
+    "query": "\nINSERT INTO certificate_fonts (\n    file_path,\n    file_upload_id,\n    display_name\n  )\nVALUES ($1, $2, $3)\nRETURNING *\n"
+  },
   "f277300b53e828732168d2b58bdab1746b112ad732a2fef2b78487102b674c9c": {
     "describe": {
       "columns": [
@@ -19940,6 +20032,208 @@
       }
     },
     "query": "\n    INSERT INTO user_course_instance_exercise_service_variables (\n        exercise_service_slug,\n        user_id,\n        course_instance_id,\n        variable_key,\n        variable_value\n      )\n    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (\n        variable_key,\n        user_id,\n        course_instance_id,\n        exercise_service_slug\n      ) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL DO\n    UPDATE\n    SET variable_value = $5;\n    "
+  },
+  "fec39a3e64b3e84a8362eb22e8f0d6de965ec924ab15a8078505c54b59dfa3ad": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "certificate_owner_name_y_pos",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_x_pos",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_font_size",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_color",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_anchor: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_validate_url_y_pos",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_x_pos",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_font_size",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_color",
+          "ordinal": 14,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_anchor: _",
+          "ordinal": 15,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_date_y_pos",
+          "ordinal": 16,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_x_pos",
+          "ordinal": 17,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_font_size",
+          "ordinal": 18,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_color",
+          "ordinal": 19,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_anchor: _",
+          "ordinal": 20,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_locale",
+          "ordinal": 21,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "paper_size: _",
+          "ordinal": 22,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["horizontal-a4", "vertical-a4"]
+              },
+              "name": "certificate_paper_size"
+            }
+          }
+        },
+        {
+          "name": "background_svg_path",
+          "ordinal": 23,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "background_svg_file_upload_id",
+          "ordinal": 24,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "overlay_svg_path",
+          "ordinal": 25,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "overlay_svg_file_upload_id",
+          "ordinal": 26,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_instance_id,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\nFROM course_module_certificate_configurations\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "fefaaa5c5e1de08eb78712713351fe1623b3a9b9a9e416bfd8135c4d571cb4fb": {
     "describe": {

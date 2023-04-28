@@ -63,7 +63,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1' }*/),
-    page.click('#content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)'),
+    page.click('#content a >> :nth-match(div:has-text("Luku 1The Basics"), 3)'),
   ])
 
   await Promise.all([
@@ -79,7 +79,7 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "wrong-course-banner",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Looks like you're already on a different language version"),
+      page.locator("text=Vaikuttaa että olet kurssilla jo toisella kielellä"),
     ],
   })
 

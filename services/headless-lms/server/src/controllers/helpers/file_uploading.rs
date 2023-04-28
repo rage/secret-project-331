@@ -157,7 +157,7 @@ async fn upload_file_to_storage(
     let mime_type = field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or("".to_string());
+        .unwrap_or_else(|| "".to_string());
     let name = field.name();
     let path_string = path.to_str().context("invalid path")?.to_string();
 
@@ -192,7 +192,7 @@ async fn generate_audio_path(
     let extension = match field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or("".to_string())
+        .unwrap_or_else(|| "".to_string())
         .as_str()
     {
         "audio/aac" => ".aac",
@@ -258,7 +258,7 @@ async fn generate_image_path(
     let extension = match field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or("".to_string())
+        .unwrap_or_else(|| "".to_string())
         .as_str()
     {
         "image/jpeg" => ".jpg",

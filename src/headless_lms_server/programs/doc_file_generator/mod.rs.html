@@ -1467,6 +1467,8 @@
 <a href="#1467" id="1467">1467</a>
 <a href="#1468" id="1468">1468</a>
 <a href="#1469" id="1469">1469</a>
+<a href="#1470" id="1470">1470</a>
+<a href="#1471" id="1471">1471</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -2416,6 +2418,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
             limit_number_of_tries: <span class="bool-val">true</span>,
             needs_peer_review,
             use_course_default_peer_review_config,
+            exercise_language_group_id,
         }
     );
     <span class="macro">doc!</span>(
@@ -2557,6 +2560,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
             order_number: <span class="number">123</span>,
             copied_from: <span class="prelude-val">None</span>,
             hidden: <span class="bool-val">false</span>,
+            page_language_group_id: <span class="prelude-val">None</span>,
         }
     );
     <span class="macro">doc!</span>(

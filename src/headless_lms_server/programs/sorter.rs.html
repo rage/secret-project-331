@@ -102,7 +102,7 @@
                 file_lines_after_sorting.push(<span class="string">&quot;&quot;</span>);
 
                 <span class="comment">// sort all lines other than target
-                </span>current_exports.sort();
+                </span>current_exports.sort_unstable();
 
                 <span class="comment">// for large export blocks, group based on first letter
                 </span><span class="kw">if </span>current_exports.len() &gt; <span class="number">64 </span>{

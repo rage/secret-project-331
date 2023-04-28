@@ -4056,6 +4056,9 @@
 <a href="#4056" id="4056">4056</a>
 <a href="#4057" id="4057">4057</a>
 <a href="#4058" id="4058">4058</a>
+<a href="#4059" id="4059">4059</a>
+<a href="#4060" id="4060">4060</a>
+<a href="#4061" id="4061">4061</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -6035,6 +6038,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// FAQ, we should add card/accordion block to visualize here.
+
     </span><span class="kw">let </span>(_page, _history) = pages::insert_course_page(
         <span class="kw-2">&amp;mut </span>conn,
         <span class="kw-2">&amp;</span>NewCoursePage::new(course.id, <span class="number">1</span>, <span class="string">&quot;/faq&quot;</span>, <span class="string">&quot;FAQ&quot;</span>),
@@ -6712,6 +6716,7 @@
         <span class="string">&quot;/welcome&quot;</span>,
         <span class="string">&quot;Welcome to Introduction to Everything&quot;</span>,
     );
+
     <span class="kw">let </span>(_page, <span class="kw">_</span>) = pages::insert_course_page(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>welcome_page, admin).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>hidden_page = welcome_page
         .followed_by(<span class="string">&quot;/hidden&quot;</span>, <span class="string">&quot;Hidden Page&quot;</span>)
@@ -7824,6 +7829,7 @@
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
     };
+
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {

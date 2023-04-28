@@ -466,6 +466,8 @@
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
 <a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>course_instance_export;
 <span class="kw">pub mod </span>exercise_tasks_export;
 <span class="kw">pub mod </span>points;
@@ -785,6 +787,7 @@ HttpResponse::Ok()
         )
         .<span class="kw">await
         </span>.unwrap();
+
         <span class="kw">let </span>e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">&quot;&quot;</span>, page, c2, <span class="number">0</span>)
             .<span class="kw">await
             </span>.unwrap();
@@ -806,6 +809,7 @@ HttpResponse::Ok()
         )
         .<span class="kw">await
         </span>.unwrap();
+
         <span class="kw">let </span>e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">&quot;&quot;</span>, page, c2, <span class="number">1</span>)
             .<span class="kw">await
             </span>.unwrap();

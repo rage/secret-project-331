@@ -411,6 +411,7 @@
 <a href="#411" id="411">411</a>
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{exercises::GradingProgress, prelude::<span class="kw-2">*</span>};
 
 <span class="attr">#[derive(Clone, Debug, Deserialize, Serialize)]
@@ -790,6 +791,7 @@ RETURNING id
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
+
             <span class="kw">let </span>(page_id, _history) = pages::insert_course_page(
                 tx.as_mut(),
                 <span class="kw-2">&amp;</span>NewCoursePage::new(course, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),

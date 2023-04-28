@@ -631,6 +631,7 @@
 <a href="#631" id="631">631</a>
 <a href="#632" id="632">632</a>
 <a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercises::{ActivityProgress, GradingProgress},
@@ -1064,6 +1065,7 @@ grading progress.
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
+
             <span class="kw">let </span>(page_id, _history) = pages::insert_course_page(
                 tx.as_mut(),
                 <span class="kw-2">&amp;</span>NewCoursePage::new(course, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),

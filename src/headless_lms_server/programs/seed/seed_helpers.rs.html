@@ -578,8 +578,8 @@
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
-
-<span class="attr">#[allow(clippy::too_many_arguments)]
+<span class="comment">// fix this
+</span><span class="attr">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">pub async fn </span>create_page(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,

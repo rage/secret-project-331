@@ -523,7 +523,7 @@
     </span><span class="kw">let </span>mime_type = field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or(<span class="string">&quot;&quot;</span>.to_string());
+        .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string());
     <span class="kw">let </span>name = field.name();
     <span class="kw">let </span>path_string = path.to_str().context(<span class="string">&quot;invalid path&quot;</span>)<span class="question-mark">?</span>.to_string();
 
@@ -558,7 +558,7 @@
     <span class="kw">let </span>extension = <span class="kw">match </span>field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or(<span class="string">&quot;&quot;</span>.to_string())
+        .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string())
         .as_str()
     {
         <span class="string">&quot;audio/aac&quot; </span>=&gt; <span class="string">&quot;.aac&quot;</span>,
@@ -624,7 +624,7 @@
     <span class="kw">let </span>extension = <span class="kw">match </span>field
         .content_type()
         .map(|ct| ct.to_string())
-        .unwrap_or(<span class="string">&quot;&quot;</span>.to_string())
+        .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string())
         .as_str()
     {
         <span class="string">&quot;image/jpeg&quot; </span>=&gt; <span class="string">&quot;.jpg&quot;</span>,

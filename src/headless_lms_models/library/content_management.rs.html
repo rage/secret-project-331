@@ -187,6 +187,9 @@
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 <span class="kw">use </span>url::Url;
@@ -226,6 +229,7 @@
 
     <span class="kw">let </span>course_language_group_id =
         course_language_groups::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>course_id = courses::insert(
         <span class="kw-2">&amp;mut </span>tx,
         pkey_policy.map_ref(|x| x.course_id),
@@ -244,6 +248,7 @@
         GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/congratulations&quot;</span>.to_string()),
         GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-progress&quot;</span>.to_string()),
     ])<span class="question-mark">?</span>;
+
     <span class="kw">let </span>course_front_page = NewPage {
         chapter_id: <span class="prelude-val">None</span>,
         content: course_front_page_content,
@@ -347,6 +352,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>chapter_id = chapters::insert(<span class="kw-2">&amp;mut </span>tx, pkey_policy.map_ref(|x| x.<span class="number">0</span>), new_chapter).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>chapter = chapters::get_chapter(<span class="kw-2">&amp;mut </span>tx, chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>chapter_frontpage_content = serde_json::to_value(<span class="macro">vec!</span>[
         GutenbergBlock::hero_section(<span class="kw-2">&amp;</span>chapter.name, <span class="string">&quot;&quot;</span>),
         GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.to_string()),

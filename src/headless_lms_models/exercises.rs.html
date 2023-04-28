@@ -769,6 +769,18 @@
 <a href="#769" id="769">769</a>
 <a href="#770" id="770">770</a>
 <a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>url::Url;
 
@@ -809,6 +821,7 @@
     <span class="kw">pub </span>limit_number_of_tries: bool,
     <span class="kw">pub </span>needs_peer_review: bool,
     <span class="kw">pub </span>use_course_default_peer_review_config: bool,
+    <span class="kw">pub </span>exercise_language_group_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
 <span class="kw">impl </span>Exercise {
@@ -928,7 +941,8 @@ As close as possible LTI&#39;s grading progress for compatibility: &lt;https://w
     <span class="kw">pub </span>reviewing_stage: ReviewingStage,
 }
 
-<span class="kw">pub async fn </span>insert(
+<span class="attr">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub async fn </span>insert(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     pkey_policy: PKeyPolicy&lt;Uuid&gt;,
     course_id: Uuid,
@@ -937,6 +951,14 @@ As close as possible LTI&#39;s grading progress for compatibility: &lt;https://w
     chapter_id: Uuid,
     order_number: i32,
 ) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise_language_group_id = <span class="kw">crate</span>::exercise_language_groups::insert(
+        conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercises (
@@ -945,9 +967,10 @@ INSERT INTO exercises (
     name,
     page_id,
     chapter_id,
-    order_number
+    order_number,
+    exercise_language_group_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
         &quot;</span>,
         pkey_policy.into_uuid(),
@@ -955,7 +978,8 @@ RETURNING id
         name,
         page_id,
         chapter_id,
-        order_number
+        order_number,
+        exercise_language_group_id,
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;

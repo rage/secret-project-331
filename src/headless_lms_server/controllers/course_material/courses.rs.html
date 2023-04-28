@@ -715,6 +715,10 @@
 <a href="#715" id="715">715</a>
 <a href="#716" id="716">716</a>
 <a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
@@ -1339,7 +1343,7 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course.
+GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
 */
 </span><span class="attr">#[generated_doc]
 #[instrument(skip(pool))]
@@ -1351,7 +1355,11 @@ GET `/api/v0/course-material/courses/:id/language-versions` - Returns all langua
     <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
     <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>language_versions =
-        models::courses::get_all_language_versions_of_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::courses::get_all_language_versions_of_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .filter(|c| !c.is_draft)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     token.authorized_ok(web::Json(language_versions))
 }
 

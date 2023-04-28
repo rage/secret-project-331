@@ -55,7 +55,7 @@ const useFigureOutNewCourseId = (newLangCode: string) => {
   return newCourseId
 }
 
-const GetLanguageName = (languageCode: string): string => {
+const getLanguageName = (languageCode: string): string => {
   const langCode = languageCode.split("-")[0]
   const languageObject = Object.entries(languageCodesToNamesList).find(([k, _]) => {
     return k === langCode
@@ -66,8 +66,8 @@ const GetLanguageName = (languageCode: string): string => {
   return nativeNameUppercase
 }
 
-const GetLanguageFlag = (LangCode: string) => {
-  const LanguageComponent = Language[LangCode]
+const GetLanguageFlag = (langCode: string) => {
+  const LanguageComponent = Language[langCode]
 
   return (
     <div
@@ -98,6 +98,6 @@ export {
   useFigureOutNewUrl,
   useFigureOutNewLangCode,
   useFigureOutNewCourseId,
-  GetLanguageName,
+  getLanguageName,
   GetLanguageFlag,
 }

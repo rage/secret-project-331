@@ -1,6 +1,7 @@
 import { BrowserContext, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
@@ -116,9 +117,15 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
       .getByText("AutomaticallyAcceptOrManualReviewByAverage 1View answers requiring attention")
       .click()
 
+    // Make sure the iframe above is loaded so that it does not cause scrolling
+    await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()
+    const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
+    await frame.getByText("a").waitFor()
+
     await teacherPage.getByRole("button", { name: "Custom points" }).first().click()
     await teacherPage.getByRole("spinbutton").fill("0.75")
     await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    await teacherPage.getByText("Operation successful").waitFor()
     await teacherPage.reload()
 
     await student1Page

@@ -30,7 +30,7 @@
   "could-not-fetch-embed": "Ei voitu upottaa {{provider}} osoitteella: {{url}}",
   "course": "Course",
   "course-has-no-page-at-path": "Tällä kurssilla ei ole sivua osoitteessa <1>{{path}}</1>",
-  "course-language-change-warning": "Huom: Kurssimateriaali muuttuu englanninkielisen kurssin materiaaliksi, jossa on eri kurssin edistyminen.",
+  "course-language-change-warning": "Huom: Kurssimateriaali muuttuu suomenkielisen kurssin materiaaliksi, jossa on eri kurssin edistyminen.",
   "course-overview": "Kurssin yhteenveto",
   "course-progress": "Kurssin edistyminen",
   "course-title": "Kurssi: {{title}}",

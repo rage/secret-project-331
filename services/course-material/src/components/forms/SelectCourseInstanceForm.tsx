@@ -92,7 +92,7 @@ const SelectCourseInstanceForm: React.FC<
   return (
     <div>
       <>
-        <h2>
+        <h2 data-testid="select-course-instance-heading">
           {t("title-select-course-instance")}
           <GreenText>*</GreenText>
         </h2>
@@ -105,6 +105,10 @@ const SelectCourseInstanceForm: React.FC<
           {courseInstances.map((x) => (
             <RadioButton
               key={x.id}
+              {...(x.name === null
+                ? // eslint-disable-next-line i18next/no-literal-string
+                  { "data-testid": "default-course-instance-radiobutton" }
+                : undefined)}
               label={x.name || t("default-course-instance-name")}
               onChange={(_event) => setInstance(x.id)}
               defaultChecked={instance === x.id}
@@ -176,6 +180,7 @@ const SelectCourseInstanceForm: React.FC<
             variant="primary"
             onClick={enrollOnCourse}
             disabled={!instance || additionalQuestionsQuery.isLoading}
+            data-testid="select-course-instance-continue-button"
           >
             {t("continue")}
           </Button>

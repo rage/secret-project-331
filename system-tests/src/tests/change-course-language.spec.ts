@@ -26,12 +26,13 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Choose your preferred language")],
   })
   const value = page.locator("#changeLanguage")
-  value?.selectOption({ label: "Suomi" })
+  await value?.selectOption({ label: "Suomi" })
+  await page.getByText("Valitse kieli").first().waitFor()
 
-  await page.getByText("Default").first().click()
-  await page.getByRole("button", { name: "Continue" }).click()
+  await page.getByText("Oletus").first().click()
+  await page.getByRole("button", { name: "Jatka" }).click()
 
-  await page.getByRole("heading", { name: "Kurssin yhteenveto" }).click()
+  await page.getByRole("heading", { name: "Kurssin yhteenveto" }).waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin",
   )
@@ -48,11 +49,12 @@ test("test", async ({ page, headless }, testInfo) => {
   })
 
   const value1 = page.locator("#changeLanguage")
-  value1?.selectOption({ label: "English" })
+  await value1?.selectOption({ label: "English" })
+  await page.getByText("Choose your preferred language").first().waitFor()
 
-  await page.getByText("Oletus").first().click()
-  await page.getByRole("button", { name: "Jatka" }).click()
-  await page.getByRole("heading", { name: "Course overview" }).click()
+  await page.getByText("Default").first().click()
+  await page.getByRole("button", { name: "Continue" }).click()
+  await page.getByRole("heading", { name: "Course overview" }).waitFor()
 
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations",

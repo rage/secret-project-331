@@ -31,6 +31,7 @@ test("Can take exam after enough course points", async ({ page, headless }, test
   await selectCourseInstanceIfPrompted(page)
   await page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
+  await page.getByRole("button", { name: "Try again" }).waitFor()
   await page.getByRole("link", { name: "Automatic Course with Exam" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/automatic-course-with-exam",

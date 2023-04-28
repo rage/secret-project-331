@@ -2,11 +2,10 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import Flag from "../../../../shared-module/components/LanguageSelection/Language"
 import { headingFont } from "../../../../shared-module/styles"
 import Close from "../imgs/close.svg"
 import Tick from "../imgs/tick-03.svg"
-
-import Flag from "./Language"
 
 const SelectorWrapper = styled.div`
   background: #e7e7e7;

@@ -317,6 +317,7 @@ mod test {
         )
         .await
         .unwrap();
+
         let e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, "", page, c2, 0)
             .await
             .unwrap();
@@ -338,6 +339,7 @@ mod test {
         )
         .await
         .unwrap();
+
         let e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, "", page, c2, 1)
             .await
             .unwrap();

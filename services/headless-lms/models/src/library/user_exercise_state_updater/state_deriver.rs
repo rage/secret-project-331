@@ -671,6 +671,7 @@ mod tests {
                 limit_number_of_tries: false,
                 needs_peer_review,
                 use_course_default_peer_review_config,
+                exercise_language_group_id: None,
             }
         }
 

@@ -1977,6 +1977,7 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
+
     let (_page, _history) = pages::insert_course_page(
         &mut conn,
         &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
@@ -2654,6 +2655,7 @@ pub async fn seed_course_without_submissions(
         "/welcome",
         "Welcome to Introduction to Everything",
     );
+
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
         .followed_by("/hidden", "Hidden Page")
@@ -3766,6 +3768,7 @@ pub async fn seed_peer_review_course_without_submissions(
         is_draft: false,
         is_test_mode: false,
     };
+
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {

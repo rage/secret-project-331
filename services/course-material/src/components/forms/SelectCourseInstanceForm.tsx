@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchBackgroundQuestionsAndAnswers } from "../../services/backend"
@@ -33,11 +33,12 @@ interface SelectCourseInstanceFormProps {
     newCourseBackgroundQuestionAnswer: NewCourseBackgroundQuestionAnswer[],
   ) => void
   initialSelectedInstanceId?: string
+  languageChanged: boolean
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, onSubmitForm, initialSelectedInstanceId }) => {
+> = ({ courseInstances, onSubmitForm, initialSelectedInstanceId, languageChanged }) => {
   const { t } = useTranslation()
   const [instance, setInstance] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
@@ -73,6 +74,12 @@ const SelectCourseInstanceForm: React.FC<
       },
     },
   )
+
+  useEffect(() => {
+    if (languageChanged) {
+      setInstance(undefined) // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+  }, [languageChanged])
 
   const enrollOnCourse = async () => {
     if (instance) {

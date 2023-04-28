@@ -622,7 +622,7 @@ async fn get_public_top_level_pages(
 }
 
 /**
-GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course.
+GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
@@ -634,7 +634,11 @@ async fn get_all_course_language_versions(
     let token = skip_authorize()?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let language_versions =
-        models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
+        models::courses::get_all_language_versions_of_course(&mut conn, &course)
+            .await?
+            .into_iter()
+            .filter(|c| !c.is_draft)
+            .collect::<Vec<_>>();
     token.authorized_ok(web::Json(language_versions))
 }
 

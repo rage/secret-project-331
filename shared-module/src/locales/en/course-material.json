@@ -29,7 +29,7 @@
   "could-not-fetch-embed": "Could not fetch {{provider}} oEmbed with URL: {{url}}",
   "course": "Course",
   "course-has-no-page-at-path": "This course has no page at <1>{{path}}</1>",
-  "course-language-change-warning": "NB: The course material will be switched to the English course with different course progress.",
+  "course-language-change-warning": "Note: The course material will be switched to the {{newLanguage}} course with different course progress.",
   "course-overview": "Course overview",
   "course-progress": "Course progress",
   "course-title": "Course: {{title}}",

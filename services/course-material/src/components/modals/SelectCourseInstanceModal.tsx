@@ -26,7 +26,7 @@ import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import {
   GetLanguageFlag,
-  GetLanguageName,
+  getLanguageName,
   useFigureOutNewLangCode,
   useFigureOutNewUrl,
 } from "./ChooseCourseLanguage"
@@ -55,6 +55,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
   const [langCode, setLangCode] = useState("")
+  const { i18n } = useTranslation()
 
   //Gets courseId and languageCode of the chosen language
   const onChange = (event: { target: { value: string } }) => {
@@ -62,6 +63,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     const changedCourseId = values[0]
 
     setLangCode(values[1])
+    i18n.changeLanguage(values[1])
     setSelectLanguage(changedCourseId)
     if (currentCourseId == changedCourseId) {
       setIsLanguageChanged(false)
@@ -70,11 +72,13 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     }
   }
 
-  const CourseLanguageVersionsList = useQuery(
+  const useCourseLanguageVersionsList = useQuery(
     [formatLanguageVersionsQueryKey(currentCourseId ?? "")],
     () => fetchCourseLanguageVersions(currentCourseId ?? ""),
   )
-  const courseVersionsList = CourseLanguageVersionsList.data?.filter((course) => !course.is_draft)
+  const courseVersionsList = useCourseLanguageVersionsList.data?.filter(
+    (course) => !course.is_draft,
+  )
 
   //Puts the current course at the top of the list
   if (courseVersionsList) {
@@ -85,10 +89,16 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   }
 
   useEffect(() => {
-    if (courseVersionsList) {
+    if (courseVersionsList && langCode === "") {
+      i18n.changeLanguage(courseVersionsList[0].language_code)
       setLangCode(courseVersionsList[0].language_code)
     }
-  }, [currentCourseId, courseVersionsList])
+  }, [currentCourseId, courseVersionsList, langCode, i18n])
+
+  if (courseVersionsList && courseVersionsList.length === 1) {
+    // The course has only 1 language version, so no need to show the language selection
+    return null
+  }
 
   return (
     <div
@@ -131,7 +141,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
         >
           {courseVersionsList?.map((course) => (
             <option key={course.id} value={[course.id, course.language_code]}>
-              {GetLanguageName(course.language_code)}
+              {getLanguageName(course.language_code)}
             </option>
           ))}
         </select>
@@ -186,15 +196,15 @@ const CourseInstanceSelectModal: React.FC<
       i18n.changeLanguage(newLanguage)
       // eslint-disable-next-line i18next/no-literal-string
       document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
-      if (languageChanged) {
-        window.location.assign(newUrl ?? "")
 
-        return
-      }
       try {
         await postSaveCourseSettings(instanceId, {
           background_question_answers: backgroundQuestionAnswers,
         })
+        if (languageChanged) {
+          window.location.assign(newUrl ?? "")
+          return
+        }
         setOpen(false)
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
@@ -276,13 +286,15 @@ const CourseInstanceSelectModal: React.FC<
               font-family: ${primaryFont};
               font-weight: ${fontWeights.normal};
               font-size: 14px;
-              max-width: 300px;
+              max-width: 400px;
               line-height: 17px;
               text-align: center;
               color: ${baseTheme.colors.green[700]};
             `}
           >
-            {t("course-language-change-warning")}
+            {t("course-language-change-warning", {
+              newLanguage: getLanguageName(newLangcode ?? ""),
+            })}
           </p>
         </div>
       )}

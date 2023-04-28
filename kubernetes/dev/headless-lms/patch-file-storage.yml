@@ -1,14 +1,14 @@
 - op: add
-  path: "/spec/template/spec/containers/0/volumeMounts"
+  path: "/spec/template/spec/containers/0/volumeMounts/1"
   value:
-    - name: "persistent-file-storage-mount"
-      mountPath: "/app/uploads"
+    name: "persistent-file-storage-mount"
+    mountPath: "/app/uploads"
 - op: add
-  path: "/spec/template/spec/volumes"
+  path: "/spec/template/spec/volumes/1"
   value:
-    - name: "persistent-file-storage-mount"
-      persistentVolumeClaim:
-        claimName: persistent-file-storage-pvc
+    name: "persistent-file-storage-mount"
+    persistentVolumeClaim:
+      claimName: persistent-file-storage-pvc
 - op: add
   path: "/spec/template/spec/initContainers/0"
   value:

@@ -74,7 +74,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     [formatLanguageVersionsQueryKey(currentCourseId ?? "")],
     () => fetchCourseLanguageVersions(currentCourseId ?? ""),
   )
-  const courseVersionsList = CourseLanguageVersionsList.data
+  const courseVersionsList = CourseLanguageVersionsList.data?.filter((course) => !course.is_draft)
 
   //Puts the current course at the top of the list
   if (courseVersionsList) {

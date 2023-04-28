@@ -61,6 +61,7 @@ pub async fn init_actix() -> (
     impl actix_web::dev::Service<Request, Response = ServiceResponse<BoxBody>, Error = actix_web::Error>,
     PgPool,
 ) {
+    env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
     let db = init_db().await;
     let private_cookie_key =
         "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";

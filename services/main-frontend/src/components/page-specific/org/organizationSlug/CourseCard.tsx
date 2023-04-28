@@ -4,11 +4,12 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../../../imgs/setting.svg"
+import Language, {
+  DEFAULT_FLAG_CLIP_PATH,
+} from "../../../../shared-module/components/LanguageSelection/Language"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { baseTheme, fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-
-import Language, { DEFAULT_FLAG_CLIP_PATH } from "./Language"
 
 const CourseGrid = styled.div`
   margin: 0 auto;

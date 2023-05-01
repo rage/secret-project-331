@@ -2232,22 +2232,6 @@
     },
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3)\nRETURNING id\n        "
   },
-  "2390eb6815d0e6db79e70f37abb89ee57f3196176eb27a0e0bd94af0111ad9aa": {
-    "describe": {
-      "columns": [
-        {
-          "name": "path",
-          "ordinal": 0,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE page_id = $1\nRETURNING path\n      "
-  },
   "247ce34ced565d6b5ab3632640e747c76e28961d4cddeb6b1c07c2571120b4b3": {
     "describe": {
       "columns": [
@@ -3764,6 +3748,22 @@
       }
     },
     "query": "\nSELECT user_id,\n  exam_id,\n  started_at\nFROM exam_enrollments\nWHERE exam_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n"
+  },
+  "3dfdeb92c9da05c6b03789eefdb20cb433a82a8e72cd0d0d85eebe6eba92e7b0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "path",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE id = $1\nRETURNING path\n      "
   },
   "3e2d1ca77df30e87efe65921bcc7cf0068faf0f9edb309dd86e5d51c1e998b9f": {
     "describe": {

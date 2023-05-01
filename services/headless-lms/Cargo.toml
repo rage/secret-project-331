@@ -5,6 +5,7 @@ members = [
   "models",
   "utils",
   "doc-macro",
+  "certificates",
 ]
 
 [profile.dev]

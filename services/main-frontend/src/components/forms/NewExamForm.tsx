@@ -60,7 +60,9 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       starts_at: new Date(data.startsAt),
       ends_at: new Date(data.endsAt),
       time_minutes: Number(data.timeMinutes),
-      minimum_points_treshold: Number(data.minimumPointsTreshold),
+      minimum_points_treshold: data.automaticCompletionEnabled
+        ? Number(data.minimumPointsTreshold)
+        : 0,
     })
   })
 

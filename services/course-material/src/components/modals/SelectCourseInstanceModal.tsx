@@ -4,40 +4,183 @@ import React, { useCallback, useContext, useEffect, useId, useState } from "reac
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances, postSaveCourseSettings } from "../../services/backend"
+import {
+  fetchCourseInstances,
+  fetchCourseLanguageVersions,
+  postSaveCourseSettings,
+} from "../../services/backend"
 import { NewCourseBackgroundQuestionAnswer } from "../../shared-module/bindings"
 import Dialog from "../../shared-module/components/Dialog"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
+import {
+  baseTheme,
+  fontWeights,
+  headingFont,
+  primaryFont,
+  typography,
+} from "../../shared-module/styles"
+import { LANGUAGE_COOKIE_KEY } from "../../shared-module/utils/constants"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+
+import {
+  GetLanguageFlag,
+  getLanguageName,
+  useFigureOutNewLangCode,
+  useFigureOutNewUrl,
+} from "./ChooseCourseLanguage"
+
+export const formatLanguageVersionsQueryKey = (courseId: string): string => {
+  // eslint-disable-next-line i18next/no-literal-string
+  return `course-${courseId}-language-versions`
+}
+
+export interface CourseTranslationsListProps {
+  courseId: string
+  setIsLanguageChanged(languageChanged: boolean): void
+  setSelectLanguage(setLanguage: string): void
+}
 
 export interface CourseInstanceSelectModalProps {
   onClose: () => void
   manualOpen?: boolean
 }
 
+const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsListProps>> = ({
+  setIsLanguageChanged,
+  setSelectLanguage,
+}) => {
+  const { t } = useTranslation()
+  const pageState = useContext(PageContext)
+  const currentCourseId = pageState.pageData?.course_id
+  const [langCode, setLangCode] = useState("")
+  const { i18n } = useTranslation()
+
+  //Gets courseId and languageCode of the chosen language
+  const onChange = (event: { target: { value: string } }) => {
+    const values = event.target.value.split(",")
+    const changedCourseId = values[0]
+
+    setLangCode(values[1])
+    i18n.changeLanguage(values[1])
+    setSelectLanguage(changedCourseId)
+    if (currentCourseId == changedCourseId) {
+      setIsLanguageChanged(false)
+    } else {
+      setIsLanguageChanged(true)
+    }
+  }
+
+  const useCourseLanguageVersionsList = useQuery(
+    [formatLanguageVersionsQueryKey(currentCourseId ?? "")],
+    () => fetchCourseLanguageVersions(currentCourseId ?? ""),
+  )
+  const courseVersionsList = useCourseLanguageVersionsList.data?.filter(
+    (course) => !course.is_draft,
+  )
+
+  //Puts the current course at the top of the list
+  if (courseVersionsList) {
+    const i = courseVersionsList.findIndex((course) => course.id === currentCourseId)
+    const item = courseVersionsList[i]
+    courseVersionsList.splice(i, 1)
+    courseVersionsList.unshift(item)
+  }
+
+  useEffect(() => {
+    if (courseVersionsList && langCode === "") {
+      i18n.changeLanguage(courseVersionsList[0].language_code)
+      setLangCode(courseVersionsList[0].language_code)
+    }
+  }, [currentCourseId, courseVersionsList, langCode, i18n])
+
+  if (courseVersionsList && courseVersionsList.length === 1) {
+    // The course has only 1 language version, so no need to show the language selection
+    return null
+  }
+
+  return (
+    <div
+      className={css`
+        display: flex;
+        justify-content: space-between;
+        font-family: ${headingFont};
+        padding-bottom: 1rem;
+        align-items: center;
+      `}
+    >
+      <label
+        htmlFor="changeLanguage"
+        className={css`
+          font-family: ${primaryFont};
+          font-weight: ${fontWeights.normal};
+          font-size: ${typography.h6};
+          color: ${baseTheme.colors.gray[500]};
+        `}
+      >
+        {t("choose-preferred-language")}
+      </label>
+
+      <div
+        className={css`
+          display: flex;
+          height: 37px;
+        `}
+      >
+        {GetLanguageFlag(langCode)}
+        <select
+          className={css`
+            box-sizing: border-box;
+            background: #ffffff;
+            border: 2px solid ${baseTheme.colors.gray[200]};
+            width: 119px;
+          `}
+          id="changeLanguage"
+          onChange={onChange}
+        >
+          {courseVersionsList?.map((course) => (
+            <option key={course.id} value={[course.id, course.language_code]}>
+              {getLanguageName(course.language_code)}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  )
+}
+
 const CourseInstanceSelectModal: React.FC<
   React.PropsWithChildren<CourseInstanceSelectModalProps>
 > = ({ onClose, manualOpen = false }) => {
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
   const dialogTitleId = useId()
 
+  const [selectedLangCourseId, setSelectLanguage] = React.useState(
+    pageState.pageData?.course_id ?? "",
+  )
+  const [languageChanged, setIsLanguageChanged] = React.useState(false)
+
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
+
   const getCourseInstances = useQuery(
-    ["course-instances", pageState.pageData?.course_id],
-    () =>
-      fetchCourseInstances(
-        (pageState.pageData as NonNullable<typeof pageState.pageData>)
-          .course_id as NonNullable<string>,
-      ),
+    ["course-instances"],
+    () => fetchCourseInstances(selectedLangCourseId as NonNullable<string>),
     {
-      enabled: pageState.pageData?.course_id !== null && open && pageState.state === "ready",
+      enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
     },
   )
+
+  useEffect(() => {
+    getCourseInstances.refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLangCourseId])
+
+  const newUrl = useFigureOutNewUrl(selectedLangCourseId)
+  const newLangcode = useFigureOutNewLangCode(selectedLangCourseId)
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn
@@ -48,10 +191,20 @@ const CourseInstanceSelectModal: React.FC<
 
   const handleSubmitAndClose = useCallback(
     async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
+      const newLanguage = newLangcode ?? ""
+      const selectedLanguage = newLanguage.split("-")
+      i18n.changeLanguage(newLanguage)
+      // eslint-disable-next-line i18next/no-literal-string
+      document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
+
       try {
         await postSaveCourseSettings(instanceId, {
           background_question_answers: backgroundQuestionAnswers,
         })
+        if (languageChanged) {
+          window.location.assign(newUrl ?? "")
+          return
+        }
         setOpen(false)
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
@@ -68,7 +221,7 @@ const CourseInstanceSelectModal: React.FC<
         setSubmitError(e)
       }
     },
-    [onClose, pageState],
+    [onClose, pageState, languageChanged, newUrl, newLangcode, i18n],
   )
 
   if (pageState.pageData?.course_id === null) {
@@ -80,19 +233,18 @@ const CourseInstanceSelectModal: React.FC<
   if (!open) {
     return null
   }
-
   return (
-    <Dialog open={open} aria-labelledby={dialogTitleId} closeable={false}>
+    <Dialog open={open} aria-labelledby={dialogTitleId} closeable={false} noPadding>
       <div
         className={css`
-          margin: 1rem;
+          padding: 2rem 3rem;
         `}
       >
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
         <h1
           className={css`
-            font-weight: 500;
-            font-size: 22px;
+            font-weight: ${fontWeights.medium};
+            font-size: ${typography.h5};
             line-height: 26px;
             margin-bottom: 1rem;
           `}
@@ -100,7 +252,11 @@ const CourseInstanceSelectModal: React.FC<
         >
           {t("title-course-settings")}
         </h1>
-
+        <SelectCourseLanguage
+          courseId={pageState.pageData?.course_id ?? ""}
+          setSelectLanguage={setSelectLanguage}
+          setIsLanguageChanged={setIsLanguageChanged}
+        />
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
@@ -110,9 +266,38 @@ const CourseInstanceSelectModal: React.FC<
             courseInstances={getCourseInstances.data}
             onSubmitForm={handleSubmitAndClose}
             initialSelectedInstanceId={pageState.instance?.id}
+            languageChanged={languageChanged}
           />
         )}
       </div>
+      {languageChanged && (
+        <div
+          className={css`
+            background: ${baseTheme.colors.green[100]};
+            height: 57px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0px 0px 4px 4px;
+          `}
+        >
+          <p
+            className={css`
+              font-family: ${primaryFont};
+              font-weight: ${fontWeights.normal};
+              font-size: 14px;
+              max-width: 400px;
+              line-height: 17px;
+              text-align: center;
+              color: ${baseTheme.colors.green[700]};
+            `}
+          >
+            {t("course-language-change-warning", {
+              newLanguage: getLanguageName(newLangcode ?? ""),
+            })}
+          </p>
+        </div>
+      )}
     </Dialog>
   )
 }

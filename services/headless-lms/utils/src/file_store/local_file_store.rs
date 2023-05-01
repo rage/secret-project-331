@@ -3,19 +3,21 @@ use std::path::{Path, PathBuf};
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::{Stream, StreamExt};
+
 use tokio::{
     fs::{self, OpenOptions},
     io::{self, AsyncWriteExt, BufWriter},
 };
 use tokio_util::io::ReaderStream;
 
-use super::{path_to_str, FileStore, GenericPayload};
+use super::{generate_cache_folder_dir, path_to_str, FileStore, GenericPayload};
 use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
     pub base_path: PathBuf,
     pub base_url: String,
+    pub cache_files_path: PathBuf,
 }
 
 impl LocalFileStore {
@@ -32,9 +34,11 @@ impl LocalFileStore {
         } else {
             std::fs::create_dir_all(&base_path)?;
         }
+        let cache_files_path = generate_cache_folder_dir()?;
         Ok(Self {
             base_path,
             base_url,
+            cache_files_path,
         })
     }
 }
@@ -132,11 +136,15 @@ impl FileStore for LocalFileStore {
         let stream = ReaderStream::new(reader);
         Ok(Box::new(stream))
     }
+
+    fn get_cache_files_folder_path(&self) -> UtilResult<&Path> {
+        Ok(&self.cache_files_path)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+    use std::{env, path::Path};
 
     use tempdir::TempDir;
 
@@ -145,6 +153,7 @@ mod tests {
 
     #[tokio::test]
     async fn upload_download_delete_works() {
+        env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
         let local_file_store =
@@ -176,6 +185,7 @@ mod tests {
 
     #[tokio::test]
     async fn get_download_url_works() {
+        env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
         let local_file_store =

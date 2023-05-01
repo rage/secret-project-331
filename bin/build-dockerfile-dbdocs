@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+run_command docker pull debian:bullseye-slim
+run_command docker pull golang:bullseye
+run_command docker pull rust:bullseye
+
+run_command docker build . --file DbDocs.dockerfile -t eu.gcr.io/moocfi-public/db-docs

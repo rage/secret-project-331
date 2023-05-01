@@ -651,7 +651,8 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
     (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string") &&
-    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -666,7 +667,8 @@ export function isModifiedModule(obj: unknown): obj is ModifiedModule {
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
-      typeof typedObj["completion_registration_link_override"] === "string")
+      typeof typedObj["completion_registration_link_override"] === "string") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -698,7 +700,8 @@ export function isNewCourseModule(obj: unknown): obj is NewCourseModule {
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
     typeof typedObj["order_number"] === "number" &&
-    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string")
+    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -714,7 +717,8 @@ export function isNewModule(obj: unknown): obj is NewModule {
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
-      typeof typedObj["completion_registration_link_override"] === "string")
+      typeof typedObj["completion_registration_link_override"] === "string") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -1616,7 +1620,8 @@ export function isUserCompletionInformation(obj: unknown): obj is UserCompletion
     typeof typedObj["course_name"] === "string" &&
     typeof typedObj["uh_course_code"] === "string" &&
     typeof typedObj["email"] === "string" &&
-    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -1641,7 +1646,8 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
-    (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true)
+    (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true) &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 

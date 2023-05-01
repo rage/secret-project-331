@@ -444,3 +444,23 @@ export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile
   const response = await courseMaterialClient.get(`/page_audio/${pageId}/files`)
   return validateResponse(response, isArray(isPageAudioFile))
 }
+
+export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/language-versions`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isCourse))
+}
+
+export const fetchPageByCourseIdAndLanguageGroupId = async (
+  course_id: string,
+  page_language_group_id: string,
+): Promise<Page> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/pages/by-language-group-id/${page_language_group_id}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isPage)
+}

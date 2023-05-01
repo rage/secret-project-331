@@ -1,10 +1,10 @@
 import { useRouter } from "next/router"
 
+import { LANGUAGE_COOKIE_KEY } from "../utils/constants"
 import { getValueFromCookieString } from "../utils/cookies"
 
 const LANGUAGE_QUERY_KEY = "lang"
 const IS_SERVER = typeof window === "undefined"
-const LANGUAGE_COOKIE_KEY = "selected-language"
 
 const SUPPORTED_LANGUAGES = ["en", "fi"]
 const DEFAULT_LANGUAGE = "en"

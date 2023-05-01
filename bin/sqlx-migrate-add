@@ -10,4 +10,7 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
+# Make first command line argument lower case
+set -- "${1,,}"
+
 run_command cargo sqlx migrate add -r "$@"

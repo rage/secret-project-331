@@ -19,7 +19,7 @@
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[rust]": {
-    "editor.defaultFormatter": "ms-vsliveshare.vsliveshare"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
@@ -41,5 +41,6 @@
     "postcss",
     "typescriptreact",
     "javascriptreact"
-  ]
+  ],
+  "stylelint.stylelintPath": "node_modules/stylelint"
 }

@@ -14,7 +14,7 @@ PUT `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio
 
 Request:
 ```http
-PUT /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37/audio HTTP/1.1
+PUT /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTTP/1.1
 Content-Type: multipart/form-data
 
 BINARY_DATA
@@ -103,13 +103,13 @@ async fn set_page_audio(
 }
 
 /**
-DELETE `/api/v0/main-frontend/pages/:page_id/audio` - Removes the chapter image.
+DELETE `/api/v0/main-frontend/page_audio/:file_id` - Removes the chapter image.
 
 # Example
 
 Request:
 ```http
-DELETE /api/v0/main-frontend/pages/d332f3d9-39a5-4a18-80f4-251727693c37/audio HTTP/1.1
+DELETE /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTTP/1.1
 ```
 */
 
@@ -128,15 +128,6 @@ async fn remove_page_audio(
     let page = models::pages::get_page(&mut conn, audio.page_id).await?;
     if let Some(course_id) = page.course_id {
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
-
-        // update the delete function to return PATH
-        // let file = PathBuf::from_str(&audio.path).map_err(|original_error| {
-        //     ControllerError::new(
-        //         ControllerErrorType::InternalServerError,
-        //         original_error.to_string(),
-        //         Some(original_error.into()),
-        //     )
-        // })?;
 
         let path = models::page_audio_files::delete_page_audio(&mut conn, *page_audio_id).await?;
         file_store.delete(Path::new(&path)).await.map_err(|_| {
@@ -157,7 +148,7 @@ async fn remove_page_audio(
 }
 
 /**
-GET `/api/v0/main-fronted/page_audio/:page_id/audio_files` - Get a page audio files
+GET `/api/v0/main-fronted/page_audio/:page_id/files` - Get a page audio files
 
 Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
 */

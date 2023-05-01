@@ -474,6 +474,7 @@
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>.",
   "audio-upload": "Audio Upload",
   "upload-file": "Upload file",
-  "audio-upload-description": "Click Browse, to select a file, and then click Upload. You can upload max of two files (.mp3, .ogg)",
-  "audio-addedd-successfully": "Audio successfully uploaded"
+  "audio-upload-description": "Please click browse to upload a file. It is advisable to upload two audio formats, one in mp3 and .ogg for cross browser compatibility.",
+  "audio-addedd-successfully": "Audio uploaded successfully",
+  "audio-deleted-successfully": "Audio deleted successfully"
 }

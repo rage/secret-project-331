@@ -17,7 +17,7 @@ export const styledRangeInput = css`
   /* Input range - firefox */
   input[type="range"]::-moz-range-track {
     position: relative;
-    background: #ccc;
+    background: #d5def2;
     width: 100%;
     height: 4px;
     cursor: pointer;

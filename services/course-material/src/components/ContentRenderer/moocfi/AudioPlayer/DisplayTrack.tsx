@@ -1,21 +1,31 @@
 import { css } from "@emotion/css"
+import { useRouter } from "next/router"
 import React from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
+import { AudioFile } from "../../../Page"
 
-const DisplayTrack = ({ currentTrack, audioRef, setDuration, progressBarRef }: any) => {
+const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: any) => {
   const onLoadedMetadata = () => {
     const seconds = audioRef.current.duration
     setDuration(seconds)
     progressBarRef.current.max = seconds
   }
 
+  const router = useRouter()
+
+  const title = router.asPath.split("/")[5]
+  const formattedTitle = title.charAt(0).toUpperCase() + title.slice(1)
+  // eslint-disable-next-line i18next/no-literal-string
+  const baseUrl = "https://project-331.local/api/v0/files/uploads/"
+
   return (
     <div>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
-        <source src={currentTrack.src} type="audio/mp3" />
-        {/* <source src={currentTrack.src.ogg} type="audio/ogg" /> */}
+        {tracks.map(({ path, mime }: AudioFile) => (
+          <source key={path} src={baseUrl + path} type={mime} />
+        ))}
       </audio>
       <div
         className={css`
@@ -37,7 +47,7 @@ const DisplayTrack = ({ currentTrack, audioRef, setDuration, progressBarRef }: a
               font-weight: 500;
             `}
           >
-            {currentTrack.title}
+            {formattedTitle}
           </p>
         </div>
       </div>

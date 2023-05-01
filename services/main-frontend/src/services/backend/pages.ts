@@ -69,10 +69,10 @@ export const postPageAudioFile = async (pageId: string, file: File): Promise<Pag
 }
 
 export const removePageAudioFile = async (fileId: string): Promise<void> => {
-  await mainFrontendClient.delete(`page_audio/${fileId}`)
+  await mainFrontendClient.delete(`/page_audio/${fileId}`)
 }
 
 export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
-  const response = await mainFrontendClient.get(`page_audio/${pageId}/files`)
+  const response = await mainFrontendClient.get(`/page_audio/${pageId}/files`)
   return validateResponse(response, isArray(isPageAudioFile))
 }

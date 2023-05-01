@@ -19,6 +19,7 @@ import {
   NewProposedPageEdits,
   OEmbedResponse,
   Page,
+  PageAudioFile,
   PageChapterAndCourseInformation,
   PageNavigationInformation,
   PageSearchRequest,
@@ -49,6 +50,7 @@ import {
   isMaterialReference,
   isOEmbedResponse,
   isPage,
+  isPageAudioFile,
   isPageChapterAndCourseInformation,
   isPageNavigationInformation,
   isPageSearchResult,
@@ -436,4 +438,9 @@ export const postNewReference = async (
 export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
   const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
   return validateResponse(response, isIsChapterFrontPage)
+}
+
+export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
+  const response = await courseMaterialClient.get(`/page_audio/${pageId}/files`)
+  return validateResponse(response, isArray(isPageAudioFile))
 }

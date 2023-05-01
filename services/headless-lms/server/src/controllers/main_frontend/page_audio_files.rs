@@ -1,8 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
 use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
+    path::{Path},
 };
 
 use futures::StreamExt;
@@ -24,7 +23,7 @@ BINARY_DATA
 ```
 */
 #[generated_doc]
-#[instrument(skip(request, payload, pool, file_store, app_conf))]
+#[instrument(skip(request, payload, pool, file_store))]
 async fn set_page_audio(
     request: HttpRequest,
     mut payload: Multipart,
@@ -32,7 +31,6 @@ async fn set_page_audio(
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
-    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_page(&mut conn, *page_id).await?;

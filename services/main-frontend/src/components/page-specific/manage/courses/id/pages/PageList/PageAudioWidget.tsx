@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { BlockEditProps } from "@wordpress/blocks"
-import React, { useState } from "react"
+import { useRouter } from "next/router"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CloseIcon from "../../../../../../../imgs/close.svg"
@@ -12,8 +12,6 @@ import {
   postPageAudioFile,
   removePageAudioFile,
 } from "../../../../../../../services/backend/pages"
-import { PageAudioFile } from "../../../../../../../shared-module/bindings"
-import Button from "../../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
@@ -27,7 +25,7 @@ export interface AudioUploadAttributes {
   onClose: () => void
 }
 
-const PageAudioWidget: React.FC<React.PropsWithChildren<BlockEditProps<AudioUploadAttributes>>> = ({
+const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> = ({
   id,
   open,
   onClose,
@@ -65,7 +63,14 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<BlockEditProps<AudioUplo
   )
 
   const uploadAudioFileMutation = useToastMutation(
-    (file: File) => postPageAudioFile(pageId, file),
+    (file: File) => {
+      if (!pageId) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("Page ID undefined")
+      }
+
+      return postPageAudioFile(pageId, file)
+    },
     {
       notify: true,
       successMessage: t("audio-addedd-successfully"),
@@ -266,7 +271,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<BlockEditProps<AudioUplo
             `}
           >
             <input id="audioFile" name="audioFile" type="file"></input>
-            <input type="submit" value="Upload" />
+            <input type="submit" value={t("upload")} />
           </form>
         </div>
         <button

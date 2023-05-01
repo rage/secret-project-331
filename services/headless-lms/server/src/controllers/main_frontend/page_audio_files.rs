@@ -1,8 +1,6 @@
-//! Controllers for requests starting with `/api/v0/main-frontend/pages`.
+//! Controllers for requests starting with `/api/v0/main-frontend/page_audio`.
 
-use std::{
-    path::{Path},
-};
+use std::path::Path;
 
 use futures::StreamExt;
 use models::page_audio_files::PageAudioFiles;
@@ -10,13 +8,13 @@ use models::page_audio_files::PageAudioFiles;
 use crate::prelude::*;
 
 /**
-PUT `/api/v0/main-frontend/pages/:page_id/audio` - Sets or updates the page audio.
+PUT `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio.
 
 # Example
 
 Request:
 ```http
-PUT /api/v0/main-frontend/pages/d332f3d9-39a5-4a18-80f4-251727693c37/audio HTTP/1.1
+PUT /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37/audio HTTP/1.1
 Content-Type: multipart/form-data
 
 BINARY_DATA
@@ -96,11 +94,11 @@ async fn set_page_audio(
 
         token.authorized_ok(web::Json(true))
     } else {
-        return Err(ControllerError::new(
+        Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "The page needs to be related to a course.".to_string(),
             None,
-        ));
+        ))
     }
 }
 
@@ -141,7 +139,7 @@ async fn remove_page_audio(
         // })?;
 
         let path = models::page_audio_files::delete_page_audio(&mut conn, *page_audio_id).await?;
-        file_store.delete(&Path::new(&path)).await.map_err(|_| {
+        file_store.delete(Path::new(&path)).await.map_err(|_| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 "Could not delete the file from the file store".to_string(),
@@ -150,18 +148,18 @@ async fn remove_page_audio(
         })?;
         token.authorized_ok(web::Json(()))
     } else {
-        return Err(ControllerError::new(
+        Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "The page needs to be related to a course.".to_string(),
             None,
-        ));
+        ))
     }
 }
 
 /**
-GET `/api/v0/main-fronted/pages/:page_id/audio_files` - Get a pages audio files
+GET `/api/v0/main-fronted/page_audio/:page_id/audio_files` - Get a page audio files
 
-Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/audio_files`
+Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
 */
 #[generated_doc]
 async fn get_page_audio(

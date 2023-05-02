@@ -1263,6 +1263,15 @@ export interface ProposalCount {
   handled: number
 }
 
+export interface PageAudioFile {
+  id: string
+  page_id: string
+  created_at: Date
+  deleted_at: Date | null
+  path: string
+  mime_type: string
+}
+
 export interface NewRegrading {
   user_points_update_strategy: UserPointsUpdateStrategy
   exercise_task_submission_ids: Array<string>

@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockInstance, getBlockType } from "@wordpress/blocks"
-import produce from "immer"
+import { produce } from "immer"
 
 const ENABLED_BLOCKS = ["moocfi/aside", "moocfi/infobox"]
 

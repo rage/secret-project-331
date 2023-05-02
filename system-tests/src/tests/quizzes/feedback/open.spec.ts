@@ -12,24 +12,20 @@ test("test quizzes open feedback", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
-  ])
+  await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
+  await page.locator("text=The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), page.click(`a:has-text("Page 4")`)])
+  await page.click(`a:has-text("Page 4")`)
   await page.waitForSelector("text=First chapters open page.")
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-4",

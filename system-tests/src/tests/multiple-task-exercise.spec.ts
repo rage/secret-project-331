@@ -18,26 +18,18 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-exercise-states' }*/),
-    page.locator("text=Advanced exercise states").click(),
-  ])
+  await page.locator("text=Advanced exercise states").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1' }*/),
     page.click('#content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)'),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.getByRole("link", { name: "11 Complicated exercise page" }).click(),
-  ])
+  await Promise.all([page.getByRole("link", { name: "11 Complicated exercise page" }).click()])
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",
   )

@@ -12,27 +12,17 @@ test("content search", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
-    page.click(`div:text-is("Introduction to Course Material")`),
-  ])
+  await page.click(`div:text-is("Introduction to Course Material")`)
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
-    page.click('a:has-text("CHAPTER 2User Experience")'),
-  ])
+  await page.click('a:has-text("CHAPTER 2User Experience")')
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/user-research' }*/),
-    page.locator("text=User research").first().click(),
-  ])
+  await page.locator("text=User research").first().click()
 
   await page.click('[aria-label="Search for pages"]')
 
@@ -52,10 +42,7 @@ test("content search", async ({ page, headless }, testInfo) => {
     screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("text=Human-machine interface").click(),
-  ])
+  await page.locator("text=Human-machine interface").click()
 
   await expectUrlPathWithRandomUuid(
     page,

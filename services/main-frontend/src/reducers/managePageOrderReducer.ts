@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
-import produce from "immer"
-import { WritableDraft } from "immer/dist/types/types-external"
+import { produce } from "immer"
+import { WritableDraft } from "immer/src/types/types-external"
 import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
 
 import { Chapter, CourseStructure, Page } from "../shared-module/bindings"

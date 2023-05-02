@@ -14,27 +14,17 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals' }*/),
-    page.locator("text=Introduction to edit proposals").click(),
-  ])
+  await page.locator("text=Introduction to edit proposals").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-edit-proposals/chapter-1' }*/),
-    page.locator("text=The Basics").click(),
-  ])
+  await page.locator("text=The Basics").click()
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.getByRole("link", { name: "1 Page One" }).click(),
-  ])
+  await Promise.all([page.getByRole("link", { name: "1 Page One" }).click()])
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
@@ -114,20 +104,16 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
 
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2",
   )
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Change requests").click()])
+  await page.locator("text=Change requests").click()
   await page.locator("text=Accept").first().waitFor({ state: "visible" })
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",

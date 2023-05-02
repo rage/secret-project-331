@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
 import { fetchCourseLanguageVersions } from "../services/backend"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
+import Spinner from "../shared-module/components/Spinner"
 import {
   baseTheme,
   fontWeights,
@@ -73,6 +75,14 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       setLangCode(firstLanguageVersion.language_code)
     }
   }, [currentCourseId, courseVersionsList, langCode, i18n])
+
+  if (useCourseLanguageVersionsList.isLoading) {
+    return <Spinner variant="medium" />
+  }
+
+  if (useCourseLanguageVersionsList.isError) {
+    return <ErrorBanner variant="readOnly" error={useCourseLanguageVersionsList.error} />
+  }
 
   if (courseVersionsList && courseVersionsList.length < 2) {
     // The course has only 1 language version, so no need to show the language selection

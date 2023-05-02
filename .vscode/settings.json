@@ -34,5 +34,6 @@
   "eslint.format.enable": true,
   "shellcheck.customArgs": ["--external-sources"],
   "stylelint.validate": ["css", "less", "postcss", "typescriptreact", "javascriptreact"],
-  "stylelint.stylelintPath": "node_modules/stylelint"
+  "stylelint.stylelintPath": "node_modules/stylelint",
+  "files.insertFinalNewline": true
 }

@@ -350,6 +350,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                 </div>
               </BlockTools>
             </div>
+            {/* @ts-expect-error: slot is not in the type definitions */}
             <Popover.Slot />
           </BlockEditorProvider>
         </SlotFillProvider>

@@ -12,7 +12,8 @@
         ]
       }
     ],
-    "selector-anb-no-unmatchable": null
+    "selector-anb-no-unmatchable": null,
+    "declaration-block-no-duplicate-properties": null
   },
   "overrides": [
     {

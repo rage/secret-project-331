@@ -13,14 +13,10 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
-    page.locator(`div:text-is("Introduction to Course Material")`).click(),
-  ])
+  await page.locator(`div:text-is("Introduction to Course Material")`).click()
   await selectCourseInstanceIfPrompted(page)
 
   await page.evaluate(() => {

@@ -1590,6 +1590,12 @@ export function isEmbedAttributes(obj: unknown): obj is EmbedAttributes {
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+        typeof typedObj["style"] === "function") &&
+        Object.entries<any>(typedObj["style"]).every(
+          ([key, _value]) => typeof key === "string",
+        ))) &&
     (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
     (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string")
   )

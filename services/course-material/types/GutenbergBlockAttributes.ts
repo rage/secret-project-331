@@ -1119,6 +1119,9 @@ export interface EmbedAttributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   height?: number
   title?: string
 }

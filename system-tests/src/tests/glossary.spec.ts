@@ -12,14 +12,10 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/glossary-course' }*/),
-    page.locator("text=Glossary course").click(),
-  ])
+  await page.locator("text=Glossary course").click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -36,19 +32,12 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a' }*/),
-    page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a/glossary' }*/),
-    page.getByRole("tab", { name: "Glossary" }).click(),
-  ])
+  await Promise.all([page.getByRole("tab", { name: "Glossary" }).click()])
 
   await page.getByRole("button", { name: "Edit" }).first().click()
   await page.locator("text=Cancel").click()

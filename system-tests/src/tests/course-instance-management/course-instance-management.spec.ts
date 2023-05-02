@@ -11,17 +11,13 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    await page
-      .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
-      .click(),
-  ])
+  await await page
+    .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
+    .click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
   )
@@ -63,10 +59,7 @@ test("test", async ({ page, headless }, testInfo) => {
   expect(usersCsvContents).toContain("3524d694-7fa8-4e73-aa1a-de9a20fd514b,")
   expect(usersCsvContents).toContain(",User4,,user_4@example.com")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.getByRole("tab", { name: "Course instances" }).click(),
-  ])
+  await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
   await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
 
   await expectScreenshotsToMatchSnapshots({
@@ -97,12 +90,9 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(
-      "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
-    ),
-  ])
+  await page.click(
+    "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
+  )
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )
@@ -163,10 +153,7 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),
-    page.locator("text=Delete").click(),
-  ])
+  await page.locator("text=Delete").click()
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 

@@ -10,19 +10,12 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course 'Permission management'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Permission management'\"] svg").click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92/permissions' }*/),
-    page.locator("text=Permissions").click(),
-  ])
+  await page.locator("text=Permissions").click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

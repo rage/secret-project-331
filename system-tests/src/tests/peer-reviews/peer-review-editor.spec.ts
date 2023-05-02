@@ -9,21 +9,14 @@ test("create peer review", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click()
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
+  await page.locator("text=Pages").click()
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click(),
-  ])
+  await page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click()
 
   await page.locator("text=Add peer review").check()
   // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]

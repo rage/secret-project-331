@@ -1,4 +1,4 @@
-import produce from "immer"
+import { produce } from "immer"
 import { createReducer } from "typesafe-actions"
 
 import { action, Quiz, QuizVariables } from "../../../../types/types"

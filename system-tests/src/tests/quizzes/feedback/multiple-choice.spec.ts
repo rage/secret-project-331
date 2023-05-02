@@ -12,25 +12,20 @@ test("test quizzes multiple-choice feedback", async ({ page, headless }, testInf
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
-  ])
+  await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), await page.locator("text=The Basics").click()])
+  await await page.locator("text=The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.getByRole("link", { name: "9 Multiple choice with feedback" }).click(),
   ])
   await expect(page).toHaveURL(

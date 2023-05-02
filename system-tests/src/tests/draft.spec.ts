@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.describe("anonymous user", () => {
@@ -7,7 +8,6 @@ test.describe("anonymous user", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -24,7 +24,6 @@ test.describe("user", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -46,7 +45,6 @@ test.describe("admin", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -60,7 +58,6 @@ test.describe("admin", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -78,10 +75,7 @@ test.describe("admin", () => {
 
     await page.click('div[role="dialog"] >> text=Create')
 
-    await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/265c83b6-7faf-40bf-90e9-40a4c28f826c' }*/),
-      page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click(),
-    ])
+    await page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -105,5 +99,41 @@ test.describe("admin", () => {
       snapshotName: "non-draft-course",
       waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Advanced drafts" })],
     })
+  })
+})
+
+test.describe("Teacher", () => {
+  test.use({
+    storageState: "src/states/teacher@example.com.json",
+  })
+
+  test("Can give students access to the draft course", async ({ page, browser }) => {
+    await page.goto("http://project-331.local/")
+    await page
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click()
+    await page.getByRole("button", { name: "Create" }).first().click()
+    await page.getByLabel("Name  *", { exact: true }).fill("Best draft course")
+    await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
+    await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
+    await page.getByLabel("Description").fill("draft")
+    await page.getByText("Draft", { exact: true }).click()
+    await page.locator("label").filter({ hasText: "English" }).click()
+    await page.getByRole("button", { name: "Create" }).click()
+    await page.getByText("Operation successful!").waitFor()
+    await page.getByRole("link", { name: "Manage course 'Best draft course'" }).click()
+    await page.getByRole("tab", { name: "Permissions" }).click()
+    await page.getByPlaceholder("Enter email").click()
+    await page.getByPlaceholder("Enter email").fill("user@example.com")
+    await page.getByRole("combobox", { name: "Role" }).selectOption("MaterialViewer")
+    await page.getByRole("button", { name: "Add user" }).click()
+    await page.getByText("Operation successful!").waitFor()
+
+    // check that the user can access the course
+    const context2 = await browser.newContext({ storageState: "src/states/user@example.com.json" })
+    const page2 = await context2.newPage()
+    await page2.goto("http://project-331.local/org/uh-mathstat/courses/best-draft-course")
+    await selectCourseInstanceIfPrompted(page2)
+    await page2.getByRole("heading", { name: "In this course you'll..." }).click()
   })
 })

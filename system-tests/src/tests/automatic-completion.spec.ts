@@ -10,24 +10,15 @@ test.use({
 test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click(),
-  ])
+  await page
+    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+    .click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/automatic-completions' }*/),
-    page.locator("text=Automatic Completions").click(),
-  ])
+  await page.locator("text=Automatic Completions").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/automatic-completions/chapter-1' }*/),
-    page.locator("text=Chapter 1The Basics").click(),
-  ])
+  await page.locator("text=Chapter 1The Basics").click()
 
   await page.locator("text=1Page One").click()
   await expect(page).toHaveURL(
@@ -56,10 +47,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     beforeScreenshot: () => page.locator("text=Congratulations!").scrollIntoViewIfNeeded(),
   })
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/completion-registration/878b7205-0e13-42be-90b9-3571bb6626c9' }*/),
-    page.locator("text=Automatic CompletionsRegister >> button").click(),
-  ])
+  await page.locator("text=Automatic CompletionsRegister >> button").click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -68,30 +56,23 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Register completion")],
   })
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'https://www.example.com/' }*/),
-    page.locator("text=To the registration form").click(),
-  ])
+  await page.locator("text=To the registration form").click()
   await expect(page).toHaveURL("https://www.example.com")
 
   await page.goto("http://project-331.local/")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click(),
-  ])
+  await page
+    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+    .click()
 
   await Promise.all([
-    page.waitForNavigation(),
     page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click(),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f",
   )
 
-  await Promise.all([page.waitForNavigation(), page.getByRole("tab", { name: "Modules" }).click()])
+  await Promise.all([page.getByRole("tab", { name: "Modules" }).click()])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/modules",
   )
@@ -112,28 +93,16 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click(),
-  ])
+  await page
+    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+    .click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/automatic-completions' }*/),
-    page.locator("text=Automatic Completions").click(),
-  ])
+  await page.locator("text=Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.waitForSelector("text=Congratulations!")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/completion-registration/878b7205-0e13-42be-90b9-3571bb6626c9' }*/),
-    page.locator("text=Automatic CompletionsRegister >> button").click(),
-  ])
+  await page.locator("text=Automatic CompletionsRegister >> button").click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'https://www.example.com/' }*/),
-    page.locator("text=To the registration form").click(),
-  ])
+  await page.locator("text=To the registration form").click()
   await expect(page).toHaveURL("https://www.example.com/override")
 })

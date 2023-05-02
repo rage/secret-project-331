@@ -12,7 +12,6 @@ test("create quizzes test", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
@@ -33,14 +32,11 @@ test("create quizzes test", async ({ page }) => {
 
   await page.waitForSelector("text=Operation successful!")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(`a[aria-label="Manage course 'exercise test'"]`),
-  ])
+  await page.click(`a[aria-label="Manage course 'exercise test'"]`)
 
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
+  await page.locator("text=Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -63,10 +59,7 @@ test("create quizzes test", async ({ page }) => {
 
   await page.click(`button:text("Create")`)
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(`button:text("Edit page"):right-of(:text("first page"))`),
-  ])
+  await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
 
   await page.click(':nth-match([aria-label="Add block"], 1)')
 

@@ -4,7 +4,7 @@ import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import CheckIcon from "humbleicons/icons/check.svg"
-import produce from "immer"
+import { produce } from "immer"
 import { useContext, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 

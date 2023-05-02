@@ -84,6 +84,7 @@ const BackgroundAndColorCustomizer: React.FC<
             console.error({ error })
           }}
           className={placeHolderFixHeightStyles}
+          onHTMLDrop={undefined}
         ></MediaPlaceholder>
       )}
       <Placeholder

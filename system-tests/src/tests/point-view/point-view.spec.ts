@@ -12,26 +12,19 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers' }*/),
-    page.locator("text=Point view for teachers").click(),
-  ])
+  await page.locator("text=Point view for teachers").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await page.locator("text=Start course").click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers/chapter-1' }*/),
-    page.locator("text=The Basics").click(),
-  ])
+  await page.locator("text=The Basics").click()
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
+  await page.locator("text=Page One").first().click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await frame.locator("text=b").click()
@@ -51,10 +44,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/course-instances/1544bf21-240a-56c4-a391-9b0621051fa6/points' }*/),
-    page.locator("text=View points").nth(1).click(),
-  ])
+  await page.locator("text=View points").nth(1).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

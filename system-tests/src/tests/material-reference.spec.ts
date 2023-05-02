@@ -11,14 +11,10 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5' }*/),
-    page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()
 
   await page.locator('a[role="tab"]:has-text("References")').click()
   await expect(page).toHaveURL(
@@ -117,10 +113,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78/pages",
   )
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/30fe1090-f2d6-4e7c-9812-44cd3c0b9304' }*/),
-    page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click(),
-  ])
+  await page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click()
 
   await page.locator('[aria-label="Add block"]').click()
 

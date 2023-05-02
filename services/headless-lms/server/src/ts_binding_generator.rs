@@ -192,6 +192,7 @@ fn models(target: &mut File) {
         proposed_page_edits::NewProposedPageEdits,
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
+        page_audio_files::PageAudioFile,
 
         regradings::NewRegrading,
         regradings::Regrading,

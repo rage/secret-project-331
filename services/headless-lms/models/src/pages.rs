@@ -58,6 +58,17 @@ pub struct PageInfo {
     pub organization_slug: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageAudioFiles {
+    pub id: Uuid,
+    pub page_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub path: String,
+    pub mime_type: String,
+}
+
 impl Page {
     pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
         serde_json::from_value(self.content.clone()).map_err(Into::into)

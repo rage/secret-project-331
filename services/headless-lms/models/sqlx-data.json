@@ -523,6 +523,16 @@
     },
     "query": "DELETE FROM user_details WHERE user_id = $1"
   },
+  "055e64672243c81e7679ea2829bf22812302e147b35cf40077a62ef746a62f7b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO page_audio_files (\n  page_id,\n  path,\n  mime_type\n)\nVALUES($1, $2, $3)\n      "
+  },
   "05fe496775c0bd71fedcd7398bcc1d281087874580d0006704e9c1c65fdc98db": {
     "describe": {
       "columns": [],
@@ -3900,6 +3910,47 @@
     },
     "query": "\nUPDATE course_modules\nSET automatic_completion = $1,\n  automatic_completion_number_of_exercises_attempted_treshold = $2,\n  automatic_completion_number_of_points_treshold = $3,\n  automatic_completion_requires_exam = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING *\n        "
   },
+  "36adb9a0f4b64e129e67c8229f7dc0e7055bd3e01d73dad8373c2ca006cc8ece": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "path",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "mime_type",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_audio_files\nWHERE page_id = $1\nAND deleted_at IS NULL;\n"
+  },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
     "describe": {
       "columns": [
@@ -4159,6 +4210,22 @@
       }
     },
     "query": "\nSELECT user_id,\n  exam_id,\n  started_at\nFROM exam_enrollments\nWHERE exam_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n"
+  },
+  "3dfdeb92c9da05c6b03789eefdb20cb433a82a8e72cd0d0d85eebe6eba92e7b0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "path",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE page_audio_files\nSET deleted_at = now()\nWHERE id = $1\nRETURNING path\n      "
   },
   "3e2d1ca77df30e87efe65921bcc7cf0068faf0f9edb309dd86e5d51c1e998b9f": {
     "describe": {
@@ -9396,6 +9463,47 @@
       }
     },
     "query": "\nUPDATE glossary\nSET deleted_at = now()\nWHERE id = $1\n"
+  },
+  "769c3c707fb5eec0d42419aa8fe9a145fb258c4e256d3d6954919f47bec172e4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "path",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "mime_type",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_audio_files\nWHERE id = $1\nAND deleted_at IS NULL;\n"
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
     "describe": {

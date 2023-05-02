@@ -4,7 +4,7 @@ import React, { useContext, useState } from "react"
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
 import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
-import { Block, fetchGlossary } from "../services/backend"
+import { Block, fetchGlossary, fetchPageAudioFiles } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import Spinner from "../shared-module/components/Spinner"
@@ -12,6 +12,7 @@ import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import ContentRenderer from "./ContentRenderer"
+import AudioPlayer from "./ContentRenderer/moocfi/AudioPlayer"
 import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
@@ -24,6 +25,11 @@ interface Props {
   organizationSlug: string
 }
 
+export interface AudioFile {
+  path: string | undefined
+  mime: string | undefined
+}
+
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
@@ -34,6 +40,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const pageId = pageContext?.pageData?.id
   const isMaterialPage = pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id)
   const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
+
+  const tracks: AudioFile[] = []
+
+  const getPageAudioFiles = useQuery([`page-${pageId}-audio-files`], () =>
+    courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : [],
+  )
 
   // Fetch glossary for each page seperately
   const glossary = useQuery([`glossary-${courseId}`], () =>
@@ -48,6 +60,18 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     return <ErrorBanner variant={"readOnly"} error={glossary.error} />
   }
   const glossaryState: GlossaryState = { terms: glossary.data }
+
+  if (getPageAudioFiles.isLoading) {
+    return <Spinner variant={"small"} />
+  }
+
+  if (getPageAudioFiles.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getPageAudioFiles.error} />
+  }
+
+  if (getPageAudioFiles.isSuccess) {
+    getPageAudioFiles.data.map((item) => tracks.push({ path: item.path, mime: item.mime_type }))
+  }
 
   return (
     <GlossaryContext.Provider value={glossaryState}>
@@ -78,6 +102,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {pageContext.pageData?.course_id && (
           <ReferenceList courseId={pageContext.pageData.course_id} />
         )}
+        {getPageAudioFiles.isSuccess && tracks.length !== 0 && <AudioPlayer tracks={tracks} />}
         {courseId && pageId && (
           <FeedbackHandler
             courseId={courseId}

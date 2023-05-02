@@ -114,7 +114,7 @@ Now run the command `bin/psql-analyze explain.sql analyze.json` and then add the
 
 Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
 
-1. Rename `.env.example` -> `.env`
+1. cd services/headless-lms/models/ && cp .env.example .env
 2. In `.env` setup `DATABASE_URL=postgres://localhost/headless_lms_dev`
 3. `bin/local-dev-db-create-user`
 4. `bin/local-dev-db-create`

@@ -59,7 +59,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.click('[aria-label="Options"]')
   await page.waitForTimeout(100)
 
-  await page.locator("text=Remove Pages In Chapter").click()
+  await page.getByText("Delete").click()
   await page.waitForTimeout(100)
   // - EXERCISES
   await page.click(
@@ -70,13 +70,13 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.click('[aria-label="Options"]')
   await page.waitForTimeout(100)
 
-  await page.locator("text=Remove Exercises In Chapter").click()
+  await page.getByText("Delete").click()
   await page.waitForTimeout(100)
 
   await page.click('[aria-label="Options"]')
   await page.waitForTimeout(100)
 
-  await page.locator("text=Remove Hero Section").click()
+  await page.getByText("Delete").click()
   await page.waitForTimeout(100)
   // - CREATE LATEX BLOCK
 

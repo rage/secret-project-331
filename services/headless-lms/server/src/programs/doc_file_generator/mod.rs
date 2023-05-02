@@ -776,7 +776,8 @@ fn models() {
             language_code: "en-US".to_string(),
             copied_from: None,
             content_search_language: Some("simple".to_string()),
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
+                .unwrap(),
             description: Some("Example".to_string()),
             is_draft: true,
             is_test_mode: false,
@@ -821,7 +822,8 @@ fn models() {
         Opt,
         UserCourseSettings {
             user_id,
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
+                .unwrap(),
             created_at,
             updated_at,
             deleted_at: None,
@@ -1089,7 +1091,9 @@ fn models() {
             order_number: 123,
             copied_from: None,
             hidden: false,
-            page_language_group_id: None,
+            page_language_group_id: Some(
+                Uuid::parse_str("0484aa42-ece8-4bc4-9a34-92f5994f6697").unwrap()
+            ),
         }
     );
     doc!(

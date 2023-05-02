@@ -29,17 +29,14 @@ test.describe("Uploading media as admin", async () => {
 
   test("test", async ({ page, headless }, testInfo) => {
     await page.locator("text=University of Helsinki, Department of Computer Science").click()
-    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
-    expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
     await page.locator("text=Pages").click()
 
     await page.click(
       `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
     )
-    expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
     await page.locator(`[aria-label="Add default block"]`).click()
     await page

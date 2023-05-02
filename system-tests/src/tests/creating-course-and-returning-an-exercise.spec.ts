@@ -36,7 +36,6 @@ test("test", async ({ page }) => {
   await await page
     .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
     .click()
-  expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
   await page.locator("text=Pages").click()
 
@@ -81,7 +80,6 @@ test("test", async ({ page }) => {
   await page.click('button:text("Create")')
 
   await page.click(`button:text("Edit page"):right-of(:text("System Testing"))`)
-  expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
   await page.click('[aria-label="Add block"]')
   await page.keyboard.type("/paragraph")

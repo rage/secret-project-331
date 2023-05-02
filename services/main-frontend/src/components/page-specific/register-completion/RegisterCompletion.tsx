@@ -76,8 +76,10 @@ const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionPro
           <li>{t("fill-in-the-registration-form")}</li>
           <li>
             <Trans t={t} i18nKey="at-the-form-field-fill-in-your-email-address">
-              At the form field &apos;Your email address on the MOOC course&apos;{" "}
-              <strong>fill in: {data.email}</strong>
+              At the form field &apos;Your email address on the MOOC course&apos;
+              <strong>
+                fill in: <span>{{ email: data.email }}</span>
+              </strong>
             </Trans>
           </li>
           <li>{t("tick-the-box-if-you-want-email-after-credits-have-been-registered")}</li>

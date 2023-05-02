@@ -12,15 +12,11 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5",
   )

@@ -10,14 +10,10 @@ test("mange course structure works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5' }*/),
-    page.locator("[aria-label=\"Manage\\ course\\ \\'Course\\ Structure\\'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage\\ course\\ \\'Course\\ Structure\\'\"] svg").click()
 
   await page.locator("text=Pages").click()
   await expect(page).toHaveURL(

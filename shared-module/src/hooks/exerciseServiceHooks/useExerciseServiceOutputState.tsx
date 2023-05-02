@@ -1,4 +1,4 @@
-import produce, { Draft } from "immer"
+import { Draft, produce } from "immer"
 import { useContext } from "react"
 
 import { ExerciseServiceContextType } from "../../contexts/ExerciseServiceContext"

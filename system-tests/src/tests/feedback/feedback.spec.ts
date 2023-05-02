@@ -16,24 +16,20 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("text=Introduction to feedback").click(),
-  ])
+  await page.locator("text=Introduction to feedback").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=The Basics").click()])
+  await page.locator("text=The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Page One").first().click()])
+  await page.locator("text=Page One").first().click()
   await page.locator(`text=Everything is a big topic`).waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
@@ -82,21 +78,14 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await login("admin@example.com", "admin", page, true)
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.getByRole("tab", { name: "Feedback 4" }).click(),
-  ])
+  await Promise.all([page.getByRole("tab", { name: "Feedback 4" }).click()])
   // await page.waitForURL((url) => url.searchParams.has("read"))
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 

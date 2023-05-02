@@ -120,6 +120,7 @@ use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
+    page_audio_files::PageAudioFile,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
@@ -1451,6 +1452,15 @@ fn models() {
         map.insert("key1".to_string(), "val1".to_string());
         map.insert("key2".to_string(), "val2".to_string());
         map
+    });
+
+    doc!(PageAudioFile {
+        id,
+        page_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+        created_at,
+        deleted_at,
+        path: "/path/to/file".to_string(),
+        mime_type: "audio/ogg".to_string(),
     });
 }
 

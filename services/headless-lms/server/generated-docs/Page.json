@@ -30,5 +30,6 @@
   ],
   "order_number": 123,
   "copied_from": null,
-  "hidden": false
+  "hidden": false,
+  "page_language_group_id": null
 }

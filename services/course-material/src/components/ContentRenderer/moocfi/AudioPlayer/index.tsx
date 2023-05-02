@@ -15,7 +15,6 @@ export type AudioPlayerProps = React.HTMLAttributes<HTMLDivElement> & AudioFileP
 const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<AudioPlayerProps>>> = ({
   tracks,
 }) => {
-  const [trackIndex, setTrackIndex] = useState<number>(0)
   const [timeProgress, setTimeProgress] = useState<number>(0)
   const [duration, setDuration] = useState<number>(0)
 
@@ -55,8 +54,6 @@ const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Audi
                   duration,
                   setTimeProgress,
                   tracks,
-                  trackIndex,
-                  setTrackIndex,
                 }}
               />
             </div>

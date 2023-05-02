@@ -43,16 +43,13 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
 
   const repeat = useCallback(() => {
     const currentTime = audioRef.current.currentTime
-    if (currentTime) {
-      return
-    }
-    setTimeProgress(currentTime)
     progressBarRef.current.value = currentTime
     progressBarRef.current.style.setProperty(
       // eslint-disable-next-line i18next/no-literal-string
       "--range-progress",
       `${(progressBarRef.current.value / duration) * 100}%`,
     )
+    setTimeProgress(currentTime)
 
     playAnimationRef.current = requestAnimationFrame(repeat)
   }, [audioRef, duration, progressBarRef, setTimeProgress])
@@ -60,12 +57,13 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
   useEffect(() => {
     if (isPlaying) {
       audioRef.current.play()
+      playAnimationRef.current = requestAnimationFrame(repeat)
       console.log(playAnimationRef.current)
     } else {
       audioRef.current.pause()
+      cancelAnimationFrame(playAnimationRef.current)
     }
-    playAnimationRef.current = requestAnimationFrame(repeat)
-  }, [isPlaying, audioRef, repeat])
+  }, [isPlaying, audioRef, audioRef?.current?.readyState, repeat])
 
   const skipForward = () => {
     audioRef.current.currentTime += 15

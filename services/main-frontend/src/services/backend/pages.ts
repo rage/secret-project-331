@@ -1,3 +1,5 @@
+import { isBoolean } from "lodash"
+
 import {
   HistoryRestoreData,
   NewPage,
@@ -57,7 +59,7 @@ export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
   return validateResponse(response, isPageInfo)
 }
 
-export const postPageAudioFile = async (pageId: string, file: File): Promise<PageAudioFile> => {
+export const postPageAudioFile = async (pageId: string, file: File): Promise<boolean> => {
   // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["audio"])
   const data = new FormData()
@@ -65,7 +67,7 @@ export const postPageAudioFile = async (pageId: string, file: File): Promise<Pag
   data.append("file", file, file.name || "unknown")
   console.log("data", data)
   const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data)
-  return validateResponse(response, isPageAudioFile)
+  return validateResponse(response, isBoolean)
 }
 
 export const removePageAudioFile = async (fileId: string): Promise<void> => {

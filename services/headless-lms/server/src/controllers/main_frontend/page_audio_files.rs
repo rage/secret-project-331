@@ -3,18 +3,18 @@
 use std::path::Path;
 
 use futures::StreamExt;
-use models::page_audio_files::PageAudioFiles;
+use models::page_audio_files::PageAudioFile;
 
 use crate::prelude::*;
 
 /**
-PUT `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio.
+POST `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio.
 
 # Example
 
 Request:
 ```http
-PUT /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTTP/1.1
+POST /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTTP/1.1
 Content-Type: multipart/form-data
 
 BINARY_DATA
@@ -152,19 +152,26 @@ GET `/api/v0/main-fronted/page_audio/:page_id/files` - Get a page audio files
 
 Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
 */
+#[instrument(skip(app_conf))]
 #[generated_doc]
 async fn get_page_audio(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<PageAudioFiles>>> {
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<Vec<PageAudioFile>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
-    let page_audio_file =
+    let mut page_audio_files =
         models::page_audio_files::get_page_audio_files(&mut conn, *page_id).await?;
 
-    token.authorized_ok(web::Json(page_audio_file))
+    let base_url = &app_conf.base_url;
+    for audio in page_audio_files.iter_mut() {
+        audio.path = format!("{base_url}/api/v0/files/{}", audio.path);
+    }
+
+    token.authorized_ok(web::Json(page_audio_files))
 }
 
 /**

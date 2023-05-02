@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PageAudioFiles {
+pub struct PageAudioFile {
     pub id: Uuid,
     pub page_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -53,9 +53,9 @@ RETURNING path
 pub async fn get_page_audio_files(
     conn: &mut PgConnection,
     page_id: Uuid,
-) -> ModelResult<Vec<PageAudioFiles>> {
+) -> ModelResult<Vec<PageAudioFile>> {
     let audio_files = sqlx::query_as!(
-        PageAudioFiles,
+        PageAudioFile,
         "
 SELECT *
 FROM page_audio_files
@@ -72,9 +72,9 @@ AND deleted_at IS NULL;
 pub async fn get_page_audio_files_by_id(
     conn: &mut PgConnection,
     id: Uuid,
-) -> ModelResult<PageAudioFiles> {
+) -> ModelResult<PageAudioFile> {
     let audio_files = sqlx::query_as!(
-        PageAudioFiles,
+        PageAudioFile,
         "
 SELECT *
 FROM page_audio_files

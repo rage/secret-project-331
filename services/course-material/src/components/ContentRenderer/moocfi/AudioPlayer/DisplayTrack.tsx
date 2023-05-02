@@ -16,42 +16,42 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: any) =>
 
   const title = router.asPath.split("/")[5]
   const formattedTitle = title.charAt(0).toUpperCase() + title.slice(1)
-  // eslint-disable-next-line i18next/no-literal-string
-  const baseUrl = "https://project-331.local/api/v0/files/uploads/"
 
   return (
-    <div>
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
-        {tracks.map(({ path, mime }: AudioFile) => (
-          <source key={path} src={baseUrl + path} type={mime} />
-        ))}
-      </audio>
-      <div
-        className={css`
-          display: flex;
-          gap: 20px;
-          justify-content: center;
-          text-align: center;
-        `}
-      >
-        <div>
-          <p
-            className={css`
-              color: #687eaf;
-              font-size: 18px;
-              margin-bottom: 0;
-              padding: 2px;
-              font-family: ${headingFont};
-              line-height: 1.2;
-              font-weight: 500;
-            `}
-          >
-            {formattedTitle}
-          </p>
+    <>
+      <div>
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
+          {tracks.map(({ path, mime }: AudioFile) => (
+            <source key={path} src={path} type={mime} />
+          ))}
+        </audio>
+        <div
+          className={css`
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            text-align: center;
+          `}
+        >
+          <div>
+            <p
+              className={css`
+                color: #687eaf;
+                font-size: 18px;
+                margin-bottom: 0;
+                padding: 2px;
+                font-family: ${headingFont};
+                line-height: 1.2;
+                font-weight: 500;
+              `}
+            >
+              {formattedTitle}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 export default DisplayTrack

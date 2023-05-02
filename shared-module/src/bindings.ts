@@ -682,6 +682,7 @@ export interface Exercise {
   limit_number_of_tries: boolean
   needs_peer_review: boolean
   use_course_default_peer_review_config: boolean
+  exercise_language_group_id: string | null
 }
 
 export interface ExerciseStatus {
@@ -1020,7 +1021,7 @@ export interface Page {
   order_number: number
   copied_from: string | null
   hidden: boolean
-  page_language_group_id: string
+  page_language_group_id: string | null
 }
 
 export interface PageChapterAndCourseInformation {
@@ -1084,6 +1085,7 @@ export interface PageWithExercises {
   order_number: number
   copied_from: string | null
   hidden: boolean
+  page_language_group_id: string | null
   exercises: Array<Exercise>
 }
 
@@ -1259,6 +1261,15 @@ export interface PageProposal {
 export interface ProposalCount {
   pending: number
   handled: number
+}
+
+export interface PageAudioFile {
+  id: string
+  page_id: string
+  created_at: Date
+  deleted_at: Date | null
+  path: string
+  mime_type: string
 }
 
 export interface NewRegrading {

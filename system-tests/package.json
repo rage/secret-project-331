@@ -29,16 +29,16 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.32.3",
-    "@types/node": "^18.15.11",
-    "playwright": "^1.32.3",
+    "@playwright/test": "^1.33.0",
+    "@types/node": "^18.16.3",
+    "playwright": "^1.33.0",
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.6.1",
+    "@axe-core/playwright": "^4.7.0",
     "@types/which": "^3.0.0",
-    "axe-core": "^4.6.3",
+    "axe-core": "^4.7.0",
     "png-metadata": "^1.0.2",
-    "which": "^3.0.0"
+    "which": "^3.0.1"
   }
 }

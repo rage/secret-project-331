@@ -5,7 +5,7 @@ import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 
 const useNewPagePath = (
   course_id: string | undefined,
-  page_language_group_id: string | undefined,
+  page_language_group_id: string | undefined | null,
 ) => {
   const query = useQuery(
     [`courses-${course_id}-pages-by-language-group-id-${page_language_group_id}`],

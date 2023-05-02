@@ -131,6 +131,7 @@ import {
   Organization,
   OrgExam,
   Page,
+  PageAudioFile,
   PageChapterAndCourseInformation,
   PageHistory,
   PageInfo,
@@ -2276,6 +2277,19 @@ export function isProposalCount(obj: unknown): obj is ProposalCount {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["pending"] === "number" &&
     typeof typedObj["handled"] === "number"
+  )
+}
+
+export function isPageAudioFile(obj: unknown): obj is PageAudioFile {
+  const typedObj = obj as PageAudioFile
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["path"] === "string" &&
+    typeof typedObj["mime_type"] === "string"
   )
 }
 

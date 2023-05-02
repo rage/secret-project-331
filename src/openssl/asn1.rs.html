@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.50/src/asn1.rs`."><title>asn1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.52/src/asn1.rs`."><title>asn1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -834,6 +834,80 @@
 <a href="#834" id="834">834</a>
 <a href="#835" id="835">835</a>
 <a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
 </pre><pre class="rust"><code><span class="attr">#![deny(missing_docs)]
 
 </span><span class="doccomment">//! Defines the format of certificates
@@ -864,6 +938,7 @@
 <span class="kw">use </span>foreign_types::{ForeignType, ForeignTypeRef};
 <span class="kw">use </span>libc::{c_char, c_int, c_long, time_t};
 <span class="kw">use </span>std::cmp::Ordering;
+<span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::ffi::CString;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::ptr;
@@ -1448,6 +1523,46 @@
 }
 
 <span class="macro">foreign_type_and_impl_send_sync! </span>{
+    <span class="kw">type </span>CType = ffi::ASN1_OCTET_STRING;
+    <span class="kw">fn </span>drop = ffi::ASN1_OCTET_STRING_free;
+    <span class="doccomment">/// ASN.1 OCTET STRING type
+    </span><span class="kw">pub struct </span>Asn1OctetString;
+    <span class="doccomment">/// A reference to an [`Asn1OctetString`].
+    </span><span class="kw">pub struct </span>Asn1OctetStringRef;
+}
+
+<span class="kw">impl </span>Asn1OctetString {
+    <span class="doccomment">/// Creates an Asn1OctetString from bytes
+    </span><span class="kw">pub fn </span>new_from_bytes(value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ErrorStack&gt; {
+        ffi::init();
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>s = cvt_p(ffi::ASN1_OCTET_STRING_new())<span class="question-mark">?</span>;
+            ffi::ASN1_OCTET_STRING_set(s, value.as_ptr(), value.len().try_into().unwrap());
+            <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_ptr(s))
+        }
+    }
+}
+
+<span class="kw">impl </span>Asn1OctetStringRef {
+    <span class="doccomment">/// Returns the octet string as an array of bytes.
+    </span><span class="attr">#[corresponds(ASN1_STRING_get0_data)]
+    </span><span class="kw">pub fn </span>as_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">unsafe </span>{ slice::from_raw_parts(ASN1_STRING_get0_data(<span class="self">self</span>.as_ptr().cast()), <span class="self">self</span>.len()) }
+    }
+
+    <span class="doccomment">/// Returns the number of bytes in the octet string.
+    </span><span class="attr">#[corresponds(ASN1_STRING_length)]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ ffi::ASN1_STRING_length(<span class="self">self</span>.as_ptr().cast()) <span class="kw">as </span>usize }
+    }
+
+    <span class="doccomment">/// Determines if the string is empty.
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
+}
+
+<span class="macro">foreign_type_and_impl_send_sync! </span>{
     <span class="kw">type </span>CType = ffi::ASN1_OBJECT;
     <span class="kw">fn </span>drop = ffi::ASN1_OBJECT_free;
 
@@ -1539,6 +1654,32 @@
         </span><span class="kw">unsafe fn </span>ASN1_STRING_get0_data(s: <span class="kw-2">*mut </span>ffi::ASN1_STRING) -&gt; <span class="kw-2">*const </span>::libc::c_uchar {
             ffi::ASN1_STRING_data(s)
         }
+    }
+}
+
+<span class="macro">foreign_type_and_impl_send_sync! </span>{
+    <span class="kw">type </span>CType = ffi::ASN1_ENUMERATED;
+    <span class="kw">fn </span>drop = ffi::ASN1_ENUMERATED_free;
+
+    <span class="doccomment">/// An ASN.1 enumerated.
+    </span><span class="kw">pub struct </span>Asn1Enumerated;
+    <span class="doccomment">/// A reference to an [`Asn1Enumerated`].
+    </span><span class="kw">pub struct </span>Asn1EnumeratedRef;
+}
+
+<span class="kw">impl </span>Asn1EnumeratedRef {
+    <span class="doccomment">/// Get the value, if it fits in the required bounds.
+    </span><span class="attr">#[corresponds(ASN1_ENUMERATED_get_int64)]
+    #[cfg(ossl110)]
+    </span><span class="kw">pub fn </span>get_i64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i64, ErrorStack&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>crl_reason = <span class="number">0</span>;
+        <span class="kw">unsafe </span>{
+            cvt(ffi::ASN1_ENUMERATED_get_int64(
+                <span class="kw-2">&amp;mut </span>crl_reason,
+                <span class="self">self</span>.as_ptr(),
+            ))<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(crl_reason)
     }
 }
 
@@ -1668,6 +1809,13 @@
             object.as_slice(),
             <span class="kw-2">&amp;</span>[<span class="number">0x60</span>, <span class="number">0x86</span>, <span class="number">0x48</span>, <span class="number">0x01</span>, <span class="number">0x65</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x02</span>, <span class="number">0x01</span>],
         );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>asn1_octet_string() {
+        <span class="kw">let </span>octet_string = Asn1OctetString::new_from_bytes(<span class="string">b&quot;hello world&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(octet_string.as_slice(), <span class="string">b&quot;hello world&quot;</span>);
+        <span class="macro">assert_eq!</span>(octet_string.len(), <span class="number">11</span>);
     }
 }
 </code></pre></div>

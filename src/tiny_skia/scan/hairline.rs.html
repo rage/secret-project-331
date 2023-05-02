@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tiny-skia-0.8.3/src/scan/hairline.rs`."><title>hairline.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-be46fdc453a55015.css"><script src="../../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tiny_skia/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tiny-skia-0.9.0/src/scan/hairline.rs`."><title>hairline.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-be46fdc453a55015.css"><script src="../../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tiny_skia/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -627,6 +627,22 @@
 <a href="#627" id="627">627</a>
 <a href="#628" id="628">628</a>
 <a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2006 The Android Open Source Project
 // Copyright 2020 Yevhenii Reizner
 //
@@ -650,7 +666,7 @@
 
 <span class="kw">const </span>FLOAT_PI: f32 = <span class="number">3.14159265</span>;
 
-<span class="kw">pub type </span>LineProc = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>[Point], <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ScreenIntRect&gt;, <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt;;
+<span class="kw">pub type </span>LineProc = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>[Point], <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ScreenIntRect&gt;, <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter);
 
 <span class="kw">const </span>MAX_CUBIC_SUBDIVIDE_LEVEL: u8 = <span class="number">9</span>;
 <span class="kw">const </span>MAX_QUAD_SUBDIVIDE_LEVEL: u8 = <span class="number">5</span>;
@@ -660,17 +676,13 @@
     line_cap: LineCap,
     clip: <span class="kw-2">&amp;</span>ScreenIntRect,
     blitter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter,
-) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+) {
     <span class="kw">super</span>::hairline::stroke_path_impl(path, line_cap, clip, hair_line_rgn, blitter)
 }
 
-<span class="kw">fn </span>hair_line_rgn(
-    points: <span class="kw-2">&amp;</span>[Point],
-    clip: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ScreenIntRect&gt;,
-    blitter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter,
-) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+<span class="kw">fn </span>hair_line_rgn(points: <span class="kw-2">&amp;</span>[Point], clip: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ScreenIntRect&gt;, blitter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter) {
     <span class="kw">let </span>max = <span class="number">32767.0</span>;
-    <span class="kw">let </span>fixed_bounds = Rect::from_ltrb(-max, -max, max, max)<span class="question-mark">?</span>;
+    <span class="kw">let </span>fixed_bounds = Rect::from_ltrb(-max, -max, max, max).unwrap();
 
     <span class="kw">let </span>clip_bounds = clip.map(|c| c.to_rect());
 
@@ -781,8 +793,6 @@
             }
         }
     }
-
-    <span class="prelude-val">Some</span>(())
 }
 
 <span class="kw">pub fn </span>stroke_path_impl(
@@ -791,14 +801,23 @@
     clip: <span class="kw-2">&amp;</span>ScreenIntRect,
     line_proc: LineProc,
     blitter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter,
-) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+) {
     <span class="kw">let </span><span class="kw-2">mut </span>inset_clip = <span class="prelude-val">None</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>outset_clip = <span class="prelude-val">None</span>;
 
     {
         <span class="kw">let </span>cap_out = <span class="kw">if </span>line_cap == LineCap::Butt { <span class="number">1.0 </span>} <span class="kw">else </span>{ <span class="number">2.0 </span>};
-        <span class="kw">let </span>ibounds = path.bounds().outset(cap_out, cap_out)<span class="question-mark">?</span>.round_out()<span class="question-mark">?</span>;
-        clip.to_int_rect().intersect(<span class="kw-2">&amp;</span>ibounds)<span class="question-mark">?</span>;
+        <span class="kw">let </span>ibounds = <span class="kw">match </span>path
+            .bounds()
+            .outset(cap_out, cap_out)
+            .and_then(|r| r.round_out())
+        {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+        };
+        <span class="kw">if </span>clip.to_int_rect().intersect(<span class="kw-2">&amp;</span>ibounds).is_none() {
+            <span class="kw">return</span>;
+        }
 
         <span class="kw">if </span>!clip.to_int_rect().contains(<span class="kw-2">&amp;</span>ibounds) {
             <span class="comment">// We now cache two scalar rects, to use for culling per-segment (e.g. cubic).
@@ -813,8 +832,14 @@
             //
             // outsetClip is used for quick-reject (i.e. the segment is entirely outside), so we
             // outset it from the clip-bounds.
-            </span>outset_clip = <span class="prelude-val">Some</span>(clip.to_int_rect().make_outset(<span class="number">1</span>, <span class="number">1</span>)<span class="question-mark">?</span>);
-            inset_clip = <span class="prelude-val">Some</span>(clip.to_int_rect().inset(<span class="number">1</span>, <span class="number">1</span>)<span class="question-mark">?</span>);
+            </span><span class="kw">match </span>clip.to_int_rect().make_outset(<span class="number">1</span>, <span class="number">1</span>) {
+                <span class="prelude-val">Some</span>(v) =&gt; outset_clip = <span class="prelude-val">Some</span>(v),
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+            }
+            <span class="kw">match </span>clip.to_int_rect().inset(<span class="number">1</span>, <span class="number">1</span>) {
+                <span class="prelude-val">Some</span>(v) =&gt; inset_clip = <span class="prelude-val">Some</span>(v),
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+            }
         }
     }
 
@@ -902,8 +927,6 @@
             prev_verb = verb;
         }
     }
-
-    <span class="prelude-val">Some</span>(())
 }
 
 <span class="doccomment">/// Extend the points in the direction of the starting or ending tangent by 1/2 unit to
@@ -1018,22 +1041,27 @@
     level: u8,
     line_proc: LineProc,
     blitter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter,
-) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+) {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(inset_clip) = inset_clip {
         <span class="macro">debug_assert!</span>(outset_clip.is_some());
         <span class="kw">let </span>inset_clip = inset_clip.to_rect();
-        <span class="kw">let </span>outset_clip = outset_clip<span class="question-mark">?</span>.to_rect();
+        <span class="kw">let </span>outset_clip = <span class="kw">match </span>outset_clip {
+            <span class="prelude-val">Some</span>(v) =&gt; v.to_rect(),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+        };
 
-        <span class="kw">let </span>bounds = compute_nocheck_quad_bounds(points)<span class="question-mark">?</span>;
+        <span class="kw">let </span>bounds = <span class="kw">match </span>compute_nocheck_quad_bounds(points) {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+        };
         <span class="kw">if </span>!geometric_overlap(<span class="kw-2">&amp;</span>outset_clip, <span class="kw-2">&amp;</span>bounds) {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(());
-        } <span class="kw">else if </span>geometric_contains(<span class="kw-2">&amp;</span>inset_clip, <span class="kw-2">&amp;</span>bounds) {
+            <span class="kw">return</span>; <span class="comment">// nothing to do
+        </span>} <span class="kw">else if </span>geometric_contains(<span class="kw-2">&amp;</span>inset_clip, <span class="kw-2">&amp;</span>bounds) {
             clip = <span class="prelude-val">None</span>;
         }
     }
 
     hair_quad2(points, clip, level, line_proc, blitter);
-    <span class="prelude-val">Some</span>(())
 }
 
 <span class="kw">fn </span>compute_nocheck_quad_bounds(points: <span class="kw-2">&amp;</span>[Point; <span class="number">3</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
@@ -1135,16 +1163,22 @@
     outset_clip: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IntRect&gt;,
     line_proc: LineProc,
     blitter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Blitter,
-) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+) {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(inset_clip) = inset_clip {
         <span class="macro">debug_assert!</span>(outset_clip.is_some());
         <span class="kw">let </span>inset_clip = inset_clip.to_rect();
-        <span class="kw">let </span>outset_clip = outset_clip<span class="question-mark">?</span>.to_rect();
+        <span class="kw">let </span>outset_clip = <span class="kw">match </span>outset_clip {
+            <span class="prelude-val">Some</span>(v) =&gt; v.to_rect(),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+        };
 
-        <span class="kw">let </span>bounds = compute_nocheck_cubic_bounds(points)<span class="question-mark">?</span>;
+        <span class="kw">let </span>bounds = <span class="kw">match </span>compute_nocheck_cubic_bounds(points) {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+        };
         <span class="kw">if </span>!geometric_overlap(<span class="kw-2">&amp;</span>outset_clip, <span class="kw-2">&amp;</span>bounds) {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(());
-        } <span class="kw">else if </span>geometric_contains(<span class="kw-2">&amp;</span>inset_clip, <span class="kw-2">&amp;</span>bounds) {
+            <span class="kw">return</span>; <span class="comment">// noting to do
+        </span>} <span class="kw">else if </span>geometric_contains(<span class="kw-2">&amp;</span>inset_clip, <span class="kw-2">&amp;</span>bounds) {
             clip = <span class="prelude-val">None</span>;
         }
     }
@@ -1162,8 +1196,6 @@
             hair_cubic2(<span class="kw-2">&amp;</span>new_points, clip, line_proc, blitter);
         }
     }
-
-    <span class="prelude-val">Some</span>(())
 }
 
 <span class="kw">fn </span>compute_nocheck_cubic_bounds(points: <span class="kw-2">&amp;</span>[Point; <span class="number">4</span>]) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {

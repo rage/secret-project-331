@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/usvg-tree-0.31.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_tree/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/usvg-tree-0.32.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_tree/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1353,28 +1353,6 @@
 <a href="#1353" id="1353">1353</a>
 <a href="#1354" id="1354">1354</a>
 <a href="#1355" id="1355">1355</a>
-<a href="#1356" id="1356">1356</a>
-<a href="#1357" id="1357">1357</a>
-<a href="#1358" id="1358">1358</a>
-<a href="#1359" id="1359">1359</a>
-<a href="#1360" id="1360">1360</a>
-<a href="#1361" id="1361">1361</a>
-<a href="#1362" id="1362">1362</a>
-<a href="#1363" id="1363">1363</a>
-<a href="#1364" id="1364">1364</a>
-<a href="#1365" id="1365">1365</a>
-<a href="#1366" id="1366">1366</a>
-<a href="#1367" id="1367">1367</a>
-<a href="#1368" id="1368">1368</a>
-<a href="#1369" id="1369">1369</a>
-<a href="#1370" id="1370">1370</a>
-<a href="#1371" id="1371">1371</a>
-<a href="#1372" id="1372">1372</a>
-<a href="#1373" id="1373">1373</a>
-<a href="#1374" id="1374">1374</a>
-<a href="#1375" id="1375">1375</a>
-<a href="#1376" id="1376">1376</a>
-<a href="#1377" id="1377">1377</a>
 </pre><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2032,6 +2010,21 @@
     }
 }
 
+<span class="doccomment">/// A mask type.
+</span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug)]
+</span><span class="kw">pub enum </span>MaskType {
+    <span class="doccomment">/// Indicates that the luminance values of the mask should be used.
+    </span>Luminance,
+    <span class="doccomment">/// Indicates that the alpha values of the mask should be used.
+    </span>Alpha,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>MaskType {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Luminance
+    }
+}
+
 <span class="doccomment">/// A mask element.
 ///
 /// `mask` element in SVG.
@@ -2057,6 +2050,11 @@
     ///
     /// `x`, `y`, `width` and `height` in SVG.
     </span><span class="kw">pub </span>rect: Rect,
+
+    <span class="doccomment">/// Mask type.
+    ///
+    /// `mask-type` in SVG.
+    </span><span class="kw">pub </span>kind: MaskType,
 
     <span class="doccomment">/// Additional mask.
     ///
@@ -2100,13 +2098,6 @@
         }
     }
 }
-
-<span class="doccomment">/// An `enable-background`.
-///
-/// Contains only the `new [ &lt;x&gt; &lt;y&gt; &lt;width&gt; &lt;height&gt; ]` value.
-</span><span class="attr">#[derive(Clone, Copy, Debug)]
-#[allow(missing_docs)]
-</span><span class="kw">pub struct </span>EnableBackground(<span class="kw">pub </span><span class="prelude-ty">Option</span>&lt;Rect&gt;);
 
 <span class="doccomment">/// A group container.
 ///
@@ -2160,11 +2151,6 @@
     ///
     /// Will be set only when filter actually has a `FilterInput::StrokePaint`.
     </span><span class="kw">pub </span>filter_stroke: <span class="prelude-ty">Option</span>&lt;Paint&gt;,
-
-    <span class="doccomment">/// Indicates that this node can be accessed via `filter`.
-    ///
-    /// `None` indicates an `accumulate` value.
-    </span><span class="kw">pub </span>enable_background: <span class="prelude-ty">Option</span>&lt;EnableBackground&gt;,
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>Group {
@@ -2180,7 +2166,6 @@
             filters: Vec::new(),
             filter_fill: <span class="prelude-val">None</span>,
             filter_stroke: <span class="prelude-val">None</span>,
-            enable_background: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -2628,9 +2613,6 @@
     /// without converting it into paths first.
     </span><span class="kw">fn </span>calculate_bbox(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PathBbox&gt;;
 
-    <span class="doccomment">/// Returns the node starting from which the filter background should be rendered.
-    </span><span class="kw">fn </span>filter_background_start_node(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: <span class="kw-2">&amp;</span>filter::Filter) -&gt; <span class="prelude-ty">Option</span>&lt;Node&gt;;
-
     <span class="doccomment">/// Calls a closure for each subroot this `Node` has.
     ///
     /// The [`Tree::root`](Tree::root) field contain only render-able SVG elements.
@@ -2691,32 +2673,6 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>calculate_bbox(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PathBbox&gt; {
         calc_node_bbox(<span class="self">self</span>, <span class="self">self</span>.abs_transform())
-    }
-
-    <span class="kw">fn </span>filter_background_start_node(<span class="kw-2">&amp;</span><span class="self">self</span>, filter: <span class="kw-2">&amp;</span>filter::Filter) -&gt; <span class="prelude-ty">Option</span>&lt;Node&gt; {
-        <span class="kw">fn </span>has_enable_background(node: <span class="kw-2">&amp;</span>Node) -&gt; bool {
-            <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref </span>g) = <span class="kw-2">*</span>node.borrow() {
-                g.enable_background.is_some()
-            } <span class="kw">else </span>{
-                <span class="bool-val">false
-            </span>}
-        }
-
-        <span class="kw">if </span>!filter
-            .primitives
-            .iter()
-            .any(|c| c.kind.has_input(<span class="kw-2">&amp;</span>filter::Input::BackgroundImage))
-            &amp;&amp; !filter
-                .primitives
-                .iter()
-                .any(|c| c.kind.has_input(<span class="kw-2">&amp;</span>filter::Input::BackgroundAlpha))
-        {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
-        }
-
-        <span class="comment">// We should have an ancestor with `enable-background=new`.
-        // Skip the current element.
-        </span><span class="self">self</span>.ancestors().skip(<span class="number">1</span>).find(has_enable_background)
     }
 
     <span class="kw">fn </span>subroots&lt;F: FnMut(Node)&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: F) {

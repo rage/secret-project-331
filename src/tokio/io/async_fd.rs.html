@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.27.0/src/io/async_fd.rs`."><title>async_fd.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-be46fdc453a55015.css"><script src="../../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.28.0/src/io/async_fd.rs`."><title>async_fd.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-be46fdc453a55015.css"><script src="../../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -715,6 +715,146 @@
 <a href="#715" id="715">715</a>
 <a href="#716" id="716">716</a>
 <a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::io::Interest;
 <span class="kw">use </span><span class="kw">crate</span>::runtime::io::{ReadyEvent, Registration};
 <span class="kw">use </span><span class="kw">crate</span>::runtime::scheduler;
@@ -1225,6 +1365,109 @@
     </span><span class="kw">pub async fn </span>writable_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; io::Result&lt;AsyncFdReadyMutGuard&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt; {
         <span class="self">self</span>.readiness_mut(Interest::WRITABLE).<span class="kw">await
     </span>}
+
+    <span class="doccomment">/// Reads or writes from the file descriptor using a user-provided IO operation.
+    ///
+    /// The `async_io` method is a convenience utility that waits for the file
+    /// descriptor to become ready, and then executes the provided IO operation.
+    /// Since file descriptors may be marked ready spuriously, the closure will
+    /// be called repeatedly until it returns something other than a
+    /// [`WouldBlock`] error. This is done using the following loop:
+    ///
+    /// ```no_run
+    /// # use std::io::{self, Result};
+    /// # struct Dox&lt;T&gt; { inner: T }
+    /// # impl&lt;T&gt; Dox&lt;T&gt; {
+    /// #     async fn writable(&amp;self) -&gt; Result&lt;&amp;Self&gt; {
+    /// #         Ok(self)
+    /// #     }
+    /// #     fn try_io&lt;R&gt;(&amp;self, _: impl FnMut(&amp;T) -&gt; Result&lt;R&gt;) -&gt; Result&lt;Result&lt;R&gt;&gt; {
+    /// #         panic!()
+    /// #     }
+    /// async fn async_io&lt;R&gt;(&amp;self, mut f: impl FnMut(&amp;T) -&gt; io::Result&lt;R&gt;) -&gt; io::Result&lt;R&gt; {
+    ///     loop {
+    ///         // or `readable` if called with the read interest.
+    ///         let guard = self.writable().await?;
+    ///
+    ///         match guard.try_io(&amp;mut f) {
+    ///             Ok(result) =&gt; return result,
+    ///             Err(_would_block) =&gt; continue,
+    ///         }
+    ///     }
+    /// }
+    /// # }
+    /// ```
+    ///
+    /// The closure should only return a [`WouldBlock`] error if it has performed
+    /// an IO operation on the file descriptor that failed due to the file descriptor not being
+    /// ready. Returning a [`WouldBlock`] error in any other situation will
+    /// incorrectly clear the readiness flag, which can cause the file descriptor to
+    /// behave incorrectly.
+    ///
+    /// The closure should not perform the IO operation using any of the methods
+    /// defined on the Tokio [`AsyncFd`] type, as this will mess with the
+    /// readiness flag and can cause the file descriptor to behave incorrectly.
+    ///
+    /// This method is not intended to be used with combined interests.
+    /// The closure should perform only one type of IO operation, so it should not
+    /// require more than one ready state. This method may panic or sleep forever
+    /// if it is called with a combined interest.
+    ///
+    /// # Examples
+    ///
+    /// This example sends some bytes on the inner [`std::net::UdpSocket`]. The `async_io`
+    /// method waits for readiness, and retries if the send operation does block. This example
+    /// is equivalent to the one given for [`try_io`].
+    ///
+    /// ```no_run
+    /// use tokio::io::{Interest, unix::AsyncFd};
+    ///
+    /// use std::io;
+    /// use std::net::UdpSocket;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -&gt; io::Result&lt;()&gt; {
+    ///     let socket = UdpSocket::bind(&quot;0.0.0.0:8080&quot;)?;
+    ///     socket.set_nonblocking(true)?;
+    ///     let async_fd = AsyncFd::new(socket)?;
+    ///
+    ///     let written = async_fd
+    ///         .async_io(Interest::WRITABLE, |inner| inner.send(&amp;[1, 2]))
+    ///         .await?;
+    ///
+    ///     println!(&quot;wrote {written} bytes&quot;);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    ///
+    /// [`try_io`]: AsyncFdReadyGuard::try_io
+    /// [`WouldBlock`]: std::io::ErrorKind::WouldBlock
+    </span><span class="kw">pub async fn </span>async_io&lt;R&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        interest: Interest,
+        <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>T) -&gt; io::Result&lt;R&gt;,
+    ) -&gt; io::Result&lt;R&gt; {
+        <span class="self">self</span>.registration
+            .async_io(interest, || f(<span class="self">self</span>.get_ref()))
+            .<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// Reads or writes from the file descriptor using a user-provided IO operation.
+    ///
+    /// The behavior is the same as [`async_io`], except that the closure can mutate the inner
+    /// value of the [`AsyncFd`].
+    ///
+    /// [`async_io`]: AsyncFd::async_io
+    </span><span class="kw">pub async fn </span>async_io_mut&lt;R&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        interest: Interest,
+        <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;mut </span>T) -&gt; io::Result&lt;R&gt;,
+    ) -&gt; io::Result&lt;R&gt; {
+        <span class="self">self</span>.registration
+            .async_io(interest, || f(<span class="self">self</span>.inner.as_mut().unwrap()))
+            .<span class="kw">await
+    </span>}
 }
 
 <span class="kw">impl</span>&lt;T: AsRawFd&gt; AsRawFd <span class="kw">for </span>AsyncFd&lt;T&gt; {
@@ -1294,6 +1537,43 @@
     /// returns [`WouldBlock`] only if the file descriptor that originated this
     /// `AsyncFdReadyGuard` no longer expresses the readiness state that was queried to
     /// create this `AsyncFdReadyGuard`.
+    ///
+    /// # Examples
+    ///
+    /// This example sends some bytes to the inner [`std::net::UdpSocket`]. Waiting
+    /// for write-readiness and retrying when the send operation does block are explicit.
+    /// This example can be written more succinctly using [`AsyncFd::async_io`].
+    ///
+    /// ```no_run
+    /// use tokio::io::unix::AsyncFd;
+    ///
+    /// use std::io;
+    /// use std::net::UdpSocket;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -&gt; io::Result&lt;()&gt; {
+    ///     let socket = UdpSocket::bind(&quot;0.0.0.0:8080&quot;)?;
+    ///     socket.set_nonblocking(true)?;
+    ///     let async_fd = AsyncFd::new(socket)?;
+    ///
+    ///     let written = loop {
+    ///         let mut guard = async_fd.writable().await?;
+    ///         match guard.try_io(|inner| inner.get_ref().send(&amp;[1, 2])) {
+    ///             Ok(result) =&gt; {
+    ///                 break result?;
+    ///             }
+    ///             Err(_would_block) =&gt; {
+    ///                 // try_io already cleared the file descriptor&#39;s readiness state
+    ///                 continue;
+    ///             }
+    ///         }
+    ///     };
+    ///
+    ///     println!(&quot;wrote {written} bytes&quot;);
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
     ///
     /// [`WouldBlock`]: std::io::ErrorKind::WouldBlock
     </span><span class="comment">// Alias for old name in 0.x

@@ -1482,6 +1482,10 @@
 <a href="#1482" id="1482">1482</a>
 <a href="#1483" id="1483">1483</a>
 <a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -2261,7 +2265,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
             language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
             copied_from: <span class="prelude-val">None</span>,
             content_search_language: <span class="prelude-val">Some</span>(<span class="string">&quot;simple&quot;</span>.to_string()),
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str(<span class="string">&quot;4b316fae-07d6-4e64-9294-9960cfd1c0ca&quot;</span>)
+                .unwrap(),
             description: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
             is_draft: <span class="bool-val">true</span>,
             is_test_mode: <span class="bool-val">false</span>,
@@ -2306,7 +2311,8 @@ This method is mainly useful for external/std types. For example, we cannot writ
         Opt,
         UserCourseSettings {
             user_id,
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str(<span class="string">&quot;4b316fae-07d6-4e64-9294-9960cfd1c0ca&quot;</span>)
+                .unwrap(),
             created_at,
             updated_at,
             deleted_at: <span class="prelude-val">None</span>,
@@ -2574,7 +2580,9 @@ This method is mainly useful for external/std types. For example, we cannot writ
             order_number: <span class="number">123</span>,
             copied_from: <span class="prelude-val">None</span>,
             hidden: <span class="bool-val">false</span>,
-            page_language_group_id: <span class="prelude-val">None</span>,
+            page_language_group_id: <span class="prelude-val">Some</span>(
+                Uuid::parse_str(<span class="string">&quot;0484aa42-ece8-4bc4-9a34-92f5994f6697&quot;</span>).unwrap()
+            ),
         }
     );
     <span class="macro">doc!</span>(

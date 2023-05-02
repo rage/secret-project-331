@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustc-demangle-0.1.22/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../rustc_demangle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustc-demangle-0.1.23/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../rustc_demangle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -578,6 +578,14 @@
 <a href="#578" id="578">578</a>
 <a href="#579" id="579">579</a>
 <a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Demangle Rust compiler symbol names.
 //!
 //! This crate provides a `demangle` function which will return a `Demangle`
@@ -726,19 +734,24 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">fn </span>demangle_line(line: <span class="kw-2">&amp;</span>str, include_hash: bool) -&gt; std::borrow::Cow&lt;str&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>line = std::borrow::Cow::Borrowed(line);
+</span><span class="kw">fn </span>demangle_line(
+    line: <span class="kw-2">&amp;</span>str,
+    output: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>std::io::Write,
+    include_hash: bool,
+) -&gt; std::io::Result&lt;()&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>head = <span class="number">0</span>;
-    <span class="kw">loop </span>{
+    <span class="kw">while </span>head &lt; line.len() {
         <span class="comment">// Move to the next potential match
-        </span>head = <span class="kw">match </span>(line[head..].find(<span class="string">&quot;_ZN&quot;</span>), line[head..].find(<span class="string">&quot;_R&quot;</span>)) {
+        </span><span class="kw">let </span>next_head = <span class="kw">match </span>(line[head..].find(<span class="string">&quot;_ZN&quot;</span>), line[head..].find(<span class="string">&quot;_R&quot;</span>)) {
             (<span class="prelude-val">Some</span>(idx), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(idx)) =&gt; head + idx,
             (<span class="prelude-val">Some</span>(idx1), <span class="prelude-val">Some</span>(idx2)) =&gt; head + idx1.min(idx2),
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
-                <span class="comment">// No more matches, we can return our line.
-                </span><span class="kw">return </span>line;
+                <span class="comment">// No more matches...
+                </span>line.len()
             }
         };
+        output.write_all(line[head..next_head].as_bytes())<span class="question-mark">?</span>;
+        head = next_head;
         <span class="comment">// Find the non-matching character.
         //
         // If we do not find a character, then until the end of the line is the
@@ -749,29 +762,26 @@
             .unwrap_or(line.len());
 
         <span class="kw">let </span>mangled = <span class="kw-2">&amp;</span>line[head..match_end];
+        head = head + mangled.len();
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(demangled) = try_demangle(mangled) {
-            <span class="kw">let </span>demangled = <span class="kw">if </span>include_hash {
-                <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, demangled)
+            <span class="kw">if </span>include_hash {
+                <span class="macro">write!</span>(output, <span class="string">&quot;{}&quot;</span>, demangled)<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">&quot;{:#}&quot;</span>, demangled)
-            };
-            line.to_mut().replace_range(head..match_end, <span class="kw-2">&amp;</span>demangled);
-            <span class="comment">// Start again after the replacement.
-            </span>head = head + demangled.len();
+                <span class="macro">write!</span>(output, <span class="string">&quot;{:#}&quot;</span>, demangled)<span class="question-mark">?</span>;
+            }
         } <span class="kw">else </span>{
-            <span class="comment">// Skip over the full symbol. We don&#39;t try to find a partial Rust symbol in the wider
-            // matched text today.
-            </span>head = head + mangled.len();
+            output.write_all(mangled.as_bytes())<span class="question-mark">?</span>;
         }
     }
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// Process a stream of data from `input` into the provided `output`, demangling any symbols found
 /// within.
 ///
-/// This currently is implemented by buffering each line of input in memory, but that may be
-/// changed in the future. Symbols never cross line boundaries so this is just an implementation
-/// detail.
+/// Note that the underlying implementation will perform many relatively small writes to the
+/// output. If the output is expensive to write to (e.g., requires syscalls), consider using
+/// `std::io::BufWriter`.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
 </span><span class="kw">pub fn </span>demangle_stream&lt;R: std::io::BufRead, W: std::io::Write&gt;(
@@ -786,8 +796,7 @@
     // trailing data during demangling. In the future we might directly stream to the output but at
     // least right now that seems to be less efficient.
     </span><span class="kw">while </span>input.read_line(<span class="kw-2">&amp;mut </span>buf)<span class="question-mark">? </span>&gt; <span class="number">0 </span>{
-        <span class="kw">let </span>demangled_line = demangle_line(<span class="kw-2">&amp;</span>buf, include_hash);
-        output.write_all(demangled_line.as_bytes())<span class="question-mark">?</span>;
+        demangle_line(<span class="kw-2">&amp;</span>buf, output, include_hash)<span class="question-mark">?</span>;
         buf.clear();
     }
     <span class="prelude-val">Ok</span>(())
@@ -1140,11 +1149,18 @@
         </span>);
     }
 
+    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="kw">fn </span>demangle_str(input: <span class="kw-2">&amp;</span>str) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
+        <span class="kw">super</span>::demangle_line(input, <span class="kw-2">&amp;mut </span>output, <span class="bool-val">false</span>);
+        String::from_utf8(output).unwrap()
+    }
+
     <span class="attr">#[test]
     #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
     </span><span class="kw">fn </span>find_multiple() {
         <span class="macro">assert_eq!</span>(
-            <span class="kw">super</span>::demangle_line(<span class="string">&quot;_ZN3fooE.llvm moocow _ZN3fooE.llvm&quot;</span>, <span class="bool-val">false</span>),
+            demangle_str(<span class="string">&quot;_ZN3fooE.llvm moocow _ZN3fooE.llvm&quot;</span>),
             <span class="string">&quot;foo.llvm moocow foo.llvm&quot;
         </span>);
     }
@@ -1153,7 +1169,7 @@
     #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
     </span><span class="kw">fn </span>interleaved_new_legacy() {
         <span class="macro">assert_eq!</span>(
-            <span class="kw">super</span>::demangle_line(<span class="string">&quot;_ZN3fooE.llvm moocow _RNvMNtNtNtNtCs8a2262Dv4r_3mio3sys4unix8selector5epollNtB2_8Selector6select _ZN3fooE.llvm&quot;</span>, <span class="bool-val">false</span>),
+            demangle_str(<span class="string">&quot;_ZN3fooE.llvm moocow _RNvMNtNtNtNtCs8a2262Dv4r_3mio3sys4unix8selector5epollNtB2_8Selector6select _ZN3fooE.llvm&quot;</span>),
             <span class="string">&quot;foo.llvm moocow &lt;mio::sys::unix::selector::epoll::Selector&gt;::select foo.llvm&quot;
         </span>);
     }

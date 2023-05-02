@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/kurbo-0.9.3/src/cubicbez.rs`."><title>cubicbez.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../kurbo/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/kurbo-0.9.4/src/cubicbez.rs`."><title>cubicbez.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../../static.files/ayu-be46fdc453a55015.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../../static.files/source-script-1b95b7cca98b26e5.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../kurbo/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -954,6 +954,83 @@
 <a href="#954" id="954">954</a>
 <a href="#955" id="955">955</a>
 <a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -1215,8 +1292,8 @@
     <span class="doccomment">/// Rust port of cu2qu [calc_cubic_points](https://github.com/fonttools/fonttools/blob/3b9a73ff8379ab49d3ce35aaaaf04b3a7d9d1655/Lib/fontTools/cu2qu/cu2qu.py#L63-L68)
     </span><span class="kw">fn </span>from_parameters(a: Vec2, b: Vec2, c: Vec2, d: Vec2) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>p0 = d.to_point();
-        <span class="kw">let </span>p1 = (c / <span class="number">3.0</span>).to_point() + d;
-        <span class="kw">let </span>p2 = ((b + c) / <span class="number">3.0</span>).to_point() + p1.to_vec2();
+        <span class="kw">let </span>p1 = c.div_exact(<span class="number">3.0</span>).to_point() + d;
+        <span class="kw">let </span>p2 = (b + c).div_exact(<span class="number">3.0</span>).to_point() + p1.to_vec2();
         <span class="kw">let </span>p3 = (a + d + c + b).to_point();
         CubicBez::new(p0, p1, p2, p3)
     }
@@ -1228,13 +1305,22 @@
             <span class="self">self</span>.p2.to_vec2(),
             <span class="self">self</span>.p3.to_vec2(),
         );
-        <span class="kw">let </span>mid1 = ((<span class="number">8.0 </span>* p0 + <span class="number">12.0 </span>* p1 + <span class="number">6.0 </span>* p2 + p3) / <span class="number">27.0</span>).to_point();
-        <span class="kw">let </span>deriv1 = (p3 + <span class="number">3.0 </span>* p2 - <span class="number">4.0 </span>* p0) / <span class="number">27.0</span>;
-        <span class="kw">let </span>mid2 = ((p0 + <span class="number">6.0 </span>* p1 + <span class="number">12.0 </span>* p2 + <span class="number">8.0 </span>* p3) / <span class="number">27.0</span>).to_point();
-        <span class="kw">let </span>deriv2 = (<span class="number">4.0 </span>* p3 - <span class="number">3.0 </span>* p1 - p0) / <span class="number">27.0</span>;
+        <span class="comment">// The original Python cu2qu code here does not use division operator to divide by 27 but
+        // instead uses multiplication by the reciprocal 1 / 27. We want to match it exactly
+        // to avoid any floating point differences, hence in this particular case we do not use div_exact.
+        // I could directly use the Vec2 Div trait (also implemented as multiplication by reciprocal)
+        // but I prefer to be explicit here.
+        // Source: https://github.com/fonttools/fonttools/blob/85c80be/Lib/fontTools/cu2qu/cu2qu.py#L215-L218
+        // See also: https://github.com/linebender/kurbo/issues/272
+        </span><span class="kw">let </span>one_27th = <span class="number">27.0_f64</span>.recip();
+        <span class="kw">let </span>mid1 = ((<span class="number">8.0 </span>* p0 + <span class="number">12.0 </span>* p1 + <span class="number">6.0 </span>* p2 + p3) * one_27th).to_point();
+        <span class="kw">let </span>deriv1 = (p3 + <span class="number">3.0 </span>* p2 - <span class="number">4.0 </span>* p0) * one_27th;
+        <span class="kw">let </span>mid2 = ((p0 + <span class="number">6.0 </span>* p1 + <span class="number">12.0 </span>* p2 + <span class="number">8.0 </span>* p3) * one_27th).to_point();
+        <span class="kw">let </span>deriv2 = (<span class="number">4.0 </span>* p3 - <span class="number">3.0 </span>* p1 - p0) * one_27th;
+
         <span class="kw">let </span>left = CubicBez::new(
             <span class="self">self</span>.p0,
-            ((<span class="number">2.0 </span>* p0 + p1) / <span class="number">3.0</span>).to_point(),
+            (<span class="number">2.0 </span>* p0 + p1).div_exact(<span class="number">3.0</span>).to_point(),
             mid1 - deriv1,
             mid1,
         );
@@ -1242,7 +1328,7 @@
         <span class="kw">let </span>right = CubicBez::new(
             mid2,
             mid2 + deriv2,
-            ((p2 + <span class="number">2.0 </span>* p3) / <span class="number">3.0</span>).to_point(),
+            (p2 + <span class="number">2.0 </span>* p3).div_exact(<span class="number">3.0</span>).to_point(),
             <span class="self">self</span>.p3,
         );
         (left, mid, right)
@@ -1604,6 +1690,7 @@
     <span class="kw">use crate</span>::{
         cubics_to_quadratic_splines, Affine, CubicBez, Nearest, ParamCurve, ParamCurveArclen,
         ParamCurveArea, ParamCurveDeriv, ParamCurveExtrema, ParamCurveNearest, Point, QuadBez,
+        QuadSpline,
     };
 
     <span class="attr">#[test]
@@ -1878,6 +1965,32 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>cubicbez_approx_spline_div_exact() {
+        <span class="comment">// Ensure rounding behavior for division matches fonttools
+        // cu2qu.
+        // See &lt;https://github.com/linebender/kurbo/issues/272&gt;
+        </span><span class="kw">let </span>cubic = CubicBez::new(
+            Point::new(<span class="number">408.0</span>, <span class="number">321.0</span>),
+            Point::new(<span class="number">408.0</span>, <span class="number">452.0</span>),
+            Point::new(<span class="number">342.0</span>, <span class="number">560.0</span>),
+            Point::new(<span class="number">260.0</span>, <span class="number">560.0</span>),
+        );
+        <span class="kw">let </span>spline = cubic.approx_spline(<span class="number">1.0</span>).unwrap();
+        <span class="macro">assert_eq!</span>(
+            spline.points(),
+            <span class="kw-2">&amp;</span>[
+                Point::new(<span class="number">408.0</span>, <span class="number">321.0</span>),
+                <span class="comment">// Previous behavior produced 386.49999999999994 for the
+                // y coordinate leading to inconsistent rounding.
+                </span>Point::new(<span class="number">408.0</span>, <span class="number">386.5</span>),
+                Point::new(<span class="number">368.16666666666663</span>, <span class="number">495.0833333333333</span>),
+                Point::new(<span class="number">301.0</span>, <span class="number">560.0</span>),
+                Point::new(<span class="number">260.0</span>, <span class="number">560.0</span>)
+            ]
+        )
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>cubicbez_inflections() {
         <span class="kw">let </span>c = CubicBez::new((<span class="number">0.</span>, <span class="number">0.</span>), (<span class="number">0.8</span>, <span class="number">1.</span>), (<span class="number">0.2</span>, <span class="number">1.</span>), (<span class="number">1.</span>, <span class="number">0.</span>));
         <span class="kw">let </span>inflections = c.inflections();
@@ -1908,6 +2021,47 @@
 
         <span class="comment">// FontTools can solve this with accuracy 0.001, we can too
         </span><span class="macro">assert!</span>(cubics_to_quadratic_splines(<span class="kw-2">&amp;</span>[cubic], <span class="number">0.001</span>).is_some());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>cubics_to_quadratic_splines_matches_python() {
+        <span class="comment">// https://github.com/linebender/kurbo/pull/273
+        </span><span class="kw">let </span>light = CubicBez::new((<span class="number">378.</span>, <span class="number">608.</span>), (<span class="number">378.</span>, <span class="number">524.</span>), (<span class="number">355.</span>, <span class="number">455.</span>), (<span class="number">266.</span>, <span class="number">455.</span>));
+        <span class="kw">let </span>regular = CubicBez::new((<span class="number">367.</span>, <span class="number">607.</span>), (<span class="number">367.</span>, <span class="number">511.</span>), (<span class="number">338.</span>, <span class="number">472.</span>), (<span class="number">243.</span>, <span class="number">472.</span>));
+        <span class="kw">let </span>bold = CubicBez::new(
+            (<span class="number">372.425</span>, <span class="number">593.05</span>),
+            (<span class="number">372.425</span>, <span class="number">524.95</span>),
+            (<span class="number">355.05</span>, <span class="number">485.95</span>),
+            (<span class="number">274.</span>, <span class="number">485.95</span>),
+        );
+        <span class="kw">let </span>qsplines = cubics_to_quadratic_splines(<span class="kw-2">&amp;</span>[light, regular, bold], <span class="number">1.0</span>).unwrap();
+        <span class="macro">assert_eq!</span>(
+            qsplines,
+            [
+                QuadSpline::new(<span class="macro">vec!</span>[
+                    (<span class="number">378.0</span>, <span class="number">608.0</span>).into(),
+                    (<span class="number">378.0</span>, <span class="number">566.0</span>).into(),
+                    (<span class="number">359.0833333333333</span>, <span class="number">496.5</span>).into(),
+                    (<span class="number">310.5</span>, <span class="number">455.0</span>).into(),
+                    (<span class="number">266.0</span>, <span class="number">455.0</span>).into(),
+                ]),
+                QuadSpline::new(<span class="macro">vec!</span>[
+                    (<span class="number">367.0</span>, <span class="number">607.0</span>).into(),
+                    (<span class="number">367.0</span>, <span class="number">559.0</span>).into(),
+                    <span class="comment">// Previous behavior produced 496.5 for the y coordinate
+                    </span>(<span class="number">344.5833333333333</span>, <span class="number">499.49999999999994</span>).into(),
+                    (<span class="number">290.5</span>, <span class="number">472.0</span>).into(),
+                    (<span class="number">243.0</span>, <span class="number">472.0</span>).into(),
+                ]),
+                QuadSpline::new(<span class="macro">vec!</span>[
+                    (<span class="number">372.425</span>, <span class="number">593.05</span>).into(),
+                    (<span class="number">372.425</span>, <span class="number">559.0</span>).into(),
+                    (<span class="number">356.98333333333335</span>, <span class="number">511.125</span>).into(),
+                    (<span class="number">314.525</span>, <span class="number">485.95</span>).into(),
+                    (<span class="number">274.0</span>, <span class="number">485.95</span>).into(),
+                ]),
+            ]
+        )
     }
 }
 </code></pre></div>

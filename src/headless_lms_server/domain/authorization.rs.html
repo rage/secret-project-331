@@ -1261,7 +1261,7 @@ token.authorized_ok(web::Json(cms_page_info))
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
@@ -1271,7 +1271,7 @@ token.authorized_ok(web::Json(cms_page_info))
             View | Edit
                 | Grade
                 | DeleteAnswer
-                | EditRole(Assistant | Reviewer)
+                | EditRole(Assistant | Reviewer | MaterialViewer)
                 | Teach
                 | ViewMaterial
         ),

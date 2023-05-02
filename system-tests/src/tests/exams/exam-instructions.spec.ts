@@ -9,21 +9,14 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click(
       '[aria-label="University\\ of\\ Helsinki\\,\\ Department\\ of\\ Computer\\ Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
     ),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exams/7d6ed843-2a94-445b-8ced-ab3c67290ad0' }*/),
-    page.locator("text=Ongoing short timerManage >> a").nth(1).click(),
-  ])
+  await page.locator("text=Ongoing short timerManage >> a").nth(1).click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c/edit' }*/),
-    page.locator("text=Edit exam instructions").click(),
-  ])
+  await page.locator("text=Edit exam instructions").click()
 
   await page.locator(`[aria-label="Add default block"]`).click()
   await page
@@ -69,10 +62,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c' }*/),
-    page.locator("text=Ongoing short timer").click(),
-  ])
+  await page.locator("text=Ongoing short timer").click()
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,

@@ -7,7 +7,6 @@ test.describe("anonymous user", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -24,7 +23,6 @@ test.describe("user", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -46,7 +44,6 @@ test.describe("admin", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -60,7 +57,6 @@ test.describe("admin", () => {
     await page.goto("http://project-331.local/")
 
     await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
       page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
     ])
 
@@ -78,10 +74,7 @@ test.describe("admin", () => {
 
     await page.click('div[role="dialog"] >> text=Create')
 
-    await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/265c83b6-7faf-40bf-90e9-40a4c28f826c' }*/),
-      page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click(),
-    ])
+    await page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click()
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,

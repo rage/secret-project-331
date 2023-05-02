@@ -10,24 +10,17 @@ test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/9da60c66-9517-46e4-b351-07d0f7aa6cd4' }*/),
-    page.locator("[aria-label=\"Manage\\ course\\ \\'Limited\\ tries\\'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage\\ course\\ \\'Limited\\ tries\\'\"] svg").click()
 
   await page.locator('a[role="tab"]:has-text("Pages")').click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/9da60c66-9517-46e4-b351-07d0f7aa6cd4/pages",
   )
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/989ee504-c938-4705-9cba-9272a31c5952' }*/),
-    page.locator("text=Page 6/chapter-1/page-6Edit page >> button").first().click(),
-  ])
+  await page.locator("text=Page 6/chapter-1/page-6Edit page >> button").first().click()
 
   await page.locator('[placeholder="Max\\ points"]').click()
   // Fill [placeholder="Max\ points"]
@@ -46,14 +39,10 @@ test("Limited tries work", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/limited-tries' }*/),
-    page.locator("text=Limited tries").click(),
-  ])
+  await page.locator("text=Limited tries").click()
 
   await page.locator("text=Objective #1").waitFor({ state: "attached" })
 
@@ -61,10 +50,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.locator("text=Start course").click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/limited-tries/chapter-1' }*/),
-    page.locator("text=The Basics").click(),
-  ])
+  await page.locator("text=The Basics").click()
 
   await page.locator("text=6Page 6").click()
   await expect(page).toHaveURL(

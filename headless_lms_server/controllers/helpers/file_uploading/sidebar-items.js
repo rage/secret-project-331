@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FileType","StoreKind"],"fn":["generate_audio_path","generate_file_path","generate_image_path","path","process_exercise_service_upload","upload_file_from_cms","upload_file_to_storage","upload_image_for_organization","validate_media_headers"]};
+window.SIDEBAR_ITEMS = {"enum":["FileType","StoreKind"],"fn":["generate_audio_path","generate_file_path","generate_image_path","path","process_exercise_service_upload","upload_field_from_cms","upload_file_from_cms","upload_file_to_storage","upload_image_for_organization","validate_media_headers"]};

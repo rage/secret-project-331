@@ -364,6 +364,17 @@
 <a href="#364" id="364">364</a>
 <a href="#365" id="365">365</a>
 <a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Helper functions related to uploading to file storage.
 
 </span><span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::AuthorizationToken;
@@ -419,7 +430,7 @@
 }
 
 <span class="doccomment">/// Processes an upload from CMS.
-</span><span class="kw">pub async fn </span>upload_file_from_cms&lt;<span class="lifetime">&#39;a</span>&gt;(
+</span><span class="kw">pub async fn </span>upload_file_from_cms(
     headers: <span class="kw-2">&amp;</span>HeaderMap,
     <span class="kw-2">mut </span>payload: Multipart,
     store_kind: StoreKind,
@@ -427,8 +438,6 @@
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
 ) -&gt; ControllerResult&lt;PathBuf&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    validate_media_headers(headers, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>file_payload = payload.next().<span class="kw">await</span>.ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -438,22 +447,35 @@
     })<span class="question-mark">?</span>;
     <span class="kw">match </span>file_payload {
         <span class="prelude-val">Ok</span>(field) =&gt; {
-            <span class="kw">let </span>path: AuthorizedResponse&lt;PathBuf&gt; = <span class="kw">match </span>field.content_type().map(|ct| ct.type_())
-            {
-                <span class="prelude-val">Some</span>(mime::AUDIO) =&gt; generate_audio_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="prelude-val">Some</span>(mime::IMAGE) =&gt; generate_image_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="kw">_ </span>=&gt; generate_file_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
-            };
-            upload_file_to_storage(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>path.data, field, file_store, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>user)).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
-            token.authorized_ok(path.data)
-        }
+            upload_field_from_cms(headers, field, store_kind, file_store, pool, user).<span class="kw">await
+        </span>}
         <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
             <span class="prelude-val">None</span>,
         )),
     }
+}
+
+<span class="doccomment">/// Processes an upload from CMS.
+</span><span class="kw">pub async fn </span>upload_field_from_cms(
+    headers: <span class="kw-2">&amp;</span>HeaderMap,
+    field: Field,
+    store_kind: StoreKind,
+    file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;PathBuf&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    validate_media_headers(headers, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>path: AuthorizedResponse&lt;PathBuf&gt; = <span class="kw">match </span>field.content_type().map(|ct| ct.type_()) {
+        <span class="prelude-val">Some</span>(mime::AUDIO) =&gt; generate_audio_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="prelude-val">Some</span>(mime::IMAGE) =&gt; generate_image_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="kw">_ </span>=&gt; generate_file_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
+    };
+    upload_file_to_storage(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>path.data, field, file_store, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>user)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(path.data)
 }
 
 <span class="doccomment">/// Processes an upload for an organization&#39;s image.

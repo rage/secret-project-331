@@ -3422,6 +3422,17 @@
 <a href="#3422" id="3422">3422</a>
 <a href="#3423" id="3423">3423</a>
 <a href="#3424" id="3424">3424</a>
+<a href="#3425" id="3425">3425</a>
+<a href="#3426" id="3426">3426</a>
+<a href="#3427" id="3427">3427</a>
+<a href="#3428" id="3428">3428</a>
+<a href="#3429" id="3429">3429</a>
+<a href="#3430" id="3430">3430</a>
+<a href="#3431" id="3431">3431</a>
+<a href="#3432" id="3432">3432</a>
+<a href="#3433" id="3433">3433</a>
+<a href="#3434" id="3434">3434</a>
+<a href="#3435" id="3435">3435</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -3480,6 +3491,17 @@
     <span class="kw">pub </span>course_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>course_slug: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>organization_slug: <span class="prelude-ty">Option</span>&lt;String&gt;,
+}
+
+<span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PageAudioFiles {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>path: String,
+    <span class="kw">pub </span>mime_type: String,
 }
 
 <span class="kw">impl </span>Page {

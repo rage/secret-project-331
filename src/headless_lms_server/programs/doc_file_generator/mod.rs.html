@@ -1469,6 +1469,19 @@
 <a href="#1469" id="1469">1469</a>
 <a href="#1470" id="1470">1470</a>
 <a href="#1471" id="1471">1471</a>
+<a href="#1472" id="1472">1472</a>
+<a href="#1473" id="1473">1473</a>
+<a href="#1474" id="1474">1474</a>
+<a href="#1475" id="1475">1475</a>
+<a href="#1476" id="1476">1476</a>
+<a href="#1477" id="1477">1477</a>
+<a href="#1478" id="1478">1478</a>
+<a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1591,6 +1604,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
+    page_audio_files::PageAudioFile,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
@@ -2923,6 +2937,18 @@ This method is mainly useful for external/std types. For example, we cannot writ
         map.insert(<span class="string">&quot;key2&quot;</span>.to_string(), <span class="string">&quot;val2&quot;</span>.to_string());
         map
     });
+
+    <span class="macro">doc!</span>(
+        Vec,
+        PageAudioFile {
+            id,
+            page_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
+            created_at,
+            deleted_at,
+            path: <span class="string">&quot;/path/to/file&quot;</span>.to_string(),
+            mime_type: <span class="string">&quot;audio/ogg&quot;</span>.to_string(),
+        }
+    );
 }
 
 <span class="kw">fn </span>utils() {

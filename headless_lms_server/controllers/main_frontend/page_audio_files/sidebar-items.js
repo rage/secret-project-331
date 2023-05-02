@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_page_audio","remove_page_audio","set_page_audio"],"static":["CALLSITE","META"]};

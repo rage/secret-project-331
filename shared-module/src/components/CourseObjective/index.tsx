@@ -3,6 +3,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -144,9 +145,10 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                       font-weight: 600;
                       text-align: left;
                     `}
-                  >
-                    {innerBlocks[0].attributes.content}
-                  </h3>
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeCourseMaterialHtml(innerBlocks[0].attributes.content),
+                    }}
+                  ></h3>
                 )}
                 <span className="paragraph">
                   {innerBlocks && innerBlocks.length > 1

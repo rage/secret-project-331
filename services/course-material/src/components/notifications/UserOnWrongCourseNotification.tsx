@@ -9,6 +9,7 @@ import Banner from "../../shared-module/components/Banner/Banner"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 export interface UserOnWrongCourseNotificationProps {
   correctCourseId: string
@@ -56,4 +57,4 @@ const UserOnWrongCourseNotification: React.FC<
   )
 }
 
-export default UserOnWrongCourseNotification
+export default withErrorBoundary(UserOnWrongCourseNotification)

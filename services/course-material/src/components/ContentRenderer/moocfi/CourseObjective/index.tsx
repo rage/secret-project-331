@@ -3,9 +3,9 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
-import { baseTheme } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
+import { baseTheme } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 interface StyledObjectiveProps {
   index: number

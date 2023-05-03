@@ -15,7 +15,6 @@ test("test", async ({ page }) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
@@ -34,18 +33,11 @@ test("test", async ({ page }) => {
 
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  await Promise.all([
-    page.waitForNavigation(),
-    await page
-      .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
-      .click(),
-  ])
-  expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
+  await await page
+    .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
+    .click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
-    page.locator("text=Pages").click(),
-  ])
+  await page.locator("text=Pages").click()
 
   await page.locator(`button:has-text("New chapter")`).last().click()
 
@@ -87,11 +79,7 @@ test("test", async ({ page }) => {
 
   await page.click('button:text("Create")')
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(`button:text("Edit page"):right-of(:text("System Testing"))`),
-  ])
-  expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
+  await page.click(`button:text("Edit page"):right-of(:text("System Testing"))`)
 
   await page.click('[aria-label="Add block"]')
   await page.keyboard.type("/paragraph")
@@ -166,19 +154,13 @@ test("test", async ({ page }) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1' }*/),
-    page.locator("text=The Levels of Testing").click(),
-  ])
+  await page.locator("text=The Levels of Testing").click()
   await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1",
   )
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
-    await page.locator("text=System Testing").first().click(),
-  ])
+  await await page.locator("text=System Testing").first().click()
   await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing",

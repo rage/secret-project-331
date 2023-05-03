@@ -11,21 +11,14 @@ test("headings navigation works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
-    page.locator("text=Introduction to Course Material").first().click(),
-  ])
+  await page.locator("text=Introduction to Course Material").first().click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
-    page.locator("text=Chapter 1User Interface").click(),
-  ])
+  await page.locator("text=Chapter 1User Interface").click()
 
   await page.locator("text=1Design").click()
   await expect(page).toHaveURL(

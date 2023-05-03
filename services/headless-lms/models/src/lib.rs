@@ -40,6 +40,7 @@ pub mod offered_answers_to_peer_review_temporary;
 pub mod open_university_registration_links;
 pub mod organizations;
 pub mod other_domain_to_course_redirections;
+pub mod page_audio_files;
 pub mod page_history;
 pub mod page_language_groups;
 pub mod page_visit_datum;

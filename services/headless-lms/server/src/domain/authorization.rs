@@ -561,7 +561,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
@@ -571,7 +571,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
             View | Edit
                 | Grade
                 | DeleteAnswer
-                | EditRole(Assistant | Reviewer)
+                | EditRole(Assistant | Reviewer | MaterialViewer)
                 | Teach
                 | ViewMaterial
         ),

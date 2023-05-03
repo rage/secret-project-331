@@ -428,7 +428,6 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
     token.authorized_ok((course_instance_id_or_exam_id, last_try))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn fetch_students_previous_submission(
     pool: web::Data<PgPool>,

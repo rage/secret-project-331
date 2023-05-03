@@ -19,7 +19,9 @@ test("Can take exam after enough course points", async ({ page, headless }, test
       page.locator("text=Automatic course exam"),
       page.locator("text=Submissions are no longer accepted after"),
       page.locator("text=You have 1 minutes to complete the exam after starting"),
-      page.locator("text=You are not eligible for taking this exam."),
+      page.locator(
+        "text=The exam is not open yet. Use this button to access the exam once the exam starts.",
+      ),
     ],
   })
 
@@ -29,6 +31,7 @@ test("Can take exam after enough course points", async ({ page, headless }, test
   await selectCourseInstanceIfPrompted(page)
   await page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
+  await page.getByRole("button", { name: "Try again" }).waitFor()
   await page.getByRole("link", { name: "Automatic Course with Exam" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/automatic-course-with-exam",

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { downloadToString } from "../../utils/download"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -10,17 +11,13 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    await page
-      .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
-      .click(),
-  ])
+  await await page
+    .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
+    .click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
   )
@@ -33,10 +30,36 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.getByRole("tab", { name: "Course instances" }).click(),
+  await page.locator("text=Export submissions as CSV").scrollIntoViewIfNeeded()
+
+  const [submissionsDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Export submissions as CSV" }).click(),
   ])
+
+  const submissionsCsvContents = await downloadToString(submissionsDownload)
+  expect(submissionsCsvContents).toContain(
+    "id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
+  )
+  expect(submissionsCsvContents).toContain("e10557bd-9835-51b4-b0d9-f1d9689ebc8d")
+  expect(submissionsCsvContents).toContain(
+    "bcd944f3-bba5-53a4-a0c5-b20d496607ee,00e249d8-345f-4eff-aedb-7bdc4c44c1d5",
+  )
+  expect(submissionsCsvContents).toContain(
+    '211556f5-7793-5705-ac63-b84465916da5,239f666e-2982-5c40-9e94-a72324cf3242,cbc5746d-c9c6-584c-9f46-0d9e8d948dd0,0.8,"""d9b37119-70ed-5aab-be81-f2b1c90c8f3d"""',
+  )
+
+  const [usersDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Export user details as CSV" }).click(),
+  ])
+
+  const usersCsvContents = await downloadToString(usersDownload)
+  expect(usersCsvContents).toContain("user_id,created_at,updated_at,first_name,last_name,email")
+  expect(usersCsvContents).toContain("3524d694-7fa8-4e73-aa1a-de9a20fd514b,")
+  expect(usersCsvContents).toContain(",User4,,user_4@example.com")
+
+  await Promise.all([page.getByRole("tab", { name: "Course instances" }).click()])
   await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
 
   await expectScreenshotsToMatchSnapshots({
@@ -67,12 +90,9 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(
-      "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
-    ),
-  ])
+  await page.click(
+    "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
+  )
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )
@@ -133,10 +153,7 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),
-    page.locator("text=Delete").click(),
-  ])
+  await page.locator("text=Delete").click()
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
@@ -146,5 +163,6 @@ test("test", async ({ page, headless }, testInfo) => {
     snapshotName: "course-management-page-after-delete",
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "All course instances" })],
     screenshotTarget: page,
+    clearNotifications: true,
   })
 })

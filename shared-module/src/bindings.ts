@@ -269,6 +269,7 @@ export interface CourseModule {
   completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
   ects_credits: number | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface ModifiedModule {
@@ -279,6 +280,7 @@ export interface ModifiedModule {
   ects_credits: number | null
   completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface ModuleUpdates {
@@ -296,6 +298,7 @@ export interface NewCourseModule {
   name: string | null
   order_number: number
   uh_course_code: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface NewModule {
@@ -306,6 +309,7 @@ export interface NewModule {
   ects_credits: number | null
   completion_policy: CompletionPolicy
   completion_registration_link_override: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface Course {
@@ -678,6 +682,7 @@ export interface Exercise {
   limit_number_of_tries: boolean
   needs_peer_review: boolean
   use_course_default_peer_review_config: boolean
+  exercise_language_group_id: string | null
 }
 
 export interface ExerciseStatus {
@@ -843,6 +848,7 @@ export interface UserCompletionInformation {
   uh_course_code: string
   email: string
   ects_credits: number | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface UserCourseModuleCompletion {
@@ -860,6 +866,7 @@ export interface UserModuleCompletionStatus {
   prerequisite_modules_completed: boolean
   grade: number | null
   passed: boolean | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 export interface UserWithModuleCompletions {
@@ -1014,6 +1021,7 @@ export interface Page {
   order_number: number
   copied_from: string | null
   hidden: boolean
+  page_language_group_id: string | null
 }
 
 export interface PageChapterAndCourseInformation {
@@ -1077,6 +1085,7 @@ export interface PageWithExercises {
   order_number: number
   copied_from: string | null
   hidden: boolean
+  page_language_group_id: string | null
   exercises: Array<Exercise>
 }
 
@@ -1252,6 +1261,15 @@ export interface PageProposal {
 export interface ProposalCount {
   pending: number
   handled: number
+}
+
+export interface PageAudioFile {
+  id: string
+  page_id: string
+  created_at: Date
+  deleted_at: Date | null
+  path: string
+  mime_type: string
 }
 
 export interface NewRegrading {

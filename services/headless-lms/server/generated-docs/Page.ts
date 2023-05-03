@@ -12,4 +12,5 @@ type Page = {
   order_number: number
   copied_from: string | null
   hidden: boolean
+  page_language_group_id: string | null
 }

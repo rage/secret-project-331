@@ -56,16 +56,16 @@ In addition, you need the commands (`bc, find, jq, rsync, sponge`) for the scrip
 
 #### Moving docker data root to another drive with more space
 
-> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
+> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space. With Cubbli please use path ´/home/local/username/docker´ if not using cubbli please use path ´/home/username/docker"´.
 
 1. `sudo systemctl stop docker`
 2. `sudo vim /etc/docker/daemon.json` -
    with content:
    {
-   "data-root": "/home/username/docker"
+   "data-root": "path_from \_above"
    }
-3. `mkdir /home/$USER/docker`
-4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
+3. `mkdir path_from _above`
+4. `sudo rsync -aP /var/lib/docker path_from _above` (optional)
 5. `sudo mv /var/lib/docker /var/lib/docker.old`
 6. `sudo systemctl start docker`
    - Ensure all works fine by running: `docker run --rm hello-world`

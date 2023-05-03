@@ -284,7 +284,8 @@ async fn copy_course_pages_and_return_contents(
         chapter_id,
         order_number,
         copied_from,
-        content_search_language
+        content_search_language,
+        page_language_group_id
       )
     SELECT uuid_generate_v5($1, id::text),
       $1,
@@ -294,7 +295,8 @@ async fn copy_course_pages_and_return_contents(
       uuid_generate_v5($1, chapter_id::text),
       order_number,
       id,
-      content_search_language
+      content_search_language,
+      page_language_group_id
     FROM pages
     WHERE (course_id = $2)
     AND deleted_at IS NULL
@@ -466,7 +468,8 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
             score_maximum,
             order_number,
             chapter_id,
-            copied_from
+            copied_from,
+            exercise_language_group_id
           )
         SELECT uuid_generate_v5($1, id::text),
           $1,
@@ -476,7 +479,8 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
           score_maximum,
           order_number,
           uuid_generate_v5($1, chapter_id::text),
-          id
+          id,
+          exercise_language_group_id
         FROM exercises
         WHERE course_id = $2
         AND deleted_at IS NULL

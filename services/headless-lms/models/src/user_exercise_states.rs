@@ -377,10 +377,10 @@ pub async fn get_user_total_exam_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     exam_id: Uuid,
-) -> ModelResult<f32> {
+) -> ModelResult<Option<f32>> {
     let res = sqlx::query!(
         r#"
-SELECT COALESCE(SUM(score_given), 0) AS "points!"
+SELECT SUM(score_given) AS "points"
 FROM user_exercise_states
 WHERE user_id = $2
   AND exam_id = $1
@@ -1122,7 +1122,7 @@ mod tests {
             Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
         )
         .set_timestamps(timestamp, timestamp, None)
-        .set_registration_info(None, Some(5), None)];
+        .set_registration_info(None, Some(5), None, false)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

@@ -37,6 +37,7 @@ pub async fn create_new_course(
 
     let course_language_group_id =
         course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?;
+
     let course_id = courses::insert(
         &mut tx,
         pkey_policy.map_ref(|x| x.course_id),
@@ -55,6 +56,7 @@ pub async fn create_new_course(
         GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])?;
+
     let course_front_page = NewPage {
         chapter_id: None,
         content: course_front_page_content,
@@ -98,7 +100,7 @@ pub async fn create_new_course(
     let default_module = crate::course_modules::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        &NewCourseModule::new_course_default(course.id),
+        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(5)),
     )
     .await?;
 
@@ -158,6 +160,7 @@ pub async fn create_new_chapter(
     let mut tx = conn.begin().await?;
     let chapter_id = chapters::insert(&mut tx, pkey_policy.map_ref(|x| x.0), new_chapter).await?;
     let chapter = chapters::get_chapter(&mut tx, chapter_id).await?;
+
     let chapter_frontpage_content = serde_json::to_value(vec![
         GutenbergBlock::hero_section(&chapter.name, ""),
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),

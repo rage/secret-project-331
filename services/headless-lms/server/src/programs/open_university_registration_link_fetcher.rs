@@ -59,7 +59,9 @@ async fn fetch_and_update_completion_links(
     let mut updates = 0;
     let client = Client::default();
     let now = Utc::now().naive_utc();
-    for uh_course_code in models::course_modules::get_all_uh_course_codes(conn).await? {
+    for uh_course_code in
+        models::course_modules::get_all_uh_course_codes_for_open_university(conn).await?
+    {
         let url = format!("{}{}", &open_university_course_url, &uh_course_code);
         // TODO: Handle error if no info found for single course code
         let infos =

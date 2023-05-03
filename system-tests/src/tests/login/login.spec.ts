@@ -70,15 +70,14 @@ test.describe("Login return_to", async () => {
 
   test("works after succesful login", async ({ page }) => {
     await Promise.all([
-      page.waitForNavigation(),
       page.locator("text=University of Helsinki, Department of Computer Science").click(),
     ])
-    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
+    await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
 
     await page.locator("id=main-navigation-menu").click()
-    await Promise.all([page.waitForNavigation(), page.locator("text=Log in").click()])
+    await page.locator("text=Log in").click()
     await page.waitForSelector(`label:has-text("Password")`)
-    expect(page.url().startsWith("http://project-331.local/login?return_to=")).toBe(true)
+    await page.waitForURL(/http:\/\/project-331\.local\/login\?return_to=.*/)
 
     await page.click(`label:has-text("Email")`)
     // Fill input[name="email"]
@@ -88,10 +87,7 @@ test.describe("Login return_to", async () => {
     // Fill input[name="password"]
     await page.fill(`label:has-text("Password")`, "admin")
 
-    await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/organizations/f242f19e-6d6f-43d5-9186-d0424864146e' }*/),
-      page.locator("id=login-button").click(),
-    ])
-    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
+    await page.locator("id=login-button").click()
+    await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
   })
 })

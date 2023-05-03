@@ -1045,6 +1045,7 @@ export interface ColumnDeprecated1Attributes {
 export interface ColumnsAttributes {
   verticalAlignment?: string
   isStackedOnMobile: boolean
+  templateLock?: "all" | "insert" | "contentOnly" | false
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
@@ -1118,6 +1119,9 @@ export interface EmbedAttributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   height?: number
   title?: string
 }

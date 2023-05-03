@@ -45,7 +45,7 @@ First, start `bin/dev-only-db` in one terminal. Once the database if fully up, r
 bin/sqlx-database-reset
 bin/sqlx-prepare
 bin/cargo-check
-bin/cargo-clippy --fix
+bin/cargo-clippy-fix
 bin/cargo-test
 ```
 

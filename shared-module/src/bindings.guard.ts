@@ -131,6 +131,7 @@ import {
   Organization,
   OrgExam,
   Page,
+  PageAudioFile,
   PageChapterAndCourseInformation,
   PageHistory,
   PageInfo,
@@ -650,7 +651,8 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
     (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string") &&
-    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -665,7 +667,8 @@ export function isModifiedModule(obj: unknown): obj is ModifiedModule {
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
-      typeof typedObj["completion_registration_link_override"] === "string")
+      typeof typedObj["completion_registration_link_override"] === "string") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -697,7 +700,8 @@ export function isNewCourseModule(obj: unknown): obj is NewCourseModule {
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
     typeof typedObj["order_number"] === "number" &&
-    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string")
+    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -713,7 +717,8 @@ export function isNewModule(obj: unknown): obj is NewModule {
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
     (isCompletionPolicy(typedObj["completion_policy"]) as boolean) &&
     (typedObj["completion_registration_link_override"] === null ||
-      typeof typedObj["completion_registration_link_override"] === "string")
+      typeof typedObj["completion_registration_link_override"] === "string") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -1288,7 +1293,9 @@ export function isExercise(obj: unknown): obj is Exercise {
       typeof typedObj["max_tries_per_slide"] === "number") &&
     typeof typedObj["limit_number_of_tries"] === "boolean" &&
     typeof typedObj["needs_peer_review"] === "boolean" &&
-    typeof typedObj["use_course_default_peer_review_config"] === "boolean"
+    typeof typedObj["use_course_default_peer_review_config"] === "boolean" &&
+    (typedObj["exercise_language_group_id"] === null ||
+      typeof typedObj["exercise_language_group_id"] === "string")
   )
 }
 
@@ -1615,7 +1622,8 @@ export function isUserCompletionInformation(obj: unknown): obj is UserCompletion
     typeof typedObj["course_name"] === "string" &&
     typeof typedObj["uh_course_code"] === "string" &&
     typeof typedObj["email"] === "string" &&
-    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -1640,7 +1648,8 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
-    (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true)
+    (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true) &&
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
   )
 }
 
@@ -1879,7 +1888,9 @@ export function isPage(obj: unknown): obj is Page {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
-    typeof typedObj["hidden"] === "boolean"
+    typeof typedObj["hidden"] === "boolean" &&
+    (typedObj["page_language_group_id"] === null ||
+      typeof typedObj["page_language_group_id"] === "string")
   )
 }
 
@@ -1977,6 +1988,8 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
     typeof typedObj["hidden"] === "boolean" &&
+    (typedObj["page_language_group_id"] === null ||
+      typeof typedObj["page_language_group_id"] === "string") &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
   )
@@ -2264,6 +2277,19 @@ export function isProposalCount(obj: unknown): obj is ProposalCount {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["pending"] === "number" &&
     typeof typedObj["handled"] === "number"
+  )
+}
+
+export function isPageAudioFile(obj: unknown): obj is PageAudioFile {
+  const typedObj = obj as PageAudioFile
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["path"] === "string" &&
+    typeof typedObj["mime_type"] === "string"
   )
 }
 

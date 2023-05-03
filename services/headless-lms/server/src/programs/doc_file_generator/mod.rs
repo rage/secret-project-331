@@ -120,6 +120,7 @@ use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
+    page_audio_files::PageAudioFile,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
@@ -590,6 +591,7 @@ fn models() {
         completion_policy: CompletionPolicy::Manual,
         ects_credits: None,
         completion_registration_link_override: None,
+        enable_registering_completion_to_uh_open_university: false,
     });
     example!(UserCourseModuleCompletion {
         course_module_id,
@@ -775,7 +777,8 @@ fn models() {
             language_code: "en-US".to_string(),
             copied_from: None,
             content_search_language: Some("simple".to_string()),
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
+                .unwrap(),
             description: Some("Example".to_string()),
             is_draft: true,
             is_test_mode: false,
@@ -820,7 +823,8 @@ fn models() {
         Opt,
         UserCourseSettings {
             user_id,
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
+                .unwrap(),
             created_at,
             updated_at,
             deleted_at: None,
@@ -946,6 +950,7 @@ fn models() {
             limit_number_of_tries: true,
             needs_peer_review,
             use_course_default_peer_review_config,
+            exercise_language_group_id,
         }
     );
     doc!(
@@ -1087,6 +1092,9 @@ fn models() {
             order_number: 123,
             copied_from: None,
             hidden: false,
+            page_language_group_id: Some(
+                Uuid::parse_str("0484aa42-ece8-4bc4-9a34-92f5994f6697").unwrap()
+            ),
         }
     );
     doc!(
@@ -1230,6 +1238,7 @@ fn models() {
         email: "student@example.com".to_string(),
         uh_course_code: "ABC123".to_string(),
         ects_credits: Some(5),
+        enable_registering_completion_to_uh_open_university: true,
     });
     doc!(
         Vec<UserModuleCompletionStatus>,
@@ -1243,6 +1252,7 @@ fn models() {
                 passed: Some(true),
                 grade: Some(4),
                 prerequisite_modules_completed: false,
+                enable_registering_completion_to_uh_open_university: true,
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1253,6 +1263,7 @@ fn models() {
                 passed: Some(true),
                 grade: Some(4),
                 prerequisite_modules_completed: false,
+                enable_registering_completion_to_uh_open_university: false,
             }
         ]
     );
@@ -1446,6 +1457,18 @@ fn models() {
         map.insert("key2".to_string(), "val2".to_string());
         map
     });
+
+    doc!(
+        Vec,
+        PageAudioFile {
+            id,
+            page_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            created_at,
+            deleted_at,
+            path: "/path/to/file".to_string(),
+            mime_type: "audio/ogg".to_string(),
+        }
+    );
 }
 
 fn utils() {

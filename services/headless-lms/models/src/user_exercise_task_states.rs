@@ -431,6 +431,7 @@ mod tests {
                 },
             )
             .await?;
+
             let (page_id, _history) = pages::insert_course_page(
                 tx.as_mut(),
                 &NewCoursePage::new(course, 1, "/test", "test"),

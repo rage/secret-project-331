@@ -5,7 +5,10 @@ use headless_lms_models::{
     courses::NewCourse,
     library,
     library::content_management::CreateNewCourseFixedIds,
-    organizations, PKeyPolicy,
+    library::copying::copy_course,
+    organizations,
+    roles::{self, RoleDomain, UserRole},
+    PKeyPolicy,
 };
 use uuid::Uuid;
 
@@ -27,7 +30,7 @@ pub async fn seed_organization_uh_mathstat(
 
     let SeedUsersResult {
         admin_user_id,
-        teacher_user_id: _,
+        teacher_user_id,
         language_teacher_user_id: _,
         assistant_user_id: _,
         course_or_exam_creator_user_id: _,
@@ -113,7 +116,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let _introduction_to_citations = seed_sample_course(
+    let introduction_to_citations = seed_sample_course(
         &db_pool,
         uh_mathstat_id,
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
@@ -123,6 +126,45 @@ pub async fn seed_organization_uh_mathstat(
         student_user_id,
         &example_normal_user_ids,
         Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    copy_course(
+        &mut conn,
+        introduction_to_citations,
+        &NewCourse {
+            name: "Johdatus sitaatioihin".to_string(),
+            slug: "johdatus-sitaatioihin".to_string(),
+            organization_id: uh_mathstat_id,
+            language_code: "fi-FI".to_string(),
+            teacher_in_charge_name: "admin".to_string(),
+            teacher_in_charge_email: "admin@example.com".to_string(),
+            description: "Just a draft.".to_string(),
+            is_draft: false,
+            is_test_mode: false,
+        },
+        true,
+    )
+    .await?;
+
+    let preview_unopened_chapters = seed_sample_course(
+        &db_pool,
+        uh_mathstat_id,
+        Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
+        "Preview unopened chapters",
+        "preview-unopened-chapters",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(preview_unopened_chapters),
     )
     .await?;
 

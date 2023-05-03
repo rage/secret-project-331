@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
-import { showToastInfinitely, showToastNormally } from "../../utils/notificationUtils"
+import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -12,15 +12,11 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5",
   )
@@ -97,7 +93,7 @@ test("test", async ({ page, headless }, testInfo) => {
     clearNotifications: true,
   })
 
-  await showToastInfinitely(page)
+  await showNextToastsInfinitely(page)
   await page.locator('button:has-text("Submit")').click()
 
   await expectScreenshotsToMatchSnapshots({
@@ -115,11 +111,11 @@ test("test", async ({ page, headless }, testInfo) => {
     beforeScreenshot: () => page.locator("text=User1").scrollIntoViewIfNeeded(),
   })
 
-  await showToastNormally(page)
+  await showToastsNormally(page)
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Export completions as CSV)" }).click(),
+    page.getByRole("link", { name: "Export completions as CSV" }).click(),
   ])
 
   const completionsCsvContents = await downloadToString(download)

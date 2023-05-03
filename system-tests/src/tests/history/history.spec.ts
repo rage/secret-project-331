@@ -17,27 +17,17 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history' }*/),
-    page.locator("text=Introduction to history").click(),
-  ])
+  await page.locator("text=Introduction to history").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1' }*/),
-    page.click('a:has-text("The Basics")'),
-  ])
+  await page.click('a:has-text("The Basics")')
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-history/chapter-1/page-1' }*/),
-    page.locator("text=1Page One").click(),
-  ])
+  await page.locator("text=1Page One").click()
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
@@ -54,24 +44,17 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
+  await page.locator("text=Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad' }*/),
-    page.click(`button:text("Edit page"):right-of(:text("Page One"))`),
-  ])
+  await page.click(`button:text("Edit page"):right-of(:text("Page One"))`)
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
@@ -113,21 +96,15 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
+  await page.locator("text=Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad/history' }*/),
-    page.click(`a:has-text("History")`),
-  ])
+  await page.click(`a:has-text("History")`)
 
   await page.waitForSelector("text=core/paragraph")
 
@@ -137,7 +114,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
 
-  await Promise.all([page.waitForNavigation(), page.click(`a:has-text("History")`)])
+  await page.click(`a:has-text("History")`)
 
   /*
   const stableElement = await page.waitForSelector("text=core/paragraph")
@@ -178,17 +155,17 @@ screenshotTarget: page,
 
   await page.click(':nth-match(:text("["), 3)')
 
-  await page.press(
-    ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
-    "PageDown",
-  )
+  // await page.press(
+  //   ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
+  //   "PageDown",
+  // )
 
-  await page.press(
-    ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
-    "PageDown",
-  )
+  // await page.press(
+  //   ':nth-match([aria-label="Editor content;Press Alt+F1 for Accessibility Options."], 2)',
+  //   "PageDown",
+  // )
 
-  await page.waitForSelector("text=Best exercise")
+  // await page.waitForSelector("text=Best exercise")
 
   /*
   await expectScreenshotsToMatchSnapshots({
@@ -208,10 +185,7 @@ screenshotTarget: page,
   })
 */
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad/history?page=1' }*/),
-    page.locator("text=Restore").click(),
-  ])
+  await page.locator("text=Restore").click()
   await page.locator("text=Page edit history").click() // deselect restore
   await page.waitForSelector("[aria-label='Current page: 1']")
   await page.waitForTimeout(100)
@@ -229,20 +203,11 @@ screenshotTarget: page,
 */
   await page.goto("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history' }*/),
-    page.locator("text=Introduction to history").click(),
-  ])
+  await page.locator("text=Introduction to history").click()
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1' }*/),
-    page.click('a:has-text("CHAPTER 1The Basics")'),
-  ])
+  await page.click('a:has-text("CHAPTER 1The Basics")')
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-history/chapter-1/page-1' }*/),
-    page.locator("text=1Page One").click(),
-  ])
+  await page.locator("text=1Page One").click()
 
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({

@@ -1,6 +1,5 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-use bytes::Bytes;
 use chrono::Utc;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
@@ -14,10 +13,12 @@ use models::{
         },
     },
 };
-use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    domain::csv_export::{
+        course_instance_export::CompletionsExportOperation, general_export,
+        points::PointExportOperation,
+    },
     prelude::*,
 };
 
@@ -114,6 +115,9 @@ async fn get_email_templates_by_course_instance_id(
     token.authorized_ok(web::Json(email_templates))
 }
 
+/**
+GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` - gets CSV of course instance points based on course_instance ID.
+*/
 #[instrument(skip(pool))]
 pub async fn point_export(
     course_instance_id: web::Path<Uuid>,
@@ -128,46 +132,25 @@ pub async fn point_export(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
-    let course_instance_id = *course_instance_id;
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    // spawn handle that writes the csv row by row into the sender
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_course_instance_points(
-            &mut handle_conn,
-            course_instance_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export course instance points: {}", err);
-        }
-    });
 
     let course_instance =
-        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let course = courses::get_course(&mut conn, course_instance.course_id).await?;
 
-    // return response that streams data from the receiver
-
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"{} - {} - Point export {}.csv\"",
-                    course.name,
-                    course_instance.name.as_deref().unwrap_or("unnamed"),
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"{} - {} - Point export {}.csv\"",
+            course.name,
+            course_instance.name.as_deref().unwrap_or("unnamed"),
+            Utc::now().format("%Y-%m-%d")
+        ),
+        PointExportOperation {
+            course_instance_id: *course_instance_id,
+        },
+        token,
+    )
+    .await
 }
 
 #[generated_doc]
@@ -325,43 +308,25 @@ pub async fn completions_export(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
-    let course_instance_id = *course_instance_id;
-    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    let mut handle_conn = pool.acquire().await?;
-    let _handle = tokio::spawn(async move {
-        let res = csv_export::export_completions(
-            &mut handle_conn,
-            course_instance_id,
-            CSVExportAdapter {
-                sender,
-                authorization_token: token,
-            },
-        )
-        .await;
-        if let Err(err) = res {
-            tracing::error!("Failed to export completion points: {}", err);
-        }
-    });
 
     let course_instance =
-        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let course = courses::get_course(&mut conn, course_instance.course_id).await?;
 
-    return token.authorized_ok(
-        HttpResponse::Ok()
-            .append_header((
-                "Content-Disposition",
-                format!(
-                    "attachment; filename=\"{} - {} - Completions export {}.csv\"",
-                    course.name,
-                    course_instance.name.as_deref().unwrap_or("unnamed"),
-                    Utc::now().format("%Y-%m-%d")
-                ),
-            ))
-            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-                receiver,
-            ))),
-    );
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"{} - {} - Completions export {}.csv\"",
+            course.name,
+            course_instance.name.as_deref().unwrap_or("unnamed"),
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CompletionsExportOperation {
+            course_instance_id: *course_instance_id,
+        },
+        token,
+    )
+    .await
 }
 
 /**
@@ -382,7 +347,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_email_templates_by_course_instance_id),
         )
         .route(
-            "/{course_instance_id}/points/export",
+            "/{course_instance_id}/export-points",
             web::get().to(point_export),
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))

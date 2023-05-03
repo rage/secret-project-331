@@ -76,7 +76,7 @@ const MessageChannelIFrame: React.FC<
         iframeRef.current.height = Number(data.data).toString() + "px"
       } else if (isMessageFromIframe(data)) {
         try {
-          onMessageFromIframe(message.data, messageChannel.port1)
+          onMessageFromIframe(data, messageChannel.port1)
         } catch (e) {
           // eslint-disable-next-line i18next/no-literal-string
           console.error("onMessageFromIframe crashed", e)

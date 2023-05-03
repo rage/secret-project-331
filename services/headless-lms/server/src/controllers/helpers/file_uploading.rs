@@ -12,6 +12,7 @@ use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
+
 use models::organizations::DatabaseOrganization;
 use std::{collections::HashMap, path::Path};
 use std::{path::PathBuf, sync::Arc};
@@ -52,7 +53,7 @@ pub enum StoreKind {
 }
 
 /// Processes an upload from CMS.
-pub async fn upload_file_from_cms<'a>(
+pub async fn upload_file_from_cms(
     headers: &HeaderMap,
     mut payload: Multipart,
     store_kind: StoreKind,
@@ -60,8 +61,6 @@ pub async fn upload_file_from_cms<'a>(
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<PathBuf> {
-    let mut conn = pool.acquire().await?;
-    validate_media_headers(headers, &user, &pool).await?;
     let file_payload = payload.next().await.ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -71,21 +70,35 @@ pub async fn upload_file_from_cms<'a>(
     })?;
     match file_payload {
         Ok(field) => {
-            let path: AuthorizedResponse<PathBuf> = match field.content_type().type_() {
-                mime::AUDIO => generate_audio_path(&field, store_kind, &user, &pool).await?,
-                mime::IMAGE => generate_image_path(&field, store_kind, &user, &pool).await?,
-                _ => generate_file_path(&field, store_kind, &user, &pool).await?,
-            };
-            upload_file_to_storage(&mut conn, &path.data, field, file_store, Some(&user)).await?;
-            let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-            token.authorized_ok(path.data)
+            upload_field_from_cms(headers, field, store_kind, file_store, pool, user).await
         }
         Err(err) => Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
-            Some(err.into()),
+            None,
         )),
     }
+}
+
+/// Processes an upload from CMS.
+pub async fn upload_field_from_cms(
+    headers: &HeaderMap,
+    field: Field,
+    store_kind: StoreKind,
+    file_store: &dyn FileStore,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<PathBuf> {
+    let mut conn = pool.acquire().await?;
+    validate_media_headers(headers, &user, &pool).await?;
+    let path: AuthorizedResponse<PathBuf> = match field.content_type().map(|ct| ct.type_()) {
+        Some(mime::AUDIO) => generate_audio_path(&field, store_kind, &user, &pool).await?,
+        Some(mime::IMAGE) => generate_image_path(&field, store_kind, &user, &pool).await?,
+        _ => generate_file_path(&field, store_kind, &user, &pool).await?,
+    };
+    upload_file_to_storage(&mut conn, &path.data, field, file_store, Some(&user)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(path.data)
 }
 
 /// Processes an upload for an organization's image.
@@ -109,8 +122,8 @@ pub async fn upload_image_for_organization(
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     match next_payload {
         Ok(field) => {
-            let path: PathBuf = match field.content_type().type_() {
-                mime::IMAGE => {
+            let path: PathBuf = match field.content_type().map(|ct| ct.type_()) {
+                Some(mime::IMAGE) => {
                     generate_image_path(
                         &field,
                         StoreKind::Organization(organization.id),
@@ -119,9 +132,14 @@ pub async fn upload_image_for_organization(
                     )
                     .await
                 }
-                unsupported => Err(ControllerError::new(
+                Some(unsupported) => Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
                     format!("Unsupported image Mime type: {}", unsupported),
+                    None,
+                )),
+                None => Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "Missing image Mime type".into(),
                     None,
                 )),
             }
@@ -133,7 +151,7 @@ pub async fn upload_image_for_organization(
         Err(err) => Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
-            Some(err.into()),
+            None,
         )),
     }
 }
@@ -147,7 +165,10 @@ async fn upload_file_to_storage(
     uploader: Option<&AuthUser>,
 ) -> anyhow::Result<()> {
     // TODO: convert archives into a uniform format
-    let mime_type = field.content_type().to_string();
+    let mime_type = field
+        .content_type()
+        .map(|ct| ct.to_string())
+        .unwrap_or_else(|| "".to_string());
     let name = field.name();
     let path_string = path.to_str().context("invalid path")?.to_string();
 
@@ -163,7 +184,7 @@ async fn upload_file_to_storage(
     file_store
         .upload_stream(
             path,
-            Box::pin(field.map_err(anyhow::Error::msg)),
+            Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string()))),
             &mime_type,
         )
         .await?;
@@ -179,7 +200,12 @@ async fn generate_audio_path(
     pool: &web::Data<PgPool>,
 ) -> ControllerResult<PathBuf> {
     let mut conn = pool.acquire().await?;
-    let extension = match field.content_type().to_string().as_str() {
+    let extension = match field
+        .content_type()
+        .map(|ct| ct.to_string())
+        .unwrap_or_else(|| "".to_string())
+        .as_str()
+    {
         "audio/aac" => ".aac",
         "audio/mpeg" => ".mp3",
         "audio/ogg" => ".oga",
@@ -240,7 +266,12 @@ async fn generate_image_path(
     pool: &web::Data<PgPool>,
 ) -> ControllerResult<PathBuf> {
     let mut conn = pool.acquire().await?;
-    let extension = match field.content_type().to_string().as_str() {
+    let extension = match field
+        .content_type()
+        .map(|ct| ct.to_string())
+        .unwrap_or_else(|| "".to_string())
+        .as_str()
+    {
         "image/jpeg" => ".jpg",
         "image/png" => ".png",
         "image/svg+xml" => ".svg",

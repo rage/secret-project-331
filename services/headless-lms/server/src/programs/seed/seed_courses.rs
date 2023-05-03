@@ -83,6 +83,12 @@ pub async fn seed_sample_course(
             models_requests::fetch_service_info,
         )
         .await?;
+    course_modules::update_enable_registering_completion_to_uh_open_university(
+        &mut conn,
+        default_module.id,
+        true,
+    )
+    .await?;
     course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::new_v5(
@@ -216,7 +222,8 @@ pub async fn seed_sample_course(
     let second_module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1),
+        &NewCourseModule::new(course.id, Some("Another module".to_string()), 1)
+            .set_ects_credits(Some(5)),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -266,7 +273,8 @@ pub async fn seed_sample_course(
     let module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2),
+        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2)
+            .set_enable_registering_completion_to_uh_open_university(true),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -1969,6 +1977,7 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
+
     let (_page, _history) = pages::insert_course_page(
         &mut conn,
         &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
@@ -2646,6 +2655,7 @@ pub async fn seed_course_without_submissions(
         "/welcome",
         "Welcome to Introduction to Everything",
     );
+
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
         .followed_by("/hidden", "Hidden Page")
@@ -3758,6 +3768,7 @@ pub async fn seed_peer_review_course_without_submissions(
         is_draft: false,
         is_test_mode: false,
     };
+
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {

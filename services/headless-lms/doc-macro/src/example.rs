@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, punctuated::Punctuated, token::Colon2, Expr, PathSegment};
+use syn::{parse_macro_input, punctuated::Punctuated, token::Colon, Expr, PathSegment};
 
 pub fn example_impl(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as Expr);
@@ -35,7 +35,7 @@ pub fn example_impl(input: TokenStream) -> TokenStream {
 
                 // remove the trailing (:: VariantName) to get the type pathPathS
                 let len = segments.len();
-                let ty: Punctuated<PathSegment, Colon2> =
+                let ty: Punctuated<PathSegment, Colon> =
                     segments.clone().into_iter().take(len - 1).collect();
                 let args = e
                     .args
@@ -64,7 +64,7 @@ pub fn example_impl(input: TokenStream) -> TokenStream {
             let segments = e.path.segments;
             // remove the trailing (:: VariantName) to get the type path
             let len = segments.len();
-            let ty: Punctuated<PathSegment, Colon2> =
+            let ty: Punctuated<PathSegment, Colon> =
                 segments.clone().into_iter().take(len - 1).collect();
 
             return quote! {

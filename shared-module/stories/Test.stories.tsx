@@ -5,7 +5,7 @@ import React from "react"
 import CircularProgressBar from "../src/components/CircularProgressBar"
 
 export default {
-  title: "Components/CircularProgressBar",
+  title: "Components/CircularProgressBarTest",
   component: CircularProgressBar,
 } as Meta
 

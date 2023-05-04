@@ -1,11 +1,7 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-test.use({
-  storageState: "src/states/user@example.com.json",
-})
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 const FIRST_TASK = `[title="Exercise 1, task 1 content"]`
 const SECOND_TASK = `[title="Exercise 1, task 2 content"]`
@@ -13,7 +9,14 @@ const THIRD_TASK = `[title="Exercise 1, task 3 content"]`
 const CORRECT = `button:has-text("Correct") >> nth=0`
 const INCORRECT = `button:has-text("Incorrect")`
 
-test("Exercise score updates gradually", async ({ page, headless }, testInfo) => {
+test.use({
+  storageState: "src/states/student1@example.com.json",
+})
+
+test("After submitting wrong answer can resubmit again changing only wrong answer", async ({
+  page,
+  headless,
+}, testInfo) => {
   test.slow()
   await page.goto("http://project-331.local/")
 
@@ -39,7 +42,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     testInfo,
-    snapshotName: "exercise-before-answering",
+    snapshotName: "exercise-before-answering-resubmitting-test",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),
       page.locator(`text=Second question.`),
@@ -60,7 +63,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     testInfo,
-    snapshotName: "two-out-of-three",
+    snapshotName: "two-out-of-three-resubmitting-test",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),
       page.locator(`text=Second question.`),
@@ -69,10 +72,19 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
   })
 
   await page.locator('button:has-text("try again")').click()
-  await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
-  await page.frameLocator(FIRST_TASK).locator(INCORRECT).click()
-  await page.locator(SECOND_TASK).scrollIntoViewIfNeeded()
-  await page.frameLocator(SECOND_TASK).locator(INCORRECT).click()
+
+  await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
+    headless,
+    testInfo,
+    snapshotName: "before-retrying-third-question-resubmitting-test",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=First question.`),
+      page.locator(`text=Second question.`),
+      page.locator(`text=Third question.`),
+    ],
+  })
+
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(CORRECT).click()
   await page.locator('button:has-text("Submit")').click()
@@ -82,30 +94,7 @@ test("Exercise score updates gradually", async ({ page, headless }, testInfo) =>
     screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
     headless,
     testInfo,
-    snapshotName: "only-third-correct-score-stays-same",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=First question.`),
-      page.locator(`text=Second question.`),
-      page.locator(`text=Third question.`),
-      page.getByText("Your answer was not correct").first(),
-    ],
-  })
-
-  await page.locator('button:has-text("try again")').click()
-  await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
-  await page.frameLocator(FIRST_TASK).locator(CORRECT).click()
-  await page.locator(SECOND_TASK).scrollIntoViewIfNeeded()
-  await page.frameLocator(SECOND_TASK).locator(CORRECT).click()
-  await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
-  await page.frameLocator(THIRD_TASK).locator(CORRECT).click()
-  await page.locator('button:has-text("Submit")').click()
-
-  await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page.locator("id=c1d545d7-c46b-5076-8f34-32374dd03310"),
-    headless,
-    testInfo,
-    snapshotName: "correct-answer",
+    snapshotName: "only-third-correct-score-stays-same-resubmitting-test",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=First question.`),
       page.locator(`text=Second question.`),

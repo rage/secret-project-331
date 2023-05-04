@@ -2,11 +2,10 @@ import React from "react"
 
 import { BlockRendererProps, blockToRendererMap } from ".."
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import CourseObjectiveSection, {
-  CourseObjectiveSectionProps,
-} from "../../../shared-module/components/CourseObjective/index"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import DefaultBlock from "../DefaultBlock"
+
+import CourseObjectiveSection, { CourseObjectiveSectionProps } from "./CourseObjective/index"
 
 const CourseObjectiveSectionBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<CourseObjectiveSectionProps>>

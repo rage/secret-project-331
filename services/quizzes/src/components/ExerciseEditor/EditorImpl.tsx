@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
+import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
+import QuizzesExerciseServiceContext from "../../contexts/QuizzesExerciseServiceContext"
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
 import Button from "../../shared-module/components/Button"
 import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
-import { normalizeData } from "../../util/normalizerFunctions"
+import { migratePrivateSpecQuiz } from "../../util/migration/privateSpecQuiz"
+import { denormalizeData, normalizeData } from "../../util/normalizerFunctions"
 import BasicInformation from "../QuizEditForms/BasicInfo"
 import QuizItems from "../QuizEditForms/QuizItems"
 import QuizItemsV2 from "../QuizV2/QuizCreation"
@@ -15,6 +18,7 @@ import { EditorProps } from "."
 
 const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, privateSpec }) => {
   const [render, setRender] = useState(false)
+  const [migratedQuiz, setMigratedQuiz] = useState<PrivateSpecQuiz | null>(null)
   const [experimentalMode, setExperimentalMode] = useState(false)
 
   const dispatch = useDispatch()
@@ -30,18 +34,30 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
     return null
   }
 
+  // Preload migrated quiz
+  if (state && !migratedQuiz) {
+    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
+  }
+
   const toggleMode = () => {
+    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
     setExperimentalMode(!experimentalMode)
   }
 
   return (
-    <>
-      {experimentalMode ? <QuizItemsV2 /> : <QuizItems />}
+    <QuizzesExerciseServiceContext.Provider
+      value={{
+        outputState: migratedQuiz,
+        port: port,
+        _rawSetOutputState: setMigratedQuiz,
+      }}
+    >
+      {experimentalMode ? <QuizItemsV2 quiz={migratedQuiz} /> : <QuizItems />}
       <BasicInformation />
       <Button variant="secondary" size="small" onClick={() => toggleMode()}>
         {t("switch-to-experimental-mode")}
       </Button>
-    </>
+    </QuizzesExerciseServiceContext.Provider>
   )
 }
 

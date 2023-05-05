@@ -7,45 +7,48 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("find hidden page", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("find hidden page", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  // Click text=Introduction to everything
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-everything' }*/),
-    page.click("text=Introduction to everything"),
-  ])
+  await page.locator("text=Introduction to everything").click()
 
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    beforeScreenshot: () => page.locator("text=Information pages").scrollIntoViewIfNeeded(),
     clearNotifications: true,
     headless,
-    page,
+    testInfo,
+    screenshotTarget: page,
     snapshotName: "top-level-pages-list",
+    screenshotOptions: { maxDiffPixels: 1000 },
+    scrollToYCoordinate: { "mobile-tall": 5061, "desktop-regular": 3661 },
+    beforeScreenshot: async () => {
+      await Promise.all([
+        page.getByText("Information pages").waitFor(),
+        // eslint-disable-next-line playwright/no-wait-for-timeout
+        page.waitForTimeout(200),
+        page.getByText("Chapter 7Bonus chapterChapter 8Another bonus chapter").click(),
+      ])
+    },
   })
 
-  // Click text=Welcome to Introduction to Everything
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-everything/welcome' }*/),
-    page.click("text=Welcome to Introduction to Everything"),
-  ])
+  await page.locator("text=Welcome to Introduction to Everything").click()
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-everything/hidden")
 
   await expectScreenshotsToMatchSnapshots({
     clearNotifications: true,
     headless,
-    page,
+    testInfo,
+    screenshotTarget: page,
     snapshotName: "hidden-page",
-    waitForThisToBeVisibleAndStable: [`text="You found the secret of the project 331!"`],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text="You found the secret of the project 331!"`),
+    ],
+    screenshotOptions: { maxDiffPixels: 400 },
   })
 })

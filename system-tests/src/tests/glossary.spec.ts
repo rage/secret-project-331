@@ -7,79 +7,64 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("glossary test", async ({ page, headless }, testInfo) => {
+  test.slow()
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  // Click text=Glossary course
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/glossary-course' }*/),
-    page.click("text=Glossary course"),
-  ])
+  await page.locator("text=Glossary course").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  // Go to http://project-331.local/org/uh-cs/courses/glossary-course/glossary
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-glossary-page",
-    waitForThisToBeVisibleAndStable: "text=Glossary",
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
   })
 
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  // Click [aria-label="Manage course 'Glossary course'"] svg
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a' }*/),
-    page.click("[aria-label=\"Manage course 'Glossary course'\"] svg"),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
 
-  // Click text=Manage glossary
+  await Promise.all([page.getByRole("tab", { name: "Glossary" }).click()])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/c218ca00-dbde-4b0c-ab98-4f075c49425a/glossary' }*/),
-    page.click("text=Glossary"),
-  ])
-
-  await page.click("text=Edit")
-  await page.click("text=Cancel")
+  await page.getByRole("button", { name: "Edit" }).first().click()
+  await page.locator("text=Cancel").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "initial-glossary-management-page",
-    waitForThisToBeVisibleAndStable: "text=Manage glossary",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Manage glossary")],
   })
 
-  // Click text=Delete
-  await page.click("text=Delete")
+  await page.getByRole("button", { name: "Delete" }).first().click()
+
+  await page.getByText("Deleted").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "deleted-term",
-    waitForThisToBeVisibleAndStable: "text=Deleted",
+    waitForTheseToBeVisibleAndStable: [page.getByText("Deleted").first()],
   })
 
   await page.fill('[placeholder="New term"]', "abcd")
   await page.fill('textarea[name="New definition"]', "efgh")
 
-  // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.locator(`div:text-is("Success")`).waitFor()
   // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
@@ -87,21 +72,22 @@ test("test", async ({ page, headless }) => {
   await page.locator("text=efgh").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "added-new-term",
-    waitForThisToBeVisibleAndStable: "text=efgh",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=efgh")],
     scrollToYCoordinate: 538,
   })
 
-  // Click text=Edit
-  await page.click("text=Edit")
+  await page.getByRole("button", { name: "Edit" }).first().click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "editing-term",
-    waitForThisToBeVisibleAndStable: "text=updated term",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=updated term")],
     clearNotifications: true,
   })
 
@@ -111,24 +97,25 @@ test("test", async ({ page, headless }) => {
   // Fill text=efgh
   await page.fill('[label="Updated definition"]', "EFGH")
 
-  // Click text=updated termupdated definitionEFGHSaveCancel >> button
   await page.click(':nth-match(:text("Save"), 2)')
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "edited-term",
-    waitForThisToBeVisibleAndStable: `div:text-is("Success")`,
+    waitForTheseToBeVisibleAndStable: [page.locator(`div:text-is("Success")`)],
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
   await page.locator("text=Give feedback").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "final-glossary-page",
-    waitForThisToBeVisibleAndStable: "text=Glossary",
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Glossary" })],
     clearNotifications: true,
   })
 })

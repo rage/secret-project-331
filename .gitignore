@@ -1,4 +1,5 @@
 .env
+.cache
 
 *.secret.yml
 

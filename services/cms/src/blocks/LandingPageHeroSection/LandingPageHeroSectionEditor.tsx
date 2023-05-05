@@ -44,16 +44,23 @@ const LandingPageHeroSectionEditor: React.FC<
             background-color: ${attributes.backgroundColor};
             ${attributes.backgroundImage &&
             `background-image: url("${attributes.backgroundImage}");
-            background-repeat: no-repeat;
+            background-repeat: ${attributes.backgroundRepeatX ? "repeat-x" : "no-repeat"};
             background-position: center center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             padding: 7.5em 1em;
+
+            p {
+              color: ${attributes.fontColor};
+            }
           `}
         >
           <RichText
-            className="has-text-align-center wp-block-heading"
+            className={css`
+              color: ${attributes.fontColor};
+              text-align: center;
+            `}
             // eslint-disable-next-line i18next/no-literal-string
             tagName="h1"
             value={title}

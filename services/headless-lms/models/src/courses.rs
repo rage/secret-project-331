@@ -46,6 +46,15 @@ pub struct Course {
     pub base_module_completion_requires_n_submodule_completions: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseBreadcrumbInfo {
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub organization_slug: String,
+    pub organization_name: String,
+}
+
 /// Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -274,6 +283,28 @@ WHERE id = $1;
     Ok(course)
 }
 
+pub async fn get_course_breadcrumb_info(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseBreadcrumbInfo> {
+    let res = sqlx::query_as!(
+        CourseBreadcrumbInfo,
+        r#"
+SELECT courses.id as course_id,
+  courses.name as course_name,
+  organizations.slug as organization_slug,
+  organizations.name as organization_name
+FROM courses
+  JOIN organizations ON (courses.organization_id = organizations.id)
+WHERE courses.id = $1;
+    "#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_nondeleted_course_id_by_slug(
     conn: &mut PgConnection,
     slug: &str,
@@ -494,7 +525,6 @@ RETURNING id,
 }
 
 pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
-    println!("hi!");
     let course = sqlx::query_as!(
         Course,
         "

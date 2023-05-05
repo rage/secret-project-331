@@ -377,10 +377,10 @@ pub async fn get_user_total_exam_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     exam_id: Uuid,
-) -> ModelResult<f32> {
+) -> ModelResult<Option<f32>> {
     let res = sqlx::query!(
         r#"
-SELECT COALESCE(SUM(score_given), 0) AS "points!"
+SELECT SUM(score_given) AS "points"
 FROM user_exercise_states
 WHERE user_id = $2
   AND exam_id = $1
@@ -963,12 +963,13 @@ pub fn stream_course_instance_points(
 SELECT user_id,
   to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter
 FROM (
-    SELECT u.email,
+    SELECT ud.email,
       u.id AS user_id,
       c.chapter_number,
       COALESCE(SUM(ues.score_given), 0) AS points_for_chapter
     FROM user_exercise_states ues
       JOIN users u ON u.id = ues.user_id
+      JOIN user_details ud ON ud.user_id = u.id
       JOIN exercises e ON e.id = ues.exercise_id
       JOIN chapters c on e.chapter_id = c.id
     WHERE ues.course_instance_id = $1
@@ -976,7 +977,7 @@ FROM (
       AND c.deleted_at IS NULL
       AND u.deleted_at IS NULL
       AND e.deleted_at IS NULL
-    GROUP BY u.email,
+    GROUP BY ud.email,
       u.id,
       c.chapter_number
   ) as uue
@@ -1009,11 +1010,12 @@ SELECT user_id,
   to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_exercises
 FROM (
     SELECT u.id AS user_id,
-      u.email,
+      ud.email,
       exercise_id,
       COALESCE(score_given, 0) as score_given
     FROM user_exercise_states ues
       JOIN users u ON u.id = ues.user_id
+      JOIN user_details ud ON ud.user_id = u.id
       JOIN exercises e ON e.id = ues.exercise_id
     WHERE ues.exam_id = $1
       AND ues.deleted_at IS NULL
@@ -1120,7 +1122,7 @@ mod tests {
             Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
         )
         .set_timestamps(timestamp, timestamp, None)
-        .set_registration_info(None, Some(5), None)];
+        .set_registration_info(None, Some(5), None, false)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

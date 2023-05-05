@@ -7,12 +7,10 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("exam list renders, can create exam", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("exam list renders, can create exam", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
-  // Click [aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")
+
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.click(
       '[aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
     ),
@@ -22,27 +20,28 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
 
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "exam-listing",
-    waitForThisToBeVisibleAndStable: ["text=Exams"],
-    beforeScreenshot: () => page.locator("text=Exams").nth(1).scrollIntoViewIfNeeded(),
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("link", { name: "Automatic course exam" }).last(),
+    ],
   })
 
-  // Click text=Ongoing ends soonManageOngoing short timerManageStarting soonManageOverManageCre >> button
   await page.locator("text=ManageCre >> button").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=new-exam-dialog"),
     headless,
+    testInfo,
     snapshotName: "create-exam-dialog",
-    elementId: "#new-exam-dialog",
-    waitForThisToBeVisibleAndStable: [
-      "text=Name",
-      "text=Starts at",
-      "text=Ends at",
-      "text=Time in minutes",
-      "text=duplicate",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Name"),
+      page.locator("text=Starts at"),
+      page.locator("text=Ends at"),
+      page.locator("text=Time in minutes"),
+      page.locator("text=duplicate"),
     ],
   })
 
@@ -59,19 +58,18 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
   await page.locator('[label="Time\\ in\\ minutes"]').fill("120")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page.locator("id=new-exam-dialog"),
     headless,
+    testInfo,
     snapshotName: "create-exam-dialog-filled",
-    elementId: "#new-exam-dialog",
-    waitForThisToBeVisibleAndStable: [
-      "text=Name",
-      "text=Starts at",
-      "text=Ends at",
-      "text=Time in minutes",
-      "text=duplicate",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Name"),
+      page.locator("text=Starts at"),
+      page.locator("text=Ends at"),
+      page.locator("text=Time in minutes"),
+      page.locator("text=duplicate"),
     ],
   })
 
-  // Click text=Submit
   await page.locator("text=Submit").click()
 })

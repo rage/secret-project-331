@@ -22,7 +22,7 @@ npm run eslint
 
 Backend: [https://rage.github.io/secret-project-331/headless_lms_server/index.html](https://rage.github.io/secret-project-331/headless_lms_server/index.html)
 
-Database: [https://github.com/rage/secret-project-331-db-docs#headless_lms_dev](https://github.com/rage/secret-project-331-db-docs#headless_lms_dev)
+Database: [https://rage.github.io/secret-project-331-db-docs/](https://rage.github.io/secret-project-331-db-docs/)
 
 Shared module storybook: [https://rage.github.io/secret-project-storybook/](https://rage.github.io/secret-project-storybook/)
 

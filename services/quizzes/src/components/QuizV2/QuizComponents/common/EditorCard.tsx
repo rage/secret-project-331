@@ -3,10 +3,13 @@ import { faArrowDown, faArrowUp, faTrash } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 
+import { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Button from "../../../../shared-module/components/Button"
 
 interface EditorCardProps {
   title: string
+  quizItemId: string
 }
 
 const EditorWrapper = styled.div`
@@ -58,17 +61,129 @@ const DeleteButton = styled(Button)`
   margin-right: 8px;
 `
 
-const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({ children, title }) => {
+const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
+  children,
+  title,
+  quizItemId,
+}) => {
+  const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>(
+    (quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return quiz as PrivateSpecQuiz
+    },
+  )
+  if (!selected) {
+    return <></>
+  }
+
   return (
     <EditorWrapper>
       <EditorSection>
         <EditorTitle>{title}</EditorTitle>
-        <CircleButton icon={faArrowUp} />
-        <CircleButton icon={faArrowDown} />
+        <CircleButton
+          onClick={() => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+              const currentItem = draft.items.find((item) => item.id === quizItemId)
+              if (!currentItem) {
+                return
+              }
+              const orders = draft.items.map((item) => item.order).sort()
+              const minOrder = Math.min(...orders)
+
+              if (currentItem.order !== minOrder) {
+                /* NOP */
+                let i = 0
+                const currentOrder = currentItem.order
+                let nextOrder = 0
+                while (i < orders.length) {
+                  if (orders[i] < currentItem.order) {
+                    nextOrder = orders[i]
+                    break
+                  }
+                  i++
+                }
+                draft.items = draft.items.map((item) => {
+                  if (item.order == currentOrder) {
+                    return {
+                      ...item,
+                      order: nextOrder,
+                    }
+                  } else if (item.order === nextOrder) {
+                    return {
+                      ...item,
+                      order: currentOrder,
+                    }
+                  }
+                  return item
+                })
+                draft.items = draft.items.sort((a, b) => a.order - b.order)
+              }
+            })
+          }}
+          icon={faArrowUp}
+        />
+        <CircleButton
+          onClick={() => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+              const currentItem = draft.items.find((item) => item.id === quizItemId)
+              if (!currentItem) {
+                return
+              }
+              const orders = draft.items.map((item) => item.order).sort()
+              const maxOrder = Math.max(...orders)
+
+              if (currentItem.order !== maxOrder) {
+                let i = 0
+                const currentOrder = currentItem.order
+                let nextOrder = 0
+                while (i < orders.length) {
+                  if (orders[i] > currentItem.order) {
+                    nextOrder = orders[i]
+                    break
+                  }
+                  i++
+                }
+                draft.items = draft.items.map((item) => {
+                  if (item.order == currentOrder) {
+                    return {
+                      ...item,
+                      order: nextOrder,
+                    }
+                  } else if (item.order === nextOrder) {
+                    return {
+                      ...item,
+                      order: currentOrder,
+                    }
+                  }
+                  return item
+                })
+                draft.items = draft.items.sort((a, b) => a.order - b.order)
+              }
+            })
+          }}
+          icon={faArrowDown}
+        />
       </EditorSection>
       <EditorContent>{children}</EditorContent>
       <DeleteButtonContainer>
-        <DeleteButton size="medium" variant="outlined">
+        <DeleteButton
+          onClick={() => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+              draft.items = draft.items.filter((item) => item.id !== quizItemId)
+            })
+          }}
+          size="medium"
+          variant="outlined"
+        >
           <FontAwesomeIcon icon={faTrash} />
         </DeleteButton>
       </DeleteButtonContainer>

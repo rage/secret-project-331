@@ -101,6 +101,7 @@ RETURNING id
 
 pub async fn upsert_with_id(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     cms_peer_review: &CmsPeerReviewConfig,
 ) -> ModelResult<CmsPeerReviewConfig> {
     let res = sqlx::query_as!(
@@ -130,7 +131,7 @@ RETURNING id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy:_";"#,
-        cms_peer_review.id,
+        pkey_policy.into_uuid(),
         cms_peer_review.course_id,
         cms_peer_review.exercise_id,
         cms_peer_review.peer_reviews_to_give,
@@ -378,7 +379,8 @@ SELECT id,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
 FROM peer_review_configs
-where course_id = $1
+WHERE course_id = $1
+  AND exercise_id IS NULL
   AND deleted_at IS NULL;
 "#,
         course_id
@@ -417,16 +419,31 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     peer_review_configuration: &CmsPeerReviewConfiguration,
 ) -> ModelResult<CmsPeerReviewConfiguration> {
     // Upsert peer review
-    let peer_review_config =
-        upsert_with_id(conn, &peer_review_configuration.peer_review_config).await?;
+    let peer_review_config = upsert_with_id(
+        conn,
+        PKeyPolicy::Fixed(peer_review_configuration.peer_review_config.id),
+        &peer_review_configuration.peer_review_config,
+    )
+    .await?;
 
     // Upsert peer review questions
-    let _peer_review_question_ids =
+    let previous_peer_review_question_ids =
         delete_peer_review_questions_by_peer_review_config_ids(conn, &[peer_review_config.id])
             .await?;
     let peer_review_questions = upsert_multiple_peer_review_questions(
         conn,
-        &peer_review_configuration.peer_review_questions,
+        &peer_review_configuration
+            .peer_review_questions
+            .iter()
+            .map(|prq| {
+                let id = if previous_peer_review_question_ids.contains(&prq.id) {
+                    prq.id
+                } else {
+                    Uuid::new_v4()
+                };
+                CmsPeerReviewQuestion { id, ..prq.clone() }
+            })
+            .collect::<Vec<_>>(),
     )
     .await?;
 

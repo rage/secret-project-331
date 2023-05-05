@@ -27,35 +27,22 @@ test.describe("Uploading media as admin", async () => {
     },
   )
 
-  test("test", async ({ page, headless }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      await page.click("text=University of Helsinki, Department of Computer Science"),
-    ])
-    expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
+  test("test", async ({ page, headless }, testInfo) => {
+    await page.locator("text=University of Helsinki, Department of Computer Science").click()
 
-    await Promise.all([
-      page.waitForNavigation(),
-      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
-    ])
-    expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
+    await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
 
-    await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
+    await page.locator("text=Pages").click()
 
-    await Promise.all([
-      page.waitForNavigation(),
-      page.click(
-        `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
-      ),
-    ])
-    expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
+    await page.click(
+      `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
+    )
 
     await page.locator(`[aria-label="Add default block"]`).click()
     await page
       .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
       .type(`/image`)
 
-    // Click :nth-match(:text("Image"), 2)
     await page.click('text="Image"')
 
     // Upload file with fileChooser
@@ -67,10 +54,12 @@ test.describe("Uploading media as admin", async () => {
 
     // This is needed so we get another Gutenberg popup "disabled".
     await page.click('img[alt="Add alt"]')
-    await page.click("text=Replace")
+    await page.locator("text=Replace").click()
 
-    // Click image direct link to open the uploaded image
-    const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
+    const [newPage] = await Promise.all([
+      page.waitForEvent("popup"),
+      page.locator("a[href$='.png']").click(),
+    ])
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: [
@@ -80,10 +69,10 @@ test.describe("Uploading media as admin", async () => {
         "page-has-heading-one",
         "region",
       ],
-      page: newPage,
-      snapshotName: "uploadMediaPicture.png",
-      toMatchSnapshotOptions: { threshold: 0.2 },
+      screenshotTarget: newPage,
+      snapshotName: "uploadMediaPicture",
       headless,
+      testInfo,
     })
   })
 })

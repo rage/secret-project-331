@@ -8,42 +8,24 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("content search", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("content search", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  // Click text=Introduction to Course Material
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
-    page.click(`div:text-is("Introduction to Course Material")`),
-  ])
+  await page.click(`div:text-is("Introduction to Course Material")`)
 
-  // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 
-  // Click a:has-text("CHAPTER 2User Experience")
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
-    page.click('a:has-text("CHAPTER 2User Experience")'),
-  ])
+  await page.click('a:has-text("CHAPTER 2User Experience")')
 
-  // Click text=User research
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/user-research' }*/),
-    page.click("text=User research"),
-  ])
+  await page.locator("text=User research").first().click()
 
-  // Click text=Search
   await page.click('[aria-label="Search for pages"]')
 
-  // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
 
   // Fill [placeholder="Search..."]
@@ -53,24 +35,22 @@ test("content search", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
     headless,
-    page,
+    testInfo,
+    screenshotTarget: page,
     snapshotName: "search-content-with-short-prefix",
-    waitForThisToBeVisibleAndStable: "text=Human-machine interface",
-    toMatchSnapshotOptions: { maxDiffPixelRatio: 0.05 },
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Human-machine interface")],
+    screenshotOptions: { maxDiffPixelRatio: 0.05 },
   })
 
-  // Click text=Human-machine interface
-  await Promise.all([page.waitForNavigation(), page.click("text=Human-machine interface")])
+  await page.locator("text=Human-machine interface").click()
 
   await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-course-material/chapter-1/human-machine-interface",
   )
 
-  // Click text=Search
   await page.click('[aria-label="Search for pages"]')
 
-  // Click [placeholder="Search..."]
   await page.click('[placeholder="Search..."]')
 
   // Fill [placeholder="Search..."]
@@ -81,10 +61,13 @@ test("content search", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
-    waitForThisToBeVisibleAndStable: "text=Welcome to Introduction to Course Material",
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Welcome to Introduction to Course Material"),
+    ],
   })
 
   // phrases should be ranked higher than word matches
@@ -95,9 +78,10 @@ test("content search", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["landmark-one-main", "page-has-heading-one"],
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "search-continuous-phrases-ranked-higher-than-word-matches",
-    waitForThisToBeVisibleAndStable: "text=banana cat enim",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=banana cat enim")],
   })
 })

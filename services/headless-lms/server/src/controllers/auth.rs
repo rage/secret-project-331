@@ -264,16 +264,20 @@ pub async fn login(
     };
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
-    if let Ok(user) = user {
-        let token = skip_authorize()?;
-        authorization::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().finish())
-    } else {
-        Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
-            "Incorrect email or password.".to_string(),
-            None,
-        ))
+    match user {
+        Ok(user) => {
+            let token = skip_authorize()?;
+            authorization::remember(&session, user)?;
+            token.authorized_ok(HttpResponse::Ok().finish())
+        }
+        Err(err) => {
+            info!("Could not get user from moocfi: {err}");
+            Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Incorrect email or password.".to_string(),
+                None,
+            ))
+        }
     }
 }
 
@@ -310,8 +314,8 @@ pub async fn logout(session: Session) -> HttpResponse {
 GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
 #[instrument(skip(session))]
-pub async fn logged_in(session: Session) -> web::Json<bool> {
-    let logged_in = authorization::has_auth_user_session(&session);
+pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<bool> {
+    let logged_in = authorization::has_auth_user_session(&session, pool).await;
     web::Json(logged_in)
 }
 

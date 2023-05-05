@@ -11,8 +11,8 @@ use models::{
     chapters::ChapterWithStatus,
     course_instances::CourseInstance,
     course_modules::CourseModule,
-    courses,
     courses::Course,
+    courses::{self, get_nondeleted_course_id_by_slug},
     feedback,
     feedback::NewFeedback,
     glossary::Term,
@@ -27,7 +27,9 @@ use models::{
 };
 
 use crate::{
-    domain::authorization::{authorize_access_to_course_material, skip_authorize},
+    domain::authorization::{
+        authorize_access_to_course_material, can_user_view_not_open_chapter, skip_authorize,
+    },
     prelude::*,
 };
 
@@ -72,18 +74,24 @@ async fn get_course_page_by_path(
     } else {
         format!("/{}", raw_page_path)
     };
+    let user_id = user.map(|u| u.id);
+    let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
+
+    let can_view_not_open_chapters =
+        can_user_view_not_open_chapter(&mut conn, user_id, course_data.id).await?;
 
     let page_with_user_data = models::pages::get_page_with_user_data_by_path(
         &mut conn,
-        user.as_ref().map(|u| u.id),
-        &course_slug,
+        user_id,
+        &course_data,
         &path,
+        can_view_not_open_chapters,
     )
     .await?;
 
     let token = authorize_access_to_course_material(
         &mut conn,
-        user.map(|u| u.id),
+        user_id,
         page_with_user_data.page.course_id.ok_or_else(|| {
             ControllerError::new(
                 ControllerErrorType::NotFound,
@@ -614,6 +622,49 @@ async fn get_public_top_level_pages(
 }
 
 /**
+GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_course_language_versions(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize()?;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    let language_versions =
+        models::courses::get_all_language_versions_of_course(&mut conn, &course)
+            .await?
+            .into_iter()
+            .filter(|c| !c.is_draft)
+            .collect::<Vec<_>>();
+    token.authorized_ok(web::Json(language_versions))
+}
+
+/**
+GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_page_by_course_id_and_language_group(
+    info: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Page>> {
+    let mut conn = pool.acquire().await?;
+    let (course_id, page_language_group_id) = info.into_inner();
+
+    let page: Page = models::pages::get_page_by_course_id_and_language_group(
+        &mut conn,
+        course_id,
+        page_language_group_id,
+    )
+    .await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(page))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -636,10 +687,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/page-by-path/{url_path:.*}",
             web::get().to(get_course_page_by_path),
         )
-        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
         .route(
             "/{course_id}/search-pages-with-phrase",
             web::post().to(search_pages_with_phrase),
+        )
+        .route(
+            "/{course_id}/language-versions",
+            web::get().to(get_all_course_language_versions),
         )
         .route(
             "/{course_id}/search-pages-with-words",
@@ -658,5 +712,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references",
             web::get().to(get_material_references_by_course_id),
-        );
+        )
+        .route(
+            "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
+            web::get().to(get_page_by_course_id_and_language_group),
+        )
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages));
 }

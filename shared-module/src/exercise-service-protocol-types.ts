@@ -7,17 +7,12 @@ import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
  *
  * to: parent
  */
-export type MessageFromIframe = CurrentStateMessage | FileUploadMessage | HeightChangedMessage
+export type MessageFromIframe = CurrentStateMessage | HeightChangedMessage | FileUploadMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
-  data: unknown
+  data: unknown // { private_spec: unknown } | { public_spec: unknown } ?
   valid: boolean
-}
-
-export interface FileUploadMessage {
-  message: "file-upload"
-  files: Map<string, string | Blob>
 }
 
 export interface HeightChangedMessage {
@@ -25,12 +20,17 @@ export interface HeightChangedMessage {
   data: number
 }
 
+export interface FileUploadMessage {
+  message: "file-upload"
+  files: Map<string, string | Blob>
+}
+
 /**
  * from: Parent
  *
  * to: IFrame
  */
-export type MessageToIframe = SetLanguageMessage | UploadResultMessage | SetStateMessage
+export type MessageToIframe = SetLanguageMessage | SetStateMessage | UploadResultMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
@@ -38,19 +38,22 @@ export interface SetLanguageMessage {
   data: string
 }
 
-export type UploadResultMessage =
+export type SetStateMessage = {
+  message: "set-state"
+} & IframeState
+
+export type UploadResultMessage = {
+  message: "upload-result"
+} & (
   | {
-      message: "upload-result"
       success: true
       urls: Map<string, string>
     }
   | {
-      message: "upload-result"
       success: false
       error: string
     }
-
-export type SetStateMessage = { message: "set-state" } & IframeState
+)
 
 /**
  * Checks if the message is a set state messages but doesn't require all the fields in the object to match

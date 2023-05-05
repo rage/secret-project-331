@@ -12,6 +12,7 @@ pub mod exams;
 pub mod exercises;
 pub mod glossary;
 pub mod oembed;
+pub mod page_audio_files;
 pub mod pages;
 pub mod proposed_edits;
 
@@ -27,5 +28,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/proposed-edits").configure(proposed_edits::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))
         .service(web::scope("/acronyms").configure(glossary::_add_routes))
-        .service(web::scope("/oembed").configure(oembed::_add_routes));
+        .service(web::scope("/oembed").configure(oembed::_add_routes))
+        .service(web::scope("/page_audio").configure(page_audio_files::_add_routes));
 }

@@ -3,71 +3,58 @@ import { expect, test } from "@playwright/test"
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("feedback test", async ({ headless, page }) => {
-  // Go to http://project-331.local/
+test("feedback test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
+  await page.locator("text=Introduction to feedback").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
-  expect(page).toHaveURL(
+  await page.locator("text=The Basics").click()
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+  await page.locator("text=Page One").first().click()
   await page.locator(`text=Everything is a big topic`).waitFor()
-  expect(page).toHaveURL(
+  await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
   )
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-
-  await frame.waitForSelector("text=b")
+  await frame.locator("text=b").waitFor()
 
   await page.click("text=So big", {
     clickCount: 3,
   })
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-tooltip",
-    waitForThisToBeVisibleAndStable: `.${feedbackTooltipClass}`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [page.locator(`.${feedbackTooltipClass}`)],
   })
 
-  // Click :nth-match(:text("Give feedback"), 2)
   await page.click(':nth-match(:text("Give feedback"), 2)')
 
-  // Click textarea
-  await page.click("textarea")
+  await page.locator("textarea").click()
 
   // Fill textarea
   await page.fill(
@@ -76,14 +63,13 @@ test("feedback test", async ({ headless, page }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-input",
-    waitForThisToBeVisibleAndStable: `text=I found this pretty confusing`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 
-  // Click text=Submit
   await page.click(`button:text("Add comment")`)
   await page.click(`button:text("Send")`)
   await page.waitForSelector("text=Feedback submitted successfully")
@@ -91,69 +77,59 @@ test("feedback test", async ({ headless, page }) => {
   await logout(page)
   await login("admin@example.com", "admin", page, true)
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(),
-    await page.click("text=University of Helsinki, Department of Computer Science"),
+    await page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to feedback'\"] svg"),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  // Click text=Manage feedback
-
-  await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
+  await Promise.all([page.getByRole("tab", { name: "Feedback 4" }).click()])
   // await page.waitForURL((url) => url.searchParams.has("read"))
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
-  // Makes sure the components have rendered so that the next waitForThisToBeVisibleAndStable always works with the placeholder
+  // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
   await page.waitForSelector(`text="Page: Page One"`)
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-unread",
-    waitForThisToBeVisibleAndStable: `text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
-    toMatchSnapshotOptions: { threshold: 0.4 },
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`).first(),
+    ],
   })
 
-  // Click text=Mark as read
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").first().click()
   // We have to wait for the feedback item to disappear so that we don't accidentally click the same button multiple times. Computers are sometimes faster that one would expect.
   await page.waitForSelector("text=I found this pretty confusing!", { state: "hidden" })
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").first().click()
   await page.waitForSelector("text=Anonymous unrelated feedback", { state: "hidden" })
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").first().click()
   await page.waitForSelector("text=Anonymous feedback", { state: "hidden" })
-  await page.click("text=Mark as read")
+  await page.locator("text=Mark as read").first().click()
   await page.waitForSelector("text=I dont think we need these paragraphs", { state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "feedback-empty",
-    waitForThisToBeVisibleAndStable: `text=No feedback`,
+    waitForTheseToBeVisibleAndStable: [page.locator(`text=No feedback`)],
     beforeScreenshot: async () => {
       page.evaluate(() => {
         window.scrollTo({ top: 0, left: 0 })
       })
     },
     clearNotifications: true,
-    toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
-  // Click :nth-match(:text("Read"), 2)
   await page.click(':nth-match(:text("Read"), 2)')
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback?read=true")
 
-  // Click text=Mark as unread
-  await page.click("text=Mark as unread")
+  await page.getByRole("button", { name: "Mark as unread" }).first().click()
 
-  // Click text=Unread
-  await page.click("text=Unread")
+  await page.getByRole("tab", { name: "Unread" }).click()
 })

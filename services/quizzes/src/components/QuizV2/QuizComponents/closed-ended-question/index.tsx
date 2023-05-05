@@ -4,16 +4,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes"
+import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Accordion from "../../../../shared-module/components/Accordion"
 import RadioButton from "../../../../shared-module/components/InputFields/RadioButton"
 import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { primaryFont } from "../../../../shared-module/styles"
+import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 
 interface ClosedEndedQuestionEditorProps {
-  quizItem: PrivateSpecQuizItemClosedEndedQuestion
+  quizItemId: string
 }
 
 interface TestTableProps {
@@ -44,15 +46,15 @@ const REGEX_PATTERNS = [
   },
   {
     label: "Date (mm/dd/YYYY)",
-    value: "d{2}\\/\\d{2}\\/\\d{4}",
+    value: "\\d{2}\\/\\d{2}\\/\\d{4}",
   },
   {
     label: "Date (YYYY-mm-dd)",
-    value: "d{2}\\/\\d{2}\\/\\d{4}",
+    value: "\\d{2}\\-\\d{2}\\-\\d{4}",
   },
   {
     label: "Date (dd.mm.YYYY)",
-    value: "d{2}\\/\\d{2}\\/\\d{4}",
+    value: "\\d{2}\\.\\d{2}\\.\\d{4}",
   },
   {
     label: "Whole number",
@@ -63,25 +65,6 @@ const REGEX_PATTERNS = [
     value: "\\d+\\,\\d+",
   },
 ]
-
-const RegexMethodView: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItem }) => {
-  const { t } = useTranslation()
-
-  return (
-    <>
-      <TextField
-        value={convertToString(quizItem.validityRegex)}
-        label={t("validity-regular-expression")}
-        name={t("validity-regular-expression")}
-      />
-      <TextField
-        value={convertToString(quizItem.formatRegex)}
-        label={t("format-regular-expression")}
-        name={t("format-regular-expression")}
-      />
-    </>
-  )
-}
 
 const TestButtonContainer = styled.div`
   * {
@@ -152,14 +135,26 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
   const { t } = useTranslation()
 
   const validateStrings = () => {
-    const validationRegExp = new RegExp(convertToString(quizItem.validityRegex))
-    const formatRegExp = new RegExp(convertToString(quizItem.formatRegex))
+    try {
+      const validationRegExp = new RegExp(convertToString(quizItem.validityRegex))
+      const formatRegExp = new RegExp(convertToString(quizItem.formatRegex))
 
+      return testStrings.map((string) => {
+        return {
+          string,
+          validation: validationRegExp.test(string),
+          format: formatRegExp.test(string),
+        }
+      })
+    } catch (e) {
+      /* NOP */
+      /* This occurs when there's incomplete regex */
+    }
     return testStrings.map((string) => {
       return {
         string,
-        validation: validationRegExp.test(string),
-        format: formatRegExp.test(string),
+        validation: false,
+        format: false,
       }
     })
   }
@@ -192,30 +187,25 @@ const RegexTestTable: React.FC<TestTableProps> = ({ quizItem, testStrings }) => 
   )
 }
 
-const ExactStringMethodView: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItem }) => {
-  const { t } = useTranslation()
-
-  return (
-    <>
-      <SelectField
-        id="regex-pattern-select"
-        label={t("format-regular-expression")}
-        options={REGEX_PATTERNS}
-      />
-      <TextField
-        value={convertToString(quizItem.validityRegex)}
-        label={t("correct-answer")}
-        name={t("correct-answer")}
-      />
-    </>
-  )
-}
-
-const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItem }) => {
+const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
   const [method, setMethod] = useState(0)
   const [testStrings, setTestStrings] = useState([""])
 
+  const { selected, updateState } =
+    useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemClosedEndedQuestion>((quiz) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return findQuizItem<PrivateSpecQuizItemClosedEndedQuestion>(
+        quiz,
+        quizItemId,
+        // eslint-disable-next-line i18next/no-literal-string
+        "closed-ended-question",
+      )
+    })
+
+  if (!selected) {
+    return <></>
+  }
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
     setTestStrings(
       testStrings.map((content, idx) => {
@@ -232,7 +222,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   }
 
   return (
-    <EditorCard title={t("quiz-open-name")}>
+    <EditorCard quizItemId={quizItemId} title={t("quiz-open-name")}>
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton
@@ -246,8 +236,68 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           label={t("regex")}
         ></RadioButton>
       </RadioButtonContainer>
-      {method == 0 && <ExactStringMethodView quizItem={quizItem} />}
-      {method == 1 && <RegexMethodView quizItem={quizItem} />}
+
+      {method == 0 && (
+        <>
+          <SelectField
+            id="regex-pattern-select"
+            label={t("format-regular-expression")}
+            options={REGEX_PATTERNS}
+            onChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.formatRegex = value
+              })
+            }}
+          />
+          <TextField
+            value={convertToString(selected.validityRegex)}
+            onChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.validityRegex = value
+              })
+            }}
+            label={t("correct-answer")}
+            name={t("correct-answer")}
+          />
+        </>
+      )}
+      {method == 1 && (
+        <>
+          <TextField
+            value={convertToString(selected.validityRegex)}
+            onChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.validityRegex = value
+              })
+            }}
+            label={t("validity-regular-expression")}
+            name={t("validity-regular-expression")}
+          />
+          <TextField
+            value={convertToString(selected.formatRegex)}
+            onChange={(value) => {
+              updateState((draft) => {
+                if (!draft) {
+                  return
+                }
+                draft.formatRegex = value
+              })
+            }}
+            label={t("format-regular-expression")}
+            name={t("format-regular-expression")}
+          />
+        </>
+      )}
+
       <Accordion variant="detail" title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
@@ -267,7 +317,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
             </AddNewRowContainer>
           </TestButtonContainer>
           <RegexTestTableContainer>
-            <RegexTestTable quizItem={quizItem} testStrings={testStrings} />
+            <RegexTestTable quizItem={selected} testStrings={testStrings} />
           </RegexTestTableContainer>
         </details>
       </Accordion>

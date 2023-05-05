@@ -207,7 +207,7 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
-                        "users_email_check" => ModelError::new(
+                        "user_details_email_check" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "Email must contain an '@' symbol.",
@@ -301,7 +301,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn users_email_check() {
+    async fn user_details_email_check() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
         let err = crate::users::insert(
@@ -314,7 +314,7 @@ mod test {
         .await
         .unwrap_err();
         if let ModelErrorType::DatabaseConstraint { constraint, .. } = err.error_type {
-            assert_eq!(constraint, "users_email_check");
+            assert_eq!(constraint, "user_details_email_check");
         } else {
             panic!("wrong error variant")
         }

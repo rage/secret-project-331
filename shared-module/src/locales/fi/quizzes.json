@@ -87,6 +87,8 @@
   "preview-rendered-text": "Esikatsele esitetty teksti",
   "quiz-checkbox-description": "Valitse vaihtoehdot, mutta mikään valinta ei ole oikein tai väärin",
   "quiz-checkbox-name": "Rasti ruutuun",
+  "quiz-choose-n-description": "Valintojen määrä (N)",
+  "quiz-choose-n-name": "Valitse-n",
   "quiz-clickable-multiple-choice-description": "Valitse n annetuista napeista",
   "quiz-clickable-multiple-choice-name": "Valitse n",
   "quiz-description": "Quiz kuvaus",

@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import produce from "immer"
+import { produce } from "immer"
 import { createReducer } from "typesafe-actions"
 
 import { action, NormalizedQuizItemTimelineItem } from "../../../../types/types"

@@ -14,7 +14,9 @@ import { isMessageFromIframe } from "../../../shared-module/exercise-service-pro
 interface PlaygroundViewSubmissionIframeProps {
   url: string
   publicSpecQuery: UseQueryResult<unknown>
-  gradingQuery: UseMutationResult<ExerciseTaskGradingResult>
+  // Caused weird type errors when the parameter generic was set to unknown
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  gradingQuery: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
   modelSolutionSpecQuery: UseQueryResult<unknown>
   userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
@@ -82,8 +84,6 @@ const PlaygroundViewSubmissionIframe: React.FC<
             if (msg.message === "current-state") {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               setCurrentStateReceivedFromIframe(msg)
-            } else if (msg.message === "file-upload") {
-              // cannot upload from submission view
             }
           }
         }}

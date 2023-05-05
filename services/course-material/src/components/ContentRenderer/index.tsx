@@ -35,6 +35,7 @@ import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
+import AudioPlayer from "./moocfi/AudioPlayer/index"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
@@ -45,7 +46,9 @@ import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
+import { IframeBlock } from "./moocfi/IframeBlock"
 import InfoBox from "./moocfi/InfoBox"
+import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
@@ -132,9 +135,12 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/partners": PartnersBlock,
   "moocfi/highlightbox": HighlightBox,
+  "moocfi/instructionbox": InstructionBoxBlock,
   "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
+  "moocfi/iframe": IframeBlock,
+  "moocfi/audio-upload": AudioPlayer,
 }
 
 const highlightedBlockStyles = css`
@@ -246,17 +252,19 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     <div
       className={css`
         font-size: 20px;
+        text-underline-offset: 4.6px;
+        text-decoration-thickness: 1.6px;
 
         a {
-          color: #4290f2;
+          color: #1072ea;
           &:hover {
-            color: #378cf8;
+            color: #096df1;
           }
           &:active {
-            color: #61adfa;
+            color: #0870d9;
           }
           &:visited {
-            color: #8c60f3;
+            color: #8050f2;
           }
         }
       `}

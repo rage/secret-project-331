@@ -20,6 +20,7 @@ async fn main() -> anyhow::Result<()> {
         "peer-review-updater" => programs::peer_review_updater::main().await?,
         "start-server" => programs::start_server::main().await?,
         "sorter" => programs::sorter::sort()?,
+        "sync-tmc-users" => programs::sync_tmc_users::main().await?,
         _ => panic!("Unknown program name: {}", program_name),
     };
 

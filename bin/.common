@@ -6,20 +6,21 @@ export BLUE='\033[0;34m'
 export RED='\033[0;31m'
 export GREEN='\033[0;32m'
 export BOLD='\e[1m'
+export CURSIVE='\e[3m'
 export RESET_EVERYTHING='\e[0m'
 
 function run_command() {
   command=$1
   shift
   args=("$@")
-  echo "> $command" "$(printf "%q " "${args[@]}" )"
+  echo -e "${CURSIVE}> $command" "$(printf "%q " "${args[@]}" )${RESET_EVERYTHING}"
   "$command" "${args[@]}"
 }
 
 function eval_command() {
   command=$1
   arguments=$2
-  echo "> $command" "$(printf "%s " "$arguments")"
+  echo -e "${CURSIVE}> $command" "$(printf "%s " "$arguments")${RESET_EVERYTHING}"
   eval "$command $arguments"
 }
 

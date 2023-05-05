@@ -13,6 +13,8 @@ import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
 
+import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
+
 interface EnableNotifications {
   notify: true
   method: "POST" | "PUT" | "DELETE"
@@ -41,6 +43,7 @@ export default function useToastMutation<
   notificationOptions: NotificationOptions,
   mutationOptions: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn"> = {},
 ): UseMutationResult<TData, TError, TVariables, TContext> {
+  const showToastInfinitely = useSetShowStuffInfinitelyInSystemTestScreenshots()
   let toastId = ""
   const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
     toast.custom(
@@ -55,6 +58,7 @@ export default function useToastMutation<
       },
       {
         ...notificationOptions.toastOptions,
+        duration: showToastInfinitely ? 1000000 : notificationOptions.toastOptions?.duration,
         id: toastId,
       },
     )
@@ -78,6 +82,8 @@ export default function useToastMutation<
     },
     onSuccess: (data: TData, variables: TVariables, context) => {
       if (notificationOptions.notify) {
+        // Remove old toasts
+        toast.remove()
         switch (notificationOptions.method) {
           case "PUT":
             displaySuccessNotification(notificationOptions)
@@ -108,7 +114,8 @@ export default function useToastMutation<
     },
     onError: (error: TError, variables: TVariables, context) => {
       if (notificationOptions.notify) {
-        console.log({ error })
+        // Remove old toasts
+        toast.remove()
         let errorMessage = notificationOptions.errorMessage
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!errorMessage && (error as any)?.data?.message) {

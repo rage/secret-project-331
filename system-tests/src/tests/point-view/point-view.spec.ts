@@ -1,93 +1,66 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Point view for teachers
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers' }*/),
-    page.click("text=Point view for teachers"),
-  ])
+  await page.locator("text=Point view for teachers").click()
 
-  // Click text=default
-  await page.click("text=default")
-
-  // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 
-  // Click text=Start course
-  await page.click("text=Start course")
+  await page.locator("text=Start course").click()
 
-  // Click text=The Basics
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers/chapter-1' }*/),
-    page.click("text=The Basics"),
-  ])
+  await page.locator("text=The Basics").click()
 
-  // Click text=Page One
-  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+  await page.locator("text=Page One").first().click()
 
-  // Click text=b
-  const frame = await waitForFunction(page, () =>
-    page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
-    }),
-  )
-  if (!frame) {
-    throw new Error("Could not find frame")
-  }
-  await frame.click("text=b")
+  const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
+  await frame.locator("text=b").click()
 
-  // Click text=Submit
-  await page.click("text=Submit")
+  await page.locator("text=Submit").click()
+  await page.getByRole("button", { name: "try again" }).waitFor()
 
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
-  await page.click("text=University of Helsinki, Department of Computer Science")
+  await page.locator("text=University of Helsinki, Department of Computer Science").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  // Click text=Point view for teachers Manage >> :nth-match(a, 2)
-  await page.click("[aria-label=\"Manage course 'Point view for teachers'\"] svg")
+  await page.locator("[aria-label=\"Manage course 'Point view for teachers'\"] svg").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
   )
 
-  // Click text=View points
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/course-instances/1544bf21-240a-56c4-a391-9b0621051fa6/points' }*/),
-    page.locator("text=View points").nth(1).click(),
-  ])
+  await page.getByRole("tab", { name: "Course instances" }).click()
+
+  await page.locator("text=View points").nth(1).click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "point-view-top",
-    waitForThisToBeVisibleAndStable: "text=TOTAL POINT DASHBOARD",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.locator("text=TOTAL POINT DASHBOARD")],
+    screenshotTarget: page,
   })
 
-  await page.click("text=user_4@example.com")
+  await page.locator("text=user_4@example.com").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
+    testInfo,
     snapshotName: "point-view-bottom",
-    waitForThisToBeVisibleAndStable: "text=user_4@example.com",
-    page,
+    waitForTheseToBeVisibleAndStable: [page.getByText("User id").first()],
+    screenshotTarget: page,
   })
 })

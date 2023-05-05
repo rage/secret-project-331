@@ -15,7 +15,7 @@ const Container = styled.div`
     font-size: clamp(28px, 3vw, 30px);
     color: ${baseTheme.colors.gray[700]};
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     opacity: 0.9;
   }
   ${respondToOrLarger.xxs} {
@@ -48,18 +48,18 @@ const SponsorBox = styled.div`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const SponsorLogo = styled.div<StyledSponsor>`
-  width: ${({ width }) => (width ? width : "200px")};
+  width: ${({ width }) => (width ? width : "160px")};
   aspect-ratio: 2 / 1;
   font-size: 1.6rem;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 50px;
-  opacity: 0.6;
+  opacity: 0.8;
 
   img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 80px;
   }
 
   @media (max-width: 767.98px) {

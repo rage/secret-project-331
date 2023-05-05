@@ -22,6 +22,9 @@ example-exercise:
 headless-lms:
   - services/headless-lms/**/*
 
+seed:
+  - services/headless-lms/server/src/programs/seed/**/*
+
 db-migrations:
   - services/headless-lms/migrations/**/*
 

@@ -27,7 +27,7 @@ fn sort_ts_binding_generator() -> anyhow::Result<()> {
                 file_lines_after_sorting.push("");
 
                 // sort all lines other than target
-                current_exports.sort();
+                current_exports.sort_unstable();
 
                 // for large export blocks, group based on first letter
                 if current_exports.len() > 64 {

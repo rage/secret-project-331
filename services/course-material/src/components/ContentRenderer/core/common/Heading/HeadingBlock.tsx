@@ -34,7 +34,7 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
       __html: sanitizeCourseMaterialHtml(content),
     },
     className: cx(
-      INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+      level < 4 && INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
       css`
         line-height: ${level === 1 ? 1.1 : 1.2};
         margin-bottom: 1rem;

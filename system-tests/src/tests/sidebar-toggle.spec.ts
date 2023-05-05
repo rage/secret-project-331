@@ -14,44 +14,34 @@ const gutenbergAxeSkip = [
   "aria-required-children",
 ]
 
-test("test", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Mathematics and Statistics
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-mathstat' }*/),
     page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
   ])
 
-  // Click [aria-label="Manage\ course\ \'Introduction\ to\ Statistics\'"] svg
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/f307d05f-be34-4148-bb0c-21d6f7a35cdb' }*/),
-    page
-      .locator("[aria-label=\"Manage\\ course\\ \\'Introduction\\ to\\ Statistics\\'\"] svg")
-      .click(),
-  ])
+  await page
+    .locator("[aria-label=\"Manage\\ course\\ \\'Introduction\\ to\\ Statistics\\'\"] svg")
+    .click()
 
-  // Click text=Pages
   await page.locator("text=Pages").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/f307d05f-be34-4148-bb0c-21d6f7a35cdb/pages",
   )
 
-  // Click a:has-text("Introduction to Statistics")
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/8bd4a252-b275-40b2-b60b-917125a2a020' }*/),
-    page.locator("text=Edit page").click(),
-  ])
+  await page.locator("text=Edit page").click()
 
-  // Click text=Welcome to...
   await page.locator("text=Welcome to...").click()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "block-properties",
-    waitForThisToBeVisibleAndStable: "text=Landing page hero section",
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Landing Page Hero Section" }),
+    ],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
@@ -60,10 +50,11 @@ test("test", async ({ page, headless }) => {
   await page.locator("select").selectOption("block-list")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "block-list",
-    waitForThisToBeVisibleAndStable: "text=Course Objective Section",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Course Objective Section").first()],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
@@ -72,10 +63,11 @@ test("test", async ({ page, headless }) => {
   await page.locator("select").selectOption("block-menu")
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    screenshotTarget: page,
     headless,
+    testInfo,
     snapshotName: "block-menu",
-    waitForThisToBeVisibleAndStable: "text=Pullquote",
+    waitForTheseToBeVisibleAndStable: [page.getByRole("option", { name: "List" })],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })

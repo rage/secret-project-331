@@ -97,7 +97,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
     >
-  >({})
+  >({
+    disableCustomColors: false,
+    disableCustomEditorFontSizes: false,
+  })
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 
@@ -227,6 +230,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
         --start-sidebar-top-px: ${sideBarStartingYCoordinate}px;
 
         /** A browser extension inserts these on some machines and they break the list block editor **/
+        /* stylelint-disable-next-line selector-type-no-unknown */
         pwa-container-wrapper {
           display: none;
         }
@@ -346,6 +350,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                 </div>
               </BlockTools>
             </div>
+            {/* @ts-expect-error: slot is not in the type definitions */}
             <Popover.Slot />
           </BlockEditorProvider>
         </SlotFillProvider>

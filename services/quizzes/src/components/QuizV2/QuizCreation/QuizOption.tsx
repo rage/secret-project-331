@@ -1,12 +1,11 @@
 import styled from "@emotion/styled"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { useDispatch } from "react-redux"
 
-import { QuizItemType } from "../../../../types/quizTypes"
+import { PrivateSpecQuiz, QuizItemType } from "../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
 import { headingFont } from "../../../shared-module/styles"
-import { createdNewItem } from "../../../store/editor/editorActions"
-import { useTypedSelector } from "../../../store/store"
+import { createEmptyQuizItem } from "../utils/general"
 
 export interface QuizOption {
   type: QuizItemType
@@ -61,11 +60,20 @@ const QuizItemOption: React.FC<QuizOptionProps> = ({ quizOption }) => {
 
   const { type, name, description, disabled } = quizOption
 
-  const dispatch = useDispatch()
-  const quizId = useTypedSelector((state) => state.editor.quizId)
+  const { updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>((draft) => {
+    if (!draft) {
+      return null
+    }
+    return draft
+  })
 
   const createQuizItem = () => {
-    dispatch(createdNewItem(quizId, type))
+    updateState((draft) => {
+      if (!draft) {
+        return
+      }
+      draft.items = [...draft.items, createEmptyQuizItem(type)]
+    })
   }
 
   return (

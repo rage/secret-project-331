@@ -46,27 +46,26 @@ In addition, you need the commands (`bc, find, jq, rsync, sponge`) for the scrip
 
 #### Rust development tools
 
-You don't need these if you don't intend to change the headless-lms.
-
 1. Install [Rust](https://www.rust-lang.org/tools/install)
 2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
 3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora)
 4. Install `pkg-config`
+5. Install oxipng (`cargo install oxipng` or for Arch Linux `sudo pacman -S oxipng`)
 
 ### Optional configuration
 
 #### Moving docker data root to another drive with more space
 
-> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
+> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space. With Cubbli please use path ´/home/local/username/docker´ if not using cubbli please use path ´/home/username/docker"´.
 
 1. `sudo systemctl stop docker`
 2. `sudo vim /etc/docker/daemon.json` -
    with content:
    {
-   "data-root": "/home/username/docker"
+   "data-root": "path_from \_above"
    }
-3. `mkdir /home/$USER/docker`
-4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
+3. `mkdir path_from _above`
+4. `sudo rsync -aP /var/lib/docker path_from _above` (optional)
 5. `sudo mv /var/lib/docker /var/lib/docker.old`
 6. `sudo systemctl start docker`
    - Ensure all works fine by running: `docker run --rm hello-world`
@@ -100,10 +99,9 @@ choco install stern kubectx
 
 ### Rust development tools
 
-You don't need these if you don't intend to change the headless-lms.
-
 1. Install rust (https://www.rust-lang.org/tools/install)
 2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
+3. Install oxipng (`cargo install oxipng`)
 
 ### Configuration for windows
 
@@ -203,10 +201,10 @@ You may also need:
 1. [Stern](https://github.com/wercker/stern)
 2. [Kubectx](https://github.com/ahmetb/kubectx)
 
-In addition, you need the commands (`bc, find, jq, rsync, sponge`) for the scripts:
+In addition, you need the commands (`bc, find, jq, rsync, sponge, realpath`) for the scripts:
 
 ```
-brew install bc jq rsync sponge
+brew install bc jq rsync sponge coreutils
 ```
 
 You may also need stern and kubectx:
@@ -217,12 +215,11 @@ brew install kubectx stern
 
 #### Rust development tools
 
-You don't need these if you don't intend to change the headless-lms.
-
 1. Install [Rust](https://www.rust-lang.org/tools/install)
 2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
 3. Install OpenSSL (`brew install openssl@3`)
 4. Install `pkg-config` (`brew install pkg-config`)
+5. Install oxipng (`cargo install oxipng`)
 
 # Running the development environment
 
@@ -256,7 +253,7 @@ After that, you should be able to access the application by going to `http://pro
 
 Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
 
-\*\*If you're having problems with minikube, try running ``
+**If you're having problems with minikube, try running `bin/detect-dev-env-problems`.**
 
 ### Windows
 

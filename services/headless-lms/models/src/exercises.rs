@@ -40,6 +40,7 @@ pub struct Exercise {
     pub limit_number_of_tries: bool,
     pub needs_peer_review: bool,
     pub use_course_default_peer_review_config: bool,
+    pub exercise_language_group_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -203,6 +204,7 @@ pub struct ExerciseStatus {
     pub reviewing_stage: ReviewingStage,
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -212,6 +214,14 @@ pub async fn insert(
     chapter_id: Uuid,
     order_number: i32,
 ) -> ModelResult<Uuid> {
+    let course = crate::courses::get_course(conn, course_id).await?;
+    let exercise_language_group_id = crate::exercise_language_groups::insert(
+        conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
+
     let res = sqlx::query!(
         "
 INSERT INTO exercises (
@@ -220,9 +230,10 @@ INSERT INTO exercises (
     name,
     page_id,
     chapter_id,
-    order_number
+    order_number,
+    exercise_language_group_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
         ",
         pkey_policy.into_uuid(),
@@ -230,7 +241,8 @@ RETURNING id
         name,
         page_id,
         chapter_id,
-        order_number
+        order_number,
+        exercise_language_group_id,
     )
     .fetch_one(conn)
     .await?;
@@ -803,6 +815,30 @@ RETURNING id;
     .map(|x| x.id)
     .collect();
     Ok(deleted_ids)
+}
+
+pub async fn set_exercise_to_use_exercise_specific_peer_review_config(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    needs_peer_review: bool,
+    use_course_default_peer_review_config: bool,
+) -> ModelResult<Uuid> {
+    let id = sqlx::query!(
+        "
+UPDATE exercises
+SET use_course_default_peer_review_config = $1,
+  needs_peer_review = $2
+WHERE id = $3
+RETURNING id;
+        ",
+        use_course_default_peer_review_config,
+        needs_peer_review,
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(id.id)
 }
 
 #[cfg(test)]

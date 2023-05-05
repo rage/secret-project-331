@@ -2,14 +2,15 @@ import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { uploadFilesFromIframe } from "../../../services/backend/playground-examples"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   IframeState,
+  MessageToIframe,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
-import { onUploadFileMessage } from "../../../shared-module/utils/exerciseServices"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -74,8 +75,24 @@ const PlaygroundExerciseIframe: React.FC<
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
-              // eslint-disable-next-line i18next/no-literal-string
-              await onUploadFileMessage("playground", msg.files, responsePort)
+              const files = await uploadFilesFromIframe(msg.files)
+              let response: MessageToIframe
+              try {
+                response = {
+                  // eslint-disable-next-line i18next/no-literal-string
+                  message: "upload-result",
+                  success: true,
+                  urls: files,
+                }
+              } catch (e) {
+                response = {
+                  // eslint-disable-next-line i18next/no-literal-string
+                  message: "upload-result",
+                  success: false,
+                  error: JSON.stringify(e, null, 2),
+                }
+              }
+              responsePort.postMessage(response)
             }
           }
         }}

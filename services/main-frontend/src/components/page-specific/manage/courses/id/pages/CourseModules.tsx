@@ -42,6 +42,7 @@ export type ModuleView = {
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
+  enable_registering_completion_to_uh_open_university: boolean
 }
 
 type ChapterView = { id: string; name: string; module: string | null; chapter_number: number }
@@ -218,6 +219,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                   m.completion_policy.number_of_exercises_attempted_treshold,
                 automatic_completion_requires_exam: m.completion_policy.requires_exam,
                 completion_registration_link_override: m.completion_registration_link_override,
+                enable_registering_completion_to_uh_open_university:
+                  m.enable_registering_completion_to_uh_open_university,
               }
             } else {
               return {
@@ -234,6 +237,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 automatic_completion_number_of_exercises_attempted_treshold: null,
                 automatic_completion_requires_exam: false,
                 completion_registration_link_override: m.completion_registration_link_override,
+                enable_registering_completion_to_uh_open_university:
+                  m.enable_registering_completion_to_uh_open_university,
               }
             }
           })
@@ -271,6 +276,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             ects_credits: module.ects_credits,
             completion_policy: mapFieldsToCompletionPolicy(module),
             completion_registration_link_override: module.completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university:
+              module.enable_registering_completion_to_uh_open_university,
           })
         } else if (initialModule !== undefined) {
           // old module, check for modifications
@@ -285,7 +292,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             module.automatic_completion_number_of_exercises_attempted_treshold !==
               initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
             module.automatic_completion_requires_exam !==
-              initialModule.automatic_completion_requires_exam
+              initialModule.automatic_completion_requires_exam ||
+            module.completion_registration_link_override !==
+              initialModule.completion_registration_link_override ||
+            module.enable_registering_completion_to_uh_open_university !==
+              initialModule.enable_registering_completion_to_uh_open_university
           ) {
             modifiedModules.push({
               id: module.id,
@@ -295,6 +306,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               ects_credits: module.ects_credits,
               completion_policy: mapFieldsToCompletionPolicy(module),
               completion_registration_link_override: module.completion_registration_link_override,
+              enable_registering_completion_to_uh_open_university:
+                module.enable_registering_completion_to_uh_open_university,
             })
           }
         }
@@ -366,6 +379,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       automatic_completion_requires_exam,
       completion_registration_link_override,
       override_completion_link,
+      enable_registering_completion_to_uh_open_university,
     }: EditCourseModuleFormFields,
   ) => {
     setEdited(true)
@@ -400,7 +414,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             firstChapter,
             lastChapter,
             isNew: m.isNew,
-          }
+            enable_registering_completion_to_uh_open_university,
+          } satisfies ModuleView
         }
       })
       return {
@@ -445,6 +460,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     automatic_completion_number_of_exercises_attempted_treshold,
     override_completion_link,
     completion_registration_link_override,
+    enable_registering_completion_to_uh_open_university,
   }: Fields) => {
     setEdited(true)
     const newModuleId = v4()
@@ -477,6 +493,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           completion_registration_link_override: override_completion_link
             ? completion_registration_link_override
             : null,
+          enable_registering_completion_to_uh_open_university,
         },
       ]
       modules.forEach((m) => {

@@ -23,7 +23,7 @@ const CompletionRequirementsTabulation: React.FC<
   return (
     <>
       <HilightContainer>
-        {pointsRequiredForCompletion && (
+        {!!pointsRequiredForCompletion && (
           <HighlightItem
             highlightColor={baseTheme.colors.gradient["green"]}
             highlightDescription={t("points-required-for-completion")}
@@ -35,7 +35,7 @@ const CompletionRequirementsTabulation: React.FC<
             highlightColor={baseTheme.colors.gradient["blue"]}
             highlightDescription={t("attempted-exercises-required-for-completion")}
             highlightText={attemptedExercisesRequiredForCompletion}
-            leftBorder={true}
+            leftBorder={!!pointsRequiredForCompletion}
           />
         )}
       </HilightContainer>

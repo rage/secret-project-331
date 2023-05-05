@@ -24,8 +24,8 @@ export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
   const typedObj = obj as MessageFromIframe
   return (
     (isCurrentStateMessage(typedObj) as boolean) ||
-    (isFileUploadMessage(typedObj) as boolean) ||
-    (isHeightChangedMessage(typedObj) as boolean)
+    (isHeightChangedMessage(typedObj) as boolean) ||
+    (isFileUploadMessage(typedObj) as boolean)
   )
 }
 
@@ -38,15 +38,6 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
   )
 }
 
-export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
-  const typedObj = obj as FileUploadMessage
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typedObj["message"] === "file-upload" &&
-    typedObj["files"] instanceof Map
-  )
-}
-
 export function isHeightChangedMessage(obj: unknown): obj is HeightChangedMessage {
   const typedObj = obj as HeightChangedMessage
   return (
@@ -56,18 +47,19 @@ export function isHeightChangedMessage(obj: unknown): obj is HeightChangedMessag
   )
 }
 
+export function isFileUploadMessage(obj: unknown): obj is FileUploadMessage {
+  const typedObj = obj as FileUploadMessage
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typedObj["message"] === "file-upload" &&
+    typedObj["files"] instanceof Map
+  )
+}
+
 export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
   const typedObj = obj as MessageToIframe
   return (
     (isSetLanguageMessage(typedObj) as boolean) ||
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === true &&
-      typedObj["urls"] instanceof Map) ||
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === false &&
-      typeof typedObj["error"] === "string") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "set-state" &&
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
@@ -131,7 +123,17 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
               typeof e["download_url"] === "string",
           ))) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
-        typeof typedObj["data"] === "function"))
+        typeof typedObj["data"] === "function")) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "upload-result" &&
+      ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["success"] === true &&
+      typedObj["urls"] instanceof Map) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "upload-result" &&
+      ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["success"] === false &&
+      typeof typedObj["error"] === "string")
   )
 }
 
@@ -141,20 +143,6 @@ export function isSetLanguageMessage(obj: unknown): obj is SetLanguageMessage {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typedObj["message"] === "set-language" &&
     typeof typedObj["data"] === "string"
-  )
-}
-
-export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage {
-  const typedObj = obj as UploadResultMessage
-  return (
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === true &&
-      typedObj["urls"] instanceof Map) ||
-    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["message"] === "upload-result" &&
-      typedObj["success"] === false &&
-      typeof typedObj["error"] === "string")
   )
 }
 
@@ -225,6 +213,22 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
           ))) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
         typeof typedObj["data"] === "function"))
+  )
+}
+
+export function isUploadResultMessage(obj: unknown): obj is UploadResultMessage {
+  const typedObj = obj as UploadResultMessage
+  return (
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "upload-result" &&
+      ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["success"] === true &&
+      typedObj["urls"] instanceof Map) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "upload-result" &&
+      ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["success"] === false &&
+      typeof typedObj["error"] === "string")
   )
 }
 

@@ -7,53 +7,41 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("headings navigation works", async ({ page, headless }) => {
-  // Go to http://project-331.local/
+test("headings navigation works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
 
-  // Click text=Introduction to Course Material >> nth=0
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
-    page.locator("text=Introduction to Course Material").first().click(),
-  ])
+  await page.locator("text=Introduction to Course Material").first().click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  // Click text=Chapter 2User Experience
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2' }*/),
-    page.locator("text=Chapter 1User Interface").click(),
-  ])
+  await page.locator("text=Chapter 1User Interface").click()
 
-  // Click text=2Content rendering
   await page.locator("text=1Design").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-1/design",
   )
 
-  // Click [aria-label="Open heading navigation"]
   await page.locator('[aria-label="Open heading navigation"]').click()
 
   await expectScreenshotsToMatchSnapshots({
-    headless: headless ?? false,
+    headless,
+    testInfo,
     snapshotName: "headings-navigation-open",
-    waitForThisToBeVisibleAndStable: [
-      `button:has-text("Design")`,
-      `button:has-text("First heading")`,
+    waitForTheseToBeVisibleAndStable: [
+      page.locator(`button:has-text("Design")`),
+      page.locator(`button:has-text("First heading")`),
     ],
-    page,
+    screenshotTarget: page,
     replaceSomePartsWithPlaceholders: false,
   })
 
-  // Click button:has-text("Heading 6")
   await page.locator('button:has-text("Third heading")').click()
 
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(500)
   const scrollY = await page.evaluate(() => {
     return window.scrollY

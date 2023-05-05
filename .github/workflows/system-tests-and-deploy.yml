@@ -141,6 +141,7 @@ jobs:
           kubernetes version: "v1.25.3"
           start args: "--addons ingress --memory max"
           driver: "docker"
+          github token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Debug kube-system
         run: |

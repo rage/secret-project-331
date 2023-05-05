@@ -4,6 +4,7 @@ resources:
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
   - access-ingress-internally.yml
+  - tmc-service-account.yml
 patches:
   # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml
@@ -20,3 +21,9 @@ patches:
       version: v1
       kind: Deployment
       name: "headless-lms"
+  - path: patch-tmc-service-account.yml
+    target:
+      version: v1
+      kind: Role
+patchesStrategicMerge:
+  - main-frontend/patch-env.yml

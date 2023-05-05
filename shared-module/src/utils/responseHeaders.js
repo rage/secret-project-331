@@ -16,7 +16,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
 
     {
       key: "Permissions-Policy",
-      value: "fullscreen=(self)",
+      value: `fullscreen=(self "https://www.thinglink.com")`,
     },
     {
       key: "Content-Security-Policy",
@@ -33,6 +33,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
         "base-uri 'none'",
         "form-action 'none'",
         "prefetch-src 'self'",
+        "media-src 'self' https://storage.googleapis.com",
         // Forces us to sanitize html before using dangerouslySetInnerHTML. Please see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/require-trusted-types-for
         options.requireTrustedTypesFor && "require-trusted-types-for 'script'",
       ]

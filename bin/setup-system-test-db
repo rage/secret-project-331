@@ -17,12 +17,20 @@ if [ "$NUMBER_OF_CARGO_FILES" -ne "0" ]; then
   exit 255
 fi
 
+RANDOM_DATABASE_NAME="temporary_database_$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
+
 run_command kubectl exec -it "$POD_NAME" -- wait-for-it --timeout=120 postgres:5432
 
 run_command cd "$RELATIVE_PATH" || exit
 
+# Create new database with a random name
+run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url "postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/$RANDOM_DATABASE_NAME"
+# Drop old headless_lms_test database (if it exists)
 run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test
-
-run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test
+# Rename new database to headless_lms_test
+run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public psql postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/postgres --command "ALTER DATABASE $RANDOM_DATABASE_NAME RENAME TO headless_lms_test"
 
 run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public ./headless-lms-entrypoint seed "$@"
+
+echo ""
+echo -e "${GREEN}✅ Now you have a fresh headless_lms_test database you can use for testing.${RESET_EVERYTHING}"

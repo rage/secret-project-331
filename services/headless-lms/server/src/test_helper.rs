@@ -204,6 +204,7 @@ macro_rules! insert_data {
         .unwrap().0.id;
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident; page: $page:ident) => {
+
         let $page = headless_lms_models::pages::insert_page(
             $tx.as_mut(),
             headless_lms_models::pages::NewPage {

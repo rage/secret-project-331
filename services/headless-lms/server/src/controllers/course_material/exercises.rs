@@ -17,9 +17,19 @@ use models::{
 use chrono::{Duration, Utc};
 
 use crate::{
-    domain::{authorization::skip_authorize, models_requests},
+    domain::{
+        authorization::skip_authorize,
+        models_requests::{self, GivePeerReviewClaim, JwtKey},
+    },
     prelude::*,
 };
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialPeerReviewDataWithToken {
+    pub course_material_peer_review_data: CourseMaterialPeerReviewData,
+    pub token: Option<String>,
+}
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -92,15 +102,17 @@ async fn get_peer_review_for_exercise(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<CourseMaterialPeerReviewData>> {
+    jwt_key: web::Data<JwtKey>,
+) -> ControllerResult<web::Json<CourseMaterialPeerReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
-    let peer_review_data = models::peer_review_configs::get_course_material_peer_review_data(
-        &mut conn,
-        user.id,
-        *exercise_id,
-        models_requests::fetch_service_info,
-    )
-    .await?;
+    let course_material_peer_review_data =
+        models::peer_review_configs::get_course_material_peer_review_data(
+            &mut conn,
+            user.id,
+            *exercise_id,
+            models_requests::fetch_service_info,
+        )
+        .await?;
     let token = authorize(
         &mut conn,
         Act::View,
@@ -108,7 +120,24 @@ async fn get_peer_review_for_exercise(
         Res::Exercise(*exercise_id),
     )
     .await?;
-    token.authorized_ok(web::Json(peer_review_data))
+    let give_peer_review_claim =
+        if let Some(to_review) = &course_material_peer_review_data.answer_to_review {
+            Some(
+                GivePeerReviewClaim::expiring_in_1_day(
+                    to_review.exercise_slide_submission_id,
+                    course_material_peer_review_data.peer_review_config.id,
+                )
+                .sign(&jwt_key),
+            )
+        } else {
+            None
+        };
+
+    let res = CourseMaterialPeerReviewDataWithToken {
+        course_material_peer_review_data,
+        token: give_peer_review_claim,
+    };
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -158,6 +187,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
+    jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
@@ -218,7 +248,7 @@ async fn post_submission(
         payload.0,
         GradingPolicy::Default,
         models_requests::fetch_service_info,
-        models_requests::send_grading_request,
+        models_requests::make_grading_request_sender(jwt_key.into_inner()),
     )
     .await?;
 
@@ -288,10 +318,22 @@ async fn submit_peer_review(
     exercise_id: web::Path<Uuid>,
     payload: web::Json<CourseMaterialPeerReviewSubmission>,
     user: AuthUser,
+    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    // Authorization
+    // If the claim in the token validates, we can be sure that the user submitting this peer review got the peer review candidate from the backend.
+    // The validation prevents users from chaging which answer they peer review.
+    let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;
+    if claim.exercise_slide_submission_id != payload.exercise_slide_submission_id
+        || claim.peer_review_config_id != payload.peer_review_config_id
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "You are not allowed to review this answer.".to_string(),
+            None,
+        ));
+    }
 
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
@@ -302,13 +344,7 @@ async fn submit_peer_review(
         payload.0,
     )
     .await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(exercise.id),
-    )
-    .await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(true))
 }
 

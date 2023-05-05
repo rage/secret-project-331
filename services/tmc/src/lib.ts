@@ -1,36 +1,26 @@
 /* eslint-disable i18next/no-literal-string */
+import * as k8s from "@kubernetes/client-node"
 import axios from "axios"
 import * as fs from "fs"
 
-interface PendingSubmission {
-  id: string
-  gradingResultUrl: string
-  timestamp: number
+export const initKubeConfig = (): k8s.KubeConfig => {
+  const kc = new k8s.KubeConfig()
+  kc.loadFromDefault()
+  return kc
 }
 
-export const pendingSubmissions: Array<PendingSubmission> = []
+export const initKubeApi = (): k8s.CoreV1Api => {
+  const k8sApi = initKubeConfig().makeApiClient(k8s.CoreV1Api)
+  return k8sApi
+}
 
 export interface ClientErrorResponse {
   message: string
 }
 
-export interface GradingResult {
-  grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
-  score_given: number
-  score_maximum: number
-  feedback_text: string | null
-  feedback_json: ExerciseFeedback | null
-}
-
 export interface ExerciseFeedback {
   stdout: string
   stderr: string
-}
-
-export const updateLms = async () => {
-  axios.post("lms", {
-    pendingSubmissions: pendingSubmissions,
-  })
 }
 
 export const downloadStream = async (url: string, target: string) => {

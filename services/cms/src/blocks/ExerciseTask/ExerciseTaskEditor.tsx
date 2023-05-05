@@ -82,6 +82,7 @@ const ExerciseTaskEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
 > = ({ attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
+
   const exerciseServicesQuery = useAllExerciseServices()
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
@@ -182,6 +183,24 @@ const ExerciseTaskEditor: React.FC<
                     padding: 1rem;
                     border: 1px solid black;
                     margin-bottom: 2rem;
+
+                    .block-list-appender:not(:first-child) {
+                      position: relative;
+                      top: -40px;
+                      margin: 0;
+
+                      .block-editor-inserter {
+                        line-height: 0;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                      }
+
+                      .block-editor-default-block-appender__content {
+                        height: 0px;
+                      }
+                    }
+
                     ${gutenbergControlsVisible}
                   `}
                 >
@@ -195,7 +214,6 @@ const ExerciseTaskEditor: React.FC<
                 ) : (
                   <ExerciseTaskIFrameEditor
                     exerciseTaskId={attributes.id}
-                    exerciseServiceSlug={attributes.exercise_type}
                     onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
                     privateSpec={privateSpecToPostToIframe}
                     url={`${url}?width=${narrowContainerWidthPx}`}

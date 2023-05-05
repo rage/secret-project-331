@@ -4,10 +4,10 @@ import {
   ExerciseTaskSubmission,
   RepositoryExercise,
 } from "../shared-module/bindings"
-
-export const playgroundPublicSpecUploadUrl = "http://project-331.local/api/v0/files/playground"
-export const publicSpecUploadUrl = "http://project-331.local/api/v0/files/tmc"
-export const publicSpecDownloadUrlRoot = "http://project-331.local/api/v0/files/"
+import {
+  CurrentStateMessage,
+  MessageFromIframe,
+} from "../shared-module/exercise-service-protocol-types"
 
 export type IframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
 
@@ -21,7 +21,7 @@ export type ExerciseEditorState = {
 export type AnswerExerciseState = {
   viewType: "answer-exercise"
   initialPublicSpec: PublicSpec
-  publicSpec: PublicSpec
+  userAnswer: UserAnswer
   previousSubmission: ExerciseTaskSubmission | null
 }
 
@@ -29,7 +29,7 @@ export type ViewSubmissionState = {
   viewType: "view-submission"
   exerciseTaskId: string
   grading: ExerciseTaskGradingResult | null
-  userAnswer: UserAnswer
+  submission: UserAnswer
   publicSpec: PublicSpec
   modelSolutionSpec: ModelSolutionSpec | null
 }
@@ -43,7 +43,7 @@ export type PublicSpec = BrowserExercisePublicSpec | EditorExercisePublicSpec
 
 export interface BrowserExercisePublicSpec {
   type: "browser"
-  files: Array<[string, string]>
+  files: Array<ExerciseFile>
 }
 
 export interface EditorExercisePublicSpec {
@@ -52,14 +52,24 @@ export interface EditorExercisePublicSpec {
   archiveDownloadUrl: string
 }
 
-export type Submission = BrowserSubmission | EditorSubmission
+export type MessageToParent =
+  | Exclude<MessageFromIframe, CurrentStateMessage>
+  | (Omit<CurrentStateMessage, "data"> & {
+      data: CurrentStateMessageData
+    })
 
-export interface BrowserSubmission {
+export type CurrentStateMessageData =
+  | { private_spec: PrivateSpec | UserAnswer }
+  | { public_spec: PublicSpec }
+
+export type UserAnswer = BrowserAnswer | EditorAnswer
+
+export interface BrowserAnswer {
   type: "browser"
-  files: Array<[string, string]>
+  files: Array<ExerciseFile>
 }
 
-export interface EditorSubmission {
+export interface EditorAnswer {
   type: "editor"
   archiveDownloadUrl: string
 }
@@ -77,18 +87,6 @@ export interface EditorExerciseModelSolutionSpec {
 }
 
 export interface ExerciseFile {
-  fileName: string
-  fileContents: string
-}
-
-export type UserAnswer = BrowserExerciseUserAnswer | EditorExerciseUserAnswer
-
-export interface BrowserExerciseUserAnswer {
-  type: "browser"
-  fileContents: string
-}
-
-export interface EditorExerciseUserAnswer {
-  type: "editor"
-  answerFiles: [ExerciseFile]
+  filepath: string
+  contents: string
 }

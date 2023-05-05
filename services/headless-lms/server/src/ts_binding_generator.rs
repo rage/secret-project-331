@@ -49,35 +49,31 @@ fn models(target: &mut File) {
         chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
+        course_background_question_answers::CourseBackgroundQuestionAnswer,
+        course_background_question_answers::NewCourseBackgroundQuestionAnswer,
+        course_background_questions::CourseBackgroundQuestion,
+        course_background_questions::CourseBackgroundQuestionType,
+        course_background_questions::CourseBackgroundQuestionsAndAnswers,
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::ChapterScore,
         course_instances::CourseInstance,
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
-
-        course_background_question_answers::CourseBackgroundQuestionAnswer,
-        course_background_question_answers::NewCourseBackgroundQuestionAnswer,
-
-        course_background_questions::CourseBackgroundQuestionsAndAnswers,
-        course_background_questions::CourseBackgroundQuestion,
-        course_background_questions::CourseBackgroundQuestionType,
-
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
-
         course_modules::AutomaticCompletionRequirements,
         course_modules::CompletionPolicy,
         course_modules::CourseModule,
-        course_modules::NewCourseModule,
         course_modules::ModifiedModule,
         course_modules::ModuleUpdates,
+        course_modules::NewCourseModule,
         course_modules::NewModule,
-
         courses::Course,
         courses::CourseCount,
         courses::CourseStructure,
         courses::CourseUpdate,
         courses::NewCourse,
+        courses::CourseBreadcrumbInfo,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
@@ -103,13 +99,13 @@ fn models(target: &mut File) {
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
+        exercise_task_submissions::PeerReviewsRecieved,
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_task_gradings::UserPointsUpdateStrategy,
         exercise_task_submissions::ExerciseTaskSubmission,
-        exercise_task_submissions::PeerReviewsRecieved,
         exercise_tasks::CourseMaterialExerciseTask,
         exercise_tasks::ExerciseTask,
         exercises::ActivityProgress,
@@ -177,19 +173,19 @@ fn models(target: &mut File) {
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
-        peer_review_configs::CourseMaterialPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfiguration,
+        peer_review_configs::CourseMaterialPeerReviewConfig,
         peer_review_configs::PeerReviewAcceptingStrategy,
         peer_review_configs::PeerReviewConfig,
-        peer_review_questions::CmsPeerReviewQuestion,
-        peer_review_questions::PeerReviewQuestion,
-        peer_review_questions::PeerReviewQuestionType,
         peer_review_question_submissions::PeerReviewAnswer,
         peer_review_question_submissions::PeerReviewQuestionAndAnswer,
         peer_review_question_submissions::PeerReviewQuestionSubmission,
         peer_review_queue_entries::PeerReviewQueueEntry,
         peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
+        peer_review_questions::CmsPeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestionType,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -202,6 +198,7 @@ fn models(target: &mut File) {
         proposed_page_edits::NewProposedPageEdits,
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
+        page_audio_files::PageAudioFile,
 
         regradings::NewRegrading,
         regradings::Regrading,
@@ -217,15 +214,15 @@ fn models(target: &mut File) {
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,
 
+        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
         user_course_settings::UserCourseSettings,
+        user_details::UserDetail,
         user_exercise_states::ExerciseUserCounts,
         user_exercise_states::ReviewingStage,
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
-
-        user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     };
 }
 
@@ -257,11 +254,12 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            course_instances::SaveCourseSettingsPayload,
             courses::ChaptersWithStatus,
             courses::CourseMaterialCourseModule,
             exams::ExamData,
             exams::ExamEnrollmentData,
-            course_instances::SaveCourseSettingsPayload,
+            exercises::CourseMaterialPeerReviewDataWithToken
         };
     }
 
@@ -276,6 +274,7 @@ fn controllers(target: &mut File) {
             exercise_repositories::NewExerciseRepository,
             exercises::ExerciseSubmissions,
             feedback::MarkAsRead,
+            playground_views::PlaygroundViewsMessage,
             proposed_edits::GetEditProposalsQuery,
             roles::RoleQuery,
         };

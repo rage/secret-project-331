@@ -104,6 +104,28 @@ WHERE prs.exercise_slide_submission_id = $1
     Ok(res)
 }
 
+pub async fn get_question_submissions_from_from_peer_review_submission_ids(
+    conn: &mut PgConnection,
+    peer_review_submission_ids: &[Uuid],
+) -> ModelResult<Vec<PeerReviewQuestionSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewQuestionSubmission,
+        "
+SELECT *
+FROM peer_review_question_submissions
+WHERE peer_review_submission_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL
+            ",
+        peer_review_submission_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(res)
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "type", rename_all = "kebab-case")]

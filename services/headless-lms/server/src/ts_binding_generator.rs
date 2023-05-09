@@ -112,9 +112,7 @@ fn models(target: &mut File) {
         exercises::CourseMaterialExercise,
         exercises::Exercise,
         exercises::ExerciseStatus,
-        exercises::ExerciseDataForUser,
-        exercises::PeerReviewDataForUser,
-        exercises::PeerReviewDataForSubmission,
+        exercises::ExerciseStatusSummary,
 
         exercises::ExerciseGradingStatus,
         exercises::GradingProgress,
@@ -178,6 +176,7 @@ fn models(target: &mut File) {
         peer_review_configs::CourseMaterialPeerReviewConfig,
         peer_review_configs::PeerReviewAcceptingStrategy,
         peer_review_configs::PeerReviewConfig,
+        peer_review_submissions::PeerReviewSubmission,
         peer_review_question_submissions::PeerReviewAnswer,
         peer_review_question_submissions::PeerReviewQuestionAndAnswer,
         peer_review_question_submissions::PeerReviewQuestionSubmission,

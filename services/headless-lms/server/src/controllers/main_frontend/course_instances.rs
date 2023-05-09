@@ -5,7 +5,7 @@ use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
-    exercises::{ExerciseDataForUser, PeerReviewDataForSubmission, PeerReviewDataForUser, ExerciseStatusSummary},
+    exercises::ExerciseStatusSummary,
     library::{
         self,
         progressing::{
@@ -13,9 +13,7 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
-    peer_review_queue_entries::{
-        try_to_get_all_by_user_and_course_instance_ids, PeerReviewQueueEntry,
-    }, user_exercise_states::CourseInstanceOrExamId,
+    user_exercise_states::CourseInstanceOrExamId,
 };
 
 use crate::{
@@ -337,153 +335,105 @@ pub async fn completions_export(
 GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
 */
 #[instrument(skip(pool))]
+#[generated_doc]
 async fn get_all_exercise_statuses_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ExerciseDataForUser>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::CourseInstance(params.0),
-    )
-    .await?;
-    let exercises =
-        models::exercises::get_exercises_by_course_instance_id(&mut conn, params.0).await?;
-    let given_peer_review_data =
-        models::exercises::get_given_peer_review_data_for_exercise_by_course_instance_id(
-            &mut conn, params.0, params.1,
-        )
-        .await?;
-
-    let received_peer_review_data =
-        models::exercises::get_received_peer_review_data_for_exercise_by_course_instance_id(
-            &mut conn, params.0, params.1,
-        )
-        .await?;
-
-    let user_exercise_grading_statuses =
-        models::exercises::get_exercise_submissions_and_status_by_course_instance_id(
-            &mut conn, params.0, params.1,
-        )
-        .await?;
-
-    let peer_review_queue_entries =
-        try_to_get_all_by_user_and_course_instance_ids(&mut conn, params.0, params.1)
-            .await?
-            .unwrap_or_default();
-
-    let mut exercise_and_peer_review_data: Vec<ExerciseDataForUser> = vec![];
-    for exercise in exercises {
-        let given_peer_reviews_for_this_exercise = given_peer_review_data
-            .iter()
-            .filter(|&x| x.id == exercise.id)
-            .collect::<Vec<_>>();
-        let received_peer_reviews_for_this_exercise = received_peer_review_data
-            .iter()
-            .filter(|&x| x.id == exercise.id)
-            .collect::<Vec<_>>();
-
-        let mut temp_given_peer_review: Vec<PeerReviewDataForSubmission> = vec![];
-        let mut temp_given_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
-        for given_review in &given_peer_review_data {
-            if !temp_given_peer_review_by_submission.is_empty()
-                && given_review.peer_review_submission_id
-                    != temp_given_peer_review_by_submission
-                        .last()
-                        .ok_or_else(|| {
-                            ControllerError::new(ControllerErrorType::InternalServerError, "No last element".to_string(), None)
-                        })?
-                        .peer_review_submission_id
-            {
-                let data = PeerReviewDataForSubmission {
-                    peer_review_submission_id: temp_given_peer_review_by_submission[0]
-                        .peer_review_submission_id,
-                    data: temp_given_peer_review_by_submission.clone(),
-                    exercise_slide_submission_being_peer_reviewed_id: temp_given_peer_review_by_submission[0].,
-                };
-                temp_given_peer_review.push(data.clone());
-                temp_given_peer_review_by_submission.truncate(0);
-            } else if given_review.id == exercise.id {
-                temp_given_peer_review_by_submission.push(given_review.clone())
-            }
-        }
-
-        let mut temp_received_peer_review: Vec<PeerReviewDataForSubmission> = vec![];
-        let mut temp_received_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
-        for received_review in &received_peer_review_data {
-            if !temp_received_peer_review_by_submission.is_empty()
-                && received_review.peer_review_submission_id
-                    != temp_received_peer_review_by_submission
-                        .last()
-                        .unwrap()
-                        .peer_review_submission_id
-            {
-                let data = PeerReviewDataForSubmission {
-                    peer_review_submission_id: temp_received_peer_review_by_submission[0]
-                        .peer_review_submission_id,
-                        exercise_slide_submission_being_peer_reviewed_id: todo!(),
-                    data: temp_received_peer_review_by_submission.clone(),
-                };
-                temp_received_peer_review.push(data.clone());
-                temp_received_peer_review_by_submission.truncate(0)
-            }
-            if received_review.id == exercise.id {
-                temp_received_peer_review_by_submission.push(received_review.clone())
-            }
-        }
-        let mut temp_submission_id = vec![];
-        for submission_ids in &user_exercise_grading_statuses {
-            if submission_ids.exercise_id == exercise.id {
-                temp_submission_id.push(submission_ids.clone())
-            }
-        }
-        let mut temp_peer_review_queue_entry: Option<PeerReviewQueueEntry> = None;
-        if !peer_review_queue_entries.is_empty() {
-            for queue_entry in &peer_review_queue_entries {
-                if queue_entry.exercise_id == exercise.id {
-                    temp_peer_review_queue_entry = Some(queue_entry.clone())
-                }
-            }
-        }
-        let exercise_status = ExerciseDataForUser {
-            exercise_points: exercise,
-            given_peer_review_data: temp_given_peer_review,
-            received_peer_review_data: temp_received_peer_review,
-            submission_ids: temp_submission_id,
-            peer_review_queue_entry: temp_peer_review_queue_entry,
-        };
-        exercise_and_peer_review_data.push(exercise_status)
-    }
-
-    token.authorized_ok(web::Json(exercise_and_peer_review_data))
-}
-
-/**
-GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
-*/
-#[instrument(skip(pool))]
-async fn get_all_exercise_statuses_by_course_instance_id2(
-    params: web::Path<(Uuid, Uuid)>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseStatusSummary>>> {
+    let (course_instance_id, user_id) = params.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::CourseInstance(params.0),
+        Res::CourseInstance(course_instance_id),
     )
     .await?;
-    let (course_instance_id, user_id) = params.into_inner();
-    let course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(Some(course_instance_id), None)?;
+    let course_instance_or_exam_id =
+        CourseInstanceOrExamId::from_instance_and_exam_ids(Some(course_instance_id), None)?;
+
+    // Load all the data for this user from all the exercises to memory
     let exercises =
-        models::exercises::get_exercises_by_course_instance_id(&mut conn, course_instance_id).await?;
-    let user_exercise_states = models::user_exercise_states::get_all_for_user_and_course_instance_or_exam(&mut *conn, user_id, course_instance_or_exam_id).await?;
-    todo!()
+        models::exercises::get_exercises_by_course_instance_id(&mut conn, course_instance_id)
+            .await?;
+    let user_exercise_states =
+        models::user_exercise_states::get_all_for_user_and_course_instance_or_exam(
+            &mut *conn,
+            user_id,
+            course_instance_or_exam_id,
+        )
+        .await?;
+    let exercise_slide_submissions =
+        models::exercise_slide_submissions::get_users_all_submissions_for_course_instance_or_exam(
+            &mut *conn,
+            user_id,
+            course_instance_or_exam_id,
+        )
+        .await?;
+    let given_peer_review_submissions = models::peer_review_submissions::get_all_given_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?;
+    let received_peer_review_submissions = models::peer_review_submissions::get_all_received_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?;
+    let given_peer_review_question_submissions = models::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, given_peer_review_submissions.iter().map(|x| x.id).collect::<Vec<_>>().as_slice()).await?;
+    let received_peer_review_question_submissions = models::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, received_peer_review_submissions.iter().map(|x| x.id).collect::<Vec<_>>().as_slice()).await?;
+    let peer_review_queue_entries =
+        models::peer_review_queue_entries::get_all_by_user_and_course_instance_ids(
+            &mut conn,
+            course_instance_id,
+            user_id,
+        )
+        .await?;
+
+    // Map all the data for all the exercises to be summaries of the data for each exercise
+    let res = exercises
+        .into_iter()
+        .map(|exercise| {
+            let user_exercise_state = user_exercise_states
+                .iter()
+                .find(|x| x.exercise_id == exercise.id)
+                .cloned();
+            let exercise_slide_submissions = exercise_slide_submissions
+                .iter()
+                .filter(|x| x.exercise_id == exercise.id)
+                .cloned()
+                .collect::<Vec<_>>();
+            let given_peer_review_submissions = given_peer_review_submissions
+                .iter()
+                .filter(|x| x.exercise_id == exercise.id)
+                .cloned()
+                .collect::<Vec<_>>();
+            let received_peer_review_submissions = received_peer_review_submissions
+                .iter()
+                .filter(|x| x.exercise_id == exercise.id)
+                .cloned()
+                .collect::<Vec<_>>();
+            let given_peer_review_question_submissions = given_peer_review_question_submissions
+                .iter()
+                .filter(|x| x.peer_review_submission_id == exercise.id)
+                .cloned()
+                .collect::<Vec<_>>();
+            let received_peer_review_question_submissions =
+                received_peer_review_question_submissions
+                    .iter()
+                    .filter(|x| x.peer_review_submission_id == exercise.id)
+                    .cloned()
+                    .collect::<Vec<_>>();
+            let peer_review_queue_entry = peer_review_queue_entries
+                .iter()
+                .find(|x| x.exercise_id == exercise.id)
+                .cloned();
+            ExerciseStatusSummary {
+                exercise,
+                user_exercise_state,
+                exercise_slide_submissions,
+                given_peer_review_submissions,
+                received_peer_review_submissions,
+                given_peer_review_question_submissions,
+                received_peer_review_question_submissions,
+                peer_review_queue_entry,
+            }
+        })
+        .collect::<Vec<_>>();
+    token.authorized_ok(web::Json(res))
 }
 
 /**

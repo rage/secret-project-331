@@ -71,40 +71,6 @@ pub struct ExerciseGradingStatus {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewDataForUser {
-    pub id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub name: String,
-    pub text_data: Option<String>,
-    pub number_data: Option<f32>,
-    pub pr_submission_id: Uuid,
-    pub question: String,
-    pub reviewer: Uuid,
-    pub peer_review_submission_id: Uuid,
-}
-
-/** Groups  */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewDataForSubmission {
-    pub peer_review_submission_id: Uuid,
-    pub exercise_slide_submission_being_peer_reviewed_id: Uuid,
-    pub data: Vec<PeerReviewDataForUser>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExerciseDataForUser {
-    pub exercise_points: Exercise,
-    pub given_peer_review_data: Vec<PeerReviewDataForSubmission>,
-    pub received_peer_review_data: Vec<PeerReviewDataForSubmission>,
-    pub submission_ids: Vec<ExerciseGradingStatus>,
-    pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatusSummary {
     pub exercise: Exercise,
     pub user_exercise_state: Option<UserExerciseState>,
@@ -367,89 +333,6 @@ pub async fn get_exercise_submissions_and_status_by_course_instance_id(
     .fetch_all(conn)
     .await?;
     Ok(exercises)
-}
-
-pub async fn get_given_peer_review_data_for_exercise_by_course_instance_id(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-    user_id: Uuid,
-) -> ModelResult<Vec<PeerReviewDataForUser>> {
-    let peer_review_data = sqlx::query_as!(
-        PeerReviewDataForUser,
-        r#"
-        SELECT
-        e.id,
-        e.created_at,
-        e.updated_at,
-        e.name,
-        prqs.id AS pr_submission_id,
-        prqs.peer_review_submission_id,
-        prqs.text_data,
-        prqs.number_data,
-        prq.question,
-        prs.user_id as reviewer
-        FROM exercises e
-        LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
-        LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id
-        LEFT JOIN peer_review_questions prq on prqs.peer_review_question_id = prq.id
-        WHERE e.course_id = (
-            SELECT course_id
-            FROM course_instances
-            WHERE id = $1
-          )
-          AND e.deleted_at IS NULL
-          AND prs.user_id = $2
-        ORDER BY e.order_number ASC;
-"#,
-        course_instance_id,
-        user_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(peer_review_data)
-}
-
-pub async fn get_received_peer_review_data_for_exercise_by_course_instance_id(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-    user_id: Uuid,
-) -> ModelResult<Vec<PeerReviewDataForUser>> {
-    let peer_review_data = sqlx::query_as!(
-        PeerReviewDataForUser,
-        r#"
-        SELECT
-        e.id,
-        e.created_at,
-        e.updated_at,
-        e.name,
-        prqs.id AS pr_submission_id,
-        prqs.peer_review_submission_id,
-        prqs.text_data,
-        prqs.number_data,
-        prq.question,
-        prs.user_id as reviewer
-        FROM exercises e
-        LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id
-        LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id
-        LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id
-        LEFT JOIN peer_review_questions prq on prqs.peer_review_question_id = prq.id
-        WHERE e.course_id = (
-            SELECT course_id
-            FROM course_instances
-            WHERE id = $1
-          )
-          AND e.deleted_at IS NULL
-          AND prqs.peer_review_submission_id = prs.id
-          AND ess.id = prs.exercise_slide_submission_id
-            AND ess.user_id = $2
-        ORDER BY e.order_number ASC;
-"#,
-        course_instance_id,
-        user_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(peer_review_data)
 }
 
 pub async fn get_exercises_by_chapter_id(

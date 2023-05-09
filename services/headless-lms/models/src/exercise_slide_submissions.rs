@@ -319,13 +319,13 @@ SELECT id,
   user_id,
   user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
-WHERE exercise_id = $1
+WHERE user_id = $1
+  AND (course_instance_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
-LIMIT $2 OFFSET $3;
         "#,
-        exercise_id,
-        pagination.limit(),
-        pagination.offset(),
+        user_id,
+        course_instance_id,
+        exam_id,
     )
     .fetch_all(conn)
     .await?;

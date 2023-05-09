@@ -692,30 +692,15 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
-export interface ExerciseDataForUser {
-  exercise_points: Exercise
-  given_peer_review_data: Array<PeerReviewDataForSubmission>
-  received_peer_review_data: Array<PeerReviewDataForSubmission>
-  submission_ids: Array<ExerciseGradingStatus>
+export interface ExerciseStatusSummary {
+  exercise: Exercise
+  user_exercise_state: UserExerciseState | null
+  exercise_slide_submissions: Array<ExerciseSlideSubmission>
+  given_peer_review_submissions: Array<PeerReviewSubmission>
+  given_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  received_peer_review_submissions: Array<PeerReviewSubmission>
+  received_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
   peer_review_queue_entry: PeerReviewQueueEntry | null
-}
-
-export interface PeerReviewDataForUser {
-  id: string
-  created_at: Date
-  updated_at: Date
-  name: string
-  text_data: string | null
-  number_data: number | null
-  pr_submission_id: string
-  question: string
-  reviewer: string
-  peer_review_submission_id: string
-}
-
-export interface PeerReviewDataForSubmission {
-  submission_id: string
-  data: Array<PeerReviewDataForUser>
 }
 
 export interface ExerciseGradingStatus {
@@ -1164,6 +1149,18 @@ export interface PeerReviewConfig {
   peer_reviews_to_receive: number
   accepting_threshold: number
   accepting_strategy: PeerReviewAcceptingStrategy
+}
+
+export interface PeerReviewSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  exercise_id: string
+  course_instance_id: string
+  peer_review_config_id: string
+  exercise_slide_submission_id: string
 }
 
 export type PeerReviewAnswer =

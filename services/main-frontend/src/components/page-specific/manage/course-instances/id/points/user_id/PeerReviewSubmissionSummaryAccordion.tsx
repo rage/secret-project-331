@@ -3,12 +3,16 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { PeerReviewDataForSubmission } from "../../../../../../../shared-module/bindings"
+import {
+  PeerReviewQuestionSubmission,
+  PeerReviewSubmission,
+} from "../../../../../../../shared-module/bindings"
 import Accordion from "../../../../../../../shared-module/components/Accordion"
 import { baseTheme } from "../../../../../../../shared-module/styles"
 
 export interface PeerReviewSubmissionSummaryAccordionProps {
-  peerReviewSubmission: PeerReviewDataForSubmission
+  peerReviewSubmission: PeerReviewSubmission
+  peerReviewQuestionSubmissions: PeerReviewQuestionSubmission[]
   submissionBeingreviewedId?: string
 }
 
@@ -18,6 +22,7 @@ const PeerReviewDiv = styled.div`
 
 const PeerReviewSubmissionSummaryAccordion = ({
   peerReviewSubmission,
+  peerReviewQuestionSubmissions,
   submissionBeingreviewedId,
 }: PeerReviewSubmissionSummaryAccordionProps) => {
   const { t } = useTranslation()
@@ -30,7 +35,7 @@ const PeerReviewSubmissionSummaryAccordion = ({
       <Accordion variant="detail">
         <details>
           <summary>
-            {t("peer-review-submission-id")}: {peerReviewSubmission.submission_id}
+            {t("peer-review-submission-id")}: {peerReviewSubmission.id}
           </summary>
           {submissionBeingreviewedId && (
             <PeerReviewDiv>
@@ -45,11 +50,11 @@ const PeerReviewSubmissionSummaryAccordion = ({
               </Link>
             </PeerReviewDiv>
           )}
-          {peerReviewSubmission.data.map((test) => (
-            <PeerReviewDiv key={test.pr_submission_id}>
+          {peerReviewQuestionSubmissions.map((prqs) => (
+            <PeerReviewDiv key={prqs.id}>
               <p>
-                {t("question")}: {test.question}{" "}
-                {test.number_data !== null && (
+                {t("question")}: {prqs.question}{" "}
+                {prqs.number_data !== null && (
                   <span
                     className={css`
                       background-color: ${baseTheme.colors.clear[100]};
@@ -57,12 +62,12 @@ const PeerReviewSubmissionSummaryAccordion = ({
                       white-space: pre;
                     `}
                   >
-                    {test.number_data}
+                    {prqs.number_data}
                   </span>
                 )}
               </p>
 
-              {test.text_data !== null && (
+              {prqs.text_data !== null && (
                 <div
                   className={css`
                     background-color: ${baseTheme.colors.clear[100]};
@@ -70,7 +75,7 @@ const PeerReviewSubmissionSummaryAccordion = ({
                     white-space: pre;
                   `}
                 >
-                  {test.text_data}
+                  {prqs.text_data}
                 </div>
               )}
             </PeerReviewDiv>

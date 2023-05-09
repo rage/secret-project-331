@@ -120,11 +120,14 @@ use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
+    exercises::ExerciseStatusSummary,
     page_audio_files::PageAudioFile,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
     },
+    peer_review_queue_entries::PeerReviewQueueEntry,
+    peer_review_submissions::PeerReviewSubmission,
     user_details::UserDetail,
 };
 use serde::Serialize;
@@ -1467,6 +1470,45 @@ fn models() {
             deleted_at,
             path: "/path/to/file".to_string(),
             mime_type: "audio/ogg".to_string(),
+        }
+    );
+    doc!(PeerReviewSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        peer_review_config_id,
+        exercise_slide_submission_id,
+    });
+
+    doc!(PeerReviewQueueEntry {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        received_enough_peer_reviews,
+        peer_review_priority,
+        removed_from_queue_for_unusual_reason,
+    });
+
+    doc!(
+        Vec,
+        ExerciseStatusSummary {
+            exercise,
+            user_exercise_state,
+            exercise_slide_submissions,
+            given_peer_review_submissions,
+            received_peer_review_submissions,
+            given_peer_review_question_submissions,
+            received_peer_review_question_submissions,
+            peer_review_queue_entry,
         }
     );
 }

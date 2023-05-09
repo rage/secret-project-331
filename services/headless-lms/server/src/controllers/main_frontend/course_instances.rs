@@ -5,7 +5,7 @@ use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
-    exercises::{ExerciseDataForUser, PeerReviewDataForSubmission, PeerReviewDataForUser},
+    exercises::{ExerciseDataForUser, PeerReviewDataForSubmission, PeerReviewDataForUser, ExerciseStatusSummary},
     library::{
         self,
         progressing::{
@@ -15,7 +15,7 @@ use models::{
     },
     peer_review_queue_entries::{
         try_to_get_all_by_user_and_course_instance_ids, PeerReviewQueueEntry,
-    },
+    }, user_exercise_states::CourseInstanceOrExamId,
 };
 
 use crate::{
@@ -332,11 +332,12 @@ pub async fn completions_export(
     )
     .await
 }
+
 /**
-GET /course-instances/:id/exercise-status/:user_id
+GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
 */
 #[instrument(skip(pool))]
-async fn get_exercise_status_by_course_instance_id(
+async fn get_all_exercise_statuses_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -363,7 +364,7 @@ async fn get_exercise_status_by_course_instance_id(
         )
         .await?;
 
-    let submission_id_list =
+    let user_exercise_grading_statuses =
         models::exercises::get_exercise_submissions_and_status_by_course_instance_id(
             &mut conn, params.0, params.1,
         )
@@ -376,6 +377,15 @@ async fn get_exercise_status_by_course_instance_id(
 
     let mut exercise_and_peer_review_data: Vec<ExerciseDataForUser> = vec![];
     for exercise in exercises {
+        let given_peer_reviews_for_this_exercise = given_peer_review_data
+            .iter()
+            .filter(|&x| x.id == exercise.id)
+            .collect::<Vec<_>>();
+        let received_peer_reviews_for_this_exercise = received_peer_review_data
+            .iter()
+            .filter(|&x| x.id == exercise.id)
+            .collect::<Vec<_>>();
+
         let mut temp_given_peer_review: Vec<PeerReviewDataForSubmission> = vec![];
         let mut temp_given_peer_review_by_submission: Vec<PeerReviewDataForUser> = vec![];
         for given_review in &given_peer_review_data {
@@ -383,13 +393,16 @@ async fn get_exercise_status_by_course_instance_id(
                 && given_review.peer_review_submission_id
                     != temp_given_peer_review_by_submission
                         .last()
-                        .unwrap()
+                        .ok_or_else(|| {
+                            ControllerError::new(ControllerErrorType::InternalServerError, "No last element".to_string(), None)
+                        })?
                         .peer_review_submission_id
             {
                 let data = PeerReviewDataForSubmission {
-                    submission_id: temp_given_peer_review_by_submission[0]
+                    peer_review_submission_id: temp_given_peer_review_by_submission[0]
                         .peer_review_submission_id,
                     data: temp_given_peer_review_by_submission.clone(),
+                    exercise_slide_submission_being_peer_reviewed_id: temp_given_peer_review_by_submission[0].,
                 };
                 temp_given_peer_review.push(data.clone());
                 temp_given_peer_review_by_submission.truncate(0);
@@ -409,8 +422,9 @@ async fn get_exercise_status_by_course_instance_id(
                         .peer_review_submission_id
             {
                 let data = PeerReviewDataForSubmission {
-                    submission_id: temp_received_peer_review_by_submission[0]
+                    peer_review_submission_id: temp_received_peer_review_by_submission[0]
                         .peer_review_submission_id,
+                        exercise_slide_submission_being_peer_reviewed_id: todo!(),
                     data: temp_received_peer_review_by_submission.clone(),
                 };
                 temp_received_peer_review.push(data.clone());
@@ -421,7 +435,7 @@ async fn get_exercise_status_by_course_instance_id(
             }
         }
         let mut temp_submission_id = vec![];
-        for submission_ids in &submission_id_list {
+        for submission_ids in &user_exercise_grading_statuses {
             if submission_ids.exercise_id == exercise.id {
                 temp_submission_id.push(submission_ids.clone())
             }
@@ -445,6 +459,31 @@ async fn get_exercise_status_by_course_instance_id(
     }
 
     token.authorized_ok(web::Json(exercise_and_peer_review_data))
+}
+
+/**
+GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
+*/
+#[instrument(skip(pool))]
+async fn get_all_exercise_statuses_by_course_instance_id2(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseStatusSummary>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(params.0),
+    )
+    .await?;
+    let (course_instance_id, user_id) = params.into_inner();
+    let course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(Some(course_instance_id), None)?;
+    let exercises =
+        models::exercises::get_exercises_by_course_instance_id(&mut conn, course_instance_id).await?;
+    let user_exercise_states = models::user_exercise_states::get_all_for_user_and_course_instance_or_exam(&mut *conn, user_id, course_instance_or_exam_id).await?;
+    todo!()
 }
 
 /**
@@ -488,8 +527,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(
-            "/{course_instance_id}/exercise-status/{user_id}",
-            web::get().to(get_exercise_status_by_course_instance_id),
+            "/{course_instance_id}/status-for-all-exercises/{user_id}",
+            web::get().to(get_all_exercise_statuses_by_course_instance_id),
         )
         .route(
             "/{course_instance_id}/reprocess-completions",

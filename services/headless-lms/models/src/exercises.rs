@@ -10,7 +10,9 @@ use crate::{
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
+    peer_review_submissions::PeerReviewSubmission,
     prelude::*,
     teacher_grading_decisions::TeacherDecisionType,
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
@@ -43,6 +45,18 @@ pub struct Exercise {
     pub exercise_language_group_id: Option<Uuid>,
 }
 
+impl Exercise {
+    pub fn get_course_id(&self) -> ModelResult<Uuid> {
+        self.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Exercise is not related to a course.".to_string(),
+                None,
+            )
+        })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseGradingStatus {
@@ -70,10 +84,12 @@ pub struct PeerReviewDataForUser {
     pub peer_review_submission_id: Uuid,
 }
 
+/** Groups  */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewDataForSubmission {
-    pub submission_id: Uuid,
+    pub peer_review_submission_id: Uuid,
+    pub exercise_slide_submission_being_peer_reviewed_id: Uuid,
     pub data: Vec<PeerReviewDataForUser>,
 }
 
@@ -87,16 +103,17 @@ pub struct ExerciseDataForUser {
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
 }
 
-impl Exercise {
-    pub fn get_course_id(&self) -> ModelResult<Uuid> {
-        self.course_id.ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::Generic,
-                "Exercise is not related to a course.".to_string(),
-                None,
-            )
-        })
-    }
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseStatusSummary {
+    pub exercise: Exercise,
+    pub user_exercise_state: Option<UserExerciseState>,
+    pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,
+    pub given_peer_review_submissions: Vec<PeerReviewSubmission>,
+    pub given_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub received_peer_review_submissions: Vec<PeerReviewSubmission>,
+    pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

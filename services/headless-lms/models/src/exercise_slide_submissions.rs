@@ -298,6 +298,40 @@ LIMIT $2 OFFSET $3;
     Ok(submissions)
 }
 
+pub async fn get_users_all_submissions_for_course_instance_or_exam(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let (course_instance_id, exam_id) = course_instance_id_or_exam_id.to_instance_and_exam_ids();
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2 OFFSET $3;
+        "#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_id: Uuid,

@@ -110,7 +110,7 @@ export const getAllExerciseStatuses = async (
   userId: string,
 ): Promise<ExerciseDataForUser[]> => {
   const response = await mainFrontendClient.get(
-    `/course-instances/${courseInstanceId}/exercise-status/${userId}`,
+    `/course-instances/${courseInstanceId}/status-for-all-exercises/${userId}`,
     {
       responseType: "json",
     },

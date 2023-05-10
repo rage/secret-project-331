@@ -128,6 +128,7 @@ use headless_lms_models::{
     },
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
+    teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
 };
 use serde::Serialize;
@@ -1497,6 +1498,15 @@ fn models() {
         peer_review_priority,
         removed_from_queue_for_unusual_reason,
     });
+    doc!(TeacherGradingDecision {
+        id,
+        user_exercise_state_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        score_given: 3.0,
+        teacher_decision: TeacherDecisionType::CustomPoints,
+    });
 
     doc!(
         Vec,
@@ -1509,6 +1519,7 @@ fn models() {
             given_peer_review_question_submissions,
             received_peer_review_question_submissions,
             peer_review_queue_entry,
+            teacher_grading_decision,
         }
     );
 }

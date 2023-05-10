@@ -7,4 +7,5 @@ type Vec<ExerciseStatusSummaryForUser> = Array<{
   received_peer_review_submissions: Array<PeerReviewSubmission>
   received_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
   peer_review_queue_entry: PeerReviewQueueEntry | null
+  teacher_grading_decision: TeacherGradingDecision | null
 }>

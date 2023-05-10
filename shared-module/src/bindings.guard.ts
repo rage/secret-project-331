@@ -1342,7 +1342,9 @@ export function isExerciseStatusSummaryForUser(obj: unknown): obj is ExerciseSta
       (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
     ) &&
     (typedObj["peer_review_queue_entry"] === null ||
-      (isPeerReviewQueueEntry(typedObj["peer_review_queue_entry"]) as boolean))
+      (isPeerReviewQueueEntry(typedObj["peer_review_queue_entry"]) as boolean)) &&
+    (typedObj["teacher_grading_decision"] === null ||
+      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean))
   )
 }
 

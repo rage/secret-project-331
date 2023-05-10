@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { groupBy } from "lodash"
 import Link from "next/link"
@@ -15,8 +14,6 @@ import Accordion from "../../../../../shared-module/components/Accordion"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../../shared-module/contexts/LoginStateContext"
-import { baseTheme } from "../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -31,10 +28,6 @@ const CourseInstanceExerciseStatusList: React.FC<
   React.PropsWithChildren<CourseInstancePointsListProps>
 > = ({ query }) => {
   const { t } = useTranslation()
-
-  const PeerReviewDiv = styled.div`
-    margin-bottom: 0.5rem;
-  `
 
   const exerciseStatusSummariesQuery = useQuery(
     [`${query.id}-status-for-all-exercises-${query.user_id}`],
@@ -115,11 +108,11 @@ const CourseInstanceExerciseStatusList: React.FC<
                         margin-bottom: 1rem;
                         ${userExerciseState === undefined &&
                         `opacity: 0.5;
-                cursor: not-allowed;
+                         cursor: not-allowed;
 
-                details summary {
-                  cursor: not-allowed;
-                }
+                         details summary {
+                           cursor: not-allowed;
+                         }
                 `}
                       `}
                     >
@@ -234,8 +227,11 @@ const CourseInstanceExerciseStatusList: React.FC<
                                         {exerciseStatus.received_peer_review_submissions.map(
                                           (received) => (
                                             <PeerReviewSubmissionSummaryAccordion
-                                              key={received.submission_id}
+                                              key={received.id}
                                               peerReviewSubmission={received}
+                                              peerReviewQuestionSubmissions={
+                                                received.peer_review_question_submissions
+                                              }
                                             />
                                           ),
                                         )}
@@ -243,20 +239,25 @@ const CourseInstanceExerciseStatusList: React.FC<
                                     ) : (
                                       <h3> {t("no-peer-reviews-received")} </h3>
                                     )}
-                                    {exerciseStatus.given_peer_review_data.length > 0 ? (
+                                    {exerciseStatus.given_peer_review_submissions.length > 0 ? (
                                       <>
                                         <h3>
                                           {t("peer-reviews-given")}: (
                                           {exerciseStatus.exercise_slide_submissions.length})
                                         </h3>
 
-                                        {exerciseStatus.given_peer_review_data.map((given) => (
-                                          <PeerReviewSubmissionSummaryAccordion
-                                            key={given.submission_id}
-                                            peerReviewSubmission={given}
-                                            submissionBeingreviewedId={given.submission_id}
-                                          />
-                                        ))}
+                                        {exerciseStatus.given_peer_review_submissions.map(
+                                          (given) => (
+                                            <PeerReviewSubmissionSummaryAccordion
+                                              key={given.submission_id}
+                                              peerReviewSubmission={given}
+                                              submissionBeingreviewedId={given.submission_id}
+                                              peerReviewQuestionSubmissions={
+                                                given.peer_review_question_submissions
+                                              }
+                                            />
+                                          ),
+                                        )}
                                       </>
                                     ) : (
                                       <h3> {t("no-peer-reviews-given")} </h3>

@@ -184,6 +184,59 @@
     },
     "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec;\n        "
   },
+  "01bb87c105475e3b694772edf92dee4bad62dabb109aceebb1124e1684b5ab04": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_exercise_state_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "score_given",
+          "ordinal": 5,
+          "type_info": "Float4"
+        },
+        {
+          "name": "teacher_decision: _",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              },
+              "name": "teacher_decision_type"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT DISTINCT ON (user_exercise_state_id)\n  id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\"\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id IN (\n    SELECT user_exercise_states.id\n    FROM user_exercise_states\n    WHERE user_exercise_states.user_id = $1\n      AND user_exercise_states.course_instance_id = $2\n      AND user_exercise_states.deleted_at IS NULL\n  )\n  AND deleted_at IS NULL\n  ORDER BY user_exercise_state_id, created_at DESC\n      "
+  },
   "02338a196bb57a6142b16723681fba35a8369b3487ed2464480540471c0eb9b5": {
     "describe": {
       "columns": [
@@ -4287,67 +4340,6 @@
     },
     "query": "\nSELECT user_id,\n  exam_id,\n  started_at\nFROM exam_enrollments\nWHERE exam_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n"
   },
-  "3d2fb50cafcebcc7ed1c4cac0f338dedc9a5601be31e0b038929201c3930d061": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "name",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "pr_submission_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_review_submission_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "text_data",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "number_data",
-          "ordinal": 7,
-          "type_info": "Float4"
-        },
-        {
-          "name": "question",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "reviewer",
-          "ordinal": 9,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, false, false, false, false, false, true, true, false, false],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\n        SELECT\n        e.id,\n        e.created_at,\n        e.updated_at,\n        e.name,\n        prqs.id AS pr_submission_id,\n        prqs.peer_review_submission_id,\n        prqs.text_data,\n        prqs.number_data,\n        prq.question,\n        prs.user_id as reviewer\n        FROM exercises e\n        LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id\n        LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id\n        LEFT JOIN peer_review_questions prq on prqs.peer_review_question_id = prq.id\n        WHERE e.course_id = (\n            SELECT course_id\n            FROM course_instances\n            WHERE id = $1\n          )\n          AND e.deleted_at IS NULL\n          AND prs.user_id = $2\n        ORDER BY e.order_number ASC;\n"
-  },
   "3dfdeb92c9da05c6b03789eefdb20cb433a82a8e72cd0d0d85eebe6eba92e7b0": {
     "describe": {
       "columns": [
@@ -5556,67 +5548,6 @@
       }
     },
     "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT ud.email,\n      u.id AS user_id,\n      c.chapter_number,\n      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN user_details ud ON ud.user_id = u.id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_instance_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY ud.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n"
-  },
-  "498b08f784d2c9830a028a478ffaceb6cb2a351a143c32b93534a1d569de3b7a": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "name",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "pr_submission_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_review_submission_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "text_data",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "number_data",
-          "ordinal": 7,
-          "type_info": "Float4"
-        },
-        {
-          "name": "question",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "reviewer",
-          "ordinal": 9,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, false, false, false, false, false, true, true, false, false],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\n        SELECT\n        e.id,\n        e.created_at,\n        e.updated_at,\n        e.name,\n        prqs.id AS pr_submission_id,\n        prqs.peer_review_submission_id,\n        prqs.text_data,\n        prqs.number_data,\n        prq.question,\n        prs.user_id as reviewer\n        FROM exercises e\n        LEFT JOIN peer_review_submissions prs on e.id = prs.exercise_id\n        LEFT JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id\n        LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id\n        LEFT JOIN peer_review_questions prq on prqs.peer_review_question_id = prq.id\n        WHERE e.course_id = (\n            SELECT course_id\n            FROM course_instances\n            WHERE id = $1\n          )\n          AND e.deleted_at IS NULL\n          AND prqs.peer_review_submission_id = prs.id\n          AND ess.id = prs.exercise_slide_submission_id\n            AND ess.user_id = $2\n        ORDER BY e.order_number ASC;\n"
   },
   "49fb36de200703e85a0cc8687d51bbfaa8d3c0303b9c09d0e5011b20926f9f24": {
     "describe": {

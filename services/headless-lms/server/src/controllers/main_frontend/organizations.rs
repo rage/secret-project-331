@@ -154,7 +154,6 @@ async fn set_organization_image(
         &mut conn,
     )
     .await?
-    .data
     .to_string_lossy()
     .to_string();
     let updated_organization = models::organizations::update_organization_image_path(

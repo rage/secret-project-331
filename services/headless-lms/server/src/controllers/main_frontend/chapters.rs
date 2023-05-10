@@ -178,7 +178,6 @@ async fn set_chapter_image(
         user,
     )
     .await?
-    .data
     .to_string_lossy()
     .to_string();
     let updated_chapter =

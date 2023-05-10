@@ -1344,7 +1344,9 @@ export function isExerciseStatusSummaryForUser(obj: unknown): obj is ExerciseSta
     (typedObj["peer_review_queue_entry"] === null ||
       (isPeerReviewQueueEntry(typedObj["peer_review_queue_entry"]) as boolean)) &&
     (typedObj["teacher_grading_decision"] === null ||
-      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean))
+      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)) &&
+    Array.isArray(typedObj["peer_review_questions"]) &&
+    typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean)
   )
 }
 

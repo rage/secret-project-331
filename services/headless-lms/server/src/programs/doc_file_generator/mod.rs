@@ -1485,7 +1485,7 @@ fn models() {
         exercise_slide_submission_id,
     });
 
-    doc!(PeerReviewQueueEntry {
+    example!(PeerReviewQueueEntry {
         id,
         created_at,
         updated_at,
@@ -1498,7 +1498,7 @@ fn models() {
         peer_review_priority,
         removed_from_queue_for_unusual_reason,
     });
-    doc!(TeacherGradingDecision {
+    example!(TeacherGradingDecision {
         id,
         user_exercise_state_id,
         created_at,
@@ -1520,6 +1520,7 @@ fn models() {
             received_peer_review_question_submissions,
             peer_review_queue_entry,
             teacher_grading_decision,
+            peer_review_questions
         }
     );
 }

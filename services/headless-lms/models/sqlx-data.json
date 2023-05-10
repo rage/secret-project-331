@@ -3058,6 +3058,69 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY random() ASC\n        "
   },
+  "271b045703fc15efe6cd32fae9e568d75b66d6f12c48f392dd981a8a322877d5": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "peer_review_config_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 5,
+          "type_info": "Int4"
+        },
+        {
+          "name": "question",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "question_type: _",
+          "ordinal": 7,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        },
+        {
+          "name": "answer_required",
+          "ordinal": 8,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false, false, false],
+      "parameters": {
+        "Left": ["UuidArray"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  peer_review_config_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required\nFROM peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n        "
+  },
   "2747949af670b45066518efe972a7a5a01580cf78d465361330c818aa6970788": {
     "describe": {
       "columns": [

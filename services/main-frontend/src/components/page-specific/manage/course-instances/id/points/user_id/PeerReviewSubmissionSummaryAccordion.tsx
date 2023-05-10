@@ -13,7 +13,7 @@ import { baseTheme } from "../../../../../../../shared-module/styles"
 export interface PeerReviewSubmissionSummaryAccordionProps {
   peerReviewSubmission: PeerReviewSubmission
   peerReviewQuestionSubmissions: PeerReviewQuestionSubmission[]
-  submissionBeingreviewedId?: string
+  showSubmissionBeingReviewed?: boolean
 }
 
 const PeerReviewDiv = styled.div`
@@ -23,7 +23,7 @@ const PeerReviewDiv = styled.div`
 const PeerReviewSubmissionSummaryAccordion = ({
   peerReviewSubmission,
   peerReviewQuestionSubmissions,
-  submissionBeingreviewedId,
+  showSubmissionBeingReviewed,
 }: PeerReviewSubmissionSummaryAccordionProps) => {
   const { t } = useTranslation()
   return (
@@ -37,16 +37,16 @@ const PeerReviewSubmissionSummaryAccordion = ({
           <summary>
             {t("peer-review-submission-id")}: {peerReviewSubmission.id}
           </summary>
-          {submissionBeingreviewedId && (
+          {showSubmissionBeingReviewed && (
             <PeerReviewDiv>
               Submission being reviewed:{" "}
               <Link
                 href={{
                   pathname: "/submissions/[submissionId]",
-                  query: { submissionId: submissionBeingreviewedId },
+                  query: { submissionId: peerReviewSubmission.exercise_slide_submission_id },
                 }}
               >
-                {submissionBeingreviewedId}
+                {peerReviewSubmission.exercise_slide_submission_id}
               </Link>
             </PeerReviewDiv>
           )}

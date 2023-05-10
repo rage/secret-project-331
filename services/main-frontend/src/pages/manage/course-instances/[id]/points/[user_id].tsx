@@ -145,10 +145,11 @@ const CourseInstanceExerciseStatusList: React.FC<
                                       {t("score-given")}: {userExerciseState.score_given ?? 0}/
                                       {exerciseStatus.exercise.score_maximum}
                                     </p>
-                                    {userExerciseState.teacher_decision && (
+                                    {exerciseStatus.teacher_grading_decision && (
                                       <p>
                                         {t("teacher-has-graded-this-manually")} (
-                                        {userExerciseState.teacher_decision})
+                                        {exerciseStatus.teacher_grading_decision.teacher_decision}{" "}
+                                        {exerciseStatus.teacher_grading_decision.score_given})
                                       </p>
                                     )}
                                   </div>
@@ -225,15 +226,22 @@ const CourseInstanceExerciseStatusList: React.FC<
                                           {exerciseStatus.received_peer_review_submissions.length})
                                         </h3>
                                         {exerciseStatus.received_peer_review_submissions.map(
-                                          (received) => (
-                                            <PeerReviewSubmissionSummaryAccordion
-                                              key={received.id}
-                                              peerReviewSubmission={received}
-                                              peerReviewQuestionSubmissions={
-                                                received.peer_review_question_submissions
-                                              }
-                                            />
-                                          ),
+                                          (received) => {
+                                            const peerReviewQuestionSubmissions =
+                                              exerciseStatus.received_peer_review_question_submissions.filter(
+                                                (prqs) =>
+                                                  prqs.peer_review_submission_id === received.id,
+                                              )
+                                            return (
+                                              <PeerReviewSubmissionSummaryAccordion
+                                                key={received.id}
+                                                peerReviewSubmission={received}
+                                                peerReviewQuestionSubmissions={
+                                                  peerReviewQuestionSubmissions
+                                                }
+                                              />
+                                            )
+                                          },
                                         )}
                                       </>
                                     ) : (
@@ -247,16 +255,23 @@ const CourseInstanceExerciseStatusList: React.FC<
                                         </h3>
 
                                         {exerciseStatus.given_peer_review_submissions.map(
-                                          (given) => (
-                                            <PeerReviewSubmissionSummaryAccordion
-                                              key={given.submission_id}
-                                              peerReviewSubmission={given}
-                                              submissionBeingreviewedId={given.submission_id}
-                                              peerReviewQuestionSubmissions={
-                                                given.peer_review_question_submissions
-                                              }
-                                            />
-                                          ),
+                                          (given) => {
+                                            const peerReviewQuestionSubmissions =
+                                              exerciseStatus.given_peer_review_question_submissions.filter(
+                                                (prqs) =>
+                                                  prqs.peer_review_submission_id === given.id,
+                                              )
+                                            return (
+                                              <PeerReviewSubmissionSummaryAccordion
+                                                key={given.id}
+                                                peerReviewSubmission={given}
+                                                showSubmissionBeingReviewed
+                                                peerReviewQuestionSubmissions={
+                                                  peerReviewQuestionSubmissions
+                                                }
+                                              />
+                                            )
+                                          },
                                         )}
                                       </>
                                     ) : (

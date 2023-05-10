@@ -12,6 +12,7 @@ use crate::{
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::PeerReviewQuestion,
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
     prelude::*,
@@ -82,6 +83,7 @@ pub struct ExerciseStatusSummaryForUser {
     pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
+    pub peer_review_questions: Vec<PeerReviewQuestion>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -818,6 +820,13 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
             .find(|(_exercise_id, ues)|  ues.id == tgd.user_exercise_state_id)?;
         Some((user_exercise_state.0, tgd))
     }).collect::<HashMap<_, _>>();
+    let all_peer_review_question_ids = given_peer_review_question_submissions
+        .iter()
+        .chain(received_peer_review_question_submissions.iter())
+        .flat_map(|(_exercise_id, prqs)| prqs.iter().map(|p| p.peer_review_question_id))
+        .collect::<Vec<_>>();
+    let all_peer_review_questions =
+        crate::peer_review_questions::get_by_ids(&mut *conn, &all_peer_review_question_ids).await?;
 
     // Map all the data for all the exercises to be summaries of the data for each exercise.
     //
@@ -846,6 +855,16 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
                     .unwrap_or_default();
             let peer_review_queue_entry = peer_review_queue_entries.remove(&exercise.id);
             let teacher_grading_decision = teacher_grading_decisions.remove(&exercise.id);
+            let peer_review_question_ids = given_peer_review_question_submissions
+                .iter()
+                .chain(received_peer_review_question_submissions.iter())
+                .map(|prqs| prqs.peer_review_question_id)
+                .collect::<Vec<_>>();
+            let peer_review_questions = all_peer_review_questions
+                .iter()
+                .filter(|prq| peer_review_question_ids.contains(&prq.id))
+                .cloned()
+                .collect::<Vec<_>>();
             ExerciseStatusSummaryForUser {
                 exercise,
                 user_exercise_state,
@@ -856,6 +875,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
                 received_peer_review_question_submissions,
                 peer_review_queue_entry,
                 teacher_grading_decision,
+                peer_review_questions,
             }
         })
         .collect::<Vec<_>>();

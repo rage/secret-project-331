@@ -388,7 +388,6 @@
 <a href="#388" id="388">388</a>
 <a href="#389" id="389">389</a>
 <a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
 
 </span><span class="kw">use </span>std::{path::PathBuf, str::FromStr};
@@ -542,11 +541,10 @@ BINARY_DATA
         <span class="kw-2">&amp;</span>organization,
         <span class="kw-2">&amp;</span>file_store,
         user,
-        pool,
+        <span class="kw-2">&amp;mut </span>conn,
     )
     .<span class="kw">await</span><span class="question-mark">?
-    </span>.data
-    .to_string_lossy()
+    </span>.to_string_lossy()
     .to_string();
     <span class="kw">let </span>updated_organization = models::organizations::update_organization_image_path(
         <span class="kw-2">&amp;mut </span>conn,

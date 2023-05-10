@@ -141,11 +141,11 @@ BINARY_DATA
         payload,
         StoreKind::Exam(<span class="kw-2">*</span>exam_id),
         file_store.as_ref(),
-        pool,
+        <span class="kw-2">&amp;mut </span>conn,
         user,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>download_url = file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
+    <span class="kw">let </span>download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
     token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }

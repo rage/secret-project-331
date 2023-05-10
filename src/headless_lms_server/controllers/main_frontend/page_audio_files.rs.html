@@ -267,7 +267,7 @@ BINARY_DATA
             field,
             StoreKind::Course(course.id),
             file_store.as_ref(),
-            pool,
+            <span class="kw-2">&amp;mut </span>conn,
             user,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -275,7 +275,7 @@ BINARY_DATA
         models::page_audio_files::insert_page_audio(
             <span class="kw-2">&amp;mut </span>conn,
             page.id,
-            <span class="kw-2">&amp;</span>media_path.data.as_path().to_string_lossy(),
+            <span class="kw-2">&amp;</span>media_path.as_path().to_string_lossy(),
             <span class="kw-2">&amp;</span>mime_type,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;

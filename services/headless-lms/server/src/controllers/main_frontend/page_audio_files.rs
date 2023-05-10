@@ -79,7 +79,7 @@ async fn set_page_audio(
             field,
             StoreKind::Course(course.id),
             file_store.as_ref(),
-            pool,
+            &mut conn,
             user,
         )
         .await?;

@@ -151,7 +151,7 @@ async fn set_organization_image(
         &organization,
         &file_store,
         user,
-        pool,
+        &mut conn,
     )
     .await?
     .data

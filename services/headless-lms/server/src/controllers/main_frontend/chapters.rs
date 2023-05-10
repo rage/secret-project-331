@@ -174,7 +174,7 @@ async fn set_chapter_image(
         payload,
         StoreKind::Course(course.id),
         file_store.as_ref(),
-        pool,
+        &mut conn,
         user,
     )
     .await?

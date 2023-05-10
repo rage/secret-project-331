@@ -38,7 +38,7 @@ async fn add_media(
         payload,
         StoreKind::Course(course.id),
         file_store.as_ref(),
-        pool,
+        &mut conn,
         user,
     )
     .await?;

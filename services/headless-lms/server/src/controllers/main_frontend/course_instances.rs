@@ -1,11 +1,14 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
+use std::collections::HashMap;
+
 use chrono::Utc;
+use itertools::Itertools;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
-    exercises::ExerciseStatusSummary,
+    exercises::ExerciseStatusSummaryForUser,
     library::{
         self,
         progressing::{
@@ -13,7 +16,7 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
-    user_exercise_states::CourseInstanceOrExamId,
+    user_exercise_states::{CourseInstanceOrExamId},
 };
 
 use crate::{
@@ -340,7 +343,7 @@ async fn get_all_exercise_statuses_by_course_instance_id(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ExerciseStatusSummary>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseStatusSummaryForUser>>> {
     let (course_instance_id, user_id) = params.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -353,75 +356,96 @@ async fn get_all_exercise_statuses_by_course_instance_id(
     let course_instance_or_exam_id =
         CourseInstanceOrExamId::from_instance_and_exam_ids(Some(course_instance_id), None)?;
 
-    // Load all the data for this user from all the exercises to memory
+    // Load all the data for this user from all the exercises to memory, and group most of them to HashMaps by exercise id
     let exercises =
         models::exercises::get_exercises_by_course_instance_id(&mut conn, course_instance_id)
             .await?;
-    let user_exercise_states =
+    let mut user_exercise_states =
         models::user_exercise_states::get_all_for_user_and_course_instance_or_exam(
-            &mut *conn,
+            &mut conn,
             user_id,
             course_instance_or_exam_id,
         )
-        .await?;
-    let exercise_slide_submissions =
+        .await?
+        .into_iter()
+        .map(|ues| (ues.exercise_id, ues))
+        .collect::<HashMap<_, _>>();
+    let mut exercise_slide_submissions =
         models::exercise_slide_submissions::get_users_all_submissions_for_course_instance_or_exam(
-            &mut *conn,
+            &mut conn,
             user_id,
             course_instance_or_exam_id,
         )
-        .await?;
-    let given_peer_review_submissions = models::peer_review_submissions::get_all_given_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?;
-    let received_peer_review_submissions = models::peer_review_submissions::get_all_received_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?;
-    let given_peer_review_question_submissions = models::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, given_peer_review_submissions.iter().map(|x| x.id).collect::<Vec<_>>().as_slice()).await?;
-    let received_peer_review_question_submissions = models::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, received_peer_review_submissions.iter().map(|x| x.id).collect::<Vec<_>>().as_slice()).await?;
-    let peer_review_queue_entries =
+        .await?
+        .into_iter()
+        .into_group_map_by(|o| o.exercise_id);
+    let mut given_peer_review_submissions = models::peer_review_submissions::get_all_given_peer_review_submissions_for_user_and_course_instance(&mut conn, user_id, course_instance_id).await?.into_iter()
+        .into_group_map_by(|o| o.exercise_id);
+    let mut received_peer_review_submissions = models::peer_review_submissions::get_all_received_peer_review_submissions_for_user_and_course_instance(&mut conn, user_id, course_instance_id).await?.into_iter()
+        .into_group_map_by(|o| o.exercise_id);
+    let given_peer_review_submission_ids = given_peer_review_submissions
+        .values()
+        .flatten()
+        .map(|x| x.id)
+        .collect::<Vec<_>>();
+    let mut given_peer_review_question_submissions = models::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut conn, &given_peer_review_submission_ids).await?
+        .into_iter()
+        .into_group_map_by(|o| {
+            let peer_review_submission = given_peer_review_submissions.clone().into_iter()
+                .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+                .unwrap_or_else(|| (Uuid::nil(), vec![]));
+            peer_review_submission.0
+    });
+    let received_peer_review_submission_ids = received_peer_review_submissions
+        .values()
+        .flatten()
+        .map(|x| x.id)
+        .collect::<Vec<_>>();
+    let mut received_peer_review_question_submissions = models::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut conn, &received_peer_review_submission_ids).await?.into_iter()
+    .into_group_map_by(|o| {
+        let peer_review_submission = received_peer_review_submissions.clone().into_iter()
+            .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+            .unwrap_or_else(|| (Uuid::nil(), vec![]));
+        peer_review_submission.0
+    });
+    let mut peer_review_queue_entries =
         models::peer_review_queue_entries::get_all_by_user_and_course_instance_ids(
             &mut conn,
             course_instance_id,
             user_id,
         )
-        .await?;
+        .await?
+        .into_iter()
+        .map(|x| (x.exercise_id, x))
+        .collect::<HashMap<_, _>>();
 
-    // Map all the data for all the exercises to be summaries of the data for each exercise
+    // Map all the data for all the exercises to be summaries of the data for each exercise.
+    //
+    // Since all data is in hashmaps grouped by exercise id, and we iterate though every
+    // exercise id exactly once, we can just remove the data for the exercise from the
+    // hashmaps and avoid extra copying.
     let res = exercises
         .into_iter()
         .map(|exercise| {
-            let user_exercise_state = user_exercise_states
-                .iter()
-                .find(|x| x.exercise_id == exercise.id)
-                .cloned();
+            let user_exercise_state = user_exercise_states.remove(&exercise.id);
             let exercise_slide_submissions = exercise_slide_submissions
-                .iter()
-                .filter(|x| x.exercise_id == exercise.id)
-                .cloned()
-                .collect::<Vec<_>>();
+                .remove(&exercise.id)
+                .unwrap_or_default();
             let given_peer_review_submissions = given_peer_review_submissions
-                .iter()
-                .filter(|x| x.exercise_id == exercise.id)
-                .cloned()
-                .collect::<Vec<_>>();
+                .remove(&exercise.id)
+                .unwrap_or_default();
             let received_peer_review_submissions = received_peer_review_submissions
-                .iter()
-                .filter(|x| x.exercise_id == exercise.id)
-                .cloned()
-                .collect::<Vec<_>>();
+                .remove(&exercise.id)
+                .unwrap_or_default();
             let given_peer_review_question_submissions = given_peer_review_question_submissions
-                .iter()
-                .filter(|x| x.peer_review_submission_id == exercise.id)
-                .cloned()
-                .collect::<Vec<_>>();
+                .remove(&exercise.id)
+                .unwrap_or_default();
             let received_peer_review_question_submissions =
                 received_peer_review_question_submissions
-                    .iter()
-                    .filter(|x| x.peer_review_submission_id == exercise.id)
-                    .cloned()
-                    .collect::<Vec<_>>();
-            let peer_review_queue_entry = peer_review_queue_entries
-                .iter()
-                .find(|x| x.exercise_id == exercise.id)
-                .cloned();
-            ExerciseStatusSummary {
+                    .remove(&exercise.id)
+                    .unwrap_or_default();
+            let peer_review_queue_entry = peer_review_queue_entries.remove(&exercise.id);
+            ExerciseStatusSummaryForUser {
                 exercise,
                 user_exercise_state,
                 exercise_slide_submissions,

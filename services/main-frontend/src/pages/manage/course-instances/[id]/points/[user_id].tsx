@@ -10,7 +10,7 @@ import Layout from "../../../../../components/Layout"
 import PeerReviewSubmissionSummaryAccordion from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/PeerReviewSubmissionSummaryAccordion"
 import { useCourseStructure } from "../../../../../hooks/useCourseStructure"
 import { getAllExerciseStatusSummariesForUserAndCourseInstance } from "../../../../../services/backend/course-instances"
-import { ExerciseStatusSummary } from "../../../../../shared-module/bindings"
+import { ExerciseStatusSummaryForUser } from "../../../../../shared-module/bindings"
 import Accordion from "../../../../../shared-module/components/Accordion"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../shared-module/components/Spinner"
@@ -285,7 +285,7 @@ export default withErrorBoundary(
   withSignedIn(dontRenderUntilQueryParametersReady(CourseInstanceExerciseStatusList)),
 )
 
-const getCourseId = (input: ExerciseStatusSummary[] | undefined): string | null => {
+const getCourseId = (input: ExerciseStatusSummaryForUser[] | undefined): string | null => {
   if (!input) {
     return null
   }

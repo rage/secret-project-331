@@ -71,7 +71,7 @@ pub struct ExerciseGradingStatus {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ExerciseStatusSummary {
+pub struct ExerciseStatusSummaryForUser {
     pub exercise: Exercise,
     pub user_exercise_state: Option<UserExerciseState>,
     pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,

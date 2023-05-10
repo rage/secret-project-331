@@ -1,4 +1,4 @@
-type Vec<ExerciseStatusSummary> = Array<{
+type Vec<ExerciseStatusSummaryForUser> = Array<{
   exercise: Exercise
   user_exercise_state: UserExerciseState | null
   exercise_slide_submissions: Array<ExerciseSlideSubmission>

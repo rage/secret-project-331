@@ -120,7 +120,7 @@ use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
-    exercises::ExerciseStatusSummary,
+    exercises::ExerciseStatusSummaryForUser,
     page_audio_files::PageAudioFile,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
@@ -1500,7 +1500,7 @@ fn models() {
 
     doc!(
         Vec,
-        ExerciseStatusSummary {
+        ExerciseStatusSummaryForUser {
             exercise,
             user_exercise_state,
             exercise_slide_submissions,

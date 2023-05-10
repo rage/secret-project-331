@@ -91,7 +91,7 @@ import {
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseSlideSubmissionInfo,
   ExerciseStatus,
-  ExerciseStatusSummary,
+  ExerciseStatusSummaryForUser,
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskGrading,
@@ -1314,8 +1314,8 @@ export function isExerciseStatus(obj: unknown): obj is ExerciseStatus {
   )
 }
 
-export function isExerciseStatusSummary(obj: unknown): obj is ExerciseStatusSummary {
-  const typedObj = obj as ExerciseStatusSummary
+export function isExerciseStatusSummaryForUser(obj: unknown): obj is ExerciseStatusSummaryForUser {
+  const typedObj = obj as ExerciseStatusSummaryForUser
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isExercise(typedObj["exercise"]) as boolean) &&

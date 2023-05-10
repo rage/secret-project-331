@@ -692,7 +692,7 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
-export interface ExerciseStatusSummary {
+export interface ExerciseStatusSummaryForUser {
   exercise: Exercise
   user_exercise_state: UserExerciseState | null
   exercise_slide_submissions: Array<ExerciseSlideSubmission>

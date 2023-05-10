@@ -1,7 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
 use chrono::Utc;
-use itertools::Itertools;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,

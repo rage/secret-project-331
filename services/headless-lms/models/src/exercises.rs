@@ -859,6 +859,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
                 .iter()
                 .chain(received_peer_review_question_submissions.iter())
                 .map(|prqs| prqs.peer_review_question_id)
+                .unique()
                 .collect::<Vec<_>>();
             let peer_review_questions = all_peer_review_questions
                 .iter()

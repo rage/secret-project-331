@@ -239,6 +239,9 @@ const CourseInstanceExerciseStatusList: React.FC<
                                                 peerReviewQuestionSubmissions={
                                                   peerReviewQuestionSubmissions
                                                 }
+                                                peerReviewQuestions={
+                                                  exerciseStatus.peer_review_questions
+                                                }
                                               />
                                             )
                                           },
@@ -268,6 +271,9 @@ const CourseInstanceExerciseStatusList: React.FC<
                                                 showSubmissionBeingReviewed
                                                 peerReviewQuestionSubmissions={
                                                   peerReviewQuestionSubmissions
+                                                }
+                                                peerReviewQuestions={
+                                                  exerciseStatus.peer_review_questions
                                                 }
                                               />
                                             )

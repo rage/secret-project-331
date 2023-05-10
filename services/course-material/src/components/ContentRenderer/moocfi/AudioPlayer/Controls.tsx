@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { forwardRef, Ref, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"
@@ -30,7 +30,14 @@ const styledVolume = css`
   }
 `
 
-const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) => {
+interface ControlsProps {
+  audioRef?: Ref<HTMLAudioElement> | null
+  progressBarRef?: Ref<HTMLInputElement> | null
+  duration: number
+  setTimeProgress: (T: number) => void
+}
+
+const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: ControlsProps) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [volume, setVolume] = useState<number>(60)
   const [muteVolume, setMuteVolume] = useState<boolean>(false)
@@ -134,13 +141,17 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
           value={volume}
           onChange={(e) => setVolume(Number(e.target.value))}
           // eslint-disable-next-line react/forbid-dom-props
-          style={{
-            background: `linear-gradient(to right, #b0c1e4 ${volume}%, #d5def2 ${volume}%)`,
-          }}
+          className={css`
+            background: linear-gradient(
+              to right,
+              #767b85 ${volume}%,
+              #dddee0 ${volume}%
+            ) !important;
+          `}
         />
       </div>
     </div>
   )
 }
 
-export default Controls
+export default forwardRef(Controls)

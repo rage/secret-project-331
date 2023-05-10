@@ -1,11 +1,18 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React from "react"
+import React, { forwardRef, Ref } from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
 import { AudioFile } from "../../../Page"
 
-const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: any) => {
+interface DisplayTrackProps {
+  tracks: AudioFile[]
+  audioRef?: Ref<HTMLAudioElement> | null
+  setDuration: (T: number) => void
+  progressBarRef?: Ref<HTMLInputElement> | null
+}
+
+const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: DisplayTrackProps) => {
   const onLoadedMetadata = () => {
     const seconds = audioRef.current.duration
     setDuration(seconds)
@@ -15,7 +22,8 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: any) =>
   const router = useRouter()
 
   const title = router.asPath.split("/")[5]
-  const formattedTitle = title.charAt(0).toUpperCase() + title.slice(1)
+  let formattedTitle = title.charAt(0).toUpperCase() + title.slice(1)
+  formattedTitle = formattedTitle.replace(/-/g, " ")
 
   return (
     <>
@@ -37,13 +45,17 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: any) =>
           <div>
             <p
               className={css`
-                color: #687eaf;
+                color: #313947;
                 font-size: 18px;
                 margin-bottom: 0;
                 padding: 2px;
                 font-family: ${headingFont};
                 line-height: 1.2;
                 font-weight: 500;
+                width: 300px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
               `}
             >
               {formattedTitle}

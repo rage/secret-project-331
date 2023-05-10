@@ -1,5 +1,8 @@
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
 import PageContext from "../contexts/PageContext"
@@ -8,9 +11,11 @@ import { Block, fetchGlossary, fetchPageAudioFiles } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import Spinner from "../shared-module/components/Spinner"
+import { baseTheme } from "../shared-module/styles"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
+import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
 import ContentRenderer from "./ContentRenderer"
 import AudioPlayer from "./ContentRenderer/moocfi/AudioPlayer"
 import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
@@ -30,11 +35,27 @@ export interface AudioFile {
   mime: string | undefined
 }
 
+const AudioNotification = styled.div`
+  background: #f0eff9;
+  padding: 1rem 1rem 1.4rem 1.2rem;
+
+  h3 {
+    color: #6554c0;
+    font-weight: 500;
+  }
+
+  p {
+    color: ${baseTheme.colors.gray[600]};
+    margin-bottom: 1rem;
+  }
+`
+
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(PageContext)
   const [editingMaterial, setEditingMaterial] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
 
   const courseId = pageContext?.pageData?.course_id
   const pageId = pageContext?.pageData?.id
@@ -42,6 +63,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
 
   const tracks: AudioFile[] = []
+
+  const { t } = useTranslation()
 
   const getPageAudioFiles = useQuery([`page-${pageId}-audio-files`], () =>
     courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : [],
@@ -85,6 +108,36 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           )}
         {courseId && <SelectCourseInstanceModal onClose={onRefresh} />}
 
+        {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
+          <AudioNotification>
+            <h3>{t("audio-notification-heading")}</h3>
+            <p>{t("audio-notification-description")}</p>
+            <button
+              onClick={() => setIsVisible(true)}
+              className={css`
+                height: 42px;
+                width: auto;
+                padding: 0 14px;
+                border: none;
+                background: rgba(101, 84, 192);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 0 5px;
+              `}
+            >
+              <AudioSpeaker />
+              <span
+                className={css`
+                  color: #fff;
+                `}
+              >
+                {t("audio-player")}
+              </span>
+            </button>
+          </AudioNotification>
+        )}
+
         {isMaterialPage && <HeadingsNavigation />}
         <div id="maincontent">
           {/* TODO: Better type for Page.content in bindings. */}
@@ -102,7 +155,13 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {pageContext.pageData?.course_id && (
           <ReferenceList courseId={pageContext.pageData.course_id} />
         )}
-        {getPageAudioFiles.isSuccess && tracks.length !== 0 && <AudioPlayer tracks={tracks} />}
+        {getPageAudioFiles.isSuccess && isVisible && tracks.length !== 0 && (
+          <AudioPlayer
+            tracks={tracks}
+            isVisible={isVisible}
+            setIsVisible={() => setIsVisible(!isVisible)}
+          />
+        )}
         {courseId && pageId && (
           <FeedbackHandler
             courseId={courseId}

@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { forwardRef, Ref } from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
 
@@ -15,13 +15,20 @@ const ProgressBarWrapper = styled.div`
   font-family: ${headingFont};
 `
 const time = css`
-  color: #687eaf;
+  color: #535a66;
   font-size: 13px;
   line-height: 46px;
   font-weight: 500;
 `
 
-const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: any) => {
+interface ProgressBarProps {
+  progressBarRef?: Ref<HTMLInputElement> | null
+  audioRef?: Ref<HTMLAudioElement> | null
+  timeProgress: number
+  duration: number
+}
+
+const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: ProgressBarProps) => {
   const handleProgressChange = () => {
     audioRef.current.currentTime = progressBarRef.current.value
   }
@@ -46,4 +53,4 @@ const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: any) 
   )
 }
 
-export default ProgressBar
+export default forwardRef(ProgressBar)

@@ -13,7 +13,6 @@ import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import {
   fetchExerciseById,
-  fetchExerciseTaskPreviousSubmission,
   postStartPeerReview,
   postSubmission,
 } from "../../../../services/backend"
@@ -95,6 +94,11 @@ const ExerciseBlock: React.FC<
         payload: data,
         signedIn: Boolean(loginState.signedIn),
       })
+      const a = new Map()
+      data.current_exercise_slide.exercise_tasks.map((et) => {
+        a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+      })
+      setAnswers(a)
     },
   })
 
@@ -114,6 +118,7 @@ const ExerciseBlock: React.FC<
           payload: data,
           signedIn: Boolean(loginState.signedIn),
         })
+        getCourseMaterialExercise.refetch()
       },
     },
   )
@@ -136,13 +141,9 @@ const ExerciseBlock: React.FC<
 
       // if answers were empty, because page refresh
       if (answers.size === 0 && pageContext.settings?.user_id) {
-        const previousAnswer = await fetchExerciseTaskPreviousSubmission(
-          getCourseMaterialExercise.data.current_exercise_slide.id,
-          pageContext.settings.user_id,
-        )
         const a = new Map()
-        previousAnswer.map((p) => {
-          a.set(p.id, { valid: true, data: p.data_json })
+        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+          a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
         })
         setAnswers(a)
       }

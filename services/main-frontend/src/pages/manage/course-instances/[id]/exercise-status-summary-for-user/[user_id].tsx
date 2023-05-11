@@ -172,7 +172,8 @@ const CourseInstanceExerciseStatusList: React.FC<
                                                 }}
                                               >
                                                 {exerciseSlideSubmission.id}
-                                              </Link>
+                                              </Link>{" "}
+                                              ({dateToString(exerciseSlideSubmission.created_at)})
                                             </div>
                                           )
                                         },
@@ -242,6 +243,10 @@ const CourseInstanceExerciseStatusList: React.FC<
                                                 peerReviewQuestions={
                                                   exerciseStatus.peer_review_questions
                                                 }
+                                                showSubmissionBeingReviewed={
+                                                  exerciseStatus.exercise_slide_submissions.length >
+                                                  1
+                                                }
                                               />
                                             )
                                           },
@@ -254,7 +259,7 @@ const CourseInstanceExerciseStatusList: React.FC<
                                       <>
                                         <h3>
                                           {t("peer-reviews-given")}: (
-                                          {exerciseStatus.exercise_slide_submissions.length})
+                                          {exerciseStatus.given_peer_review_submissions.length})
                                         </h3>
 
                                         {exerciseStatus.given_peer_review_submissions.map(

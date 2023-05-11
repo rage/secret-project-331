@@ -2982,82 +2982,6 @@
     },
     "query": "\nSELECT *\nFROM exercise_tasks\nWHERE exercise_slide_id = $1\n  AND deleted_at IS NULL;\n        "
   },
-  "26a30241f9021ba2d6bc24e125d3957406816b401c8b84668f28d384fc3f0a8f": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "exercise_slide_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_instance_id",
-          "ordinal": 6,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exam_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exercise_id",
-          "ordinal": 8,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 9,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_points_update_strategy: _",
-          "ordinal": 10,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "can-add-points-but-cannot-remove-points",
-                  "can-add-points-and-can-remove-points"
-                ]
-              },
-              "name": "user_points_update_strategy"
-            }
-          }
-        }
-      ],
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false],
-      "parameters": {
-        "Left": ["Uuid", "UuidArray", "Uuid"]
-      }
-    },
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY random() ASC\n        "
-  },
   "271b045703fc15efe6cd32fae9e568d75b66d6f12c48f392dd981a8a322877d5": {
     "describe": {
       "columns": [
@@ -6137,6 +6061,82 @@
       }
     },
     "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number,\n    automatic_completion,\n    automatic_completion_number_of_exercises_attempted_treshold,\n    automatic_completion_number_of_points_treshold,\n    automatic_completion_requires_exam,\n    ects_credits,\n    enable_registering_completion_to_uh_open_university\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nRETURNING *\n        "
+  },
+  "512ac25a3bacaac7233a1134eed215abc920b98f2d41c096ede6cbf015009f7e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "exercise_slide_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 8,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_points_update_strategy: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              },
+              "name": "user_points_update_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true, true, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "UuidArray", "Uuid"]
+      }
+    },
+    "query": "\nSELECT DISTINCT ON (user_id)\n  id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\n        "
   },
   "527d742c378dfc52f5d1c999138ee8c12547442f36d8ea9b3df18405f7e526d5": {
     "describe": {

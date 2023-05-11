@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use chrono::NaiveDate;
 use futures::future::BoxFuture;
+use rand::prelude::SliceRandom;
 use url::Url;
 
 use crate::{
@@ -234,11 +235,11 @@ pub async fn try_to_get_random_filtered_by_user_and_submissions(
     excluded_user_id: Uuid,
     excluded_ids: &[Uuid],
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
-    // TODO: Filter to only latest submission per student.
-    let res = sqlx::query_as!(
+    let mut res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
+SELECT DISTINCT ON (user_id)
+  id,
   created_at,
   updated_at,
   deleted_at,
@@ -254,15 +255,18 @@ WHERE exercise_id = $1
   AND id <> ALL($2)
   AND user_id <> $3
   AND deleted_at IS NULL
-ORDER BY random() ASC
+ORDER BY user_id, created_at DESC
         "#,
         exercise_id,
         excluded_ids,
         excluded_user_id,
     )
-    .fetch_optional(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(res)
+    // shuffle the res vec
+    let mut rng = rand::thread_rng();
+    res.shuffle(&mut rng);
+    Ok(res.into_iter().next())
 }
 
 pub async fn get_by_exercise_id(

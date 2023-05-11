@@ -807,8 +807,8 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
     let mut peer_review_queue_entries =
         crate::peer_review_queue_entries::get_all_by_user_and_course_instance_ids(
             &mut *conn,
-            course_instance_id,
             user_id,
+            course_instance_id,
         )
         .await?
         .into_iter()

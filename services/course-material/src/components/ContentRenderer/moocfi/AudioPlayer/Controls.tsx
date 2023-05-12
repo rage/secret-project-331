@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, Ref, useCallback, useEffect, useRef, useState } from "react"
+import React, { forwardRef, Ref, RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"
@@ -31,8 +31,8 @@ const styledVolume = css`
 `
 
 interface ControlsProps {
-  audioRef?: Ref<HTMLAudioElement> | null
-  progressBarRef?: Ref<HTMLInputElement> | null
+  audioRef: RefObject<HTMLAudioElement> | null
+  progressBarRef: RefObject<HTMLInputElement> | null
   duration: number
   setTimeProgress: (T: number) => void
 }
@@ -49,39 +49,47 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
   const playAnimationRef = useRef(0)
 
   const repeat = useCallback(() => {
-    const currentTime = audioRef.current.currentTime
-    progressBarRef.current.value = currentTime
-    progressBarRef.current.style.setProperty(
-      // eslint-disable-next-line i18next/no-literal-string
-      "--range-progress",
-      `${(progressBarRef.current.value / duration) * 100}%`,
-    )
-    setTimeProgress(currentTime)
+    if (progressBarRef?.current && audioRef?.current) {
+      const currentTime = audioRef.current.currentTime
+      progressBarRef.current.value = String(currentTime)
+      progressBarRef.current.style.setProperty(
+        // eslint-disable-next-line i18next/no-literal-string
+        "--range-progress",
+        `${(Number(progressBarRef.current.value) / duration) * 100}%`,
+      )
+      currentTime && setTimeProgress(currentTime)
 
-    playAnimationRef.current = requestAnimationFrame(repeat)
+      playAnimationRef.current = requestAnimationFrame(repeat)
+    }
   }, [audioRef, duration, progressBarRef, setTimeProgress])
 
   useEffect(() => {
-    if (isPlaying) {
-      audioRef.current.play()
-      playAnimationRef.current = requestAnimationFrame(repeat)
-      console.log(playAnimationRef.current)
-    } else {
-      audioRef.current.pause()
-      cancelAnimationFrame(playAnimationRef.current)
+    if (audioRef?.current) {
+      if (isPlaying) {
+        audioRef.current.play()
+        playAnimationRef.current = requestAnimationFrame(repeat)
+        console.log(playAnimationRef.current)
+      } else {
+        audioRef.current.pause()
+        cancelAnimationFrame(playAnimationRef.current)
+      }
     }
   }, [isPlaying, audioRef, audioRef?.current?.readyState, repeat])
 
   const skipForward = () => {
-    audioRef.current.currentTime += 15
+    if (audioRef?.current) {
+      audioRef.current.currentTime += 15
+    }
   }
 
   const skipBackward = () => {
-    audioRef.current.currentTime -= 15
+    if (audioRef?.current) {
+      audioRef.current.currentTime -= 15
+    }
   }
 
   useEffect(() => {
-    if (audioRef) {
+    if (audioRef?.current) {
       audioRef.current.volume = volume / 100
       audioRef.current.muted = muteVolume
     }

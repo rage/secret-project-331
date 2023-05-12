@@ -1,22 +1,24 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React, { forwardRef, Ref } from "react"
+import React, { forwardRef, Ref, RefObject } from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
 import { AudioFile } from "../../../Page"
 
 interface DisplayTrackProps {
   tracks: AudioFile[]
-  audioRef?: Ref<HTMLAudioElement> | null
+  audioRef: RefObject<HTMLAudioElement> | null
   setDuration: (T: number) => void
-  progressBarRef?: Ref<HTMLInputElement> | null
+  progressBarRef: RefObject<HTMLInputElement> | null
 }
 
 const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: DisplayTrackProps) => {
   const onLoadedMetadata = () => {
-    const seconds = audioRef.current.duration
-    setDuration(seconds)
-    progressBarRef.current.max = seconds
+    if (audioRef?.current && progressBarRef?.current) {
+      const seconds = audioRef?.current?.duration
+      seconds && setDuration(seconds)
+      progressBarRef.current.max = String(seconds)
+    }
   }
 
   const router = useRouter()

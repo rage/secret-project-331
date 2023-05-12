@@ -25,7 +25,7 @@ const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Audi
   const [duration, setDuration] = useState<number>(0)
 
   // reference
-  const audioRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
   const progressBarRef = useRef<HTMLInputElement>(null)
 
   return (

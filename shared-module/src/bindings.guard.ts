@@ -43,6 +43,7 @@ import {
   CourseInstance,
   CourseInstanceCompletionSummary,
   CourseInstanceEnrollment,
+  CourseInstanceEnrollmentsInfo,
   CourseInstanceForm,
   CourseMaterialCourseModule,
   CourseMaterialExercise,
@@ -140,7 +141,6 @@ import {
   PageNavigationInformation,
   PageProposal,
   PageRoutingData,
-  PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
   Pagination,
@@ -174,6 +174,7 @@ import {
   RoleQuery,
   RoleUser,
   SaveCourseSettingsPayload,
+  SearchRequest,
   SpecRequest,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
@@ -508,6 +509,25 @@ export function isCourseInstanceEnrollment(obj: unknown): obj is CourseInstanceE
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
+export function isCourseInstanceEnrollmentsInfo(
+  obj: unknown,
+): obj is CourseInstanceEnrollmentsInfo {
+  const typedObj = obj as CourseInstanceEnrollmentsInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["course_instance_enrollments"]) &&
+    typedObj["course_instance_enrollments"].every(
+      (e: any) => isCourseInstanceEnrollment(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["course_instances"]) &&
+    typedObj["course_instances"].every((e: any) => isCourseInstance(e) as boolean) &&
+    Array.isArray(typedObj["courses"]) &&
+    typedObj["courses"].every((e: any) => isCourse(e) as boolean) &&
+    Array.isArray(typedObj["user_course_settings"]) &&
+    typedObj["user_course_settings"].every((e: any) => isUserCourseSettings(e) as boolean)
   )
 }
 
@@ -2010,8 +2030,8 @@ export function isPageRoutingData(obj: unknown): obj is PageRoutingData {
   )
 }
 
-export function isPageSearchRequest(obj: unknown): obj is PageSearchRequest {
-  const typedObj = obj as PageSearchRequest
+export function isSearchRequest(obj: unknown): obj is SearchRequest {
+  const typedObj = obj as SearchRequest
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["query"] === "string"
@@ -2579,7 +2599,8 @@ export function isUserDetail(obj: unknown): obj is UserDetail {
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["email"] === "string" &&
     (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
-    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string")
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    (typedObj["search_helper"] === null || typeof typedObj["search_helper"] === "string")
   )
 }
 

@@ -117,6 +117,7 @@ use headless_lms_models::{
     course_background_questions::{
         CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
     },
+    course_instance_enrollments::CourseInstanceEnrollmentsInfo,
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
@@ -1159,6 +1160,7 @@ fn models() {
         email: "example@example.com".to_string(),
         first_name: Some("Example".to_string()),
         last_name: Some("User".to_string()),
+        search_helper: Some("Example User".to_string()),
     });
     doc!(CourseCount { count: 1234 });
     doc!(
@@ -1523,6 +1525,12 @@ fn models() {
             peer_review_questions
         }
     );
+    doc!(CourseInstanceEnrollmentsInfo {
+        course_instance_enrollments,
+        course_instances,
+        courses,
+        user_course_settings
+    });
 }
 
 fn utils() {

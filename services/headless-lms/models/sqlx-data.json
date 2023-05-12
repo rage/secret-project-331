@@ -3559,9 +3559,14 @@
           "name": "email",
           "ordinal": 5,
           "type_info": "Varchar"
+        },
+        {
+          "name": "search_helper",
+          "ordinal": 6,
+          "type_info": "Text"
         }
       ],
-      "nullable": [false, false, false, true, true, false],
+      "nullable": [false, false, false, true, true, false, true],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -7645,6 +7650,52 @@
     },
     "query": "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1"
   },
+  "65e065e43e42d10b162417831b6345cfa6a72f18c5d611b6b9fc89440fbf3021": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "first_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "last_name",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "email",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "search_helper",
+          "ordinal": 6,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, false, true, true, false, true],
+      "parameters": {
+        "Left": ["Text"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_details\nWHERE lower(email::text) LIKE '%' || lower($1) || '%'\nLIMIT 1000;\n"
+  },
   "668cb347914fe2f1772618a9c0512176d536a677877419994d9ea163ba734cb6": {
     "describe": {
       "columns": [
@@ -8765,9 +8816,14 @@
           "name": "email",
           "ordinal": 5,
           "type_info": "Varchar"
+        },
+        {
+          "name": "search_helper",
+          "ordinal": 6,
+          "type_info": "Text"
         }
       ],
-      "nullable": [false, false, false, true, true, false],
+      "nullable": [false, false, false, true, true, false, true],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -9653,9 +9709,14 @@
           "name": "email",
           "ordinal": 5,
           "type_info": "Varchar"
+        },
+        {
+          "name": "search_helper",
+          "ordinal": 6,
+          "type_info": "Text"
         }
       ],
-      "nullable": [false, false, false, true, true, false],
+      "nullable": [false, false, false, true, true, false, true],
       "parameters": {
         "Left": ["UuidArray"]
       }
@@ -16134,6 +16195,52 @@
     },
     "query": "\nUPDATE material_references\nSET deleted_at = now()\nWHERE material_references.id = $1;\n        "
   },
+  "c0dd6d2b9663471b98655ac0294c034bf6cd886c4da906b01de700bddd7aaf7f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "email",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "first_name",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "last_name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "search_helper",
+          "ordinal": 6,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, false, false, true, true, true],
+      "parameters": {
+        "Left": ["Text"]
+      }
+    },
+    "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper\nFROM (\n    SELECT *,\n      LOWER($1) <<->search_helper AS dist\n    FROM user_details\n    ORDER BY dist, LENGTH(search_helper)\n    LIMIT 100\n  ) search\nWHERE dist < 0.7;\n"
+  },
   "c0f24a805cf0a59c92963d7c37909c123b95498c27f5e32c9332cfa4f9b5ec22": {
     "describe": {
       "columns": [
@@ -17144,6 +17251,47 @@
       }
     },
     "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE deleted_at IS NULL;\n"
+  },
+  "cd6c2dc2c9a1920372f0ea2fdb0a74b36ef371be0ab2d0de56467213c94db593": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_instance_enrollments\nWHERE user_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "ce086e7dd1040f7a6ee53042c7e8686dfc52ef7058bfd379d6ae0d00a4ffac24": {
     "describe": {
@@ -18473,6 +18621,77 @@
     },
     "query": "\nSELECT pr.id as id,\n  pr.course_id as course_id,\n  pr.exercise_id as exercise_id,\n  pr.peer_reviews_to_give as peer_reviews_to_give,\n  pr.peer_reviews_to_receive as peer_reviews_to_receive,\n  pr.accepting_threshold as accepting_threshold,\n  pr.accepting_strategy AS \"accepting_strategy: _\"\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_review_configs pr on e.id = pr.exercise_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL;\n    "
   },
+  "dd8c271c3a0901cc8c2fdecfbae5b052cb4c4c3b82e27817ae5a059685fa088b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "starts_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "name",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "description",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "support_email",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "teacher_in_charge_name",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "teacher_in_charge_email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true, true, true, true, false, false],
+      "parameters": {
+        "Left": ["UuidArray"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_instances\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n    "
+  },
   "dd98dd1240aa56bb5ba42647e870c187d85c5ab801c6f0cca33757734a97df5b": {
     "describe": {
       "columns": [
@@ -19295,6 +19514,108 @@
     },
     "query": "\nSELECT page_history.content,\n  page_history.title,\n  pages.exam_id\nFROM page_history\n  JOIN pages ON pages.id = page_history.page_id\nWHERE page_history.id = $1\n  AND pages.deleted_at IS NULL\n  AND page_history.deleted_at IS NULL\n        "
   },
+  "eacbff7bf42744f9246cd682dadbba105d53a3f37cace5a67bb0184ca1e38f56": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "organization_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "slug",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "content_search_language",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "language_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_language_group_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "description",
+          "ordinal": 11,
+          "type_info": "Text"
+        },
+        {
+          "name": "is_draft",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "is_test_mode",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "base_module_completion_requires_n_submodule_completions",
+          "ordinal": 14,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["UuidArray"]
+      }
+    },
+    "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  "
+  },
   "eb5c16a276498ed4260c1b31fcd67d79dfcb0e517003bc8d8b5b5732646d44e3": {
     "describe": {
       "columns": [],
@@ -19605,6 +19926,52 @@
       }
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  hidden,\n  page_language_group_id\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        "
+  },
+  "f06d370d7ad238c78d62897c81c0cc4f93223933438f6483ad927d078fc198c2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "first_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "last_name",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "email",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "search_helper",
+          "ordinal": 6,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, false, true, true, false, true],
+      "parameters": {
+        "Left": ["Text"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_details\nWHERE lower(search_helper::text) LIKE '%' || lower($1) || '%'\nLIMIT 1000;\n"
   },
   "f0c80207c86e95e0dcd70759a548490be39fa00c3221c45ed27b1e00b5721624": {
     "describe": {

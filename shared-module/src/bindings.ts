@@ -182,6 +182,13 @@ export interface CourseInstanceEnrollment {
   deleted_at: Date | null
 }
 
+export interface CourseInstanceEnrollmentsInfo {
+  course_instance_enrollments: Array<CourseInstanceEnrollment>
+  course_instances: Array<CourseInstance>
+  courses: Array<Course>
+  user_course_settings: Array<UserCourseSettings>
+}
+
 export interface ChapterScore {
   id: string
   created_at: Date
@@ -1082,7 +1089,7 @@ export interface PageRoutingData {
   chapter_front_page_id: string | null
 }
 
-export interface PageSearchRequest {
+export interface SearchRequest {
   query: string
 }
 
@@ -1440,6 +1447,7 @@ export interface UserDetail {
   email: string
   first_name: string | null
   last_name: string | null
+  search_helper: string | null
 }
 
 export interface ExerciseUserCounts {

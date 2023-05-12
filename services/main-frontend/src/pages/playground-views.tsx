@@ -2,11 +2,10 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useQuery } from "@tanstack/react-query"
+import { isServer, useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
 import _ from "lodash"
-import getConfig from "next/config"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -42,6 +41,7 @@ import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "../shared-module/styles"
 import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 import { respondToOrLarger } from "../shared-module/styles/respond"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
 interface PlaygroundFields {
@@ -148,8 +148,7 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const { publicRuntimeConfig } = getConfig()
-const PUBLIC_ADDRESS = publicRuntimeConfig?.publicAddress
+const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "ws://")
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
@@ -738,19 +737,12 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                       currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
                     }
                     onClick={() => {
-                      if (
-                        !currentStateReceivedFromIframe ||
-                        !(
-                          currentStateReceivedFromIframe.data &&
-                          typeof currentStateReceivedFromIframe.data === "object" &&
-                          "private_spec" in currentStateReceivedFromIframe.data
-                        )
-                      ) {
+                      if (!currentStateReceivedFromIframe) {
                         throw new Error("No current state received from the iframe")
                       }
                       submitAnswerMutation.mutate({
                         type: "submit",
-                        data: currentStateReceivedFromIframe.data.private_spec,
+                        data: currentStateReceivedFromIframe.data,
                       })
                     }}
                   >
@@ -923,4 +915,4 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withNoSsr(IframeViewPlayground)
+export default withErrorBoundary(withNoSsr(IframeViewPlayground))

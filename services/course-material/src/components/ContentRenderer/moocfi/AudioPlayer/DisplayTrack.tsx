@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React, { forwardRef, Ref, RefObject } from "react"
+import React, { RefObject } from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
 import { AudioFile } from "../../../Page"
@@ -47,7 +47,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
           <div>
             <p
               className={css`
-                color: #313947;
+                color: #24053b;
                 font-size: 18px;
                 margin-bottom: 0;
                 padding: 2px;

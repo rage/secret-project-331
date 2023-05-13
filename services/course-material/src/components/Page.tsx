@@ -39,14 +39,9 @@ const AudioNotification = styled.div`
   background: #f0eff9;
   padding: 1rem 1rem 1.4rem 1.2rem;
 
-  h3 {
-    color: #6554c0;
-    font-weight: 500;
-  }
-
   p {
     color: ${baseTheme.colors.gray[600]};
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
 `
 
@@ -110,7 +105,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
           <AudioNotification>
-            <h3>{t("audio-notification-heading")}</h3>
             <p>{t("audio-notification-description")}</p>
             <button
               onClick={() => setIsVisible(true)}

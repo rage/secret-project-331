@@ -49,8 +49,9 @@ const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Audi
               background: #fff;
               position: relative;
               border-radius: 10px;
+              border: 2px solid #e3d2f2;
               padding: 30px 20px;
-              box-shadow: 0 2px 5px 1px rgba(64, 60, 67, 0.16);
+              box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.1);
 
               ${respondToOrLarger.md} {
                 width: 700px;
@@ -83,15 +84,15 @@ const AudioPlayer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Audi
               <button
                 className={css`
                   position: absolute;
-                  height: 30px;
-                  width: 30px;
+                  height: 28px;
+                  width: 28px;
                   border: none;
                   border-radius: 100px;
                   right: 10px;
                   top: 8px;
                   display: flex;
-                  justify-content: center;
                   align-items: center;
+                  padding-left: 2px;
                 `}
                 onClick={setIsVisible}
               >

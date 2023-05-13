@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, Ref, RefObject } from "react"
+import React, { forwardRef, RefObject } from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
 

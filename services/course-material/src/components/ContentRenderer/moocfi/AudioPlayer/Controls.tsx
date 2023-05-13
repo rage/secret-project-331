@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, Ref, RefObject, useCallback, useEffect, useRef, useState } from "react"
+import React, { forwardRef, RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"

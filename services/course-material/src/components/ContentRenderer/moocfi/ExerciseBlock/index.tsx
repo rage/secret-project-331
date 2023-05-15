@@ -109,7 +109,7 @@ const ExerciseBlock: React.FC<
     },
     {
       retry: 3,
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         if (data.exercise_status) {
           setPoints(data.exercise_status.score_given)
         }
@@ -118,7 +118,7 @@ const ExerciseBlock: React.FC<
           payload: data,
           signedIn: Boolean(loginState.signedIn),
         })
-        getCourseMaterialExercise.refetch()
+        await getCourseMaterialExercise.refetch()
       },
     },
   )
@@ -141,6 +141,7 @@ const ExerciseBlock: React.FC<
 
       // if answers were empty, because page refresh
       if (answers.size === 0 && pageContext.settings?.user_id) {
+        await getCourseMaterialExercise.refetch()
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
           a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })

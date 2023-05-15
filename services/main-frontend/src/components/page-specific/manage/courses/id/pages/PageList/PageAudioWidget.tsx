@@ -122,7 +122,6 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #e1e5ef;
             border-radius: 50px;
             height: 30px;
             width: 30px;
@@ -276,11 +275,10 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
         </div>
         <button
           className={css`
-            border: none;
-            background: #555;
+            background: #fff;
             padding: 4px 20px;
-            border-radius: 2px;
-            color: #fff;
+            border: 2px solid #555;
+            color: #555;
             cursor: pointer;
             transition: background 0.2s ease-in-out;
             margin-top: 20px;

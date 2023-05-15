@@ -8,7 +8,7 @@ export const styledRangeInput = css`
     --range-progress: 0;
     -webkit-appearance: none;
     position: relative;
-    background: #d5def2;
+    background: #dddee0;
     width: 100%;
     height: 4px;
     cursor: pointer;
@@ -17,7 +17,7 @@ export const styledRangeInput = css`
   /* Input range - firefox */
   input[type="range"]::-moz-range-track {
     position: relative;
-    background: #d5def2;
+    background: #dddee0;
     width: 100%;
     height: 4px;
     cursor: pointer;
@@ -27,7 +27,7 @@ export const styledRangeInput = css`
   input[type="range"]::before {
     content: "";
     height: 4px;
-    background: #b0c1e4;
+    background: #767b85;
     width: var(--range-progress);
     border-bottom-left-radius: 2px;
     border-top-left-radius: 2px;
@@ -38,7 +38,7 @@ export const styledRangeInput = css`
 
   /* played progress length - firefox */
   input[type="range"]::-moz-range-progress {
-    background: #b0c1e4;
+    background: #767b85;
     border-bottom-left-radius: 2px;
     border-top-left-radius: 2px;
     height: 4px;
@@ -47,11 +47,11 @@ export const styledRangeInput = css`
   /* slider thumb - chrome and safari */
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    height: 13px;
-    width: 13px;
+    height: 10px;
+    width: 10px;
     border-radius: 50%;
-    background-color: #fff;
-    border: 3px solid #687eaf;
+    background-color: #f9f9f9;
+    border: 4px solid #313947;
     cursor: pointer;
     position: relative;
   }
@@ -63,13 +63,13 @@ export const styledRangeInput = css`
 
   /* slider thumb - firefox */
   input[type="range"]::-moz-range-thumb {
-    height: 13px;
-    width: 13px;
+    height: 10px;
+    width: 10px;
     border-radius: 50%;
-    background: #fff;
+    background: #f9f9f9;
     cursor: pointer;
     border: transparent;
-    border: 3px solid #687eaf;
+    border: 4px solid #313947;
     position: relative;
   }
   /* dragging thumb - firefox */

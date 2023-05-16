@@ -61,7 +61,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       cell: (props) => (
         <Link href={`/manage/users/${props.row.original.user_id}`}>
           <Button variant="tertiary" size="medium">
-            Details
+            {t("button-details")}
           </Button>
         </Link>
       ),

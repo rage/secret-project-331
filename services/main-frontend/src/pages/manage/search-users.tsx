@@ -12,10 +12,11 @@ import {
   searchForUserDetailsFuzzyMatch,
 } from "../../services/backend/user-details"
 import Button from "../../shared-module/components/Button"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import TextField from "../../shared-module/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -60,7 +61,11 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <Layout navVariant="simple">
-      <div>
+      <OnlyRenderIfPermissions
+        action={{ type: "teach" }}
+        resource={{ type: "global_permissions" }}
+        elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
+      >
         <h1>{t("title-user-search")}</h1>
 
         <div>
@@ -106,9 +111,9 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
           searchByOtherDetailsQuery={searchByOtherDetailsQuery}
           searchFuzzyMatchQuery={searchFuzzyMatchQuery}
         />
-      </div>
+      </OnlyRenderIfPermissions>
     </Layout>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(withSignedIn(SearchUsersPage)))
+export default withErrorBoundary(withSignedIn(SearchUsersPage))

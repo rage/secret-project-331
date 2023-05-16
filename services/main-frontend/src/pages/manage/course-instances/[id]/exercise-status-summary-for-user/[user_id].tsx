@@ -62,7 +62,7 @@ const CourseInstanceExerciseStatusList: React.FC<
 
   return (
     <Layout navVariant="simple">
-      <h1>Breakdown for a user by exercise</h1>
+      <h1>{t("exercise-status-summary")}</h1>
       <div
         className={css`
           display: flex;
@@ -95,7 +95,10 @@ const CourseInstanceExerciseStatusList: React.FC<
                     margin-bottom: 1rem;
                   `}
                 >
-                  Chapter {chapter?.chapter_number}: {chapter?.name}
+                  {t("title-chapter", {
+                    "chapter-number": chapter?.chapter_number,
+                    "chapter-name": chapter?.name,
+                  })}
                 </h2>
                 {exerciseStatusList?.map((exerciseStatus) => {
                   const userExerciseState = exerciseStatus.user_exercise_state
@@ -186,30 +189,32 @@ const CourseInstanceExerciseStatusList: React.FC<
 
                                 {exerciseStatus.exercise.needs_peer_review && (
                                   <>
-                                    <h2>Peer review</h2>
+                                    <h2>{t("peer-reviews")}</h2>
 
                                     {exerciseStatus.peer_review_queue_entry ? (
                                       <>
-                                        <p>Given enough peer reviews: {true.toString()}</p>
+                                        <p>
+                                          {t("given-enough-peer-reviews")}: {t("label-true")}
+                                        </p>
                                         <p>{`${t("received-enough-peer-reviews")}: ${
                                           exerciseStatus.peer_review_queue_entry
                                             .received_enough_peer_reviews
                                         }`}</p>
                                         <p>
-                                          Entered the peer review queue:{" "}
+                                          {t("label-entered-peer-review-queue")}:{" "}
                                           {dateToString(
                                             exerciseStatus.peer_review_queue_entry.created_at,
                                           )}
                                         </p>
                                         <p>
-                                          Submission being peer reviewed:{" "}
+                                          {t("label-submission-being-reviewed")}:{" "}
                                           {
                                             exerciseStatus.peer_review_queue_entry
                                               .receiving_peer_reviews_exercise_slide_submission_id
                                           }
                                         </p>
                                         <p>
-                                          Priority:{" "}
+                                          {t("label-priority")}:{" "}
                                           {
                                             exerciseStatus.peer_review_queue_entry
                                               .peer_review_priority
@@ -217,12 +222,15 @@ const CourseInstanceExerciseStatusList: React.FC<
                                         </p>
                                       </>
                                     ) : (
-                                      <p>Given enough peer reviews: {false.toString()}</p>
+                                      <p>
+                                        {t("given-enough-peer-reviews")}: {t("label-false")}
+                                      </p>
                                     )}
 
                                     {exerciseStatus.received_peer_review_submissions.length > 0 ? (
                                       <>
                                         <h3>
+                                          {/* eslint-disable-next-line i18next/no-literal-string */}
                                           {t("peer-reviews-received")}: (
                                           {exerciseStatus.received_peer_review_submissions.length})
                                         </h3>
@@ -258,6 +266,7 @@ const CourseInstanceExerciseStatusList: React.FC<
                                     {exerciseStatus.given_peer_review_submissions.length > 0 ? (
                                       <>
                                         <h3>
+                                          {/* eslint-disable-next-line i18next/no-literal-string */}
                                           {t("peer-reviews-given")}: (
                                           {exerciseStatus.given_peer_review_submissions.length})
                                         </h3>

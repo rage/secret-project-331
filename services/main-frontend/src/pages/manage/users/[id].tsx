@@ -44,15 +44,23 @@ const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) =
 
   return (
     <Layout>
-      <h1>User details</h1>
       <Area>
-        <p>Id: {query.id}</p>
-        <p>Email: {userDetailsQuery.data.email}</p>
-        <p>First name: {userDetailsQuery.data.first_name}</p>
-        <p>Last name: {userDetailsQuery.data.last_name}</p>
+        <h1>{t("header-user-details")}</h1>
+        <p>
+          {t("label-user-id")}: {query.id}
+        </p>
+        <p>
+          {t("label-email")}: {userDetailsQuery.data.email}
+        </p>
+        <p>
+          {t("first-name")}: {userDetailsQuery.data.first_name}
+        </p>
+        <p>
+          {t("last-name")}: {userDetailsQuery.data.last_name}
+        </p>
       </Area>
       <Area>
-        <h2>Course instance enrollments</h2>
+        <h2>{t("header-course-instance-enrollments")}</h2>
         <CourseInstanceEnrollmentsList userId={query.id} />
       </Area>
     </Layout>

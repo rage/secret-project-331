@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 import { getCourseInstanceEnrollmentsInfo } from "../../../../../services/backend/users"
 import Button from "../../../../../shared-module/components/Button"
@@ -15,6 +16,7 @@ export interface CourseInstanceEnrollmentsListProps {
 const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps> = ({
   userId,
 }) => {
+  const { t } = useTranslation()
   const courseInstanceEnrollmentsQuery = useQuery(["course-instance-enrollments", userId], () =>
     getCourseInstanceEnrollmentsInfo(userId),
   )
@@ -68,19 +70,27 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
               `}
             >
               <p>
-                Course: {course.name} ({course.slug})
+                {t("course")}: {course.name} ({course.slug})
               </p>
 
-              <p>Course language: {course.language_code}</p>
-              <p>Course instance: {courseInstance.name ?? "Default"}</p>
-              <p>Created at: {dateToString(enrollment.created_at)}</p>
-              <p>Current: {current.toString()}</p>
+              <p>
+                {t("course-language")}: {course.language_code}
+              </p>
+              <p>
+                {t("label-course-instance")}: {courseInstance.name ?? t("label-default")}
+              </p>
+              <p>
+                {t("label-created-at")}: {dateToString(enrollment.created_at)}
+              </p>
+              <p>
+                {t("label-current")}: {current.toString()}
+              </p>
             </div>
             <Link
               href={`http://project-331.local/manage/course-instances/${enrollment.course_instance_id}/exercise-status-summary-for-user/${userId}`}
             >
               <Button variant="tertiary" size="medium">
-                Exercise status summary
+                {t("exercise-status-summary")}
               </Button>
             </Link>
           </div>

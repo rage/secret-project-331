@@ -62,6 +62,8 @@ import {
   CourseUpdate,
   CreateAccountDetails,
   DatabaseChapter,
+  EditedBlockNoLongerExistsData,
+  EditedBlockStillExistsData,
   EditProposalInfo,
   EmailTemplate,
   EmailTemplateNew,
@@ -2187,6 +2189,18 @@ export function isPlaygroundExampleData(obj: unknown): obj is PlaygroundExampleD
 export function isBlockProposal(obj: unknown): obj is BlockProposal {
   const typedObj = obj as BlockProposal
   return (
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "edited-block-still-exists" &&
+      (isEditedBlockStillExistsData(typedObj) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "edited-block-no-longer-exists" &&
+      (isEditedBlockNoLongerExistsData(typedObj) as boolean))
+  )
+}
+
+export function isEditedBlockStillExistsData(obj: unknown): obj is EditedBlockStillExistsData {
+  const typedObj = obj as EditedBlockStillExistsData
+  return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
     typeof typedObj["block_id"] === "string" &&
@@ -2195,6 +2209,20 @@ export function isBlockProposal(obj: unknown): obj is BlockProposal {
     typeof typedObj["original_text"] === "string" &&
     (isProposalStatus(typedObj["status"]) as boolean) &&
     (typedObj["accept_preview"] === null || typeof typedObj["accept_preview"] === "string")
+  )
+}
+
+export function isEditedBlockNoLongerExistsData(
+  obj: unknown,
+): obj is EditedBlockNoLongerExistsData {
+  const typedObj = obj as EditedBlockNoLongerExistsData
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["block_id"] === "string" &&
+    typeof typedObj["changed_text"] === "string" &&
+    typeof typedObj["original_text"] === "string" &&
+    (isProposalStatus(typedObj["status"]) as boolean)
   )
 }
 

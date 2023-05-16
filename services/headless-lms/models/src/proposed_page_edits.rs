@@ -11,7 +11,8 @@ use crate::{
     pages::{CmsPageUpdate, PageUpdateArgs},
     prelude::*,
     proposed_block_edits::{
-        BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
+        BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData,
+        EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus,
     },
 };
 
@@ -157,58 +158,15 @@ WHERE proposed_block_edits.deleted_at IS NULL
 
     let mut proposals = HashMap::new();
     let mut pages = HashMap::new();
+
     for r in res {
-        let content = match pages.entry(r.page_id) {
-            Entry::Occupied(o) => o.into_mut(),
-            Entry::Vacant(v) => {
-                let page = crate::pages::get_page(&mut *conn, r.page_id).await?;
-                let content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
-                v.insert(content)
-            }
-        };
-        let block = content
-            .iter()
-            .find(|b| b.client_id == r.block_id)
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    "Failed to find the block which the proposal was for".to_string(),
-                    None,
-                )
-            })?;
-        let content = block
-            .attributes
-            .get(&r.block_attribute)
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    format!(
-                        "Missing expected attribute '{}' in edited block",
-                        r.block_attribute
-                    ),
-                    None,
-                )
-            })?
-            .as_str()
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    format!("Attribute '{}' did not contain a string", r.block_attribute),
-                    None,
-                )
-            })?
-            .to_string();
         let page_proposal_id = r.page_proposal_id;
         let page_id = r.page_id;
         let user_id = r.user_id;
         let page_proposal_pending = r.pending;
         let created_at = r.created_at;
-
-        let block_proposal_id = r.block_proposal_id;
-        let block_id = r.block_id;
         let original_text = r.original_text;
         let changed_text = r.changed_text;
-        let block_proposal_status = r.block_proposal_status;
         let page_proposal =
             proposals
                 .entry(r.page_proposal_id)
@@ -222,15 +180,72 @@ WHERE proposed_block_edits.deleted_at IS NULL
                     page_title: r.page_title,
                     page_url_path: r.page_url_path,
                 });
-        page_proposal.block_proposals.push(BlockProposal {
-            accept_preview: merge_edits::merge(&original_text, &changed_text, &content),
-            id: block_proposal_id,
-            block_id,
-            current_text: content.to_string(),
-            changed_text: changed_text.to_string(),
-            status: block_proposal_status,
-            original_text: original_text.to_string(),
-        });
+
+        let content = match pages.entry(r.page_id) {
+            Entry::Occupied(o) => o.into_mut(),
+            Entry::Vacant(v) => {
+                let page = crate::pages::get_page(&mut *conn, r.page_id).await?;
+                let content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
+                v.insert(content)
+            }
+        };
+
+        let block = content.iter().find(|b| b.client_id == r.block_id);
+
+        let block_proposal_id = r.block_proposal_id;
+        let block_id = r.block_id;
+        let block_proposal_status = r.block_proposal_status;
+
+        if block.is_none() {
+            page_proposal
+                .block_proposals
+                .push(BlockProposal::EditedBlockNoLongerExists(
+                    EditedBlockNoLongerExistsData {
+                        id: block_proposal_id,
+                        block_id,
+                        changed_text: changed_text.to_string(),
+                        status: block_proposal_status,
+                        original_text: original_text.to_string(),
+                    },
+                ));
+        } else {
+            let content = block
+                .unwrap()
+                .attributes
+                .get(&r.block_attribute)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        format!(
+                            "Missing expected attribute '{}' in edited block",
+                            r.block_attribute
+                        ),
+                        None,
+                    )
+                })?
+                .as_str()
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        format!("Attribute '{}' did not contain a string", r.block_attribute),
+                        None,
+                    )
+                })?
+                .to_string();
+            page_proposal
+                .block_proposals
+                .push(BlockProposal::EditedBlockStillExists(
+                    EditedBlockStillExistsData {
+                        accept_preview: merge_edits::merge(&original_text, &changed_text, &content),
+                        id: block_proposal_id,
+                        block_id,
+                        current_text: content.to_string(),
+                        changed_text: changed_text.to_string(),
+                        status: block_proposal_status,
+                        original_text: original_text.to_string(),
+                    },
+                ));
+        }
     }
 
     let mut proposals = proposals.into_values().collect::<Vec<_>>();
@@ -503,28 +518,36 @@ mod test {
             .unwrap();
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
-        assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
-        process_proposal(
-            tx.as_mut(),
-            page,
-            p.id,
-            vec![BlockProposalInfo {
-                id: b.id,
-                action: BlockProposalAction::Accept("Content with a typo in it.".to_string()),
-            }],
-            user,
-            |_, _, _| unimplemented!(),
-            |_| unimplemented!(),
-        )
-        .await
-        .unwrap();
+        match b {
+            BlockProposal::EditedBlockStillExists(b) => {
+                assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
+                process_proposal(
+                    tx.as_mut(),
+                    page,
+                    p.id,
+                    vec![BlockProposalInfo {
+                        id: b.id,
+                        action: BlockProposalAction::Accept(
+                            "Content with a typo in it.".to_string(),
+                        ),
+                    }],
+                    user,
+                    |_, _, _| unimplemented!(),
+                    |_| unimplemented!(),
+                )
+                .await
+                .unwrap();
 
-        let mut ps = get_proposals_for_course(tx.as_mut(), course, false, Pagination::default())
-            .await
-            .unwrap();
-        let _ = ps.pop().unwrap();
+                let mut ps =
+                    get_proposals_for_course(tx.as_mut(), course, false, Pagination::default())
+                        .await
+                        .unwrap();
+                let _ = ps.pop().unwrap();
 
-        assert_content(tx.as_mut(), page, "Content with a typo in it.").await;
+                assert_content(tx.as_mut(), page, "Content with a typo in it.").await;
+            }
+            BlockProposal::EditedBlockNoLongerExists(_o) => panic!("Wrong block proposal"),
+        };
     }
 
     #[tokio::test]
@@ -556,29 +579,35 @@ mod test {
             .unwrap();
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
-        assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
-        assert_eq!(b.status, ProposalStatus::Pending);
+        match b {
+            BlockProposal::EditedBlockStillExists(b) => {
+                assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
+                assert_eq!(b.status, ProposalStatus::Pending);
 
-        process_proposal(
-            tx.as_mut(),
-            page,
-            p.id,
-            vec![BlockProposalInfo {
-                id: b.id,
-                action: BlockProposalAction::Reject,
-            }],
-            user,
-            |_, _, _| unimplemented!(),
-            |_| unimplemented!(),
-        )
-        .await
-        .unwrap();
+                process_proposal(
+                    tx.as_mut(),
+                    page,
+                    p.id,
+                    vec![BlockProposalInfo {
+                        id: b.id,
+                        action: BlockProposalAction::Reject,
+                    }],
+                    user,
+                    |_, _, _| unimplemented!(),
+                    |_| unimplemented!(),
+                )
+                .await
+                .unwrap();
 
-        let mut ps = get_proposals_for_course(tx.as_mut(), course, false, Pagination::default())
-            .await
-            .unwrap();
-        let _ = ps.pop().unwrap();
+                let mut ps =
+                    get_proposals_for_course(tx.as_mut(), course, false, Pagination::default())
+                        .await
+                        .unwrap();
+                let _ = ps.pop().unwrap();
 
-        assert_content(tx.as_mut(), page, "Content with a tpo in it.").await;
+                assert_content(tx.as_mut(), page, "Content with a tpo in it.").await;
+            }
+            BlockProposal::EditedBlockNoLongerExists(_o) => panic!("Wrong block proposal"),
+        };
     }
 }

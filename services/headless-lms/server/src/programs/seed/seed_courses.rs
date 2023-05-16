@@ -1299,7 +1299,7 @@ pub async fn seed_sample_course(
                             "items": [{
                                 "id": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
                                 "body": null,
-                                "type": "clickable-multiple-choice",
+                                "type": "multiple-choice",
                                 "multi": false,
                                 "multipleChoiceMultipleOptionsGradingPolicy": "default",
                                 "order": 0,
@@ -1373,7 +1373,7 @@ pub async fn seed_sample_course(
                             "items": [{
                                 "id": "7640b8db-eee0-4685-b031-dde26f183c9c",
                                 "body": null,
-                                "type": "clickable-multiple-choice",
+                                "type": "multiple-choice",
                                 "multi": false,
                                 "multipleChoiceMultipleOptionsGradingPolicy": "default",
                                 "order": 0,
@@ -1447,7 +1447,7 @@ pub async fn seed_sample_course(
                             "items": [{
                                 "id": "a72b53f5-97c4-4385-899b-560d06592aec",
                                 "body": null,
-                                "type": "clickable-multiple-choice",
+                                "type": "multiple-choice",
                                 "multi": false,
                                 "multipleChoiceMultipleOptionsGradingPolicy": "default",
                                 "order": 0,

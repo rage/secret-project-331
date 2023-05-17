@@ -51,13 +51,19 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
   const columnHelper = createColumnHelper<UserDetail>()
 
   const columns = [
-    columnHelper.accessor("user_id", {}),
-    columnHelper.accessor("email", {}),
-    columnHelper.accessor("first_name", {}),
-    columnHelper.accessor("last_name", {}),
+    columnHelper.accessor("user_id", { header: t("label-user-id") }),
+    columnHelper.accessor("email", {
+      header: t("label-email"),
+    }),
+    columnHelper.accessor("first_name", {
+      header: t("first-name"),
+    }),
+    columnHelper.accessor("last_name", {
+      header: t("last-name"),
+    }),
     columnHelper.display({
       id: "details",
-      header: "details",
+      header: t("button-details"),
       cell: (props) => (
         <Link href={`/manage/users/${props.row.original.user_id}`}>
           <Button variant="tertiary" size="medium">
@@ -132,18 +138,6 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
             </tr>
           ))}
         </tbody>
-        <tfoot>
-          {table.getFooterGroups().map((footerGroup) => (
-            <tr key={footerGroup.id}>
-              {footerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {!header.isPlaceholder &&
-                    flexRender(header.column.columnDef.footer, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
       </table>
     </div>
   )

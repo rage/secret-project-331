@@ -388,5 +388,30 @@ test.describe("test ManualReviewEverything behavior", () => {
       waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
       screenshotOptions: { fullPage: true },
     })
+
+    // Check exercise status summary
+    await teacherPage.goto("http://project-331.local/org/uh-cs")
+    await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
+    await teacherPage.getByRole("tab", { name: "Course instances" }).click()
+    await teacherPage
+      .getByRole("listitem")
+      .filter({
+        hasText: "Default",
+        hasNotText: "Non-default instance",
+      })
+      .getByRole("link", { name: "View points" })
+      .click()
+    await teacherPage.getByText("d7d6246c-45a8-4ff4-bf4d-31dedfaac159").click()
+    await teacherPage.getByText(`Exercise: ManualReviewEverything2 (1 submissions)`).click()
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      testInfo,
+      snapshotName: "exercise-status-summary",
+      screenshotTarget: teacherPage,
+      clearNotifications: true,
+      waitForTheseToBeVisibleAndStable: [
+        teacherPage.getByText(`Received enough peer reviews: true`).last(),
+      ],
+    })
   })
 })

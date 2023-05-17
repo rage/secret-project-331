@@ -11,8 +11,10 @@ import { useCourseStructure } from "../../../../../hooks/useCourseStructure"
 import { getAllExerciseStatusSummariesForUserAndCourseInstance } from "../../../../../services/backend/course-instances"
 import { ExerciseStatusSummaryForUser } from "../../../../../shared-module/bindings"
 import Accordion from "../../../../../shared-module/components/Accordion"
+import BooleanAsText from "../../../../../shared-module/components/BooleanAsText"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -133,8 +135,12 @@ const CourseInstanceExerciseStatusList: React.FC<
                                 margin-right: 64px;
                               `}
                             >
-                              {userExerciseState.score_given ?? 0}/
-                              {exerciseStatus.exercise.score_maximum}
+                              (
+                              <HideTextInSystemTests
+                                text={(userExerciseState.score_given ?? 0).toString()}
+                                testPlaceholder="X"
+                              />
+                              /{exerciseStatus.exercise.score_maximum})
                             </span>
                           )}
                         </summary>
@@ -174,9 +180,19 @@ const CourseInstanceExerciseStatusList: React.FC<
                                                   },
                                                 }}
                                               >
-                                                {exerciseSlideSubmission.id}
+                                                <HideTextInSystemTests
+                                                  text={exerciseSlideSubmission.id}
+                                                  testPlaceholder="00000000-0000-0000-0000-000000000000"
+                                                />
                                               </Link>{" "}
-                                              ({dateToString(exerciseSlideSubmission.created_at)})
+                                              (
+                                              <HideTextInSystemTests
+                                                text={dateToString(
+                                                  exerciseSlideSubmission.created_at,
+                                                )}
+                                                testPlaceholder={dateToString(new Date(0))}
+                                              />
+                                              )
                                             </div>
                                           )
                                         },
@@ -196,22 +212,33 @@ const CourseInstanceExerciseStatusList: React.FC<
                                         <p>
                                           {t("given-enough-peer-reviews")}: {t("label-true")}
                                         </p>
-                                        <p>{`${t("received-enough-peer-reviews")}: ${
-                                          exerciseStatus.peer_review_queue_entry
-                                            .received_enough_peer_reviews
-                                        }`}</p>
+                                        <p>
+                                          {`${t("received-enough-peer-reviews")}: `}{" "}
+                                          <BooleanAsText
+                                            value={
+                                              exerciseStatus.peer_review_queue_entry
+                                                .received_enough_peer_reviews
+                                            }
+                                          />
+                                        </p>
                                         <p>
                                           {t("label-entered-peer-review-queue")}:{" "}
-                                          {dateToString(
-                                            exerciseStatus.peer_review_queue_entry.created_at,
-                                          )}
+                                          <HideTextInSystemTests
+                                            text={dateToString(
+                                              exerciseStatus.peer_review_queue_entry.created_at,
+                                            )}
+                                            testPlaceholder={dateToString(new Date(0))}
+                                          />
                                         </p>
                                         <p>
                                           {t("label-submission-being-reviewed")}:{" "}
-                                          {
-                                            exerciseStatus.peer_review_queue_entry
-                                              .receiving_peer_reviews_exercise_slide_submission_id
-                                          }
+                                          <HideTextInSystemTests
+                                            text={
+                                              exerciseStatus.peer_review_queue_entry
+                                                .receiving_peer_reviews_exercise_slide_submission_id
+                                            }
+                                            testPlaceholder="00000000-0000-0000-0000-000000000000"
+                                          />
                                         </p>
                                         <p>
                                           {t("label-priority")}:{" "}

@@ -9,6 +9,7 @@ import {
   PeerReviewSubmission,
 } from "../../../../../../../shared-module/bindings"
 import Accordion from "../../../../../../../shared-module/components/Accordion"
+import HideTextInSystemTests from "../../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "../../../../../../../shared-module/styles"
 
 export interface PeerReviewSubmissionSummaryAccordionProps {
@@ -38,18 +39,25 @@ const PeerReviewSubmissionSummaryAccordion = ({
       <Accordion variant="detail">
         <details>
           <summary>
-            {t("peer-review-submission-id")}: {peerReviewSubmission.id}
+            {t("peer-review-submission-id")}:{" "}
+            <HideTextInSystemTests
+              text={peerReviewSubmission.id}
+              testPlaceholder="00000000-0000-0000-0000-000000000000"
+            />
           </summary>
           {showSubmissionBeingReviewed && (
             <PeerReviewDiv>
-              Submission being reviewed:{" "}
+              {t("label-submission-being-reviewed")}:{" "}
               <Link
                 href={{
                   pathname: "/submissions/[submissionId]",
                   query: { submissionId: peerReviewSubmission.exercise_slide_submission_id },
                 }}
               >
-                {peerReviewSubmission.exercise_slide_submission_id}
+                <HideTextInSystemTests
+                  text={peerReviewSubmission.exercise_slide_submission_id}
+                  testPlaceholder="00000000-0000-0000-0000-000000000000"
+                />
               </Link>
             </PeerReviewDiv>
           )}

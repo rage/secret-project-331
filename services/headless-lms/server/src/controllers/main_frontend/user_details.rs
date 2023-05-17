@@ -15,7 +15,7 @@ pub async fn get_user_details(
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
-    let res = models::user_details::get_user_details_by_user_id(&mut *conn, *user_id).await?;
+    let res = models::user_details::get_user_details_by_user_id(&mut conn, *user_id).await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -33,7 +33,7 @@ pub async fn search_users_by_email(
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
     let res =
-        models::user_details::search_for_user_details_by_email(&mut *conn, &payload.query).await?;
+        models::user_details::search_for_user_details_by_email(&mut conn, &payload.query).await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -51,7 +51,7 @@ pub async fn search_users_by_other_details(
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
     let res =
-        models::user_details::search_for_user_details_by_other_details(&mut *conn, &payload.query)
+        models::user_details::search_for_user_details_by_other_details(&mut conn, &payload.query)
             .await?;
     token.authorized_ok(web::Json(res))
 }
@@ -69,7 +69,7 @@ pub async fn search_users_fuzzy_match(
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
-    let res = models::user_details::search_for_user_details_fuzzy_match(&mut *conn, &payload.query)
+    let res = models::user_details::search_for_user_details_fuzzy_match(&mut conn, &payload.query)
         .await?;
     token.authorized_ok(web::Json(res))
 }

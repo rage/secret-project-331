@@ -90,7 +90,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(`[aria-label="Options"]`)
   await page.waitForTimeout(100)
-  await page.click(`text=Insert after`)
+  await page.click(`text=Add after`)
   await page.waitForTimeout(100)
 
   await page.click(

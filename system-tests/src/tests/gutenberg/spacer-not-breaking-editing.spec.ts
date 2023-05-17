@@ -46,7 +46,7 @@ test("Spacers should not break text editing under them, block inserter should no
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.getByRole("button", { name: "Options" }).click()
-  await page.getByRole("menuitem", { name: "Insert after Ctrl+Alt+Y" }).click()
+  await page.getByRole("menuitem", { name: "Add after Ctrl+Alt+Y" }).click()
   await page
     .getByRole("document", {
       name: "Empty block; start writing or type forward slash to choose a block",

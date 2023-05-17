@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test.only("test", async ({ page, headless }, testInfo) => {
+test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([

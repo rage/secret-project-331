@@ -98,7 +98,7 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
                 variant="primary"
                 size="medium"
                 onClick={onSearch}
-                disabled={searchByEmailQuery.isLoading}
+                disabled={searchByEmailQuery.isFetching}
               >
                 {t("button-text-search")}
               </Button>
@@ -106,11 +106,13 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
           </div>
         </div>
 
-        <SearchUsersResults
-          searchByEmailQuery={searchByEmailQuery}
-          searchByOtherDetailsQuery={searchByOtherDetailsQuery}
-          searchFuzzyMatchQuery={searchFuzzyMatchQuery}
-        />
+        {trimmedSearchQuery !== "" && (
+          <SearchUsersResults
+            searchByEmailQuery={searchByEmailQuery}
+            searchByOtherDetailsQuery={searchByOtherDetailsQuery}
+            searchFuzzyMatchQuery={searchFuzzyMatchQuery}
+          />
+        )}
       </OnlyRenderIfPermissions>
     </Layout>
   )

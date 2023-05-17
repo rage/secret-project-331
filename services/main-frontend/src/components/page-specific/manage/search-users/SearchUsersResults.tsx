@@ -57,7 +57,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     columnHelper.accessor("last_name", {}),
     columnHelper.display({
       id: "details",
-      header: "",
+      header: "details",
       cell: (props) => (
         <Link href={`/manage/users/${props.row.original.user_id}`}>
           <Button variant="tertiary" size="medium">
@@ -80,6 +80,14 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
 
   if (searchByEmailQuery.isFetching) {
     return <Spinner variant="medium" />
+  }
+
+  if (!data) {
+    return null
+  }
+
+  if (data.length === 0) {
+    return <p>{t("text-no-results")}</p>
   }
 
   return (

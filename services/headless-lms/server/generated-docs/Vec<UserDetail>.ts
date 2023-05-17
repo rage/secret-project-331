@@ -1,4 +1,4 @@
-type UserDetail = {
+type Vec<UserDetail> = Array<{
   user_id: string
   created_at: Date
   updated_at: Date
@@ -6,4 +6,4 @@ type UserDetail = {
   first_name: string | null
   last_name: string | null
   search_helper: string | null
-}
+}>

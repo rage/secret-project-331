@@ -1153,15 +1153,18 @@ fn models() {
         upstream_id: None,
         email_domain: Some("example.com".to_string()),
     });
-    doc!(UserDetail {
-        user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),
-        created_at,
-        updated_at,
-        email: "example@example.com".to_string(),
-        first_name: Some("Example".to_string()),
-        last_name: Some("User".to_string()),
-        search_helper: Some("Example User".to_string()),
-    });
+    doc!(
+        Vec,
+        UserDetail {
+            user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),
+            created_at,
+            updated_at,
+            email: "example@example.com".to_string(),
+            first_name: Some("Example".to_string()),
+            last_name: Some("User".to_string()),
+            search_helper: Some("Example User".to_string()),
+        }
+    );
     doc!(CourseCount { count: 1234 });
     doc!(
         Vec,

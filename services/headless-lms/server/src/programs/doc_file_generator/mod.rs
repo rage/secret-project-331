@@ -1154,6 +1154,7 @@ fn models() {
         email_domain: Some("example.com".to_string()),
     });
     doc!(
+        T,
         Vec,
         UserDetail {
             user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),

@@ -132,7 +132,8 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
         }
       }),
     },
-    quiz_answer_is_valid: false,
+    // TODO: validate previous submission in the future
+    quiz_answer_is_valid: !!previousSubmission,
   }
   const [state, dispatch] = useReducer(reducer, widget_state)
 

@@ -3,7 +3,7 @@
 use futures::future::OptionFuture;
 use models::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
-    exercise_task_submissions::{ExerciseTaskSubmission, PeerReviewsRecieved},
+    exercise_task_submissions::PeerReviewsRecieved,
     exercises::{CourseMaterialExercise, Exercise},
     library::{
         grading::{
@@ -428,19 +428,6 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
     token.authorized_ok((course_instance_id_or_exam_id, last_try))
 }
 
-#[instrument(skip(pool))]
-async fn fetch_students_previous_submission(
-    pool: web::Data<PgPool>,
-    exercise_slide_id: web::Path<Uuid>,
-    user: AuthUser,
-    jwt_key: web::Data<JwtKey>,
-) -> ControllerResult<web::Json<Option<Vec<ExerciseTaskSubmission>>>> {
-    let mut conn = pool.acquire().await?;
-    let previous_submission = models::exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(&mut conn, *exercise_slide_id, user.id).await?;
-    let token = skip_authorize()?;
-    token.authorized_ok(web::Json(previous_submission))
-}
-
 /**
 Add a route for each controller in this module.
 
@@ -469,5 +456,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/submissions",
             web::post().to(post_submission),
-        ).route("/{exercise_slide_id}/previous_submission",web::get().to(fetch_students_previous_submission));
+        );
 }

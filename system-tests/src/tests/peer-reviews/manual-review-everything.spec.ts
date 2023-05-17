@@ -55,6 +55,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     // Student 2 submits an answer
     await student2Page.goto("http://project-331.local/")
@@ -79,6 +80,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+    await student2Page.getByText("Try again").waitFor()
 
     await student1Page
       .frameLocator("iframe")
@@ -238,10 +240,12 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     await student1Page.getByRole("button", { name: "try again" }).click()
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     // student 2 submits an answer
     await student2Page.goto("http://project-331.local/")
@@ -266,6 +270,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+    await student2Page.getByText("Try again").waitFor()
 
     await student2Page
       .frameLocator("iframe")

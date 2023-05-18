@@ -1,4 +1,5 @@
 import { ClassNamesArg, css, cx } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -28,6 +29,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
+  const queryClient = useQueryClient()
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
@@ -35,7 +37,11 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
 
   const submitLogout = async () => {
     await logout()
+    queryClient.removeQueries()
     await loginStateContext.refresh()
+    setTimeout(() => {
+      queryClient.refetchQueries()
+    }, 100)
   }
 
   // eslint-disable-next-line i18next/no-literal-string

@@ -5,7 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
-test.describe.only("test ManualReviewEverything behavior", () => {
+test.describe("test ManualReviewEverything behavior", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })

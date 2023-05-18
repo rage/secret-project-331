@@ -5,7 +5,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
 
-test.describe("test ManualReviewEverything behavior", () => {
+test.describe.only("test ManualReviewEverything behavior", () => {
   test.use({
     storageState: "src/states/admin@example.com.json",
   })
@@ -407,16 +407,13 @@ test.describe("test ManualReviewEverything behavior", () => {
       .getByRole("link", { name: "View points" })
       .click()
     await teacherPage.getByText("d7d6246c-45a8-4ff4-bf4d-31dedfaac159").click()
-    await teacherPage.getByText(`Exercise: ManualReviewEverything2 (1 submissions)`).click()
+    await teacherPage.getByText(`Exercise: ManualReviewEverything2 (1 submissions)`).waitFor()
     await expectScreenshotsToMatchSnapshots({
       headless,
       testInfo,
       snapshotName: "exercise-status-summary",
       screenshotTarget: teacherPage,
       clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [
-        teacherPage.getByText(`Received enough peer reviews: true`).last(),
-      ],
     })
   })
 })

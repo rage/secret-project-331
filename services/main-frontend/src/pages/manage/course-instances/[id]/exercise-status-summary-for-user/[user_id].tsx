@@ -124,9 +124,14 @@ const CourseInstanceExerciseStatusList: React.FC<
                       <details>
                         <summary>
                           {t("exercise")}: {exerciseStatus.exercise.name} (
-                          {t("header-n-submissions", {
-                            n: exerciseStatus.exercise_slide_submissions.length,
-                          })}
+                          <HideTextInSystemTests
+                            text={t("header-n-submissions", {
+                              n: exerciseStatus.exercise_slide_submissions.length,
+                            })}
+                            testPlaceholder={t("header-n-submissions", {
+                              n: "X",
+                            })}
+                          />
                           )
                           {userExerciseState && (
                             <span

@@ -1,0 +1,2 @@
+COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews. Once user has given enough peer reviews, they will get added to this queue where additional peer reviews given will increase their own priority of receiving peer reviews.';
+COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created. In this table this is the moment when the user has given enough peer reviews';

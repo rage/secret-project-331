@@ -742,7 +742,7 @@
     page_visit_datum_daily_visit_hashing_keys::{
         generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
     },
-    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult, PageVisibility},
+    pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{<span class="self">self</span>, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
 };
@@ -1177,7 +1177,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 </span><span class="kw">async fn </span>search_pages_with_phrase(
     course_id: web::Path&lt;Uuid&gt;,
-    payload: web::Json&lt;PageSearchRequest&gt;,
+    payload: web::Json&lt;SearchRequest&gt;,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PageSearchResult&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1209,7 +1209,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 </span><span class="kw">async fn </span>search_pages_with_words(
     course_id: web::Path&lt;Uuid&gt;,
-    payload: web::Json&lt;PageSearchRequest&gt;,
+    payload: web::Json&lt;SearchRequest&gt;,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PageSearchResult&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;

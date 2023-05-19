@@ -3616,8 +3616,8 @@
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
-</span><span class="kw">pub struct </span>PageSearchRequest {
-    query: String,
+</span><span class="kw">pub struct </span>SearchRequest {
+    <span class="kw">pub </span>query: String,
 }
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
@@ -6086,7 +6086,7 @@ Returns search results for a phrase i.e. looks for matches where the words come 
 </span><span class="kw">pub async fn </span>get_page_search_results_for_phrase(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
-    page_search_request: <span class="kw-2">&amp;</span>PageSearchRequest,
+    page_search_request: <span class="kw-2">&amp;</span>SearchRequest,
 ) -&gt; ModelResult&lt;Vec&lt;PageSearchResult&gt;&gt; {
     <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(<span class="kw-2">&amp;mut *</span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -6169,7 +6169,7 @@ Returns search results for the given words. The words can appear in the source d
 </span><span class="kw">pub async fn </span>get_page_search_results_for_words(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
-    page_search_request: <span class="kw-2">&amp;</span>PageSearchRequest,
+    page_search_request: <span class="kw-2">&amp;</span>SearchRequest,
 ) -&gt; ModelResult&lt;Vec&lt;PageSearchResult&gt;&gt; {
     <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(<span class="kw-2">&amp;mut *</span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 

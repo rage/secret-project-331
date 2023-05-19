@@ -715,10 +715,49 @@
 <a href="#715" id="715">715</a>
 <a href="#716" id="716">716</a>
 <a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::NaiveDate;
 <span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>rand::prelude::SliceRandom;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
@@ -951,11 +990,11 @@ WHERE id = $1
     excluded_user_id: Uuid,
     excluded_ids: <span class="kw-2">&amp;</span>[Uuid],
 ) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;&gt; {
-    <span class="comment">// TODO: Filter to only latest submission per student.
-    </span><span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="macro">sqlx::query_as!</span>(
         ExerciseSlideSubmission,
         <span class="string">r#&quot;
-SELECT id,
+SELECT DISTINCT ON (user_id)
+  id,
   created_at,
   updated_at,
   deleted_at,
@@ -971,15 +1010,18 @@ WHERE exercise_id = $1
   AND id &lt;&gt; ALL($2)
   AND user_id &lt;&gt; $3
   AND deleted_at IS NULL
-ORDER BY random() ASC
+ORDER BY user_id, created_at DESC
         &quot;#</span>,
         exercise_id,
         excluded_ids,
         excluded_user_id,
     )
-    .fetch_optional(conn)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(res)
+    <span class="comment">// shuffle the res vec
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
+    res.shuffle(<span class="kw-2">&amp;mut </span>rng);
+    <span class="prelude-val">Ok</span>(res.into_iter().next())
 }
 
 <span class="kw">pub async fn </span>get_by_exercise_id(
@@ -1009,6 +1051,40 @@ LIMIT $2 OFFSET $3;
         exercise_id,
         pagination.limit(),
         pagination.offset(),
+    )
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(submissions)
+}
+
+<span class="kw">pub async fn </span>get_users_all_submissions_for_course_instance_or_exam(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+) -&gt; ModelResult&lt;Vec&lt;ExerciseSlideSubmission&gt;&gt; {
+    <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_id_or_exam_id.to_instance_and_exam_ids();
+    <span class="kw">let </span>submissions = <span class="macro">sqlx::query_as!</span>(
+        ExerciseSlideSubmission,
+        <span class="string">r#&quot;
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS &quot;user_points_update_strategy: _&quot;
+FROM exercise_slide_submissions
+WHERE user_id = $1
+  AND (course_instance_id = $2 OR exam_id = $3)
+  AND deleted_at IS NULL
+        &quot;#</span>,
+        user_id,
+        course_instance_id,
+        exam_id,
     )
     .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;

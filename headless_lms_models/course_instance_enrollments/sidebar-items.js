@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_by_user_and_course_instance_id","insert","insert_enrollment_and_set_as_current","insert_enrollment_if_it_doesnt_exist"],"struct":["CourseInstanceEnrollment","NewCourseInstanceEnrollment"]};
+window.SIDEBAR_ITEMS = {"fn":["get_by_user_and_course_instance_id","get_by_user_id","get_course_instance_enrollment_info_for_user","insert","insert_enrollment_and_set_as_current","insert_enrollment_if_it_doesnt_exist"],"struct":["CourseInstanceEnrollment","CourseInstanceEnrollmentsInfo","NewCourseInstanceEnrollment"]};

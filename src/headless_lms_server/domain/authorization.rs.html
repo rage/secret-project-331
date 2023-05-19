@@ -852,7 +852,7 @@
 
 <span class="doccomment">/// Forgets authentication from the current session, if any.
 </span><span class="kw">pub fn </span>forget(session: <span class="kw-2">&amp;</span>Session) {
-    session.remove(SESSION_KEY);
+    session.purge();
 }
 
 <span class="doccomment">/// Describes an action that a user can take on some resource.

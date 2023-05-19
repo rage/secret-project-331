@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["TeacherDecisionType"],"fn":["add_teacher_grading_decision","try_to_get_latest_grading_decision_by_user_exercise_state_id"],"struct":["NewTeacherGradingDecision","TeacherGradingDecision"]};
+window.SIDEBAR_ITEMS = {"enum":["TeacherDecisionType"],"fn":["add_teacher_grading_decision","get_all_latest_grading_decisions_by_user_id_and_course_instance_id","try_to_get_latest_grading_decision_by_user_exercise_state_id"],"struct":["NewTeacherGradingDecision","TeacherGradingDecision"]};

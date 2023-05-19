@@ -204,11 +204,11 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const acceptedBlock = (block: BlockProposal) => {
     let diffChanges = null
     if (block.type == "edited-block-still-exists") {
-      diffChanges = diffChars(block.current_text, block.accept_preview ?? "")
+      diffChanges = diffChars(block.original_text, block.changed_text ?? "")
     }
     return (
       <>
-        {isEditedBlockStillExistsData(block) && diffChanges !== null && (
+        {isEditedBlockStillExistsData(block) && diffChanges !== null ? (
           <div>
             {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
             <div>
@@ -233,9 +233,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
               </ImportantText>
             </div>
           </div>
-        )}
-
-        {isEditedBlockNoLongerExistsData(block) && (
+        ) : (
           <div>
             {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
             <div>

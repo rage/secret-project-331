@@ -74,7 +74,7 @@ const PeerReviewSubmissionSummaryAccordion = ({
                       className={css`
                         background-color: ${baseTheme.colors.clear[100]};
                         padding: 0.5rem;
-                        white-space: pre;
+                        white-space: pre-wrap;
                       `}
                     >
                       {prqs.number_data}
@@ -87,7 +87,7 @@ const PeerReviewSubmissionSummaryAccordion = ({
                     className={css`
                       background-color: ${baseTheme.colors.clear[100]};
                       padding: 0.5rem;
-                      white-space: pre;
+                      white-space: pre-wrap;
                     `}
                   >
                     {prqs.text_data}

@@ -108,10 +108,10 @@ const Accordion: React.FC<React.PropsWithChildren<React.PropsWithChildren<Accord
   }
 
   if (props.children) {
-    return <TextWrapper>{props.children}</TextWrapper>
+    return <TextWrapper className={props.className}>{props.children}</TextWrapper>
   }
   return (
-    <div>
+    <div className={props.className}>
       <TextWrapper>
         <details>
           <summary>{PLACEHOLDER_HEADING}</summary>

@@ -5,4 +5,5 @@ type UserDetail = {
   email: string
   first_name: string | null
   last_name: string | null
+  search_helper: string | null
 }

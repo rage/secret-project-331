@@ -21,7 +21,7 @@ use models::{
     page_visit_datum_daily_visit_hashing_keys::{
         generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
     },
-    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult, PageVisibility},
+    pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
 };
@@ -456,7 +456,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
-    payload: web::Json<PageSearchRequest>,
+    payload: web::Json<SearchRequest>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
@@ -488,7 +488,7 @@ Content-Type: application/json
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
-    payload: web::Json<PageSearchRequest>,
+    payload: web::Json<SearchRequest>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;

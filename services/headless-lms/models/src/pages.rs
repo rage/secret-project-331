@@ -181,8 +181,8 @@ pub struct ContentManagementPage {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PageSearchRequest {
-    query: String,
+pub struct SearchRequest {
+    pub query: String,
 }
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -2651,7 +2651,7 @@ Returns search results for a phrase i.e. looks for matches where the words come 
 pub async fn get_page_search_results_for_phrase(
     conn: &mut PgConnection,
     course_id: Uuid,
-    page_search_request: &PageSearchRequest,
+    page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
 
@@ -2734,7 +2734,7 @@ Returns search results for the given words. The words can appear in the source d
 pub async fn get_page_search_results_for_words(
     conn: &mut PgConnection,
     course_id: Uuid,
-    page_search_request: &PageSearchRequest,
+    page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
 

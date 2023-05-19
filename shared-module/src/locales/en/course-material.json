@@ -7,6 +7,8 @@
   "american-english": "English",
   "answer-from-another-student": "Answer from another student",
   "attempted-exercises-required-for-completion": "Attempted exercises required for completion",
+  "audio-notification-description": "Listen to the current page content with one click.",
+  "audio-player": "Read page",
   "available-in-languages": "Available in {{num}} languages",
   "available-on-date-at-time": "Available {{ date }} at {{ time }}",
   "block-invalid-without-course": "This block cannot be used on a page not related to a course.",
@@ -164,7 +166,5 @@
   "you-have-completed-the-course-to-receive-certificate-use-following-links": "You have successfully completed the course! You can use the following links to generate your certificate.",
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion and receive a certificate.",
   "youve-made-changes": "You've made changes",
-  "audio-player": "Read page",
-  "audio-notification-description": "Listen to the current page content with one click.",
   "youve-selected-material-for-editing": "You've selected material for editing"
 }

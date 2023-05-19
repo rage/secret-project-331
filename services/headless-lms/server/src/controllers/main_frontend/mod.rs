@@ -26,6 +26,7 @@ pub mod playground_views;
 pub mod proposed_edits;
 pub mod regradings;
 pub mod roles;
+pub mod user_details;
 pub mod users;
 
 use actix_web::web::{self, ServiceConfig};
@@ -56,5 +57,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/exercise-repositories").configure(exercise_repositories::_add_routes))
         .service(web::scope("/regradings").configure(regradings::_add_routes))
         .service(web::scope("/playground-views").configure(playground_views::_add_routes))
-        .service(web::scope("/page_audio").configure(page_audio_files::_add_routes));
+        .service(web::scope("/page_audio").configure(page_audio_files::_add_routes))
+        .service(web::scope("/user-details").configure(user_details::_add_routes));
 }

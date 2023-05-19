@@ -73,16 +73,10 @@ const errorClass = css`
   display: inline-block;
 `
 
-export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
+export type TextFieldProps = Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> &
+  TextFieldExtraProps
 
-const TextField = ({
-  onChange,
-  className,
-  register,
-  disabled,
-  error,
-  ...rest
-}: TextFieldExtraProps) => {
+const TextField = ({ onChange, className, register, disabled, error, ...rest }: TextFieldProps) => {
   const { t } = useTranslation()
   return (
     <div

@@ -182,6 +182,13 @@ export interface CourseInstanceEnrollment {
   deleted_at: Date | null
 }
 
+export interface CourseInstanceEnrollmentsInfo {
+  course_instance_enrollments: Array<CourseInstanceEnrollment>
+  course_instances: Array<CourseInstance>
+  courses: Array<Course>
+  user_course_settings: Array<UserCourseSettings>
+}
+
 export interface ChapterScore {
   id: string
   created_at: Date
@@ -692,6 +699,29 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
+export interface ExerciseStatusSummaryForUser {
+  exercise: Exercise
+  user_exercise_state: UserExerciseState | null
+  exercise_slide_submissions: Array<ExerciseSlideSubmission>
+  given_peer_review_submissions: Array<PeerReviewSubmission>
+  given_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  received_peer_review_submissions: Array<PeerReviewSubmission>
+  received_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  peer_review_queue_entry: PeerReviewQueueEntry | null
+  teacher_grading_decision: TeacherGradingDecision | null
+  peer_review_questions: Array<PeerReviewQuestion>
+}
+
+export interface ExerciseGradingStatus {
+  exercise_id: string
+  exercise_name: string
+  score_maximum: number
+  score_given: number | null
+  teacher_decision: TeacherDecisionType | null
+  submission_id: string
+  updated_at: Date
+}
+
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
 export interface Feedback {
@@ -1059,7 +1089,7 @@ export interface PageRoutingData {
   chapter_front_page_id: string | null
 }
 
-export interface PageSearchRequest {
+export interface SearchRequest {
   query: string
 }
 
@@ -1130,6 +1160,18 @@ export interface PeerReviewConfig {
   accepting_strategy: PeerReviewAcceptingStrategy
 }
 
+export interface PeerReviewSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  exercise_id: string
+  course_instance_id: string
+  peer_review_config_id: string
+  exercise_slide_submission_id: string
+}
+
 export type PeerReviewAnswer =
   | { type: "no-answer" }
   | { type: "essay"; value: string }
@@ -1155,6 +1197,20 @@ export interface PeerReviewQuestionSubmission {
   peer_review_submission_id: string
   text_data: string | null
   number_data: number | null
+}
+
+export interface PeerReviewQueueEntry {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  exercise_id: string
+  course_instance_id: string
+  receiving_peer_reviews_exercise_slide_submission_id: string
+  received_enough_peer_reviews: boolean
+  peer_review_priority: number
+  removed_from_queue_for_unusual_reason: boolean
 }
 
 export interface PeerReviewWithQuestionsAndAnswers {
@@ -1391,6 +1447,7 @@ export interface UserDetail {
   email: string
   first_name: string | null
   last_name: string | null
+  search_helper: string | null
 }
 
 export interface ExerciseUserCounts {

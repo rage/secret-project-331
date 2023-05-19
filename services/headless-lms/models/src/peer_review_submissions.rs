@@ -91,6 +91,52 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_all_received_peer_review_submissions_for_user_and_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<PeerReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewSubmission,
+        "
+SELECT prs.*
+FROM exercise_slide_submissions ess
+INNER JOIN peer_review_submissions prs ON (ess.id = prs.exercise_slide_submission_id)
+WHERE ess.user_id = $1
+  AND ess.course_instance_id = $2
+  AND ess.deleted_at IS NULL
+  AND prs.deleted_at IS NULL
+    ",
+        user_id,
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_given_peer_review_submissions_for_user_and_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<PeerReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewSubmission,
+        "
+SELECT *
+FROM peer_review_submissions
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+    ",
+        user_id,
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,

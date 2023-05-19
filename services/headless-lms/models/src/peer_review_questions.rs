@@ -102,6 +102,35 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    id: &[Uuid],
+) -> ModelResult<Vec<PeerReviewQuestion>> {
+    let res = sqlx::query_as!(
+        PeerReviewQuestion,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  peer_review_config_id,
+  order_number,
+  question,
+  question_type AS "question_type: _",
+  answer_required
+FROM peer_review_questions
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL;
+        "#,
+        id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_peer_review_configs_id(
     conn: &mut PgConnection,
     peer_review_id: Uuid,

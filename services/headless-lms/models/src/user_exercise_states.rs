@@ -639,6 +639,42 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_all_for_user_and_course_instance_or_exam(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+) -> ModelResult<Vec<UserExerciseState>> {
+    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND (course_instance_id = $2 OR exam_id = $3)
+  AND deleted_at IS NULL
+      "#,
+        user_id,
+        course_instance_id,
+        exam_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn upsert_selected_exercise_slide_id(
     conn: &mut PgConnection,
     user_id: Uuid,

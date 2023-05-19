@@ -22,11 +22,11 @@ import {
   PageAudioFile,
   PageChapterAndCourseInformation,
   PageNavigationInformation,
-  PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
   PeerReviewsRecieved,
   SaveCourseSettingsPayload,
+  SearchRequest,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -330,7 +330,7 @@ export const postSubmission = async (
 }
 
 export const searchPagesWithPhrase = async (
-  searchRequest: PageSearchRequest,
+  searchRequest: SearchRequest,
   courseId: string,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
@@ -341,7 +341,7 @@ export const searchPagesWithPhrase = async (
 }
 
 export const searchPagesWithWords = async (
-  searchRequest: PageSearchRequest,
+  searchRequest: SearchRequest,
   courseId: string,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(

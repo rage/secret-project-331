@@ -472,6 +472,24 @@ WHERE id = $1
     Ok(is_open)
 }
 
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    course_instance_ids: &[Uuid],
+) -> ModelResult<Vec<CourseInstance>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT *
+FROM course_instances
+WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
+    "#,
+        course_instance_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

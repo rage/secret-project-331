@@ -152,7 +152,7 @@ pub async fn has_auth_user_session(session: &Session, pool: web::Data<PgPool>) -
 
 /// Forgets authentication from the current session, if any.
 pub fn forget(session: &Session) {
-    session.remove(SESSION_KEY);
+    session.purge();
 }
 
 /// Describes an action that a user can take on some resource.

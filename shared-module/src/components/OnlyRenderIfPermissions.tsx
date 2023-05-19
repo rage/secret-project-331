@@ -8,11 +8,12 @@ import { authorize } from "../services/backend/auth"
 interface ComponentProps {
   action: Action
   resource: Resource
+  elseRender?: React.ReactNode
 }
 
 const OnlyRenderIfPermissions: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<ComponentProps>>
-> = ({ action, resource, children }) => {
+> = ({ action, resource, children, elseRender }) => {
   const loginState = useContext(LoginStateContext)
   const data = useQuery(
     [`action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`],
@@ -23,6 +24,9 @@ const OnlyRenderIfPermissions: React.FC<
   )
 
   if (loginState.signedIn !== true || data.isLoading || data.isError || !data.data) {
+    if (elseRender) {
+      return <>{elseRender}</>
+    }
     return null
   }
   return <>{children}</>

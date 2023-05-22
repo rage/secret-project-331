@@ -9,6 +9,7 @@ import {
 import { BlockProposalInfo } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { fontWeights, typography } from "../../../../../../shared-module/styles/typography"
 
 import EditProposalView from "./EditProposalView"
 
@@ -83,7 +84,14 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
 
       {proposalsForDeletedBlocks?.length !== 0 && (
         <>
-          <h6>{t("change-request-for-deleted-block")}</h6>
+          <h5
+            className={css`
+              font-size: ${typography.h5};
+              font-weight: ${fontWeights.semibold};
+            `}
+          >
+            {t("change-request-for-deleted-block")}
+          </h5>
           <ul
             className={css`
               list-style: none;

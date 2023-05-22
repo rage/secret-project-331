@@ -315,7 +315,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           return (
             <li
               className={css`
-                padding: 1rem;
+                padding-top: 1rem;
               `}
               key={b.id}
             >

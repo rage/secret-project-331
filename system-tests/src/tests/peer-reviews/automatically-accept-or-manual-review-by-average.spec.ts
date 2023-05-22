@@ -45,6 +45,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await student1Page.getByRole("link", { name: "2 Page Two" }).click()
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     // Student 2 answers a question
     await student2Page.goto("http://project-331.local/")
@@ -59,6 +60,7 @@ test.describe("test AutomaticallyAcceptOrManualReviewByAverage behavior", () => 
     await student2Page.getByRole("link", { name: "2 Page Two" }).click()
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+    await student2Page.getByText("Try again").waitFor()
 
     // student 1 fills peerreviews
     await fillPeerReview(student1Page, ["Agree", "Agree"])

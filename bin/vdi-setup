@@ -59,13 +59,13 @@ $banner
 END
 )
 
-export BASHRC_ADDITION="$bashrc_addition"
-
-echo "bashrc_addition is $bashrc_addition"
+echo "$bashrc_addition" > /tmp/bashrc_addition
 
 script_to_run_as_original_user=$(cat <<-END
 #!/bin/bash
 set -euo pipefail
+bashrc_addition=\$(cat /tmp/bashrc_addition)
+echo "bashrc_addition: \$bashrc_addition"
 echo "Running as $original_user"
 # If .bashrc doesn't exist, create it
 if [ ! -f "$original_home/.bashrc" ]; then

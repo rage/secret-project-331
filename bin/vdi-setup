@@ -88,4 +88,7 @@ fi
 END
 )
 
+echo "Running script"
+echo "$script_to_run_as_original_user"
+
 sudo -u "$original_user" bash -c "$script_to_run_as_original_user"

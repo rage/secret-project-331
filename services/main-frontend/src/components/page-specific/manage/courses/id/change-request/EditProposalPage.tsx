@@ -84,14 +84,17 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
 
       {proposalsForDeletedBlocks?.length !== 0 && (
         <>
-          <h5
-            className={css`
-              font-size: ${typography.h5};
-              font-weight: ${fontWeights.semibold};
-            `}
-          >
-            {t("change-request-for-deleted-block")}
-          </h5>
+          {pending === true && (
+            <h5
+              className={css`
+                font-size: ${typography.h5};
+                font-weight: ${fontWeights.semibold};
+              `}
+            >
+              {t("change-request-for-deleted-block")}
+            </h5>
+          )}
+
           <ul
             className={css`
               list-style: none;

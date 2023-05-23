@@ -196,21 +196,8 @@ WHERE proposed_block_edits.deleted_at IS NULL
         let block_id = r.block_id;
         let block_proposal_status = r.block_proposal_status;
 
-        if block.is_none() {
-            page_proposal
-                .block_proposals
-                .push(BlockProposal::EditedBlockNoLongerExists(
-                    EditedBlockNoLongerExistsData {
-                        id: block_proposal_id,
-                        block_id,
-                        changed_text: changed_text.to_string(),
-                        status: block_proposal_status,
-                        original_text: original_text.to_string(),
-                    },
-                ));
-        } else {
+        if let Some(block) = block {
             let content = block
-                .unwrap()
                 .attributes
                 .get(&r.block_attribute)
                 .ok_or_else(|| {
@@ -240,6 +227,18 @@ WHERE proposed_block_edits.deleted_at IS NULL
                         id: block_proposal_id,
                         block_id,
                         current_text: content.to_string(),
+                        changed_text: changed_text.to_string(),
+                        status: block_proposal_status,
+                        original_text: original_text.to_string(),
+                    },
+                ));
+        } else {
+            page_proposal
+                .block_proposals
+                .push(BlockProposal::EditedBlockNoLongerExists(
+                    EditedBlockNoLongerExistsData {
+                        id: block_proposal_id,
+                        block_id,
                         changed_text: changed_text.to_string(),
                         status: block_proposal_status,
                         original_text: original_text.to_string(),

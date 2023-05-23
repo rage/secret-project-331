@@ -36,7 +36,10 @@ fi
 
 # Create /data/$original_user/Code/secret-project-331
 if [ ! -d "/data/$original_user/Code/secret-project-331" ]; then
-  mkdir -p "/data/$original_user/Code/secret-project-331"
+  basedir="$(dirname "${BASH_SOURCE[0]}")"
+  folder_path="$basedir/.."
+  relative_path=$(realpath --relative-to="$(pwd)" "$folder_path")
+  cp -r "$relative_path" "/data/$original_user/Code/secret-project-331"
 fi
 
 echo "/data/$original_user/Code/secret-project-331 exists"

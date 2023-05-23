@@ -60,6 +60,7 @@ END
 )
 
 echo "$bashrc_addition" > /tmp/bashrc_addition
+chmod a+r /tmp/bashrc_addition
 
 script_to_run_as_original_user=$(cat <<-END
 #!/bin/bash
@@ -84,10 +85,14 @@ fi
 END
 )
 
-echo "Running script"
+
 
 echo "--------------------------------------------------------"
 echo "$script_to_run_as_original_user"
 echo "--------------------------------------------------------"
 
+echo "Running script"
+
 sudo -u "$original_user" bash -c "$script_to_run_as_original_user"
+
+rm /tmp/bashrc_addition

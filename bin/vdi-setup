@@ -99,3 +99,20 @@ rm /tmp/bashrc_addition
 
 chown -R "$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"
+
+export HOME="/data/$original_user"
+
+# Installing packages
+# If nvm not installed, install it
+if ! command -v nvm; then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  echo "Installed nvm"
+fi
+
+# Install postgres-cli and docker from apt
+sudo apt-get update
+sudo apt-get install -y postgresql-client docker.io docker-ce bc find jq rsync sponge
+# add current user to docker group
+sudo usermod -aG docker "$USER"
+
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

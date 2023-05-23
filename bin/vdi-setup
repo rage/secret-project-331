@@ -79,7 +79,7 @@ if grep -q "$banner" "$original_home/.bashrc"; then
 else
     echo "Vdi snippet not found in $original_home/.bashrc"
     echo "Adding banner to $original_home/.bashrc"
-    echo "\$BASHRC_ADDITION" >> "$original_home/.bashrc"
+    echo "\$bashrc_addition" >> "$original_home/.bashrc"
 fi
 
 END

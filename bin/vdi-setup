@@ -97,9 +97,6 @@ sudo -u "$original_user" bash -c "$script_to_run_as_original_user"
 
 rm /tmp/bashrc_addition
 
-chown -R "$original_user" "/data/$original_user"
-echo "Fixed permissions in /data/$original_user"
-
 export HOME="/data/$original_user"
 
 # Installing packages
@@ -116,3 +113,6 @@ sudo apt-get install -y postgresql-client docker.io bc jq rsync moreutils
 sudo usermod -aG docker "$USER"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+chown -R "$original_user" "/data/$original_user"
+echo "Fixed permissions in /data/$original_user"

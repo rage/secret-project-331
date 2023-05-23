@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+banner="########### MOOC-VDI setup ###########"
 
 # Check if /data exists
 if [ ! -d /data ]; then
@@ -9,6 +10,10 @@ fi
 
 echo "/data exists"
 
+original_user="$(logname)"
+original_home="$/home/$original_user"
+
+
 # Run as root
 if [ "$EUID" -ne 0 ]; then
   echo "ERROR: Please run as root"
@@ -17,49 +22,62 @@ fi
 
 echo "Running as root"
 
-# Create folder /data/$USER
-if [ ! -d "/data/$USER" ]; then
-  mkdir "/data/$USER"
+# Create folder /data/$original_user
+if [ ! -d "/data/$original_user" ]; then
+  mkdir "/data/$original_user"
 fi
 
-echo "/data/$USER exists"
+echo "/data/$original_user exists"
 
-# Create /data/$USER/.profile
-if [ ! -f "/data/$USER/.profile" ]; then
-  touch "/data/$USER/.profile"
+# Create /data/$original_user/.profile
+if [ ! -f "/data/$original_user/.profile" ]; then
+  touch "/data/$original_user/.profile"
 fi
 
-echo "/data/$USER/.profile exists"
+echo "/data/$original_user/.profile exists"
 
-# Create /data/$USER/Code/secret-project-331
-if [ ! -d "/data/$USER/Code/secret-project-331" ]; then
-  mkdir -p "/data/$USER/Code/secret-project-331"
+# Create /data/$original_user/Code/secret-project-331
+if [ ! -d "/data/$original_user/Code/secret-project-331" ]; then
+  mkdir -p "/data/$original_user/Code/secret-project-331"
 fi
 
-echo "/data/$USER/Code/secret-project-331 exists"
+echo "/data/$original_user/Code/secret-project-331 exists"
 
 bashrc_addition=$(cat <<-END
+
+$banner
 if [ "\$(hostname)" = "$(hostname)"  ] ; then
     echo "Switching home dir to a local disk for performance."
-    export HOME=/data/\$USER
-    source /data/$USER/.profile
+    export HOME=/data/\$original_user
+    source /data/$original_user/.profile
     cd "\$HOME/Code/secret-project-331"
     export SHELL=/usr/bin/fish
     [ -x \$SHELL ] && exec \$SHELL "\$@"
 fi
+$banner
+
 END
 )
 
 echo "bashrc_addition is $bashrc_addition"
 
 # If .bashrc doesn't exist, create it
-if [ ! -f "$HOME/.bashrc" ]; then
-  touch "$HOME/.bashrc"
+if [ ! -f "$original_home/.bashrc" ]; then
+  touch "$original_home/.bashrc"
+fi
+
+# check if banner in .bashrc
+if grep -q "$banner" "$original_home/.bashrc"; then
+  echo "Vdi snippet alredy exists in $original_home/.bashrc"
+else
+    echo "Vdi snippet found in $original_home/.bashrc"
+    echo "Adding banner to $original_home/.bashrc"
+    echo "$bashrc_addition" >> "$original_home/.bashrc"
 fi
 
 # If the bashrc_addition is not in the .bashrc, add it
-if ! grep -q "$bashrc_addition" "$HOME/.bashrc"; then
-  echo "$bashrc_addition" >> "$HOME/.bashrc"
-  else
-    echo "bashrc_addition already exists in $HOME/.bashrc"
+if ! grep -q "$bashrc_addition" "$original_home/.bashrc"; then
+  echo "$bashrc_addition" >> "$original_home/.bashrc"
+else
+    echo "bashrc_addition already exists in $original_home/.bashrc"
 fi

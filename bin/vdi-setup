@@ -106,9 +106,9 @@ fi
 
 # Install postgres-cli and docker from apt
 sudo apt-get update
-sudo apt-get install -y postgresql-client docker.io bc jq rsync moreutils
+sudo apt-get install -y postgresql-client docker.io bc jq rsync moreutils libssl-dev pkg-config
 # add current user to docker group
-sudo usermod -aG docker "$USER"
+sudo usermod -aG docker "$original_user"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 

@@ -81,3 +81,5 @@ fi
 echo "export PATH=$download_dir:\$PATH" >> "$shell_profile"
 echo "Added $download_dir to $shell_profile"
 
+cargo install sqlx-cli --no-default-features --features rustls,postgres
+cargo install oxipng

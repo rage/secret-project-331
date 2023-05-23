@@ -29,6 +29,11 @@ fi
 
 echo "/data/$original_user exists"
 
+# Create .profile
+if [ ! -f "/data/$original_user/.profile" ]; then
+  touch "/data/$original_user/.profile"
+fi
+
 # Create /data/$original_user/Code/secret-project-331
 if [ ! -d "/data/$original_user/Code/secret-project-331" ]; then
   mkdir -p "/data/$original_user/Code/secret-project-331"

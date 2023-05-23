@@ -116,6 +116,7 @@ fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/fun
 fish -c "fisher install jorgebucaran/nvm.fish; and fisher install edc/bass"
 
 echo "Fish setup complete"
+source "$HOME/.profile"
 nvm install --lts
 nvm use --lts
 

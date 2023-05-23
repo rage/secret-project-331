@@ -116,9 +116,7 @@ fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/fun
 fish -c "fisher install jorgebucaran/nvm.fish; and fisher install edc/bass"
 
 echo "Fish setup complete"
-source "$HOME/.profile"
-nvm install --lts
-nvm use --lts
+fish -c "nvm install --lts"
 
 chown -R "$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"

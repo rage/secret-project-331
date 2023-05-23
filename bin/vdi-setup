@@ -96,3 +96,6 @@ echo "Running script"
 sudo -u "$original_user" bash -c "$script_to_run_as_original_user"
 
 rm /tmp/bashrc_addition
+
+chown -R "$original_user:$original_user" "/data/$original_user"
+echo "Fixed permissions in /data/$original_user"

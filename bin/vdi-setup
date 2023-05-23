@@ -7,26 +7,36 @@ if [ ! -d /data ]; then
   exit 1
 fi
 
+echo "/data exists"
+
 # Run as root
 if [ "$EUID" -ne 0 ]; then
   echo "ERROR: Please run as root"
   exit 1
 fi
 
+echo "Running as root"
+
 # Create folder /data/$USER
 if [ ! -d "/data/$USER" ]; then
   mkdir "/data/$USER"
 fi
+
+echo "/data/$USER exists"
 
 # Create /data/$USER/.profile
 if [ ! -f "/data/$USER/.profile" ]; then
   touch "/data/$USER/.profile"
 fi
 
+echo "/data/$USER/.profile exists"
+
 # Create /data/$USER/Code/secret-project-331
 if [ ! -d "/data/$USER/Code/secret-project-331" ]; then
   mkdir -p "/data/$USER/Code/secret-project-331"
 fi
+
+echo "/data/$USER/Code/secret-project-331 exists"
 
 bashrc_addition=$(cat <<-END
 if [ "\$(hostname)" = "$(hostname)"  ] ; then
@@ -40,6 +50,8 @@ fi
 END
 )
 
+echo "bashrc_addition is $bashrc_addition"
+
 # If .bashrc doesn't exist, create it
 if [ ! -f "$HOME/.bashrc" ]; then
   touch "$HOME/.bashrc"
@@ -48,4 +60,6 @@ fi
 # If the bashrc_addition is not in the .bashrc, add it
 if ! grep -q "$bashrc_addition" "$HOME/.bashrc"; then
   echo "$bashrc_addition" >> "$HOME/.bashrc"
+  else
+    echo "bashrc_addition already exists in $HOME/.bashrc"
 fi

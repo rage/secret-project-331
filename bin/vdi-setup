@@ -74,7 +74,7 @@ fi
 if grep -q "$banner" "$original_home/.bashrc"; then
   echo "Vdi snippet alredy exists in $original_home/.bashrc"
 else
-    echo "Vdi snippet found in $original_home/.bashrc"
+    echo "Vdi snippet not found in $original_home/.bashrc"
     echo "Adding banner to $original_home/.bashrc"
     echo "$bashrc_addition" >> "$original_home/.bashrc"
 fi
@@ -89,6 +89,9 @@ END
 )
 
 echo "Running script"
+
+echo "--------------------------------------------------------
 echo "$script_to_run_as_original_user"
+echo "--------------------------------------------------------"
 
 sudo -u "$original_user" bash -c "$script_to_run_as_original_user"

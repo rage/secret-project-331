@@ -119,5 +119,20 @@ echo "Fish setup complete"
 source "$HOME/.profile"
 nvm install --lts
 
+# Change docker data dir /data/original_user/docker
+systemctl stop docker
+if [ ! -d "/data/$original_user/docker" ]; then
+  mkdir "/data/$original_user/docker"
+fi
+# Update docker config
+new_docker_config=$(cat <<-END
+{
+  "data-root": "/data/$original_user/docker"
+}
+END
+)
+echo "$new_docker_config" > /etc/docker/daemon.json
+systemctl start docker
+
 chown -R "$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"

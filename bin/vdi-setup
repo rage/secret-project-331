@@ -96,7 +96,6 @@ export HOME="/data/$original_user"
 # If nvm not installed, install it
 if ! command -v nvm; then
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-  cp "/root/.profile" "/data/$original_user/.profile"
   echo "Installed nvm"
 fi
 

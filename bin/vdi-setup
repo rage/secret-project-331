@@ -29,13 +29,6 @@ fi
 
 echo "/data/$original_user exists"
 
-# Create /data/$original_user/.profile
-if [ ! -f "/data/$original_user/.profile" ]; then
-  touch "/data/$original_user/.profile"
-fi
-
-echo "/data/$original_user/.profile exists"
-
 # Create /data/$original_user/Code/secret-project-331
 if [ ! -d "/data/$original_user/Code/secret-project-331" ]; then
   mkdir -p "/data/$original_user/Code/secret-project-331"
@@ -103,6 +96,7 @@ export HOME="/data/$original_user"
 # If nvm not installed, install it
 if ! command -v nvm; then
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  cp "$original_home/.profile" "/data/$original_user/.profile"
   echo "Installed nvm"
 fi
 

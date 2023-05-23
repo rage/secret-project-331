@@ -112,5 +112,8 @@ sudo usermod -aG docker "$USER"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
+curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
+omf install nvm
+
 chown -R "$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"

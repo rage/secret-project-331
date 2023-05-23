@@ -77,7 +77,9 @@ fi
 
 # If the bashrc_addition is not in the .bashrc, add it
 if ! grep -q "$bashrc_addition" "$original_home/.bashrc"; then
-  echo "$bashrc_addition" >> "$original_home/.bashrc"
+  # run command as user $original_user
+
+  echo "$bashrc_addition" | sudo -u "$original_user" tee --append "$original_home/.bashrc"
 else
     echo "bashrc_addition already exists in $original_home/.bashrc"
 fi

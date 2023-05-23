@@ -48,7 +48,7 @@ bashrc_addition=$(cat <<-END
 $banner
 if [ "\$(hostname)" = "$(hostname)"  ] ; then
     echo "Switching home dir to a local disk for performance."
-    export HOME=/data/\$original_user
+    export HOME=/data/$original_user
     source /data/$original_user/.profile
     cd "\$HOME/Code/secret-project-331"
     export SHELL=/usr/bin/fish

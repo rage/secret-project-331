@@ -115,5 +115,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
 fish -c "fisher install jorgebucaran/nvm.fish; and fisher install edc/bass"
 
+echo "Fish setup complete"
+nvm install --lts
+nvm use --lts
+
 chown -R "$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"

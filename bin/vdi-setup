@@ -61,6 +61,10 @@ END
 
 echo "bashrc_addition is $bashrc_addition"
 
+script_to_run_as_original_user=$(cat <<-END
+#!/bin/bash
+set -euo pipefail
+echo "Running as $original_user"
 # If .bashrc doesn't exist, create it
 if [ ! -f "$original_home/.bashrc" ]; then
   touch "$original_home/.bashrc"
@@ -79,7 +83,11 @@ fi
 if ! grep -q "$bashrc_addition" "$original_home/.bashrc"; then
   # run command as user $original_user
 
-  echo "$bashrc_addition" | sudo -u "$original_user" tee --append "$original_home/.bashrc"
+  echo "$bashrc_addition" >> "$original_home/.bashrc"
 else
     echo "bashrc_addition already exists in $original_home/.bashrc"
 fi
+END
+)
+
+sudo -u "$original_user" bash -c "$script_to_run_as_original_user"

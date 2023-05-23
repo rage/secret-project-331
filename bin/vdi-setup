@@ -59,6 +59,8 @@ $banner
 END
 )
 
+export BASHRC_ADDITION="$bashrc_addition"
+
 echo "bashrc_addition is $bashrc_addition"
 
 script_to_run_as_original_user=$(cat <<-END
@@ -76,15 +78,9 @@ if grep -q "$banner" "$original_home/.bashrc"; then
 else
     echo "Vdi snippet not found in $original_home/.bashrc"
     echo "Adding banner to $original_home/.bashrc"
-    echo "$bashrc_addition" >> "$original_home/.bashrc"
+    echo "\$BASHRC_ADDITION" >> "$original_home/.bashrc"
 fi
 
-# If the bashrc_addition is not in the .bashrc, add it
-if ! grep -q "$bashrc_addition" "$original_home/.bashrc"; then
-  echo "$bashrc_addition" >> "$original_home/.bashrc"
-else
-    echo "bashrc_addition already exists in $original_home/.bashrc"
-fi
 END
 )
 

@@ -11,7 +11,7 @@ fi
 echo "/data exists"
 
 original_user="$(logname)"
-original_home="$/home/$original_user"
+original_home="/home/$original_user"
 
 
 # Run as root

@@ -112,7 +112,7 @@ sudo usermod -aG docker "$USER"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
 fish -c "fisher install jorgebucaran/nvm.fish; and fisher install edc/bass"
 
 chown -R "$original_user" "/data/$original_user"

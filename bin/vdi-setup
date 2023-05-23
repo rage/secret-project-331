@@ -112,8 +112,10 @@ sudo usermod -aG docker "$USER"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
-omf install nvm
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+fisher install jorgebucaran/nvm.fish
+fisher install edc/bass
+
 
 chown -R "$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"

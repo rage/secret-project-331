@@ -6,16 +6,16 @@ pub async fn seed_certificate_fonts(db_pool: &PgPool) -> anyhow::Result<()> {
 
     let file_upload_id = models::file_uploads::insert(
         &mut conn,
-        "Lato Black",
-        "fonts/lato-black.ttf",
+        "Lato Regular",
+        "fonts/lato-regular.ttf",
         "application/octet-stream",
         None,
     )
     .await?;
     let font = NewCertificateFont {
-        file_path: "fonts/lato-black.ttf".to_string(),
+        file_path: "fonts/lato-regular.ttf".to_string(),
         file_upload_id,
-        display_name: "Lato Black".to_string(),
+        display_name: "Lato Regular".to_string(),
     };
     models::certificate_fonts::insert(&mut conn, &font).await?;
 

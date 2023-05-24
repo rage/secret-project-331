@@ -24,7 +24,6 @@ test("test", async ({ page, headless }, testInfo) => {
 
   // disable/enable generating certs with confirmation dialog
   page.once("dialog", (dialog) => {
-    console.log(`Dialog message: ${dialog.message()}`)
     dialog.dismiss()
   })
   await page.getByRole("button", { name: "Disable generating certifications" }).click()
@@ -45,7 +44,6 @@ test("test", async ({ page, headless }, testInfo) => {
 
   // delete with confirm
   page.once("dialog", (dialog) => {
-    console.log(`Dialog message: ${dialog.message()}`)
     dialog.accept()
   })
   await page.getByRole("button", { name: "Delete" }).click()

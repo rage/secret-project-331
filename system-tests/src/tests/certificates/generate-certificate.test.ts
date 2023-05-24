@@ -25,13 +25,12 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Generate certificate for completion" }).click()
   await page.getByLabel("Your name  *").fill("Example User")
   page.once("dialog", (dialog) => {
-    console.log(`Dialog message: ${dialog.message()}`)
     dialog.accept()
   })
   await page.getByRole("button", { name: "Generate" }).click()
   await expect(page).toHaveURL(/.*\/certificates\/.*/)
   const currentUrl = page.url()
-  page.goto(`${currentUrl}?debug=true`)
+  await page.goto(`${currentUrl}?debug=true`)
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

@@ -203,7 +203,7 @@ async function snapshotWithViewPort({
   }
 
   // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
-  if (scrollToYCoordinate) {
+  if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
       await page.evaluate(async (coord) => {
         window.scrollTo(0, coord)

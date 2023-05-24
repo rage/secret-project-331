@@ -74,37 +74,38 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
         title={t("new-exam-dialog")}
       >
         <div
-          id="new-exam-dialog"
           className={css`
             padding: 1rem;
           `}
         >
-          <h1
-            id="label"
-            className={css`
-              font-size: 32px;
-            `}
-          >
-            {t("new-exam")}
-          </h1>
-          <DialogContentText role="main" id="alert-dialog-description">
-            {createExamMutation.isError && (
-              <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
-            )}
-            {duplicateExamMutation.isError && (
-              <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
-            )}
-            <NewExamForm
-              exams={getOrgExams.data}
-              initialData={null}
-              organizationId={organizationId}
-              onCancel={close}
-              onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
-              onDuplicateExam={(parentId: string, newExam: NewExam) =>
-                duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
-              }
-            />
-          </DialogContentText>
+          <div id="new-exam-dialog">
+            <h1
+              id="label"
+              className={css`
+                font-size: 32px;
+              `}
+            >
+              {t("new-exam")}
+            </h1>
+            <DialogContentText role="main" id="alert-dialog-description">
+              {createExamMutation.isError && (
+                <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+              )}
+              {duplicateExamMutation.isError && (
+                <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
+              )}
+              <NewExamForm
+                exams={getOrgExams.data}
+                initialData={null}
+                organizationId={organizationId}
+                onCancel={close}
+                onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
+                onDuplicateExam={(parentId: string, newExam: NewExam) =>
+                  duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
+                }
+              />
+            </DialogContentText>
+          </div>
         </div>
       </Dialog>
     </div>

@@ -104,11 +104,12 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
     quiz: publicSpec,
-    quiz_answer_is_valid: false,
     quiz_answer: previousSubmission || {
       id: quiz_answer_id,
       itemAnswers: [],
     },
+    // TODO: validate previous submission in the future
+    quiz_answer_is_valid: !!previousSubmission,
   }
   const [state, dispatch] = useReducer(reducer, widget_state)
 

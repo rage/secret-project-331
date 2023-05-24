@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next"
 import OutsideClickHandler from "react-outside-click-handler"
 import { usePopper } from "react-popper"
 
+import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
+
 import LanguageMenu from "./LanguageMenu"
 import LanguageOption from "./LanguageOption"
 
@@ -36,7 +38,6 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
     modifiers: [{ name: ARROW, options: { element: arrowElement } }],
   })
   const { i18n, t } = useTranslation()
-  const LANGUAGE_COOKIE_KEY = "selected-language"
 
   const handleLanguageChange = (newLanguage: string) => {
     i18n.changeLanguage(newLanguage)

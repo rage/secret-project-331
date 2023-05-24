@@ -35,6 +35,7 @@ import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
+import AudioPlayer from "./moocfi/AudioPlayer/index"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
@@ -139,6 +140,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/top-level-pages": TopLevelPageBlock,
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
   "moocfi/iframe": IframeBlock,
+  "moocfi/audio-upload": AudioPlayer,
 }
 
 const highlightedBlockStyles = css`

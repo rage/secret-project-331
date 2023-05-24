@@ -152,7 +152,7 @@ pub async fn has_auth_user_session(session: &Session, pool: web::Data<PgPool>) -
 
 /// Forgets authentication from the current session, if any.
 pub fn forget(session: &Session) {
-    session.remove(SESSION_KEY);
+    session.purge();
 }
 
 /// Describes an action that a user can take on some resource.
@@ -561,7 +561,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
@@ -571,7 +571,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
             View | Edit
                 | Grade
                 | DeleteAnswer
-                | EditRole(Assistant | Reviewer)
+                | EditRole(Assistant | Reviewer | MaterialViewer)
                 | Teach
                 | ViewMaterial
         ),

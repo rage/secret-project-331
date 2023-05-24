@@ -1,12 +1,15 @@
-import { ClassNamesArg, cx } from "@emotion/css"
+import { ClassNamesArg, css, cx } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
+import { Menu } from "../../shared-module/components/Navigation/NavBar"
 import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { logout } from "../../shared-module/services/backend/auth"
+import { baseTheme } from "../../shared-module/styles"
 import { useCurrentPagePathForReturnTo } from "../../shared-module/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "../../shared-module/utils/routes"
 import SelectCourseInstanceModal from "../modals/SelectCourseInstanceModal"
@@ -26,6 +29,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
+  const queryClient = useQueryClient()
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
@@ -33,7 +37,11 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
 
   const submitLogout = async () => {
     await logout()
+    queryClient.removeQueries()
     await loginStateContext.refresh()
+    setTimeout(() => {
+      queryClient.refetchQueries()
+    }, 100)
   }
 
   // eslint-disable-next-line i18next/no-literal-string
@@ -52,60 +60,93 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           manualOpen={showSettings}
         />
       )}
-      {courseId && (
-        <OnlyRenderIfPermissions
-          action={{
-            type: "teach",
-          }}
-          resource={{
-            type: "course",
-            id: courseId,
-          }}
-        >
+
+      <Menu>
+        <>
+          {courseId && (
+            <OnlyRenderIfPermissions
+              action={{
+                type: "teach",
+              }}
+              resource={{
+                type: "course",
+                id: courseId,
+              }}
+            >
+              <li>
+                <a href={manageCourseRoute(courseId)}>
+                  <Button
+                    className={css`
+                      color: ${baseTheme.colors.green[600]}!important;
+                    `}
+                    variant="primary"
+                    size="medium"
+                  >
+                    {t("button-text-manage-course")}
+                  </Button>
+                </a>
+              </li>
+            </OnlyRenderIfPermissions>
+          )}
           <li>
-            <a href={manageCourseRoute(courseId)}>
-              <Button variant="primary" size="medium">
-                {t("button-text-manage-course")}
-              </Button>
-            </a>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+              onClick={() => {
+                setShowSettings(true)
+              }}
+            >
+              {t("settings")}
+            </Button>
           </li>
-        </OnlyRenderIfPermissions>
-      )}
-      {courseId && (
-        <li>
-          <Button
-            size="medium"
-            variant="primary"
-            onClick={() => {
-              setShowSettings(true)
-            }}
-          >
-            {t("settings")}
-          </Button>
-        </li>
-      )}
-      <li className={cx(styles)}>
-        <Button size="medium" variant="primary" onClick={submitLogout}>
-          {t("log-out")}
-        </Button>
-      </li>
+          <li className={cx(styles)}>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+              onClick={submitLogout}
+            >
+              {t("log-out")}
+            </Button>
+          </li>
+        </>
+      </Menu>
     </>
   ) : (
     <>
-      <li className={cx(styles)}>
-        <a href={signUpPathWithReturnTo}>
-          <Button size="medium" variant="primary">
-            {t("create-new-account")}
-          </Button>
-        </a>
-      </li>
-      <li className={cx(styles)}>
-        <a href={loginPathWithReturnTo}>
-          <Button size="medium" variant="primary">
-            {t("log-in")}
-          </Button>
-        </a>
-      </li>
+      <Menu>
+        <li className={cx(styles)}>
+          <a href={signUpPathWithReturnTo}>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+            >
+              {t("create-new-account")}
+            </Button>
+          </a>
+        </li>
+        <li className={cx(styles)}>
+          <a href={loginPathWithReturnTo}>
+            <Button
+              className={css`
+                color: ${baseTheme.colors.green[600]}!important;
+              `}
+              size="medium"
+              variant="primary"
+            >
+              {t("log-in")}
+            </Button>
+          </a>
+        </li>
+      </Menu>
     </>
   )
 }

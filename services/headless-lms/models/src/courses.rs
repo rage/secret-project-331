@@ -525,7 +525,6 @@ RETURNING id,
 }
 
 pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
-    println!("hi!");
     let course = sqlx::query_as!(
         Course,
         "
@@ -592,6 +591,38 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res.is_draft)
+}
+
+pub(crate) async fn get_by_ids(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        "
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
+FROM courses
+WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
+  ",
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
 }
 
 #[cfg(test)]

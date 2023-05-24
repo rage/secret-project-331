@@ -13,7 +13,6 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     await page
       .locator("text=University of Helsinki, Department of Mathematics and Statistics")
       .click(),
@@ -32,13 +31,10 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5' }*/),
-    page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=Pages").click()])
+  await page.locator("text=Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -48,10 +44,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Create")`)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/f2f1482e-4f49-4f6e-a5ef-99ac1513d97c' }*/),
-    page.click(`button:text("Edit page"):right-of(:text("first page"))`),
-  ])
+  await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
   // - CHAPTER GRID
   await page.locator("text=Pages in chapter placeholder").click()
   await page.waitForTimeout(100)
@@ -59,7 +52,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.click('[aria-label="Options"]')
   await page.waitForTimeout(100)
 
-  await page.locator("text=Remove Pages In Chapter").click()
+  await page.getByText("Delete").click()
   await page.waitForTimeout(100)
   // - EXERCISES
   await page.click(
@@ -70,13 +63,13 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.click('[aria-label="Options"]')
   await page.waitForTimeout(100)
 
-  await page.locator("text=Remove Exercises In Chapter").click()
+  await page.getByText("Delete").click()
   await page.waitForTimeout(100)
 
   await page.click('[aria-label="Options"]')
   await page.waitForTimeout(100)
 
-  await page.locator("text=Remove Hero Section").click()
+  await page.getByText("Delete").click()
   await page.waitForTimeout(100)
   // - CREATE LATEX BLOCK
 
@@ -97,7 +90,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(`[aria-label="Options"]`)
   await page.waitForTimeout(100)
-  await page.click(`text=Insert after`)
+  await page.click(`text=Add after`)
   await page.waitForTimeout(100)
 
   await page.click(
@@ -123,14 +116,11 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.goto(`http://project-331.local/org/uh-mathstat`)
   // Click text=Latex course
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/latex-course' }*/),
-    page.locator("text=Latex course").click(),
-  ])
+  await page.locator("text=Latex course").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([page.waitForNavigation(), page.locator("text=first page").click()])
+  await page.locator("text=first page").click()
   await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({

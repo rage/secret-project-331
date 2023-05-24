@@ -954,6 +954,7 @@ mod tests {
             )
             .await
             .unwrap();
+
             let exercise_2 = exercises::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,

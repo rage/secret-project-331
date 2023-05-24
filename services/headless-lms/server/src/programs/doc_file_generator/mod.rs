@@ -117,13 +117,19 @@ use headless_lms_models::{
     course_background_questions::{
         CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
     },
+    course_instance_enrollments::CourseInstanceEnrollmentsInfo,
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
+    exercises::ExerciseStatusSummaryForUser,
+    page_audio_files::PageAudioFile,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
     },
+    peer_review_queue_entries::PeerReviewQueueEntry,
+    peer_review_submissions::PeerReviewSubmission,
+    teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
 };
 use serde::Serialize;
@@ -776,7 +782,8 @@ fn models() {
             language_code: "en-US".to_string(),
             copied_from: None,
             content_search_language: Some("simple".to_string()),
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
+                .unwrap(),
             description: Some("Example".to_string()),
             is_draft: true,
             is_test_mode: false,
@@ -821,7 +828,8 @@ fn models() {
         Opt,
         UserCourseSettings {
             user_id,
-            course_language_group_id,
+            course_language_group_id: Uuid::parse_str("4b316fae-07d6-4e64-9294-9960cfd1c0ca")
+                .unwrap(),
             created_at,
             updated_at,
             deleted_at: None,
@@ -947,6 +955,7 @@ fn models() {
             limit_number_of_tries: true,
             needs_peer_review,
             use_course_default_peer_review_config,
+            exercise_language_group_id,
         }
     );
     doc!(
@@ -1088,6 +1097,9 @@ fn models() {
             order_number: 123,
             copied_from: None,
             hidden: false,
+            page_language_group_id: Some(
+                Uuid::parse_str("0484aa42-ece8-4bc4-9a34-92f5994f6697").unwrap()
+            ),
         }
     );
     doc!(
@@ -1141,14 +1153,19 @@ fn models() {
         upstream_id: None,
         email_domain: Some("example.com".to_string()),
     });
-    doc!(UserDetail {
-        user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),
-        created_at,
-        updated_at,
-        email: "example@example.com".to_string(),
-        first_name: Some("Example".to_string()),
-        last_name: Some("User".to_string()),
-    });
+    doc!(
+        T,
+        Vec,
+        UserDetail {
+            user_id: Uuid::parse_str("ec1b4267-7dca-456e-959c-a0a7763cef40").unwrap(),
+            created_at,
+            updated_at,
+            email: "example@example.com".to_string(),
+            first_name: Some("Example".to_string()),
+            last_name: Some("User".to_string()),
+            search_helper: Some("Example User".to_string()),
+        }
+    );
     doc!(CourseCount { count: 1234 });
     doc!(
         Vec,
@@ -1449,6 +1466,74 @@ fn models() {
         map.insert("key1".to_string(), "val1".to_string());
         map.insert("key2".to_string(), "val2".to_string());
         map
+    });
+
+    doc!(
+        Vec,
+        PageAudioFile {
+            id,
+            page_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            created_at,
+            deleted_at,
+            path: "/path/to/file".to_string(),
+            mime_type: "audio/ogg".to_string(),
+        }
+    );
+    doc!(PeerReviewSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        peer_review_config_id,
+        exercise_slide_submission_id,
+    });
+
+    example!(PeerReviewQueueEntry {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        received_enough_peer_reviews,
+        peer_review_priority,
+        removed_from_queue_for_unusual_reason,
+    });
+    example!(TeacherGradingDecision {
+        id,
+        user_exercise_state_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        score_given: 3.0,
+        teacher_decision: TeacherDecisionType::CustomPoints,
+    });
+
+    doc!(
+        Vec,
+        ExerciseStatusSummaryForUser {
+            exercise,
+            user_exercise_state,
+            exercise_slide_submissions,
+            given_peer_review_submissions,
+            received_peer_review_submissions,
+            given_peer_review_question_submissions,
+            received_peer_review_question_submissions,
+            peer_review_queue_entry,
+            teacher_grading_decision,
+            peer_review_questions
+        }
+    );
+    doc!(CourseInstanceEnrollmentsInfo {
+        course_instance_enrollments,
+        course_instances,
+        courses,
+        user_course_settings
     });
 }
 

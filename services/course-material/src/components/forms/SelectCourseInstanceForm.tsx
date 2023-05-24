@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchBackgroundQuestionsAndAnswers } from "../../services/backend"
@@ -33,11 +33,12 @@ interface SelectCourseInstanceFormProps {
     newCourseBackgroundQuestionAnswer: NewCourseBackgroundQuestionAnswer[],
   ) => void
   initialSelectedInstanceId?: string
+  languageChanged: boolean
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, onSubmitForm, initialSelectedInstanceId }) => {
+> = ({ courseInstances, onSubmitForm, initialSelectedInstanceId, languageChanged }) => {
   const { t } = useTranslation()
   const [instance, setInstance] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
@@ -74,6 +75,12 @@ const SelectCourseInstanceForm: React.FC<
     },
   )
 
+  useEffect(() => {
+    if (languageChanged) {
+      setInstance(undefined) // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+  }, [languageChanged])
+
   const enrollOnCourse = async () => {
     if (instance) {
       onSubmitForm(instance, additionalQuestionAnswers)
@@ -85,7 +92,7 @@ const SelectCourseInstanceForm: React.FC<
   return (
     <div>
       <>
-        <h2>
+        <h2 data-testid="select-course-instance-heading">
           {t("title-select-course-instance")}
           <GreenText>*</GreenText>
         </h2>
@@ -98,6 +105,10 @@ const SelectCourseInstanceForm: React.FC<
           {courseInstances.map((x) => (
             <RadioButton
               key={x.id}
+              {...(x.name === null
+                ? // eslint-disable-next-line i18next/no-literal-string
+                  { "data-testid": "default-course-instance-radiobutton" }
+                : undefined)}
               label={x.name || t("default-course-instance-name")}
               onChange={(_event) => setInstance(x.id)}
               defaultChecked={instance === x.id}
@@ -169,6 +180,7 @@ const SelectCourseInstanceForm: React.FC<
             variant="primary"
             onClick={enrollOnCourse}
             disabled={!instance || additionalQuestionsQuery.isLoading}
+            data-testid="select-course-instance-continue-button"
           >
             {t("continue")}
           </Button>

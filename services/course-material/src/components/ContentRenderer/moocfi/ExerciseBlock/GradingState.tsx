@@ -21,9 +21,7 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   peerReviewConfig,
 }) => {
   const { t } = useTranslation()
-  if (reviewingStage === "NotStarted" && gradingProgress === "FullyGraded") {
-    return null
-  }
+
   return (
     <div
       className={css`

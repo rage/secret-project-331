@@ -19,13 +19,14 @@ import {
   NewProposedPageEdits,
   OEmbedResponse,
   Page,
+  PageAudioFile,
   PageChapterAndCourseInformation,
   PageNavigationInformation,
-  PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
   PeerReviewsRecieved,
   SaveCourseSettingsPayload,
+  SearchRequest,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -49,6 +50,7 @@ import {
   isMaterialReference,
   isOEmbedResponse,
   isPage,
+  isPageAudioFile,
   isPageChapterAndCourseInformation,
   isPageNavigationInformation,
   isPageSearchResult,
@@ -328,7 +330,7 @@ export const postSubmission = async (
 }
 
 export const searchPagesWithPhrase = async (
-  searchRequest: PageSearchRequest,
+  searchRequest: SearchRequest,
   courseId: string,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
@@ -339,7 +341,7 @@ export const searchPagesWithPhrase = async (
 }
 
 export const searchPagesWithWords = async (
-  searchRequest: PageSearchRequest,
+  searchRequest: SearchRequest,
   courseId: string,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
@@ -436,4 +438,29 @@ export const postNewReference = async (
 export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
   const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
   return validateResponse(response, isIsChapterFrontPage)
+}
+
+export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
+  const response = await courseMaterialClient.get(`/page_audio/${pageId}/files`)
+  return validateResponse(response, isArray(isPageAudioFile))
+}
+
+export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/language-versions`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isCourse))
+}
+
+export const fetchPageByCourseIdAndLanguageGroupId = async (
+  course_id: string,
+  page_language_group_id: string,
+): Promise<Page> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/pages/by-language-group-id/${page_language_group_id}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isPage)
 }

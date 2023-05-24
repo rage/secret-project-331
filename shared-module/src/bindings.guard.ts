@@ -43,6 +43,7 @@ import {
   CourseInstance,
   CourseInstanceCompletionSummary,
   CourseInstanceEnrollment,
+  CourseInstanceEnrollmentsInfo,
   CourseInstanceForm,
   CourseMaterialCourseModule,
   CourseMaterialExercise,
@@ -77,6 +78,7 @@ import {
   ExamInstructionsUpdate,
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
+  ExerciseGradingStatus,
   ExerciseRepository,
   ExerciseRepositoryStatus,
   ExerciseService,
@@ -90,6 +92,7 @@ import {
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseSlideSubmissionInfo,
   ExerciseStatus,
+  ExerciseStatusSummaryForUser,
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskGrading,
@@ -131,13 +134,13 @@ import {
   Organization,
   OrgExam,
   Page,
+  PageAudioFile,
   PageChapterAndCourseInformation,
   PageHistory,
   PageInfo,
   PageNavigationInformation,
   PageProposal,
   PageRoutingData,
-  PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
   Pagination,
@@ -148,7 +151,9 @@ import {
   PeerReviewQuestionAndAnswer,
   PeerReviewQuestionSubmission,
   PeerReviewQuestionType,
+  PeerReviewQueueEntry,
   PeerReviewsRecieved,
+  PeerReviewSubmission,
   PeerReviewWithQuestionsAndAnswers,
   PendingRole,
   PlaygroundExample,
@@ -169,6 +174,7 @@ import {
   RoleQuery,
   RoleUser,
   SaveCourseSettingsPayload,
+  SearchRequest,
   SpecRequest,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
@@ -503,6 +509,25 @@ export function isCourseInstanceEnrollment(obj: unknown): obj is CourseInstanceE
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
+export function isCourseInstanceEnrollmentsInfo(
+  obj: unknown,
+): obj is CourseInstanceEnrollmentsInfo {
+  const typedObj = obj as CourseInstanceEnrollmentsInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["course_instance_enrollments"]) &&
+    typedObj["course_instance_enrollments"].every(
+      (e: any) => isCourseInstanceEnrollment(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["course_instances"]) &&
+    typedObj["course_instances"].every((e: any) => isCourseInstance(e) as boolean) &&
+    Array.isArray(typedObj["courses"]) &&
+    typedObj["courses"].every((e: any) => isCourse(e) as boolean) &&
+    Array.isArray(typedObj["user_course_settings"]) &&
+    typedObj["user_course_settings"].every((e: any) => isUserCourseSettings(e) as boolean)
   )
 }
 
@@ -1292,7 +1317,9 @@ export function isExercise(obj: unknown): obj is Exercise {
       typeof typedObj["max_tries_per_slide"] === "number") &&
     typeof typedObj["limit_number_of_tries"] === "boolean" &&
     typeof typedObj["needs_peer_review"] === "boolean" &&
-    typeof typedObj["use_course_default_peer_review_config"] === "boolean"
+    typeof typedObj["use_course_default_peer_review_config"] === "boolean" &&
+    (typedObj["exercise_language_group_id"] === null ||
+      typeof typedObj["exercise_language_group_id"] === "string")
   )
 }
 
@@ -1304,6 +1331,60 @@ export function isExerciseStatus(obj: unknown): obj is ExerciseStatus {
     (isActivityProgress(typedObj["activity_progress"]) as boolean) &&
     (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
     (isReviewingStage(typedObj["reviewing_stage"]) as boolean)
+  )
+}
+
+export function isExerciseStatusSummaryForUser(obj: unknown): obj is ExerciseStatusSummaryForUser {
+  const typedObj = obj as ExerciseStatusSummaryForUser
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isExercise(typedObj["exercise"]) as boolean) &&
+    (typedObj["user_exercise_state"] === null ||
+      (isUserExerciseState(typedObj["user_exercise_state"]) as boolean)) &&
+    Array.isArray(typedObj["exercise_slide_submissions"]) &&
+    typedObj["exercise_slide_submissions"].every(
+      (e: any) => isExerciseSlideSubmission(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["given_peer_review_submissions"]) &&
+    typedObj["given_peer_review_submissions"].every(
+      (e: any) => isPeerReviewSubmission(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["given_peer_review_question_submissions"]) &&
+    typedObj["given_peer_review_question_submissions"].every(
+      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["received_peer_review_submissions"]) &&
+    typedObj["received_peer_review_submissions"].every(
+      (e: any) => isPeerReviewSubmission(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["received_peer_review_question_submissions"]) &&
+    typedObj["received_peer_review_question_submissions"].every(
+      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
+    ) &&
+    (typedObj["peer_review_queue_entry"] === null ||
+      (isPeerReviewQueueEntry(typedObj["peer_review_queue_entry"]) as boolean)) &&
+    (typedObj["teacher_grading_decision"] === null ||
+      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)) &&
+    Array.isArray(typedObj["peer_review_questions"]) &&
+    typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean)
+  )
+}
+
+export function isExerciseGradingStatus(obj: unknown): obj is ExerciseGradingStatus {
+  const typedObj = obj as ExerciseGradingStatus
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["exercise_name"] === "string" &&
+    typeof typedObj["score_maximum"] === "number" &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    (typedObj["teacher_decision"] === null ||
+      typedObj["teacher_decision"] === "FullPoints" ||
+      typedObj["teacher_decision"] === "ZeroPoints" ||
+      typedObj["teacher_decision"] === "CustomPoints" ||
+      typedObj["teacher_decision"] === "SuspectedPlagiarism") &&
+    typeof typedObj["submission_id"] === "string" &&
+    typedObj["updated_at"] instanceof Date
   )
 }
 
@@ -1885,7 +1966,9 @@ export function isPage(obj: unknown): obj is Page {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
-    typeof typedObj["hidden"] === "boolean"
+    typeof typedObj["hidden"] === "boolean" &&
+    (typedObj["page_language_group_id"] === null ||
+      typeof typedObj["page_language_group_id"] === "string")
   )
 }
 
@@ -1947,8 +2030,8 @@ export function isPageRoutingData(obj: unknown): obj is PageRoutingData {
   )
 }
 
-export function isPageSearchRequest(obj: unknown): obj is PageSearchRequest {
-  const typedObj = obj as PageSearchRequest
+export function isSearchRequest(obj: unknown): obj is SearchRequest {
+  const typedObj = obj as SearchRequest
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["query"] === "string"
@@ -1983,6 +2066,8 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
     typeof typedObj["hidden"] === "boolean" &&
+    (typedObj["page_language_group_id"] === null ||
+      typeof typedObj["page_language_group_id"] === "string") &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
   )
@@ -2052,6 +2137,22 @@ export function isPeerReviewConfig(obj: unknown): obj is PeerReviewConfig {
   )
 }
 
+export function isPeerReviewSubmission(obj: unknown): obj is PeerReviewSubmission {
+  const typedObj = obj as PeerReviewSubmission
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["peer_review_config_id"] === "string" &&
+    typeof typedObj["exercise_slide_submission_id"] === "string"
+  )
+}
+
 export function isPeerReviewAnswer(obj: unknown): obj is PeerReviewAnswer {
   const typedObj = obj as PeerReviewAnswer
   return (
@@ -2093,6 +2194,24 @@ export function isPeerReviewQuestionSubmission(obj: unknown): obj is PeerReviewQ
     typeof typedObj["peer_review_submission_id"] === "string" &&
     (typedObj["text_data"] === null || typeof typedObj["text_data"] === "string") &&
     (typedObj["number_data"] === null || typeof typedObj["number_data"] === "number")
+  )
+}
+
+export function isPeerReviewQueueEntry(obj: unknown): obj is PeerReviewQueueEntry {
+  const typedObj = obj as PeerReviewQueueEntry
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["receiving_peer_reviews_exercise_slide_submission_id"] === "string" &&
+    typeof typedObj["received_enough_peer_reviews"] === "boolean" &&
+    typeof typedObj["peer_review_priority"] === "number" &&
+    typeof typedObj["removed_from_queue_for_unusual_reason"] === "boolean"
   )
 }
 
@@ -2270,6 +2389,19 @@ export function isProposalCount(obj: unknown): obj is ProposalCount {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["pending"] === "number" &&
     typeof typedObj["handled"] === "number"
+  )
+}
+
+export function isPageAudioFile(obj: unknown): obj is PageAudioFile {
+  const typedObj = obj as PageAudioFile
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["path"] === "string" &&
+    typeof typedObj["mime_type"] === "string"
   )
 }
 
@@ -2467,7 +2599,8 @@ export function isUserDetail(obj: unknown): obj is UserDetail {
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["email"] === "string" &&
     (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
-    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string")
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    (typedObj["search_helper"] === null || typeof typedObj["search_helper"] === "string")
   )
 }
 

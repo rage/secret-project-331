@@ -4,7 +4,7 @@ import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import CheckIcon from "humbleicons/icons/check.svg"
-import produce from "immer"
+import { produce } from "immer"
 import { useContext, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -94,6 +94,11 @@ const ExerciseBlock: React.FC<
         payload: data,
         signedIn: Boolean(loginState.signedIn),
       })
+      const a = new Map()
+      data.current_exercise_slide.exercise_tasks.map((et) => {
+        a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+      })
+      setAnswers(a)
     },
   })
 
@@ -104,7 +109,7 @@ const ExerciseBlock: React.FC<
     },
     {
       retry: 3,
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         if (data.exercise_status) {
           setPoints(data.exercise_status.score_given)
         }
@@ -113,6 +118,7 @@ const ExerciseBlock: React.FC<
           payload: data,
           signedIn: Boolean(loginState.signedIn),
         })
+        await getCourseMaterialExercise.refetch()
       },
     },
   )
@@ -130,7 +136,18 @@ const ExerciseBlock: React.FC<
         signedIn: Boolean(loginState.signedIn),
       })
       postSubmissionMutation.reset()
-      setAnswers(new Map())
+
+      setAnswers(answers)
+
+      // if answers were empty, because page refresh
+      if (answers.size === 0 && pageContext.settings?.user_id) {
+        await getCourseMaterialExercise.refetch()
+        const a = new Map()
+        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
+          a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+        })
+        setAnswers(a)
+      }
     },
     {
       notify: false,
@@ -326,25 +343,27 @@ const ExerciseBlock: React.FC<
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&
-            getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
-              <ExerciseTask
-                key={task.id}
-                exerciseTask={task}
-                isExam={isExam}
-                setAnswer={(answer) =>
-                  setAnswers((prev) => {
-                    const answers = new Map(prev)
-                    answers.set(task.id, answer)
-                    return answers
-                  })
-                }
-                postThisStateToIFrame={postThisStateToIFrame?.find(
-                  (x) => x.exercise_task_id === task.id,
-                )}
-                canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
-                exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
-              />
-            ))}
+            getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((task) => (
+                <ExerciseTask
+                  key={task.id}
+                  exerciseTask={task}
+                  isExam={isExam}
+                  setAnswer={(answer) =>
+                    setAnswers((prev) => {
+                      const answers = new Map(prev)
+                      answers.set(task.id, answer)
+                      return answers
+                    })
+                  }
+                  postThisStateToIFrame={postThisStateToIFrame?.find(
+                    (x) => x.exercise_task_id === task.id,
+                  )}
+                  canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
+                  exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+                />
+              ))}
           {reviewingStage === "PeerReview" && (
             <PeerReviewView
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
@@ -394,13 +413,6 @@ const ExerciseBlock: React.FC<
                               throw new Error("No CourseMaterialExercise found")
                             }
                             return produce(old, (draft: CourseMaterialExercise) => {
-                              // Update slide submission counts without refetching
-                              const slideId = draft?.current_exercise_slide?.id
-                              if (slideId) {
-                                draft.exercise_slide_submission_counts[slideId] =
-                                  (draft.exercise_slide_submission_counts[slideId] ?? 0) + 1
-                              }
-
                               res.exercise_task_submission_results.forEach(
                                 (et_submission_result) => {
                                   // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first

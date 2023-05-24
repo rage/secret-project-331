@@ -45,6 +45,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await student1Page.getByRole("link", { name: "3 Page Three" }).click()
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     await student1Page
       .frameLocator("iframe")
@@ -78,6 +79,7 @@ test.describe("test AutomaticallyAcceptOrRejectByAverage behavior", () => {
     await student2Page.getByRole("link", { name: "3 Page Three" }).click()
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+    await student2Page.getByText("Try again").waitFor()
 
     await student2Page
       .frameLocator("iframe")

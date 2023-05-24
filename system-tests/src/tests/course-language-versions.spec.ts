@@ -11,15 +11,11 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.locator("[aria-label=\"Manage course 'Introduction to localizing'\"] svg").click(),
-  ])
+  await page.locator("[aria-label=\"Manage course 'Introduction to localizing'\"] svg").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
   )
@@ -43,33 +39,20 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.click(`button:text("Create")`)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
-    page.getByRole("link", { name: "Home" }).click(),
-  ])
+  await Promise.all([page.getByRole("link", { name: "Home" }).click()])
 
   await Promise.all([
-    page.waitForNavigation(),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin' }*/),
-    page.locator("text=Johdatus lokalisointiin").click(),
-  ])
+  await page.locator("text=Johdatus lokalisointiin").click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1' }*/),
-    page.click('#content a >> :nth-match(div:has-text("CHAPTER 1The Basics"), 3)'),
-  ])
+  await Promise.all([page.click('#content a >> :nth-match(div:has-text("Luku 1The Basics"), 3)')])
 
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin/chapter-1/page-1' }*/),
-    page.locator("text=1Page One").click(),
-  ])
+  await page.locator("text=1Page One").click()
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
 
@@ -79,7 +62,7 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "wrong-course-banner",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Looks like you're already on a different language version"),
+      page.locator("text=Vaikuttaa että olet kurssilla jo toisella kielellä"),
     ],
   })
 

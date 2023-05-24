@@ -1267,6 +1267,274 @@ pub async fn seed_sample_course(
         Arc::clone(&jwt_key),
     )
     .await?;
+
+    let multi_exercise_2_id = Uuid::new_v5(&course_id, b"057def52-6895-4374-a7f5-1849d136f1f4");
+    let multi_exercise_2_slide_1_id =
+        Uuid::new_v5(&course_id, b"fa02d232-8e33-4e20-9c20-d3b03fa89eb5");
+    let multi_exercise_2_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"6c72f989-4d7e-4b22-b63c-3c51c631abcb");
+    let multi_exercise_2_slide_1_task_2_id =
+        Uuid::new_v5(&course_id, b"9445e8a3-6a86-4492-96b8-971f7b7acedd");
+    let multi_exercise_2_slide_1_task_3_id =
+        Uuid::new_v5(&course_id, b"8fbdbc4d-0c62-4b70-bb31-4c5fbb4ea6dd");
+    let (multi_exercise_block_2, multi_exercise_2, multi_exercise_2_slides, multi_exercise_2_tasks) =
+        example_exercise_flexible(
+            multi_exercise_2_id,
+            "Multiple task quizzes exercise".to_string(),
+            vec![(
+                multi_exercise_2_slide_1_id,
+                vec![
+                    (
+                        multi_exercise_2_slide_1_task_1_id,
+                        "quizzes".to_string(),
+                        serde_json::json!([paragraph(
+                            "First question.",
+                            Uuid::new_v5(&course_id, b"c8414adc-4e99-4d93-b926-e257517ff934")
+                        )]),
+                        serde_json::json!({
+                            "id": "e8a81dad-d616-44ab-bd6e-ec5430b454be",
+                            "body": "very hard",
+                            "open": "2021-12-17T07:15:33.479Z",
+                            "part": 0,
+                            "items": [{
+                                "id": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                "body": null,
+                                "type": "multiple-choice",
+                                "multi": false,
+                                "multipleChoiceMultipleOptionsGradingPolicy": "default",
+                                "order": 0,
+                                "title": "Select all correct answers from below",
+                                "quizId": "e8a81dad-d616-44ab-bd6e-ec5430b454be",
+                                "options": [
+                                    {
+                                        "id": "bb172040-753d-40ef-bded-a487b668905a",
+                                        "body": "Correct",
+                                        "order": 1,
+                                        "title": null,
+                                        "quizItemId": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                    {
+                                        "id": "a1534c77-3379-4462-b67c-f55a17aa6499",
+                                        "body": "Correct",
+                                        "order": 2,
+                                        "title": null,
+                                        "quizItemId": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null,
+                                    },
+                                    {
+                                        "id": "828328e6-5491-4ccb-b6f7-1df0796db44e",
+                                        "body": "Incorrect",
+                                        "order": 3,
+                                        "title": null,
+                                        "quizItemId": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                        "correct":false,
+                                        "messageAfterSubmissionWhenSelected": "This is incorrect option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                ],
+                                "allAnswersCorrect": false,
+                                "sharedOptionFeedbackMessage": null,
+                                "usesSharedOptionFeedbackMessage": false
+                            }],
+                            "title": "Pretty good exercise",
+                            "tries": 1,
+                            "points": 2,
+                            "section": 0,
+                            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+                            "deadline": "2021-12-17T07:15:33.479Z",
+                            "createdAt": "2021-12-17T07:15:33.479Z",
+                            "updatedAt": "2021-12-17T07:15:33.479Z",
+                            "autoReject": false,
+                            "autoConfirm": true,
+                            "randomizeOptions": false,
+                            "triesLimited": true,
+                            "submitMessage": "This is an extra submit message from the teacher.",
+                            "excludedFromScore": true,
+                            "grantPointsPolicy": "grant_whenever_possible",
+                            "awardPointsEvenIfWrong": false}),
+                    ),
+                    (
+                        multi_exercise_2_slide_1_task_2_id,
+                        "quizzes".to_string(),
+                        serde_json::json!([paragraph(
+                            "Second question.",
+                            Uuid::new_v5(&course_id, b"fcdeb228-a36e-499b-9cf0-dfb264a2cf34")
+                        )]),
+                        serde_json::json!({
+                            "id": "67fc1eea-541c-4247-a852-090c71d7a9d1",
+                            "body": "very hard",
+                            "open": "2021-12-17T07:15:33.479Z",
+                            "part": 0,
+                            "items": [{
+                                "id": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                "body": null,
+                                "type": "multiple-choice",
+                                "multi": false,
+                                "multipleChoiceMultipleOptionsGradingPolicy": "default",
+                                "order": 0,
+                                "title": "Select all correct answers from below",
+                                "quizId": "67fc1eea-541c-4247-a852-090c71d7a9d1",
+                                "options": [
+                                    {
+                                        "id": "446034b8-e049-4973-a634-5561da4b6d8e",
+                                        "body": "Correct",
+                                        "order": 1,
+                                        "title": null,
+                                        "quizItemId": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                    {
+                                        "id": "a4a0c48a-b171-4855-b738-b248f1e50561",
+                                        "body": "Incorrect",
+                                        "order": 2,
+                                        "title": null,
+                                        "quizItemId": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                        "correct":false,
+                                        "messageAfterSubmissionWhenSelected": "This is incorrect option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null,
+                                    },
+                                    {
+                                        "id": "f65330da-de15-47f3-9a4d-9f47eb6a5f5a",
+                                        "body": "Correct",
+                                        "order": 3,
+                                        "title": null,
+                                        "quizItemId": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                ],
+                                "allAnswersCorrect": false,
+                                "sharedOptionFeedbackMessage": null,
+                                "usesSharedOptionFeedbackMessage": false
+                            }],
+                            "title": "Pretty good exercise",
+                            "tries": 1,
+                            "points": 2,
+                            "section": 0,
+                            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+                            "deadline": "2021-12-17T07:15:33.479Z",
+                            "createdAt": "2021-12-17T07:15:33.479Z",
+                            "updatedAt": "2021-12-17T07:15:33.479Z",
+                            "autoReject": false,
+                            "autoConfirm": true,
+                            "randomizeOptions": false,
+                            "triesLimited": true,
+                            "submitMessage": "This is an extra submit message from the teacher.",
+                            "excludedFromScore": true,
+                            "grantPointsPolicy": "grant_whenever_possible",
+                            "awardPointsEvenIfWrong": false}),
+                    ),
+                    (
+                        multi_exercise_2_slide_1_task_3_id,
+                        "quizzes".to_string(),
+                        serde_json::json!([paragraph(
+                            "Third question.",
+                            Uuid::new_v5(&course_id, b"13b75f4e-b02d-41fa-b5bc-79adf22d9aef")
+                        )]),
+                        serde_json::json!({
+                            "id": "3f332295-b409-4fa8-a690-e5afd4e06b7a",
+                            "body": "very hard",
+                            "open": "2021-12-17T07:15:33.479Z",
+                            "part": 0,
+                            "items": [{
+                                "id": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                "body": null,
+                                "type": "multiple-choice",
+                                "multi": false,
+                                "multipleChoiceMultipleOptionsGradingPolicy": "default",
+                                "order": 0,
+                                "title": "Pick all the correct answers from below",
+                                "quizId": "3f332295-b409-4fa8-a690-e5afd4e06b7a",
+                                "options": [
+                                    {
+                                        "id": "d606fec9-6854-4b40-9b37-e1f53f4d4a0f",
+                                        "body": "Incorrect",
+                                        "order": 1,
+                                        "title": null,
+                                        "quizItemId": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                        "correct":false,
+                                        "messageAfterSubmissionWhenSelected": "This is incorrect option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                    {
+                                        "id": "9c69312d-c1e1-48bd-b920-309b39d2a7db",
+                                        "body": "Correct",
+                                        "order": 2,
+                                        "title": null,
+                                        "quizItemId": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null,
+                                    },
+                                    {
+                                        "id": "fef8854d-fee0-40ad-ab81-f4ed66daadeb",
+                                        "body": "Correct",
+                                        "order": 3,
+                                        "title": null,
+                                        "quizItemId": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                ],
+                                "allAnswersCorrect": false,
+                                "sharedOptionFeedbackMessage": null,
+                                "usesSharedOptionFeedbackMessage": false
+                            }],
+                            "title": "Pretty good exercise",
+                            "tries": 1,
+                            "points": 2,
+                            "section": 0,
+                            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+                            "deadline": "2021-12-17T07:15:33.479Z",
+                            "createdAt": "2021-12-17T07:15:33.479Z",
+                            "updatedAt": "2021-12-17T07:15:33.479Z",
+                            "autoReject": false,
+                            "autoConfirm": true,
+                            "randomizeOptions": false,
+                            "triesLimited": true,
+                            "submitMessage": "This is an extra submit message from the teacher.",
+                            "excludedFromScore": true,
+                            "grantPointsPolicy": "grant_whenever_possible",
+                            "awardPointsEvenIfWrong": false}),
+                    ),
+                ],
+            )],
+            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+        );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/complicated-quizzes-exercise".to_string(),
+            title: "Complicated quizzes exercise page".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![multi_exercise_2],
+            exercise_slides: multi_exercise_2_slides,
+            exercise_tasks: multi_exercise_2_tasks,
+            content: serde_json::json!([
+                paragraph(
+                    "This page has a complicated quizzes exercise.",
+                    Uuid::new_v5(&course_id, b"ea0eaf34-3c92-4007-aae4-9abff7ad1e4c")
+                ),
+                multi_exercise_block_2
+            ]),
+        },
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
     create_page(
         &mut conn,
         course.id,
@@ -1977,6 +2245,7 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
+
     let (_page, _history) = pages::insert_course_page(
         &mut conn,
         &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
@@ -2654,6 +2923,7 @@ pub async fn seed_course_without_submissions(
         "/welcome",
         "Welcome to Introduction to Everything",
     );
+
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
         .followed_by("/hidden", "Hidden Page")
@@ -3766,6 +4036,7 @@ pub async fn seed_peer_review_course_without_submissions(
         is_draft: false,
         is_test_mode: false,
     };
+
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {

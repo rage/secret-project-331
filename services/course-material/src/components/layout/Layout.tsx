@@ -9,7 +9,6 @@ import Centered from "../../shared-module/components/Centering/Centered"
 import Footer from "../../shared-module/components/Footer"
 import LanguageSelection from "../../shared-module/components/LanguageSelection"
 import {
-  Menu,
   NavBar,
   NavContainer,
   NavItem,
@@ -84,9 +83,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               </NavItem>
             </NavItems>
           </NavContainer>
-          <Menu>
-            <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
-          </Menu>
+          <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
         </NavBar>
 
         <main>

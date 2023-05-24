@@ -31,14 +31,15 @@ Generates a certificate as a png.
 
 ## Arguments
 
-- debug_show_anchoring_points: If true, the certificate will have a red dot at the anchoring points. Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
+- debug: If true, the certificate will have a red dot at the anchoring points, and the URL will be replaced with a placeholder.
+  Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
 */
 #[allow(clippy::too_many_arguments)]
 pub async fn generate_certificate(
     conn: &mut PgConnection,
     file_store: &dyn FileStore,
     certificate: &CourseModuleCompletionCertificate,
-    debug_show_anchoring_points: bool,
+    debug: bool,
 ) -> UtilResult<Vec<u8>> {
     let config = get_by_course_module_and_course_instance(
         &mut *conn,
@@ -66,6 +67,15 @@ pub async fn generate_certificate(
     .transpose()?;
 
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
+    let url = if debug {
+        "https://courses.mooc.fi/certificates/debug".to_string()
+    } else {
+        format!(
+            // TODO: use base url here
+            "https://courses.mooc.fi/certificates/{}",
+            certificate.verification_id
+        )
+    };
     let texts_to_render = vec![
         TextToRender {
             text: certificate.name_on_certificate.to_string(),
@@ -77,11 +87,7 @@ pub async fn generate_certificate(
             ..Default::default()
         },
         TextToRender {
-            text: format!(
-                // TODO: use base url here
-                "https://courses.mooc.fi/certificates/{}",
-                certificate.verification_id
-            ),
+            text: url,
             y_pos: config.certificate_validate_url_y_pos,
             x_pos: config.certificate_validate_url_x_pos,
             font_size: config.certificate_validate_url_font_size,
@@ -109,7 +115,7 @@ pub async fn generate_certificate(
         overlay_svg.as_deref(),
         &texts_to_render,
         &paper_size,
-        debug_show_anchoring_points,
+        debug,
         &fontdb,
     )?;
     Ok(res)

@@ -112,7 +112,7 @@
   "daily-users-with-submissions-visualization-tooltip": "Päivä: {{day}}<br />Käyttäjiä, jotka ovat palauttaneet: {{users}}",
   "data-to-post-to-iframe": "Data, joka lähtee IFrameen",
   "date": "Pvm",
-  "default": "default",
+  "default": "oletus",
   "default-course-instance-name": "Oletus",
   "default-module": "Oletusmoduuli",
   "delete": "Poista",

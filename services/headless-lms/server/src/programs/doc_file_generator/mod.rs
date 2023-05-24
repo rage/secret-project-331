@@ -129,6 +129,7 @@ use headless_lms_models::{
     },
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
+    proposed_block_edits::EditedBlockStillExistsData,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
 };
@@ -394,7 +395,9 @@ fn models() {
         },
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
-        proposed_block_edits::{BlockProposal, ProposalStatus},
+        proposed_block_edits::BlockProposal,
+        proposed_block_edits::EditedBlockStillExistsData,
+        proposed_block_edits::ProposalStatus,
         proposed_page_edits::{PageProposal, ProposalCount},
         regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
         repository_exercises::RepositoryExercise,
@@ -615,15 +618,17 @@ fn models() {
         text: None,
         order_number: Some(0)
     });
-    example!(BlockProposal {
-        id,
-        block_id,
-        original_text: "Hello,, world!".to_string(),
-        current_text: "Hello,, world!".to_string(),
-        changed_text: "Hello, world!".to_string(),
-        status: ProposalStatus::Accepted,
-        accept_preview: Some("Hello, world!!".to_string())
-    });
+    example!(BlockProposal::EditedBlockStillExists(
+        EditedBlockStillExistsData {
+            id: Uuid::parse_str("f3a571a8-8111-482c-91bc-9fd9f65e3a56").unwrap(),
+            block_id: Uuid::parse_str("44033f59-6d9b-475f-934c-6ead8014ed23").unwrap(),
+            original_text: "Hello,, world!".to_string(),
+            current_text: "Hello,, world!".to_string(),
+            changed_text: "Hello, world!".to_string(),
+            status: ProposalStatus::Accepted,
+            accept_preview: Some("Hello, world!!".to_string())
+        }
+    ));
     example!(ChapterWithStatus {
     id,
     created_at,

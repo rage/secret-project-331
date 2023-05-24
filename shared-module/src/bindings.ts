@@ -1266,7 +1266,11 @@ export interface PlaygroundExampleData {
   data: unknown
 }
 
-export interface BlockProposal {
+export type BlockProposal =
+  | ({ type: "edited-block-still-exists" } & EditedBlockStillExistsData)
+  | ({ type: "edited-block-no-longer-exists" } & EditedBlockNoLongerExistsData)
+
+export interface EditedBlockStillExistsData {
   id: string
   block_id: string
   current_text: string
@@ -1274,6 +1278,14 @@ export interface BlockProposal {
   original_text: string
   status: ProposalStatus
   accept_preview: string | null
+}
+
+export interface EditedBlockNoLongerExistsData {
+  id: string
+  block_id: string
+  changed_text: string
+  original_text: string
+  status: ProposalStatus
 }
 
 export type BlockProposalAction = { tag: "Accept"; data: string } | { tag: "Reject" }

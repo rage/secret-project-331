@@ -190,6 +190,8 @@ fn models(target: &mut File) {
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
         proposed_block_edits::BlockProposal,
+        proposed_block_edits::EditedBlockStillExistsData,
+        proposed_block_edits::EditedBlockNoLongerExistsData,
         proposed_block_edits::BlockProposalAction,
         proposed_block_edits::BlockProposalInfo,
         proposed_block_edits::NewProposedBlockEdit,

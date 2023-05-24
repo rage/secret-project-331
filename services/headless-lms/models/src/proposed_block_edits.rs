@@ -20,7 +20,7 @@ pub enum ProposalStatus {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct BlockProposal {
+pub struct EditedBlockStillExistsData {
     pub id: Uuid,
     pub block_id: Uuid,
     pub current_text: String,
@@ -28,6 +28,24 @@ pub struct BlockProposal {
     pub original_text: String,
     pub status: ProposalStatus,
     pub accept_preview: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct EditedBlockNoLongerExistsData {
+    pub id: Uuid,
+    pub block_id: Uuid,
+    pub changed_text: String,
+    pub original_text: String,
+    pub status: ProposalStatus,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[serde(tag = "type", rename_all = "kebab-case")]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub enum BlockProposal {
+    EditedBlockStillExists(EditedBlockStillExistsData),
+    EditedBlockNoLongerExists(EditedBlockNoLongerExistsData),
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]

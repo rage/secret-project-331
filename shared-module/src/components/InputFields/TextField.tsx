@@ -1,34 +1,12 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { InputHTMLAttributes } from "react"
 import { FieldError, UseFormRegisterReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 import { errorToDescription } from "../../utils/strings"
-
-interface TextFieldExtraProps {
-  name?: string
-  type?: "email" | "password" | "text" | "number" | "color"
-  label?: string
-  labelStyle?: string
-  hint?: string
-  error?: string | FieldError
-  placeholder?: string
-  required?: boolean
-  value?: string | number
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
-  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
-  onChange?: (value: string, name?: string) => void
-  className?: string
-  disabled?: boolean
-  id?: string
-  defaultValue?: string
-  register?: UseFormRegisterReturn
-  min?: number
-  step?: string
-}
 
 const ERRORCOLOR = baseTheme.colors.red[600]
 const DEFAULTCOLOR = "#dedede"
@@ -73,11 +51,37 @@ const errorClass = css`
   display: inline-block;
 `
 
-export type TextFieldProps = Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> &
-  TextFieldExtraProps
+export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+  type?: "email" | "password" | "text" | "number" | "color"
+  label?: string
+  labelStyle?: string
+  hint?: string
+  error?: string | FieldError
+  register?: UseFormRegisterReturn
+  onChangeByValue?: (value: string, name?: string) => void
+}
 
-const TextField = ({ onChange, className, register, disabled, error, ...rest }: TextFieldProps) => {
+const TextField: React.FC<TextFieldProps> = ({
+  onChange,
+  onChangeByValue,
+  className,
+  register,
+  disabled,
+  error,
+  ...rest
+}: TextFieldProps) => {
   const { t } = useTranslation()
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChangeByValue) {
+      const {
+        target: { value },
+      } = event
+      onChangeByValue(value)
+    } else if (onChange) {
+      onChange(event)
+    }
+  }
   return (
     <div
       className={cx(
@@ -119,7 +123,7 @@ const TextField = ({ onChange, className, register, disabled, error, ...rest }: 
           // eslint-disable-next-line i18next/no-literal-string
           aria-errormessage={`${rest.id ?? rest.label}_error`}
           aria-invalid={error !== undefined}
-          onChange={({ target: { value } }) => onChange && onChange(value)}
+          onChange={handleOnChange}
           defaultValue={rest.defaultValue}
           error={errorToDescription(error) ?? undefined}
           {...rest}

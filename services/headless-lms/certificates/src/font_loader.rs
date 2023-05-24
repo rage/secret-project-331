@@ -13,7 +13,7 @@ use usvg::fontdb;
 /// Creates an empty [fontdb::Database] and loads all the fonts specified in the database table `certificate_fonts` into it. Note that the font database will not contain any system fonts to prevent us from creating any accidential hidden dependencies on the system fonts.
 pub async fn get_font_database_with_fonts(
     conn: &mut PgConnection,
-    file_store: &impl FileStore,
+    file_store: &dyn FileStore,
 ) -> UtilResult<fontdb::Database> {
     let mut fontdb = fontdb::Database::new();
     let certificate_fonts = headless_lms_models::certificate_fonts::get_all(&mut *conn)

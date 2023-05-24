@@ -180,7 +180,7 @@ async fn upload_from_exercise_service(
         payload,
         file_store.as_ref(),
         &mut paths,
-        user.as_ref(),
+        user,
         &app_conf.base_url,
     )
     .await

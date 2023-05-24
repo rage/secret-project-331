@@ -10,6 +10,7 @@ license = "Apache-2.0"
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
+headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 doc-macro = { path = "../doc-macro" }

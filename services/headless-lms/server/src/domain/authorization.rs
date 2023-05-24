@@ -22,7 +22,7 @@ const SESSION_KEY: &str = "user";
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
 /// Extractor for an authenticated user.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthUser {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

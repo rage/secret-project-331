@@ -26,6 +26,7 @@ export interface Fields {
   override_completion_link: boolean
   completion_registration_link_override: string
   enable_registering_completion_to_uh_open_university: boolean
+  enable_module_completion_certificates: boolean
 }
 
 const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
@@ -48,6 +49,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       uh_course_code: "",
       automatic_completion_number_of_points_treshold: null,
       automatic_completion_number_of_exercises_attempted_treshold: null,
+      enable_module_completion_certificates: false,
     },
   })
 
@@ -206,6 +208,10 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               register={register("ects_credits", { valueAsNumber: true })}
             />
           </div>
+          <Checkbox
+            label={t("enable-module-completion-certificates")}
+            register={register("enable_module_completion_certificates")}
+          />
         </div>
         <div
           className={css`

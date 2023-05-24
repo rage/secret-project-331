@@ -12,6 +12,7 @@ interface Props<T extends FieldValues> {
   required?: boolean
   type?: string
   value?: string
+  accept?: string
 }
 
 const FormField = <T extends FieldValues>({
@@ -21,6 +22,7 @@ const FormField = <T extends FieldValues>({
   register,
   required,
   placeholder,
+  accept,
   ...rest
 }: Props<T>): React.ReactElement => {
   const { t } = useTranslation()
@@ -44,6 +46,7 @@ const FormField = <T extends FieldValues>({
           width: 100%;
           margin-bottom: 0.5rem;
         `}
+        accept={accept}
       ></input>
       <br />
     </>

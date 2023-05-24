@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
@@ -29,6 +29,9 @@ test("test", async ({ page, headless }, testInfo) => {
     dialog.accept()
   })
   await page.getByRole("button", { name: "Generate" }).click()
+  await expect(page).toHaveURL(/.*\/certificates\/.*/)
+  const currentUrl = page.url()
+  page.goto(`${currentUrl}?debug=true`)
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -37,5 +40,6 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("img", { name: "Certificate for completing a course module" }),
     ],
+    scrollToYCoordinate: 0,
   })
 })

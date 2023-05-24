@@ -21,6 +21,7 @@ import { CourseModuleCertificateConfigurationUpdate } from "../../../../shared-m
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
@@ -157,7 +158,8 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
               .map(({ module, configuration }) => (
                 <li key={module.id}>
                   <div>
-                    {t("module")}: {module.name || t("default")} ({module.id})
+                    {module.name ? `${t("module")}: ${module.name}` : t("default-module")}{" "}
+                    <HideTextInSystemTests text={module.id} testPlaceholder="module-id" />
                   </div>
                   {module.id === editingConfiguration && (
                     <CertificateForm

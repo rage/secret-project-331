@@ -25,14 +25,9 @@ test("test", async ({ page, headless }, testInfo) => {
   // disable/enable generating certs with confirmation dialog
   page.once("dialog", (dialog) => {
     console.log(`Dialog message: ${dialog.message()}`)
-    dialog.accept()
+    dialog.dismiss()
   })
   await page.getByRole("button", { name: "Disable generating certifications" }).click()
-  page.once("dialog", (dialog) => {
-    console.log(`Dialog message: ${dialog.message()}`)
-    dialog.accept()
-  })
-  await page.getByRole("button", { name: "Enable generating certifications" }).click()
 
   // edit with cancel and save
   await page.getByRole("button", { name: "Edit" }).click()
@@ -41,7 +36,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "editing-config",
-    clearNotifications: true,
+    scrollToYCoordinate: 0,
   })
   await page.getByRole("button", { name: "Cancel" }).click()
   await page.getByRole("button", { name: "Edit" }).click()
@@ -59,7 +54,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page
     .getByRole("listitem")
     .filter({
-      hasText: "Module: default",
+      hasText: "Default module",
     })
     .getByRole("button", { name: "Create certificate configuration" })
     .click()

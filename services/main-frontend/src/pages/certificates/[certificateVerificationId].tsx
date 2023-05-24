@@ -23,7 +23,7 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   const debug = query.debug
 
   const certificate = useQuery(
-    ["course-module-verification", certificateVerificationId],
+    ["course-module-verification", certificateVerificationId, debug],
     async () => fetchCertificateImage(certificateVerificationId, debug === "true"),
   )
   return (

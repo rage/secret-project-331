@@ -45,7 +45,7 @@ export const fetchCertificateImage = async (
   debug: boolean,
 ): Promise<Blob> => {
   const res = await mainFrontendClient.get(`/certificates/${certificateVerificationId}`, {
-    params: debug ?? { debug: true },
+    params: debug ? { debug: true } : undefined,
     responseType: "blob",
   })
   return res.data

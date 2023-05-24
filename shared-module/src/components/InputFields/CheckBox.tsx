@@ -9,12 +9,14 @@ interface CheckboxFieldExtraProps {
   label: string
   error?: boolean
   checked?: boolean
+  defaultChecked?: boolean
   name?: string
   /* onBlur?: (name?: string) => void */
   onChange?: (checked: boolean, name?: string) => void
   className?: string
   register?: UseFormRegisterReturn
   id?: string
+  disabled?: boolean
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -88,7 +90,15 @@ const ERROR = "Please check the secret box"
 
 export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
 
-const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxFieldExtraProps) => {
+const CheckBox = ({
+  onChange,
+  className,
+  checked,
+  register,
+  disabled,
+  id,
+  ...rest
+}: CheckboxFieldExtraProps) => {
   return (
     <div
       className={cx(
@@ -101,6 +111,7 @@ const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxF
       <Label {...rest}>
         <input
           type="checkbox"
+          id={id}
           checked={checked}
           aria-errormessage={rest.error ? `${rest.label}_error` : undefined}
           aria-invalid={rest.error !== undefined}
@@ -109,6 +120,7 @@ const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxF
               onChange(checked)
             }
           }}
+          disabled={disabled ?? false}
           {...register}
           {...rest}
         />
@@ -125,7 +137,7 @@ const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxF
                   display: block;
                 `
           }
-          id={`${rest.id ?? rest.label}_error`}
+          id={`${id ?? rest.label}_error`}
           role="alert"
         >
           {ERROR}

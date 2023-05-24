@@ -1543,6 +1543,7 @@ dependencies = [
  "futures",
  "futures-util",
  "git2",
+ "headless-lms-certificates",
  "headless-lms-models",
  "headless-lms-utils",
  "hmac",

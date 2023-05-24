@@ -22,7 +22,7 @@ pub struct NewCertificateFont {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    certificate_font: &CertificateFont,
+    certificate_font: &NewCertificateFont,
 ) -> ModelResult<CertificateFont> {
     let res = sqlx::query_as!(
         CertificateFont,

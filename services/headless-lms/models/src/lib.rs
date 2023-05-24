@@ -12,6 +12,7 @@ pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
 pub mod course_module_certificate_configurations;
+pub mod course_module_completion_certificates;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_modules;

@@ -597,6 +597,7 @@ fn models() {
         ects_credits: None,
         completion_registration_link_override: None,
         enable_registering_completion_to_uh_open_university: false,
+        certification_enabled: false,
     });
     example!(UserCourseModuleCompletion {
         course_module_id,
@@ -1263,6 +1264,7 @@ fn models() {
                 grade: Some(4),
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: true,
+                certification_enabled: false,
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1274,6 +1276,7 @@ fn models() {
                 grade: Some(4),
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: false,
+                certification_enabled: false,
             }
         ]
     );

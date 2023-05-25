@@ -76,6 +76,12 @@ pub async fn generate_certificate(
             certificate.verification_id
         )
     };
+    let date = if debug {
+        // TODO: this fixes the date for system tests, not a great solution...
+        NaiveDate::from_ymd_opt(2023, 1, 1).unwrap()
+    } else {
+        certificate.created_at.date_naive()
+    };
     let texts_to_render = vec![
         TextToRender {
             text: certificate.name_on_certificate.to_string(),
@@ -96,10 +102,7 @@ pub async fn generate_certificate(
             ..Default::default()
         },
         TextToRender {
-            text: get_date_as_localized_string(
-                &config.certificate_locale,
-                certificate.created_at.date_naive(),
-            )?,
+            text: get_date_as_localized_string(&config.certificate_locale, date)?,
             y_pos: config.certificate_date_y_pos,
             x_pos: config.certificate_date_x_pos,
             font_size: config.certificate_date_font_size,

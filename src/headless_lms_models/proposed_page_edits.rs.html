@@ -582,6 +582,34 @@
 <a href="#582" id="582">582</a>
 <a href="#583" id="583">583</a>
 <a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map::Entry, HashMap};
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -595,7 +623,8 @@
     pages::{CmsPageUpdate, PageUpdateArgs},
     prelude::<span class="kw-2">*</span>,
     proposed_block_edits::{
-        BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
+        BlockProposal, BlockProposalAction, BlockProposalInfo, EditedBlockNoLongerExistsData,
+        EditedBlockStillExistsData, NewProposedBlockEdit, ProposalStatus,
     },
 };
 
@@ -741,58 +770,15 @@ WHERE proposed_block_edits.deleted_at IS NULL
 
     <span class="kw">let </span><span class="kw-2">mut </span>proposals = HashMap::new();
     <span class="kw">let </span><span class="kw-2">mut </span>pages = HashMap::new();
+
     <span class="kw">for </span>r <span class="kw">in </span>res {
-        <span class="kw">let </span>content = <span class="kw">match </span>pages.entry(r.page_id) {
-            Entry::Occupied(o) =&gt; o.into_mut(),
-            Entry::Vacant(v) =&gt; {
-                <span class="kw">let </span>page = <span class="kw">crate</span>::pages::get_page(<span class="kw-2">&amp;mut *</span>conn, r.page_id).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="kw">let </span>content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(page.content)<span class="question-mark">?</span>;
-                v.insert(content)
-            }
-        };
-        <span class="kw">let </span>block = content
-            .iter()
-            .find(|b| b.client_id == r.block_id)
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    <span class="string">&quot;Failed to find the block which the proposal was for&quot;</span>.to_string(),
-                    <span class="prelude-val">None</span>,
-                )
-            })<span class="question-mark">?</span>;
-        <span class="kw">let </span>content = block
-            .attributes
-            .get(<span class="kw-2">&amp;</span>r.block_attribute)
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    <span class="macro">format!</span>(
-                        <span class="string">&quot;Missing expected attribute &#39;{}&#39; in edited block&quot;</span>,
-                        r.block_attribute
-                    ),
-                    <span class="prelude-val">None</span>,
-                )
-            })<span class="question-mark">?
-            </span>.as_str()
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::Generic,
-                    <span class="macro">format!</span>(<span class="string">&quot;Attribute &#39;{}&#39; did not contain a string&quot;</span>, r.block_attribute),
-                    <span class="prelude-val">None</span>,
-                )
-            })<span class="question-mark">?
-            </span>.to_string();
         <span class="kw">let </span>page_proposal_id = r.page_proposal_id;
         <span class="kw">let </span>page_id = r.page_id;
         <span class="kw">let </span>user_id = r.user_id;
         <span class="kw">let </span>page_proposal_pending = r.pending;
         <span class="kw">let </span>created_at = r.created_at;
-
-        <span class="kw">let </span>block_proposal_id = r.block_proposal_id;
-        <span class="kw">let </span>block_id = r.block_id;
         <span class="kw">let </span>original_text = r.original_text;
         <span class="kw">let </span>changed_text = r.changed_text;
-        <span class="kw">let </span>block_proposal_status = r.block_proposal_status;
         <span class="kw">let </span>page_proposal =
             proposals
                 .entry(r.page_proposal_id)
@@ -806,15 +792,71 @@ WHERE proposed_block_edits.deleted_at IS NULL
                     page_title: r.page_title,
                     page_url_path: r.page_url_path,
                 });
-        page_proposal.block_proposals.push(BlockProposal {
-            accept_preview: merge_edits::merge(<span class="kw-2">&amp;</span>original_text, <span class="kw-2">&amp;</span>changed_text, <span class="kw-2">&amp;</span>content),
-            id: block_proposal_id,
-            block_id,
-            current_text: content.to_string(),
-            changed_text: changed_text.to_string(),
-            status: block_proposal_status,
-            original_text: original_text.to_string(),
-        });
+
+        <span class="kw">let </span>content = <span class="kw">match </span>pages.entry(r.page_id) {
+            Entry::Occupied(o) =&gt; o.into_mut(),
+            Entry::Vacant(v) =&gt; {
+                <span class="kw">let </span>page = <span class="kw">crate</span>::pages::get_page(<span class="kw-2">&amp;mut *</span>conn, r.page_id).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let </span>content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(page.content)<span class="question-mark">?</span>;
+                v.insert(content)
+            }
+        };
+
+        <span class="kw">let </span>block = content.iter().find(|b| b.client_id == r.block_id);
+
+        <span class="kw">let </span>block_proposal_id = r.block_proposal_id;
+        <span class="kw">let </span>block_id = r.block_id;
+        <span class="kw">let </span>block_proposal_status = r.block_proposal_status;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(block) = block {
+            <span class="kw">let </span>content = block
+                .attributes
+                .get(<span class="kw-2">&amp;</span>r.block_attribute)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        <span class="macro">format!</span>(
+                            <span class="string">&quot;Missing expected attribute &#39;{}&#39; in edited block&quot;</span>,
+                            r.block_attribute
+                        ),
+                        <span class="prelude-val">None</span>,
+                    )
+                })<span class="question-mark">?
+                </span>.as_str()
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        <span class="macro">format!</span>(<span class="string">&quot;Attribute &#39;{}&#39; did not contain a string&quot;</span>, r.block_attribute),
+                        <span class="prelude-val">None</span>,
+                    )
+                })<span class="question-mark">?
+                </span>.to_string();
+            page_proposal
+                .block_proposals
+                .push(BlockProposal::EditedBlockStillExists(
+                    EditedBlockStillExistsData {
+                        accept_preview: merge_edits::merge(<span class="kw-2">&amp;</span>original_text, <span class="kw-2">&amp;</span>changed_text, <span class="kw-2">&amp;</span>content),
+                        id: block_proposal_id,
+                        block_id,
+                        current_text: content.to_string(),
+                        changed_text: changed_text.to_string(),
+                        status: block_proposal_status,
+                        original_text: original_text.to_string(),
+                    },
+                ));
+        } <span class="kw">else </span>{
+            page_proposal
+                .block_proposals
+                .push(BlockProposal::EditedBlockNoLongerExists(
+                    EditedBlockNoLongerExistsData {
+                        id: block_proposal_id,
+                        block_id,
+                        changed_text: changed_text.to_string(),
+                        status: block_proposal_status,
+                        original_text: original_text.to_string(),
+                    },
+                ));
+        }
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>proposals = proposals.into_values().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -1087,28 +1129,36 @@ WHERE id = $2
             </span>.unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>p = ps.pop().unwrap();
         <span class="kw">let </span>b = p.block_proposals.pop().unwrap();
-        <span class="macro">assert_eq!</span>(b.accept_preview.unwrap(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
-        process_proposal(
-            tx.as_mut(),
-            page,
-            p.id,
-            <span class="macro">vec!</span>[BlockProposalInfo {
-                id: b.id,
-                action: BlockProposalAction::Accept(<span class="string">&quot;Content with a typo in it.&quot;</span>.to_string()),
-            }],
-            user,
-            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
-            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
-        )
-        .<span class="kw">await
-        </span>.unwrap();
+        <span class="kw">match </span>b {
+            BlockProposal::EditedBlockStillExists(b) =&gt; {
+                <span class="macro">assert_eq!</span>(b.accept_preview.unwrap(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
+                process_proposal(
+                    tx.as_mut(),
+                    page,
+                    p.id,
+                    <span class="macro">vec!</span>[BlockProposalInfo {
+                        id: b.id,
+                        action: BlockProposalAction::Accept(
+                            <span class="string">&quot;Content with a typo in it.&quot;</span>.to_string(),
+                        ),
+                    }],
+                    user,
+                    |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+                    |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+                )
+                .<span class="kw">await
+                </span>.unwrap();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ps = get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">false</span>, Pagination::default())
-            .<span class="kw">await
-            </span>.unwrap();
-        <span class="kw">let _ </span>= ps.pop().unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>ps =
+                    get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">false</span>, Pagination::default())
+                        .<span class="kw">await
+                        </span>.unwrap();
+                <span class="kw">let _ </span>= ps.pop().unwrap();
 
-        assert_content(tx.as_mut(), page, <span class="string">&quot;Content with a typo in it.&quot;</span>).<span class="kw">await</span>;
+                assert_content(tx.as_mut(), page, <span class="string">&quot;Content with a typo in it.&quot;</span>).<span class="kw">await</span>;
+            }
+            BlockProposal::EditedBlockNoLongerExists(_o) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Wrong block proposal&quot;</span>),
+        };
     }
 
     <span class="attr">#[tokio::test]
@@ -1140,30 +1190,36 @@ WHERE id = $2
             </span>.unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>p = ps.pop().unwrap();
         <span class="kw">let </span>b = p.block_proposals.pop().unwrap();
-        <span class="macro">assert_eq!</span>(b.accept_preview.unwrap(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
-        <span class="macro">assert_eq!</span>(b.status, ProposalStatus::Pending);
+        <span class="kw">match </span>b {
+            BlockProposal::EditedBlockStillExists(b) =&gt; {
+                <span class="macro">assert_eq!</span>(b.accept_preview.unwrap(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
+                <span class="macro">assert_eq!</span>(b.status, ProposalStatus::Pending);
 
-        process_proposal(
-            tx.as_mut(),
-            page,
-            p.id,
-            <span class="macro">vec!</span>[BlockProposalInfo {
-                id: b.id,
-                action: BlockProposalAction::Reject,
-            }],
-            user,
-            |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
-            |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
-        )
-        .<span class="kw">await
-        </span>.unwrap();
+                process_proposal(
+                    tx.as_mut(),
+                    page,
+                    p.id,
+                    <span class="macro">vec!</span>[BlockProposalInfo {
+                        id: b.id,
+                        action: BlockProposalAction::Reject,
+                    }],
+                    user,
+                    |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+                    |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
+                )
+                .<span class="kw">await
+                </span>.unwrap();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ps = get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">false</span>, Pagination::default())
-            .<span class="kw">await
-            </span>.unwrap();
-        <span class="kw">let _ </span>= ps.pop().unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>ps =
+                    get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">false</span>, Pagination::default())
+                        .<span class="kw">await
+                        </span>.unwrap();
+                <span class="kw">let _ </span>= ps.pop().unwrap();
 
-        assert_content(tx.as_mut(), page, <span class="string">&quot;Content with a tpo in it.&quot;</span>).<span class="kw">await</span>;
+                assert_content(tx.as_mut(), page, <span class="string">&quot;Content with a tpo in it.&quot;</span>).<span class="kw">await</span>;
+            }
+            BlockProposal::EditedBlockNoLongerExists(_o) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Wrong block proposal&quot;</span>),
+        };
     }
 }
 </code></pre></div>

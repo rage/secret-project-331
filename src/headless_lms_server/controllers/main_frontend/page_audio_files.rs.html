@@ -244,7 +244,7 @@ BINARY_DATA
         <span class="kw">let </span>mime_type = field
             .content_type()
             .map(|ct| ct.to_string())
-            .unwrap_or(<span class="string">&quot;&quot;</span>.to_string());
+            .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string());
         <span class="comment">/*
         if !matches!(mime_type.as_str(), &quot;audio/mpeg&quot; | &quot;audio/ogg&quot;) {
             return Err(...)

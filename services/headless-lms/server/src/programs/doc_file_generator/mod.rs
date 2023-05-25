@@ -146,6 +146,7 @@ fn ex<T: Example>() -> T {
     Example::example()
 }
 
+#[macro_export]
 macro_rules! doc_path {
     ($filename:expr, $extension:expr) => {
         concat!(
@@ -158,6 +159,7 @@ macro_rules! doc_path {
 }
 
 // Writes doc files. See the module documentation for more info.
+// macro_export mainly for the docs that use it
 #[macro_export]
 macro_rules! doc {
     (T, Opt, Vec, $($t:tt)*) => {
@@ -217,7 +219,7 @@ macro_rules! doc {
     ($t:ty, $e:expr) => {{
         let expr: $t = $e;
 
-        let json_path = doc_path!(
+        let json_path = $crate::doc_path!(
             stringify!($t),
             ".json"
         );
@@ -225,7 +227,7 @@ macro_rules! doc {
 
         #[cfg(feature = "ts_rs")]
         {
-            let ts_path = doc_path!(
+            let ts_path = $crate::doc_path!(
                 stringify!($t),
                 ".ts"
             );

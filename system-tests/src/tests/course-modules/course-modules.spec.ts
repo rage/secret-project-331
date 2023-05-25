@@ -62,8 +62,9 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "after-creating-new-module",
     waitForTheseToBeVisibleAndStable: [page.locator("text=1: invalid module")],
-
     screenshotOptions: { fullPage: true },
+    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
+    scrollToYCoordinate: 100_000,
   })
 
   // update invalid module to be valid

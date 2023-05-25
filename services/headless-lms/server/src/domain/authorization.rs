@@ -326,7 +326,7 @@ pub async fn authorize(
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, &user_roles).await
 }
 
-/// Same as `authorize`, but takes as an argument Vec<Role> so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
+/// Same as `authorize`, but takes as an argument `Vec<Role>` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
 pub async fn authorize_with_fetched_list_of_roles(
     conn: &mut PgConnection,
     action: Action,

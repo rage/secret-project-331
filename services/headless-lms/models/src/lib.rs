@@ -3,6 +3,8 @@ Functions and structs for interacting with the database.
 
 Each submodule corresponds to a database table.
 */
+// we always use --document-private-items, so this warning is moot
+#![allow(rustdoc::private_intra_doc_links)]
 pub mod certificate_fonts;
 pub mod chapters;
 pub mod course_background_question_answers;

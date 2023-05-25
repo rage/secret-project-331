@@ -26,7 +26,7 @@ impl PaperSize {
     }
 }
 
-/// How text should be positioned relative to the given coordinates. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor.
+/// How text should be positioned relative to the given coordinates. See <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "kebab-case")]

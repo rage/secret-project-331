@@ -15,7 +15,8 @@
       },
       "completion_registration_link_override": null,
       "ects_credits": null,
-      "enable_registering_completion_to_uh_open_university": false
+      "enable_registering_completion_to_uh_open_university": false,
+      "certification_enabled": false
     }
   ],
   "users_with_course_module_completions": [

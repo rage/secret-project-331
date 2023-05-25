@@ -4010,6 +4010,7 @@ name = "ts-rs"
 version = "6.2.0"
 source = "git+https://github.com/Heliozoa/ts-rs?rev=54263034d33818c292b9470cd61e2a2c8dff6097#54263034d33818c292b9470cd61e2a2c8dff6097"
 dependencies = [
+ "bytes",
  "chrono",
  "serde_json",
  "thiserror",

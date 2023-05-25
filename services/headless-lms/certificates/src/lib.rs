@@ -305,7 +305,7 @@ pub struct TextToRender {
     pub text_color: String,
     pub x_pos: String,
     pub y_pos: String,
-    /// How to align the text related to x_pos and y_pos. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor.
+    /// How to align the text related to x_pos and y_pos. See: <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
     pub text_anchor: CertificateTextAnchor,
 }
 

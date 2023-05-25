@@ -12,6 +12,7 @@ use crate::{
     pages::{self, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
+    SpecFetcher,
 };
 
 #[derive(Debug, Clone)]
@@ -26,11 +27,7 @@ pub async fn create_new_course(
     pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
@@ -150,11 +147,7 @@ pub async fn create_new_chapter(
     pkey_policy: PKeyPolicy<(Uuid, Uuid)>,
     new_chapter: &NewChapter,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;

@@ -36,6 +36,8 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "editing-config",
     scrollToYCoordinate: 0,
+    // wait for the Cancel button to be visible to ensure the form has rendered completely
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Cancel")],
   })
   await page.getByRole("button", { name: "Cancel" }).click()
   await page.getByRole("button", { name: "Edit" }).click()

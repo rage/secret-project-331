@@ -13,6 +13,7 @@ use crate::{
     proposed_block_edits::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
     },
+    SpecFetcher,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
@@ -271,11 +272,7 @@ pub async fn process_proposal(
     page_proposal_id: Uuid,
     block_proposals: Vec<BlockProposalInfo>,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<()> {
     if block_proposals.is_empty() {

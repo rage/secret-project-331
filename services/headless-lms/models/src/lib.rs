@@ -77,6 +77,8 @@ pub mod prelude;
 #[cfg(test)]
 pub mod test_helper;
 
+use futures::future::BoxFuture;
+use url::Url;
 use uuid::Uuid;
 
 pub use self::error::{ModelError, ModelErrorType, ModelResult};
@@ -268,4 +270,28 @@ impl CourseOrExamId {
             None
         }
     }
+}
+
+/// A "trait alias" so this for<'a> ... string doesn't need to be repeated everywhere
+/// Arguments:
+///   Url: The URL that the request is sent to (the exercise service's endpoint)
+///   &str: Exercise type/service slug
+///   Option<Value>: The Json for the request, for example the private spec in a public spec request
+pub trait SpecFetcher:
+    for<'a> Fn(
+    Url,
+    &'a str,
+    Option<&'a serde_json::Value>,
+) -> BoxFuture<'a, ModelResult<serde_json::Value>>
+{
+}
+
+impl<
+        T: for<'a> Fn(
+            Url,
+            &'a str,
+            Option<&'a serde_json::Value>,
+        ) -> BoxFuture<'a, ModelResult<serde_json::Value>>,
+    > SpecFetcher for T
+{
 }

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -12,8 +13,9 @@ test("test", async ({ page, headless }, testInfo) => {
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
   await page.getByRole("link", { name: "Navigate to course 'Certificates'" }).click()
-  await page.getByText("Default", { exact: true }).click()
-  await page.getByTestId("select-course-instance-continue-button").click()
+
+  await selectCourseInstanceIfPrompted(page)
+
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
   await page.getByRole("link", { name: "1 Page One" }).click()
   await page
@@ -21,6 +23,7 @@ test("test", async ({ page, headless }, testInfo) => {
     .getByRole("checkbox", { name: "b" })
     .click()
   await page.getByRole("button", { name: "Submit" }).click()
+  await page.waitForSelector("text=Try again")
   await page.getByRole("link", { name: "Certificates" }).click()
   await page.getByRole("button", { name: "Generate certificate for completion" }).click()
   await page.getByLabel("Your name  *").fill("Example User")

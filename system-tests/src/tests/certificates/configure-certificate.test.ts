@@ -6,6 +6,8 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
+// todo: this test is a little suboptimal because it avoids making changes in order to not mess up the generate-certificate test
+// it would probably be better to seed the certificates for two modules and configure the one not used by the generate-certificate test...
 test("test", async ({ page, headless }, testInfo) => {
   // go to config page
   await page.goto("http://project-331.local/")
@@ -46,7 +48,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   // delete with confirm
   page.once("dialog", (dialog) => {
-    dialog.accept()
+    dialog.dismiss()
   })
   await page.getByRole("button", { name: "Delete" }).click()
 
@@ -54,7 +56,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page
     .getByRole("listitem")
     .filter({
-      hasText: "Default module",
+      hasText: "Another module",
     })
     .getByRole("button", { name: "Create certificate configuration" })
     .click()

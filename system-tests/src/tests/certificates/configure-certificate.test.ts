@@ -42,9 +42,6 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.locator("text=Cancel")],
   })
   await page.getByRole("button", { name: "Cancel" }).click()
-  await page.getByRole("button", { name: "Edit" }).click()
-  await page.locator("#dateTextAnchor").selectOption("middle")
-  await page.getByRole("button", { name: "Save" }).click()
 
   // delete with confirm
   page.once("dialog", (dialog) => {

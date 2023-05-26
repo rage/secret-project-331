@@ -41,7 +41,7 @@ pub async fn get_font_database_with_fonts(
 
     info!("Loaded {} fonts", fontdb.faces().count());
     fontdb.faces().for_each(|f| {
-        info!("Font: {:?}", f);
+        info!("Font: {:?}, weight: {:?}", f.families, f.weight);
     });
 
     Ok(fontdb)

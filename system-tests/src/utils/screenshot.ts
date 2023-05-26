@@ -188,21 +188,6 @@ async function snapshotWithViewPort({
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
   }
 
-  if (beforeScreenshot) {
-    await page.waitForTimeout(100)
-    await beforeScreenshot()
-    if (replaceSomePartsWithPlaceholders) {
-      // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
-      await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
-    }
-
-    await page.waitForTimeout(100)
-    if (waitForTheseToBeVisibleAndStable) {
-      await waitToBeStable(waitForTheseToBeVisibleAndStable)
-    }
-  }
-
-  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
   if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
       await page.evaluate(async (coord) => {
@@ -217,6 +202,13 @@ async function snapshotWithViewPort({
       // 100ms was not enough at the time of writing this
       await page.waitForTimeout(200)
     }
+  }
+
+  // leave beforeScreenshot for last before the actual screenshot so the adjustments it makes are final
+  if (beforeScreenshot) {
+    await page.waitForTimeout(100)
+    await beforeScreenshot()
+    await page.waitForTimeout(100)
   }
 
   const screenshotName = `${snapshotName.replace(

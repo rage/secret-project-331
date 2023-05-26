@@ -133,5 +133,5 @@ WHERE verification_id = $1
 }
 
 fn generate_verification_id() -> String {
-    utils::strings::generate_random_string(20)
+    utils::strings::generate_easily_writable_random_string(15)
 }

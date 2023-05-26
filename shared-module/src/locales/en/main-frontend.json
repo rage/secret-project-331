@@ -196,6 +196,7 @@
   "font-size": "Font size",
   "forgot-password": "Forgot your password?",
   "generate": "Generate",
+  "generate-a-certificate-for-completing-course": "Generate a certificate for completing the {{course}} course",
   "generate-a-certificate-for-completing-the-module-of-the-course": "Generate a certificate for completing the {{module}} module of the {{course}} course",
   "generating-new-certifications-disabled": "Generating new certifications disabled",
   "generating-new-certifications-enabled": "Generating new certifications enabled",

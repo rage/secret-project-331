@@ -15,6 +15,17 @@ pub fn generate_random_string(length: usize) -> String {
         .collect()
 }
 
+pub fn generate_easily_writable_random_string(length: usize) -> String {
+    thread_rng()
+        .sample_iter(Alphanumeric)
+        .filter(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
+        // Filter out characters that might be confused with each other
+        .filter(|c| c != &b'l' && c != &b'1' && c != &b'o' && c != &b'0')
+        .take(length)
+        .map(char::from)
+        .collect()
+}
+
 /// Checks whether the string is IETF language code where subtags are separated with underscore.
 pub fn is_ietf_language_code_like(string: &str) -> bool {
     IETF_LANGUAGE_CODE_REGEX.is_match(string)

@@ -404,16 +404,16 @@ pub struct CertificateQuery {
 GET `/api/v0/main-frontend/certificates/{certificate_verification_id}`
 
 Fetches the user's certificate using the verification id.
+
+Response: the certificate as a png.
 */
-#[generated_doc]
 #[instrument(skip(pool, file_store))]
 pub async fn get_cerficate_by_verification_id(
     certificate_verification_id: web::Path<String>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     query: web::Query<CertificateQuery>,
-) -> ControllerResult<Bytes> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
     // everyone needs to be able to view the certificate in order to verify its validity
@@ -432,7 +432,14 @@ pub async fn get_cerficate_by_verification_id(
         query.debug,
     )
     .await?;
-    token.authorized_ok(Bytes::from(data))
+    let max_age = if query.debug { 0 } else { 300 };
+
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .content_type("image/png")
+            .insert_header(("Cache-Control", format!("max-age={max_age}")))
+            .body(data),
+    )
 }
 
 /**

@@ -32,6 +32,7 @@ test("test", async ({ page, headless }, testInfo) => {
   })
   await page.getByRole("button", { name: "Generate" }).click()
   await expect(page).toHaveURL(/.*\/certificates\/.*/)
+  await page.getByText("Save as png").waitFor()
   const currentUrl = page.url()
   await page.goto(`${currentUrl}?debug=true`)
   await expectScreenshotsToMatchSnapshots({

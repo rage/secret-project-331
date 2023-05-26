@@ -68,11 +68,11 @@ pub async fn generate_certificate(
 
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
     let url = if debug {
-        "https://courses.mooc.fi/certificates/debug".to_string()
+        "https://courses.mooc.fi/certificates/validate/debug".to_string()
     } else {
         format!(
             // TODO: use base url here
-            "https://courses.mooc.fi/certificates/{}",
+            "https://courses.mooc.fi/certificates/validate/{}",
             certificate.verification_id
         )
     };

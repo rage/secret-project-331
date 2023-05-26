@@ -330,7 +330,9 @@ fn controllers() {
     doc!(
         Opt,
         UserInfo {
-            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap(),
+            first_name: Some("Example".to_string()),
+            last_name: Some("User".to_string()),
         }
     );
     doc!(CourseMaterialPeerReviewDataWithToken {

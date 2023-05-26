@@ -1579,6 +1579,8 @@ export interface Login {
 
 export interface UserInfo {
   user_id: string
+  first_name: string | null
+  last_name: string | null
 }
 
 export interface SaveCourseSettingsPayload {

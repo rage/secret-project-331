@@ -233,7 +233,9 @@ export function isAction(obj: unknown): obj is Action {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "usually_unacceptable_deletion") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["type"] === "upload_file")
+      typedObj["type"] === "upload_file") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "view_user_progress_or_details")
   )
 }
 
@@ -2546,7 +2548,8 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "Teacher" ||
     typedObj === "Admin" ||
     typedObj === "CourseOrExamCreator" ||
-    typedObj === "MaterialViewer"
+    typedObj === "MaterialViewer" ||
+    typedObj === "TeachingAndLearningServices"
   )
 }
 

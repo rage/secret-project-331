@@ -31,7 +31,7 @@ pub async fn get_course_instance_enrollments_for_user(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewUserProgressOrDetails,
         Some(auth_user.id),
         Res::GlobalPermissions,
     )

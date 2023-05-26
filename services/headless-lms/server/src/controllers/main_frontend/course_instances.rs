@@ -165,7 +165,7 @@ async fn points(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Edit,
+        Act::ViewUserProgressOrDetails,
         Some(user.id),
         Res::CourseInstance(*course_instance_id),
     )
@@ -187,7 +187,7 @@ async fn completions(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Edit,
+        Act::ViewUserProgressOrDetails,
         Some(user.id),
         Res::CourseInstance(*course_instance_id),
     )
@@ -344,7 +344,7 @@ async fn get_all_exercise_statuses_by_course_instance_id(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Edit,
+        Act::ViewUserProgressOrDetails,
         Some(user.id),
         Res::CourseInstance(course_instance_id),
     )

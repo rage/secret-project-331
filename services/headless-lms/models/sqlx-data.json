@@ -23,7 +23,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -1085,7 +1086,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -2151,7 +2153,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -2764,7 +2767,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -3215,7 +3219,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -3249,7 +3254,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -4378,7 +4384,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -6802,7 +6809,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -6829,7 +6837,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -7868,7 +7877,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -10437,7 +10447,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -10533,7 +10544,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -12048,7 +12060,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -12876,7 +12889,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -12926,7 +12940,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -17678,7 +17693,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -18911,7 +18927,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -19819,7 +19836,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -20522,7 +20540,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"

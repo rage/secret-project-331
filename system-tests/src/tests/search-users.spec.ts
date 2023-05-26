@@ -3,7 +3,7 @@ import { test } from "@playwright/test"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
-  storageState: "src/states/admin@example.com.json",
+  storageState: "src/states/teaching-and-learning-services@example.com.json",
 })
 
 test("User search works", async ({ page, headless }, testInfo) => {

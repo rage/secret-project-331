@@ -39,10 +39,7 @@ pub async fn insert(
                 None,
             ))
         }
-        UserRole::Reviewer
-        | UserRole::Assistant
-        | UserRole::CourseOrExamCreator
-        | UserRole::MaterialViewer => (),
+        _ => (),
     }
 
     let course_id = match role_info.domain {

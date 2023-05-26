@@ -19,6 +19,7 @@ export type Action =
   | { type: "create_courses_or_exams" }
   | { type: "usually_unacceptable_deletion" }
   | { type: "upload_file" }
+  | { type: "view_user_progress_or_details" }
 
 export interface ActionOnResource {
   action: Action
@@ -1405,6 +1406,7 @@ export type UserRole =
   | "Admin"
   | "CourseOrExamCreator"
   | "MaterialViewer"
+  | "TeachingAndLearningServices"
 
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string

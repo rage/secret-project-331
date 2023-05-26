@@ -7,7 +7,6 @@ import { fetchCertificateImage } from "../../../services/backend/certificates"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -51,6 +50,4 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   )
 }
 
-export default withErrorBoundary(
-  withSignedIn(dontRenderUntilQueryParametersReady(ModuleCertificateVerification)),
-)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(ModuleCertificateVerification))

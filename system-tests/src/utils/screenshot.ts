@@ -259,6 +259,7 @@ export async function takeScreenshotAndComparetoSnapshot(
     newScreenshot = true
   }
 
+  await page.waitForLoadState()
   try {
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)

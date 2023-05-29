@@ -1,6 +1,6 @@
 use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
-use bytes::Bytes;
+use futures_util::TryStreamExt;
 use headless_lms_certificates as certificates;
 use headless_lms_utils::file_store::GenericPayload;
 use models::{
@@ -9,7 +9,6 @@ use models::{
     },
     course_module_completion_certificates::CourseModuleCompletionCertificate,
 };
-use std::io::Read;
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -128,8 +127,7 @@ async fn update_certificate_configuration_inner(
     // save new svgs, if any
     let mut new_background_svg_file: Option<(Uuid, String)> = None;
     let mut new_overlay_svg_file: Option<(Uuid, String)> = None;
-    let mut file_download_handles = vec![];
-    for mut file in payload.files {
+    for file in payload.files {
         let Some(file_name) = file.file_name else {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
@@ -137,23 +135,10 @@ async fn update_certificate_configuration_inner(
                 None,
             ));
         };
-        let (mut send, recv) = futures::channel::mpsc::channel(512);
-        // spawn file reader
-        let file_handle = tokio::task::spawn_blocking(move || {
-            let mut buf = [0; 512];
-            loop {
-                let count = file.file.read(&mut buf)?;
-                if count > 0 {
-                    send.try_send(Ok(Bytes::copy_from_slice(&buf[..count])))
-                        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
-                } else {
-                    break;
-                }
-            }
-            std::io::Result::Ok(())
-        });
-        file_download_handles.push(file_handle);
-        let content = Box::pin(recv) as GenericPayload;
+        let (file, _temp_path) = file.file.into_parts();
+        let file = tokio::fs::File::from_std(file);
+        let stream = tokio_util::io::ReaderStream::new(file).map_err(anyhow::Error::from);
+        let content = Box::pin(stream) as GenericPayload;
         match (
             metadata.background_svg_file_name.as_ref(),
             metadata.overlay_svg_file_name.as_ref(),
@@ -281,24 +266,6 @@ async fn update_certificate_configuration_inner(
         .await?;
     } else {
         models::course_module_certificate_configurations::insert(conn, &conf).await?;
-    }
-    for handle in file_download_handles {
-        handle
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Error while processing file".to_string(),
-                    Some(e.into()),
-                )
-            })?
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Error while processing file".to_string(),
-                    Some(e.into()),
-                )
-            })?;
     }
     Ok(files_to_delete)
 }

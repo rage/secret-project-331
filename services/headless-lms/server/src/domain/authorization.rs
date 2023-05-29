@@ -22,7 +22,7 @@ const SESSION_KEY: &str = "user";
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
 /// Extractor for an authenticated user.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthUser {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -326,7 +326,7 @@ pub async fn authorize(
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, &user_roles).await
 }
 
-/// Same as `authorize`, but takes as an argument Vec<Role> so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
+/// Same as `authorize`, but takes as an argument `Vec<Role>` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
 pub async fn authorize_with_fetched_list_of_roles(
     conn: &mut PgConnection,
     action: Action,

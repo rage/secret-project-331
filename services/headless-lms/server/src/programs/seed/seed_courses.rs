@@ -8,6 +8,7 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
+use headless_lms_models::course_module_certificate_configurations::DatabaseCourseModuleCertificateConfiguration;
 use headless_lms_models::pages::PageUpdateArgs;
 use headless_lms_models::{
     chapters,
@@ -15,11 +16,12 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
+    course_module_certificate_configurations,
     course_modules::{self, NewCourseModule},
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, library,
+    file_uploads, glossary, library,
     library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
@@ -1804,6 +1806,43 @@ pub async fn seed_sample_course(
 
     // create_best_peer_review(&mut conn, course.id, Some(exercise_1_id)).await?;
 
+    // certificate configuration
+    let background_svg_path = "svgs/certificate-background.svg".to_string();
+    let background_svg_file_upload_id = file_uploads::insert(
+        &mut conn,
+        &format!("background-{}.svg", module.id),
+        &background_svg_path,
+        "image/svg+xml",
+        None,
+    )
+    .await?;
+    let configuration = DatabaseCourseModuleCertificateConfiguration {
+        course_module_id: default_module.id,
+        course_instance_id: Some(default_instance.id),
+        certificate_owner_name_y_pos: None,
+        certificate_owner_name_x_pos: None,
+        certificate_owner_name_font_size: None,
+        certificate_owner_name_text_color: None,
+        certificate_owner_name_text_anchor: None,
+        certificate_validate_url_y_pos: None,
+        certificate_validate_url_x_pos: None,
+        certificate_validate_url_font_size: None,
+        certificate_validate_url_text_color: None,
+        certificate_validate_url_text_anchor: None,
+        certificate_date_y_pos: None,
+        certificate_date_x_pos: None,
+        certificate_date_font_size: None,
+        certificate_date_text_color: None,
+        certificate_date_text_anchor: None,
+        certificate_locale: None,
+        paper_size: None,
+        background_svg_path,
+        background_svg_file_upload_id,
+        overlay_svg_path: None,
+        overlay_svg_file_upload_id: None,
+    };
+    course_module_certificate_configurations::insert(&mut conn, &configuration).await?;
+
     Ok(course.id)
 }
 
@@ -2685,6 +2724,7 @@ pub async fn seed_course_without_submissions(
         models_requests::fetch_service_info,
     )
     .await?;
+    course_modules::update_certification_enabled(&mut conn, default_module.id, true).await?;
     course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::new_v5(

@@ -20,6 +20,7 @@ struct CourseModulesSchema {
     completion_registration_link_override: Option<String>,
     ects_credits: Option<i32>,
     enable_registering_completion_to_uh_open_university: bool,
+    certification_enabled: bool,
 }
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -41,6 +42,7 @@ pub struct CourseModule {
     pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<i32>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub certification_enabled: bool,
 }
 
 impl CourseModule {
@@ -59,6 +61,7 @@ impl CourseModule {
             completion_registration_link_override: None,
             ects_credits: None,
             enable_registering_completion_to_uh_open_university: false,
+            certification_enabled: false,
         }
     }
     pub fn set_timestamps(
@@ -100,6 +103,11 @@ impl CourseModule {
         self
     }
 
+    pub fn set_certification_enabled(mut self, certification_enabled: bool) -> Self {
+        self.certification_enabled = certification_enabled;
+        self
+    }
+
     pub fn is_default_module(&self) -> bool {
         self.name.is_none()
     }
@@ -133,6 +141,7 @@ impl From<CourseModulesSchema> for CourseModule {
             ects_credits: schema.ects_credits,
             enable_registering_completion_to_uh_open_university: schema
                 .enable_registering_completion_to_uh_open_university,
+            certification_enabled: schema.certification_enabled,
         }
     }
 }
@@ -628,6 +637,17 @@ pub async fn update(
     id: Uuid,
     updated_course_module: &NewCourseModule,
 ) -> ModelResult<()> {
+    // destructure so new fields cause a compilation error here
+    let NewCourseModule {
+        completion_policy: _,
+        course_id: _,
+        ects_credits,
+        order_number,
+        name,
+        uh_course_code,
+        completion_registration_link_override,
+        enable_registering_completion_to_uh_open_university,
+    } = updated_course_module;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
     sqlx::query!(
@@ -646,16 +666,16 @@ SET name = COALESCE($2, name),
 WHERE id = $1
         ",
         id,
-        updated_course_module.name,
-        updated_course_module.order_number,
-        updated_course_module.uh_course_code,
-        updated_course_module.ects_credits,
+        name.as_ref(),
+        order_number,
+        uh_course_code.as_ref(),
+        ects_credits.as_ref(),
         automatic_completion,
         exercises_treshold,
         points_treshold,
         requires_exam,
-        updated_course_module.completion_registration_link_override,
-        updated_course_module.enable_registering_completion_to_uh_open_university,
+        completion_registration_link_override.as_ref(),
+        enable_registering_completion_to_uh_open_university
     )
     .execute(conn)
     .await?;
@@ -682,30 +702,38 @@ pub async fn update_modules(
     }
     let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
+        // destructure so new fields cause a compilation error here
+        let NewModule {
+            name,
+            order_number,
+            chapters,
+            uh_course_code,
+            ects_credits,
+            completion_policy,
+            completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university,
+        } = new;
         // insert with a random order number to avoid conflicts
-        let new_course_module =
-            NewCourseModule::new(course_id, Some(new.name.clone()), rand::random())
-                .set_completion_policy(new.completion_policy.clone())
-                .set_completion_registration_link_override(
-                    new.completion_registration_link_override,
-                )
-                .set_ects_credits(new.ects_credits)
-                .set_uh_course_code(new.uh_course_code)
-                .set_enable_registering_completion_to_uh_open_university(
-                    new.enable_registering_completion_to_uh_open_university,
-                );
+        let new_course_module = NewCourseModule::new(course_id, Some(name.clone()), rand::random())
+            .set_completion_policy(completion_policy.clone())
+            .set_completion_registration_link_override(completion_registration_link_override)
+            .set_ects_credits(ects_credits)
+            .set_uh_course_code(uh_course_code)
+            .set_enable_registering_completion_to_uh_open_university(
+                enable_registering_completion_to_uh_open_university,
+            );
         let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
-        for chapter in new.chapters {
+        for chapter in chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
         }
         //modify the order number with the rest
         modified_and_new_modules.push(ModifiedModule {
             id: module.id,
             name: None,
-            order_number: new.order_number,
+            order_number,
             uh_course_code: module.uh_course_code,
-            ects_credits: new.ects_credits,
-            completion_policy: new.completion_policy,
+            ects_credits,
+            completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
             enable_registering_completion_to_uh_open_university: module
                 .enable_registering_completion_to_uh_open_university,
@@ -713,18 +741,27 @@ pub async fn update_modules(
     }
     // update modified and new modules
     for module in modified_and_new_modules {
+        // destructure so new fields cause a compilation error here
+        let ModifiedModule {
+            id,
+            name,
+            order_number,
+            uh_course_code,
+            ects_credits,
+            completion_policy,
+            completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university,
+        } = module;
         update(
             &mut tx,
-            module.id,
-            &NewCourseModule::new(course_id, module.name.clone(), module.order_number)
-                .set_completion_policy(module.completion_policy)
-                .set_completion_registration_link_override(
-                    module.completion_registration_link_override,
-                )
-                .set_ects_credits(module.ects_credits)
-                .set_uh_course_code(module.uh_course_code)
+            id,
+            &NewCourseModule::new(course_id, name.clone(), order_number)
+                .set_completion_policy(completion_policy)
+                .set_completion_registration_link_override(completion_registration_link_override)
+                .set_ects_credits(ects_credits)
+                .set_uh_course_code(uh_course_code)
                 .set_enable_registering_completion_to_uh_open_university(
-                    module.enable_registering_completion_to_uh_open_university,
+                    enable_registering_completion_to_uh_open_university,
                 ),
         )
         .await?;
@@ -737,6 +774,25 @@ pub async fn update_modules(
     }
 
     tx.commit().await?;
+    Ok(())
+}
+
+pub async fn update_certification_enabled(
+    conn: &mut PgConnection,
+    id: Uuid,
+    enabled: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET certification_enabled = $1
+WHERE id = $2
+",
+        enabled,
+        id
+    )
+    .execute(conn)
+    .await?;
     Ok(())
 }
 

@@ -689,6 +689,7 @@ pub struct UserModuleCompletionStatus {
     pub grade: Option<i32>,
     pub passed: Option<bool>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub certification_enabled: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -726,6 +727,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                     .map_or(false, |x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
+                certification_enabled: module.certification_enabled,
             }
         })
         .collect();

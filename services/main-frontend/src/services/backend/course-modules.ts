@@ -1,5 +1,6 @@
 import {
   CompletionRegistrationLink,
+  CourseModule,
   ModifiedModule,
   ModuleUpdates,
   NewModule,
@@ -7,10 +8,18 @@ import {
 } from "../../shared-module/bindings"
 import {
   isCompletionRegistrationLink,
+  isCourseModule,
   isUserCompletionInformation,
 } from "../../shared-module/bindings.guard"
 import { validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
+
+export const fetchCourseModule = async (id: string): Promise<CourseModule> => {
+  const response = await mainFrontendClient.get(`/course-modules/${id}`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourseModule)
+}
 
 export const fetchUserCompletionInformation = async (
   courseModuleId: string,
@@ -54,4 +63,12 @@ export const submitChanges = async (
   await mainFrontendClient.post(`/courses/${courseId}/course-modules`, data, {
     responseType: "json",
   })
+}
+
+export const setCertificationGeneration = async (id: string, enable: boolean): Promise<void> => {
+  if (enable) {
+    await mainFrontendClient.post(`/course-modules/${id}/set-certificate-generation/true`)
+  } else {
+    await mainFrontendClient.post(`/course-modules/${id}/set-certificate-generation/false`)
+  }
 }

@@ -77,7 +77,7 @@ doc!(
     }
 );
 ```
-will create docs for SomeStruct and Vec<SomeStruct>.
+will create docs for `SomeStruct` and `Vec<SomeStruct>`.
 
 With a type and expression, the doc! macro simply uses the expression to write the JSON docs for the given type without involving the Example trait or example! macro.
 ```no_run
@@ -147,7 +147,20 @@ fn ex<T: Example>() -> T {
     Example::example()
 }
 
+#[macro_export]
+macro_rules! doc_path {
+    ($filename:expr, $extension:expr) => {
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/generated-docs/",
+            $filename,
+            $extension,
+        )
+    };
+}
+
 // Writes doc files. See the module documentation for more info.
+// macro_export mainly for the docs that use it
 #[macro_export]
 macro_rules! doc {
     (T, Opt, Vec, $($t:tt)*) => {
@@ -207,9 +220,7 @@ macro_rules! doc {
     ($t:ty, $e:expr) => {{
         let expr: $t = $e;
 
-        let json_path = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/generated-docs/",
+        let json_path = $crate::doc_path!(
             stringify!($t),
             ".json"
         );
@@ -217,9 +228,7 @@ macro_rules! doc {
 
         #[cfg(feature = "ts_rs")]
         {
-            let ts_path = concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/generated-docs/",
+            let ts_path = $crate::doc_path!(
                 stringify!($t),
                 ".ts"
             );
@@ -250,6 +259,7 @@ pub async fn main() -> anyhow::Result<()> {
     controllers();
     models();
     utils();
+    external();
 
     doc!((), ex());
     doc!(i64, 123);
@@ -321,7 +331,9 @@ fn controllers() {
     doc!(
         Opt,
         UserInfo {
-            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap(),
+            first_name: Some("Example".to_string()),
+            last_name: Some("User".to_string()),
         }
     );
     doc!(CourseMaterialPeerReviewDataWithToken {
@@ -338,6 +350,7 @@ fn models() {
         },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
+        course_module_completion_certificates::CourseModuleCompletionCertificate,
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
         course_modules::{
             AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
@@ -441,11 +454,6 @@ fn models() {
         tasks,
         given_peer_reviews,
         received_peer_reviews,
-    });
-    doc!(AnswersRequiringAttention {
-        exercise_max_points: 1,
-        data,
-        total_pages: 10,
     });
     example!(ExerciseSlideSubmission {
         id,
@@ -586,21 +594,6 @@ fn models() {
         copied_from: None,
         course_module_id,
     });
-    example!(CourseModule {
-        id,
-        created_at,
-        updated_at,
-        deleted_at: None,
-        name: None,
-        course_id,
-        order_number: 0,
-        copied_from: None,
-        uh_course_code: None,
-        completion_policy: CompletionPolicy::Manual,
-        ects_credits: None,
-        completion_registration_link_override: None,
-        enable_registering_completion_to_uh_open_university: false,
-    });
     example!(UserCourseModuleCompletion {
         course_module_id,
         grade: Some(4),
@@ -630,20 +623,20 @@ fn models() {
         }
     ));
     example!(ChapterWithStatus {
-    id,
-    created_at,
-    updated_at,
-      name: "The Basics".to_string(),
-      color: None,
-      course_id,
-    deleted_at: None,
-      chapter_number: 1,
-      front_page_id: None,
-      opens_at: None,
-      status: ChapterStatus::Open,
-      chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
-  course_module_id,
-  });
+        id,
+        created_at,
+        updated_at,
+        name: "The Basics".to_string(),
+        color: None,
+        course_id,
+        deleted_at: None,
+        chapter_number: 1,
+        front_page_id: None,
+        opens_at: None,
+        status: ChapterStatus::Open,
+        chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
+        course_module_id,
+    });
     example!(CourseMaterialPeerReviewDataAnswerToReview {
         course_material_exercise_tasks,
         exercise_slide_submission_id,
@@ -683,6 +676,41 @@ fn models() {
         variable_value: serde_json::Value::String("Dog".to_string()),
     });
 
+    doc!(
+        Opt,
+        CourseModuleCompletionCertificate {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            user_id,
+            course_module_id,
+            course_instance_id,
+            name_on_certificate: "Example User".to_string(),
+            verification_id: "a1b2c3d4".to_string(),
+        }
+    );
+    doc!(AnswersRequiringAttention {
+        exercise_max_points: 1,
+        data,
+        total_pages: 10,
+    });
+    doc!(CourseModule {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: None,
+        name: None,
+        course_id,
+        order_number: 0,
+        copied_from: None,
+        uh_course_code: None,
+        completion_policy: CompletionPolicy::Manual,
+        ects_credits: None,
+        completion_registration_link_override: None,
+        enable_registering_completion_to_uh_open_university: false,
+        certification_enabled: false,
+    });
     doc!(
         T,
         Vec,
@@ -1268,6 +1296,7 @@ fn models() {
                 grade: Some(4),
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: true,
+                certification_enabled: false,
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1279,6 +1308,7 @@ fn models() {
                 grade: Some(4),
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: false,
+                certification_enabled: false,
             }
         ]
     );
@@ -1556,4 +1586,9 @@ fn utils() {
             version: "1.0".to_string(),
         }
     );
+}
+
+// external types, there should only be a couple in here so no macros or other fancy stuff
+fn external() {
+    std::fs::write(doc_path!("Bytes", ".ts"), "type Bytes = Blob").unwrap();
 }

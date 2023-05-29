@@ -1,5 +1,6 @@
 #![allow(clippy::too_many_arguments)]
 
+pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
@@ -52,6 +53,8 @@ pub async fn main() -> anyhow::Result<()> {
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
 
     seed_file_storage::seed_file_storage().await?;
+
+    seed_certificate_fonts::seed_certificate_fonts(&db_pool).await?;
 
     Ok(())
 }

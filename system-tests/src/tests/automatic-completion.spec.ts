@@ -43,7 +43,8 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
       page.locator("text=Congratulations!"),
       page.locator("text=You have successfully completed the course!"),
     ],
-
+    // reset to top before beforeScreenshot so that scrollIntoViewIfNeeded lands in a consistent spot
+    scrollToYCoordinate: 0,
     beforeScreenshot: () => page.locator("text=Congratulations!").scrollIntoViewIfNeeded(),
   })
 

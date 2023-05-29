@@ -23,3 +23,7 @@ export function viewCourseInstanceCompletionsPageRoute(courseInstanceId: string)
 export function viewCourseInstancePointsPageRoute(courseInstanceId: string) {
   return `/manage/course-instances/${courseInstanceId}/points`
 }
+
+export function viewCourseInstanceCertificatesPageRoute(courseInstanceId: string) {
+  return `/manage/course-instances/${courseInstanceId}/certificates`
+}

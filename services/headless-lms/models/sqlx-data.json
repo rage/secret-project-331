@@ -4081,12 +4081,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -4731,12 +4731,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -6130,12 +6130,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -6320,12 +6320,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -6885,12 +6885,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -7447,12 +7447,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -20578,12 +20578,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }
@@ -22182,12 +22182,12 @@
           "type_info": "Bool"
         },
         {
-          "name": "certification_enabled",
+          "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
         },
         {
-          "name": "enable_registering_completion_to_uh_open_university",
+          "name": "certification_enabled",
           "ordinal": 16,
           "type_info": "Bool"
         }

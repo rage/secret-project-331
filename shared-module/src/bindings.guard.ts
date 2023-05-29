@@ -57,6 +57,7 @@ import {
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
+  CourseModuleCompletion,
   CourseModuleCompletionWithRegistrationInfo,
   CoursePageWithUserData,
   CourseStructure,
@@ -235,7 +236,9 @@ export function isAction(obj: unknown): obj is Action {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "upload_file") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["type"] === "view_user_progress_or_details")
+      typedObj["type"] === "view_user_progress_or_details") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "view_internal_course_structure")
   )
 }
 
@@ -531,7 +534,9 @@ export function isCourseInstanceEnrollmentsInfo(
     Array.isArray(typedObj["courses"]) &&
     typedObj["courses"].every((e: any) => isCourse(e) as boolean) &&
     Array.isArray(typedObj["user_course_settings"]) &&
-    typedObj["user_course_settings"].every((e: any) => isUserCourseSettings(e) as boolean)
+    typedObj["user_course_settings"].every((e: any) => isUserCourseSettings(e) as boolean) &&
+    Array.isArray(typedObj["course_module_completions"]) &&
+    typedObj["course_module_completions"].every((e: any) => isCourseModuleCompletion(e) as boolean)
   )
 }
 
@@ -634,6 +639,32 @@ export function isCourseModuleCompletionWithRegistrationInfo(
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     typeof typedObj["registered"] === "boolean" &&
     typeof typedObj["user_id"] === "string"
+  )
+}
+
+export function isCourseModuleCompletion(obj: unknown): obj is CourseModuleCompletion {
+  const typedObj = obj as CourseModuleCompletion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["course_module_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typedObj["completion_date"] instanceof Date &&
+    (typedObj["completion_registration_attempt_date"] === null ||
+      typedObj["completion_registration_attempt_date"] instanceof Date) &&
+    typeof typedObj["completion_language"] === "string" &&
+    typeof typedObj["eligible_for_ects"] === "boolean" &&
+    typeof typedObj["email"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean" &&
+    typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
+    (typedObj["completion_granter_user_id"] === null ||
+      typeof typedObj["completion_granter_user_id"] === "string")
   )
 }
 

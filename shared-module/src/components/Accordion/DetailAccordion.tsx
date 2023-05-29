@@ -2,7 +2,7 @@ import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme } from "../../styles"
+import { baseTheme, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 const openAnimation = keyframes`
@@ -18,10 +18,15 @@ to { opacity: 1; height: 100%; padding: 10px;}
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
+  font-family: ${secondaryFont};
 
   details {
     border: 1px solid rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease-in-out;
+  }
+
+  details summary {
+    font-weight: 600;
   }
 
   details[open] summary ~ * {

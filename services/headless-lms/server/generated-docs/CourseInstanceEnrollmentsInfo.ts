@@ -3,4 +3,5 @@ type CourseInstanceEnrollmentsInfo = {
   course_instances: Array<CourseInstance>
   courses: Array<Course>
   user_course_settings: Array<UserCourseSettings>
+  course_module_completions: Array<CourseModuleCompletion>
 }

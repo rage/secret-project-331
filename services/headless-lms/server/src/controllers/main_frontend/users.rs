@@ -37,7 +37,7 @@ pub async fn get_course_instance_enrollments_for_user(
     )
     .await?;
     let mut res =
-        models::course_instance_enrollments::get_course_instance_enrollment_info_for_user(
+        models::course_instance_enrollments::get_course_instance_enrollments_info_for_user(
             &mut conn, *user_id,
         )
         .await?;

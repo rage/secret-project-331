@@ -4,7 +4,7 @@ use futures::Stream;
 
 use crate::prelude::*;
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletion {
     pub id: Uuid,
@@ -236,7 +236,7 @@ WHERE completions.course_instance_id = $1
 
 /// Gets all module completions for the user on a single course instance. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
-pub async fn get_all_by_course_instance_and_user_ids(
+pub async fn get_all_by_course_instance_and_user_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
@@ -251,6 +251,25 @@ WHERE course_instance_id = $1
   AND deleted_at IS NULL
         ",
         course_instance_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        ",
         user_id,
     )
     .fetch_all(conn)

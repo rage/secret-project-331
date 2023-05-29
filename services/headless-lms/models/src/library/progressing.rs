@@ -248,7 +248,7 @@ async fn update_module_completion_prerequisite_statuses_for_user(
     let default_course_module =
         course_modules::get_default_by_course_id(conn, course_instance.course_id).await?;
     let course_module_completions =
-        course_module_completions::get_all_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance.id,
             user_id,
@@ -701,7 +701,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
-        course_module_completions::get_all_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance_id,
             user_id,

@@ -1,6 +1,6 @@
 use crate::{
-    course_instances::CourseInstance, courses::Course, prelude::*,
-    user_course_settings::UserCourseSettings,
+    course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
+    courses::Course, prelude::*, user_course_settings::UserCourseSettings,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -21,6 +21,7 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_instances: Vec<CourseInstance>,
     pub courses: Vec<Course>,
     pub user_course_settings: Vec<UserCourseSettings>,
+    pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
 pub async fn insert(
@@ -132,7 +133,7 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn get_course_instance_enrollment_info_for_user(
+pub async fn get_course_instance_enrollments_info_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> ModelResult<CourseInstanceEnrollmentsInfo> {
@@ -149,6 +150,9 @@ pub async fn get_course_instance_enrollment_info_for_user(
 
     let courses = crate::courses::get_by_ids(conn, &course_ids).await?;
 
+    let course_module_completions =
+        crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
+
     // Returns all user course settings because there is always an enrollment for a current course instance (enforced by a database constraint), and all of those are in the course_ids list
     let user_course_settings =
         crate::user_course_settings::get_all_by_user_and_multiple_current_courses(
@@ -163,5 +167,6 @@ pub async fn get_course_instance_enrollment_info_for_user(
         course_instances,
         courses,
         user_course_settings,
+        course_module_completions,
     })
 }

@@ -66,6 +66,7 @@ fn models(target: &mut File) {
         course_module_certificate_configurations::CertificateTextAnchor,
         course_module_certificate_configurations::PaperSize,
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+        course_module_completions::CourseModuleCompletion,
         course_modules::AutomaticCompletionRequirements,
         course_modules::CompletionPolicy,
         course_modules::CourseModule,

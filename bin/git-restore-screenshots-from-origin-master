@@ -3,7 +3,7 @@ set -euo pipefail
 source "$(dirname "$0")/.common"
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../system-tests/src/tests"
+FOLDER_PATH="$BASEDIR/../system-tests/src/__screenshots__"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 echo -e "${BLUE}Will restore the screenshots from from origin/master."

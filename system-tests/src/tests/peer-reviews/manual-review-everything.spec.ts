@@ -394,7 +394,7 @@ test.describe("test ManualReviewEverything behavior", () => {
       screenshotOptions: { fullPage: true },
     })
 
-    // Check exercise status summary
+    // Check Course status summary
     await teacherPage.goto("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Course instances" }).click()
@@ -411,7 +411,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expectScreenshotsToMatchSnapshots({
       headless,
       testInfo,
-      snapshotName: "exercise-status-summary",
+      snapshotName: "course-status-summary",
       screenshotTarget: teacherPage,
       clearNotifications: true,
     })

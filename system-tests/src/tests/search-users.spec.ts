@@ -3,7 +3,7 @@ import { test } from "@playwright/test"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
-  storageState: "src/states/admin@example.com.json",
+  storageState: "src/states/teaching-and-learning-services@example.com.json",
 })
 
 test("User search works", async ({ page, headless }, testInfo) => {
@@ -31,7 +31,7 @@ test("User search works", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Details" })
     .click()
   await page.getByText("Course: Introduction to feedback (introduction-to-feedback)").click()
-  await page.getByText("Exercise status summary").first().click()
+  await page.getByText("Course status summary").first().click()
   await page.getByText("Exercise: Best exercise (5 submissions)(1/1)").click()
   await page.getByRole("heading", { name: "Submissions" }).waitFor()
 })

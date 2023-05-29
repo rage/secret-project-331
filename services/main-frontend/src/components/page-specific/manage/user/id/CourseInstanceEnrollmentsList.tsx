@@ -39,6 +39,14 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
         const courseInstance = courseInstanceEnrollmentsQuery.data.course_instances.find(
           (ci) => ci.id === enrollment.course_instance_id,
         )
+        const courseModuleCompletions =
+          courseInstanceEnrollmentsQuery.data.course_module_completions.filter(
+            (cmc) => cmc.course_instance_id === enrollment.course_instance_id,
+          )
+        const numDistinctModules = new Set(
+          courseModuleCompletions.map((cmc) => cmc.course_module_id),
+        ).size
+        const noCourseModuleCompletedTwice = courseModuleCompletions.length === numDistinctModules
         if (!course || !userCourseSettings || !courseInstance) {
           return (
             <ErrorBanner
@@ -51,6 +59,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
         const current =
           enrollment.course_instance_id === userCourseSettings.current_course_instance_id &&
           enrollment.course_id === userCourseSettings.current_course_id
+
         return (
           <div
             key={enrollment.course_instance_id}
@@ -85,12 +94,21 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
               <p>
                 {t("label-current")}: {current.toString()}
               </p>
+              <p>
+                {t("label-course-module-completions")}:{" "}
+                {noCourseModuleCompletedTwice
+                  ? courseModuleCompletions.length
+                  : t(
+                      "text-decribe-course-module-completions-count-when-some-modules-completed-more-than-once",
+                      { count: courseModuleCompletions.length, numDistinctModules },
+                    )}
+              </p>
             </div>
             <Link
-              href={`/manage/course-instances/${enrollment.course_instance_id}/exercise-status-summary-for-user/${userId}`}
+              href={`/manage/course-instances/${enrollment.course_instance_id}/course-status-summary-for-user/${userId}`}
             >
               <Button variant="tertiary" size="medium">
-                {t("exercise-status-summary")}
+                {t("course-status-summary")}
               </Button>
             </Link>
           </div>

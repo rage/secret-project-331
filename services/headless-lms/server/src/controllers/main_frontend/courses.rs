@@ -244,7 +244,7 @@ async fn get_course_structure(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewInternalCourseStructure,
         Some(user.id),
         Res::Course(*course_id),
     )

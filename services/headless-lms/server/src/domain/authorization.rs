@@ -173,6 +173,8 @@ pub enum Action {
     /// Deletion that we usually don't want to allow.
     UsuallyUnacceptableDeletion,
     UploadFile,
+    ViewUserProgressOrDetails,
+    ViewInternalCourseStructure,
 }
 
 /// The target of an action.
@@ -565,6 +567,8 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
+                | ViewUserProgressOrDetails
+                | ViewInternalCourseStructure
         ),
         Assistant => matches!(
             action,
@@ -574,10 +578,21 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | EditRole(Assistant | Reviewer | MaterialViewer)
                 | Teach
                 | ViewMaterial
+                | ViewUserProgressOrDetails
+                | ViewInternalCourseStructure
         ),
-        Reviewer => matches!(action, View | Grade | ViewMaterial),
+        Reviewer => matches!(
+            action,
+            View | Grade | ViewMaterial | ViewInternalCourseStructure
+        ),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
         MaterialViewer => matches!(action, ViewMaterial),
+        TeachingAndLearningServices => {
+            matches!(
+                action,
+                View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
+            )
+        }
     }
 }
 

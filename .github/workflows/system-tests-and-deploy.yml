@@ -201,6 +201,10 @@ jobs:
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
 
+      - name: Headless lms logs
+        run: kubectl logs 'deployment/headless-lms'
+        if: failure()
+
       - uses: actions/upload-artifact@v2
         if: failure()
         with:

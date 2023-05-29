@@ -72,6 +72,7 @@ pub async fn seed_organization_uh_cs(
     let (
         (cs_intro, automatic_completions_id, introduction_to_localizing),
         (manual_completions_id, automatic_course_with_exam_id),
+        (certificates_id,),
         ..,
     ) = try_join!(
         run_parallelly(courses_group_1(
@@ -114,6 +115,7 @@ pub async fn seed_organization_uh_cs(
         ))
     )?;
 
+    // configure automatic completions
     let automatic_default_module =
         course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
     let automatic_default_module = course_modules::update_automatic_completion_status(
@@ -155,6 +157,7 @@ pub async fn seed_organization_uh_cs(
     open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
         .await?;
 
+    // configure manual completions
     let manual_default_module =
         course_modules::get_default_by_course_id(&mut conn, manual_completions_id).await?;
     let manual_default_instance =
@@ -174,6 +177,23 @@ pub async fn seed_organization_uh_cs(
         },
     )
     .await?;
+
+    // configure certification
+    let certificates_default_module =
+        course_modules::get_default_by_course_id(&mut conn, certificates_id).await?;
+    course_modules::update_automatic_completion_status(
+        &mut conn,
+        certificates_default_module.id,
+        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: certificates_default_module.id,
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+            requires_exam: false,
+        }),
+    )
+    .await?;
+    course_modules::update_certification_enabled(&mut conn, certificates_default_module.id, true)
+        .await?;
 
     roles::insert(
         &mut conn,
@@ -490,7 +510,7 @@ async fn courses_group_3(
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
     jwt_key: Arc<JwtKey>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<(Uuid,)> {
     seed_sample_course(
         &db_pool,
         uh_cs_organization_id,
@@ -539,7 +559,19 @@ async fn courses_group_3(
         Arc::clone(&jwt_key),
     )
     .await?;
-    Ok(())
+    let certificates_id = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("51ce5ea4-2587-407e-bea9-421309f77f69")?,
+        "Certificates",
+        "certificates",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+    Ok((certificates_id,))
 }
 
 async fn courses_group_4(

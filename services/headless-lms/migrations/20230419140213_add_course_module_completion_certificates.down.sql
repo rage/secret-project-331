@@ -1,0 +1,2 @@
+ALTER TABLE course_modules DROP COLUMN certification_enabled;
+DROP TABLE course_module_completion_certificates;

@@ -89,10 +89,14 @@ const ModuleWrapper = styled.div`
 `
 
 export interface CongratulationsProps {
+  courseInstanceId: string
   modules: Array<UserModuleCompletionStatus>
 }
 
-const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
+const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({
+  courseInstanceId,
+  modules,
+}) => {
   const { t } = useTranslation()
 
   const someModuleCompleted = modules.some((module) => module.completed)
@@ -120,7 +124,11 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
           {modules
             .sort((a, b) => a.order_number - b.order_number)
             .map((module) => (
-              <ModuleCard key={module.module_id} module={module} />
+              <ModuleCard
+                key={module.module_id}
+                courseInstanceId={courseInstanceId}
+                module={module}
+              />
             ))}
         </ModuleWrapper>
       </Content>

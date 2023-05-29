@@ -61,6 +61,10 @@ fn models(target: &mut File) {
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
+        course_module_completion_certificates::CourseModuleCompletionCertificate,
+        course_module_certificate_configurations::CourseModuleCertificateConfiguration,
+        course_module_certificate_configurations::CertificateTextAnchor,
+        course_module_certificate_configurations::PaperSize,
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
         course_module_completions::CourseModuleCompletion,
         course_modules::AutomaticCompletionRequirements,
@@ -272,6 +276,7 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            certificates::CourseModuleCertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,

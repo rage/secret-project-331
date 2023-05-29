@@ -4,6 +4,7 @@ import {
   CourseInstance,
   CourseInstanceCompletionSummary,
   CourseInstanceForm,
+  CourseModuleCertificateConfiguration,
   CourseModuleCompletion,
   EmailTemplate,
   EmailTemplateNew,
@@ -16,6 +17,7 @@ import {
 import {
   isCourseInstance,
   isCourseInstanceCompletionSummary,
+  isCourseModuleCertificateConfiguration,
   isCourseModuleCompletion,
   isEmailTemplate,
   isExerciseStatusSummaryForUser,
@@ -159,4 +161,13 @@ export const editCourseInstance = async (
 
 export const deleteCourseInstance = async (courseInstanceId: string): Promise<void> => {
   await mainFrontendClient.post(`/course-instances/${courseInstanceId}/delete`)
+}
+
+export const fetchCertificateConfigurations = async (
+  courseInstanceId: string,
+): Promise<Array<CourseModuleCertificateConfiguration>> => {
+  const res = await mainFrontendClient.get(
+    `/course-instances/${courseInstanceId}/certificate-configurations`,
+  )
+  return validateResponse(res, isArray(isCourseModuleCertificateConfiguration))
 }

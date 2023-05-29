@@ -5,21 +5,25 @@ import {
   CourseInstanceCompletionSummary,
   CourseInstanceForm,
   CourseModuleCertificateConfiguration,
+  CourseModuleCompletion,
   EmailTemplate,
   EmailTemplateNew,
   ExerciseStatusSummaryForUser,
   ManualCompletionPreview,
   Points,
   TeacherManualCompletionRequest,
+  UserCourseInstanceProgress,
 } from "../../shared-module/bindings"
 import {
   isCourseInstance,
   isCourseInstanceCompletionSummary,
   isCourseModuleCertificateConfiguration,
+  isCourseModuleCompletion,
   isEmailTemplate,
   isExerciseStatusSummaryForUser,
   isManualCompletionPreview,
   isPoints,
+  isUserCourseInstanceProgress,
 } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
@@ -118,6 +122,32 @@ export const getAllExerciseStatusSummariesForUserAndCourseInstance = async (
     },
   )
   return validateResponse(response, isArray(isExerciseStatusSummaryForUser))
+}
+
+export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
+  courseInstanceId: string,
+  userId: string,
+): Promise<CourseModuleCompletion[]> => {
+  const response = await mainFrontendClient.get(
+    `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isCourseModuleCompletion))
+}
+
+export const getUserProgressForCourseInstance = async (
+  courseInstanceId: string,
+  userId: string,
+): Promise<UserCourseInstanceProgress[]> => {
+  const response = await mainFrontendClient.get(
+    `/course-instances/${courseInstanceId}/progress/${userId}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isUserCourseInstanceProgress))
 }
 
 export const editCourseInstance = async (

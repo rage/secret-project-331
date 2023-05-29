@@ -25,6 +25,10 @@ async function createLoginStates(page: Page, context: BrowserContext) {
     { email: "student2@example.com", password: "student.2" },
     { email: "assistant@example.com", password: "assistant" },
     { email: "creator@example.com", password: "creator" },
+    {
+      email: "teaching-and-learning-services@example.com",
+      password: "teaching-and-learning-services",
+    },
   ]
   // Creating the storage states for different users takes some time, so we'll avoid doing it again if the stored state has been already created recently.
   // Using older storage states would run into problems with cookie expiry. A different solution could modify the saved storage states

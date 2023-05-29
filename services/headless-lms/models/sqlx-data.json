@@ -23,7 +23,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -1085,7 +1086,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -2151,7 +2153,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -2827,7 +2830,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -3288,7 +3292,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -3322,7 +3327,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -4457,7 +4463,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -7017,7 +7024,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -7044,7 +7052,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -8089,7 +8098,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -10361,6 +10371,120 @@
     },
     "query": "\nUPDATE glossary\nSET deleted_at = now()\nWHERE id = $1\n"
   },
+  "7666244a0e4b2cffbf384c765c8b51635d7e9800fb7329f7b8fbef6dc3f7361c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "completion_date",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_language",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "eligible_for_ects",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "grade",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 14,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 15,
+          "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE user_id = $1\n  AND deleted_at IS NULL\n        "
+  },
   "769c3c707fb5eec0d42419aa8fe9a145fb258c4e256d3d6954919f47bec172e4": {
     "describe": {
       "columns": [
@@ -10912,7 +11036,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -11024,7 +11149,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -12555,7 +12681,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -13601,7 +13728,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -13651,7 +13779,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -18393,7 +18522,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -19626,7 +19756,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -20556,7 +20687,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -21315,7 +21447,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"

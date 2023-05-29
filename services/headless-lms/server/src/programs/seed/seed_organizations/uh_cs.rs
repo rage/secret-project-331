@@ -52,6 +52,7 @@ pub async fn seed_organization_uh_cs(
         course_or_exam_creator_user_id,
         student_user_id,
         example_normal_user_ids,
+        teaching_and_learning_services_user_id: _,
     } = seed_users_result;
 
     let mut conn = db_pool.acquire().await?;

@@ -179,7 +179,7 @@ const CourseInstancePointsList: React.FC<
                           <Link
                             href={{
                               pathname:
-                                "/manage/course-instances/[courseInstanceId]/exercise-status-summary-for-user/[userId]",
+                                "/manage/course-instances/[courseInstanceId]/course-status-summary-for-user/[userId]",
                               query: { courseInstanceId: courseInstanceId, userId: user.user_id },
                             }}
                           >

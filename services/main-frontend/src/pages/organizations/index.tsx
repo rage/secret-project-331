@@ -31,7 +31,10 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
-      <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
+      <OnlyRenderIfPermissions
+        action={{ type: "view_user_progress_or_details" }}
+        resource={{ type: "global_permissions" }}
+      >
         <div>
           <Link
             href={SEARCH_USERS_HREF}

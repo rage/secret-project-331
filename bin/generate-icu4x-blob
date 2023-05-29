@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services//headless-lms"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+run_command cd "$RELATIVE_PATH" || exit
+
+# build debug binary for icu4x-datagen to analyse
+run_command cargo build
+# clean old file
+run_command rm ./icu4x.postcard
+run_command icu4x-datagen \
+  --keys all \
+  --locales "fi" \
+  --locales en \
+  --format blob \
+  --out ./icu4x.postcard

@@ -13,6 +13,8 @@ use headless_lms_models::course_module_completion_certificates::CourseModuleComp
 use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
+use icu::calendar::Gregorian;
+use icu::datetime::TypedDateTimeFormatter;
 use resvg::FitTo;
 use std::path::Path;
 use std::time::Instant;
@@ -21,9 +23,10 @@ use usvg::{fontdb, TreeParsing, TreeTextToPath};
 use quick_xml::{events::BytesText, Writer};
 use std::io::Cursor;
 
-use icu::datetime::{options::length, DateTimeFormatter};
+use icu::datetime::options::length;
 use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
+use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
 
 /**
@@ -254,27 +257,29 @@ fn generate_certificate_impl(
 
 fn get_date_as_localized_string(locale: &str, certificate_date: NaiveDate) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
-    // TODO: load locale data using this https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html
-    let dtf = DateTimeFormatter::try_new_unstable(
-        &icu_testdata::unstable(),
-        &DataLocale::from(locale.parse::<Locale>().map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not parse locale".to_string(),
-                Some(original_error.into()),
-            )
-        })?),
+    let blob = std::fs::read("./icu4x.postcard").unwrap();
+    let provider = BlobDataProvider::try_new_from_blob(blob.into_boxed_slice()).unwrap();
+    let locale = locale.parse::<Locale>().map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse locale".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    let dtf = TypedDateTimeFormatter::<Gregorian>::try_new_with_buffer_provider(
+        &provider,
+        &DataLocale::from(locale),
         options,
     )
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            "Failed to create DateTimeFormatter instance.".to_string(),
+            "Failed to create TypedDateTimeFormatter instance.".to_string(),
             Some(original_error.into()),
         )
     })?;
 
-    let icu_date = DateTime::try_new_iso_datetime(
+    let date = DateTime::try_new_gregorian_datetime(
         certificate_date.year(),
         certificate_date.month() as u8,
         certificate_date.day() as u8,
@@ -289,15 +294,7 @@ fn get_date_as_localized_string(locale: &str, certificate_date: NaiveDate) -> Ut
             Some(original_error.into()),
         )
     })?;
-    let date = icu_date.to_any();
-
-    let formatted_date = dtf.format(&date).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Formatting date failed.".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
+    let formatted_date = dtf.format(&date);
     Ok(formatted_date.to_string())
 }
 

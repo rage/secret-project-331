@@ -347,6 +347,16 @@ impl From<actix_web::Error> for ControllerError {
     }
 }
 
+impl From<actix_multipart::MultipartError> for ControllerError {
+    fn from(err: actix_multipart::MultipartError) -> Self {
+        Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            None,
+        )
+    }
+}
+
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         let backtrace: Backtrace = if let Some(backtrace) =

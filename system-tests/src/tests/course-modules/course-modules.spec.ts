@@ -62,8 +62,9 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "after-creating-new-module",
     waitForTheseToBeVisibleAndStable: [page.locator("text=1: invalid module")],
-
     screenshotOptions: { fullPage: true },
+    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
+    scrollToYCoordinate: 100_000,
   })
 
   // update invalid module to be valid
@@ -77,8 +78,9 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "after-updating-new-module",
     waitForTheseToBeVisibleAndStable: [page.locator("text=1: valid module")],
-
     screenshotOptions: { fullPage: true },
+    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
+    scrollToYCoordinate: 100_000,
   })
 
   // delete module
@@ -88,8 +90,9 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "after-second-deletion",
-
     screenshotOptions: { fullPage: true },
+    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
+    scrollToYCoordinate: 100_000,
   })
 
   // update last module
@@ -103,8 +106,9 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "after-last-update",
     waitForTheseToBeVisibleAndStable: [page.locator("text=2: renamed module")],
-
     screenshotOptions: { fullPage: true },
+    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
+    scrollToYCoordinate: 100_000,
   })
 
   // save changes
@@ -118,5 +122,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     snapshotName: "after-saving",
     clearNotifications: true,
     screenshotOptions: { fullPage: true },
+    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
+    scrollToYCoordinate: 100_000,
   })
 })

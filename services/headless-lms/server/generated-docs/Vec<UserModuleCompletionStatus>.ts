@@ -8,4 +8,5 @@ type Vec<UserModuleCompletionStatus> = Array<{
   grade: number | null
   passed: boolean | null
   enable_registering_completion_to_uh_open_university: boolean
+  certification_enabled: boolean
 }>

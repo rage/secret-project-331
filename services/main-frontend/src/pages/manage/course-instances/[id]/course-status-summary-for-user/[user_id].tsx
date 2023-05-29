@@ -100,7 +100,7 @@ const CourseInstanceExerciseStatusList: React.FC<
 
   return (
     <Layout navVariant="simple">
-      <h1>{t("exercise-status-summary")}</h1>
+      <h1>{t("course-status-summary")}</h1>
       <Section>
         <h2
           className={css`

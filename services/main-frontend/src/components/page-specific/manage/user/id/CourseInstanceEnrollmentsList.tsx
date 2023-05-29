@@ -105,10 +105,10 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
               </p>
             </div>
             <Link
-              href={`/manage/course-instances/${enrollment.course_instance_id}/exercise-status-summary-for-user/${userId}`}
+              href={`/manage/course-instances/${enrollment.course_instance_id}/course-status-summary-for-user/${userId}`}
             >
               <Button variant="tertiary" size="medium">
-                {t("exercise-status-summary")}
+                {t("course-status-summary")}
               </Button>
             </Link>
           </div>

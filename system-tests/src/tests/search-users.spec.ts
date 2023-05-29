@@ -31,7 +31,7 @@ test("User search works", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Details" })
     .click()
   await page.getByText("Course: Introduction to feedback (introduction-to-feedback)").click()
-  await page.getByText("Exercise status summary").first().click()
+  await page.getByText("Course status summary").first().click()
   await page.getByText("Exercise: Best exercise (5 submissions)(1/1)").click()
   await page.getByRole("heading", { name: "Submissions" }).waitFor()
 })

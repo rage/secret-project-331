@@ -396,6 +396,13 @@
 <a href="#396" id="396">396</a>
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Contains helper functions that are passed to headless-lms-models where it needs to make requests to exercise services.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -416,6 +423,7 @@
 <span class="kw">use </span>headless_lms_utils::error::backend_error::BackendError;
 <span class="kw">use </span>hmac::{Hmac, Mac};
 <span class="kw">use </span>jwt::{SignWithKey, VerifyWithKey};
+<span class="kw">use </span>models::SpecFetcher;
 <span class="kw">use </span>sha2::Sha256;
 <span class="kw">use </span>std::{borrow::Cow, fmt::Debug, sync::Arc};
 <span class="kw">use </span>url::Url;
@@ -629,11 +637,7 @@
 <span class="doccomment">/// Fetches a public/model spec based on the private spec from the given url.
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
-</span><span class="kw">pub fn </span>make_spec_fetcher(
-    request_id: Uuid,
-    jwt_key: Arc&lt;JwtKey&gt;,
-) -&gt; <span class="kw">impl </span>Fn(Url, <span class="kw-2">&amp;</span>str, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;
-{
+</span><span class="kw">pub fn </span>make_spec_fetcher(request_id: Uuid, jwt_key: Arc&lt;JwtKey&gt;) -&gt; <span class="kw">impl </span>SpecFetcher {
     <span class="kw">move </span>|url, exercise_service_slug, private_spec| {
         <span class="kw">let </span>client = reqwest::Client::new();
         <span class="kw">let </span>upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
@@ -642,7 +646,7 @@
             <span class="string">&quot;http://project-331.local/api/v0/files/{exercise_service_slug}&quot;
         </span>));
         <span class="kw">let </span>req = client
-            .post(url)
+            .post(url.clone())
             .header(
                 EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER,
                 upload_claim.sign(<span class="kw-2">&amp;</span>jwt_key),
@@ -656,11 +660,21 @@
             .send();
         <span class="kw">async move </span>{
             <span class="kw">let </span>res = req.<span class="kw">await</span>.map_err(reqwest_err)<span class="question-mark">?</span>;
-            <span class="kw">if </span>!res.status().is_success() {
-                <span class="kw">let </span>error = res.text().<span class="kw">await</span>.unwrap_or_default();
+            <span class="kw">let </span>status_code = res.status();
+            <span class="kw">if </span>!status_code.is_success() {
+                <span class="kw">let </span>error_text = res.text().<span class="kw">await</span>;
+                <span class="kw">let </span>error = error_text.as_deref().unwrap_or(<span class="string">&quot;(No text in response)&quot;</span>);
+                <span class="macro">error!</span>(
+                    <span class="question-mark">?</span>url,
+                    <span class="question-mark">?</span>exercise_service_slug,
+                    <span class="question-mark">?</span>private_spec,
+                    <span class="question-mark">?</span>status_code,
+                    <span class="string">&quot;Exercise service returned an error while generating a spec: {}&quot;</span>,
+                    error
+                );
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
                     ModelErrorType::Generic,
-                    <span class="macro">format!</span>(<span class="string">&quot;Failed to generate spec for exercise: {}.&quot;</span>, error,),
+                    <span class="macro">format!</span>(<span class="string">&quot;Failed to generate spec for exercise for {exercise_service_slug}: {error}.&quot;</span>),
                     <span class="prelude-val">None</span>,
                 ));
             }

@@ -4327,6 +4327,46 @@
 <a href="#4327" id="4327">4327</a>
 <a href="#4328" id="4328">4328</a>
 <a href="#4329" id="4329">4329</a>
+<a href="#4330" id="4330">4330</a>
+<a href="#4331" id="4331">4331</a>
+<a href="#4332" id="4332">4332</a>
+<a href="#4333" id="4333">4333</a>
+<a href="#4334" id="4334">4334</a>
+<a href="#4335" id="4335">4335</a>
+<a href="#4336" id="4336">4336</a>
+<a href="#4337" id="4337">4337</a>
+<a href="#4338" id="4338">4338</a>
+<a href="#4339" id="4339">4339</a>
+<a href="#4340" id="4340">4340</a>
+<a href="#4341" id="4341">4341</a>
+<a href="#4342" id="4342">4342</a>
+<a href="#4343" id="4343">4343</a>
+<a href="#4344" id="4344">4344</a>
+<a href="#4345" id="4345">4345</a>
+<a href="#4346" id="4346">4346</a>
+<a href="#4347" id="4347">4347</a>
+<a href="#4348" id="4348">4348</a>
+<a href="#4349" id="4349">4349</a>
+<a href="#4350" id="4350">4350</a>
+<a href="#4351" id="4351">4351</a>
+<a href="#4352" id="4352">4352</a>
+<a href="#4353" id="4353">4353</a>
+<a href="#4354" id="4354">4354</a>
+<a href="#4355" id="4355">4355</a>
+<a href="#4356" id="4356">4356</a>
+<a href="#4357" id="4357">4357</a>
+<a href="#4358" id="4358">4358</a>
+<a href="#4359" id="4359">4359</a>
+<a href="#4360" id="4360">4360</a>
+<a href="#4361" id="4361">4361</a>
+<a href="#4362" id="4362">4362</a>
+<a href="#4363" id="4363">4363</a>
+<a href="#4364" id="4364">4364</a>
+<a href="#4365" id="4365">4365</a>
+<a href="#4366" id="4366">4366</a>
+<a href="#4367" id="4367">4367</a>
+<a href="#4368" id="4368">4368</a>
+<a href="#4369" id="4369">4369</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4337,6 +4377,7 @@
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{TimeZone, Utc};
 
+<span class="kw">use </span>headless_lms_models::course_module_certificate_configurations::DatabaseCourseModuleCertificateConfiguration;
 <span class="kw">use </span>headless_lms_models::pages::PageUpdateArgs;
 <span class="kw">use </span>headless_lms_models::{
     chapters,
@@ -4344,11 +4385,12 @@
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{<span class="self">self</span>, NewCourseInstance},
+    course_module_certificate_configurations,
     course_modules::{<span class="self">self</span>, NewCourseModule},
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, library,
+    file_uploads, glossary, library,
     library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
@@ -6133,7 +6175,44 @@
 
     <span class="comment">// create_best_peer_review(&amp;mut conn, course.id, Some(exercise_1_id)).await?;
 
-    </span><span class="prelude-val">Ok</span>(course.id)
+    // certificate configuration
+    </span><span class="kw">let </span>background_svg_path = <span class="string">&quot;svgs/certificate-background.svg&quot;</span>.to_string();
+    <span class="kw">let </span>background_svg_file_upload_id = file_uploads::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;background-{}.svg&quot;</span>, module.id),
+        <span class="kw-2">&amp;</span>background_svg_path,
+        <span class="string">&quot;image/svg+xml&quot;</span>,
+        <span class="prelude-val">None</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>configuration = DatabaseCourseModuleCertificateConfiguration {
+        course_module_id: default_module.id,
+        course_instance_id: <span class="prelude-val">Some</span>(default_instance.id),
+        certificate_owner_name_y_pos: <span class="prelude-val">None</span>,
+        certificate_owner_name_x_pos: <span class="prelude-val">None</span>,
+        certificate_owner_name_font_size: <span class="prelude-val">None</span>,
+        certificate_owner_name_text_color: <span class="prelude-val">None</span>,
+        certificate_owner_name_text_anchor: <span class="prelude-val">None</span>,
+        certificate_validate_url_y_pos: <span class="prelude-val">None</span>,
+        certificate_validate_url_x_pos: <span class="prelude-val">None</span>,
+        certificate_validate_url_font_size: <span class="prelude-val">None</span>,
+        certificate_validate_url_text_color: <span class="prelude-val">None</span>,
+        certificate_validate_url_text_anchor: <span class="prelude-val">None</span>,
+        certificate_date_y_pos: <span class="prelude-val">None</span>,
+        certificate_date_x_pos: <span class="prelude-val">None</span>,
+        certificate_date_font_size: <span class="prelude-val">None</span>,
+        certificate_date_text_color: <span class="prelude-val">None</span>,
+        certificate_date_text_anchor: <span class="prelude-val">None</span>,
+        certificate_locale: <span class="prelude-val">None</span>,
+        paper_size: <span class="prelude-val">None</span>,
+        background_svg_path,
+        background_svg_file_upload_id,
+        overlay_svg_path: <span class="prelude-val">None</span>,
+        overlay_svg_file_upload_id: <span class="prelude-val">None</span>,
+    };
+    course_module_certificate_configurations::insert(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>configuration).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(course.id)
 }
 
 <span class="kw">pub async fn </span>create_glossary_course(
@@ -7014,6 +7093,7 @@
         models_requests::fetch_service_info,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    course_modules::update_certification_enabled(<span class="kw-2">&amp;mut </span>conn, default_module.id, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     course_instances::insert(
         <span class="kw-2">&amp;mut </span>conn,
         PKeyPolicy::Fixed(Uuid::new_v5(

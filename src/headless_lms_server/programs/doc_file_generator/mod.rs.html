@@ -1557,6 +1557,41 @@
 <a href="#1557" id="1557">1557</a>
 <a href="#1558" id="1558">1558</a>
 <a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
+<a href="#1570" id="1570">1570</a>
+<a href="#1571" id="1571">1571</a>
+<a href="#1572" id="1572">1572</a>
+<a href="#1573" id="1573">1573</a>
+<a href="#1574" id="1574">1574</a>
+<a href="#1575" id="1575">1575</a>
+<a href="#1576" id="1576">1576</a>
+<a href="#1577" id="1577">1577</a>
+<a href="#1578" id="1578">1578</a>
+<a href="#1579" id="1579">1579</a>
+<a href="#1580" id="1580">1580</a>
+<a href="#1581" id="1581">1581</a>
+<a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1636,7 +1671,7 @@ doc!(
     }
 );
 ```
-will create docs for SomeStruct and Vec&lt;SomeStruct&gt;.
+will create docs for `SomeStruct` and `Vec&lt;SomeStruct&gt;`.
 
 With a type and expression, the doc! macro simply uses the expression to write the JSON docs for the given type without involving the Example trait or example! macro.
 ```no_run
@@ -1706,7 +1741,20 @@ This method is mainly useful for external/std types. For example, we cannot writ
     Example::example()
 }
 
+<span class="attr">#[macro_export]
+</span><span class="macro">macro_rules! </span>doc_path {
+    (<span class="macro-nonterminal">$filename</span>:expr, <span class="macro-nonterminal">$extension</span>:expr) =&gt; {
+        <span class="macro">concat!</span>(
+            <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
+            <span class="string">&quot;/generated-docs/&quot;</span>,
+            <span class="macro-nonterminal">$filename</span>,
+            <span class="macro-nonterminal">$extension</span>,
+        )
+    };
+}
+
 <span class="comment">// Writes doc files. See the module documentation for more info.
+// macro_export mainly for the docs that use it
 </span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>doc {
     (T, Opt, Vec, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
@@ -1766,9 +1814,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
     </span>(<span class="macro-nonterminal">$t</span>:ty, <span class="macro-nonterminal">$e</span>:expr) =&gt; {{
         <span class="kw">let </span>expr: <span class="macro-nonterminal">$t </span>= <span class="macro-nonterminal">$e</span>;
 
-        <span class="kw">let </span>json_path = <span class="macro">concat!</span>(
-            <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
-            <span class="string">&quot;/generated-docs/&quot;</span>,
+        <span class="kw">let </span>json_path = <span class="macro-nonterminal">$</span><span class="macro">crate::doc_path!</span>(
             <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
             <span class="string">&quot;.json&quot;
         </span>);
@@ -1776,9 +1822,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
 
         <span class="attr">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
         </span>{
-            <span class="kw">let </span>ts_path = <span class="macro">concat!</span>(
-                <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
-                <span class="string">&quot;/generated-docs/&quot;</span>,
+            <span class="kw">let </span>ts_path = <span class="macro-nonterminal">$</span><span class="macro">crate::doc_path!</span>(
                 <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
                 <span class="string">&quot;.ts&quot;
             </span>);
@@ -1809,6 +1853,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
     </span>controllers();
     models();
     utils();
+    external();
 
     <span class="macro">doc!</span>((), ex());
     <span class="macro">doc!</span>(i64, <span class="number">123</span>);
@@ -1880,7 +1925,9 @@ This method is mainly useful for external/std types. For example, we cannot writ
     <span class="macro">doc!</span>(
         Opt,
         UserInfo {
-            user_id: Uuid::parse_str(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).unwrap()
+            user_id: Uuid::parse_str(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).unwrap(),
+            first_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
+            last_name: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.to_string()),
         }
     );
     <span class="macro">doc!</span>(CourseMaterialPeerReviewDataWithToken {
@@ -1897,6 +1944,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
         },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
+        course_module_completion_certificates::CourseModuleCompletionCertificate,
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
         course_modules::{
             AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
@@ -2000,11 +2048,6 @@ This method is mainly useful for external/std types. For example, we cannot writ
         tasks,
         given_peer_reviews,
         received_peer_reviews,
-    });
-    <span class="macro">doc!</span>(AnswersRequiringAttention {
-        exercise_max_points: <span class="number">1</span>,
-        data,
-        total_pages: <span class="number">10</span>,
     });
     <span class="macro">example!</span>(ExerciseSlideSubmission {
         id,
@@ -2145,21 +2188,6 @@ This method is mainly useful for external/std types. For example, we cannot writ
         copied_from: <span class="prelude-val">None</span>,
         course_module_id,
     });
-    <span class="macro">example!</span>(CourseModule {
-        id,
-        created_at,
-        updated_at,
-        deleted_at: <span class="prelude-val">None</span>,
-        name: <span class="prelude-val">None</span>,
-        course_id,
-        order_number: <span class="number">0</span>,
-        copied_from: <span class="prelude-val">None</span>,
-        uh_course_code: <span class="prelude-val">None</span>,
-        completion_policy: CompletionPolicy::Manual,
-        ects_credits: <span class="prelude-val">None</span>,
-        completion_registration_link_override: <span class="prelude-val">None</span>,
-        enable_registering_completion_to_uh_open_university: <span class="bool-val">false</span>,
-    });
     <span class="macro">example!</span>(UserCourseModuleCompletion {
         course_module_id,
         grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
@@ -2189,20 +2217,20 @@ This method is mainly useful for external/std types. For example, we cannot writ
         }
     ));
     <span class="macro">example!</span>(ChapterWithStatus {
-    id,
-    created_at,
-    updated_at,
-      name: <span class="string">&quot;The Basics&quot;</span>.to_string(),
-      color: <span class="prelude-val">None</span>,
-      course_id,
-    deleted_at: <span class="prelude-val">None</span>,
-      chapter_number: <span class="number">1</span>,
-      front_page_id: <span class="prelude-val">None</span>,
-      opens_at: <span class="prelude-val">None</span>,
-      status: ChapterStatus::Open,
-      chapter_image_url: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.to_string()),
-  course_module_id,
-  });
+        id,
+        created_at,
+        updated_at,
+        name: <span class="string">&quot;The Basics&quot;</span>.to_string(),
+        color: <span class="prelude-val">None</span>,
+        course_id,
+        deleted_at: <span class="prelude-val">None</span>,
+        chapter_number: <span class="number">1</span>,
+        front_page_id: <span class="prelude-val">None</span>,
+        opens_at: <span class="prelude-val">None</span>,
+        status: ChapterStatus::Open,
+        chapter_image_url: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.to_string()),
+        course_module_id,
+    });
     <span class="macro">example!</span>(CourseMaterialPeerReviewDataAnswerToReview {
         course_material_exercise_tasks,
         exercise_slide_submission_id,
@@ -2242,6 +2270,41 @@ This method is mainly useful for external/std types. For example, we cannot writ
         variable_value: serde_json::Value::String(<span class="string">&quot;Dog&quot;</span>.to_string()),
     });
 
+    <span class="macro">doc!</span>(
+        Opt,
+        CourseModuleCompletionCertificate {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            user_id,
+            course_module_id,
+            course_instance_id,
+            name_on_certificate: <span class="string">&quot;Example User&quot;</span>.to_string(),
+            verification_id: <span class="string">&quot;a1b2c3d4&quot;</span>.to_string(),
+        }
+    );
+    <span class="macro">doc!</span>(AnswersRequiringAttention {
+        exercise_max_points: <span class="number">1</span>,
+        data,
+        total_pages: <span class="number">10</span>,
+    });
+    <span class="macro">doc!</span>(CourseModule {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        name: <span class="prelude-val">None</span>,
+        course_id,
+        order_number: <span class="number">0</span>,
+        copied_from: <span class="prelude-val">None</span>,
+        uh_course_code: <span class="prelude-val">None</span>,
+        completion_policy: CompletionPolicy::Manual,
+        ects_credits: <span class="prelude-val">None</span>,
+        completion_registration_link_override: <span class="prelude-val">None</span>,
+        enable_registering_completion_to_uh_open_university: <span class="bool-val">false</span>,
+        certification_enabled: <span class="bool-val">false</span>,
+    });
     <span class="macro">doc!</span>(
         T,
         Vec,
@@ -2827,6 +2890,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
                 grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
                 prerequisite_modules_completed: <span class="bool-val">false</span>,
                 enable_registering_completion_to_uh_open_university: <span class="bool-val">true</span>,
+                certification_enabled: <span class="bool-val">false</span>,
             },
             UserModuleCompletionStatus {
                 completed: <span class="bool-val">true</span>,
@@ -2838,6 +2902,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
                 grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
                 prerequisite_modules_completed: <span class="bool-val">false</span>,
                 enable_registering_completion_to_uh_open_university: <span class="bool-val">false</span>,
+                certification_enabled: <span class="bool-val">false</span>,
             }
         ]
     );
@@ -3115,6 +3180,11 @@ This method is mainly useful for external/std types. For example, we cannot writ
             version: <span class="string">&quot;1.0&quot;</span>.to_string(),
         }
     );
+}
+
+<span class="comment">// external types, there should only be a couple in here so no macros or other fancy stuff
+</span><span class="kw">fn </span>external() {
+    std::fs::write(<span class="macro">doc_path!</span>(<span class="string">&quot;Bytes&quot;</span>, <span class="string">&quot;.ts&quot;</span>), <span class="string">&quot;type Bytes = Blob&quot;</span>).unwrap();
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

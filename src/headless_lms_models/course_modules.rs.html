@@ -803,6 +803,62 @@
 <a href="#803" id="803">803</a>
 <a href="#804" id="804">804</a>
 <a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{chapters, prelude::<span class="kw-2">*</span>};
@@ -825,6 +881,7 @@
     completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     enable_registering_completion_to_uh_open_university: bool,
+    certification_enabled: bool,
 }
 <span class="doccomment">/**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -846,6 +903,7 @@
     </span><span class="kw">pub </span>completion_registration_link_override: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>enable_registering_completion_to_uh_open_university: bool,
+    <span class="kw">pub </span>certification_enabled: bool,
 }
 
 <span class="kw">impl </span>CourseModule {
@@ -864,6 +922,7 @@
             completion_registration_link_override: <span class="prelude-val">None</span>,
             ects_credits: <span class="prelude-val">None</span>,
             enable_registering_completion_to_uh_open_university: <span class="bool-val">false</span>,
+            certification_enabled: <span class="bool-val">false</span>,
         }
     }
     <span class="kw">pub fn </span>set_timestamps(
@@ -905,6 +964,11 @@
         <span class="self">self
     </span>}
 
+    <span class="kw">pub fn </span>set_certification_enabled(<span class="kw-2">mut </span><span class="self">self</span>, certification_enabled: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.certification_enabled = certification_enabled;
+        <span class="self">self
+    </span>}
+
     <span class="kw">pub fn </span>is_default_module(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.name.is_none()
     }
@@ -938,6 +1002,7 @@
             ects_credits: schema.ects_credits,
             enable_registering_completion_to_uh_open_university: schema
                 .enable_registering_completion_to_uh_open_university,
+            certification_enabled: schema.certification_enabled,
         }
     }
 }
@@ -1433,6 +1498,17 @@ WHERE id = $3
     id: Uuid,
     updated_course_module: <span class="kw-2">&amp;</span>NewCourseModule,
 ) -&gt; ModelResult&lt;()&gt; {
+    <span class="comment">// destructure so new fields cause a compilation error here
+    </span><span class="kw">let </span>NewCourseModule {
+        completion_policy: <span class="kw">_</span>,
+        course_id: <span class="kw">_</span>,
+        ects_credits,
+        order_number,
+        name,
+        uh_course_code,
+        completion_registration_link_override,
+        enable_registering_completion_to_uh_open_university,
+    } = updated_course_module;
     <span class="kw">let </span>(automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
     <span class="macro">sqlx::query!</span>(
@@ -1451,16 +1527,16 @@ SET name = COALESCE($2, name),
 WHERE id = $1
         &quot;</span>,
         id,
-        updated_course_module.name,
-        updated_course_module.order_number,
-        updated_course_module.uh_course_code,
-        updated_course_module.ects_credits,
+        name.as_ref(),
+        order_number,
+        uh_course_code.as_ref(),
+        ects_credits.as_ref(),
         automatic_completion,
         exercises_treshold,
         points_treshold,
         requires_exam,
-        updated_course_module.completion_registration_link_override,
-        updated_course_module.enable_registering_completion_to_uh_open_university,
+        completion_registration_link_override.as_ref(),
+        enable_registering_completion_to_uh_open_university
     )
     .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1487,30 +1563,38 @@ WHERE id = $1
     }
     <span class="kw">let </span><span class="kw-2">mut </span>modified_and_new_modules = updates.modified_modules;
     <span class="kw">for </span>new <span class="kw">in </span>updates.new_modules {
+        <span class="comment">// destructure so new fields cause a compilation error here
+        </span><span class="kw">let </span>NewModule {
+            name,
+            order_number,
+            chapters,
+            uh_course_code,
+            ects_credits,
+            completion_policy,
+            completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university,
+        } = new;
         <span class="comment">// insert with a random order number to avoid conflicts
-        </span><span class="kw">let </span>new_course_module =
-            NewCourseModule::new(course_id, <span class="prelude-val">Some</span>(new.name.clone()), rand::random())
-                .set_completion_policy(new.completion_policy.clone())
-                .set_completion_registration_link_override(
-                    new.completion_registration_link_override,
-                )
-                .set_ects_credits(new.ects_credits)
-                .set_uh_course_code(new.uh_course_code)
-                .set_enable_registering_completion_to_uh_open_university(
-                    new.enable_registering_completion_to_uh_open_university,
-                );
+        </span><span class="kw">let </span>new_course_module = NewCourseModule::new(course_id, <span class="prelude-val">Some</span>(name.clone()), rand::random())
+            .set_completion_policy(completion_policy.clone())
+            .set_completion_registration_link_override(completion_registration_link_override)
+            .set_ects_credits(ects_credits)
+            .set_uh_course_code(uh_course_code)
+            .set_enable_registering_completion_to_uh_open_university(
+                enable_registering_completion_to_uh_open_university,
+            );
         <span class="kw">let </span>module = insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, <span class="kw-2">&amp;</span>new_course_module).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">for </span>chapter <span class="kw">in </span>new.chapters {
+        <span class="kw">for </span>chapter <span class="kw">in </span>chapters {
             chapters::set_module(<span class="kw-2">&amp;mut </span>tx, chapter, module.id).<span class="kw">await</span><span class="question-mark">?</span>;
         }
         <span class="comment">//modify the order number with the rest
         </span>modified_and_new_modules.push(ModifiedModule {
             id: module.id,
             name: <span class="prelude-val">None</span>,
-            order_number: new.order_number,
+            order_number,
             uh_course_code: module.uh_course_code,
-            ects_credits: new.ects_credits,
-            completion_policy: new.completion_policy,
+            ects_credits,
+            completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
             enable_registering_completion_to_uh_open_university: module
                 .enable_registering_completion_to_uh_open_university,
@@ -1518,18 +1602,27 @@ WHERE id = $1
     }
     <span class="comment">// update modified and new modules
     </span><span class="kw">for </span>module <span class="kw">in </span>modified_and_new_modules {
+        <span class="comment">// destructure so new fields cause a compilation error here
+        </span><span class="kw">let </span>ModifiedModule {
+            id,
+            name,
+            order_number,
+            uh_course_code,
+            ects_credits,
+            completion_policy,
+            completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university,
+        } = module;
         update(
             <span class="kw-2">&amp;mut </span>tx,
-            module.id,
-            <span class="kw-2">&amp;</span>NewCourseModule::new(course_id, module.name.clone(), module.order_number)
-                .set_completion_policy(module.completion_policy)
-                .set_completion_registration_link_override(
-                    module.completion_registration_link_override,
-                )
-                .set_ects_credits(module.ects_credits)
-                .set_uh_course_code(module.uh_course_code)
+            id,
+            <span class="kw-2">&amp;</span>NewCourseModule::new(course_id, name.clone(), order_number)
+                .set_completion_policy(completion_policy)
+                .set_completion_registration_link_override(completion_registration_link_override)
+                .set_ects_credits(ects_credits)
+                .set_uh_course_code(uh_course_code)
                 .set_enable_registering_completion_to_uh_open_university(
-                    module.enable_registering_completion_to_uh_open_university,
+                    enable_registering_completion_to_uh_open_university,
                 ),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1542,6 +1635,25 @@ WHERE id = $1
     }
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub async fn </span>update_certification_enabled(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    enabled: bool,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+UPDATE course_modules
+SET certification_enabled = $1
+WHERE id = $2
+&quot;</span>,
+        enabled,
+        id
+    )
+    .execute(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 

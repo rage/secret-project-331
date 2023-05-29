@@ -722,7 +722,7 @@
 <span class="comment">// at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
 </span><span class="doccomment">/// Extractor for an authenticated user.
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>AuthUser {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
@@ -1026,7 +1026,7 @@ token.authorized_ok(web::Json(cms_page_info))
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, <span class="kw-2">&amp;</span>user_roles).<span class="kw">await
 </span>}
 
-<span class="doccomment">/// Same as `authorize`, but takes as an argument Vec&lt;Role&gt; so that we avoid fetching the roles from the database for optimization reasons. This is useful when we&#39;re checking multiple authorizations at once.
+<span class="doccomment">/// Same as `authorize`, but takes as an argument `Vec&lt;Role&gt;` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we&#39;re checking multiple authorizations at once.
 </span><span class="kw">pub async fn </span>authorize_with_fetched_list_of_roles(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     action: Action,

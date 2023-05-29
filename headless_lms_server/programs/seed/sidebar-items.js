@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main","setup_seed_environment"],"mod":["seed_courses","seed_exercise_services","seed_file_storage","seed_helpers","seed_organizations","seed_playground_examples","seed_roles","seed_users"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["main","setup_seed_environment"],"mod":["seed_certificate_fonts","seed_courses","seed_exercise_services","seed_file_storage","seed_helpers","seed_organizations","seed_playground_examples","seed_roles","seed_users"],"static":["CALLSITE","META"]};

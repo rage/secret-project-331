@@ -183,13 +183,6 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 <span class="kw">use </span>url::Url;
@@ -204,6 +197,7 @@
     pages::{<span class="self">self</span>, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::<span class="kw-2">*</span>,
+    SpecFetcher,
 };
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -218,11 +212,7 @@
     pkey_policy: PKeyPolicy&lt;CreateNewCourseFixedIds&gt;,
     new_course: NewCourse,
     user: Uuid,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;(Course, Page, CourseInstance, CourseModule)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -342,11 +332,7 @@
     pkey_policy: PKeyPolicy&lt;(Uuid, Uuid)&gt;,
     new_chapter: <span class="kw-2">&amp;</span>NewChapter,
     user: Uuid,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;(DatabaseChapter, Page)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;

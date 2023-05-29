@@ -3409,30 +3409,6 @@
 <a href="#3409" id="3409">3409</a>
 <a href="#3410" id="3410">3410</a>
 <a href="#3411" id="3411">3411</a>
-<a href="#3412" id="3412">3412</a>
-<a href="#3413" id="3413">3413</a>
-<a href="#3414" id="3414">3414</a>
-<a href="#3415" id="3415">3415</a>
-<a href="#3416" id="3416">3416</a>
-<a href="#3417" id="3417">3417</a>
-<a href="#3418" id="3418">3418</a>
-<a href="#3419" id="3419">3419</a>
-<a href="#3420" id="3420">3420</a>
-<a href="#3421" id="3421">3421</a>
-<a href="#3422" id="3422">3422</a>
-<a href="#3423" id="3423">3423</a>
-<a href="#3424" id="3424">3424</a>
-<a href="#3425" id="3425">3425</a>
-<a href="#3426" id="3426">3426</a>
-<a href="#3427" id="3427">3427</a>
-<a href="#3428" id="3428">3428</a>
-<a href="#3429" id="3429">3429</a>
-<a href="#3430" id="3430">3430</a>
-<a href="#3431" id="3431">3431</a>
-<a href="#3432" id="3432">3432</a>
-<a href="#3433" id="3433">3433</a>
-<a href="#3434" id="3434">3434</a>
-<a href="#3435" id="3435">3435</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -3459,7 +3435,7 @@
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::<span class="kw-2">*</span>,
     user_course_settings::{<span class="self">self</span>, UserCourseSettings},
-    CourseOrExamId,
+    CourseOrExamId, SpecFetcher,
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -4477,11 +4453,7 @@ AND pages.deleted_at IS NULL
 <span class="kw">pub async fn </span>update_page(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     page_update: PageUpdateArgs,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;ContentManagementPage&gt; {
     <span class="kw">let </span>cms_page_update = page_update.cms_page_update;
@@ -4907,11 +4879,7 @@ RETURNING id,
     existing_task_specs: <span class="kw-2">&amp;</span>[ExerciseTaskIdAndSpec],
     task_updates: <span class="kw-2">&amp;</span>[CmsPageExerciseTask],
     retain_exercise_ids: bool,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;serde_json::Value, ModelError&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Vec&lt;CmsPageExerciseTask&gt;&gt; {
     <span class="comment">// For generating public specs for exercises.
@@ -5318,11 +5286,7 @@ WHERE id = $2;
     existing_exercise_task: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ExerciseTaskIdAndSpec&gt;,
     task_update: <span class="kw-2">&amp;</span>NormalizedCmsExerciseTask,
     urls_by_exercise_type: <span class="kw-2">&amp;</span>HashMap&lt;<span class="kw-2">&amp;</span>String, Url&gt;,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;serde_json::Value, ModelError&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     previous_spec: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
     cms_block_id: Uuid,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;, ModelError&gt; {
@@ -5361,11 +5325,7 @@ WHERE id = $2;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     new_page: NewPage,
     user: Uuid,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -5405,11 +5365,7 @@ WHERE id = $2;
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     new_page: NewPage,
     author: Uuid,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Page&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>page_language_group_id = <span class="prelude-val">None</span>;
@@ -6271,11 +6227,7 @@ LIMIT 50;
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
-    spec_fetcher: <span class="kw">impl </span>Fn(
-        Url,
-        <span class="kw-2">&amp;</span>str,
-        <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>serde_json::Value&gt;,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    spec_fetcher: <span class="kw">impl </span>SpecFetcher,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="comment">// fetch old content

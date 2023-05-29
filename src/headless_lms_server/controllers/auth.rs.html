@@ -487,6 +487,20 @@
 <a href="#487" id="487">487</a>
 <a href="#488" id="488">488</a>
 <a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/auth`.
 */
@@ -815,18 +829,32 @@ GET `/api/v0/auth/logged-in` Returns the current user&#39;s login status.
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>UserInfo {
     <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="doccomment">/**
 GET `/api/v0/auth/user-info` Returns the current user&#39;s info.
 **/
 </span><span class="attr">#[generated_doc]
-#[instrument(skip(user))]
-</span><span class="kw">pub async fn </span>user_info(user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;) -&gt; web::Json&lt;<span class="prelude-ty">Option</span>&lt;UserInfo&gt;&gt; {
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(user) = user {
-        web::Json(<span class="prelude-val">Some</span>(UserInfo { user_id: user.id }))
+#[instrument(skip(auth_user, pool))]
+</span><span class="kw">pub async fn </span>user_info(
+    auth_user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;<span class="prelude-ty">Option</span>&lt;UserInfo&gt;&gt;&gt; {
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(auth_user) = auth_user {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>user_details =
+            models::user_details::get_user_details_by_user_id(<span class="kw-2">&amp;mut </span>conn, auth_user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        token.authorized_ok(web::Json(<span class="prelude-val">Some</span>(UserInfo {
+            user_id: user_details.user_id,
+            first_name: user_details.first_name,
+            last_name: user_details.last_name,
+        })))
     } <span class="kw">else </span>{
-        web::Json(<span class="prelude-val">None</span>)
+        token.authorized_ok(web::Json(<span class="prelude-val">None</span>))
     }
 }
 

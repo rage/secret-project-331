@@ -61,7 +61,7 @@
 <span class="doccomment">/// Creates an empty [fontdb::Database] and loads all the fonts specified in the database table `certificate_fonts` into it. Note that the font database will not contain any system fonts to prevent us from creating any accidential hidden dependencies on the system fonts.
 </span><span class="kw">pub async fn </span>get_font_database_with_fonts(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    file_store: <span class="kw-2">&amp;</span><span class="kw">impl </span>FileStore,
+    file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
 ) -&gt; UtilResult&lt;fontdb::Database&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>fontdb = fontdb::Database::new();
     <span class="kw">let </span>certificate_fonts = headless_lms_models::certificate_fonts::get_all(<span class="kw-2">&amp;mut *</span>conn)
@@ -89,7 +89,7 @@
 
     <span class="macro">info!</span>(<span class="string">&quot;Loaded {} fonts&quot;</span>, fontdb.faces().count());
     fontdb.faces().for_each(|f| {
-        <span class="macro">info!</span>(<span class="string">&quot;Font: {:?}&quot;</span>, f);
+        <span class="macro">info!</span>(<span class="string">&quot;Font: {:?}, weight: {:?}&quot;</span>, f.families, f.weight);
     });
 
     <span class="prelude-val">Ok</span>(fontdb)

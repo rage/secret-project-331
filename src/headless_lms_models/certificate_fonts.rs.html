@@ -81,7 +81,7 @@
 
 <span class="kw">pub async fn </span>insert(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    certificate_font: <span class="kw-2">&amp;</span>CertificateFont,
+    certificate_font: <span class="kw-2">&amp;</span>NewCertificateFont,
 ) -&gt; ModelResult&lt;CertificateFont&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
         CertificateFont,

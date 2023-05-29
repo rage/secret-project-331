@@ -1045,6 +1045,8 @@
 <a href="#1045" id="1045">1045</a>
 <a href="#1046" id="1046">1046</a>
 <a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
 </pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1736,6 +1738,7 @@
     <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>passed: <span class="prelude-ty">Option</span>&lt;bool&gt;,
     <span class="kw">pub </span>enable_registering_completion_to_uh_open_university: bool,
+    <span class="kw">pub </span>certification_enabled: bool,
 }
 
 <span class="doccomment">/// Gets course modules with user&#39;s completion status for the given instance.
@@ -1773,6 +1776,7 @@
                     .map_or(<span class="bool-val">false</span>, |x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
+                certification_enabled: module.certification_enabled,
             }
         })
         .collect();

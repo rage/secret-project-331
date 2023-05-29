@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["controllers","ex","main","models","utils","write_json"],"mod":["example"]};
+window.SIDEBAR_ITEMS = {"fn":["controllers","ex","external","main","models","utils","write_json"],"mod":["example"]};

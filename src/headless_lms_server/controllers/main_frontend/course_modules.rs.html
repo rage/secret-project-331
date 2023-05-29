@@ -83,12 +83,88 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
 </pre><pre class="rust"><code><span class="kw">use </span>models::{
-    course_modules,
+    course_modules::{<span class="self">self</span>, CourseModule},
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
 };
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/course-modules/{course_module_id}`
+
+Returns information about the course module.
+*/
+</span><span class="attr">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_course_module(
+    course_module_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;CourseModule&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_module = course_modules::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::View,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(course_module))
+}
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
@@ -151,6 +227,29 @@ GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-
     token.authorized_ok(web::Json(completion_registration_link))
 }
 
+<span class="kw">async fn </span>enable_or_disable_certificate_generation(
+    params: web::Path&lt;(Uuid, bool)&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(course_module_id, enabled) = params.into_inner();
+
+    <span class="kw">let </span>course_module = course_modules::get_by_id(<span class="kw-2">&amp;mut </span>conn, course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Proper request validation is based on whether a completion exists for the user or not.
+    </span><span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    models::course_modules::update_certification_enabled(<span class="kw-2">&amp;mut </span>conn, course_module_id, enabled)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+}
+
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -159,14 +258,19 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 </span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
-    cfg.route(
-        <span class="string">&quot;/{course_module_id}/user-completion&quot;</span>,
-        web::get().to(get_course_module_completion_information_for_user),
-    )
-    .route(
-        <span class="string">&quot;/{course_module_id}/completion-registration-link&quot;</span>,
-        web::get().to(get_course_module_completion_registration_link),
-    );
+    cfg.route(<span class="string">&quot;/{course_module_id}&quot;</span>, web::get().to(get_course_module))
+        .route(
+            <span class="string">&quot;/{course_module_id}/user-completion&quot;</span>,
+            web::get().to(get_course_module_completion_information_for_user),
+        )
+        .route(
+            <span class="string">&quot;/{course_module_id}/completion-registration-link&quot;</span>,
+            web::get().to(get_course_module_completion_registration_link),
+        )
+        .route(
+            <span class="string">&quot;/{course_module_id}/set-certificate-generation/{enabled}&quot;</span>,
+            web::post().to(enable_or_disable_certificate_generation),
+        );
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

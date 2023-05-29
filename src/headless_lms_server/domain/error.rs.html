@@ -432,6 +432,16 @@
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Contains error and result types for all the controllers.
 */
@@ -773,6 +783,16 @@ some_function_returning_an_error().map_err(|original_error| {
 
 <span class="kw">impl </span>From&lt;actix_web::Error&gt; <span class="kw">for </span>ControllerError {
     <span class="kw">fn </span>from(err: actix_web::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">None</span>,
+        )
+    }
+}
+
+<span class="kw">impl </span>From&lt;actix_multipart::MultipartError&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: actix_multipart::MultipartError) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),

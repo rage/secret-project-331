@@ -94,9 +94,13 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::too_many_arguments)]
 
-</span><span class="kw">pub mod </span>seed_courses;
+</span><span class="kw">pub mod </span>seed_certificate_fonts;
+<span class="kw">pub mod </span>seed_courses;
 <span class="kw">pub mod </span>seed_exercise_services;
 <span class="kw">pub mod </span>seed_file_storage;
 <span class="kw">pub mod </span>seed_helpers;
@@ -148,6 +152,8 @@
     seed_roles::seed_roles(<span class="kw-2">&amp;</span>db_pool, <span class="kw-2">&amp;</span>seed_users_result, <span class="kw-2">&amp;</span>uh_cs_organization_result).<span class="kw">await</span><span class="question-mark">?</span>;
 
     seed_file_storage::seed_file_storage().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    seed_certificate_fonts::seed_certificate_fonts(<span class="kw-2">&amp;</span>db_pool).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }

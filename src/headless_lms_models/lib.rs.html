@@ -266,11 +266,42 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Functions and structs for interacting with the database.
 
 Each submodule corresponds to a database table.
 */
+</span><span class="comment">// we always use --document-private-items, so this warning is moot
+</span><span class="attr">#![allow(rustdoc::private_intra_doc_links)]
 </span><span class="kw">pub mod </span>certificate_fonts;
 <span class="kw">pub mod </span>chapters;
 <span class="kw">pub mod </span>course_background_question_answers;
@@ -280,6 +311,7 @@ Each submodule corresponds to a database table.
 <span class="kw">pub mod </span>course_instances;
 <span class="kw">pub mod </span>course_language_groups;
 <span class="kw">pub mod </span>course_module_certificate_configurations;
+<span class="kw">pub mod </span>course_module_completion_certificates;
 <span class="kw">pub mod </span>course_module_completion_registered_to_study_registries;
 <span class="kw">pub mod </span>course_module_completions;
 <span class="kw">pub mod </span>course_modules;
@@ -342,6 +374,8 @@ Each submodule corresponds to a database table.
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>test_helper;
 
+<span class="kw">use </span>futures::future::BoxFuture;
+<span class="kw">use </span>url::Url;
 <span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">pub use </span><span class="self">self</span>::error::{ModelError, ModelErrorType, ModelResult};
@@ -533,6 +567,30 @@ assert!(multiple_inserts(conn, PKeyPolicy::Fixed(foobar)).await.is_ok());
             <span class="prelude-val">None
         </span>}
     }
+}
+
+<span class="doccomment">/// A &quot;trait alias&quot; so this for&lt;&#39;a&gt; ... string doesn&#39;t need to be repeated everywhere
+/// Arguments:
+///   Url: The URL that the request is sent to (the exercise service&#39;s endpoint)
+///   &amp;str: Exercise type/service slug
+///   Option&lt;Value&gt;: The Json for the request, for example the private spec in a public spec request
+</span><span class="kw">pub trait </span>SpecFetcher:
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fn(
+    Url,
+    <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>serde_json::Value&gt;,
+) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, ModelResult&lt;serde_json::Value&gt;&gt;
+{
+}
+
+<span class="kw">impl</span>&lt;
+        T: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fn(
+            Url,
+            <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+            <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>serde_json::Value&gt;,
+        ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, ModelResult&lt;serde_json::Value&gt;&gt;,
+    &gt; SpecFetcher <span class="kw">for </span>T
+{
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

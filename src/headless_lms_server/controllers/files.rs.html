@@ -394,7 +394,7 @@ The randomly generated paths to each uploaded file in a `file_name =&gt; file_pa
         payload,
         file_store.as_ref(),
         <span class="kw-2">&amp;mut </span>paths,
-        user.as_ref(),
+        user,
         <span class="kw-2">&amp;</span>app_conf.base_url,
     )
     .<span class="kw">await

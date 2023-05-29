@@ -68,8 +68,8 @@ Handlers for HTTP requests to `/api/v0/other-domain-redirects`.
 <span class="doccomment">/**
 GET `/api/v0/other-domain-redirects/.*` Redirects a domain that is not a main domain to the correct course.
 
-For example https://example-course.mooc.fi could redirect one to https://courses.mooc.fi/org/uh-cs/courses/example-course.
-Paths after the domain are supported, too. For example, https://example-course.mooc.fi/a/b would redirect one to https://courses.mooc.fi/org/uh-cs/courses/example-course/a/b.
+For example &lt;https://example-course.mooc.fi&gt; could redirect one to &lt;https://courses.mooc.fi/org/uh-cs/courses/example-course&gt;.
+Paths after the domain are supported, too. For example, &lt;https://example-course.mooc.fi/a/b&gt; would redirect one to &lt;https://courses.mooc.fi/org/uh-cs/courses/example-course/a/b&gt;.
 The request url is rewritten by the other domain ingress so that right requests end up here.
 **/
 </span><span class="kw">pub async fn </span>redirect_other_domain(

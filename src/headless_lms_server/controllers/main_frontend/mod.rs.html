@@ -60,6 +60,8 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -67,7 +69,8 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
-</span><span class="kw">pub mod </span>chapters;
+</span><span class="kw">pub mod </span>certificates;
+<span class="kw">pub mod </span>chapters;
 <span class="kw">pub mod </span>course_instances;
 <span class="kw">pub mod </span>course_modules;
 <span class="kw">pub mod </span>courses;
@@ -120,7 +123,8 @@ This documents all endpoints. Select a module below for a category.
         .service(web::scope(<span class="string">&quot;/regradings&quot;</span>).configure(regradings::_add_routes))
         .service(web::scope(<span class="string">&quot;/playground-views&quot;</span>).configure(playground_views::_add_routes))
         .service(web::scope(<span class="string">&quot;/page_audio&quot;</span>).configure(page_audio_files::_add_routes))
-        .service(web::scope(<span class="string">&quot;/user-details&quot;</span>).configure(user_details::_add_routes));
+        .service(web::scope(<span class="string">&quot;/user-details&quot;</span>).configure(user_details::_add_routes))
+        .service(web::scope(<span class="string">&quot;/certificates&quot;</span>).configure(certificates::_add_routes));
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

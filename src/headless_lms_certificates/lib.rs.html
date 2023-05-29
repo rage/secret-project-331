@@ -391,6 +391,14 @@
 <a href="#391" id="391">391</a>
 <a href="#392" id="392">392</a>
 <a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
 </pre><pre class="rust"><code><span class="doccomment">//! For rendering certificates.
 //!
 //! This is a subcrate because the certificate rendering has its own unique set of dependencies and splitting it makes sense for compilation performance.
@@ -400,9 +408,9 @@
 <span class="kw">use </span>chrono::{Datelike, NaiveDate};
 <span class="kw">use </span>futures::future::OptionFuture;
 <span class="kw">use </span>headless_lms_models::course_module_certificate_configurations::{
-    get_course_module_certificate_configuration_by_course_module_and_course_instance,
-    CertificateTextAnchor, PaperSize,
+    get_by_course_module_and_course_instance, CertificateTextAnchor, PaperSize,
 };
+<span class="kw">use </span>headless_lms_models::course_module_completion_certificates::CourseModuleCompletionCertificate;
 <span class="kw">use </span>headless_lms_models::prelude::{BackendError, PgConnection};
 <span class="kw">use </span>headless_lms_utils::file_store::FileStore;
 <span class="kw">use </span>headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
@@ -410,7 +418,6 @@
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::time::Instant;
 <span class="kw">use </span>usvg::{fontdb, TreeParsing, TreeTextToPath};
-<span class="kw">use </span>uuid::Uuid;
 
 <span class="kw">use </span>quick_xml::{events::BytesText, Writer};
 <span class="kw">use </span>std::io::Cursor;
@@ -425,23 +432,20 @@ Generates a certificate as a png.
 
 ## Arguments
 
-- debug_show_anchoring_points: If true, the certificate will have a red dot at the anchoring points. Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
+- debug: If true, the certificate will have a red dot at the anchoring points, and the URL will be replaced with a placeholder.
+  Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
 */
 </span><span class="attr">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">pub async fn </span>generate_certificate(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    file_store: <span class="kw-2">&amp;</span><span class="kw">impl </span>FileStore,
-    certificate_url_identifier: <span class="kw-2">&amp;</span>str,
-    cerificate_owner_name: <span class="kw-2">&amp;</span>str,
-    certificate_date: <span class="kw-2">&amp;</span>NaiveDate,
-    course_module_id: Uuid,
-    course_instance_id: Uuid,
-    debug_show_anchoring_points: bool,
+    file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
+    certificate: <span class="kw-2">&amp;</span>CourseModuleCompletionCertificate,
+    debug: bool,
 ) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt; {
-    <span class="kw">let </span>config = get_course_module_certificate_configuration_by_course_module_and_course_instance(
+    <span class="kw">let </span>config = get_by_course_module_and_course_instance(
         <span class="kw-2">&amp;mut *</span>conn,
-        course_module_id,
-        course_instance_id,
+        certificate.course_module_id,
+        <span class="prelude-val">Some</span>(certificate.course_instance_id),
     )
     .<span class="kw">await
     </span>.map_err(|original_error| {
@@ -464,9 +468,24 @@ Generates a certificate as a png.
     </span>.transpose()<span class="question-mark">?</span>;
 
     <span class="kw">let </span>fontdb = font_loader::get_font_database_with_fonts(<span class="kw-2">&amp;mut *</span>conn, file_store).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>url = <span class="kw">if </span>debug {
+        <span class="string">&quot;https://courses.mooc.fi/certificates/validate/debug&quot;</span>.to_string()
+    } <span class="kw">else </span>{
+        <span class="macro">format!</span>(
+            <span class="comment">// TODO: use base url here
+            </span><span class="string">&quot;https://courses.mooc.fi/certificates/validate/{}&quot;</span>,
+            certificate.verification_id
+        )
+    };
+    <span class="kw">let </span>date = <span class="kw">if </span>debug {
+        <span class="comment">// TODO: this fixes the date for system tests, not a great solution...
+        </span>NaiveDate::from_ymd_opt(<span class="number">2023</span>, <span class="number">1</span>, <span class="number">1</span>).unwrap()
+    } <span class="kw">else </span>{
+        certificate.created_at.date_naive()
+    };
     <span class="kw">let </span>texts_to_render = <span class="macro">vec!</span>[
         TextToRender {
-            text: cerificate_owner_name.to_string(),
+            text: certificate.name_on_certificate.to_string(),
             y_pos: config.certificate_owner_name_y_pos,
             x_pos: config.certificate_owner_name_x_pos,
             font_size: config.certificate_owner_name_font_size,
@@ -475,10 +494,7 @@ Generates a certificate as a png.
             ..Default::default()
         },
         TextToRender {
-            text: <span class="macro">format!</span>(
-                <span class="comment">// TODO: use base url here
-                </span><span class="string">&quot;https://courses.mooc.fi/certificates/validate/{certificate_url_identifier}&quot;
-            </span>),
+            text: url,
             y_pos: config.certificate_validate_url_y_pos,
             x_pos: config.certificate_validate_url_x_pos,
             font_size: config.certificate_validate_url_font_size,
@@ -487,7 +503,7 @@ Generates a certificate as a png.
             ..Default::default()
         },
         TextToRender {
-            text: get_date_as_localized_string(<span class="kw-2">&amp;</span>config.certificate_locale, certificate_date)<span class="question-mark">?</span>,
+            text: get_date_as_localized_string(<span class="kw-2">&amp;</span>config.certificate_locale, date)<span class="question-mark">?</span>,
             y_pos: config.certificate_date_y_pos,
             x_pos: config.certificate_date_x_pos,
             font_size: config.certificate_date_font_size,
@@ -503,7 +519,7 @@ Generates a certificate as a png.
         overlay_svg.as_deref(),
         <span class="kw-2">&amp;</span>texts_to_render,
         <span class="kw-2">&amp;</span>paper_size,
-        debug_show_anchoring_points,
+        debug,
         <span class="kw-2">&amp;</span>fontdb,
     )<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res)
@@ -637,7 +653,7 @@ Generates a certificate as a png.
     <span class="prelude-val">Ok</span>(png)
 }
 
-<span class="kw">fn </span>get_date_as_localized_string(locale: <span class="kw-2">&amp;</span>str, certificate_date: <span class="kw-2">&amp;</span>NaiveDate) -&gt; UtilResult&lt;String&gt; {
+<span class="kw">fn </span>get_date_as_localized_string(locale: <span class="kw-2">&amp;</span>str, certificate_date: NaiveDate) -&gt; UtilResult&lt;String&gt; {
     <span class="kw">let </span>options = length::Bag::from_date_style(length::Date::Long).into();
     <span class="comment">// TODO: load locale data using this https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html
     </span><span class="kw">let </span>dtf = DateTimeFormatter::try_new_unstable(
@@ -693,7 +709,7 @@ Generates a certificate as a png.
     <span class="kw">pub </span>text_color: String,
     <span class="kw">pub </span>x_pos: String,
     <span class="kw">pub </span>y_pos: String,
-    <span class="doccomment">/// How to align the text related to x_pos and y_pos. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor.
+    <span class="doccomment">/// How to align the text related to x_pos and y_pos. See: &lt;https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor&gt;.
     </span><span class="kw">pub </span>text_anchor: CertificateTextAnchor,
 }
 

@@ -99,6 +99,17 @@ const ExerciseBlock: React.FC<
         a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
       })
       setAnswers(a)
+
+      if (!data.previous_exercise_slide_submission) {
+        return
+      }
+
+      const previous_submission_date = new Date(data.previous_exercise_slide_submission.created_at)
+      const exercise_modification_date = new Date(data.exercise.updated_at)
+
+      if (previous_submission_date.getTime() < exercise_modification_date.getTime()) {
+        dispatch({ type: "tryAgain", payload: data, signedIn: Boolean(loginState.signedIn) })
+      }
     },
   })
 

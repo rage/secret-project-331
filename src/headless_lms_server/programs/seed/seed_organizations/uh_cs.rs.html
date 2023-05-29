@@ -660,6 +660,7 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
@@ -714,6 +715,7 @@
         course_or_exam_creator_user_id,
         student_user_id,
         example_normal_user_ids,
+        teaching_and_learning_services_user_id: <span class="kw">_</span>,
     } = seed_users_result;
 
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;

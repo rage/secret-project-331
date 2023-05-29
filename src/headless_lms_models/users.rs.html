@@ -269,6 +269,10 @@
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
 </pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::ApplicationConfiguration;
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -451,6 +455,10 @@ WHERE id = $1
         <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;student2@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else if </span>email == <span class="string">&quot;student3@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;student.3&quot; </span>{
         <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;student3@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;teaching-and-learning-services@example.com&quot;
+        </span>&amp;&amp; password == <span class="string">&quot;teaching-and-learning-services&quot;
+    </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;teaching-and-learning-services@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
             ModelErrorType::InvalidRequest,

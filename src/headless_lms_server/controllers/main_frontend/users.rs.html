@@ -87,13 +87,13 @@ GET `/api/v0/main-frontend/users/:id/course-instance-enrollments`
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
-        Act::Teach,
+        Act::ViewUserProgressOrDetails,
         <span class="prelude-val">Some</span>(auth_user.id),
         Res::GlobalPermissions,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>res =
-        models::course_instance_enrollments::get_course_instance_enrollment_info_for_user(
+        models::course_instance_enrollments::get_course_instance_enrollments_info_for_user(
             <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>user_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;

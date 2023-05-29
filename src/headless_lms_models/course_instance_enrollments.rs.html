@@ -165,9 +165,14 @@
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
-    course_instances::CourseInstance, courses::Course, prelude::<span class="kw-2">*</span>,
-    user_course_settings::UserCourseSettings,
+    course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
+    courses::Course, prelude::<span class="kw-2">*</span>, user_course_settings::UserCourseSettings,
 };
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -188,6 +193,7 @@
     <span class="kw">pub </span>course_instances: Vec&lt;CourseInstance&gt;,
     <span class="kw">pub </span>courses: Vec&lt;Course&gt;,
     <span class="kw">pub </span>user_course_settings: Vec&lt;UserCourseSettings&gt;,
+    <span class="kw">pub </span>course_module_completions: Vec&lt;CourseModuleCompletion&gt;,
 }
 
 <span class="kw">pub async fn </span>insert(
@@ -299,7 +305,7 @@ WHERE user_id = $1
     <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub async fn </span>get_course_instance_enrollment_info_for_user(
+<span class="kw">pub async fn </span>get_course_instance_enrollments_info_for_user(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
 ) -&gt; ModelResult&lt;CourseInstanceEnrollmentsInfo&gt; {
@@ -316,6 +322,9 @@ WHERE user_id = $1
 
     <span class="kw">let </span>courses = <span class="kw">crate</span>::courses::get_by_ids(conn, <span class="kw-2">&amp;</span>course_ids).<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="kw">let </span>course_module_completions =
+        <span class="kw">crate</span>::course_module_completions::get_all_by_user_id(conn, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="comment">// Returns all user course settings because there is always an enrollment for a current course instance (enforced by a database constraint), and all of those are in the course_ids list
     </span><span class="kw">let </span>user_course_settings =
         <span class="kw">crate</span>::user_course_settings::get_all_by_user_and_multiple_current_courses(
@@ -330,6 +339,7 @@ WHERE user_id = $1
         course_instances,
         courses,
         user_course_settings,
+        course_module_completions,
     })
 }
 </code></pre></div>

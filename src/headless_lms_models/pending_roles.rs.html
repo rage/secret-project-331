@@ -112,9 +112,6 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     prelude::<span class="kw-2">*</span>,
     roles::{RoleDomain, RoleInfo, UserRole},
@@ -156,10 +153,7 @@
                 <span class="prelude-val">None</span>,
             ))
         }
-        UserRole::Reviewer
-        | UserRole::Assistant
-        | UserRole::CourseOrExamCreator
-        | UserRole::MaterialViewer =&gt; (),
+        <span class="kw">_ </span>=&gt; (),
     }
 
     <span class="kw">let </span>course_id = <span class="kw">match </span>role_info.domain {

@@ -8,6 +8,7 @@
   course_instances: Array&lt;CourseInstance&gt;
   courses: Array&lt;Course&gt;
   user_course_settings: Array&lt;UserCourseSettings&gt;
+  course_module_completions: Array&lt;CourseModuleCompletion&gt;
 }
 
 </code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
@@ -65,6 +66,27 @@
       &quot;deleted_at&quot;: null,
       &quot;current_course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
       &quot;current_course_instance_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;
+    }
+  ],
+  &quot;course_module_completions&quot;: [
+    {
+      &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+      &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+      &quot;deleted_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+      &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;course_instance_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;course_module_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;user_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;completion_date&quot;: &quot;2022-06-21T00:00:00Z&quot;,
+      &quot;completion_registration_attempt_date&quot;: null,
+      &quot;completion_language&quot;: &quot;en-US&quot;,
+      &quot;eligible_for_ects&quot;: true,
+      &quot;email&quot;: &quot;student@example.com&quot;,
+      &quot;grade&quot;: 4,
+      &quot;passed&quot;: true,
+      &quot;prerequisite_modules_completed&quot;: true,
+      &quot;completion_granter_user_id&quot;: &quot;d0adc0cb-4d38-4a9f-a36c-9b2cb981a654&quot;
     }
   ]
 }

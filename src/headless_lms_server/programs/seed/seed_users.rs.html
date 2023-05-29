@@ -137,6 +137,17 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
 </pre><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{users, PKeyPolicy};
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 <span class="kw">use </span>uuid::Uuid;
@@ -150,6 +161,7 @@
     <span class="kw">pub </span>course_or_exam_creator_user_id: Uuid,
     <span class="kw">pub </span>student_user_id: Uuid,
     <span class="kw">pub </span>example_normal_user_ids: Vec&lt;Uuid&gt;,
+    <span class="kw">pub </span>teaching_and_learning_services_user_id: Uuid,
 }
 
 <span class="kw">pub async fn </span>seed_users(db_pool: Pool&lt;Postgres&gt;) -&gt; anyhow::Result&lt;SeedUsersResult&gt; {
@@ -232,6 +244,15 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="kw">let </span>teaching_and_learning_services_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;5d081ccb-1dab-4367-9549-267fd3f1dd9c&quot;</span>)<span class="question-mark">?</span>),
+        <span class="string">&quot;teaching-and-learning-services@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Teaching&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;And Learning&quot;</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let </span>example_normal_user_ids = <span class="macro">vec!</span>[
         users::insert(
             <span class="kw-2">&amp;mut </span>conn,
@@ -274,6 +295,7 @@
         course_or_exam_creator_user_id,
         student_user_id,
         example_normal_user_ids,
+        teaching_and_learning_services_user_id,
     })
 }
 </code></pre></div>

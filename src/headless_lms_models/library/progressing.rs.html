@@ -1297,7 +1297,7 @@
     <span class="kw">let </span>default_course_module =
         course_modules::get_default_by_course_id(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course_module_completions =
-        course_module_completions::get_all_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance.id,
             user_id,
@@ -1751,7 +1751,7 @@
     <span class="kw">let </span>course = courses::get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course_modules = course_modules::get_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course_module_completions: HashMap&lt;Uuid, CourseModuleCompletion&gt; =
-        course_module_completions::get_all_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance_id,
             user_id,

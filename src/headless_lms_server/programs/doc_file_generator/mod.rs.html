@@ -1592,6 +1592,34 @@
 <a href="#1592" id="1592">1592</a>
 <a href="#1593" id="1593">1593</a>
 <a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
+<a href="#1605" id="1605">1605</a>
+<a href="#1606" id="1606">1606</a>
+<a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1712,7 +1740,9 @@ This method is mainly useful for external/std types. For example, we cannot writ
         CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
     },
     course_instance_enrollments::CourseInstanceEnrollmentsInfo,
-    course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+    course_module_completions::{
+        CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo,
+    },
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
@@ -3162,8 +3192,34 @@ This method is mainly useful for external/std types. For example, we cannot writ
         course_instance_enrollments,
         course_instances,
         courses,
-        user_course_settings
+        user_course_settings,
+        course_module_completions,
     });
+
+    <span class="macro">doc!</span>(
+        Vec,
+        CourseModuleCompletion {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            course_id,
+            course_instance_id,
+            course_module_id,
+            user_id,
+            completion_date: Utc.with_ymd_and_hms(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap(),
+            completion_registration_attempt_date: <span class="prelude-val">None</span>,
+            completion_language: <span class="string">&quot;en-US&quot;</span>.to_string(),
+            eligible_for_ects: <span class="bool-val">true</span>,
+            email: <span class="string">&quot;student@example.com&quot;</span>.to_string(),
+            grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+            passed: <span class="bool-val">true</span>,
+            prerequisite_modules_completed: <span class="bool-val">true</span>,
+            completion_granter_user_id: <span class="prelude-val">Some</span>(
+                Uuid::parse_str(<span class="string">&quot;d0adc0cb-4d38-4a9f-a36c-9b2cb981a654&quot;</span>).unwrap()
+            ),
+        }
+    );
 }
 
 <span class="kw">fn </span>utils() {

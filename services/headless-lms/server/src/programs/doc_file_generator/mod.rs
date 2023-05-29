@@ -1574,27 +1574,30 @@ fn models() {
         course_module_completions,
     });
 
-    example!(CourseModuleCompletion {
-        id,
-        created_at,
-        updated_at,
-        deleted_at,
-        course_id,
-        course_instance_id,
-        course_module_id,
-        user_id,
-        completion_date: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
-        completion_registration_attempt_date: None,
-        completion_language: "en-US".to_string(),
-        eligible_for_ects: true,
-        email: "student@example.com".to_string(),
-        grade: Some(4),
-        passed: true,
-        prerequisite_modules_completed: true,
-        completion_granter_user_id: Some(
-            Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()
-        ),
-    });
+    doc!(
+        Vec,
+        CourseModuleCompletion {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            course_id,
+            course_instance_id,
+            course_module_id,
+            user_id,
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            completion_registration_attempt_date: None,
+            completion_language: "en-US".to_string(),
+            eligible_for_ects: true,
+            email: "student@example.com".to_string(),
+            grade: Some(4),
+            passed: true,
+            prerequisite_modules_completed: true,
+            completion_granter_user_id: Some(
+                Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()
+            ),
+        }
+    );
 }
 
 fn utils() {

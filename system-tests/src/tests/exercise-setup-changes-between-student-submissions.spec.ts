@@ -1,4 +1,7 @@
-import { BrowserContext, test } from "@playwright/test"
+import { BrowserContext, Locator, Page, test } from "@playwright/test"
+
+import { getLocatorForNthExerciseServiceIframe } from "../utils/iframeLocators"
+import { fillQuizItemOptionModal } from "../utils/quizzesActions"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -102,63 +105,45 @@ test("Exercise setup changes between users tries", async () => {
     .frameLocator('iframe[title="IFRAME EDITOR"]')
     .getByRole("button", { name: "Add option" })
     .click()
+
+  const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "quizzes", 1)
+  await scrollToFrame(teacherPage, frame)
+
   await teacherPage
     .frameLocator('iframe[title="IFRAME EDITOR"]')
     .getByRole("button", { name: "Option 1" })
     .click()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .click()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .fill("false")
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByRole("button", { name: "Close" })
-    .click()
+  await fillQuizItemOptionModal(teacherPage, frame, {
+    type: "multiple-choice",
+    correct: false,
+    title: `false`,
+  })
+
   await teacherPage
     .frameLocator('iframe[title="IFRAME EDITOR"]')
     .getByRole("button", { name: "Option 2" })
     .click()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Correct", { exact: true })
-    .check()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .click()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .fill("true")
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByRole("button", { name: "Close" })
-    .click()
+  await fillQuizItemOptionModal(teacherPage, frame, {
+    type: "multiple-choice",
+    correct: true,
+    title: `true`,
+  })
+
   await teacherPage
     .frameLocator('iframe[title="IFRAME EDITOR"]')
     .getByRole("button", { name: "Option 3" })
     .click()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .click()
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByLabel("Option title", { exact: true })
-    .fill("false")
-  await teacherPage
-    .frameLocator('iframe[title="IFRAME EDITOR"]')
-    .getByRole("button", { name: "Close" })
-    .click()
+  await fillQuizItemOptionModal(teacherPage, frame, {
+    type: "multiple-choice",
+    correct: false,
+    title: `false`,
+  })
+
   await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
 
   // Student tries again
   await student1Page.reload()
-  await student1Page.getByRole("button", { name: "try again" }).click()
+
   await student1Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("button", { name: "cargo" })
@@ -169,3 +154,18 @@ test("Exercise setup changes between users tries", async () => {
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
 })
+
+async function scrollToFrame(page: Page, locator: Locator) {
+  const elementHandle = await locator.elementHandle()
+  if (!elementHandle) {
+    throw new Error("Cannot find frame")
+  }
+  const boundingBox = await elementHandle.boundingBox()
+  if (!boundingBox) {
+    throw new Error("Frame had no bounding box")
+  }
+  const y = boundingBox.y
+  await page.evaluate((y) => {
+    window.scrollTo(0, window.scrollY + y)
+  }, y)
+}

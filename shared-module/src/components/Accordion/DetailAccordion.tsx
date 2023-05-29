@@ -25,10 +25,6 @@ const TextWrapper = styled.div`
     transition: all 0.3s ease-in-out;
   }
 
-  details summary {
-    font-weight: 600;
-  }
-
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
     color: ${baseTheme.colors.gray[700]};

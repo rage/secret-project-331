@@ -56,10 +56,11 @@ async function createLoginStates(page: Page, context: BrowserContext) {
   }
   console.log("Creating login states for supported test users.")
   for (const userLoginInformation of usersLoginInformationToCache) {
-    await login(userLoginInformation.email, userLoginInformation.password, page)
+    await login(userLoginInformation.email, userLoginInformation.password, page, true)
     console.log(`Created login state for ${userLoginInformation.email}`)
     await context.clearCookies()
     await page.goto("about:blank")
+    await page.waitForLoadState()
     await context.clearCookies()
   }
 }

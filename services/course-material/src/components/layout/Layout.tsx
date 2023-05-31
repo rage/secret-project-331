@@ -2,9 +2,11 @@ import { css } from "@emotion/css"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { ReactNode, useContext } from "react"
+import React, { ReactNode, useState } from "react"
 
-import PageContext from "../../contexts/PageContext"
+import LayoutContext from "../../contexts/LayoutContext"
+import PageContext, { getDefaultPageState } from "../../contexts/PageContext"
+import { PageState } from "../../reducers/pageStateReducer"
 import Centered from "../../shared-module/components/Centering/Centered"
 import Footer from "../../shared-module/components/Footer"
 import LanguageSelection from "../../shared-module/components/LanguageSelection"
@@ -13,7 +15,6 @@ import {
   NavContainer,
   NavItem,
   NavItems,
-  // NavLink,
 } from "../../shared-module/components/Navigation/NavBar"
 import SearchDialog from "../SearchDialog"
 import UserNavigationControls from "../navigation/UserNavigationControls"
@@ -24,12 +25,6 @@ const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 interface LayoutProps {
   children: ReactNode
-  navVariant?: "simple" | "complex"
-  faqUrl?: string
-  title?: string
-  licenseUrl?: string
-  courseSlug?: string
-  organizationSlug: string
 }
 
 const DynamicToaster = dynamic(
@@ -37,25 +32,26 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
-  children,
-  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
-  navVariant,
-  // faqUrl,
-  licenseUrl,
-  courseSlug,
-  organizationSlug,
-}) => {
-  const router = useRouter()
-  const pageContext = useContext(PageContext)
+const DEFAULT_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
-  const courseId = pageContext?.pageData?.course_id
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
+  const router = useRouter()
+
+  const [title, setTitle] = useState<string | null>(null)
+  const fullTitle = title ? `${title} - ${DEFAULT_TITLE}` : DEFAULT_TITLE
+  const [organizationSlug, setOrganizationSlug] = useState<string | null>(null)
+  const [courseId, setCourseId] = useState<string | null>(null)
+  const [hideFromSearchEngines, setHideFromSearchEngines] = useState<boolean>(false)
+  const [pageState, setPageState] = useState<PageState>(getDefaultPageState())
+
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{fullTitle}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+
+        {hideFromSearchEngines && <meta name="robots" content="noindex" />}
       </Head>
       <div
         // Push footer to bottom of page, e.g. on empty body
@@ -65,29 +61,43 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         `}
       >
         <ScrollIndicator />
-        <NavBar variant={navVariant ?? "simple"}>
-          <NavContainer>
-            <NavItems>
-              {/* <NavLink href="/FAQ">FAQ</NavLink> */}
-              {courseId && courseSlug && (
+        <PageContext.Provider value={pageState}>
+          <NavBar variant={"simple"}>
+            <NavContainer>
+              <NavItems>
+                {/* <NavLink href="/FAQ">FAQ</NavLink> */}
+                {courseId && organizationSlug && (
+                  <NavItem>
+                    <SearchDialog courseId={courseId} organizationSlug={organizationSlug} />
+                  </NavItem>
+                )}
                 <NavItem>
-                  <SearchDialog
-                    courseId={courseId}
-                    courseSlug={courseSlug}
-                    organizationSlug={organizationSlug}
-                  />
+                  <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
                 </NavItem>
-              )}
-              <NavItem>
-                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
-              </NavItem>
-            </NavItems>
-          </NavContainer>
-          <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
-        </NavBar>
+              </NavItems>
+            </NavContainer>
+            <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
+          </NavBar>
+        </PageContext.Provider>
 
         <main>
-          <Centered variant="narrow">{children}</Centered>
+          <Centered variant="narrow">
+            <LayoutContext.Provider
+              value={{
+                title,
+                setTitle,
+                organizationSlug,
+                setOrganizationSlug,
+                courseId,
+                setCourseId,
+                hideFromSearchEngines,
+                setHideFromSearchEngines,
+                setPageState,
+              }}
+            >
+              {children}
+            </LayoutContext.Provider>
+          </Centered>
         </main>
       </div>
       <div
@@ -96,7 +106,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         `}
       >
         <DynamicToaster />
-        <Footer licenseUrl={licenseUrl} />
+        <Footer />
       </div>
     </>
   )

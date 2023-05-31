@@ -18,7 +18,7 @@ const PageContext = React.createContext<PageState>(getDefaultPageState())
 
 export default PageContext
 
-export const CoursePageDispatch = React.createContext<Dispatch<PageStateAction>>(() => {
+export const CoursePageDispatch = React.createContext<Dispatch<PageStateAction> | null>(() => {
   // eslint-disable-next-line i18next/no-literal-string
   throw new Error("CoursePageDispatch called outside provider.")
 })

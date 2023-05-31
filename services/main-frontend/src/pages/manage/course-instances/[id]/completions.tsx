@@ -4,7 +4,6 @@ import { maxBy } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../../../../components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
@@ -105,7 +104,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   }
 
   return (
-    <Layout navVariant="simple">
+    <>
       <h2>
         {t("completions")}: {courseInstanceId}
       </h2>
@@ -238,7 +237,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
         </>
       )}
       <CompletionsExportButton courseInstanceId={courseInstanceId} />
-    </Layout>
+    </>
   )
 }
 

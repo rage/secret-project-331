@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import { PermissionPage } from "../../../../components/PermissionPage"
 import { fetchOrganization } from "../../../../services/backend/organizations"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -25,33 +24,31 @@ const OrganizationPermissions: React.FC<React.PropsWithChildren<Props>> = ({ que
   const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
 
   return (
-    <Layout navVariant="simple">
-      <div
-        className={css`
-          margin-top: 40px;
-          ${respondToOrLarger.sm} {
-            margin-top: 80px;
-          }
-        `}
-      >
-        {organization.isLoading && <Spinner variant="large" />}
-        {organization.isError && <ErrorBanner variant="readOnly" error={organization.error} />}
-        {organization.isSuccess && (
-          <>
-            <h1>
-              {t("roles-for-organization")} {organization.data.name}
-            </h1>
-            <PermissionPage
-              domain={{
-                // eslint-disable-next-line i18next/no-literal-string
-                tag: "Organization",
-                id: organization.data.id,
-              }}
-            />
-          </>
-        )}
-      </div>
-    </Layout>
+    <div
+      className={css`
+        margin-top: 40px;
+        ${respondToOrLarger.sm} {
+          margin-top: 80px;
+        }
+      `}
+    >
+      {organization.isLoading && <Spinner variant="large" />}
+      {organization.isError && <ErrorBanner variant="readOnly" error={organization.error} />}
+      {organization.isSuccess && (
+        <>
+          <h1>
+            {t("roles-for-organization")} {organization.data.name}
+          </h1>
+          <PermissionPage
+            domain={{
+              // eslint-disable-next-line i18next/no-literal-string
+              tag: "Organization",
+              id: organization.data.id,
+            }}
+          />
+        </>
+      )}
+    </div>
   )
 }
 

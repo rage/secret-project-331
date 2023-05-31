@@ -4,7 +4,6 @@ import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../components/Layout"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
@@ -37,120 +36,118 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 
   return (
-    <Layout>
-      <div
-        className={css`
-          margin: 0 auto;
-          a {
-            text-decoration: none;
-            color: #007bff;
-            :hover {
-              text-decoration: underline;
-            }
+    <div
+      className={css`
+        margin: 0 auto;
+        a {
+          text-decoration: none;
+          color: #007bff;
+          :hover {
+            text-decoration: underline;
           }
+        }
+      `}
+    >
+      <form
+        onSubmit={async (event) => {
+          event.preventDefault()
+          try {
+            await loginMutation.mutateAsync()
+          } catch (e) {
+            if (!(e instanceof Error)) {
+              throw e
+            }
+            console.log("failed to login: ", e)
+            // @ts-ignore: null checked
+            if (e?.response?.status.toString().startsWith("4")) {
+              setNotification(t("incorrect-email-or-password"))
+            } else {
+              setNotification(t("failed-to-authenticate"))
+            }
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
+            return null
+          }
+
+          await loginStateContext.refresh()
+          const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+          router.push(returnTo)
+        }}
+        className={css`
+          display: flex;
+          flex-direction: column;
+          padding: 3rem 0rem;
         `}
       >
-        <form
-          onSubmit={async (event) => {
-            event.preventDefault()
-            try {
-              await loginMutation.mutateAsync()
-            } catch (e) {
-              if (!(e instanceof Error)) {
-                throw e
-              }
-              console.log("failed to login: ", e)
-              // @ts-ignore: null checked
-              if (e?.response?.status.toString().startsWith("4")) {
-                setNotification(t("incorrect-email-or-password"))
-              } else {
-                setNotification(t("failed-to-authenticate"))
-              }
-              setTimeout(() => {
-                setNotification(null)
-              }, 5000)
-              return null
-            }
-
-            await loginStateContext.refresh()
-            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-            router.push(returnTo)
-          }}
+        <h1>{t("login")}</h1>
+        <div
           className={css`
-            display: flex;
-            flex-direction: column;
-            padding: 3rem 0rem;
+            margin-bottom: 2rem;
           `}
         >
-          <h1>{t("login")}</h1>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          {t("login-description")} <a href="https://mooc.fi">mooc.fi</a> {t("login-description2")}
+        </div>
+        <TextField label={t("label-email")} onChange={(value) => setEmail(value)} required />
+        <TextField
+          type="password"
+          label={t("label-password")}
+          onChange={(value) => setPassword(value)}
+          required
+        />
+        {notification && (
           <div
+            aria-live="assertive"
             className={css`
-              margin-bottom: 2rem;
+              padding: 1rem;
+              border: 2px solid ${baseTheme.colors.red[500]};
+              font-weight: bold;
+              color: ${baseTheme.colors.red[500]};
             `}
           >
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            {t("login-description")} <a href="https://mooc.fi">mooc.fi</a> {t("login-description2")}
+            {notification}
           </div>
-          <TextField label={t("label-email")} onChange={(value) => setEmail(value)} required />
-          <TextField
-            type="password"
-            label={t("label-password")}
-            onChange={(value) => setPassword(value)}
-            required
-          />
-          {notification && (
-            <div
-              aria-live="assertive"
-              className={css`
-                padding: 1rem;
-                border: 2px solid ${baseTheme.colors.red[500]};
-                font-weight: bold;
-                color: ${baseTheme.colors.red[500]};
-              `}
-            >
-              {notification}
-            </div>
-          )}
-          <Button
-            className={css`
-              margin: 2rem 0rem;
-            `}
-            variant={"primary"}
-            size={"medium"}
-            id={"login-button"}
-            disabled={
-              !email || !password || email === "" || password === "" || loginMutation.isLoading
-            }
-          >
-            {t("login")}
-          </Button>
-          <div
-            className={css`
-              margin-bottom: 1.5rem;
-              display: none;
-            `}
-          >
-            <Link href="/sign-up">{t("create-new-account")}</Link>
-          </div>
-          <div
-            className={css`
-              margin-bottom: 1.5rem;
-            `}
-          >
-            <a href="https://tmc.mooc.fi/password_reset_keys/new">{t("forgot-password")}</a>
-          </div>
-          <div
-            className={css`
-              margin-bottom: 1.5rem;
-            `}
-          >
-            <a href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}>
-              {t("create-an-acount")}
-            </a>
-          </div>
-        </form>
-      </div>
-    </Layout>
+        )}
+        <Button
+          className={css`
+            margin: 2rem 0rem;
+          `}
+          variant={"primary"}
+          size={"medium"}
+          id={"login-button"}
+          disabled={
+            !email || !password || email === "" || password === "" || loginMutation.isLoading
+          }
+        >
+          {t("login")}
+        </Button>
+        <div
+          className={css`
+            margin-bottom: 1.5rem;
+            display: none;
+          `}
+        >
+          <Link href="/sign-up">{t("create-new-account")}</Link>
+        </div>
+        <div
+          className={css`
+            margin-bottom: 1.5rem;
+          `}
+        >
+          <a href="https://tmc.mooc.fi/password_reset_keys/new">{t("forgot-password")}</a>
+        </div>
+        <div
+          className={css`
+            margin-bottom: 1.5rem;
+          `}
+        >
+          <a href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}>
+            {t("create-an-acount")}
+          </a>
+        </div>
+      </form>
+    </div>
   )
 }
 

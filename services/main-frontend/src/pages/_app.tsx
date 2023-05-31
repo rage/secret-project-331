@@ -5,6 +5,7 @@ import type { AppProps } from "next/app"
 import Head from "next/head"
 import React, { useEffect } from "react"
 
+import Layout from "../components/Layout"
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import useLanguage from "../shared-module/hooks/useLanguage"
 import { queryClient } from "../shared-module/services/appQueryClient"
@@ -56,7 +57,9 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         <ThemeProvider theme={muiTheme}>
           <GlobalStyles />
           <LoginStateContextProvider>
-            <Component {...pageProps} />
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
           </LoginStateContextProvider>
         </ThemeProvider>
       </QueryClientProvider>

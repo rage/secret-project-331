@@ -3,7 +3,6 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
-import Layout from "../../../components/Layout"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import {
   getCoursesDefaultCmsPeerReviewConfiguration,
@@ -86,7 +85,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   }
 
   return (
-    <Layout>
+    <>
       <PeerReviewEditor
         attributes={attributes}
         setAttributes={setAttributes}
@@ -100,7 +99,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       >
         {t("save")}
       </Button>
-    </Layout>
+    </>
   )
 }
 

@@ -6,6 +6,7 @@ import QuizzesExerciseServiceContext from "../../contexts/QuizzesExerciseService
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
 import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
+import { isOldQuiz } from "../../util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../util/migration/privateSpecQuiz"
 import { denormalizeData, normalizeData } from "../../util/normalizerFunctions"
 import BasicInformation from "../QuizEditForms/BasicInfo"
@@ -31,7 +32,12 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
 
   // Preload migrated quiz
   if (state && !migratedQuiz) {
-    setMigratedQuiz(migratePrivateSpecQuiz(denormalizeData(state)))
+    const quiz = denormalizeData(state)
+    if (isOldQuiz(quiz)) {
+      setMigratedQuiz(migratePrivateSpecQuiz(quiz))
+    } else {
+      setMigratedQuiz(quiz)
+    }
   }
 
   return (

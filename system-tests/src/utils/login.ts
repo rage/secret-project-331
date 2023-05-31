@@ -7,6 +7,7 @@ export async function login(
   stayLoggedIn?: boolean | undefined,
 ): Promise<void> {
   await page.goto("http://project-331.local/")
+  await page.waitForLoadState()
   await page.locator("id=main-navigation-menu").click()
 
   await page.locator("text=Log in").click()

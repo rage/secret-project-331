@@ -188,7 +188,7 @@ const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
   } else if (publicSpec.type == "editor") {
     return { type: "editor", archiveDownloadUrl: publicSpec.archiveDownloadUrl }
   } else {
-    throw "unreachable"
+    throw new Error("unreachable")
   }
 }
 

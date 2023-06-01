@@ -24,7 +24,7 @@ use crate::{
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    CourseOrExamId,
+    CourseOrExamId, SpecFetcher,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -181,8 +181,8 @@ pub struct ContentManagementPage {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PageSearchRequest {
-    query: String,
+pub struct SearchRequest {
+    pub query: String,
 }
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -1042,11 +1042,7 @@ pub struct PageUpdateArgs {
 pub async fn update_page(
     conn: &mut PgConnection,
     page_update: PageUpdateArgs,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
     let cms_page_update = page_update.cms_page_update;
@@ -1472,11 +1468,7 @@ async fn upsert_exercise_tasks(
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
     // For generating public specs for exercises.
@@ -1883,11 +1875,7 @@ async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
     urls_by_exercise_type: &HashMap<&String, Url>,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
 ) -> Result<Option<serde_json::Value>, ModelError> {
@@ -1926,11 +1914,7 @@ pub async fn insert_new_content_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
@@ -1970,11 +1954,7 @@ pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut page_language_group_id = None;
@@ -2651,7 +2631,7 @@ Returns search results for a phrase i.e. looks for matches where the words come 
 pub async fn get_page_search_results_for_phrase(
     conn: &mut PgConnection,
     course_id: Uuid,
-    page_search_request: &PageSearchRequest,
+    page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
 
@@ -2734,7 +2714,7 @@ Returns search results for the given words. The words can appear in the source d
 pub async fn get_page_search_results_for_words(
     conn: &mut PgConnection,
     course_id: Uuid,
-    page_search_request: &PageSearchRequest,
+    page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
 
@@ -2836,11 +2816,7 @@ pub async fn restore(
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
     // fetch old content

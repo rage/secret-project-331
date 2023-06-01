@@ -22,7 +22,7 @@ const SESSION_KEY: &str = "user";
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
 /// Extractor for an authenticated user.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthUser {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -152,7 +152,7 @@ pub async fn has_auth_user_session(session: &Session, pool: web::Data<PgPool>) -
 
 /// Forgets authentication from the current session, if any.
 pub fn forget(session: &Session) {
-    session.remove(SESSION_KEY);
+    session.purge();
 }
 
 /// Describes an action that a user can take on some resource.
@@ -173,6 +173,8 @@ pub enum Action {
     /// Deletion that we usually don't want to allow.
     UsuallyUnacceptableDeletion,
     UploadFile,
+    ViewUserProgressOrDetails,
+    ViewInternalCourseStructure,
 }
 
 /// The target of an action.
@@ -326,7 +328,7 @@ pub async fn authorize(
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, &user_roles).await
 }
 
-/// Same as `authorize`, but takes as an argument Vec<Role> so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
+/// Same as `authorize`, but takes as an argument `Vec<Role>` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
 pub async fn authorize_with_fetched_list_of_roles(
     conn: &mut PgConnection,
     action: Action,
@@ -565,6 +567,8 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
+                | ViewUserProgressOrDetails
+                | ViewInternalCourseStructure
         ),
         Assistant => matches!(
             action,
@@ -574,10 +578,21 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | EditRole(Assistant | Reviewer | MaterialViewer)
                 | Teach
                 | ViewMaterial
+                | ViewUserProgressOrDetails
+                | ViewInternalCourseStructure
         ),
-        Reviewer => matches!(action, View | Grade | ViewMaterial),
+        Reviewer => matches!(
+            action,
+            View | Grade | ViewMaterial | ViewInternalCourseStructure
+        ),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
         MaterialViewer => matches!(action, ViewMaterial),
+        TeachingAndLearningServices => {
+            matches!(
+                action,
+                View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
+            )
+        }
     }
 }
 

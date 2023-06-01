@@ -48,7 +48,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
 }
@@ -244,7 +244,7 @@ async fn get_course_structure(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewInternalCourseStructure,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -293,11 +293,11 @@ async fn add_media_for_course(
         payload,
         StoreKind::Course(course.id),
         file_store.as_ref(),
-        pool,
+        &mut conn,
         user,
     )
     .await?;
-    let download_url = file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
+    let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
     token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }

@@ -25,6 +25,10 @@ async function createLoginStates(page: Page, context: BrowserContext) {
     { email: "student2@example.com", password: "student.2" },
     { email: "assistant@example.com", password: "assistant" },
     { email: "creator@example.com", password: "creator" },
+    {
+      email: "teaching-and-learning-services@example.com",
+      password: "teaching-and-learning-services",
+    },
   ]
   // Creating the storage states for different users takes some time, so we'll avoid doing it again if the stored state has been already created recently.
   // Using older storage states would run into problems with cookie expiry. A different solution could modify the saved storage states
@@ -52,10 +56,11 @@ async function createLoginStates(page: Page, context: BrowserContext) {
   }
   console.log("Creating login states for supported test users.")
   for (const userLoginInformation of usersLoginInformationToCache) {
-    await login(userLoginInformation.email, userLoginInformation.password, page)
+    await login(userLoginInformation.email, userLoginInformation.password, page, true)
     console.log(`Created login state for ${userLoginInformation.email}`)
     await context.clearCookies()
     await page.goto("about:blank")
+    await page.waitForLoadState()
     await context.clearCookies()
   }
 }

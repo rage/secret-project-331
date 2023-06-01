@@ -9,6 +9,8 @@ import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIf
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 const MANAGE_EXERCISE_SERVICES_HREF = "/manage/exercise-services"
+const SEARCH_USERS_HREF = "/manage/search-users"
+const GLOBAL_PERMISSIONS_HREF = "/manage/permissions"
 
 const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -17,16 +19,6 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
       <OrganizationsList />
 
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
-        <h1
-          className={css`
-            text-align: center;
-            font-weight: 600;
-            font-size: 3em;
-            color: #656565;
-          `}
-        >
-          {t("title-services")}
-        </h1>
         <div>
           <Link
             href={MANAGE_EXERCISE_SERVICES_HREF}
@@ -37,6 +29,40 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
             `}
           >
             {t("link-manage-exercise-services")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "view_user_progress_or_details" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link
+            href={SEARCH_USERS_HREF}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("title-user-search")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "edit_role", variant: "Admin" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link
+            href={GLOBAL_PERMISSIONS_HREF}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("global-permissions")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

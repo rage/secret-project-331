@@ -4,5 +4,6 @@
   "updated_at": "2021-12-31T22:00:00Z",
   "email": "example@example.com",
   "first_name": "Example",
-  "last_name": "User"
+  "last_name": "User",
+  "search_helper": "Example User"
 }

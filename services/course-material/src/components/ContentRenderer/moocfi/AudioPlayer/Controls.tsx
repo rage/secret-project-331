@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { forwardRef, RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"
@@ -30,7 +30,14 @@ const styledVolume = css`
   }
 `
 
-const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) => {
+interface ControlsProps {
+  audioRef: RefObject<HTMLAudioElement> | null
+  progressBarRef: RefObject<HTMLInputElement> | null
+  duration: number
+  setTimeProgress: (T: number) => void
+}
+
+const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: ControlsProps) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [volume, setVolume] = useState<number>(60)
   const [muteVolume, setMuteVolume] = useState<boolean>(false)
@@ -42,39 +49,46 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
   const playAnimationRef = useRef(0)
 
   const repeat = useCallback(() => {
-    const currentTime = audioRef.current.currentTime
-    progressBarRef.current.value = currentTime
-    progressBarRef.current.style.setProperty(
-      // eslint-disable-next-line i18next/no-literal-string
-      "--range-progress",
-      `${(progressBarRef.current.value / duration) * 100}%`,
-    )
-    setTimeProgress(currentTime)
+    if (progressBarRef?.current && audioRef?.current) {
+      const currentTime = audioRef.current.currentTime
+      progressBarRef.current.value = String(currentTime)
+      progressBarRef.current.style.setProperty(
+        "--range-progress",
+        `${(Number(progressBarRef.current.value) / duration) * 100}%`,
+      )
+      currentTime && setTimeProgress(currentTime)
 
-    playAnimationRef.current = requestAnimationFrame(repeat)
+      playAnimationRef.current = requestAnimationFrame(repeat)
+    }
   }, [audioRef, duration, progressBarRef, setTimeProgress])
 
   useEffect(() => {
-    if (isPlaying) {
-      audioRef.current.play()
-      playAnimationRef.current = requestAnimationFrame(repeat)
-      console.log(playAnimationRef.current)
-    } else {
-      audioRef.current.pause()
-      cancelAnimationFrame(playAnimationRef.current)
+    if (audioRef?.current) {
+      if (isPlaying) {
+        audioRef.current.play()
+        playAnimationRef.current = requestAnimationFrame(repeat)
+        console.log(playAnimationRef.current)
+      } else {
+        audioRef.current.pause()
+        cancelAnimationFrame(playAnimationRef.current)
+      }
     }
   }, [isPlaying, audioRef, audioRef?.current?.readyState, repeat])
 
   const skipForward = () => {
-    audioRef.current.currentTime += 15
+    if (audioRef?.current) {
+      audioRef.current.currentTime += 15
+    }
   }
 
   const skipBackward = () => {
-    audioRef.current.currentTime -= 15
+    if (audioRef?.current) {
+      audioRef.current.currentTime -= 15
+    }
   }
 
   useEffect(() => {
-    if (audioRef) {
+    if (audioRef?.current) {
       audioRef.current.volume = volume / 100
       audioRef.current.muted = muteVolume
     }
@@ -133,14 +147,17 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: any) 
           max={100}
           value={volume}
           onChange={(e) => setVolume(Number(e.target.value))}
-          // eslint-disable-next-line react/forbid-dom-props
-          style={{
-            background: `linear-gradient(to right, #b0c1e4 ${volume}%, #d5def2 ${volume}%)`,
-          }}
+          className={css`
+            background: linear-gradient(
+              to right,
+              #767b85 ${volume}%,
+              #dddee0 ${volume}%
+            ) !important;
+          `}
         />
       </div>
     </div>
   )
 }
 
-export default Controls
+export default forwardRef(Controls)

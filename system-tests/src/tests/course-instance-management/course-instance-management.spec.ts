@@ -90,9 +90,7 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await page.click(
-    "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
-  )
+  await page.click("text=Default Manage >> a")
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )

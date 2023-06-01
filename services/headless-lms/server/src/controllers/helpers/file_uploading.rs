@@ -1,18 +1,16 @@
 //! Helper functions related to uploading to file storage.
 
 pub use crate::domain::authorization::AuthorizationToken;
-use crate::domain::authorization::AuthorizedResponse;
 use crate::prelude::*;
 use actix_http::header::HeaderMap;
 use actix_multipart as mp;
 use actix_multipart::Field;
 use actix_web::http::header;
 use futures::{StreamExt, TryStreamExt};
-use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::file_store::{FileStore, GenericPayload};
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
-
 use models::organizations::DatabaseOrganization;
 use std::{collections::HashMap, path::Path};
 use std::{path::PathBuf, sync::Arc};
@@ -25,7 +23,7 @@ pub async fn process_exercise_service_upload(
     mut payload: Multipart,
     file_store: &dyn FileStore,
     paths: &mut HashMap<String, String>,
-    uploader: Option<&AuthUser>,
+    uploader: Option<AuthUser>,
     base_url: &str,
 ) -> Result<(), ControllerError> {
     let mut tx = conn.begin().await?;
@@ -36,7 +34,7 @@ pub async fn process_exercise_service_upload(
         let random_filename = generate_random_string(32);
         let path = format!("{exercise_service_slug}/{random_filename}");
 
-        upload_file_to_storage(&mut tx, Path::new(&path), field, file_store, uploader).await?;
+        upload_field_to_storage(&mut tx, Path::new(&path), field, file_store, uploader).await?;
         let url = format!("{base_url}/api/v0/files/{path}");
         paths.insert(field_name, url);
     }
@@ -58,9 +56,9 @@ pub async fn upload_file_from_cms(
     mut payload: Multipart,
     store_kind: StoreKind,
     file_store: &dyn FileStore,
-    pool: web::Data<PgPool>,
+    conn: &mut PgConnection,
     user: AuthUser,
-) -> ControllerResult<PathBuf> {
+) -> Result<PathBuf, ControllerError> {
     let file_payload = payload.next().await.ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -70,7 +68,7 @@ pub async fn upload_file_from_cms(
     })?;
     match file_payload {
         Ok(field) => {
-            upload_field_from_cms(headers, field, store_kind, file_store, pool, user).await
+            upload_field_from_cms(headers, field, store_kind, file_store, conn, user).await
         }
         Err(err) => Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
@@ -86,19 +84,17 @@ pub async fn upload_field_from_cms(
     field: Field,
     store_kind: StoreKind,
     file_store: &dyn FileStore,
-    pool: web::Data<PgPool>,
+    conn: &mut PgConnection,
     user: AuthUser,
-) -> ControllerResult<PathBuf> {
-    let mut conn = pool.acquire().await?;
-    validate_media_headers(headers, &user, &pool).await?;
-    let path: AuthorizedResponse<PathBuf> = match field.content_type().map(|ct| ct.type_()) {
-        Some(mime::AUDIO) => generate_audio_path(&field, store_kind, &user, &pool).await?,
-        Some(mime::IMAGE) => generate_image_path(&field, store_kind, &user, &pool).await?,
-        _ => generate_file_path(&field, store_kind, &user, &pool).await?,
+) -> Result<PathBuf, ControllerError> {
+    validate_media_headers(headers, &user, conn).await?;
+    let path = match field.content_type().map(|ct| ct.type_()) {
+        Some(mime::AUDIO) => generate_audio_path(&field, store_kind)?,
+        Some(mime::IMAGE) => generate_image_path(&field, store_kind)?,
+        _ => generate_file_path(&field, store_kind)?,
     };
-    upload_file_to_storage(&mut conn, &path.data, field, file_store, Some(&user)).await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.authorized_ok(path.data)
+    upload_field_to_storage(conn, &path, field, file_store, Some(user)).await?;
+    Ok(path)
 }
 
 /// Processes an upload for an organization's image.
@@ -108,29 +104,22 @@ pub async fn upload_image_for_organization(
     organization: &DatabaseOrganization,
     file_store: &Arc<dyn FileStore>,
     user: AuthUser,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<PathBuf> {
-    validate_media_headers(headers, &user, &pool).await?;
-    let mut conn = pool.acquire().await?;
-    let next_payload = payload.next().await.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Missing form data".into(),
-            None,
-        )
-    })?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    conn: &mut PgConnection,
+) -> Result<PathBuf, ControllerError> {
+    validate_media_headers(headers, &user, conn).await?;
+    let next_payload: Result<Field, mp::MultipartError> =
+        payload.next().await.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Missing form data".into(),
+                None,
+            )
+        })?;
     match next_payload {
         Ok(field) => {
             let path: PathBuf = match field.content_type().map(|ct| ct.type_()) {
                 Some(mime::IMAGE) => {
-                    generate_image_path(
-                        &field,
-                        StoreKind::Organization(organization.id),
-                        &user,
-                        &pool,
-                    )
-                    .await
+                    generate_image_path(&field, StoreKind::Organization(organization.id))
                 }
                 Some(unsupported) => Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
@@ -142,11 +131,9 @@ pub async fn upload_image_for_organization(
                     "Missing image Mime type".into(),
                     None,
                 )),
-            }
-            .map(|value| value.data)?;
-            upload_file_to_storage(&mut conn, &path, field, file_store.as_ref(), Some(&user))
-                .await?;
-            token.authorized_ok(path)
+            }?;
+            upload_field_to_storage(conn, &path, field, file_store.as_ref(), Some(user)).await?;
+            Ok(path)
         }
         Err(err) => Err(ControllerError::new(
             ControllerErrorType::InternalServerError,
@@ -157,49 +144,86 @@ pub async fn upload_image_for_organization(
 }
 
 /// Uploads the data from the multipart `field` to the given `path` in file storage.
-async fn upload_file_to_storage(
+async fn upload_field_to_storage(
     conn: &mut PgConnection,
     path: &Path,
     field: mp::Field,
     file_store: &dyn FileStore,
-    uploader: Option<&AuthUser>,
-) -> anyhow::Result<()> {
+    uploader: Option<AuthUser>,
+) -> Result<(), ControllerError> {
     // TODO: convert archives into a uniform format
     let mime_type = field
         .content_type()
         .map(|ct| ct.to_string())
         .unwrap_or_else(|| "".to_string());
-    let name = field.name();
-    let path_string = path.to_str().context("invalid path")?.to_string();
+    let name = field.name().to_string();
 
+    let contents = Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string())));
+    upload_file_to_storage(
+        conn, path, &name, &mime_type, contents, file_store, uploader,
+    )
+    .await?;
+    Ok(())
+}
+
+pub async fn upload_certificate_svg(
+    conn: &mut PgConnection,
+    file_name: &str,
+    file: GenericPayload,
+    file_store: &dyn FileStore,
+    course_id: Uuid,
+    uploader: AuthUser,
+) -> Result<(Uuid, PathBuf), ControllerError> {
+    let path = path(file_name, FileType::Image, StoreKind::Course(course_id));
+    let id = upload_file_to_storage(
+        conn,
+        &path,
+        file_name,
+        "image/svg+xml",
+        file,
+        file_store,
+        Some(uploader),
+    )
+    .await?;
+    Ok((id, path))
+}
+
+async fn upload_file_to_storage(
+    conn: &mut PgConnection,
+    path: &Path,
+    file_name: &str,
+    mime_type: &str,
+    file: GenericPayload,
+    file_store: &dyn FileStore,
+    uploader: Option<AuthUser>,
+) -> Result<Uuid, ControllerError> {
     let mut tx = conn.begin().await?;
-    models::file_uploads::insert(
+    let path_string = path.to_str().context("invalid path")?.to_string();
+    let id = models::file_uploads::insert(
         &mut tx,
-        name,
+        file_name,
         &path_string,
-        &mime_type,
+        mime_type,
         uploader.map(|u| u.id),
     )
     .await?;
-    file_store
-        .upload_stream(
-            path,
-            Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string()))),
-            &mime_type,
-        )
-        .await?;
+    file_store.upload_stream(path, file, mime_type).await?;
     tx.commit().await?;
+    Ok(id)
+}
+
+pub async fn delete_file_from_storage(
+    conn: &mut PgConnection,
+    id: Uuid,
+    file_store: &dyn FileStore,
+) -> Result<(), ControllerError> {
+    let file_to_delete = models::file_uploads::delete_and_fetch_path(conn, id).await?;
+    file_store.delete(Path::new(&file_to_delete)).await?;
     Ok(())
 }
 
 /// Generates a path for an audio file with the appropriate extension.
-async fn generate_audio_path(
-    field: &Field,
-    store_kind: StoreKind,
-    user: &AuthUser,
-    pool: &web::Data<PgPool>,
-) -> ControllerResult<PathBuf> {
-    let mut conn = pool.acquire().await?;
+fn generate_audio_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, ControllerError> {
     let extension = match field
         .content_type()
         .map(|ct| ct.to_string())
@@ -225,18 +249,11 @@ async fn generate_audio_path(
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
     let path = path(&file_name, FileType::Audio, store_kind);
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.authorized_ok(path)
+    Ok(path)
 }
 
 /// Generates a path for a generic file with the appropriate extension based on its filename.
-async fn generate_file_path(
-    field: &Field,
-    store_kind: StoreKind,
-    user: &AuthUser,
-    pool: &web::Data<PgPool>,
-) -> ControllerResult<PathBuf> {
-    let mut conn = pool.acquire().await?;
+fn generate_file_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, ControllerError> {
     let field_content = field.content_disposition();
     let field_content_name = field_content.get_filename().ok_or_else(|| {
         ControllerError::new(
@@ -253,19 +270,11 @@ async fn generate_file_path(
     }
 
     let path = path(&file_name, FileType::File, store_kind);
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.authorized_ok(path)
+    Ok(path)
 }
 
 /// Generates a path for an image file with the appropriate extension.
-async fn generate_image_path(
-    field: &Field,
-    store_kind: StoreKind,
-    user: &AuthUser,
-    pool: &web::Data<PgPool>,
-) -> ControllerResult<PathBuf> {
-    let mut conn = pool.acquire().await?;
+fn generate_image_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, ControllerError> {
     let extension = match field
         .content_type()
         .map(|ct| ct.to_string())
@@ -294,18 +303,15 @@ async fn generate_image_path(
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
     let path = path(&file_name, FileType::Image, store_kind);
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.authorized_ok(path)
+    Ok(path)
 }
 
 /// Generates a path for an audio file with the appropriate extension.
 async fn validate_media_headers(
     headers: &HeaderMap,
     user: &AuthUser,
-    pool: &web::Data<PgPool>,
+    conn: &mut PgConnection,
 ) -> ControllerResult<()> {
-    let mut conn = pool.acquire().await?;
     let content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -350,7 +356,7 @@ async fn validate_media_headers(
         ));
     }
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     token.authorized_ok(())
 }
 

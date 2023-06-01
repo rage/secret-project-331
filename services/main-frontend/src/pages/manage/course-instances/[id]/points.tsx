@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -174,7 +175,17 @@ const CourseInstancePointsList: React.FC<
                   .map(({ user, totalPoints }) => {
                     return (
                       <FullWidthTableRow key={user.user_id}>
-                        <td>{user.user_id}</td>
+                        <td>
+                          <Link
+                            href={{
+                              pathname:
+                                "/manage/course-instances/[courseInstanceId]/course-status-summary-for-user/[userId]",
+                              query: { courseInstanceId: courseInstanceId, userId: user.user_id },
+                            }}
+                          >
+                            {user.user_id}
+                          </Link>
+                        </td>
                         <td>
                           {user.first_name} {user.last_name}
                         </td>

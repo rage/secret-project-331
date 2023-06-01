@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
 import { useQuery } from "@tanstack/react-query"
-import { TFunction } from "i18next"
+import { t as globalT, TFunction } from "i18next"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { assert, Equals } from "tsafe"
 
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
@@ -25,6 +26,7 @@ const REVIEWER: UserRole = "Reviewer"
 const TEACHER: UserRole = "Teacher"
 const COURSE_OR_EXAM_CREATOR: UserRole = "CourseOrExamCreator"
 const MATERIAL_VIEWER: UserRole = "MaterialViewer"
+const TEACHING_AND_LEARNING_SERVICES: UserRole = "TeachingAndLearningServices"
 
 const options = (t: TFunction) => {
   return [
@@ -40,8 +42,18 @@ const options = (t: TFunction) => {
       value: MATERIAL_VIEWER,
       label: t("role-material-viewer"),
     },
+    {
+      value: TEACHING_AND_LEARNING_SERVICES,
+      label: t("role-teaching-and-learning-services"),
+    },
   ]
 }
+
+// Check we have options for all the roles in the system
+const allRoles = options(globalT).map((o) => o.value)
+type rolesInTheForm = (typeof allRoles)[number]
+// Check if two string unions are the same. If this fails, you have changed the UserRole type and need to update the options function above.
+assert<Equals<rolesInTheForm, UserRole>>()
 
 interface EditingRole {
   userId: string

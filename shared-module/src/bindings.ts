@@ -19,6 +19,8 @@ export type Action =
   | { type: "create_courses_or_exams" }
   | { type: "usually_unacceptable_deletion" }
   | { type: "upload_file" }
+  | { type: "view_user_progress_or_details" }
+  | { type: "view_internal_course_structure" }
 
 export interface ActionOnResource {
   action: Action
@@ -182,6 +184,14 @@ export interface CourseInstanceEnrollment {
   deleted_at: Date | null
 }
 
+export interface CourseInstanceEnrollmentsInfo {
+  course_instance_enrollments: Array<CourseInstanceEnrollment>
+  course_instances: Array<CourseInstance>
+  courses: Array<Course>
+  user_course_settings: Array<UserCourseSettings>
+  course_module_completions: Array<CourseModuleCompletion>
+}
+
 export interface ChapterScore {
   id: string
   created_at: Date
@@ -234,6 +244,52 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
+export interface CourseModuleCompletionCertificate {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  course_module_id: string
+  course_instance_id: string
+  name_on_certificate: string
+  verification_id: string
+}
+
+export interface CourseModuleCertificateConfiguration {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_module_id: string
+  course_instance_id: string | null
+  certificate_owner_name_y_pos: string
+  certificate_owner_name_x_pos: string
+  certificate_owner_name_font_size: string
+  certificate_owner_name_text_color: string
+  certificate_owner_name_text_anchor: CertificateTextAnchor
+  certificate_validate_url_y_pos: string
+  certificate_validate_url_x_pos: string
+  certificate_validate_url_font_size: string
+  certificate_validate_url_text_color: string
+  certificate_validate_url_text_anchor: CertificateTextAnchor
+  certificate_date_y_pos: string
+  certificate_date_x_pos: string
+  certificate_date_font_size: string
+  certificate_date_text_color: string
+  certificate_date_text_anchor: CertificateTextAnchor
+  certificate_locale: string
+  paper_size: PaperSize
+  background_svg_path: string
+  background_svg_file_upload_id: string
+  overlay_svg_path: string | null
+  overlay_svg_file_upload_id: string | null
+}
+
+export type CertificateTextAnchor = "start" | "middle" | "end"
+
+export type PaperSize = "horizontal-a4" | "vertical-a4"
+
 export interface CourseModuleCompletionWithRegistrationInfo {
   completion_registration_attempt_date: Date | null
   course_module_id: string
@@ -243,6 +299,26 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   prerequisite_modules_completed: boolean
   registered: boolean
   user_id: string
+}
+
+export interface CourseModuleCompletion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string
+  course_instance_id: string
+  course_module_id: string
+  user_id: string
+  completion_date: Date
+  completion_registration_attempt_date: Date | null
+  completion_language: string
+  eligible_for_ects: boolean
+  email: string
+  grade: number | null
+  passed: boolean
+  prerequisite_modules_completed: boolean
+  completion_granter_user_id: string | null
 }
 
 export interface AutomaticCompletionRequirements {
@@ -270,6 +346,7 @@ export interface CourseModule {
   completion_registration_link_override: string | null
   ects_credits: number | null
   enable_registering_completion_to_uh_open_university: boolean
+  certification_enabled: boolean
 }
 
 export interface ModifiedModule {
@@ -692,6 +769,29 @@ export interface ExerciseStatus {
   reviewing_stage: ReviewingStage
 }
 
+export interface ExerciseStatusSummaryForUser {
+  exercise: Exercise
+  user_exercise_state: UserExerciseState | null
+  exercise_slide_submissions: Array<ExerciseSlideSubmission>
+  given_peer_review_submissions: Array<PeerReviewSubmission>
+  given_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  received_peer_review_submissions: Array<PeerReviewSubmission>
+  received_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  peer_review_queue_entry: PeerReviewQueueEntry | null
+  teacher_grading_decision: TeacherGradingDecision | null
+  peer_review_questions: Array<PeerReviewQuestion>
+}
+
+export interface ExerciseGradingStatus {
+  exercise_id: string
+  exercise_name: string
+  score_maximum: number
+  score_given: number | null
+  teacher_decision: TeacherDecisionType | null
+  submission_id: string
+  updated_at: Date
+}
+
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
 export interface Feedback {
@@ -867,6 +967,7 @@ export interface UserModuleCompletionStatus {
   grade: number | null
   passed: boolean | null
   enable_registering_completion_to_uh_open_university: boolean
+  certification_enabled: boolean
 }
 
 export interface UserWithModuleCompletions {
@@ -1059,7 +1160,7 @@ export interface PageRoutingData {
   chapter_front_page_id: string | null
 }
 
-export interface PageSearchRequest {
+export interface SearchRequest {
   query: string
 }
 
@@ -1130,6 +1231,18 @@ export interface PeerReviewConfig {
   accepting_strategy: PeerReviewAcceptingStrategy
 }
 
+export interface PeerReviewSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  exercise_id: string
+  course_instance_id: string
+  peer_review_config_id: string
+  exercise_slide_submission_id: string
+}
+
 export type PeerReviewAnswer =
   | { type: "no-answer" }
   | { type: "essay"; value: string }
@@ -1155,6 +1268,20 @@ export interface PeerReviewQuestionSubmission {
   peer_review_submission_id: string
   text_data: string | null
   number_data: number | null
+}
+
+export interface PeerReviewQueueEntry {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  exercise_id: string
+  course_instance_id: string
+  receiving_peer_reviews_exercise_slide_submission_id: string
+  received_enough_peer_reviews: boolean
+  peer_review_priority: number
+  removed_from_queue_for_unusual_reason: boolean
 }
 
 export interface PeerReviewWithQuestionsAndAnswers {
@@ -1210,7 +1337,11 @@ export interface PlaygroundExampleData {
   data: unknown
 }
 
-export interface BlockProposal {
+export type BlockProposal =
+  | ({ type: "edited-block-still-exists" } & EditedBlockStillExistsData)
+  | ({ type: "edited-block-no-longer-exists" } & EditedBlockNoLongerExistsData)
+
+export interface EditedBlockStillExistsData {
   id: string
   block_id: string
   current_text: string
@@ -1218,6 +1349,14 @@ export interface BlockProposal {
   original_text: string
   status: ProposalStatus
   accept_preview: string | null
+}
+
+export interface EditedBlockNoLongerExistsData {
+  id: string
+  block_id: string
+  changed_text: string
+  original_text: string
+  status: ProposalStatus
 }
 
 export type BlockProposalAction = { tag: "Accept"; data: string } | { tag: "Reject" }
@@ -1337,6 +1476,7 @@ export type UserRole =
   | "Admin"
   | "CourseOrExamCreator"
   | "MaterialViewer"
+  | "TeachingAndLearningServices"
 
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string
@@ -1391,6 +1531,7 @@ export interface UserDetail {
   email: string
   first_name: string | null
   last_name: string | null
+  search_helper: string | null
 }
 
 export interface ExerciseUserCounts {
@@ -1474,6 +1615,8 @@ export interface Login {
 
 export interface UserInfo {
   user_id: string
+  first_name: string | null
+  last_name: string | null
 }
 
 export interface SaveCourseSettingsPayload {
@@ -1513,6 +1656,31 @@ export type ExamEnrollmentData =
 export interface CourseMaterialPeerReviewDataWithToken {
   course_material_peer_review_data: CourseMaterialPeerReviewData
   token: string | null
+}
+
+export interface CourseModuleCertificateConfigurationUpdate {
+  course_module_id: string
+  course_instance_id: string | null
+  certificate_owner_name_y_pos: string | null
+  certificate_owner_name_x_pos: string | null
+  certificate_owner_name_font_size: string | null
+  certificate_owner_name_text_color: string | null
+  certificate_owner_name_text_anchor: CertificateTextAnchor | null
+  certificate_validate_url_y_pos: string | null
+  certificate_validate_url_x_pos: string | null
+  certificate_validate_url_font_size: string | null
+  certificate_validate_url_text_color: string | null
+  certificate_validate_url_text_anchor: CertificateTextAnchor | null
+  certificate_date_y_pos: string | null
+  certificate_date_x_pos: string | null
+  certificate_date_font_size: string | null
+  certificate_date_text_color: string | null
+  certificate_date_text_anchor: CertificateTextAnchor | null
+  certificate_locale: string | null
+  paper_size: PaperSize | null
+  background_svg_file_name: string | null
+  overlay_svg_file_name: string | null
+  clear_overlay_svg_file: boolean
 }
 
 export interface GetFeedbackQuery {

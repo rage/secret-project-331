@@ -15,6 +15,7 @@ import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
   manageCourseInstancePermissionsPageRoute,
+  viewCourseInstanceCertificatesPageRoute,
   viewCourseInstanceCompletionsPageRoute,
   viewCourseInstancePointsPageRoute,
 } from "../../../../../../utils/routing"
@@ -81,6 +82,12 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                       aria-label={`${t("link-manage-permissions")} (${name})`}
                     >
                       {t("link-manage-permissions")}
+                    </Link>{" "}
+                    <Link
+                      href={viewCourseInstanceCertificatesPageRoute(instance.id)}
+                      aria-label={`${t("link-manage-certificates")} (${name})`}
+                    >
+                      {t("link-manage-certificates")}
                     </Link>{" "}
                     <Link
                       href={viewCourseInstanceCompletionsPageRoute(instance.id)}

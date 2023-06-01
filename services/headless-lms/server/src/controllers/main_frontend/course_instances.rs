@@ -3,8 +3,11 @@
 use chrono::Utc;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
+    course_module_certificate_configurations::CourseModuleCertificateConfiguration,
+    course_module_completions::CourseModuleCompletion,
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
+    exercises::ExerciseStatusSummaryForUser,
     library::{
         self,
         progressing::{
@@ -12,6 +15,7 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
+    user_exercise_states::UserCourseInstanceProgress,
 };
 
 use crate::{
@@ -164,7 +168,7 @@ async fn points(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Edit,
+        Act::ViewUserProgressOrDetails,
         Some(user.id),
         Res::CourseInstance(*course_instance_id),
     )
@@ -186,7 +190,7 @@ async fn completions(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Edit,
+        Act::ViewUserProgressOrDetails,
         Some(user.id),
         Res::CourseInstance(*course_instance_id),
     )
@@ -328,6 +332,116 @@ pub async fn completions_export(
     )
     .await
 }
+/**
+GET /course-instances/:id/certificate-configurations - gets the certificate configurations of the given course instance
+*/
+#[instrument(skip(pool))]
+pub async fn certificate_configurations(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseModuleCertificateConfiguration>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+
+    let certificate_configurations = models::course_module_certificate_configurations::get_course_module_certificate_configurations_by_course_instance(&mut conn, *course_instance_id).await?;
+    token.authorized_ok(web::Json(certificate_configurations))
+}
+
+/**
+GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
+*/
+#[instrument(skip(pool))]
+#[generated_doc]
+async fn get_all_exercise_statuses_by_course_instance_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseStatusSummaryForUser>>> {
+    let (course_instance_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+
+    let res = models::exercises::get_all_exercise_statuses_by_user_id_and_course_instance_id(
+        &mut conn,
+        course_instance_id,
+        user_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
+*/
+#[instrument(skip(pool))]
+#[generated_doc]
+async fn get_all_get_all_course_module_completions_for_user_by_course_instance_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseModuleCompletion>>> {
+    let (course_instance_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+
+    let res = models::course_module_completions::get_all_by_course_instance_and_user_id(
+        &mut conn,
+        course_instance_id,
+        user_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+ GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_user_progress_for_course_instance(
+    user: AuthUser,
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<UserCourseInstanceProgress>>> {
+    let (course_instance_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+    let user_course_instance_progress =
+        models::user_exercise_states::get_user_course_instance_progress(
+            &mut conn,
+            course_instance_id,
+            user_id,
+        )
+        .await?;
+    token.authorized_ok(web::Json(user_course_instance_progress))
+}
 
 /**
 Add a route for each controller in this module.
@@ -370,7 +484,23 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(
+            "/{course_instance_id}/status-for-all-exercises/{user_id}",
+            web::get().to(get_all_exercise_statuses_by_course_instance_id),
+        )
+        .route(
+            "/{course_instance_id}/course-module-completions/{user_id}",
+            web::get().to(get_all_get_all_course_module_completions_for_user_by_course_instance_id),
+        )
+        .route(
+            "/{course_instance_id}/progress/{user_id}",
+            web::get().to(get_user_progress_for_course_instance),
+        )
+        .route(
             "/{course_instance_id}/reprocess-completions",
             web::post().to(post_reprocess_module_completions),
+        )
+        .route(
+            "/{course_instance_id}/certificate-configurations",
+            web::get().to(certificate_configurations),
         );
 }

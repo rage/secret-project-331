@@ -11,6 +11,7 @@ pub struct SeedUsersResult {
     pub course_or_exam_creator_user_id: Uuid,
     pub student_user_id: Uuid,
     pub example_normal_user_ids: Vec<Uuid>,
+    pub teaching_and_learning_services_user_id: Uuid,
 }
 
 pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResult> {
@@ -93,6 +94,15 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
     )
     .await?;
 
+    let teaching_and_learning_services_user_id = users::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("5d081ccb-1dab-4367-9549-267fd3f1dd9c")?),
+        "teaching-and-learning-services@example.com",
+        Some("Teaching"),
+        Some("And Learning"),
+    )
+    .await?;
+
     let example_normal_user_ids = vec![
         users::insert(
             &mut conn,
@@ -135,5 +145,6 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         course_or_exam_creator_user_id,
         student_user_id,
         example_normal_user_ids,
+        teaching_and_learning_services_user_id,
     })
 }

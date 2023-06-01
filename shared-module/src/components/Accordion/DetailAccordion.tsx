@@ -2,7 +2,7 @@ import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme } from "../../styles"
+import { baseTheme, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 const openAnimation = keyframes`
@@ -18,6 +18,7 @@ to { opacity: 1; height: 100%; padding: 10px;}
 const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
+  font-family: ${secondaryFont};
 
   details {
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -112,10 +113,10 @@ const DetailAccordion: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<AccordionProps>>
 > = (props) => {
   if (props.children) {
-    return <TextWrapper>{props.children}</TextWrapper>
+    return <TextWrapper className={props.className}>{props.children}</TextWrapper>
   }
   return (
-    <div>
+    <div className={props.className}>
       <TextWrapper>
         <details>
           <summary>{PLACEHOLDER_HEADING}</summary>

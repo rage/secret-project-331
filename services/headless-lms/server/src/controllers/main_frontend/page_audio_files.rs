@@ -56,7 +56,7 @@ async fn set_page_audio(
         let mime_type = field
             .content_type()
             .map(|ct| ct.to_string())
-            .unwrap_or("".to_string());
+            .unwrap_or_else(|| "".to_string());
         /*
         if !matches!(mime_type.as_str(), "audio/mpeg" | "audio/ogg") {
             return Err(...)
@@ -79,7 +79,7 @@ async fn set_page_audio(
             field,
             StoreKind::Course(course.id),
             file_store.as_ref(),
-            pool,
+            &mut conn,
             user,
         )
         .await?;
@@ -87,7 +87,7 @@ async fn set_page_audio(
         models::page_audio_files::insert_page_audio(
             &mut conn,
             page.id,
-            &media_path.data.as_path().to_string_lossy(),
+            &media_path.as_path().to_string_lossy(),
             &mime_type,
         )
         .await?;

@@ -52,7 +52,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
     const eventHandler = (evt: Event) => {
       const formattedIdentifier = countryClasses.map((str) => str.substring(1))
-      // eslint-disable-next-line i18next/no-literal-string
+
       let svgElement = null
       if (evt.target instanceof Element) {
         svgElement = evt.target
@@ -60,11 +60,12 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
         return
       }
 
-      const classListArr = Array.from(svgElement.classList)
+      const classListArr: string[] = Array.from(svgElement.classList)
       const parentElementClassList: DOMTokenList | undefined = svgElement.parentElement?.classList
-      const parentElementClassListArr = parentElementClassList && Array.from(parentElementClassList)
+      const parentElementClassListArr: string[] | undefined =
+        parentElementClassList && Array.from(parentElementClassList)
 
-      const getCountryCodeFromClassList = classListArr.pop()
+      const getCountryCodeFromClassList = classListArr?.pop()
       const getCountryCodeFromParentClassList = parentElementClassListArr?.pop()
 
       const selectedCountryCode = getCountryCodeFromClassList

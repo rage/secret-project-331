@@ -106,7 +106,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   }, [])
 
   const handleCountryChange = (value: unknown) => {
-    console.log(value)
     return studentCountry.push(value)
   }
   return (

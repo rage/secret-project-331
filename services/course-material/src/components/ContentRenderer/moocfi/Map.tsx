@@ -74,10 +74,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
       const findCountry = formattedIdentifier.find((code) => code === selectedCountryCode)
 
       if (svgElement && findCountry) {
-        const wrapper = document.createElement("div")
-        // eslint-disable-next-line i18next/no-literal-string
-        wrapper.setAttribute("id", "wrapper")
-
         const formattedSelectedCountryCode = selectedCountryCode?.toUpperCase()
         const text = countryList.find(
           (country) => country.value === formattedSelectedCountryCode,

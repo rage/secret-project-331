@@ -7,10 +7,14 @@ import kill from "tree-kill"
 import { Compression, ExercisePackagingConfiguration, OutputData } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
-const execute = async (cmd: string, args: Array<string>): Promise<OutputData> => {
+const execute = async (
+  cmd: string,
+  args: Array<string>,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<OutputData> => {
   const cliPath = "/app/tmc-langs-cli"
   const executableArgs = [cmd, ...args]
-  console.log("executing", cliPath, executableArgs.join(" "))
+  log("executing", cliPath, executableArgs.join(" "))
 
   const cprocess = cp.spawn(cliPath, executableArgs, {
     env: {
@@ -85,18 +89,23 @@ const execute = async (cmd: string, args: Array<string>): Promise<OutputData> =>
 export const extractProject = async (
   archivePath: string,
   outputPath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
   compression: Compression = "zstd",
   naive = false,
 ) => {
-  await execute("extract-project", [
-    "--archive-path",
-    archivePath,
-    "--output-path",
-    outputPath,
-    "--compression",
-    compression,
-    ...(naive ? ["--naive"] : []),
-  ])
+  await execute(
+    "extract-project",
+    [
+      "--archive-path",
+      archivePath,
+      "--output-path",
+      outputPath,
+      "--compression",
+      compression,
+      ...(naive ? ["--naive"] : []),
+    ],
+    log,
+  )
 }
 
 export const compressProject = async (
@@ -104,24 +113,41 @@ export const compressProject = async (
   outputPath: string,
   compression: Compression = "zstd",
   naive = false,
+  log: (message: string, ...optionalParams: unknown[]) => void,
 ) => {
-  await execute("compress-project", [
-    "--exercise-path",
-    exercisePath,
-    "--output-path",
-    outputPath,
-    "--compression",
-    compression,
-    ...(naive ? ["--naive"] : []),
-  ])
+  await execute(
+    "compress-project",
+    [
+      "--exercise-path",
+      exercisePath,
+      "--output-path",
+      outputPath,
+      "--compression",
+      compression,
+      ...(naive ? ["--naive"] : []),
+    ],
+    log,
+  )
 }
 
-export const prepareSolution = async (exercisePath: string, outputPath: string) => {
-  await execute("prepare-solution", ["--exercise-path", exercisePath, "--output-path", outputPath])
+export const prepareSolution = async (
+  exercisePath: string,
+  outputPath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+) => {
+  await execute(
+    "prepare-solution",
+    ["--exercise-path", exercisePath, "--output-path", outputPath],
+    log,
+  )
 }
 
-export const prepareStub = async (exercisePath: string, outputPath: string) => {
-  await execute("prepare-stub", ["--exercise-path", exercisePath, "--output-path", outputPath])
+export const prepareStub = async (
+  exercisePath: string,
+  outputPath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+) => {
+  await execute("prepare-stub", ["--exercise-path", exercisePath, "--output-path", outputPath], log)
 }
 
 export const prepareSubmission = async (
@@ -130,46 +156,56 @@ export const prepareSubmission = async (
   submissionPath: string,
   submissionCompression: Compression = "zstd",
   naive = false,
+  log: (message: string, ...optionalParams: unknown[]) => void,
 ): Promise<string> => {
-  const output = await execute("prepare-submission", [
-    "--clone-path",
-    clonePath,
-    "--output-path",
-    outputPath,
-    "--output-format",
-    "zstd",
-    "--submission-path",
-    submissionPath,
-    "--submission-compression",
-    submissionCompression,
-    "--no-archive-prefix",
-    ...(naive ? ["--extract-submission-naively"] : []),
-  ])
+  const output = await execute(
+    "prepare-submission",
+    [
+      "--clone-path",
+      clonePath,
+      "--output-path",
+      outputPath,
+      "--output-format",
+      "zstd",
+      "--submission-path",
+      submissionPath,
+      "--submission-compression",
+      submissionCompression,
+      "--no-archive-prefix",
+      ...(naive ? ["--extract-submission-naively"] : []),
+    ],
+    log,
+  )
   if (output.data !== null && output.data["output-data-kind"] == "submission-sandbox") {
     return output.data["output-data"]
   }
-  throw "Unexpected output data"
+  throw new Error("Unexpected output data")
 }
 
 export const getExercisePackagingConfiguration = async (
   exercisePath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
 ): Promise<ExercisePackagingConfiguration> => {
-  const config = await execute("get-exercise-packaging-configuration", [
-    "--exercise-path",
-    exercisePath,
-  ])
+  const config = await execute(
+    "get-exercise-packaging-configuration",
+    ["--exercise-path", exercisePath],
+    log,
+  )
   if (config.data?.["output-data-kind"] === "exercise-packaging-configuration") {
     return config.data["output-data"]
   } else {
-    throw "Unexpected data"
+    throw new Error("Unexpected data")
   }
 }
 
-export const fastAvailablePoints = async (exercisePath: string): Promise<Array<string>> => {
-  const config = await execute("fast-available-points", ["--exercise-path", exercisePath])
+export const fastAvailablePoints = async (
+  exercisePath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<Array<string>> => {
+  const config = await execute("fast-available-points", ["--exercise-path", exercisePath], log)
   if (config.data?.["output-data-kind"] === "available-points") {
     return config.data["output-data"]
   } else {
-    throw "Unexpected data"
+    throw new Error("Unexpected data")
   }
 }

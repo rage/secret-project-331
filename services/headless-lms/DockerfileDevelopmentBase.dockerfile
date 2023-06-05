@@ -48,7 +48,15 @@ RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \
   cargo install cargo-watch && \
   cargo install systemfd && \
   cargo install cargo-chef --locked && \
+  cargo install icu_datagen && \
   rustup component add clippy
+
+RUN icu4x-datagen \
+  --keys all \
+  --locales fi \
+  --locales en \
+  --format blob \
+  --out /icu4x.postcard
 
 COPY --from=dep-builder /ips-to-country /ips-to-country
 

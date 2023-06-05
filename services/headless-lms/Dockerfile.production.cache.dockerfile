@@ -21,4 +21,4 @@ RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY --chown=user . .
 # Compile the program
-RUN cargo build --release
+RUN cargo build --features headless-lms-certificates/docker --release

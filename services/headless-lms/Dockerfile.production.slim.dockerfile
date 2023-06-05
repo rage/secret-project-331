@@ -23,6 +23,9 @@ RUN mkdir uploads && chown -R user uploads
 # Mappings from ips to coutry
 COPY --from=builder /ips-to-country /ips-to-country
 
+# ICU4X data provider blob
+COPY --from=source /icu4x.postcard /icu4x.postcard
+
 USER user
 
 CMD [ "./headless-lms-entrypoint", "start-server" ]

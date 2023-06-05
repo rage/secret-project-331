@@ -6,6 +6,10 @@ edition = "2021"
 rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
+[features]
+# flag that can be used for conditional compilation when building inside/outside a docker image
+docker = []
+
 [dependencies]
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }

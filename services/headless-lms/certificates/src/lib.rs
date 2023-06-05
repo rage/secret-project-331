@@ -255,10 +255,15 @@ fn generate_certificate_impl(
     Ok(png)
 }
 
+#[cfg(docker)]
+const BLOB: &[u8] = include_bytes!("/icu4x.postcard");
+// dummy for local compilation
+#[cfg(not(docker))]
+const BLOB: &[u8] = &[];
+
 fn get_date_as_localized_string(locale: &str, certificate_date: NaiveDate) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
-    let blob = std::fs::read("./icu4x.postcard").unwrap();
-    let provider = BlobDataProvider::try_new_from_blob(blob.into_boxed_slice()).unwrap();
+    let provider = BlobDataProvider::try_new_from_blob(Box::from(BLOB)).unwrap();
     let locale = locale.parse::<Locale>().map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,

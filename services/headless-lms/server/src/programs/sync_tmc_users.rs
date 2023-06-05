@@ -23,8 +23,8 @@ pub struct TMCRecentChanges {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Change {
     pub change_type: String,
-    pub new_value: String,
-    pub old_value: String,
+    pub new_value: Option<String>,
+    pub old_value: Option<String>,
     pub created_at: String,
     pub id: i32,
     pub user_id: Option<i32>,

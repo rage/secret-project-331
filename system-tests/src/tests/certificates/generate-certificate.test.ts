@@ -25,7 +25,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Submit" }).click()
   await page.waitForSelector("text=Try again")
   await page.getByRole("link", { name: "Certificates" }).click()
-  await page.getByRole("button", { name: "Generate certificate for completion" }).click()
+  await page.getByRole("button", { name: "Generate certificate for completion" }).first().click()
   await page.getByLabel("Your name  *").fill("Example User")
   page.once("dialog", (dialog) => {
     dialog.accept()

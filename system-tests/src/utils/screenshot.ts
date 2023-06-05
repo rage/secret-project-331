@@ -89,6 +89,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     } else {
       page = screenshotTarget.page()
     }
+    await page.waitForLoadState()
 
     const originalViewPort = page.viewportSize()
     try {
@@ -146,6 +147,9 @@ export default async function expectScreenshotsToMatchSnapshots({
       if (originalViewPort) {
         // always restore the original viewport
         await page.setViewportSize(originalViewPort)
+        if (replaceSomePartsWithPlaceholders) {
+          await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+        }
       }
     }
   })
@@ -186,6 +190,10 @@ async function snapshotWithViewPort({
   await page.setViewportSize(viewPorts[viewPortName])
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
+  }
+  // Has to be dispatched again in case the hidden content appeared while we waited for `waitForTheseToBeVisibleAndStable`
+  if (replaceSomePartsWithPlaceholders) {
+    await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   }
 
   if (scrollToYCoordinate !== undefined) {
@@ -234,10 +242,6 @@ async function snapshotWithViewPort({
   // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
   // for accessibility
   await accessibilityCheck(page, screenshotName, axeSkip)
-
-  if (replaceSomePartsWithPlaceholders) {
-    await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
-  }
 }
 
 interface WaitToBeVisibleProps {
@@ -259,7 +263,6 @@ export async function takeScreenshotAndComparetoSnapshot(
     newScreenshot = true
   }
 
-  await page.waitForLoadState()
   try {
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)

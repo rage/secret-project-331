@@ -19,6 +19,8 @@ export type Action =
   | { type: "create_courses_or_exams" }
   | { type: "usually_unacceptable_deletion" }
   | { type: "upload_file" }
+  | { type: "view_user_progress_or_details" }
+  | { type: "view_internal_course_structure" }
 
 export interface ActionOnResource {
   action: Action
@@ -187,6 +189,7 @@ export interface CourseInstanceEnrollmentsInfo {
   course_instances: Array<CourseInstance>
   courses: Array<Course>
   user_course_settings: Array<UserCourseSettings>
+  course_module_completions: Array<CourseModuleCompletion>
 }
 
 export interface ChapterScore {
@@ -296,6 +299,26 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   prerequisite_modules_completed: boolean
   registered: boolean
   user_id: string
+}
+
+export interface CourseModuleCompletion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string
+  course_instance_id: string
+  course_module_id: string
+  user_id: string
+  completion_date: Date
+  completion_registration_attempt_date: Date | null
+  completion_language: string
+  eligible_for_ects: boolean
+  email: string
+  grade: number | null
+  passed: boolean
+  prerequisite_modules_completed: boolean
+  completion_granter_user_id: string | null
 }
 
 export interface AutomaticCompletionRequirements {
@@ -1453,6 +1476,7 @@ export type UserRole =
   | "Admin"
   | "CourseOrExamCreator"
   | "MaterialViewer"
+  | "TeachingAndLearningServices"
 
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string

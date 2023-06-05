@@ -85,7 +85,7 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
         <CheckBox
           label={t("do-not-add-duplicate-completions-for-these-users")}
           checked={skipDuplicateCompletions}
-          onChange={setSkipDuplicateCompletions}
+          onChangeByValue={setSkipDuplicateCompletions}
         />
         <Button
           variant="primary"

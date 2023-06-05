@@ -300,8 +300,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     <td>
                       <SelectField
                         id={"editing-role"}
-                        onChange={(role) => {
-                          setEditingRole({ userId: ur.id, newRole: role })
+                        onChangeByValue={(role) => {
+                          setEditingRole({ userId: ur.id, newRole: role as UserRole })
                         }}
                         options={options(t)}
                         defaultValue={ur.role}
@@ -377,7 +377,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
             id={t("label-email")}
             label={t("label-email")}
             placeholder={t("field-enter-email")}
-            onChange={(value) => setNewEmail(value)}
+            onChangeByValue={(value) => setNewEmail(value)}
           />
         </div>
         <div
@@ -391,8 +391,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
           <SelectField
             id={`adding-${t("label-role")}`}
             label={t("label-role")}
-            onChange={(role) => {
-              setNewRole(role)
+            onChangeByValue={(role) => {
+              setNewRole(role as UserRole)
             }}
             options={options(t)}
             defaultValue={ASSISTANT}

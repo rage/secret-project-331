@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { InputHTMLAttributes } from "react"
-import { FieldError, UseFormRegisterReturn } from "react-hook-form"
+import React, { forwardRef, InputHTMLAttributes } from "react"
+import { FieldError } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
@@ -57,96 +57,91 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   labelStyle?: string
   hint?: string
   error?: string | FieldError
-  register?: UseFormRegisterReturn
   onChangeByValue?: (value: string, name?: string) => void
 }
 
-const TextField: React.FC<TextFieldProps> = ({
-  onChange,
-  onChangeByValue,
-  className,
-  register,
-  disabled,
-  error,
-  ...rest
-}: TextFieldProps) => {
-  const { t } = useTranslation()
+const TextField: React.FC<TextFieldProps> = forwardRef<HTMLInputElement, TextFieldProps>(
+  ({ onChange, onChangeByValue, className, disabled, error, ...rest }: TextFieldProps, ref) => {
+    const { t } = useTranslation()
 
-  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChangeByValue) {
-      const {
-        target: { value },
-      } = event
-      onChangeByValue(value)
-    } else if (onChange) {
-      onChange(event)
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChangeByValue) {
+        const {
+          target: { value },
+        } = event
+        onChangeByValue(value)
+      }
+      if (onChange) {
+        onChange(event)
+      }
     }
-  }
-  return (
-    <div
-      className={cx(
-        css`
-          margin-bottom: 1rem;
-          ${disabled &&
-          `cursor: not-allowed;
-            filter: opacity(0.5);`}
-        `,
-        className,
-      )}
-    >
-      <label
-        aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
+
+    return (
+      <div
         className={cx(
           css`
-            color: #333;
-            font-family: ${primaryFont};
-            font-weight: 500;
-            font-size: 14px;
-            display: block;
-            margin-bottom: 2px;
-            ${disabled && `color: ${baseTheme.colors.gray[400]};`}
-            ${disabled && `cursor: not-allowed;`}
+            margin-bottom: 1rem;
+            ${disabled &&
+            `cursor: not-allowed;
+            filter: opacity(0.5);`}
           `,
-          rest.labelStyle,
+          className,
         )}
       >
-        {rest.label && (
-          <>
-            {rest.label} {rest.required === true && ` *`}
-          </>
-        )}
-        <Input
-          id={rest.id}
-          name={rest.name}
-          disabled={disabled}
-          colorField={rest.type === "color"}
-          // eslint-disable-next-line i18next/no-literal-string
-          aria-errormessage={`${rest.id ?? rest.label}_error`}
-          aria-invalid={error !== undefined}
-          onChange={handleOnChange}
-          defaultValue={rest.defaultValue}
-          error={errorToDescription(error) ?? undefined}
-          {...rest}
-          // Register overrides onChange if specified
-          {...register}
-        />
-      </label>
+        <label
+          aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
+          className={cx(
+            css`
+              color: #333;
+              font-family: ${primaryFont};
+              font-weight: 500;
+              font-size: 14px;
+              display: block;
+              margin-bottom: 2px;
+              ${disabled && `color: ${baseTheme.colors.gray[400]};`}
+              ${disabled && `cursor: not-allowed;`}
+            `,
+            rest.labelStyle,
+          )}
+        >
+          {rest.label && (
+            <>
+              {rest.label} {rest.required === true && ` *`}
+            </>
+          )}
+          <Input
+            id={rest.id}
+            name={rest.name}
+            disabled={disabled}
+            colorField={rest.type === "color"}
+            // eslint-disable-next-line i18next/no-literal-string
+            aria-errormessage={`${rest.id ?? rest.label}_error`}
+            aria-invalid={error !== undefined}
+            onChange={handleOnChange}
+            defaultValue={rest.defaultValue}
+            error={errorToDescription(error) ?? undefined}
+            ref={ref}
+            {...rest}
+          />
+        </label>
 
-      <span
-        className={
-          error
-            ? cx(errorClass)
-            : css`
-                visibility: hidden;
-              `
-        }
-        id={`${rest.id ?? rest.label}_error`}
-        role="alert"
-      >
-        {errorToDescription(error)}
-      </span>
-    </div>
-  )
-}
+        <span
+          className={
+            error
+              ? cx(errorClass)
+              : css`
+                  visibility: hidden;
+                `
+          }
+          id={`${rest.id ?? rest.label}_error`}
+          role="alert"
+        >
+          {errorToDescription(error)}
+        </span>
+      </div>
+    )
+  },
+)
 
+TextField.displayName = "TextField"
 export default TextField

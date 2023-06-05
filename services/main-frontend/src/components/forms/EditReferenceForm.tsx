@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { MaterialReference, NewMaterialReference } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
-import FormTextAreaField from "../FormTextAreaField"
+import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Cite = require("citation-js")
@@ -25,6 +26,9 @@ interface EditReferenceFields {
 }
 
 const EMPTY_STRING = ""
+const ErrorText = styled.p`
+  color: red;
+`
 
 const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps>> = ({
   onEdit,
@@ -74,12 +78,11 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         width: 100%;
       `}
     >
-      <FormTextAreaField
+      <TextAreaField
         id={"reference"}
         error={errors["reference"]}
         placeholder={REFERENCE}
-        register={register}
-        errorMessage={errorMessage}
+        {...register("reference", { required: true })}
         defaultValue={defaultValueReference}
         className={css`
           width: 100%;
@@ -87,8 +90,8 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
           height: 150px;
         `}
       />
-
       <br />
+      {errorMessage && <ErrorText> {errorMessage} </ErrorText>}
       <Button variant="primary" size="medium" type="submit">
         {t("save")}
       </Button>

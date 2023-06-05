@@ -1,22 +1,12 @@
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useRef } from "react"
+import React, { TextareaHTMLAttributes, useEffect, useRef } from "react"
 
-interface TextAreaExtraProps {
+export interface TextFieldProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
-  name?: string
   errorMessage?: string
-  placeholder?: string
-  required?: boolean
-  value?: string
-  disabled?: boolean
-  maxlength?: string
-  onChange: (value: string, name?: string) => void
-  className?: string
-  defaultValue?: string
   autoResize?: boolean
+  onChangeByValue: (value: string, name?: string) => void
 }
-
-export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextAreaExtraProps
 
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   if (ref.current) {
@@ -28,11 +18,12 @@ function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
 }
 
 const EditableComponentTextArea = ({
+  onChangeByValue,
   onChange,
   className,
   autoResize,
   ...rest
-}: TextAreaExtraProps) => {
+}: TextFieldProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -42,6 +33,21 @@ const EditableComponentTextArea = ({
     }
     updateHeight(textareaRef)
   }, [rest.value, autoResize])
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (onChangeByValue) {
+      const {
+        target: { value },
+      } = event
+      onChangeByValue(value)
+    }
+    if (onChange) {
+      onChange(event)
+    }
+    if (autoResize) {
+      updateHeight(textareaRef)
+    }
+  }
   return (
     <div
       className={cx(
@@ -74,12 +80,7 @@ const EditableComponentTextArea = ({
       <label>
         <textarea
           ref={textareaRef}
-          onChange={({ target: { value, name } }) => {
-            onChange(value, name)
-            if (autoResize) {
-              updateHeight(textareaRef)
-            }
-          }}
+          onChange={handleOnChange}
           /* onKeyPress={(event) => onKeyPress(event)} */
           defaultValue={rest.defaultValue}
           {...rest}

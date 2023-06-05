@@ -174,11 +174,11 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
       <OptionCard>
         {editMode ? (
           <CenteredContainer>
-            <TextField onChange={(value) => setTitle(value)} value={title} />
+            <TextField onChangeByValue={(value) => setTitle(value)} value={title} />
             <CheckboxContainer>
               <CheckBox
                 label={t("label-correct")}
-                onChange={(checked) => setCorrect(checked)}
+                onChangeByValue={(checked) => setCorrect(checked)}
                 checked={correct}
               />
             </CheckboxContainer>
@@ -215,7 +215,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
               <MessageDialogContainer>
                 <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
                 <MessageDialogTextFieldContainer>
-                  <TextField onChange={(value) => setMessage(value)} value={message} />
+                  <TextField onChangeByValue={(value) => setMessage(value)} value={message} />
                 </MessageDialogTextFieldContainer>
               </MessageDialogContainer>
             </MultipleChoiceMessageDialogContainer>

@@ -53,8 +53,8 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       <TextField
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
-        register={register("gitUrl", { required: t("required-field") })}
         error={errors["gitUrl"]?.message}
+        {...register("gitUrl", { required: t("required-field") })}
       />
       <TextAreaField
         label={t("exercise-repositories-deploy-key")}
@@ -64,7 +64,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
 ...
 -----END OPENSSH PRIVATE KEY-----
 "
-        register={register("deployKey")}
+        {...register("deployKey")}
         errorMessage={errors["deployKey"]?.message}
       />
       <Button size="medium" variant="primary" disabled={!isValid || isSubmitting}>

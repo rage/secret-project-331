@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { NewMaterialReference } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
-import FormTextAreaField from "../FormTextAreaField"
+import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Cite = require("citation-js")
@@ -19,6 +20,9 @@ interface NewReferenceFields {
   references: string
 }
 
+const ErrorText = styled.p`
+  color: red;
+`
 const REFERENCE = "Bibtex reference"
 const EMPTY_STRING = ""
 
@@ -61,19 +65,19 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         width: 100%;
       `}
     >
-      <FormTextAreaField
+      <label htmlFor={"references"}>{REFERENCE}</label>
+      <TextAreaField
         id={"references"}
         error={errors["references"]}
         placeholder={REFERENCE}
-        register={register}
-        defaultValue={null}
-        errorMessage={errorMessage}
+        {...register("references", { required: t("required-field") })}
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;
           height: 150px;
         `}
       />
+      {errorMessage && <ErrorText> {errorMessage} </ErrorText>}
       <br />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
         {t("button-text-submit")}

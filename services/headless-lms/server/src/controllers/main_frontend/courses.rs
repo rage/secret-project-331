@@ -21,6 +21,7 @@ use models::{
     pages::Page,
     peer_review_configs::PeerReviewConfig,
     peer_review_questions::PeerReviewQuestion,
+    student_countries::StudentCountry,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -868,6 +869,46 @@ async fn get_course_default_peer_review(
     token.authorized_ok(web::Json((peer_review, peer_review_questions)))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn student_country(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    country_code: String,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let id = Uuid::new_v4();
+
+    models::student_countries::insert(
+        &mut conn,
+        id,
+        user.id,
+        *course_id,
+        *course_instance_id,
+        &country_code,
+    )
+    .await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+
+    token.authorized_ok(HttpResponse::Ok().finish())
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_student_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<StudentCountry>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let res = models::student_countries::get_countries(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 /**
 POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
 
@@ -1165,5 +1206,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/export-course-instances",
             web::get().to(course_instances_export),
+        )
+        .route(
+            "/{course_id}/student-country",
+            web::post().to(student_country),
+        )
+        .route(
+            "/{course_id}/student-countries",
+            web::get().to(get_student_countries),
         );
 }

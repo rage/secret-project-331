@@ -58,6 +58,7 @@ pub mod proposed_page_edits;
 pub mod regradings;
 pub mod repository_exercises;
 pub mod roles;
+pub mod student_countries;
 pub mod study_registry_registrars;
 pub mod teacher_grading_decisions;
 pub mod url_redirections;

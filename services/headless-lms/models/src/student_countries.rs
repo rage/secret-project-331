@@ -14,7 +14,6 @@ pub struct StudentCountry {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    id: Uuid,
     user_id: Uuid,
     course_id: Uuid,
     course_instance_id: Uuid,
@@ -23,15 +22,13 @@ pub async fn insert(
     sqlx::query!(
         r"
 INSERT INTO student_countries (
-  id,
   user_id,
   course_id,
   course_instance_id,
   country_code
 )
-VALUES($1, $2, $3, $4, $5)
+VALUES($1, $2, $3, $4)
       ",
-        id,
         user_id,
         course_id,
         course_instance_id,

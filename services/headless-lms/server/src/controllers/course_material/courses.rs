@@ -23,6 +23,7 @@ use models::{
     },
     pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},
+    student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
 
@@ -664,6 +665,44 @@ async fn get_page_by_course_id_and_language_group(
     token.authorized_ok(web::Json(page))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn student_country(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    country_code: String,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    models::student_countries::insert(
+        &mut conn,
+        user.id,
+        *course_id,
+        *course_instance_id,
+        &country_code,
+    )
+    .await?;
+    let token = skip_authorize()?;
+
+    token.authorized_ok(HttpResponse::Ok().finish())
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_student_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<StudentCountry>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize()?;
+    let res = models::student_countries::get_countries(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -717,5 +756,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
             web::get().to(get_page_by_course_id_and_language_group),
         )
-        .route("/{course_id}/pages", web::get().to(get_public_course_pages));
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
+        .route(
+            "/{course_id}/student-countries",
+            web::post().to(student_country),
+        )
+        .route(
+            "/{course_id}/student-countries",
+            web::get().to(get_student_countries),
+        );
 }

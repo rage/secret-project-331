@@ -1,7 +1,10 @@
 import styled from "@emotion/styled"
-import React, { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import React, { useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
+import PageContext from "../../../contexts/PageContext"
+import { fetchCourseInstances } from "../../../services/backend"
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
 
 import { countryList } from "./../util/Countries"
@@ -42,6 +45,18 @@ export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
   const studentCountry = []
   const { t } = useTranslation()
+
+  const pageState = useContext(PageContext)
+  const courseId = pageState.pageData?.course_id
+  // let courseInstanceId
+
+  const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
+    fetchCourseInstances(courseId as NonNullable<string>),
+  )
+
+  if (getCourseInstances.isSuccess) {
+    console.log("getCourseInstances", getCourseInstances.data)
+  }
 
   const isPath = (child: RouteElement): child is SVGLineElement => {
     return child.tagName === "g" || child.tagName === "path"

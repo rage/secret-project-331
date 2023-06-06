@@ -32,7 +32,7 @@ VALUES($1, $2, $3, $4)
         user_id,
         course_id,
         course_instance_id,
-        country_code,
+        country_code
     )
     .execute(conn)
     .await?;

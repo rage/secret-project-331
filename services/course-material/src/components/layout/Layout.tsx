@@ -6,16 +6,18 @@ import React, { ReactNode, useState } from "react"
 
 import LayoutContext from "../../contexts/LayoutContext"
 import PageContext, { getDefaultPageState } from "../../contexts/PageContext"
+import useCourseLanguageVersions from "../../hooks/useCourseLanguageVersions"
 import { PageState } from "../../reducers/pageStateReducer"
 import Centered from "../../shared-module/components/Centering/Centered"
 import Footer from "../../shared-module/components/Footer"
-import LanguageSelection from "../../shared-module/components/LanguageSelection"
+import LanguageSelection, { LanguageOption } from "../../shared-module/components/LanguageSelection"
 import {
   NavBar,
   NavContainer,
   NavItem,
   NavItems,
 } from "../../shared-module/components/Navigation/NavBar"
+import ietfLanguageTagToHumanReadableName from "../../shared-module/utils/ietfLanguageTagToHumanReadableName"
 import SearchDialog from "../SearchDialog"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
@@ -44,6 +46,12 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const [hideFromSearchEngines, setHideFromSearchEngines] = useState<boolean>(false)
   const [pageState, setPageState] = useState<PageState>(getDefaultPageState())
 
+  const languageVersions = useCourseLanguageVersions(courseId)
+  const languages: LanguageOption[] = (languageVersions?.data ?? []).map((languageVersion) => ({
+    tag: languageVersion.language_code,
+    name: ietfLanguageTagToHumanReadableName(languageVersion.language_code),
+  }))
+
   return (
     <>
       <Head>
@@ -65,14 +73,19 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
           <NavBar variant={"simple"}>
             <NavContainer>
               <NavItems>
-                {/* <NavLink href="/FAQ">FAQ</NavLink> */}
                 {courseId && organizationSlug && (
                   <NavItem>
                     <SearchDialog courseId={courseId} organizationSlug={organizationSlug} />
                   </NavItem>
                 )}
                 <NavItem>
-                  <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+                  <LanguageSelection
+                    placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT}
+                    languages={languages}
+                    handleLanguageChange={(newLanguage) => {
+                      console.log("Language changing to", newLanguage)
+                    }}
+                  />
                 </NavItem>
               </NavItems>
             </NavContainer>

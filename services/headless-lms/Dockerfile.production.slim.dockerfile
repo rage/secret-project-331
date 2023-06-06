@@ -24,7 +24,7 @@ RUN mkdir uploads && chown -R user uploads
 COPY --from=builder /ips-to-country /ips-to-country
 
 # ICU4X data provider blob
-COPY --from=source /icu4x.postcard /icu4x.postcard
+COPY --from=builder /icu4x.postcard /icu4x.postcard
 
 USER user
 

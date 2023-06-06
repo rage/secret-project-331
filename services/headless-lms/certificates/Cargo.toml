@@ -6,10 +6,6 @@ edition = "2021"
 rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
-[features]
-# flag that can be used for conditional compilation when building inside/outside a docker image
-docker = []
-
 [dependencies]
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
@@ -26,8 +22,6 @@ xmlwriter = "0.1.0"
 quick-xml = "0.28.2"
 # International Components for Unicode
 icu = { version = "1.2.0", features=["std", "serde"]}
-# Pre-built test data for ICU4X
-icu_testdata = "1.2.0"
 # Trait and struct definitions for the ICU data provider
 icu_provider = "1.2.0"
 # Single assignment cells and lazy values.

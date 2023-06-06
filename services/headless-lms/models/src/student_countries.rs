@@ -20,7 +20,7 @@ pub async fn insert(
     country_code: &str,
 ) -> ModelResult<()> {
     sqlx::query!(
-        r"
+        "
 INSERT INTO student_countries (
   user_id,
   course_id,

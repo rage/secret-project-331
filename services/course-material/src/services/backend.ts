@@ -455,8 +455,8 @@ export const fetchCourseLanguageVersions = async (courseId: string): Promise<Arr
 }
 
 export const postStudentCountry = async (
-  course_instance_id: string,
   course_id: string,
+  course_instance_id: string,
   country_code: string,
 ): Promise<void> => {
   await courseMaterialClient.post(

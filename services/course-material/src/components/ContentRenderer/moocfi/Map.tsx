@@ -4,8 +4,11 @@ import React, { useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../contexts/PageContext"
-import { fetchCourseInstances } from "../../../services/backend"
+import { fetchStudentCountries, postStudentCountry } from "../../../services/backend"
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
+import useToastMutation from "../../../shared-module/hooks/useToastMutation"
+import useUserInfo from "../../../shared-module/hooks/useUserInfo"
+import getGuestPseudonymousUserId from "../../../shared-module/utils/getGuestPseudonymousUserId"
 
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
@@ -48,15 +51,55 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   const pageState = useContext(PageContext)
   const courseId = pageState.pageData?.course_id
-  // let courseInstanceId
+  const courseInstanceId = pageState.instance?.id
 
-  const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
-    fetchCourseInstances(courseId as NonNullable<string>),
+  const userInfo = useUserInfo()
+  const userId = userInfo.data?.user_id
+  // || getGuestPseudonymousUserId()
+
+  const getCountries = useQuery(
+    [`course-${courseId}-country`],
+    () => {
+      // fetchPageAudioFiles(pageId),
+      if (courseId) {
+        return fetchStudentCountries(courseId)
+      } else {
+        return Promise.reject(new Error("course ID undefined"))
+      }
+    },
+    { enabled: !!courseId },
   )
 
-  if (getCourseInstances.isSuccess) {
-    console.log("getCourseInstances", getCourseInstances.data)
-  }
+  const uploadStudentCountry = useToastMutation(
+    (country: string) => {
+      if (!country) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("Student country undefined")
+      }
+
+      if (!courseId) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("Course Id undefined")
+      }
+
+      if (!courseInstanceId) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("Course instance id undefined")
+      }
+
+      return postStudentCountry(courseId, courseInstanceId, country)
+    },
+    {
+      notify: true,
+      successMessage: t("country-added-successfully"),
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        getCountries.refetch()
+      },
+    },
+  )
 
   const isPath = (child: RouteElement): child is SVGLineElement => {
     return child.tagName === "g" || child.tagName === "path"
@@ -120,12 +163,24 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     }
   }, [])
 
-  const handleCountryChange = (value: unknown) => {
-    return studentCountry.push(value)
+  const handleCountryChange = (value: string) => {
+    if (!value) {
+      return
+    }
+
+    const country: string = value.toLowerCase()
+    return uploadStudentCountry.mutate(country)
   }
+
+  let studentCountryAdded = false
+
+  if (getCountries.isSuccess) {
+    studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
+  }
+
   return (
     <Wrapper>
-      {!countryClasses ? (
+      {getCountries.fetchStatus === "idle" || studentCountryAdded ? (
         <>
           <div id="tooltip"></div>
           <SelectField

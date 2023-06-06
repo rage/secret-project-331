@@ -665,6 +665,9 @@ async fn get_page_by_course_id_and_language_group(
     token.authorized_ok(web::Json(page))
 }
 
+/**
+POST `/api/v0/{course_id}/student-countries` - Add a new student's country entry.
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn student_country(
@@ -689,6 +692,9 @@ async fn student_country(
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
+/**
+GET `/api/v0/{course_id}/student-countries - Returns countries of student registered in a course.
+ */
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_student_countries(
@@ -758,7 +764,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_id}/pages", web::get().to(get_public_course_pages))
         .route(
-            "/{course_id}/student-countries",
+            "/{course_id}/course-instances/{course_instance_id}/student-countries",
             web::post().to(student_country),
         )
         .route(

@@ -210,6 +210,8 @@ fn models(target: &mut File) {
         roles::RoleUser,
         roles::UserRole,
 
+        student_countries::StudentCountry,
+
         teacher_grading_decisions::NewTeacherGradingDecision,
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,

@@ -176,6 +176,7 @@ import {
   SaveCourseSettingsPayload,
   SearchRequest,
   SpecRequest,
+  StudentCountry,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
@@ -2519,6 +2520,20 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "Admin" ||
     typedObj === "CourseOrExamCreator" ||
     typedObj === "MaterialViewer"
+  )
+}
+
+export function isStudentCountry(obj: unknown): obj is StudentCountry {
+  const typedObj = obj as StudentCountry
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["country_code"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 

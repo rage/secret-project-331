@@ -210,7 +210,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
             ? `Background SVG (currently ${configuration.background_svg_path})`
             : `Background SVG`
         }
-        register={register(
+        {...register(
           "backgroundSvg",
           // required if configuration does not exist yet
           configuration ? undefined : { required: t("required-field") },
@@ -229,7 +229,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
               : "Overlay SVG (optional, currently not set)"
             : "Overlay SVG"
         }
-        register={register("overlaySvg")}
+        {...register("overlaySvg")}
         accept={".svg"}
       />
       <CheckBox

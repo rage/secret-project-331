@@ -8,13 +8,16 @@ import { fetchStudentCountries, postStudentCountry } from "../../../services/bac
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import useUserInfo from "../../../shared-module/hooks/useUserInfo"
-import getGuestPseudonymousUserId from "../../../shared-module/utils/getGuestPseudonymousUserId"
 
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
 const countryClasses = [".fr", ".us", ".fi", ".ng"]
 const formattedClasses = countryClasses.join(",")
+
+interface MapStyleProps {
+  codes: string[]
+}
 
 const Wrapper = styled.div`
   display: relative;
@@ -31,12 +34,27 @@ const Wrapper = styled.div`
   }
 `
 
-const StyledMap = styled(WorldMap)<string>`
+const MapStyles = (props: MapStyleProps) => {
+  const formattedClasses = props.codes.join(",")
+  const MAP_STYLES = `
   ${formattedClasses} {
-    fill: #374461 !important;
-    opacity: 1;
-  }
+      fill: #374461 !important;
+      opacity: 1;
+    }
+  `
+  return MAP_STYLES
+}
+
+// const StyledMap = styled(WorldMap)<string>`
+//   ${formattedClasses} {
+//     fill: #374461 !important;
+//     opacity: 1;
+//   }
+// `
+const StyledMap = styled(WorldMap)`
+  ${MapStyles}
 `
+
 export type RouteElement = Element | SVGLineElement
 
 export interface MapExtraProps {
@@ -46,7 +64,8 @@ export interface MapExtraProps {
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
-  const studentCountry = []
+  let countryCodes: string[] = []
+  const formattedCountryCodes = countryCodes.join(",")
   const { t } = useTranslation()
 
   const pageState = useContext(PageContext)
@@ -55,7 +74,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id
-  // || getGuestPseudonymousUserId()
 
   const getCountries = useQuery(
     [`course-${courseId}-country`],
@@ -176,11 +194,12 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   if (getCountries.isSuccess) {
     studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
+    countryCodes = getCountries.data.map((country) => `.${country.country_code}`)
   }
 
   return (
     <Wrapper>
-      {getCountries.fetchStatus === "idle" || studentCountryAdded ? (
+      {!studentCountryAdded ? (
         <>
           <div id="tooltip"></div>
           <SelectField
@@ -196,7 +215,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
       ) : (
         <>
           <h3>{t("student-in-this-region")}</h3>
-          <StyledMap students={formattedClasses} className="world-map" />
+          <StyledMap codes={formattedCountryCodes} className="world-map" />
         </>
       )}
     </Wrapper>

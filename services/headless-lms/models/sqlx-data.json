@@ -2415,6 +2415,16 @@
     },
     "query": "\nSELECT *\nFROM user_course_instance_exercise_service_variables\nWHERE deleted_at IS NULL\n  AND user_id = $1\n  AND (course_instance_id = $2 OR course_instance_id IS NULL)\n  AND (exam_id = $3 OR exam_id IS NULL);\n    "
   },
+  "216767b7252ab27f7acd3703a46aaf3e75eee851677eeb207baff7fdca8ea3d4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO student_countries (\n  user_id,\n  course_id,\n  course_instance_id,\n  country_code\n)\nVALUES($1, $2, $3, $4)\n      "
+  },
   "21de18fb8660376e4e3ab8928df274890217d4db22af032cabc9f5444a06a7f6": {
     "describe": {
       "columns": [
@@ -16240,16 +16250,6 @@
       }
     },
     "query": "\nSELECT COUNT(*) filter (\n  where proposed_page_edits.pending = true\n) AS pending,\nCOUNT(*) filter (\n  where proposed_page_edits.pending = false\n) AS handled\nFROM proposed_page_edits\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\n"
-  },
-  "c04ad7c96a49e079b1448b42aac402d15289376233c2beac102e05d698d9e304": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Varchar"]
-      }
-    },
-    "query": "\nINSERT INTO student_countries (\n  id,\n  user_id,\n  course_id,\n  course_instance_id,\n  country_code\n)\nVALUES($1, $2, $3, $4, $5)\n      "
   },
   "c0b9a180c35f5891305a61ef57a65bceba00f6e0190612ad7348ad7185ca89f2": {
     "describe": {

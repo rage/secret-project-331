@@ -78,7 +78,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const getCountries = useQuery(
     [`course-${courseId}-country`],
     () => {
-      // fetchPageAudioFiles(pageId),
       if (courseId) {
         return fetchStudentCountries(courseId)
       } else {

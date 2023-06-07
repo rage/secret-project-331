@@ -764,7 +764,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_id}/pages", web::get().to(get_public_course_pages))
         .route(
-            "/{course_id}/course-instances/{course_instance_id}/student-countries",
+            "/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}",
             web::post().to(student_country),
         )
         .route(

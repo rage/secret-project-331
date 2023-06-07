@@ -1,32 +1,12 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, HTMLAttributes, InputHTMLAttributes } from "react"
-import { FieldError, UseFormRegisterReturn } from "react-hook-form"
+import React, { forwardRef, InputHTMLAttributes } from "react"
+import { FieldError } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 import { errorToDescription } from "../../utils/strings"
-
-interface FileFieldExtraProps {
-  name?: string
-  label?: string
-  labelStyle?: string
-  hint?: string
-  error?: string | FieldError
-  required?: boolean
-  value?: string | number
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
-  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
-  onChange?: (value: string, name?: string) => void
-  className?: string
-  disabled?: boolean
-  id?: string
-  register?: UseFormRegisterReturn
-  min?: number
-  step?: string
-  accept?: string
-}
 
 const ERRORCOLOR = baseTheme.colors.red[600]
 const DEFAULTCOLOR = "#dedede"

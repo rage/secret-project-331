@@ -399,6 +399,8 @@
 <a href="#399" id="399">399</a>
 <a href="#400" id="400">400</a>
 <a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! For rendering certificates.
 //!
 //! This is a subcrate because the certificate rendering has its own unique set of dependencies and splitting it makes sense for compilation performance.
@@ -413,7 +415,10 @@
 <span class="kw">use </span>headless_lms_models::course_module_completion_certificates::CourseModuleCompletionCertificate;
 <span class="kw">use </span>headless_lms_models::prelude::{BackendError, PgConnection};
 <span class="kw">use </span>headless_lms_utils::file_store::FileStore;
+<span class="kw">use </span>headless_lms_utils::icu4x::Icu4xBlob;
 <span class="kw">use </span>headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
+<span class="kw">use </span>icu::calendar::Gregorian;
+<span class="kw">use </span>icu::datetime::TypedDateTimeFormatter;
 <span class="kw">use </span>resvg::FitTo;
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::time::Instant;
@@ -422,9 +427,10 @@
 <span class="kw">use </span>quick_xml::{events::BytesText, Writer};
 <span class="kw">use </span>std::io::Cursor;
 
-<span class="kw">use </span>icu::datetime::{options::length, DateTimeFormatter};
+<span class="kw">use </span>icu::datetime::options::length;
 <span class="kw">use </span>icu::{calendar::DateTime, locid::Locale};
 <span class="kw">use </span>icu_provider::DataLocale;
+<span class="kw">use </span>icu_provider_blob::BlobDataProvider;
 <span class="kw">use </span>tracing::log::info;
 
 <span class="doccomment">/**
@@ -441,6 +447,7 @@ Generates a certificate as a png.
     file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
     certificate: <span class="kw-2">&amp;</span>CourseModuleCompletionCertificate,
     debug: bool,
+    icu4x_blob: Icu4xBlob,
 ) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt; {
     <span class="kw">let </span>config = get_by_course_module_and_course_instance(
         <span class="kw-2">&amp;mut *</span>conn,
@@ -503,7 +510,7 @@ Generates a certificate as a png.
             ..Default::default()
         },
         TextToRender {
-            text: get_date_as_localized_string(<span class="kw-2">&amp;</span>config.certificate_locale, date)<span class="question-mark">?</span>,
+            text: get_date_as_localized_string(<span class="kw-2">&amp;</span>config.certificate_locale, date, icu4x_blob)<span class="question-mark">?</span>,
             y_pos: config.certificate_date_y_pos,
             x_pos: config.certificate_date_x_pos,
             font_size: config.certificate_date_font_size,
@@ -653,29 +660,34 @@ Generates a certificate as a png.
     <span class="prelude-val">Ok</span>(png)
 }
 
-<span class="kw">fn </span>get_date_as_localized_string(locale: <span class="kw-2">&amp;</span>str, certificate_date: NaiveDate) -&gt; UtilResult&lt;String&gt; {
+<span class="kw">fn </span>get_date_as_localized_string(
+    locale: <span class="kw-2">&amp;</span>str,
+    certificate_date: NaiveDate,
+    icu4x_blob: Icu4xBlob,
+) -&gt; UtilResult&lt;String&gt; {
     <span class="kw">let </span>options = length::Bag::from_date_style(length::Date::Long).into();
-    <span class="comment">// TODO: load locale data using this https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html
-    </span><span class="kw">let </span>dtf = DateTimeFormatter::try_new_unstable(
-        <span class="kw-2">&amp;</span>icu_testdata::unstable(),
-        <span class="kw-2">&amp;</span>DataLocale::from(locale.parse::&lt;Locale&gt;().map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                <span class="string">&quot;Could not parse locale&quot;</span>.to_string(),
-                <span class="prelude-val">Some</span>(original_error.into()),
-            )
-        })<span class="question-mark">?</span>),
+    <span class="kw">let </span>provider = BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).unwrap();
+    <span class="kw">let </span>locale = locale.parse::&lt;Locale&gt;().map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            <span class="string">&quot;Could not parse locale&quot;</span>.to_string(),
+            <span class="prelude-val">Some</span>(original_error.into()),
+        )
+    })<span class="question-mark">?</span>;
+    <span class="kw">let </span>dtf = TypedDateTimeFormatter::&lt;Gregorian&gt;::try_new_with_buffer_provider(
+        <span class="kw-2">&amp;</span>provider,
+        <span class="kw-2">&amp;</span>DataLocale::from(locale),
         options,
     )
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            <span class="string">&quot;Failed to create DateTimeFormatter instance.&quot;</span>.to_string(),
+            <span class="string">&quot;Failed to create TypedDateTimeFormatter instance.&quot;</span>.to_string(),
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>icu_date = DateTime::try_new_iso_datetime(
+    <span class="kw">let </span>date = DateTime::try_new_gregorian_datetime(
         certificate_date.year(),
         certificate_date.month() <span class="kw">as </span>u8,
         certificate_date.day() <span class="kw">as </span>u8,
@@ -690,15 +702,7 @@ Generates a certificate as a png.
             <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">let </span>date = icu_date.to_any();
-
-    <span class="kw">let </span>formatted_date = dtf.format(<span class="kw-2">&amp;</span>date).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            <span class="string">&quot;Formatting date failed.&quot;</span>.to_string(),
-            <span class="prelude-val">Some</span>(original_error.into()),
-        )
-    })<span class="question-mark">?</span>;
+    <span class="kw">let </span>formatted_date = dtf.format(<span class="kw-2">&amp;</span>date);
     <span class="prelude-val">Ok</span>(formatted_date.to_string())
 }
 

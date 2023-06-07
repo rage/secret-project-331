@@ -458,11 +458,13 @@
 <a href="#458" id="458">458</a>
 <a href="#459" id="459">459</a>
 <a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{controllers::helpers::file_uploading, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>actix_multipart::form::{tempfile::TempFile, MultipartForm};
 <span class="kw">use </span>futures_util::TryStreamExt;
 <span class="kw">use </span>headless_lms_certificates <span class="kw">as </span>certificates;
-<span class="kw">use </span>headless_lms_utils::file_store::GenericPayload;
+<span class="kw">use </span>headless_lms_utils::{file_store::GenericPayload, icu4x::Icu4xBlob};
 <span class="kw">use </span>models::{
     course_module_certificate_configurations::{
         CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
@@ -840,6 +842,7 @@ Response: the certificate as a png.
     pool: web::Data&lt;PgPool&gt;,
     file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
     query: web::Query&lt;CertificateQuery&gt;,
+    icu4x_blob: web::Data&lt;Icu4xBlob&gt;,
 ) -&gt; ControllerResult&lt;HttpResponse&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -857,6 +860,7 @@ Response: the certificate as a png.
         file_store.as_ref(),
         <span class="kw-2">&amp;</span>certificate,
         query.debug,
+        <span class="kw-2">**</span>icu4x_blob,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>max_age = <span class="kw">if </span>query.debug { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">300 </span>};

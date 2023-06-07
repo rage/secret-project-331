@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"static":["ICU4X_POSTCARD"],"struct":["Icu4xBlob"]};

@@ -145,6 +145,9 @@
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc};
 
 <span class="kw">use crate</span>::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
@@ -164,6 +167,7 @@
     file_store::{
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
+    icu4x::Icu4xBlob,
     ApplicationConfiguration,
 };
 <span class="kw">use </span>listenfd::ListenFd;
@@ -188,6 +192,7 @@
     <span class="kw">let </span>test_mode = env::var(<span class="string">&quot;TEST_MODE&quot;</span>).is_ok();
     <span class="kw">let </span>allow_no_https_for_development = env::var(<span class="string">&quot;ALLOW_NO_HTTPS_FOR_DEVELOPMENT&quot;</span>).is_ok();
     <span class="kw">let </span>jwt_key = JwtKey::try_from_env().expect(<span class="string">&quot;Failed to create JwtKey&quot;</span>);
+    <span class="kw">let </span>icu4x_blob = Data::new(Icu4xBlob::try_from_env().expect(<span class="string">&quot;Failed to create Icu4xBlob&quot;</span>));
 
     <span class="kw">if </span>test_mode {
         <span class="macro">info!</span>(<span class="string">&quot;***********************************&quot;</span>);
@@ -250,9 +255,10 @@
             .wrap(Logger::new(
                 <span class="string">&quot;Completed %r %s %b bytes - %D ms, request_id=%{request-id}o&quot;</span>,
             ))
-            .app_data(Data::new(db_clone.clone())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers
-            </span>.app_data(Data::new(oauth_client.clone())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers
-            </span>.app_data(Data::new(jwt_key.clone()))
+            .app_data(Data::new(db_clone.clone()))
+            .app_data(Data::new(oauth_client.clone()))
+            .app_data(Data::new(jwt_key.clone()))
+            .app_data(icu4x_blob.clone())
     });
 
     server = <span class="kw">match </span>listenfd.take_tcp_listener(<span class="number">0</span>)<span class="question-mark">? </span>{

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AllocVec","Cobs","Size","Slice"],"trait":["Flavor"]};

@@ -238,7 +238,7 @@
             .object()
             .download_streamed(<span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name, path_to_str(path)<span class="question-mark">?</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>stream_with_corrected_type: <span class="kw">_ </span>= stream
+        <span class="kw">let </span>stream_with_corrected_type = stream
             <span class="comment">// cloud_storage download_streamed returns the bytes one by one which is not optimal for us
             // that&#39;s why why group the singular bytes to chunks and convert those chunks to Bytes objects.
             </span>.chunks(BUFFER_SIZE)

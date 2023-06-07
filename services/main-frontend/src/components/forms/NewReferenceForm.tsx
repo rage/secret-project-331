@@ -65,8 +65,8 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         width: 100%;
       `}
     >
-      <label htmlFor={"references"}>{REFERENCE}</label>
       <TextAreaField
+        label={REFERENCE}
         id={"references"}
         error={errors["references"]}
         placeholder={REFERENCE}

@@ -20,6 +20,13 @@ pub async fn seed_roles(
     .await?;
     roles::insert(
         &mut conn,
+        seed_users_result.teaching_and_learning_services_user_id,
+        UserRole::TeachingAndLearningServices,
+        RoleDomain::Global,
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
         seed_users_result.teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Organization(uh_cs_organization_result.uh_cs_organization_id),

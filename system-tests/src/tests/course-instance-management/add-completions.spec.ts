@@ -23,11 +23,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await page
-    .locator(
-      'text=Default Manage Manage emails Manage permissions View completions View points Exp >> [aria-label="View completions"]',
-    )
-    .click()
+  await page.locator('text=Default Manage >> [aria-label="View completions"]').click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
   )

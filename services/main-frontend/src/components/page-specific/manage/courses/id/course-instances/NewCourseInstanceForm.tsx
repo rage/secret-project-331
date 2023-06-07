@@ -50,40 +50,40 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   return (
     <>
       <form onSubmit={onSubmitWrapper}>
-        <label htmlFor={"name"}>{t("text-field-label-name")}</label>
         <TextField
+          label={t("text-field-label-name")}
           id={"name"}
           error={errors["name"]}
           defaultValue={initialData?.name ?? ""}
           placeholder={t("text-field-label-name")}
           {...register}
         />
-        <label htmlFor={"description"}>{t("text-field-label-description")}</label>
         <TextField
+          label={t("text-field-label-description")}
           id={"description"}
           error={errors["description"]}
           defaultValue={initialData?.description || ""}
           placeholder={t("text-field-label-description")}
           {...register}
         />
-        <label htmlFor={"supportEmail"}>{t("support-email")}</label>
         <TextField
+          label={t("support-email")}
           id={"supportEmail"}
           error={errors["supportEmail"]}
           defaultValue={initialData?.support_email || ""}
           placeholder={t("support-email")}
           {...register}
         />
-        <label htmlFor={"teacherName"}>{t("teacher-in-charge-name")}</label>
         <TextField
+          label={t("teacher-in-charge-name")}
           id={"teacherName"}
           error={errors["teacherName"]}
           defaultValue={initialData?.teacher_in_charge_name}
           placeholder={t("teacher-in-charge-name")}
           {...register}
         />
-        <label htmlFor={"teacherEmail"}>{t("teacher-in-charge-email")}</label>
         <TextField
+          label={t("teacher-in-charge-email")}
           id={"teacherEmail"}
           error={errors["teacherEmail"]}
           defaultValue={initialData?.teacher_in_charge_email ?? ""}

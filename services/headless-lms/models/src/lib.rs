@@ -3,6 +3,8 @@ Functions and structs for interacting with the database.
 
 Each submodule corresponds to a database table.
 */
+// we always use --document-private-items, so this warning is moot
+#![allow(rustdoc::private_intra_doc_links)]
 pub mod certificate_fonts;
 pub mod chapters;
 pub mod course_background_question_answers;
@@ -12,6 +14,7 @@ pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
 pub mod course_module_certificate_configurations;
+pub mod course_module_completion_certificates;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_modules;
@@ -74,6 +77,8 @@ pub mod prelude;
 #[cfg(test)]
 pub mod test_helper;
 
+use futures::future::BoxFuture;
+use url::Url;
 use uuid::Uuid;
 
 pub use self::error::{ModelError, ModelErrorType, ModelResult};
@@ -265,4 +270,28 @@ impl CourseOrExamId {
             None
         }
     }
+}
+
+/// A "trait alias" so this for<'a> ... string doesn't need to be repeated everywhere
+/// Arguments:
+///   Url: The URL that the request is sent to (the exercise service's endpoint)
+///   &str: Exercise type/service slug
+///   Option<Value>: The Json for the request, for example the private spec in a public spec request
+pub trait SpecFetcher:
+    for<'a> Fn(
+    Url,
+    &'a str,
+    Option<&'a serde_json::Value>,
+) -> BoxFuture<'a, ModelResult<serde_json::Value>>
+{
+}
+
+impl<
+        T: for<'a> Fn(
+            Url,
+            &'a str,
+            Option<&'a serde_json::Value>,
+        ) -> BoxFuture<'a, ModelResult<serde_json::Value>>,
+    > SpecFetcher for T
+{
 }

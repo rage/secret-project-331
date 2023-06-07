@@ -57,7 +57,15 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
 
   return (
     <>
-      <Button variant="blue" size={buttonSize} aria-label={t("debug")} onClick={() => openModal()}>
+      <Button
+        variant="blue"
+        size={buttonSize}
+        aria-label={t("debug")}
+        onClick={() => openModal()}
+        className={css`
+          color: white !important;
+        `}
+      >
         <FontAwesomeIcon icon={faIcon} />
       </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>

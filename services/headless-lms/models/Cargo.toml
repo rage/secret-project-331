@@ -51,6 +51,7 @@ backtrace = "0.3.67"
 thiserror = "1.0.40"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "54263034d33818c292b9470cd61e2a2c8dff6097", features = [
+  "bytes-impl",
   "chrono-impl",
   "serde-compat",
   "serde-json-impl",

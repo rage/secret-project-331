@@ -1,8 +1,8 @@
 import { css, cx } from "@emotion/css"
 import React, { forwardRef, InputHTMLAttributes } from "react"
 
-interface SelectOption<T extends string> {
-  value: T
+interface SelectOption {
+  value: string
   label: string
   disabled?: boolean
 }
@@ -11,7 +11,7 @@ export interface SelectMenuProps extends InputHTMLAttributes<HTMLSelectElement> 
   label?: string
   labelStyle?: string
   error?: string
-  options: SelectOption<string>[]
+  options: SelectOption[]
   onChangeByValue?: (value: string, name?: string) => void
 }
 

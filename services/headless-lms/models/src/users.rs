@@ -180,6 +180,10 @@ pub async fn authenticate_test_user(
         crate::users::get_by_email(conn, "student2@example.com").await?
     } else if email == "student3@example.com" && password == "student.3" {
         crate::users::get_by_email(conn, "student3@example.com").await?
+    } else if email == "teaching-and-learning-services@example.com"
+        && password == "teaching-and-learning-services"
+    {
+        crate::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
     } else {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,

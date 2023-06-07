@@ -23,7 +23,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -1085,7 +1086,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -2151,7 +2153,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -2165,6 +2168,69 @@
       }
     },
     "query": "\nSELECT id, user_email, expires_at, role AS \"role!: UserRole\" FROM pending_roles\nWHERE course_id = $1\nAND deleted_at IS NULL\nAND expires_at > NOW()\n          "
+  },
+  "2055a6ff8b925cefcd040b388ae102f5a9b98ff4b91bf9c0cb086ab395df72a9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          },
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          },
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          },
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["horizontal-a4", "vertical-a4"]
+              },
+              "name": "certificate_paper_size"
+            }
+          },
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          "Uuid",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\nUPDATE public.course_module_certificate_configurations\nSET course_module_id = $1,\n  course_instance_id = $2,\n  certificate_owner_name_y_pos = $3,\n  certificate_owner_name_x_pos = $4,\n  certificate_owner_name_font_size = $5,\n  certificate_owner_name_text_color = $6,\n  certificate_owner_name_text_anchor = $7,\n  certificate_validate_url_y_pos = $8,\n  certificate_validate_url_x_pos = $9,\n  certificate_validate_url_font_size = $10,\n  certificate_validate_url_text_color = $11,\n  certificate_validate_url_text_anchor = $12,\n  certificate_date_y_pos = $13,\n  certificate_date_x_pos = $14,\n  certificate_date_font_size = $15,\n  certificate_date_text_color = $16,\n  certificate_date_text_anchor = $17,\n  certificate_locale = $18,\n  paper_size = $19,\n  background_svg_path = $20,\n  background_svg_file_upload_id = $21,\n  overlay_svg_path = $22,\n  overlay_svg_file_upload_id = $23\nWHERE id = $24\n"
   },
   "20fc12ac7e010520d3a0fc268c01c6fd85802b41adc867ed79edb32b74bcbc17": {
     "describe": {
@@ -2764,7 +2830,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -3170,6 +3237,16 @@
     },
     "query": "\nSELECT *\nfrom organizations\nwhere id = $1;"
   },
+  "2ad115e305eec91cb17792de866f3a7acae88bb5a15165df8fa970d259b32d64": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_module_certificate_configurations\nSET deleted_at = now()\nWHERE id = $1\n"
+  },
   "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422": {
     "describe": {
       "columns": [],
@@ -3215,7 +3292,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -3249,7 +3327,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -4005,6 +4084,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -4022,6 +4106,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],
@@ -4378,7 +4463,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -4648,6 +4734,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -4665,6 +4756,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],
@@ -6041,6 +6133,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -6058,6 +6155,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],
@@ -6225,6 +6323,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -6243,6 +6346,7 @@
         true,
         true,
         false,
+        false,
         false
       ],
       "parameters": {
@@ -6250,6 +6354,62 @@
       }
     },
     "query": "\nUPDATE course_modules\nSET uh_course_code = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *\n        "
+  },
+  "53458681ad5f9d08690fb88c154837f4713b0d9823ae65ed56a7dc336597ba01": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name_on_certificate",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "verification_id",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Text"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completion_certificates\nWHERE verification_id = $1\n  AND deleted_at IS NULL\n"
   },
   "53bfa80a5ca2c543393bbe2266c1129ea103eb4699aaf0fd1445b8daeb408cd0": {
     "describe": {
@@ -6564,6 +6724,62 @@
     },
     "query": "UPDATE pages SET order_number = $2 WHERE pages.id = $1"
   },
+  "58ae58e604010e4728d05a0017d57597d1cbe1fc609259ea9370b2e85a8210ea": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name_on_certificate",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "verification_id",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completion_certificates\nWHERE user_id = $1\n  AND course_module_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n"
+  },
   "59830bf03af0473697a647c7ff0ee73027922ef7fc4ebfe705e47caf4b9ee7e9": {
     "describe": {
       "columns": [
@@ -6672,6 +6888,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -6689,6 +6910,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],
@@ -6802,7 +7024,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -6829,7 +7052,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -7226,6 +7450,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -7243,6 +7472,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],
@@ -7868,7 +8098,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -9542,6 +9773,260 @@
     },
     "query": "\nUPDATE exercise_slides\nSET deleted_at = now()\nWHERE exercise_id IN (\n    SELECT id\n    FROM exercises\n    WHERE page_id = $1\n  )\n  AND deleted_at IS NULL;\n        "
   },
+  "7223a3531443967d4b50601055af85fafffa93f5fe3432ab7433f14ac8ae7d35": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "certificate_owner_name_y_pos",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_x_pos",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_font_size",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_color",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_anchor: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_validate_url_y_pos",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_x_pos",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_font_size",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_color",
+          "ordinal": 14,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_anchor: _",
+          "ordinal": 15,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_date_y_pos",
+          "ordinal": 16,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_x_pos",
+          "ordinal": 17,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_font_size",
+          "ordinal": 18,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_color",
+          "ordinal": 19,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_anchor: _",
+          "ordinal": 20,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_locale",
+          "ordinal": 21,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "paper_size: _",
+          "ordinal": 22,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["horizontal-a4", "vertical-a4"]
+              },
+              "name": "certificate_paper_size"
+            }
+          }
+        },
+        {
+          "name": "background_svg_path",
+          "ordinal": 23,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "background_svg_file_upload_id",
+          "ordinal": 24,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "overlay_svg_path",
+          "ordinal": 25,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "overlay_svg_file_upload_id",
+          "ordinal": 26,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          },
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          },
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          },
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["horizontal-a4", "vertical-a4"]
+              },
+              "name": "certificate_paper_size"
+            }
+          },
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO public.course_module_certificate_configurations (\n    course_module_id,\n    course_instance_id,\n    certificate_owner_name_y_pos,\n    certificate_owner_name_x_pos,\n    certificate_owner_name_font_size,\n    certificate_owner_name_text_color,\n    certificate_owner_name_text_anchor,\n    certificate_validate_url_y_pos,\n    certificate_validate_url_x_pos,\n    certificate_validate_url_font_size,\n    certificate_validate_url_text_color,\n    certificate_validate_url_text_anchor,\n    certificate_date_y_pos,\n    certificate_date_x_pos,\n    certificate_date_font_size,\n    certificate_date_text_color,\n    certificate_date_text_anchor,\n    certificate_locale,\n    paper_size,\n    background_svg_path,\n    background_svg_file_upload_id,\n    overlay_svg_path,\n    overlay_svg_file_upload_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19,\n    $20,\n    $21,\n    $22,\n    $23\n  )\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_instance_id,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\n"
+  },
   "72ccb19101a587401452123425b5659747e50e8cd0693b33a914a4aa10875521": {
     "describe": {
       "columns": [
@@ -9885,6 +10370,120 @@
       }
     },
     "query": "\nUPDATE glossary\nSET deleted_at = now()\nWHERE id = $1\n"
+  },
+  "7666244a0e4b2cffbf384c765c8b51635d7e9800fb7329f7b8fbef6dc3f7361c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "completion_date",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_language",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "eligible_for_ects",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "grade",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 14,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 15,
+          "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE user_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "769c3c707fb5eec0d42419aa8fe9a145fb258c4e256d3d6954919f47bec172e4": {
     "describe": {
@@ -10437,7 +11036,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -10451,6 +11051,22 @@
       }
     },
     "query": "\nSELECT users.id AS \"id!\",\n  user_details.first_name,\n  user_details.last_name,\n  user_details.email,\n  role AS \"role!: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\n  JOIN user_details ON users.id = user_details.user_id\nWHERE is_global = TRUE\nAND roles.deleted_at IS NULL\n"
+  },
+  "7e800a24c812e30e18d4b632fda39b8a227e56230fa70de8108091c0e31ba061": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Varchar", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO file_uploads(path, name, mime, uploaded_by_user)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n"
   },
   "7e8a1529d1b3f6ab629888c8382b9d78c79a31e3c71271a44e43698ad3335791": {
     "describe": {
@@ -10533,7 +11149,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -10820,6 +11437,22 @@
       }
     },
     "query": "\nSELECT *\nFROM exercise_slides\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nORDER BY random()\nLIMIT 1;\n        "
+  },
+  "82b9f016917f5bf78f6228b0ccf88dc14850a4d18fbb80a334d8ca7d55b6e125": {
+    "describe": {
+      "columns": [
+        {
+          "name": "path",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE file_uploads\nSET deleted_at = now()\nWHERE id = $1\nRETURNING path\n"
   },
   "82ffa049e18cf6c93894bae082e6668116f2c0587811368fb1d57edb6d4b6591": {
     "describe": {
@@ -12048,7 +12681,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -12367,6 +13001,22 @@
     },
     "query": "\nSELECT *\nFROM exercise_services\nWHERE slug = ANY($1);"
   },
+  "97cfe5f5a7632a15e0195291a313920c0f3a665a037b5b15a012c73d580776ad": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT id\nFROM course_module_completion_certificates\nWHERE user_id = $1\n    AND course_module_id = $2\n    AND course_instance_id = $3\n    AND deleted_at IS NULL\n"
+  },
   "996a3e8ba767ac07fb92643bb07d3dbfff928fa28b05b7c2192352dfa574dd72": {
     "describe": {
       "columns": [
@@ -12434,6 +13084,208 @@
       }
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\",\n  user_id\nFROM regradings\nWHERE deleted_at IS NULL\nORDER BY regradings.created_at\nLIMIT $1 OFFSET $2;\n"
+  },
+  "99b1997af8d5aa3529b09bedb96ce42e45865a370df916c56c2d5775717a8af2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "certificate_owner_name_y_pos",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_x_pos",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_font_size",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_color",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_owner_name_text_anchor: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_validate_url_y_pos",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_x_pos",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_font_size",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_color",
+          "ordinal": 14,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_validate_url_text_anchor: _",
+          "ordinal": 15,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_date_y_pos",
+          "ordinal": 16,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_x_pos",
+          "ordinal": 17,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_font_size",
+          "ordinal": 18,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_color",
+          "ordinal": 19,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "certificate_date_text_anchor: _",
+          "ordinal": 20,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["start", "middle", "end"]
+              },
+              "name": "certificate_text_anchor"
+            }
+          }
+        },
+        {
+          "name": "certificate_locale",
+          "ordinal": 21,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "paper_size: _",
+          "ordinal": 22,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["horizontal-a4", "vertical-a4"]
+              },
+              "name": "certificate_paper_size"
+            }
+          }
+        },
+        {
+          "name": "background_svg_path",
+          "ordinal": 23,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "background_svg_file_upload_id",
+          "ordinal": 24,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "overlay_svg_path",
+          "ordinal": 25,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "overlay_svg_file_upload_id",
+          "ordinal": 26,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  course_instance_id,\n  certificate_owner_name_y_pos,\n  certificate_owner_name_x_pos,\n  certificate_owner_name_font_size,\n  certificate_owner_name_text_color,\n  certificate_owner_name_text_anchor as \"certificate_owner_name_text_anchor: _\",\n  certificate_validate_url_y_pos,\n  certificate_validate_url_x_pos,\n  certificate_validate_url_font_size,\n  certificate_validate_url_text_color,\n  certificate_validate_url_text_anchor as \"certificate_validate_url_text_anchor: _\",\n  certificate_date_y_pos,\n  certificate_date_x_pos,\n  certificate_date_font_size,\n  certificate_date_text_color,\n  certificate_date_text_anchor as \"certificate_date_text_anchor: _\",\n  certificate_locale,\n  paper_size as \"paper_size: _\",\n  background_svg_path,\n  background_svg_file_upload_id,\n  overlay_svg_path,\n  overlay_svg_file_upload_id\nFROM course_module_certificate_configurations\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "9b22240e7ed6238509fccd2191dfed47215d59363003b204f7f666a587d34a48": {
     "describe": {
@@ -12876,7 +13728,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -12926,7 +13779,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -17515,16 +18369,6 @@
     },
     "query": "UPDATE pages SET chapter_id = $1 WHERE id = $2"
   },
-  "d166ef7aea5087e8bd7cf3fc6eb61625bfc05dde74af20f4c46d8dd36db802c1": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar", "Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO file_uploads(path, name, mime, uploaded_by_user)\nVALUES ($1, $2, $3, $4)\n"
-  },
   "d167d84ecde8f5bfc9b573de74cc7674a5b8649d68ac086320b592e539d7d1c8": {
     "describe": {
       "columns": [
@@ -17678,7 +18522,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -18911,7 +19756,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -19637,6 +20483,22 @@
     },
     "query": "\nUPDATE user_exercise_slide_states\nSET score_given = $1,\n  grading_progress = $2\nWHERE id = $3\n  AND deleted_at IS NULL\n        "
   },
+  "eb802576bfa324428a235cc1aa8f5d65128d60ae73973601ff08bde6e66215ac": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT c.id\nFROM course_module_certificate_configurations AS cmcc\nJOIN course_modules AS cm ON cmcc.course_module_id = cm.id\nJOIN courses AS c ON cm.course_id = c.id\nWHERE cmcc.id = $1\nAND cmcc.deleted_at IS NULL\n    "
+  },
   "ee186fc1b8fd129fbfc96ede2df1eb0513d4d0e5c2f5bf5a17cdc088f8d3af1b": {
     "describe": {
       "columns": [
@@ -19719,6 +20581,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -19736,6 +20603,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],
@@ -19819,7 +20687,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -20028,6 +20897,62 @@
       }
     },
     "query": "\nINSERT INTO certificate_fonts (\n    file_path,\n    file_upload_id,\n    display_name\n  )\nVALUES ($1, $2, $3)\nRETURNING *\n"
+  },
+  "f1de8bd452a0560758629de5218b899e353deaab7d0304565783a5655faedfb9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name_on_certificate",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "verification_id",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Varchar", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO course_module_completion_certificates (\n    user_id,\n    course_module_id,\n    course_instance_id,\n    name_on_certificate,\n    verification_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n"
   },
   "f277300b53e828732168d2b58bdab1746b112ad732a2fef2b78487102b674c9c": {
     "describe": {
@@ -20522,7 +21447,8 @@
                   "teacher",
                   "reviewer",
                   "course_or_exam_creator",
-                  "material_viewer"
+                  "material_viewer",
+                  "teaching_and_learning_services"
                 ]
               },
               "name": "user_role"
@@ -20652,6 +21578,16 @@
       }
     },
     "query": "\nSELECT COUNT(*)\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $3\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    "
+  },
+  "f73c3e30878dff05ec6792f06ddfd7b67c8c8385d991c18142c7b584d20d770a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Bool", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET certification_enabled = $1\nWHERE id = $2\n"
   },
   "f750c38ba4b721e9ad052888f9d8bce58e6fbfb5e4f8f49ea250950b36573cfc": {
     "describe": {
@@ -21249,6 +22185,11 @@
           "name": "enable_registering_completion_to_uh_open_university",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "certification_enabled",
+          "ordinal": 16,
+          "type_info": "Bool"
         }
       ],
       "nullable": [
@@ -21266,6 +22207,7 @@
         true,
         true,
         true,
+        false,
         false,
         false
       ],

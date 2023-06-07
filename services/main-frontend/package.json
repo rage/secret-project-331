@@ -56,6 +56,7 @@
     "react-popper": "^2.3.0",
     "react-spring": "^9.7.1",
     "svgo": "^3.0.2",
+    "tsafe": "^1.6.4",
     "tslib": "^2.5.0",
     "use-debounce": "^9.0.4",
     "uuid": "^9.0.0"

@@ -23,7 +23,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-interface ManageCourseInstancesProps {
+export interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
 }
 

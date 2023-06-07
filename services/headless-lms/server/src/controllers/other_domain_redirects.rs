@@ -8,8 +8,8 @@ use crate::{domain::authorization::skip_authorize, prelude::*};
 /**
 GET `/api/v0/other-domain-redirects/.*` Redirects a domain that is not a main domain to the correct course.
 
-For example https://example-course.mooc.fi could redirect one to https://courses.mooc.fi/org/uh-cs/courses/example-course.
-Paths after the domain are supported, too. For example, https://example-course.mooc.fi/a/b would redirect one to https://courses.mooc.fi/org/uh-cs/courses/example-course/a/b.
+For example <https://example-course.mooc.fi> could redirect one to <https://courses.mooc.fi/org/uh-cs/courses/example-course>.
+Paths after the domain are supported, too. For example, <https://example-course.mooc.fi/a/b> would redirect one to <https://courses.mooc.fi/org/uh-cs/courses/example-course/a/b>.
 The request url is rewritten by the other domain ingress so that right requests end up here.
 **/
 pub async fn redirect_other_domain(

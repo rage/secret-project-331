@@ -62,7 +62,7 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <Layout navVariant="simple">
       <OnlyRenderIfPermissions
-        action={{ type: "teach" }}
+        action={{ type: "view_user_progress_or_details" }}
         resource={{ type: "global_permissions" }}
         elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
       >

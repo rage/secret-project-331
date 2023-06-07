@@ -19,6 +19,8 @@ export type Action =
   | { type: "create_courses_or_exams" }
   | { type: "usually_unacceptable_deletion" }
   | { type: "upload_file" }
+  | { type: "view_user_progress_or_details" }
+  | { type: "view_internal_course_structure" }
 
 export interface ActionOnResource {
   action: Action
@@ -187,6 +189,7 @@ export interface CourseInstanceEnrollmentsInfo {
   course_instances: Array<CourseInstance>
   courses: Array<Course>
   user_course_settings: Array<UserCourseSettings>
+  course_module_completions: Array<CourseModuleCompletion>
 }
 
 export interface ChapterScore {
@@ -241,6 +244,52 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
+export interface CourseModuleCompletionCertificate {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  user_id: string
+  course_module_id: string
+  course_instance_id: string
+  name_on_certificate: string
+  verification_id: string
+}
+
+export interface CourseModuleCertificateConfiguration {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_module_id: string
+  course_instance_id: string | null
+  certificate_owner_name_y_pos: string
+  certificate_owner_name_x_pos: string
+  certificate_owner_name_font_size: string
+  certificate_owner_name_text_color: string
+  certificate_owner_name_text_anchor: CertificateTextAnchor
+  certificate_validate_url_y_pos: string
+  certificate_validate_url_x_pos: string
+  certificate_validate_url_font_size: string
+  certificate_validate_url_text_color: string
+  certificate_validate_url_text_anchor: CertificateTextAnchor
+  certificate_date_y_pos: string
+  certificate_date_x_pos: string
+  certificate_date_font_size: string
+  certificate_date_text_color: string
+  certificate_date_text_anchor: CertificateTextAnchor
+  certificate_locale: string
+  paper_size: PaperSize
+  background_svg_path: string
+  background_svg_file_upload_id: string
+  overlay_svg_path: string | null
+  overlay_svg_file_upload_id: string | null
+}
+
+export type CertificateTextAnchor = "start" | "middle" | "end"
+
+export type PaperSize = "horizontal-a4" | "vertical-a4"
+
 export interface CourseModuleCompletionWithRegistrationInfo {
   completion_registration_attempt_date: Date | null
   course_module_id: string
@@ -250,6 +299,26 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   prerequisite_modules_completed: boolean
   registered: boolean
   user_id: string
+}
+
+export interface CourseModuleCompletion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string
+  course_instance_id: string
+  course_module_id: string
+  user_id: string
+  completion_date: Date
+  completion_registration_attempt_date: Date | null
+  completion_language: string
+  eligible_for_ects: boolean
+  email: string
+  grade: number | null
+  passed: boolean
+  prerequisite_modules_completed: boolean
+  completion_granter_user_id: string | null
 }
 
 export interface AutomaticCompletionRequirements {
@@ -277,6 +346,7 @@ export interface CourseModule {
   completion_registration_link_override: string | null
   ects_credits: number | null
   enable_registering_completion_to_uh_open_university: boolean
+  certification_enabled: boolean
 }
 
 export interface ModifiedModule {
@@ -897,6 +967,7 @@ export interface UserModuleCompletionStatus {
   grade: number | null
   passed: boolean | null
   enable_registering_completion_to_uh_open_university: boolean
+  certification_enabled: boolean
 }
 
 export interface UserWithModuleCompletions {
@@ -1266,7 +1337,11 @@ export interface PlaygroundExampleData {
   data: unknown
 }
 
-export interface BlockProposal {
+export type BlockProposal =
+  | ({ type: "edited-block-still-exists" } & EditedBlockStillExistsData)
+  | ({ type: "edited-block-no-longer-exists" } & EditedBlockNoLongerExistsData)
+
+export interface EditedBlockStillExistsData {
   id: string
   block_id: string
   current_text: string
@@ -1274,6 +1349,14 @@ export interface BlockProposal {
   original_text: string
   status: ProposalStatus
   accept_preview: string | null
+}
+
+export interface EditedBlockNoLongerExistsData {
+  id: string
+  block_id: string
+  changed_text: string
+  original_text: string
+  status: ProposalStatus
 }
 
 export type BlockProposalAction = { tag: "Accept"; data: string } | { tag: "Reject" }
@@ -1393,6 +1476,7 @@ export type UserRole =
   | "Admin"
   | "CourseOrExamCreator"
   | "MaterialViewer"
+  | "TeachingAndLearningServices"
 
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string
@@ -1531,6 +1615,8 @@ export interface Login {
 
 export interface UserInfo {
   user_id: string
+  first_name: string | null
+  last_name: string | null
 }
 
 export interface SaveCourseSettingsPayload {
@@ -1570,6 +1656,31 @@ export type ExamEnrollmentData =
 export interface CourseMaterialPeerReviewDataWithToken {
   course_material_peer_review_data: CourseMaterialPeerReviewData
   token: string | null
+}
+
+export interface CourseModuleCertificateConfigurationUpdate {
+  course_module_id: string
+  course_instance_id: string | null
+  certificate_owner_name_y_pos: string | null
+  certificate_owner_name_x_pos: string | null
+  certificate_owner_name_font_size: string | null
+  certificate_owner_name_text_color: string | null
+  certificate_owner_name_text_anchor: CertificateTextAnchor | null
+  certificate_validate_url_y_pos: string | null
+  certificate_validate_url_x_pos: string | null
+  certificate_validate_url_font_size: string | null
+  certificate_validate_url_text_color: string | null
+  certificate_validate_url_text_anchor: CertificateTextAnchor | null
+  certificate_date_y_pos: string | null
+  certificate_date_x_pos: string | null
+  certificate_date_font_size: string | null
+  certificate_date_text_color: string | null
+  certificate_date_text_anchor: CertificateTextAnchor | null
+  certificate_locale: string | null
+  paper_size: PaperSize | null
+  background_svg_file_name: string | null
+  overlay_svg_file_name: string | null
+  clear_overlay_svg_file: boolean
 }
 
 export interface GetFeedbackQuery {

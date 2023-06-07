@@ -6,6 +6,7 @@ pub mod error;
 pub mod file_store;
 pub mod folder_checksum;
 pub mod futures;
+pub mod icu4x;
 pub mod ip_to_country;
 pub mod language_tag_to_name;
 pub mod merge_edits;

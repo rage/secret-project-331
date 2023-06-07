@@ -2,7 +2,7 @@ use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use futures_util::TryStreamExt;
 use headless_lms_certificates as certificates;
-use headless_lms_utils::file_store::GenericPayload;
+use headless_lms_utils::{file_store::GenericPayload, icu4x::Icu4xBlob};
 use models::{
     course_module_certificate_configurations::{
         CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
@@ -380,6 +380,7 @@ pub async fn get_cerficate_by_verification_id(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     query: web::Query<CertificateQuery>,
+    icu4x_blob: web::Data<Icu4xBlob>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
@@ -397,6 +398,7 @@ pub async fn get_cerficate_by_verification_id(
         file_store.as_ref(),
         &certificate,
         query.debug,
+        **icu4x_blob,
     )
     .await?;
     let max_age = if query.debug { 0 } else { 300 };

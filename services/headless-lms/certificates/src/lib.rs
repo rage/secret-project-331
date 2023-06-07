@@ -12,7 +12,10 @@ use headless_lms_models::course_module_certificate_configurations::{
 use headless_lms_models::course_module_completion_certificates::CourseModuleCompletionCertificate;
 use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::icu4x::Icu4xBlob;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
+use icu::calendar::Gregorian;
+use icu::datetime::TypedDateTimeFormatter;
 use resvg::FitTo;
 use std::path::Path;
 use std::time::Instant;
@@ -21,9 +24,10 @@ use usvg::{fontdb, TreeParsing, TreeTextToPath};
 use quick_xml::{events::BytesText, Writer};
 use std::io::Cursor;
 
-use icu::datetime::{options::length, DateTimeFormatter};
+use icu::datetime::options::length;
 use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
+use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
 
 /**
@@ -40,6 +44,7 @@ pub async fn generate_certificate(
     file_store: &dyn FileStore,
     certificate: &CourseModuleCompletionCertificate,
     debug: bool,
+    icu4x_blob: Icu4xBlob,
 ) -> UtilResult<Vec<u8>> {
     let config = get_by_course_module_and_course_instance(
         &mut *conn,
@@ -102,7 +107,7 @@ pub async fn generate_certificate(
             ..Default::default()
         },
         TextToRender {
-            text: get_date_as_localized_string(&config.certificate_locale, date)?,
+            text: get_date_as_localized_string(&config.certificate_locale, date, icu4x_blob)?,
             y_pos: config.certificate_date_y_pos,
             x_pos: config.certificate_date_x_pos,
             font_size: config.certificate_date_font_size,
@@ -252,29 +257,34 @@ fn generate_certificate_impl(
     Ok(png)
 }
 
-fn get_date_as_localized_string(locale: &str, certificate_date: NaiveDate) -> UtilResult<String> {
+fn get_date_as_localized_string(
+    locale: &str,
+    certificate_date: NaiveDate,
+    icu4x_blob: Icu4xBlob,
+) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
-    // TODO: load locale data using this https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html
-    let dtf = DateTimeFormatter::try_new_unstable(
-        &icu_testdata::unstable(),
-        &DataLocale::from(locale.parse::<Locale>().map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not parse locale".to_string(),
-                Some(original_error.into()),
-            )
-        })?),
+    let provider = BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).unwrap();
+    let locale = locale.parse::<Locale>().map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse locale".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    let dtf = TypedDateTimeFormatter::<Gregorian>::try_new_with_buffer_provider(
+        &provider,
+        &DataLocale::from(locale),
         options,
     )
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            "Failed to create DateTimeFormatter instance.".to_string(),
+            "Failed to create TypedDateTimeFormatter instance.".to_string(),
             Some(original_error.into()),
         )
     })?;
 
-    let icu_date = DateTime::try_new_iso_datetime(
+    let date = DateTime::try_new_gregorian_datetime(
         certificate_date.year(),
         certificate_date.month() as u8,
         certificate_date.day() as u8,
@@ -289,15 +299,7 @@ fn get_date_as_localized_string(locale: &str, certificate_date: NaiveDate) -> Ut
             Some(original_error.into()),
         )
     })?;
-    let date = icu_date.to_any();
-
-    let formatted_date = dtf.format(&date).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Formatting date failed.".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
+    let formatted_date = dtf.format(&date);
     Ok(formatted_date.to_string())
 }
 

@@ -108,7 +108,7 @@ impl FileStore for GoogleCloudFileStore {
             .object()
             .download_streamed(&self.bucket_name, path_to_str(path)?)
             .await?;
-        let stream_with_corrected_type: _ = stream
+        let stream_with_corrected_type = stream
             // cloud_storage download_streamed returns the bytes one by one which is not optimal for us
             // that's why why group the singular bytes to chunks and convert those chunks to Bytes objects.
             .chunks(BUFFER_SIZE)

@@ -14,3 +14,4 @@ RUN apt-get update \
 
 COPY --from=source /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx
 COPY --from=source /ips-to-country /ips-to-country
+COPY --from=source /icu4x.postcard /icu4x.postcard

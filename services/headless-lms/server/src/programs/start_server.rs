@@ -17,6 +17,7 @@ use headless_lms_utils::{
     file_store::{
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
+    icu4x::Icu4xBlob,
     ApplicationConfiguration,
 };
 use listenfd::ListenFd;
@@ -41,6 +42,7 @@ pub async fn main() -> anyhow::Result<()> {
     let test_mode = env::var("TEST_MODE").is_ok();
     let allow_no_https_for_development = env::var("ALLOW_NO_HTTPS_FOR_DEVELOPMENT").is_ok();
     let jwt_key = JwtKey::try_from_env().expect("Failed to create JwtKey");
+    let icu4x_blob = Data::new(Icu4xBlob::try_from_env().expect("Failed to create Icu4xBlob"));
 
     if test_mode {
         info!("***********************************");
@@ -103,9 +105,10 @@ pub async fn main() -> anyhow::Result<()> {
             .wrap(Logger::new(
                 "Completed %r %s %b bytes - %D ms, request_id=%{request-id}o",
             ))
-            .app_data(Data::new(db_clone.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
-            .app_data(Data::new(oauth_client.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
+            .app_data(Data::new(db_clone.clone()))
+            .app_data(Data::new(oauth_client.clone()))
             .app_data(Data::new(jwt_key.clone()))
+            .app_data(icu4x_blob.clone())
     });
 
     server = match listenfd.take_tcp_listener(0)? {

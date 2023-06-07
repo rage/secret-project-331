@@ -21,9 +21,7 @@ xmlwriter = "0.1.0"
 # High performance xml reader and writer
 quick-xml = "0.28.2"
 # International Components for Unicode
-icu = { version = "1.2.0", features=["std"]}
-# Pre-built test data for ICU4X
-icu_testdata = "1.2.0"
+icu = { version = "1.2.0", features=["std", "serde"]}
 # Trait and struct definitions for the ICU data provider
 icu_provider = "1.2.0"
 # Single assignment cells and lazy values.
@@ -40,3 +38,5 @@ chrono = "0.4.24"
 uuid = { version = "1.3.2", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.28"
+# supports loading ICU4X data from a single serialized blob
+icu_provider_blob = "1.2.0"

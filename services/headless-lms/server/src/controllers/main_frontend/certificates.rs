@@ -2,7 +2,7 @@ use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use futures_util::TryStreamExt;
 use headless_lms_certificates as certificates;
-use headless_lms_utils::file_store::GenericPayload;
+use headless_lms_utils::{file_store::GenericPayload, icu4x::Icu4xBlob};
 use models::{
     course_module_certificate_configurations::{
         CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
@@ -317,7 +317,7 @@ pub async fn generate_course_module_completion_certificate(
         ));
     }
     // Skip authorization: each user should be able to generate their own certificate for any module
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     // generate_and_insert verifies that the user can generate the certificate
     models::course_module_completion_certificates::generate_and_insert(
         &mut conn,
@@ -348,7 +348,7 @@ pub async fn get_course_module_completion_certificate(
     let course_module_id = params.0;
     let course_instance_id = params.1;
     // Each user should be able to view their own certificate
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let certificate = models::course_module_completion_certificates::get_certificate_for_user(
         &mut conn,
         user.id,
@@ -380,11 +380,12 @@ pub async fn get_cerficate_by_verification_id(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     query: web::Query<CertificateQuery>,
+    icu4x_blob: web::Data<Icu4xBlob>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
     // everyone needs to be able to view the certificate in order to verify its validity
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let certificate =
         models::course_module_completion_certificates::get_certificate_by_verification_id(
             &mut conn,
@@ -397,6 +398,7 @@ pub async fn get_cerficate_by_verification_id(
         file_store.as_ref(),
         &certificate,
         query.debug,
+        **icu4x_blob,
     )
     .await?;
     let max_age = if query.debug { 0 } else { 300 };

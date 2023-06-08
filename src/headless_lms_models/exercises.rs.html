@@ -985,11 +985,6 @@
 <a href="#985" id="985">985</a>
 <a href="#986" id="986">986</a>
 <a href="#987" id="987">987</a>
-<a href="#988" id="988">988</a>
-<a href="#989" id="989">989</a>
-<a href="#990" id="990">990</a>
-<a href="#991" id="991">991</a>
-<a href="#992" id="992">992</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>url::Url;
@@ -1121,11 +1116,12 @@ Indicates what is the user&#39;s completion status for a exercise.
 
 As close as possible to LTI&#39;s activity progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress&gt;.
 */
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 #[sqlx(type_name = <span class="string">&quot;activity_progress&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
 </span><span class="kw">pub enum </span>ActivityProgress {
     <span class="doccomment">/// The user has not started the activity, or the activity has been reset for that student.
+    </span><span class="attr">#[default]
     </span>Initialized,
     <span class="doccomment">/// The activity associated with the exercise has been started by the user to which the result relates.
     </span>Started,
@@ -1135,12 +1131,6 @@ As close as possible to LTI&#39;s activity progress for compatibility: &lt;https
     </span>Submitted,
     <span class="doccomment">/// The user has completed the activity associated with the exercise.
     </span>Completed,
-}
-
-<span class="kw">impl </span>Default <span class="kw">for </span>ActivityProgress {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        ActivityProgress::Initialized
-    }
 }
 
 <span class="doccomment">/**

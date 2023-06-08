@@ -3,7 +3,7 @@ name = "headless-lms-models"
 version = "0.1.0"
 authors = ["Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2021"
-rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
+rust-version = "1.66.0"  # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

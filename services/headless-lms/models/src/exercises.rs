@@ -129,11 +129,12 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
+    #[default]
     Initialized,
     /// The activity associated with the exercise has been started by the user to which the result relates.
     Started,
@@ -143,12 +144,6 @@ pub enum ActivityProgress {
     Submitted,
     /// The user has completed the activity associated with the exercise.
     Completed,
-}
-
-impl Default for ActivityProgress {
-    fn default() -> Self {
-        ActivityProgress::Initialized
-    }
 }
 
 /**

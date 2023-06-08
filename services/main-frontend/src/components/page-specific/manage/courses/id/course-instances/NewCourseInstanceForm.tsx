@@ -54,9 +54,9 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
           label={t("text-field-label-name")}
           id={"name"}
           error={errors["name"]}
-          defaultValue={initialData?.name ?? ""}
+          defaultValue={initialData?.name || ""}
           placeholder={t("text-field-label-name")}
-          {...register}
+          {...register("name")}
         />
         <TextField
           label={t("text-field-label-description")}
@@ -64,7 +64,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
           error={errors["description"]}
           defaultValue={initialData?.description || ""}
           placeholder={t("text-field-label-description")}
-          {...register}
+          {...register("description")}
         />
         <TextField
           label={t("support-email")}
@@ -72,7 +72,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
           error={errors["supportEmail"]}
           defaultValue={initialData?.support_email || ""}
           placeholder={t("support-email")}
-          {...register}
+          {...register("supportEmail")}
         />
         <TextField
           label={t("teacher-in-charge-name")}
@@ -80,15 +80,15 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
           error={errors["teacherName"]}
           defaultValue={initialData?.teacher_in_charge_name}
           placeholder={t("teacher-in-charge-name")}
-          {...register}
+          {...register("teacherName")}
         />
         <TextField
           label={t("teacher-in-charge-email")}
           id={"teacherEmail"}
           error={errors["teacherEmail"]}
-          defaultValue={initialData?.teacher_in_charge_email ?? ""}
+          defaultValue={initialData?.teacher_in_charge_email}
           placeholder={t("teacher-in-charge-email")}
-          {...register}
+          {...register("teacherEmail")}
         />
         <TimePicker
           label={t("opening-time")}

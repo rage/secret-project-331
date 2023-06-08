@@ -30,7 +30,7 @@ async fn get_user_progress_for_course_instance(
             user.id,
         )
         .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_progress))
 }
 
@@ -54,7 +54,7 @@ async fn get_user_progress_for_course_instance_chapter(
             user.id,
         )
         .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
@@ -90,7 +90,7 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(rounded_score_given_instances))
 }
 
@@ -105,7 +105,7 @@ async fn get_module_completions_for_course_instance(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let mut module_completion_statuses =
         models::library::progressing::get_user_module_completion_statuses_for_course_instance(
             &mut conn,
@@ -164,7 +164,7 @@ async fn save_course_settings(
         .await?;
     }
     tx.commit().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(enrollment))
 }
 
@@ -186,7 +186,7 @@ async fn get_background_questions_and_answers(
         &mut conn, &instance, user.id,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 

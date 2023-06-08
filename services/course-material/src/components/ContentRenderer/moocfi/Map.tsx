@@ -12,9 +12,6 @@ import useUserInfo from "../../../shared-module/hooks/useUserInfo"
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
-const countryClasses = [".fr", ".us", ".fi", ".ng"]
-const formattedClasses = countryClasses.join(",")
-
 interface MapStyleProps {
   codes: string[]
 }
@@ -34,26 +31,26 @@ const Wrapper = styled.div`
   }
 `
 
-const MapStyles = (props: MapStyleProps) => {
-  const formattedClasses = props.codes.join(",")
-  const MAP_STYLES = `
-  ${formattedClasses} {
-      fill: #374461 !important;
-      opacity: 1;
-    }
-  `
-  return MAP_STYLES
-}
-
-// const StyledMap = styled(WorldMap)<string>`
+// const MapStyles = (props: MapStyleProps) => {
+//   const formattedClasses = props.codes.join(",")
+//   const MAP_STYLES = `
 //   ${formattedClasses} {
-//     fill: #374461 !important;
-//     opacity: 1;
-//   }
-// `
+//       fill: #374461 !important;
+//       opacity: 1;
+//     }
+//   `
+//   return MAP_STYLES
+// }
+
 const StyledMap = styled(WorldMap)`
-  ${MapStyles}
+  ${({ codes }) => codes} {
+    fill: #374461 !important;
+    opacity: 1;
+  }
 `
+// const StyledMap = styled(WorldMap)`
+//   ${MapStyles}
+// `
 
 export type RouteElement = Element | SVGLineElement
 
@@ -64,8 +61,7 @@ export interface MapExtraProps {
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
-  let countryCodes: string[] = []
-  const formattedCountryCodes = countryCodes.join(",")
+  let countryCodes: string[] = [".fi", ".us"]
   const { t } = useTranslation()
 
   const pageState = useContext(PageContext)
@@ -122,11 +118,21 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     return child.tagName === "g" || child.tagName === "path"
   }
 
+  let studentCountryAdded = false
+  let formattedCountryCodes
+
+  if (getCountries.isSuccess) {
+    studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
+    const storedCountryCodes = getCountries.data.map((country) => `.${country.country_code}`)
+    countryCodes = [...countryCodes, ...storedCountryCodes]
+    formattedCountryCodes = countryCodes.join(",")
+  }
+
   useEffect(() => {
     const map = document.querySelector(".world-map")
 
     const eventHandler = (evt: Event) => {
-      const formattedIdentifier = countryClasses.map((str) => str.substring(1))
+      const formattedIdentifier = countryCodes.map((str) => str.substring(1))
 
       let svgElement = null
       if (evt.target instanceof Element) {
@@ -178,7 +184,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
         }
       })
     }
-  }, [])
+  }, [countryCodes])
 
   const handleCountryChange = (value: string) => {
     if (!value) {
@@ -189,12 +195,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     return uploadStudentCountry.mutate(country)
   }
 
-  let studentCountryAdded = false
-
-  if (getCountries.isSuccess) {
-    studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
-    countryCodes = getCountries.data.map((country) => `.${country.country_code}`)
-  }
+  console.log("countryCodes", formattedCountryCodes)
 
   return (
     <Wrapper>

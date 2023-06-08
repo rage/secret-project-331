@@ -666,24 +666,23 @@ async fn get_page_by_course_id_and_language_group(
 }
 
 /**
-POST `/api/v0/{course_id}/student-countries` - Add a new student's country entry.
+POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn student_country(
-    course_instance_id: web::Path<Uuid>,
+    query: web::Path<(Uuid, Uuid, String)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    course_id: web::Path<Uuid>,
-    country_code: String,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
+    let (course_id, course_instance_id, country_code) = query.into_inner();
 
     models::student_countries::insert(
         &mut conn,
         user.id,
-        *course_id,
-        *course_instance_id,
+        course_id,
+        course_instance_id,
         &country_code,
     )
     .await?;

@@ -460,7 +460,7 @@ export const postStudentCountry = async (
   country_code: string,
 ): Promise<void> => {
   await courseMaterialClient.post(
-    `/courses/${course_id}/course-instances/${course_instance_id}/student-countries//${country_code}`,
+    `/courses/${course_id}/course-instances/${course_instance_id}/student-countries/${country_code}`,
   )
 }
 

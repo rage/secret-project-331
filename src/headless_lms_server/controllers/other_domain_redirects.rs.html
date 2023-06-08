@@ -94,7 +94,7 @@ The request url is rewritten by the other domain ingress so that right requests 
         <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, redirection.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>organization =
             models::organizations::get_organization(<span class="kw-2">&amp;mut </span>conn, course.organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>token = skip_authorize();
         <span class="kw">return </span>token.authorized_ok(
             HttpResponse::TemporaryRedirect()
                 .insert_header((

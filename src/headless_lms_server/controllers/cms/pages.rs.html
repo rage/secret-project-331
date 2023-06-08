@@ -261,7 +261,7 @@ GET /api/v0/cms/pages/:page_id/page-navigation - tells what&#39;s the next page,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;PageNavigationInformation&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>res = models::pages::get_page_navigation_data(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))

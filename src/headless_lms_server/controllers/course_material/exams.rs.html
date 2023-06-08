@@ -277,7 +277,7 @@ POST /api/v0/course-material/exams/:id/enroll
             ));
         }
         exams::enroll(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>token = skip_authorize();
         <span class="kw">return </span>token.authorized_ok(web::Json(()));
     }
 

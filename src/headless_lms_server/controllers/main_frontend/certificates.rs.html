@@ -779,7 +779,7 @@ Generates a certificate for completing a course module.
         ));
     }
     <span class="comment">// Skip authorization: each user should be able to generate their own certificate for any module
-    </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>token = skip_authorize();
     <span class="comment">// generate_and_insert verifies that the user can generate the certificate
     </span>models::course_module_completion_certificates::generate_and_insert(
         <span class="kw-2">&amp;mut </span>conn,
@@ -810,7 +810,7 @@ Fetches the user&#39;s certificate for the given course module and course instan
     <span class="kw">let </span>course_module_id = params.<span class="number">0</span>;
     <span class="kw">let </span>course_instance_id = params.<span class="number">1</span>;
     <span class="comment">// Each user should be able to view their own certificate
-    </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>certificate = models::course_module_completion_certificates::get_certificate_for_user(
         <span class="kw-2">&amp;mut </span>conn,
         user.id,
@@ -847,7 +847,7 @@ Response: the certificate as a png.
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// everyone needs to be able to view the certificate in order to verify its validity
-    </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>certificate =
         models::course_module_completion_certificates::get_certificate_by_verification_id(
             <span class="kw-2">&amp;mut </span>conn,

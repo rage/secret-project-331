@@ -248,7 +248,7 @@
             user.id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_progress))
 }
 
@@ -272,7 +272,7 @@ GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapt
             user.id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
@@ -308,7 +308,7 @@ GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapte
                 exercise_id: i.exercise_id,
             })
             .collect();
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(rounded_score_given_instances))
 }
 
@@ -323,7 +323,7 @@ GET `/api/v0/course-material/course-instance/{course_instance_id}/module-complet
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;UserModuleCompletionStatus&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span><span class="kw-2">mut </span>module_completion_statuses =
         models::library::progressing::get_user_module_completion_statuses_for_course_instance(
             <span class="kw-2">&amp;mut </span>conn,
@@ -382,7 +382,7 @@ POST /api/v0/course-material/course-instance/:course_instance_id/save-course-set
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(enrollment))
 }
 
@@ -404,7 +404,7 @@ GET /api/v0/course-material/course-instance/:course_instance_id/background-quest
         <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>instance, user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 

@@ -61,7 +61,7 @@ GET `/api/v0/main-frontend/org/:slug
     <span class="kw">let </span>organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), <span class="kw-2">&amp;</span>app_conf);
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(organization))
 }
 

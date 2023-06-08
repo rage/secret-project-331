@@ -359,7 +359,7 @@ Response:
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;OEmbedResponse&gt;&gt; {
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>url = query_params.url.to_string();
     <span class="kw">let </span>response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())<span class="question-mark">?</span>;
     token.authorized_ok(web::Json(response))
@@ -372,7 +372,7 @@ Response:
     app_conf: web::Data&lt;ApplicationConfiguration&gt;,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;OEmbedResponse&gt;&gt; {
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>url = query_params.url.to_string();
     <span class="kw">let </span>response = thinglink_oembed_response_builder(url, app_conf.base_url.to_string())<span class="question-mark">?</span>;
     token.authorized_ok(web::Json(response))

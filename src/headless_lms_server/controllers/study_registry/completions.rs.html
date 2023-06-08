@@ -351,7 +351,7 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
             <span class="kw-2">&amp;</span>course_modules,
         );
         <span class="kw">let </span>fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
-            <span class="kw">let </span>token = skip_authorize().expect(<span class="string">&quot;Always succeeds&quot;</span>);
+            <span class="kw">let </span>token = skip_authorize();
             <span class="kw">let </span>message = <span class="kw">match </span>message {
                 <span class="prelude-val">Ok</span>(message) =&gt; message,
                 <span class="prelude-val">Err</span>(err) =&gt; {
@@ -449,7 +449,7 @@ Content-Type: application/json
             <span class="kw-2">&amp;</span>modules,
         );
         <span class="kw">let </span>fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
-            <span class="kw">let </span>token = skip_authorize().expect(<span class="string">&quot;Always succeeds&quot;</span>);
+            <span class="kw">let </span>token = skip_authorize();
             <span class="kw">let </span>message = <span class="kw">match </span>message {
                 <span class="prelude-val">Ok</span>(message) =&gt; message,
                 <span class="prelude-val">Err</span>(err) =&gt; {

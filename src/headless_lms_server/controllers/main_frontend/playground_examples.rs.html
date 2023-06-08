@@ -101,7 +101,7 @@ GET `/api/v0/main-frontend/playground_examples` - Returns all playground example
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res = models::playground_examples::get_all_playground_examples(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 

@@ -75,7 +75,7 @@ Receives a grading update from an exercise service.
 ) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
     <span class="comment">// accessed from exercise services, can&#39;t authenticate using login,
     // the upload claim is used to verify requests instead
-    </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>token = skip_authorize();
 
     <span class="comment">// Ensure that the claim is valid for this specific submission
     </span><span class="kw">if </span><span class="kw-2">*</span>submission_id != grading_update_claim.submission_id() {

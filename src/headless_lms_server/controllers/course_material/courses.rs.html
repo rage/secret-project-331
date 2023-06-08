@@ -766,7 +766,7 @@ GET `/api/v0/course-material/courses/:course_id` - Get course.
 ) -&gt; ControllerResult&lt;web::Json&lt;Course&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(course))
 }
 
@@ -948,7 +948,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     <span class="kw">let </span>device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(RequestInformation {
         ip,
         user_agent: user_agent
@@ -984,7 +984,7 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
             <span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">*</span>course_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>token = skip_authorize();
         token.authorized_ok(web::Json(instance))
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(ControllerError::new(
@@ -1006,7 +1006,7 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>instances =
         models::course_instances::get_course_instances_for_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(instances))
 }
 
@@ -1028,7 +1028,7 @@ Since anyone can access this endpoint, any unlisted pages are omited from these 
         PageVisibility::Public,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(pages))
 }
 
@@ -1067,7 +1067,7 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
     }))
     .<span class="kw">await
     </span>.is_some();
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>course_modules = models::course_modules::get_by_course_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>chapters = models::chapters::course_chapters(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id)
         .<span class="kw">await</span><span class="question-mark">?
@@ -1124,7 +1124,7 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
             </span>.chapters
             .push(chapter);
     }
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(course_modules.into_values().collect())
 }
 
@@ -1144,7 +1144,7 @@ GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user se
             <span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">*</span>course_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>token = skip_authorize();
         token.authorized_ok(web::Json(settings))
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(ControllerError::new(
@@ -1183,7 +1183,7 @@ Content-Type: application/json
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res =
         models::pages::get_page_search_results_for_phrase(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -1215,7 +1215,7 @@ Content-Type: application/json
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res =
         models::pages::get_page_search_results_for_words(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -1267,7 +1267,7 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
         ids.push(id);
     }
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(ids))
 }
 
@@ -1291,7 +1291,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
         <span class="kw-2">&amp;</span>edits.into_inner(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(id))
 }
 
@@ -1303,7 +1303,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;Term&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>glossary = models::glossary::fetch_for_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(glossary))
 }
 
@@ -1338,7 +1338,7 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
         PageVisibility::Public,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 
@@ -1352,7 +1352,7 @@ GET `/api/v0/course-material/courses/:id/language-versions` - Returns all langua
     course_id: web::Path&lt;Uuid&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;Course&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>language_versions =
         models::courses::get_all_language_versions_of_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course)
@@ -1381,7 +1381,7 @@ GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - R
         page_language_group_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 

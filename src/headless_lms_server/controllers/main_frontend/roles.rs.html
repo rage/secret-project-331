@@ -232,7 +232,7 @@
     <span class="kw">let </span>target_user = users::get_by_email(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>role_info.email).<span class="kw">await</span><span class="question-mark">?</span>;
     roles::insert(<span class="kw-2">&amp;mut </span>conn, target_user.id, role_info.role, role_info.domain).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
@@ -256,7 +256,7 @@
     <span class="kw">let </span>target_user = users::get_by_email(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>role_info.email).<span class="kw">await</span><span class="question-mark">?</span>;
     roles::remove(<span class="kw-2">&amp;mut </span>conn, target_user.id, role_info.role, role_info.domain).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

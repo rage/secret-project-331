@@ -965,15 +965,15 @@ async fn example_function(
 ) -&gt; ControllerResult&lt;....&gt; {
     // We need to return ControllerResult -&gt; AuthorizedResponse
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
 
     token.authorized_ok(web::Json(organizations))
 
 }
 ```
 */
-</span><span class="kw">pub fn </span>skip_authorize() -&gt; <span class="prelude-ty">Result</span>&lt;AuthorizationToken, ControllerError&gt; {
-    <span class="prelude-val">Ok</span>(AuthorizationToken(()))
+</span><span class="kw">pub fn </span>skip_authorize() -&gt; AuthorizationToken {
+    AuthorizationToken(())
 }
 
 <span class="doccomment">/**  Can be used to check whether user is allowed to view some course material */
@@ -992,8 +992,8 @@ async fn example_function(
         }
         authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?
     </span>} <span class="kw">else </span>{
-        skip_authorize()<span class="question-mark">?
-    </span>};
+        skip_authorize()
+    };
     <span class="prelude-val">Ok</span>(token)
 }
 

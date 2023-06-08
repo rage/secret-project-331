@@ -32,7 +32,7 @@ POST `/api/v0/healthz` Tells whether the server is healthy.
 */
 </span><span class="kw">pub async fn </span>healthz(pool: web::Data&lt;PgPool&gt;) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>_res = conn.execute(<span class="string">&quot;SELECT 1&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }

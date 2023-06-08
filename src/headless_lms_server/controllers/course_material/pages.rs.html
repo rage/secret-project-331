@@ -137,7 +137,7 @@ GET /api/v0/course-material/pages/exam/{page_id}
 ) -&gt; ControllerResult&lt;web::Json&lt;Page&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>page = models::pages::get_by_exam_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 
@@ -153,7 +153,7 @@ GET /api/v0/course-material/page/{page_id}
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>chapter_front_page =
         models::pages::get_chapter_front_page_by_page_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(chapter_front_page))
 }
 
@@ -167,7 +167,7 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;PageNavigationInformation&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>res = models::pages::get_page_navigation_data(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(res))
@@ -185,7 +185,7 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>res = models::pages::get_page_chapter_and_course_information(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -204,7 +204,7 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>page = models::pages::get_page(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(page.url_path)
 }
 
@@ -216,7 +216,7 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
 ) -&gt; ControllerResult&lt;web::Json&lt;IsChapterFrontPage&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>is_chapter_front_page = models::pages::is_chapter_front_page(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(is_chapter_front_page))
 }
 

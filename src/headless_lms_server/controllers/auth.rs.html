@@ -577,12 +577,12 @@ POST `/api/v0/auth/authorize` checks whether user can perform specified action o
             true_token.authorized_ok(web::Json(<span class="bool-val">true</span>))
         } <span class="kw">else </span>{
             <span class="comment">// We went to return success message even if the authorization fails.
-            </span><span class="kw">let </span>false_token = skip_authorize()<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>false_token = skip_authorize();
             false_token.authorized_ok(web::Json(<span class="bool-val">false</span>))
         }
     } <span class="kw">else </span>{
         <span class="comment">// Never authorize anonymous user
-        </span><span class="kw">let </span>false_token = skip_authorize()<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>false_token = skip_authorize();
         false_token.authorized_ok(web::Json(<span class="bool-val">false</span>))
     }
 }
@@ -651,7 +651,7 @@ Content-Type: application/json
         <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>user = get_user_from_moocfi(<span class="kw-2">&amp;</span>token, <span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span>;
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(user) = user {
-            <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+            <span class="kw">let </span>token = skip_authorize();
             authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
             token.authorized_ok(HttpResponse::Ok().finish())
         } <span class="kw">else </span>{
@@ -710,7 +710,7 @@ Returns booleans for the authorizations in the same order as the input.
             results.push(<span class="bool-val">false</span>);
         }
     }
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(results))
 }
 
@@ -732,7 +732,7 @@ POST `/api/v0/auth/login` Logs in to TMC.
         <span class="macro">warn!</span>(<span class="string">&quot;Trying development mode UUID login&quot;</span>);
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(id) = Uuid::parse_str(<span class="kw-2">&amp;</span>email) {
             <span class="kw">let </span>user = { models::users::get_by_id(<span class="kw-2">&amp;mut </span>conn, id).<span class="kw">await</span><span class="question-mark">? </span>};
-            <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+            <span class="kw">let </span>token = skip_authorize();
             authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
             <span class="kw">return </span>token.authorized_ok(HttpResponse::Ok().finish());
         };
@@ -742,7 +742,7 @@ POST `/api/v0/auth/login` Logs in to TMC.
         <span class="macro">warn!</span>(<span class="string">&quot;Using test credentials. Normal accounts won&#39;t work.&quot;</span>);
         <span class="kw">let </span>user =
             models::users::authenticate_test_user(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>email, <span class="kw-2">&amp;</span>password, <span class="kw-2">&amp;</span>app_conf).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>token = skip_authorize();
         authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
         <span class="kw">return </span>token.authorized_ok(HttpResponse::Ok().finish());
     }
@@ -769,7 +769,7 @@ POST `/api/v0/auth/login` Logs in to TMC.
     <span class="kw">let </span>user = get_user_from_moocfi(<span class="kw-2">&amp;</span>token, <span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span>;
     <span class="kw">match </span>user {
         <span class="prelude-val">Ok</span>(user) =&gt; {
-            <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+            <span class="kw">let </span>token = skip_authorize();
             authorization::remember(<span class="kw-2">&amp;</span>session, user)<span class="question-mark">?</span>;
             token.authorized_ok(HttpResponse::Ok().finish())
         }
@@ -842,7 +842,7 @@ GET `/api/v0/auth/user-info` Returns the current user&#39;s info.
     auth_user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
     pool: web::Data&lt;PgPool&gt;,
 ) -&gt; ControllerResult&lt;web::Json&lt;<span class="prelude-ty">Option</span>&lt;UserInfo&gt;&gt;&gt; {
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">if let </span><span class="prelude-val">Some</span>(auth_user) = auth_user {
         <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>user_details =

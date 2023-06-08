@@ -547,7 +547,7 @@ expose the correct answers to the user.
     <span class="kw">if </span>!has_received_full_points &amp;&amp; !out_of_tries {
         course_material_exercise.clear_model_solution_specs();
     }
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(course_material_exercise))
 }
 
@@ -619,7 +619,7 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get 
         user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(peer_review_data))
 }
 
@@ -654,7 +654,7 @@ Content-Type: application/json
 ) -&gt; ControllerResult&lt;web::Json&lt;StudentExerciseSlideSubmissionResult&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>chapter_option_future: OptionFuture&lt;<span class="kw">_</span>&gt; = exercise
         .chapter_id
         .map(|id| models::chapters::get_chapter(<span class="kw-2">&amp;mut </span>conn, id))
@@ -804,7 +804,7 @@ Content-Type: application/json
         payload.<span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 

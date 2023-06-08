@@ -422,7 +422,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), <span class="kw-2">&amp;</span>app_conf))
         .collect();
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(organizations))
 }
 
@@ -448,7 +448,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(courses))
 }
 
@@ -462,7 +462,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     <span class="kw">let </span>result =
         models::courses::organization_course_count(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>request_organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(Json(result))
 }
 
@@ -481,7 +481,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(Json(courses))
 }
 
@@ -498,7 +498,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Retu
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(Json(result))
 }
 
@@ -645,7 +645,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organiz
     <span class="kw">let </span>organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), <span class="kw-2">&amp;</span>app_conf);
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(organization))
 }
 
@@ -661,7 +661,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Retur
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exams = models::exams::get_course_exams_for_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(exams))
 }
 
@@ -677,7 +677,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an o
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exams = models::exams::get_exams_for_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
     token.authorized_ok(web::Json(exams))
 }
 

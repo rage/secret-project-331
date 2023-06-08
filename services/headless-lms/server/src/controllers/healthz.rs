@@ -11,7 +11,7 @@ POST `/api/v0/healthz` Tells whether the server is healthy.
 */
 pub async fn healthz(pool: web::Data<PgPool>) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let _res = conn.execute("SELECT 1").await?;
     token.authorized_ok(web::Json(true))
 }

@@ -119,7 +119,7 @@ async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerRe
     }
 
     // this endpoint is only used for development
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(response.body(contents))
 }
 
@@ -144,7 +144,7 @@ async fn upload_from_exercise_service(
     let mut conn = pool.acquire().await?;
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
-    let token = skip_authorize()?;
+    let token = skip_authorize();
 
     // the playground uses the special "playground" slug to upload temporary files
     if exercise_service_slug.as_str() != "playground" {

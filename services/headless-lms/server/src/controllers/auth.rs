@@ -74,12 +74,12 @@ pub async fn authorize_action_on_resource(
             true_token.authorized_ok(web::Json(true))
         } else {
             // We went to return success message even if the authorization fails.
-            let false_token = skip_authorize()?;
+            let false_token = skip_authorize();
             false_token.authorized_ok(web::Json(false))
         }
     } else {
         // Never authorize anonymous user
-        let false_token = skip_authorize()?;
+        let false_token = skip_authorize();
         false_token.authorized_ok(web::Json(false))
     }
 }
@@ -148,7 +148,7 @@ pub async fn signup(
         let mut conn = pool.acquire().await?;
         let user = get_user_from_moocfi(&token, &mut conn).await;
         if let Ok(user) = user {
-            let token = skip_authorize()?;
+            let token = skip_authorize();
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
         } else {
@@ -207,7 +207,7 @@ pub async fn authorize_multiple_actions_on_resources(
             results.push(false);
         }
     }
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(results))
 }
 
@@ -229,7 +229,7 @@ pub async fn login(
         warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
-            let token = skip_authorize()?;
+            let token = skip_authorize();
             authorization::remember(&session, user)?;
             return token.authorized_ok(HttpResponse::Ok().finish());
         };
@@ -239,7 +239,7 @@ pub async fn login(
         warn!("Using test credentials. Normal accounts won't work.");
         let user =
             models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         authorization::remember(&session, user)?;
         return token.authorized_ok(HttpResponse::Ok().finish());
     }
@@ -266,7 +266,7 @@ pub async fn login(
     let user = get_user_from_moocfi(&token, &mut conn).await;
     match user {
         Ok(user) => {
-            let token = skip_authorize()?;
+            let token = skip_authorize();
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
         }
@@ -339,7 +339,7 @@ pub async fn user_info(
     auth_user: Option<AuthUser>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Option<UserInfo>>> {
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     if let Some(auth_user) = auth_user {
         let mut conn = pool.acquire().await?;
         let user_details =

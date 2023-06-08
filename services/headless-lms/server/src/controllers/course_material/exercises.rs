@@ -87,7 +87,7 @@ async fn get_exercise(
     if !has_received_full_points && !out_of_tries {
         course_material_exercise.clear_model_solution_specs();
     }
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(course_material_exercise))
 }
 
@@ -159,7 +159,7 @@ async fn get_peer_reviews_received(
         user.id,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(peer_review_data))
 }
 
@@ -194,7 +194,7 @@ async fn post_submission(
 ) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let chapter_option_future: OptionFuture<_> = exercise
         .chapter_id
         .map(|id| models::chapters::get_chapter(&mut conn, id))
@@ -344,7 +344,7 @@ async fn submit_peer_review(
         payload.0,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(true))
 }
 

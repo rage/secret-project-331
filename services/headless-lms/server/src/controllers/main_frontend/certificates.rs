@@ -317,7 +317,7 @@ pub async fn generate_course_module_completion_certificate(
         ));
     }
     // Skip authorization: each user should be able to generate their own certificate for any module
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     // generate_and_insert verifies that the user can generate the certificate
     models::course_module_completion_certificates::generate_and_insert(
         &mut conn,
@@ -348,7 +348,7 @@ pub async fn get_course_module_completion_certificate(
     let course_module_id = params.0;
     let course_instance_id = params.1;
     // Each user should be able to view their own certificate
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let certificate = models::course_module_completion_certificates::get_certificate_for_user(
         &mut conn,
         user.id,
@@ -385,7 +385,7 @@ pub async fn get_cerficate_by_verification_id(
     let mut conn = pool.acquire().await?;
 
     // everyone needs to be able to view the certificate in order to verify its validity
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let certificate =
         models::course_module_completion_certificates::get_certificate_by_verification_id(
             &mut conn,

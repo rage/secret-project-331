@@ -16,7 +16,7 @@ async fn get_by_exam_id(
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 
@@ -32,7 +32,7 @@ async fn get_chapter_front_page(
     let mut conn = pool.acquire().await?;
     let chapter_front_page =
         models::pages::get_chapter_front_page_by_page_id(&mut conn, *page_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(chapter_front_page))
 }
 
@@ -46,7 +46,7 @@ async fn get_page_navigation(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<PageNavigationInformation>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
 
     token.authorized_ok(web::Json(res))
@@ -64,7 +64,7 @@ async fn get_chapter_and_course_information(
     let mut conn = pool.acquire().await?;
     let res = models::pages::get_page_chapter_and_course_information(&mut conn, *page_id).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -83,7 +83,7 @@ async fn get_url_path(
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_page(&mut conn, *page_id).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(page.url_path)
 }
 
@@ -95,7 +95,7 @@ async fn is_chapter_front_page(
 ) -> ControllerResult<web::Json<IsChapterFrontPage>> {
     let mut conn = pool.acquire().await?;
     let is_chapter_front_page = models::pages::is_chapter_front_page(&mut conn, *page_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(is_chapter_front_page))
 }
 

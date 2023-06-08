@@ -13,7 +13,7 @@ async fn get_playground_examples(
     let mut conn = pool.acquire().await?;
     let res = models::playground_examples::get_all_playground_examples(&mut conn).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 

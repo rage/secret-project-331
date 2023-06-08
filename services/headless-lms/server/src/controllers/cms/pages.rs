@@ -119,7 +119,7 @@ async fn get_page_navigation(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<PageNavigationInformation>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
 
     token.authorized_ok(web::Json(res))

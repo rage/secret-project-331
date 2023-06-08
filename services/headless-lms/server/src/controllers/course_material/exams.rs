@@ -58,7 +58,7 @@ pub async fn enroll(
             ));
         }
         exams::enroll(&mut conn, *exam_id, user.id).await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         return token.authorized_ok(web::Json(()));
     }
 

@@ -21,7 +21,7 @@ async fn get_organization_by_slug(
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(organization))
 }
 

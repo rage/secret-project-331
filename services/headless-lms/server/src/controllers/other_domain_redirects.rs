@@ -34,7 +34,7 @@ pub async fn redirect_other_domain(
         let course = models::courses::get_course(&mut conn, redirection.course_id).await?;
         let organization =
             models::organizations::get_organization(&mut conn, course.organization_id).await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         return token.authorized_ok(
             HttpResponse::TemporaryRedirect()
                 .insert_header((

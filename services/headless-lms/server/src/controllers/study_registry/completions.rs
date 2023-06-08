@@ -98,7 +98,7 @@ async fn get_completions(
             &course_modules,
         );
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
-            let token = skip_authorize().expect("Always succeeds");
+            let token = skip_authorize();
             let message = match message {
                 Ok(message) => message,
                 Err(err) => {
@@ -196,7 +196,7 @@ async fn get_module_completions(
             &modules,
         );
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
-            let token = skip_authorize().expect("Always succeeds");
+            let token = skip_authorize();
             let message = match message {
                 Ok(message) => message,
                 Err(err) => {

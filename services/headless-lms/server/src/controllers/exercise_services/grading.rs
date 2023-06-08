@@ -17,7 +17,7 @@ async fn grading_update(
 ) -> ControllerResult<web::Json<()>> {
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
-    let token = skip_authorize()?;
+    let token = skip_authorize();
 
     // Ensure that the claim is valid for this specific submission
     if *submission_id != grading_update_claim.submission_id() {

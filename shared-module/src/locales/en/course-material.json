@@ -168,5 +168,7 @@
   "youve-made-changes": "You've made changes",
   "youve-selected-material-for-editing": "You've selected material for editing",
   "student-in-this-region": "Students are in this regions",
-  "country-added-successfully": "Country addedd successfully"
+  "country-added-successfully": "Country addedd successfully",
+  "add-country-to-map": "  Add your country to view map",
+  "use-of-info": "The information you are about to submit is secured and will not be use for any other purposes besides populating the map."
 }

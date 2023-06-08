@@ -1,6 +1,7 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect } from "react"
+import React, { useContext, useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../contexts/PageContext"
@@ -11,6 +12,9 @@ import useUserInfo from "../../../shared-module/hooks/useUserInfo"
 
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
+
+const countryClasses = [".fr", ".us", ".fi", ".ng"]
+const formattedClasses = countryClasses.join(",")
 
 interface MapStyleProps {
   codes: string[]
@@ -31,16 +35,17 @@ const Wrapper = styled.div`
   }
 `
 
-// const MapStyles = (props: MapStyleProps) => {
-//   const formattedClasses = props.codes.join(",")
-//   const MAP_STYLES = `
-//   ${formattedClasses} {
-//       fill: #374461 !important;
-//       opacity: 1;
-//     }
-//   `
-//   return MAP_STYLES
-// }
+const CotentWrapper = styled.div`
+  padding-right: 20px;
+
+  h3 {
+    margin-bottom: 10px;
+  }
+`
+
+const StyledForm = styled.form`
+  display: flex;
+`
 
 const StyledMap = styled(WorldMap)`
   ${({ codes }) => codes} {
@@ -48,9 +53,6 @@ const StyledMap = styled(WorldMap)`
     opacity: 1;
   }
 `
-// const StyledMap = styled(WorldMap)`
-//   ${MapStyles}
-// `
 
 export type RouteElement = Element | SVGLineElement
 
@@ -61,7 +63,7 @@ export interface MapExtraProps {
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
-  let countryCodes: string[] = [".fi", ".us"]
+  let countryCodes: string[] = useMemo(() => [".fi", ".us"], [])
   const { t } = useTranslation()
 
   const pageState = useContext(PageContext)
@@ -71,6 +73,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id
 
+  // change to nullish hook
   const getCountries = useQuery(
     [`course-${courseId}-country`],
     () => {
@@ -116,16 +119,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   const isPath = (child: RouteElement): child is SVGLineElement => {
     return child.tagName === "g" || child.tagName === "path"
-  }
-
-  let studentCountryAdded = false
-  let formattedCountryCodes
-
-  if (getCountries.isSuccess) {
-    studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
-    const storedCountryCodes = getCountries.data.map((country) => `.${country.country_code}`)
-    countryCodes = [...countryCodes, ...storedCountryCodes]
-    formattedCountryCodes = countryCodes.join(",")
   }
 
   useEffect(() => {
@@ -186,13 +179,23 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     }
   }, [countryCodes])
 
-  const handleCountryChange = (value: string) => {
-    if (!value) {
+  const handleCountryChange = (event: React.ChangeEvent<HTMLFormElement>) => {
+    if (!event.currentTarget.country) {
       return
     }
 
-    const country: string = value.toLowerCase()
+    const country: string = event.currentTarget.country.value.toLowerCase()
     return uploadStudentCountry.mutate(country)
+  }
+
+  let studentCountryAdded = false
+  let formattedCountryCodes
+
+  if (getCountries.isSuccess && getCountries.data.length !== 0) {
+    studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
+    const storedCountryCodes = getCountries.data.map((country) => `.${country.country_code}`)
+    countryCodes = [...countryCodes, ...new Set(storedCountryCodes)]
+    formattedCountryCodes = countryCodes.join(",")
   }
 
   console.log("countryCodes", formattedCountryCodes)
@@ -201,16 +204,47 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     <Wrapper>
       {!studentCountryAdded ? (
         <>
-          <div id="tooltip"></div>
-          <SelectField
-            id={`country`}
-            label={`Please select your country`}
-            onChange={(e) => {
-              handleCountryChange(e)
-            }}
-            options={countryList}
-            defaultValue={countryList[90].label}
-          />
+          <CotentWrapper>
+            <h3>{t("add-country-to-map")}</h3>
+            <StyledForm
+              onSubmit={handleCountryChange}
+              className={css`
+                input[type="submit"] {
+                  border: none;
+                  color: #fff;
+                  cursor: pointer;
+                  width: 100px;
+                  font-size: 17px;
+                  padding: 8px 10px 10px 10px;
+                  transition: background 0.2s ease-in-out;
+                  background: #374461;
+                  margin: auto 0 1rem 15px;
+                  border: 1px solid #374461;
+                }
+              `}
+            >
+              <SelectField
+                id={`country`}
+                label={`Country`}
+                onChange={() => null}
+                options={countryList}
+                defaultValue={countryList[90].label}
+              />
+              <input type="submit" value={t("submit")} />
+            </StyledForm>
+            <span
+              className={css`
+                display: inline-block;
+                color: #878d9d;
+                width: 30rem;
+                font-size: 15px;
+                line-height: 120%;
+                padding-bottom: 2.4rem;
+              `}
+            >
+              {t("use-of-info")}
+            </span>
+          </CotentWrapper>
         </>
       ) : (
         <>

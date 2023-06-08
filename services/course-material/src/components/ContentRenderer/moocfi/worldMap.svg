@@ -2477,7 +2477,7 @@
     <path class="land bh" d="M 1656.0172,528.89597 C 1656.2181,529.40238 1656.2813,529.93402 1656.2044,530.49406 C 1656.0158,531.22398 1656.8424,531.74882 1656.9581,532.39492 C 1657.3187,531.59254 1657.6583,527.22466 1656.0172,528.89597" id="bh-" style="fill:#c5ccdc;fill-opacity:1;stroke:#ffffff;stroke-width:0.99986994;stroke-miterlimit:3.97446823;stroke-dasharray:none;stroke-opacity:1"/>
     <path class="circle bh" d="M 1654.3404,533.52374 C 1662.2894,533.52374 1663.2757,520.79683 1655.3018,520.79683 C 1647.3221,520.79683 1646.3856,533.52374 1654.3404,533.52374" id="bh." style="opacity:0;fill:#c5ccdc;fill-opacity:1;stroke:#000000;stroke-width:0.99986893;stroke-miterlimit:3.97446823;stroke-dasharray:none;stroke-opacity:1"/>
   </g>
-  <g id="ad" transform="matrix(1.229834,0,0,1.1888568,-278.10861,-149.0924)">
+  <g id="ad" class="ad" transform="matrix(1.229834,0,0,1.1888568,-278.10861,-149.0924)">
     <path class="land ad" d="M 1281.4755,371.60505 C 1282.0528,370.76161 1283.5057,371.17516 1284.0192,371.94413 C 1283.5111,372.70552 1282.62,373.10542 1281.7649,373.21478 C 1281.7035,372.67258 1281.6059,372.136 1281.4755,371.60505" id="ad-" style="fill:#c5ccdc;fill-opacity:1;stroke:#ffffff;stroke-width:0.99986994;stroke-miterlimit:3.97446823;stroke-dasharray:none;stroke-opacity:1"/>
     <path class="circle ad" d="M 1282.196,379.27454 C 1290.6609,379.27454 1290.2137,365.12045 1281.6818,365.12045 C 1273.1436,365.12045 1273.725,379.27454 1282.196,379.27454" id="ad." style="opacity:0;fill:#c5ccdc;fill-opacity:1;stroke:#000000;stroke-width:0.99986893;stroke-miterlimit:3.97446823;stroke-dasharray:none;stroke-opacity:1"/>
   </g>

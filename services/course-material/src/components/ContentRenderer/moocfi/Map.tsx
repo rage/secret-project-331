@@ -13,13 +13,6 @@ import useUserInfo from "../../../shared-module/hooks/useUserInfo"
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
-const countryClasses = [".fr", ".us", ".fi", ".ng"]
-const formattedClasses = countryClasses.join(",")
-
-interface MapStyleProps {
-  codes: string[]
-}
-
 const Wrapper = styled.div`
   display: relative;
   height: auto;

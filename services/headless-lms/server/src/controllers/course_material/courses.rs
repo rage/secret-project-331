@@ -686,7 +686,7 @@ async fn student_country(
         &country_code,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
 
     token.authorized_ok(())
 }
@@ -702,7 +702,7 @@ async fn get_student_countries(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<StudentCountry>>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let res = models::student_countries::get_countries(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(res))

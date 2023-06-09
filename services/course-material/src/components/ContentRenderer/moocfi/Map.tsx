@@ -9,6 +9,7 @@ import { fetchStudentCountries, postStudentCountry } from "../../../services/bac
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import useUserInfo from "../../../shared-module/hooks/useUserInfo"
+import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
@@ -70,11 +71,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const getCountries = useQuery(
     [`course-${courseId}-country`],
     () => {
-      if (courseId) {
-        return fetchStudentCountries(courseId)
-      } else {
-        return Promise.reject(new Error("course ID undefined"))
-      }
+      return fetchStudentCountries(assertNotNullOrUndefined(courseId))
     },
     { enabled: !!courseId },
   )

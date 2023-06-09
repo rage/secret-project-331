@@ -79,11 +79,13 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
       `}
     >
       <TextAreaField
+        label={REFERENCE}
         id={"reference"}
         error={errors["reference"]}
         placeholder={REFERENCE}
         {...register("reference", { required: true })}
         defaultValue={defaultValueReference}
+        largeTextarea
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;

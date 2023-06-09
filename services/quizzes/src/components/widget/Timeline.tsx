@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PublicTimelineItem, TimelineChoice } from "../../../types/types"
-import TimelineSelect from "../../shared-module/components/TimelineSelect"
+import SelectMenu from "../../shared-module/components/SelectMenu"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
@@ -200,7 +200,7 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
               </label>
               <div className="content">
                 {!selectedTimelineItem && (
-                  <TimelineSelect
+                  <SelectMenu
                     id={`select-${timelineItem.id}`}
                     options={quizItem.timelineItemEvents.map((tie) => {
                       return { label: tie.name, value: tie.id }

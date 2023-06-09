@@ -97,7 +97,12 @@ const SelectMenu = ({
     >
       {label && <label htmlFor={id}>{label}</label>}
       <div className="select">
-        <select id={id} onChange={onChange} defaultValue={defaultValue} {...rest}>
+        <select
+          id={id}
+          onChange={onChange}
+          defaultValue={defaultValue ?? DEFAULT_VALUE_KEY}
+          {...rest}
+        >
           <option value={DEFAULT_VALUE_KEY} key={DEFAULT_VALUE_KEY} disabled>
             {t("please-choose-a-value")}
           </option>

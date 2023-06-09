@@ -714,6 +714,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "cobs"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67ba02a97a2bd10f4b59b25c7973101c79642302776489e030cd13cdab09ed15"
+
+[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -996,6 +1002,15 @@ name = "data-url"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d7439c3735f405729d52c3fbbe4de140eaf938a1fe47d227c27f8254d4302a5"
+
+[[package]]
+name = "deduplicating_array"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b5426e8a7610ceca8b2f2c40a25ddd4476606c96a0c1e3524fdfdbeb64c1331"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "derive_more"
@@ -1467,7 +1482,7 @@ dependencies = [
  "headless-lms-utils",
  "icu",
  "icu_provider",
- "icu_testdata",
+ "icu_provider_blob",
  "once_cell",
  "quick-xml",
  "resvg",
@@ -1543,6 +1558,7 @@ dependencies = [
  "futures",
  "futures-util",
  "git2",
+ "headless-lms-certificates",
  "headless-lms-models",
  "headless-lms-utils",
  "hmac",
@@ -1568,6 +1584,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-stream",
+ "tokio-util",
  "tracing",
  "tracing-error",
  "tracing-log",
@@ -1832,6 +1849,7 @@ dependencies = [
  "displaydoc",
  "icu_locid",
  "icu_provider",
+ "serde",
  "tinystr",
  "writeable",
  "zerovec",
@@ -1847,6 +1865,7 @@ dependencies = [
  "icu_collections",
  "icu_locid",
  "icu_provider",
+ "serde",
  "yoke",
  "zerovec",
 ]
@@ -1863,6 +1882,7 @@ dependencies = [
  "icu_normalizer",
  "icu_properties",
  "icu_provider",
+ "serde",
  "smallvec",
  "utf16_iter",
  "utf8_iter",
@@ -1876,6 +1896,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef8302d8dfd6044d3ddb3f807a5ef3d7bbca9a574959c6d6e4dc39aa7012d0d5"
 dependencies = [
  "displaydoc",
+ "serde",
  "yoke",
  "zerofrom",
  "zerovec",
@@ -1896,6 +1917,8 @@ dependencies = [
  "icu_plurals",
  "icu_provider",
  "icu_timezone",
+ "litemap",
+ "serde",
  "smallvec",
  "tinystr",
  "writeable",
@@ -1912,6 +1935,7 @@ dependencies = [
  "fixed_decimal",
  "icu_locid",
  "icu_provider",
+ "serde",
  "writeable",
 ]
 
@@ -1924,6 +1948,7 @@ dependencies = [
  "icu_collections",
  "icu_locid",
  "icu_provider",
+ "serde",
  "tinystr",
  "zerovec",
 ]
@@ -1934,9 +1959,11 @@ version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd7ba7442d9235b689d4fdce17c452ea229934980fd81ba50cc28275752c9f90"
 dependencies = [
+ "deduplicating_array",
  "displaydoc",
  "icu_provider",
  "regex-automata 0.2.0",
+ "serde",
  "writeable",
 ]
 
@@ -1948,6 +1975,7 @@ checksum = "3003f85dccfc0e238ff567693248c59153a46f4e6125ba4020b973cef4d1d335"
 dependencies = [
  "displaydoc",
  "litemap",
+ "serde",
  "tinystr",
  "writeable",
  "zerovec",
@@ -1962,6 +1990,7 @@ dependencies = [
  "displaydoc",
  "icu_locid",
  "icu_provider",
+ "serde",
  "tinystr",
  "zerovec",
 ]
@@ -1976,6 +2005,7 @@ dependencies = [
  "icu_collections",
  "icu_properties",
  "icu_provider",
+ "serde",
  "smallvec",
  "utf16_iter",
  "utf8_iter",
@@ -1993,6 +2023,7 @@ dependencies = [
  "fixed_decimal",
  "icu_locid",
  "icu_provider",
+ "serde",
  "zerovec",
 ]
 
@@ -2005,6 +2036,7 @@ dependencies = [
  "displaydoc",
  "icu_collections",
  "icu_provider",
+ "serde",
  "tinystr",
  "zerovec",
 ]
@@ -2018,6 +2050,8 @@ dependencies = [
  "displaydoc",
  "icu_locid",
  "icu_provider_macros",
+ "postcard",
+ "serde",
  "stable_deref_trait",
  "writeable",
  "yoke",
@@ -2026,14 +2060,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "icu_provider_adapters"
+name = "icu_provider_blob"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4ae1e2bd0c41728b77e7c46e9afdec5e2127d1eedacc684724667d50c126bd3"
+checksum = "fd364c9a01f791a4bc04a74cf2a1d01d9f6926a40fd5ae1c28004e1e70d8338b"
 dependencies = [
- "icu_locid",
  "icu_provider",
- "tinystr",
+ "postcard",
+ "serde",
+ "writeable",
  "yoke",
  "zerovec",
 ]
@@ -2060,6 +2095,7 @@ dependencies = [
  "icu_decimal",
  "icu_plurals",
  "icu_provider",
+ "serde",
  "writeable",
  "zerovec",
 ]
@@ -2075,31 +2111,8 @@ dependencies = [
  "icu_locid",
  "icu_provider",
  "num-traits",
+ "serde",
  "utf8_iter",
- "zerovec",
-]
-
-[[package]]
-name = "icu_testdata"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50c91edb7412e04e7f71ec935d0b88954c6d414ad21ede85ab80d512e27540c9"
-dependencies = [
- "icu_calendar",
- "icu_collator",
- "icu_collections",
- "icu_datetime",
- "icu_decimal",
- "icu_list",
- "icu_locid",
- "icu_locid_transform",
- "icu_normalizer",
- "icu_plurals",
- "icu_properties",
- "icu_provider",
- "icu_provider_adapters",
- "icu_segmenter",
- "icu_timezone",
  "zerovec",
 ]
 
@@ -2113,6 +2126,7 @@ dependencies = [
  "icu_calendar",
  "icu_locid",
  "icu_provider",
+ "serde",
  "tinystr",
  "zerovec",
 ]
@@ -2388,6 +2402,9 @@ name = "litemap"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a04a5b2b6f54acba899926491d0a6c59d98012938ca2ab5befb281c034e8f94"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "local-channel"
@@ -2841,6 +2858,16 @@ dependencies = [
  "cpufeatures",
  "opaque-debug",
  "universal-hash",
+]
+
+[[package]]
+name = "postcard"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfa512cd0d087cc9f99ad30a1bf64795b67871edbead083ffc3a4dfafa59aa00"
+dependencies = [
+ "cobs",
+ "serde",
 ]
 
 [[package]]
@@ -3464,6 +3491,9 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "socket2"
@@ -3825,6 +3855,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ac3f5b6856e931e15e07b478e98c8045239829a65f9156d4fa7e7788197a5ef"
 dependencies = [
  "displaydoc",
+ "serde",
  "zerovec",
 ]
 
@@ -4009,6 +4040,7 @@ name = "ts-rs"
 version = "6.2.0"
 source = "git+https://github.com/Heliozoa/ts-rs?rev=54263034d33818c292b9470cd61e2a2c8dff6097#54263034d33818c292b9470cd61e2a2c8dff6097"
 dependencies = [
+ "bytes",
  "chrono",
  "serde_json",
  "thiserror",
@@ -4705,6 +4737,7 @@ version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "198f54134cd865f437820aa3b43d0ad518af4e68ee161b444cdd15d8e567c8ea"
 dependencies = [
+ "serde",
  "yoke",
  "zerofrom",
  "zerovec-derive",

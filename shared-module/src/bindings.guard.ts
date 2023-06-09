@@ -16,6 +16,7 @@ import {
   BlockProposal,
   BlockProposalAction,
   BlockProposalInfo,
+  CertificateTextAnchor,
   Chapter,
   ChapterScore,
   ChapterStatus,
@@ -57,12 +58,18 @@ import {
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
+  CourseModuleCertificateConfiguration,
+  CourseModuleCertificateConfigurationUpdate,
+  CourseModuleCompletion,
+  CourseModuleCompletionCertificate,
   CourseModuleCompletionWithRegistrationInfo,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
   CreateAccountDetails,
   DatabaseChapter,
+  EditedBlockNoLongerExistsData,
+  EditedBlockStillExistsData,
   EditProposalInfo,
   EmailTemplate,
   EmailTemplateNew,
@@ -144,6 +151,7 @@ import {
   PageSearchResult,
   PageWithExercises,
   Pagination,
+  PaperSize,
   PeerReviewAcceptingStrategy,
   PeerReviewAnswer,
   PeerReviewConfig,
@@ -232,7 +240,11 @@ export function isAction(obj: unknown): obj is Action {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "usually_unacceptable_deletion") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["type"] === "upload_file")
+      typedObj["type"] === "upload_file") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "view_user_progress_or_details") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "view_internal_course_structure")
   )
 }
 
@@ -528,7 +540,9 @@ export function isCourseInstanceEnrollmentsInfo(
     Array.isArray(typedObj["courses"]) &&
     typedObj["courses"].every((e: any) => isCourse(e) as boolean) &&
     Array.isArray(typedObj["user_course_settings"]) &&
-    typedObj["user_course_settings"].every((e: any) => isUserCourseSettings(e) as boolean)
+    typedObj["user_course_settings"].every((e: any) => isUserCourseSettings(e) as boolean) &&
+    Array.isArray(typedObj["course_module_completions"]) &&
+    typedObj["course_module_completions"].every((e: any) => isCourseModuleCompletion(e) as boolean)
   )
 }
 
@@ -616,6 +630,72 @@ export function isPoints(obj: unknown): obj is Points {
   )
 }
 
+export function isCourseModuleCompletionCertificate(
+  obj: unknown,
+): obj is CourseModuleCompletionCertificate {
+  const typedObj = obj as CourseModuleCompletionCertificate
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_module_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["name_on_certificate"] === "string" &&
+    typeof typedObj["verification_id"] === "string"
+  )
+}
+
+export function isCourseModuleCertificateConfiguration(
+  obj: unknown,
+): obj is CourseModuleCertificateConfiguration {
+  const typedObj = obj as CourseModuleCertificateConfiguration
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["course_module_id"] === "string" &&
+    (typedObj["course_instance_id"] === null ||
+      typeof typedObj["course_instance_id"] === "string") &&
+    typeof typedObj["certificate_owner_name_y_pos"] === "string" &&
+    typeof typedObj["certificate_owner_name_x_pos"] === "string" &&
+    typeof typedObj["certificate_owner_name_font_size"] === "string" &&
+    typeof typedObj["certificate_owner_name_text_color"] === "string" &&
+    (isCertificateTextAnchor(typedObj["certificate_owner_name_text_anchor"]) as boolean) &&
+    typeof typedObj["certificate_validate_url_y_pos"] === "string" &&
+    typeof typedObj["certificate_validate_url_x_pos"] === "string" &&
+    typeof typedObj["certificate_validate_url_font_size"] === "string" &&
+    typeof typedObj["certificate_validate_url_text_color"] === "string" &&
+    (isCertificateTextAnchor(typedObj["certificate_validate_url_text_anchor"]) as boolean) &&
+    typeof typedObj["certificate_date_y_pos"] === "string" &&
+    typeof typedObj["certificate_date_x_pos"] === "string" &&
+    typeof typedObj["certificate_date_font_size"] === "string" &&
+    typeof typedObj["certificate_date_text_color"] === "string" &&
+    (isCertificateTextAnchor(typedObj["certificate_date_text_anchor"]) as boolean) &&
+    typeof typedObj["certificate_locale"] === "string" &&
+    (isPaperSize(typedObj["paper_size"]) as boolean) &&
+    typeof typedObj["background_svg_path"] === "string" &&
+    typeof typedObj["background_svg_file_upload_id"] === "string" &&
+    (typedObj["overlay_svg_path"] === null || typeof typedObj["overlay_svg_path"] === "string") &&
+    (typedObj["overlay_svg_file_upload_id"] === null ||
+      typeof typedObj["overlay_svg_file_upload_id"] === "string")
+  )
+}
+
+export function isCertificateTextAnchor(obj: unknown): obj is CertificateTextAnchor {
+  const typedObj = obj as CertificateTextAnchor
+  return typedObj === "start" || typedObj === "middle" || typedObj === "end"
+}
+
+export function isPaperSize(obj: unknown): obj is PaperSize {
+  const typedObj = obj as PaperSize
+  return typedObj === "horizontal-a4" || typedObj === "vertical-a4"
+}
+
 export function isCourseModuleCompletionWithRegistrationInfo(
   obj: unknown,
 ): obj is CourseModuleCompletionWithRegistrationInfo {
@@ -631,6 +711,32 @@ export function isCourseModuleCompletionWithRegistrationInfo(
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     typeof typedObj["registered"] === "boolean" &&
     typeof typedObj["user_id"] === "string"
+  )
+}
+
+export function isCourseModuleCompletion(obj: unknown): obj is CourseModuleCompletion {
+  const typedObj = obj as CourseModuleCompletion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["course_module_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typedObj["completion_date"] instanceof Date &&
+    (typedObj["completion_registration_attempt_date"] === null ||
+      typedObj["completion_registration_attempt_date"] instanceof Date) &&
+    typeof typedObj["completion_language"] === "string" &&
+    typeof typedObj["eligible_for_ects"] === "boolean" &&
+    typeof typedObj["email"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean" &&
+    typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
+    (typedObj["completion_granter_user_id"] === null ||
+      typeof typedObj["completion_granter_user_id"] === "string")
   )
 }
 
@@ -677,7 +783,8 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
     (typedObj["completion_registration_link_override"] === null ||
       typeof typedObj["completion_registration_link_override"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
-    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean" &&
+    typeof typedObj["certification_enabled"] === "boolean"
   )
 }
 
@@ -1728,7 +1835,8 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
     (typedObj["passed"] === null || typedObj["passed"] === false || typedObj["passed"] === true) &&
-    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean"
+    typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean" &&
+    typeof typedObj["certification_enabled"] === "boolean"
   )
 }
 
@@ -2300,6 +2408,18 @@ export function isPlaygroundExampleData(obj: unknown): obj is PlaygroundExampleD
 export function isBlockProposal(obj: unknown): obj is BlockProposal {
   const typedObj = obj as BlockProposal
   return (
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "edited-block-still-exists" &&
+      (isEditedBlockStillExistsData(typedObj) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "edited-block-no-longer-exists" &&
+      (isEditedBlockNoLongerExistsData(typedObj) as boolean))
+  )
+}
+
+export function isEditedBlockStillExistsData(obj: unknown): obj is EditedBlockStillExistsData {
+  const typedObj = obj as EditedBlockStillExistsData
+  return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
     typeof typedObj["block_id"] === "string" &&
@@ -2308,6 +2428,20 @@ export function isBlockProposal(obj: unknown): obj is BlockProposal {
     typeof typedObj["original_text"] === "string" &&
     (isProposalStatus(typedObj["status"]) as boolean) &&
     (typedObj["accept_preview"] === null || typeof typedObj["accept_preview"] === "string")
+  )
+}
+
+export function isEditedBlockNoLongerExistsData(
+  obj: unknown,
+): obj is EditedBlockNoLongerExistsData {
+  const typedObj = obj as EditedBlockNoLongerExistsData
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["block_id"] === "string" &&
+    typeof typedObj["changed_text"] === "string" &&
+    typeof typedObj["original_text"] === "string" &&
+    (isProposalStatus(typedObj["status"]) as boolean)
   )
 }
 
@@ -2519,7 +2653,8 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "Teacher" ||
     typedObj === "Admin" ||
     typedObj === "CourseOrExamCreator" ||
-    typedObj === "MaterialViewer"
+    typedObj === "MaterialViewer" ||
+    typedObj === "TeachingAndLearningServices"
   )
 }
 
@@ -2744,7 +2879,9 @@ export function isUserInfo(obj: unknown): obj is UserInfo {
   const typedObj = obj as UserInfo
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["user_id"] === "string"
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string")
   )
 }
 
@@ -2822,6 +2959,64 @@ export function isCourseMaterialPeerReviewDataWithToken(
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isCourseMaterialPeerReviewData(typedObj["course_material_peer_review_data"]) as boolean) &&
     (typedObj["token"] === null || typeof typedObj["token"] === "string")
+  )
+}
+
+export function isCourseModuleCertificateConfigurationUpdate(
+  obj: unknown,
+): obj is CourseModuleCertificateConfigurationUpdate {
+  const typedObj = obj as CourseModuleCertificateConfigurationUpdate
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    (typedObj["course_instance_id"] === null ||
+      typeof typedObj["course_instance_id"] === "string") &&
+    (typedObj["certificate_owner_name_y_pos"] === null ||
+      typeof typedObj["certificate_owner_name_y_pos"] === "string") &&
+    (typedObj["certificate_owner_name_x_pos"] === null ||
+      typeof typedObj["certificate_owner_name_x_pos"] === "string") &&
+    (typedObj["certificate_owner_name_font_size"] === null ||
+      typeof typedObj["certificate_owner_name_font_size"] === "string") &&
+    (typedObj["certificate_owner_name_text_color"] === null ||
+      typeof typedObj["certificate_owner_name_text_color"] === "string") &&
+    (typedObj["certificate_owner_name_text_anchor"] === null ||
+      typedObj["certificate_owner_name_text_anchor"] === "start" ||
+      typedObj["certificate_owner_name_text_anchor"] === "middle" ||
+      typedObj["certificate_owner_name_text_anchor"] === "end") &&
+    (typedObj["certificate_validate_url_y_pos"] === null ||
+      typeof typedObj["certificate_validate_url_y_pos"] === "string") &&
+    (typedObj["certificate_validate_url_x_pos"] === null ||
+      typeof typedObj["certificate_validate_url_x_pos"] === "string") &&
+    (typedObj["certificate_validate_url_font_size"] === null ||
+      typeof typedObj["certificate_validate_url_font_size"] === "string") &&
+    (typedObj["certificate_validate_url_text_color"] === null ||
+      typeof typedObj["certificate_validate_url_text_color"] === "string") &&
+    (typedObj["certificate_validate_url_text_anchor"] === null ||
+      typedObj["certificate_validate_url_text_anchor"] === "start" ||
+      typedObj["certificate_validate_url_text_anchor"] === "middle" ||
+      typedObj["certificate_validate_url_text_anchor"] === "end") &&
+    (typedObj["certificate_date_y_pos"] === null ||
+      typeof typedObj["certificate_date_y_pos"] === "string") &&
+    (typedObj["certificate_date_x_pos"] === null ||
+      typeof typedObj["certificate_date_x_pos"] === "string") &&
+    (typedObj["certificate_date_font_size"] === null ||
+      typeof typedObj["certificate_date_font_size"] === "string") &&
+    (typedObj["certificate_date_text_color"] === null ||
+      typeof typedObj["certificate_date_text_color"] === "string") &&
+    (typedObj["certificate_date_text_anchor"] === null ||
+      typedObj["certificate_date_text_anchor"] === "start" ||
+      typedObj["certificate_date_text_anchor"] === "middle" ||
+      typedObj["certificate_date_text_anchor"] === "end") &&
+    (typedObj["certificate_locale"] === null ||
+      typeof typedObj["certificate_locale"] === "string") &&
+    (typedObj["paper_size"] === null ||
+      typedObj["paper_size"] === "horizontal-a4" ||
+      typedObj["paper_size"] === "vertical-a4") &&
+    (typedObj["background_svg_file_name"] === null ||
+      typeof typedObj["background_svg_file_name"] === "string") &&
+    (typedObj["overlay_svg_file_name"] === null ||
+      typeof typedObj["overlay_svg_file_name"] === "string") &&
+    typeof typedObj["clear_overlay_svg_file"] === "boolean"
   )
 }
 

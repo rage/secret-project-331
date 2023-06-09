@@ -46,7 +46,7 @@ async fn get_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(course))
 }
 
@@ -228,7 +228,7 @@ async fn derive_information_from_requester(
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(RequestInformation {
         ip,
         user_agent: user_agent
@@ -264,7 +264,7 @@ async fn get_current_course_instance(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         token.authorized_ok(web::Json(instance))
     } else {
         Err(ControllerError::new(
@@ -286,7 +286,7 @@ async fn get_course_instances(
     let mut conn = pool.acquire().await?;
     let instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(instances))
 }
 
@@ -308,7 +308,7 @@ async fn get_public_course_pages(
         PageVisibility::Public,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(pages))
 }
 
@@ -347,7 +347,7 @@ async fn get_chapters(
     }))
     .await
     .is_some();
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let chapters = models::chapters::course_chapters(&mut conn, *course_id)
         .await?
@@ -404,7 +404,7 @@ fn collect_course_modules(
             .chapters
             .push(chapter);
     }
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(course_modules.into_values().collect())
 }
 
@@ -424,7 +424,7 @@ async fn get_user_course_settings(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         token.authorized_ok(web::Json(settings))
     } else {
         Err(ControllerError::new(
@@ -463,7 +463,7 @@ async fn search_pages_with_phrase(
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -495,7 +495,7 @@ async fn search_pages_with_words(
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_words(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -547,7 +547,7 @@ pub async fn feedback(
         ids.push(id);
     }
     tx.commit().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(ids))
 }
 
@@ -571,7 +571,7 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(id))
 }
 
@@ -583,7 +583,7 @@ async fn glossary(
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(glossary))
 }
 
@@ -618,7 +618,7 @@ async fn get_public_top_level_pages(
         PageVisibility::Public,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 
@@ -632,7 +632,7 @@ async fn get_all_course_language_versions(
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course)
@@ -661,7 +661,7 @@ async fn get_page_by_course_id_and_language_group(
         page_language_group_id,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 

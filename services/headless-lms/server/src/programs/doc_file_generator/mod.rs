@@ -77,7 +77,7 @@ doc!(
     }
 );
 ```
-will create docs for SomeStruct and Vec<SomeStruct>.
+will create docs for `SomeStruct` and `Vec<SomeStruct>`.
 
 With a type and expression, the doc! macro simply uses the expression to write the JSON docs for the given type without involving the Example trait or example! macro.
 ```no_run
@@ -118,7 +118,9 @@ use headless_lms_models::{
         CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
     },
     course_instance_enrollments::CourseInstanceEnrollmentsInfo,
-    course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+    course_module_completions::{
+        CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo,
+    },
     courses::CourseBreadcrumbInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
@@ -129,6 +131,7 @@ use headless_lms_models::{
     },
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
+    proposed_block_edits::EditedBlockStillExistsData,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
 };
@@ -146,7 +149,20 @@ fn ex<T: Example>() -> T {
     Example::example()
 }
 
+#[macro_export]
+macro_rules! doc_path {
+    ($filename:expr, $extension:expr) => {
+        concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/generated-docs/",
+            $filename,
+            $extension,
+        )
+    };
+}
+
 // Writes doc files. See the module documentation for more info.
+// macro_export mainly for the docs that use it
 #[macro_export]
 macro_rules! doc {
     (T, Opt, Vec, $($t:tt)*) => {
@@ -206,9 +222,7 @@ macro_rules! doc {
     ($t:ty, $e:expr) => {{
         let expr: $t = $e;
 
-        let json_path = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/generated-docs/",
+        let json_path = $crate::doc_path!(
             stringify!($t),
             ".json"
         );
@@ -216,9 +230,7 @@ macro_rules! doc {
 
         #[cfg(feature = "ts_rs")]
         {
-            let ts_path = concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/generated-docs/",
+            let ts_path = $crate::doc_path!(
                 stringify!($t),
                 ".ts"
             );
@@ -249,6 +261,7 @@ pub async fn main() -> anyhow::Result<()> {
     controllers();
     models();
     utils();
+    external();
 
     doc!((), ex());
     doc!(i64, 123);
@@ -320,7 +333,9 @@ fn controllers() {
     doc!(
         Opt,
         UserInfo {
-            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap(),
+            first_name: Some("Example".to_string()),
+            last_name: Some("User".to_string()),
         }
     );
     doc!(CourseMaterialPeerReviewDataWithToken {
@@ -337,6 +352,7 @@ fn models() {
         },
         course_instance_enrollments::CourseInstanceEnrollment,
         course_instances::{ChapterScore, CourseInstance, Points},
+        course_module_completion_certificates::CourseModuleCompletionCertificate,
         course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
         course_modules::{
             AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
@@ -394,7 +410,9 @@ fn models() {
         },
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
-        proposed_block_edits::{BlockProposal, ProposalStatus},
+        proposed_block_edits::BlockProposal,
+        proposed_block_edits::EditedBlockStillExistsData,
+        proposed_block_edits::ProposalStatus,
         proposed_page_edits::{PageProposal, ProposalCount},
         regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
         repository_exercises::RepositoryExercise,
@@ -438,11 +456,6 @@ fn models() {
         tasks,
         given_peer_reviews,
         received_peer_reviews,
-    });
-    doc!(AnswersRequiringAttention {
-        exercise_max_points: 1,
-        data,
-        total_pages: 10,
     });
     example!(ExerciseSlideSubmission {
         id,
@@ -583,21 +596,6 @@ fn models() {
         copied_from: None,
         course_module_id,
     });
-    example!(CourseModule {
-        id,
-        created_at,
-        updated_at,
-        deleted_at: None,
-        name: None,
-        course_id,
-        order_number: 0,
-        copied_from: None,
-        uh_course_code: None,
-        completion_policy: CompletionPolicy::Manual,
-        ects_credits: None,
-        completion_registration_link_override: None,
-        enable_registering_completion_to_uh_open_university: false,
-    });
     example!(UserCourseModuleCompletion {
         course_module_id,
         grade: Some(4),
@@ -615,30 +613,32 @@ fn models() {
         text: None,
         order_number: Some(0)
     });
-    example!(BlockProposal {
-        id,
-        block_id,
-        original_text: "Hello,, world!".to_string(),
-        current_text: "Hello,, world!".to_string(),
-        changed_text: "Hello, world!".to_string(),
-        status: ProposalStatus::Accepted,
-        accept_preview: Some("Hello, world!!".to_string())
-    });
+    example!(BlockProposal::EditedBlockStillExists(
+        EditedBlockStillExistsData {
+            id: Uuid::parse_str("f3a571a8-8111-482c-91bc-9fd9f65e3a56").unwrap(),
+            block_id: Uuid::parse_str("44033f59-6d9b-475f-934c-6ead8014ed23").unwrap(),
+            original_text: "Hello,, world!".to_string(),
+            current_text: "Hello,, world!".to_string(),
+            changed_text: "Hello, world!".to_string(),
+            status: ProposalStatus::Accepted,
+            accept_preview: Some("Hello, world!!".to_string())
+        }
+    ));
     example!(ChapterWithStatus {
-    id,
-    created_at,
-    updated_at,
-      name: "The Basics".to_string(),
-      color: None,
-      course_id,
-    deleted_at: None,
-      chapter_number: 1,
-      front_page_id: None,
-      opens_at: None,
-      status: ChapterStatus::Open,
-      chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
-  course_module_id,
-  });
+        id,
+        created_at,
+        updated_at,
+        name: "The Basics".to_string(),
+        color: None,
+        course_id,
+        deleted_at: None,
+        chapter_number: 1,
+        front_page_id: None,
+        opens_at: None,
+        status: ChapterStatus::Open,
+        chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
+        course_module_id,
+    });
     example!(CourseMaterialPeerReviewDataAnswerToReview {
         course_material_exercise_tasks,
         exercise_slide_submission_id,
@@ -678,6 +678,41 @@ fn models() {
         variable_value: serde_json::Value::String("Dog".to_string()),
     });
 
+    doc!(
+        Opt,
+        CourseModuleCompletionCertificate {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            user_id,
+            course_module_id,
+            course_instance_id,
+            name_on_certificate: "Example User".to_string(),
+            verification_id: "a1b2c3d4".to_string(),
+        }
+    );
+    doc!(AnswersRequiringAttention {
+        exercise_max_points: 1,
+        data,
+        total_pages: 10,
+    });
+    doc!(CourseModule {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: None,
+        name: None,
+        course_id,
+        order_number: 0,
+        copied_from: None,
+        uh_course_code: None,
+        completion_policy: CompletionPolicy::Manual,
+        ects_credits: None,
+        completion_registration_link_override: None,
+        enable_registering_completion_to_uh_open_university: false,
+        certification_enabled: false,
+    });
     doc!(
         T,
         Vec,
@@ -1263,6 +1298,7 @@ fn models() {
                 grade: Some(4),
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: true,
+                certification_enabled: false,
             },
             UserModuleCompletionStatus {
                 completed: true,
@@ -1274,6 +1310,7 @@ fn models() {
                 grade: Some(4),
                 prerequisite_modules_completed: false,
                 enable_registering_completion_to_uh_open_university: false,
+                certification_enabled: false,
             }
         ]
     );
@@ -1533,8 +1570,34 @@ fn models() {
         course_instance_enrollments,
         course_instances,
         courses,
-        user_course_settings
+        user_course_settings,
+        course_module_completions,
     });
+
+    doc!(
+        Vec,
+        CourseModuleCompletion {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            course_id,
+            course_instance_id,
+            course_module_id,
+            user_id,
+            completion_date: Utc.with_ymd_and_hms(2022, 6, 21, 0, 0, 0).unwrap(),
+            completion_registration_attempt_date: None,
+            completion_language: "en-US".to_string(),
+            eligible_for_ects: true,
+            email: "student@example.com".to_string(),
+            grade: Some(4),
+            passed: true,
+            prerequisite_modules_completed: true,
+            completion_granter_user_id: Some(
+                Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()
+            ),
+        }
+    );
 }
 
 fn utils() {
@@ -1551,4 +1614,9 @@ fn utils() {
             version: "1.0".to_string(),
         }
     );
+}
+
+// external types, there should only be a couple in here so no macros or other fancy stuff
+fn external() {
+    std::fs::write(doc_path!("Bytes", ".ts"), "type Bytes = Blob").unwrap();
 }

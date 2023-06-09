@@ -89,6 +89,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     } else {
       page = screenshotTarget.page()
     }
+    await page.waitForLoadState()
 
     const originalViewPort = page.viewportSize()
     try {
@@ -146,6 +147,9 @@ export default async function expectScreenshotsToMatchSnapshots({
       if (originalViewPort) {
         // always restore the original viewport
         await page.setViewportSize(originalViewPort)
+        if (replaceSomePartsWithPlaceholders) {
+          await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+        }
       }
     }
   })
@@ -187,23 +191,12 @@ async function snapshotWithViewPort({
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
   }
-
-  if (beforeScreenshot) {
-    await page.waitForTimeout(100)
-    await beforeScreenshot()
-    if (replaceSomePartsWithPlaceholders) {
-      // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
-      await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
-    }
-
-    await page.waitForTimeout(100)
-    if (waitForTheseToBeVisibleAndStable) {
-      await waitToBeStable(waitForTheseToBeVisibleAndStable)
-    }
+  // Has to be dispatched again in case the hidden content appeared while we waited for `waitForTheseToBeVisibleAndStable`
+  if (replaceSomePartsWithPlaceholders) {
+    await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   }
 
-  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
-  if (scrollToYCoordinate) {
+  if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
       await page.evaluate(async (coord) => {
         window.scrollTo(0, coord)
@@ -217,6 +210,13 @@ async function snapshotWithViewPort({
       // 100ms was not enough at the time of writing this
       await page.waitForTimeout(200)
     }
+  }
+
+  // leave beforeScreenshot for last before the actual screenshot so the adjustments it makes are final
+  if (beforeScreenshot) {
+    await page.waitForTimeout(100)
+    await beforeScreenshot()
+    await page.waitForTimeout(100)
   }
 
   const screenshotName = `${snapshotName.replace(
@@ -242,10 +242,6 @@ async function snapshotWithViewPort({
   // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
   // for accessibility
   await accessibilityCheck(page, screenshotName, axeSkip)
-
-  if (replaceSomePartsWithPlaceholders) {
-    await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
-  }
 }
 
 interface WaitToBeVisibleProps {

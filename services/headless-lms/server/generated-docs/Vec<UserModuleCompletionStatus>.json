@@ -8,7 +8,8 @@
     "prerequisite_modules_completed": false,
     "grade": 4,
     "passed": true,
-    "enable_registering_completion_to_uh_open_university": true
+    "enable_registering_completion_to_uh_open_university": true,
+    "certification_enabled": false
   },
   {
     "completed": true,
@@ -19,6 +20,7 @@
     "prerequisite_modules_completed": false,
     "grade": 4,
     "passed": true,
-    "enable_registering_completion_to_uh_open_university": false
+    "enable_registering_completion_to_uh_open_university": false,
+    "certification_enabled": false
   }
 ]

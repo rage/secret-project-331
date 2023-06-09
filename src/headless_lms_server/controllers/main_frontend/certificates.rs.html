@@ -460,6 +460,26 @@
 <a href="#460" id="460">460</a>
 <a href="#461" id="461">461</a>
 <a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{controllers::helpers::file_uploading, prelude::<span class="kw-2">*</span>};
 <span class="kw">use </span>actix_multipart::form::{tempfile::TempFile, MultipartForm};
 <span class="kw">use </span>futures_util::TryStreamExt;
@@ -538,9 +558,9 @@ Updates the certificate configuration for a given module.
         user,
     )
     .<span class="kw">await</span>;
-    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">match </span>result {
         <span class="prelude-val">Ok</span>(files_to_delete) =&gt; {
+            tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">for </span>file_to_delete <span class="kw">in </span>files_to_delete {
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = file_uploading::delete_file_from_storage(
                     <span class="kw-2">&amp;mut </span>conn,
@@ -555,6 +575,8 @@ Updates the certificate configuration for a given module.
             }
         }
         <span class="prelude-val">Err</span>(err) =&gt; {
+            <span class="comment">// do not commit in error branch
+            </span>drop(tx);
             <span class="comment">// clean up files that were uploaded before something went wrong
             </span><span class="kw">for </span>uploaded_file <span class="kw">in </span>uploaded_files {
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = file_uploading::delete_file_from_storage(
@@ -654,17 +676,21 @@ Updates the certificate configuration for a given module.
         .<span class="kw">await
         </span>.optional()<span class="question-mark">?</span>;
     <span class="comment">// get new or existing background svg data for the update struct
-    // also ensure that a background svg already exists or a new one is uploaded
+    // also ensure that a background svg already exists or a new one is uploaded and delete old image if replaced
     </span><span class="kw">let </span>(background_svg_file_upload_id, background_svg_path) =
         <span class="kw">match </span>(<span class="kw-2">&amp;</span>existing_configuration, <span class="kw-2">&amp;</span>new_background_svg_file) {
             (<span class="prelude-val">Some</span>(existing_configuration), <span class="prelude-val">None</span>) =&gt; {
-                <span class="comment">// use values from existing config
+                <span class="comment">// configuration exists and no new background was uploaded, use old values
                 </span>(
                     existing_configuration.background_svg_file_upload_id,
                     existing_configuration.background_svg_path.clone(),
                 )
             }
-            (<span class="kw">_</span>, <span class="prelude-val">Some</span>(background_svg_file)) =&gt; {
+            (existing, <span class="prelude-val">Some</span>(background_svg_file)) =&gt; {
+                <span class="comment">// configuration exists and a new background was uploaded, delete old one
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(existing) = existing {
+                    files_to_delete.push(existing.background_svg_file_upload_id);
+                }
                 <span class="comment">// use new values
                 </span>background_svg_file.clone()
             }
@@ -677,22 +703,36 @@ Updates the certificate configuration for a given module.
                 ));
             }
         };
-    <span class="comment">// check if the old overlay svgs need to be deleted
-    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(existing_configuration) = <span class="kw-2">&amp;</span>existing_configuration {
-        <span class="comment">// delete previous background when a new one is uploaded
-        </span><span class="kw">if </span>new_background_svg_file.is_some() {
-            files_to_delete.push(background_svg_file_upload_id);
+    <span class="comment">// get new or existing overlay svg data for the update struct
+    // also check if the old overlay svgs need to be deleted
+    </span><span class="kw">let </span>overlay_data = <span class="kw">match </span>(
+        <span class="kw-2">&amp;</span>existing_configuration,
+        <span class="kw-2">&amp;</span>new_overlay_svg_file,
+        metadata.clear_overlay_svg_file,
+    ) {
+        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(new_overlay), <span class="kw">_</span>) =&gt; {
+            <span class="comment">// new overlay was uploaded, use new values
+            </span><span class="prelude-val">Some</span>(new_overlay.clone())
         }
-        <span class="comment">// delete overlay when either a new overlay is uploaded, or when deletion is explicitly requested
-        </span><span class="kw">if </span>new_overlay_svg_file.is_some() || metadata.clear_overlay_svg_file {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(overlay_svg_file_upload_id) =
-                existing_configuration.overlay_svg_file_upload_id
-            {
-                files_to_delete.push(overlay_svg_file_upload_id);
+        (<span class="prelude-val">Some</span>(existing), <span class="prelude-val">None</span>, <span class="bool-val">false</span>) =&gt; {
+            <span class="comment">// no new overlay and no deletion requested, use old data
+            </span>existing
+                .overlay_svg_file_upload_id
+                .zip(existing.overlay_svg_path.clone())
+        }
+        (<span class="prelude-val">Some</span>(existing), <span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; {
+            <span class="comment">// requested deletion of old overlay
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(existing_overlay) = existing.overlay_svg_file_upload_id {
+                files_to_delete.push(existing_overlay);
             }
-        }
-    }
-    <span class="kw">let </span>(overlay_svg_file_id, overlay_svg_file_path) = new_overlay_svg_file.unzip();
+            <span class="prelude-val">None
+        </span>}
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; {
+            <span class="comment">// no action needed
+            </span><span class="prelude-val">None
+        </span>}
+    };
+    <span class="kw">let </span>(overlay_svg_file_id, overlay_svg_file_path) = overlay_data.unzip();
     <span class="kw">let </span>conf = DatabaseCourseModuleCertificateConfiguration {
         course_module_id: metadata.course_module_id,
         course_instance_id: metadata.course_instance_id,

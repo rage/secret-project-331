@@ -674,7 +674,7 @@ async fn student_country(
     query: web::Path<(Uuid, Uuid, String)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<()> {
     let mut conn = pool.acquire().await?;
     let (course_id, course_instance_id, country_code) = query.into_inner();
 

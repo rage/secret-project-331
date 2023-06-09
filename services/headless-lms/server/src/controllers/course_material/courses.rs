@@ -688,7 +688,7 @@ async fn student_country(
     .await?;
     let token = skip_authorize()?;
 
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(())
 }
 
 /**

@@ -3,6 +3,7 @@
 use std::{collections::HashMap, net::IpAddr, path::Path};
 
 use actix_http::header;
+use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
@@ -674,7 +675,7 @@ async fn student_country(
     query: web::Path<(Uuid, Uuid, String)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<()> {
+) -> ControllerResult<Json<bool>> {
     let mut conn = pool.acquire().await?;
     let (course_id, course_instance_id, country_code) = query.into_inner();
 
@@ -688,7 +689,7 @@ async fn student_country(
     .await?;
     let token = skip_authorize();
 
-    token.authorized_ok(())
+    token.authorized_ok(Json(true))
 }
 
 /**

@@ -70,8 +70,8 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         id={"references"}
         error={errors["references"]}
         placeholder={REFERENCE}
-        largeTextarea
         {...register("references", { required: t("required-field") })}
+        rows={5}
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;

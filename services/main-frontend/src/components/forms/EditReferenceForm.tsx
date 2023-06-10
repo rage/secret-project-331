@@ -85,7 +85,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
         placeholder={REFERENCE}
         {...register("reference", { required: true })}
         defaultValue={defaultValueReference}
-        largeTextarea
+        rows={5}
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;

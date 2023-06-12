@@ -97,7 +97,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
           <ParsedText text={value} parseMarkdown parseLatex inline />
         </ParsedTextContainer>
       ) : (
-        <TextField value={value} onChange={(value) => handleOnChange(value)} label={label} />
+        <TextField value={value} onChangeByValue={(value) => handleOnChange(value)} label={label} />
       )}
       <DisplayContainer>{hasTags && PreviewButton}</DisplayContainer>
     </TextfieldContainer>

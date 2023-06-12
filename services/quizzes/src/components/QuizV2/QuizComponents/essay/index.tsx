@@ -44,7 +44,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
             value={selected.minWords ?? 0}
             label={t("min-words")}
             name={t("min-words")}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -60,7 +60,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
             value={selected.maxWords ?? 0}
             label={t("max-words")}
             name={t("max-words")}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return

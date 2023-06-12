@@ -78,7 +78,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 label={t("exercise-name")}
                 placeholder={t("exercise-name")}
                 value={attributes.name}
-                onChange={(value) => setAttributes({ name: value })}
+                onChangeByValue={(value) => setAttributes({ name: value })}
                 className={css`
                   margin-bottom: 1rem !important;
                 `}
@@ -88,7 +88,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 placeholder={t("exercise-max-points")}
                 value={attributes.score_maximum?.toString() ?? ""}
                 type="number"
-                onChange={(value) => {
+                onChangeByValue={(value) => {
                   const parsed = parseInt(value)
                   if (isNaN(parsed)) {
                     // empty
@@ -115,7 +115,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 <CheckBox
                   label={t("limit-number-of-tries")}
                   checked={attributes.limit_number_of_tries}
-                  onChange={function (checked: boolean): void {
+                  onChangeByValue={function (checked: boolean): void {
                     setAttributes({ limit_number_of_tries: checked })
                   }}
                   className={css`
@@ -129,7 +129,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                   value={attributes.max_tries_per_slide?.toString() ?? ""}
                   disabled={!attributes.limit_number_of_tries}
                   type="number"
-                  onChange={(value) => {
+                  onChangeByValue={(value) => {
                     const parsed = parseInt(value)
                     if (isNaN(parsed)) {
                       // empty

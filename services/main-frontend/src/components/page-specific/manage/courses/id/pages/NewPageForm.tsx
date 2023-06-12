@@ -64,7 +64,7 @@ const NewPageForm: React.FC<React.PropsWithChildren<NewPageFormProps>> = ({
             required
             label={t("text-field-label-title")}
             value={title}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setTitle(value)
               setPath(normalizePath(value))
             }}
@@ -86,7 +86,7 @@ const NewPageForm: React.FC<React.PropsWithChildren<NewPageFormProps>> = ({
               required
               label={t("text-field-label-path")}
               value={path}
-              onChange={(value) => {
+              onChangeByValue={(value) => {
                 setPath(value)
               }}
             />

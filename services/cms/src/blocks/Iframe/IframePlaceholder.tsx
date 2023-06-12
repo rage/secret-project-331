@@ -35,7 +35,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
   const [error, setError] = useState<string | null>(null)
   return (
     <div>
-      <TextAreaField label="URL / source" value={value} onChange={setValue} />
+      <TextAreaField label="URL / source" value={value} onChangeByValue={setValue} />
       {error && (
         <div
           className={css`

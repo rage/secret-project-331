@@ -72,7 +72,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         <TextField
           label={t("create-module")}
           placeholder={t("name-of-module")}
-          register={register("name", { required: t("required-field") })}
+          {...register("name", { required: t("required-field") })}
           error={errors["name"]?.message}
         />
         <div>{t("select-module-start-end-chapters")}</div>
@@ -101,7 +101,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               options={chapters.map((c) => {
                 return { value: c.toString(), label: c.toString() }
               })}
-              register={register("starts", { required: t("required-field"), valueAsNumber: true })}
+              {...register("starts", { required: t("required-field"), valueAsNumber: true })}
               error={errors["starts"]?.message}
             />
             <SelectField
@@ -113,7 +113,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               options={chapters.map((c) => {
                 return { value: c.toString(), label: c.toString() }
               })}
-              register={register("ends", { required: t("required-field"), valueAsNumber: true })}
+              {...register("ends", { required: t("required-field"), valueAsNumber: true })}
               error={errors["ends"]?.message}
             />
           </div>
@@ -148,7 +148,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
           >
             <Checkbox
               label={t("enable-automatic-completion")}
-              register={register("automatic_completion")}
+              {...register("automatic_completion")}
               className={css`
                 grid-area: c;
               `}
@@ -161,7 +161,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               label={t("automatic-completion-points-treshold")}
               placeholder={t("automatic-completion-points-treshold")}
               type="number"
-              register={register("automatic_completion_number_of_points_treshold", {
+              {...register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}
@@ -174,7 +174,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               label={t("automatic-completion-exercise-treshold")}
               placeholder={t("automatic-completion-exercise-treshold")}
               type="number"
-              register={register("automatic_completion_number_of_exercises_attempted_treshold", {
+              {...register("automatic_completion_number_of_exercises_attempted_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}
@@ -182,7 +182,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
             />
             <Checkbox
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              register={register("enable_registering_completion_to_uh_open_university")}
+              {...register("enable_registering_completion_to_uh_open_university")}
               className={css`
                 grid-area: f;
               `}
@@ -193,7 +193,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               `}
               label={t("uh-course-code")}
               placeholder={t("uh-course-code")}
-              register={register("uh_course_code")}
+              {...register("uh_course_code")}
               error={errors["name"]?.message}
             />
             <TextField
@@ -203,7 +203,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               label={t("ects-credits")}
               placeholder={t("ects-credits")}
               type="number"
-              register={register("ects_credits", { valueAsNumber: true })}
+              {...register("ects_credits", { valueAsNumber: true })}
             />
           </div>
         </div>

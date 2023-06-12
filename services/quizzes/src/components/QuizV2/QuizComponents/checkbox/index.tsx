@@ -63,7 +63,7 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
             value={selected.title}
             label={t("option-title")}
             placeholder={t("option-title")}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return

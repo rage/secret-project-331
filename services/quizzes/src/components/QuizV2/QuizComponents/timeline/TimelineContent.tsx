@@ -184,7 +184,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
               <TextField
                 className={cx(yearTextFieldStyles, alreadyInputtedTextFieldStyles)}
                 label={t("label-year")}
-                onChange={(value) => {
+                onChangeByValue={(value) => {
                   updateState((draft) => {
                     if (!draft || !draft.timelineItems) {
                       return
@@ -207,7 +207,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
               <TextField
                 className={cx(alreadyInputtedTextFieldStyles)}
                 label={t("label-correct-event")}
-                onChange={(value) => {
+                onChangeByValue={(value) => {
                   updateState((draft) => {
                     if (!draft || !draft.timelineItems) {
                       return
@@ -273,15 +273,15 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
         <TextField
           className={cx(yearTextFieldStyles)}
           label={t("label-year")}
-          name={FIELD_NAME_YEAR}
           placeholder={YEAR_PLACEHOLDER}
-          register={register("year", { required: true, pattern: /^\s*\d+/ })}
+          {...register("year", { required: true, pattern: /^\s*\d+/ })}
+          name={FIELD_NAME_YEAR}
         />
         <TextField
           label={t("label-correct-event")}
-          name={FIELD_NAME_EVENT}
           placeholder={t("placeholder-some-notable-event")}
-          register={register("event", { required: true })}
+          {...register("event", { required: true })}
+          name={FIELD_NAME_EVENT}
         />
         <StyledBtn
           aria-label={t("add")}

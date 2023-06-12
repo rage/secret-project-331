@@ -35,7 +35,7 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
             required
             label={t("label-template-name")}
             value={name}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setName(value)
             }}
           />
@@ -45,7 +45,7 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
             required
             label={t("label-email-subject")}
             value={subject}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setSubject(value)
             }}
           />

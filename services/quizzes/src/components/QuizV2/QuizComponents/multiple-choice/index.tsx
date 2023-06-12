@@ -328,7 +328,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 margin-bottom: 0.3rem;
               `}
               disabled={!selected.allowSelectingMultipleOptions}
-              onChange={(value) => {
+              onChangeByValue={(value) => {
                 updateState((draft) => {
                   if (!draft) {
                     return

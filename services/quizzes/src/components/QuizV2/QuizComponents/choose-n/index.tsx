@@ -109,7 +109,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
       <TextField
         value={selected.n}
         label={t("quiz-choose-n-description")}
-        onChange={(value) => {
+        onChangeByValue={(value) => {
           updateState((draft) => {
             if (!draft) {
               return

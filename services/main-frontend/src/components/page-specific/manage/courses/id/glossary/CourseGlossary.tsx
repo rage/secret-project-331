@@ -80,14 +80,14 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           label={t("new-term")}
           placeholder={t("new-term")}
           value={newTerm}
-          onChange={setNewTerm}
+          onChangeByValue={setNewTerm}
         />
         <TextAreaField
           name={t("new-definition")}
           placeholder={t("new-definition")}
           label={t("new-definition")}
           value={newDefinition}
-          onChange={setNewDefinition}
+          onChangeByValue={setNewDefinition}
           disabled={false}
         />
         <Button variant="primary" size="medium" onClick={() => createMutation.mutate()}>
@@ -105,14 +105,14 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                   placeholder={t("updated-term")}
                   label={t("updated-term")}
                   value={updatedTerm}
-                  onChange={setUpdatedTerm}
+                  onChangeByValue={setUpdatedTerm}
                 />
                 <TextAreaField
                   name={t("updated-definition")}
                   label={t("updated-definition")}
                   placeholder={t("updated-definition")}
                   value={updatedDefinition}
-                  onChange={setUpdatedDefinition}
+                  onChangeByValue={setUpdatedDefinition}
                   disabled={false}
                 />
                 <Button

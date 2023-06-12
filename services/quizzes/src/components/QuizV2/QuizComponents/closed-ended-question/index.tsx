@@ -243,7 +243,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
             id="regex-pattern-select"
             label={t("format-regular-expression")}
             options={REGEX_PATTERNS}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -254,7 +254,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           />
           <TextField
             value={convertToString(selected.validityRegex)}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -271,7 +271,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
         <>
           <TextField
             value={convertToString(selected.validityRegex)}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -284,7 +284,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
           />
           <TextField
             value={convertToString(selected.formatRegex)}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -306,7 +306,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
               <TextField
                 key={`test-string-field-${idx}`}
                 value={string}
-                onChange={handleTestStringChange(idx)}
+                onChangeByValue={handleTestStringChange(idx)}
                 label={t("test-string")}
                 name={t("test-string")}
               />

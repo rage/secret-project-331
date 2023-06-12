@@ -1,25 +1,14 @@
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useRef } from "react"
-import { UseFormRegisterReturn } from "react-hook-form"
+import React, { forwardRef, TextareaHTMLAttributes, useEffect, useRef } from "react"
+import { FieldError } from "react-hook-form"
 
-interface TextAreaExtraProps {
+export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
-  name?: string
   errorMessage?: string
-  placeholder?: string
-  required?: boolean
-  value?: string
-  disabled?: boolean
-  maxlength?: string
-  onChange?: (value: string, name?: string) => void
-  className?: string
-  defaultValue?: string
+  error?: string | FieldError
+  onChangeByValue?: (value: string, name?: string) => void
   autoResize?: boolean
-  register?: UseFormRegisterReturn
 }
-
-type TextAreaProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> &
-  TextAreaExtraProps
 
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   if (ref.current) {
@@ -30,63 +19,88 @@ function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   }
 }
 
-const TextAreaField = ({ onChange, className, autoResize, register, ...rest }: TextAreaProps) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-  useEffect(() => {
-    // This auto-resizes the textarea if the feature is enabled
-    if (!autoResize || !textareaRef.current) {
-      return
-    }
-    updateHeight(textareaRef)
-  }, [rest.value, autoResize])
-  return (
-    <div
-      className={cx(
-        css`
-          margin-bottom: 1rem;
-
-          label {
-            display: grid;
-
-            textarea {
-              background: #fcfcfc;
-              border: 1.6px solid #dedede;
-              padding: 10px 12px;
-            }
-
-            span {
-              color: #333;
-              font-size: 14px;
-              font-weight: 500;
-              margin-bottom: 0.2rem;
-            }
-          }
-        `,
-        className,
-      )}
-    >
-      <label>
-        <span>{rest.label}</span>
-        <textarea
-          ref={textareaRef}
-          onChange={({ target: { value, name } }) => {
-            if (onChange) {
-              onChange(value, name)
-            }
-
-            if (autoResize) {
-              updateHeight(textareaRef)
-            }
-          }}
-          {...register}
-          /* onKeyPress={(event) => onKeyPress(event)} */
-          defaultValue={rest.defaultValue}
-          {...rest}
-        />
-      </label>
-    </div>
-  )
+const useCombinedRefs = (
+  fwdRef: React.ForwardedRef<HTMLTextAreaElement>,
+  innerRef: React.MutableRefObject<HTMLTextAreaElement | null>,
+) => {
+  React.useEffect(() => {
+    ;[innerRef, fwdRef].forEach((ref) => {
+      if (ref) {
+        if (typeof ref === "function") {
+          ref(innerRef.current || null)
+        } else {
+          ref.current = innerRef.current || null
+        }
+      }
+    })
+  }, [innerRef, fwdRef])
+  return innerRef
 }
+const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
+  ({ onChangeByValue, onChange, className, autoResize, ...rest }: TextAreaProps, ref) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const combinedRef = useCombinedRefs(ref, textareaRef)
 
+    const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (onChangeByValue) {
+        const {
+          target: { value },
+        } = event
+        onChangeByValue(value)
+      }
+      if (onChange) {
+        onChange(event)
+      }
+      if (autoResize) {
+        updateHeight(textareaRef)
+      }
+    }
+    useEffect(() => {
+      // This auto-resizes the textarea if the feature is enabled
+      if (!autoResize || !textareaRef.current) {
+        return
+      }
+      updateHeight(textareaRef)
+    }, [ref, rest.value, autoResize])
+    return (
+      <div
+        className={cx(
+          css`
+            margin-bottom: 1rem;
+
+            label {
+              display: grid;
+
+              textarea {
+                background: #fcfcfc;
+                border: 1.6px solid #dedede;
+                padding: 10px 12px;
+              }
+              span {
+                color: #333;
+                font-size: 14px;
+                font-weight: 500;
+                margin-bottom: 0.2rem;
+              }
+            }
+          `,
+          className,
+        )}
+      >
+        <label>
+          <span>{rest.label}</span>
+          <textarea
+            ref={combinedRef}
+            onChange={handleOnChange}
+            /* onKeyPress={(event) => onKeyPress(event)} */
+            defaultValue={rest.defaultValue}
+            {...rest}
+          />
+        </label>
+      </div>
+    )
+  },
+)
+
+TextAreaField.displayName = "TextAreaField"
 export default TextAreaField

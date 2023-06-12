@@ -1,11 +1,7 @@
 import { css, cx } from "@emotion/css"
-import React from "react"
+import { DetailedHTMLProps, InputHTMLAttributes } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
-
-interface RadioFieldExtraProps {
-  label: string
-}
 
 // eslint-disable-next-line i18next/no-literal-string
 const labelClass = css`
@@ -54,11 +50,10 @@ const labelClass = css`
   }
 `
 
-export type RadioFieldProps = React.DetailedHTMLProps<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  HTMLInputElement
-> &
-  RadioFieldExtraProps
+export interface RadioFieldProps
+  extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
+  label: string
+}
 
 const RadioField = ({ onChange, className, label, ...rest }: RadioFieldProps) => {
   return (

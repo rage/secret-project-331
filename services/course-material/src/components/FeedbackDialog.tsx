@@ -254,7 +254,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
             value={comment}
             label={t("add-comment")}
             name=""
-            onChange={(value) => setComment(value)}
+            onChangeByValue={(value) => setComment(value)}
             placeholder={t("write-your-feedback-here")}
           />
           {charactersLeft >= 0 && charactersLeft < 200 && (

@@ -80,7 +80,7 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
                 flex-grow: 1;
               `}
               value={typedSearchQuery}
-              onChange={(value) => setTypedSearchQuery(value)}
+              onChangeByValue={(value) => setTypedSearchQuery(value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   onSearch()

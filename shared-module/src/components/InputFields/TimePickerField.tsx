@@ -1,21 +1,23 @@
 import { css, cx } from "@emotion/css"
-import React from "react"
+import React, { InputHTMLAttributes } from "react"
 
-interface TimePickerExtraProps {
+export interface TimePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
-  placeholder?: string
-  value?: string
-  max?: string
-  min?: string
-  readonly: boolean
-  /*   onBlur?: (name?:string) => void */
-  onChange: (value: string, name?: string) => void
-  className?: string
+  onChangeByValue: (value: string, name?: string) => void
 }
 
-export type TimePickerProps = React.HTMLAttributes<HTMLInputElement> & TimePickerExtraProps
-
-const TimePicker = ({ onChange, className, ...rest }: TimePickerExtraProps) => {
+const TimePicker = ({ onChangeByValue, onChange, className, ...rest }: TimePickerProps) => {
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChangeByValue) {
+      const {
+        target: { value },
+      } = event
+      onChangeByValue(value)
+    }
+    if (onChange) {
+      onChange(event)
+    }
+  }
   return (
     <div
       className={cx(
@@ -56,7 +58,7 @@ const TimePicker = ({ onChange, className, ...rest }: TimePickerExtraProps) => {
     >
       <label>
         <span>{rest.label}</span>
-        <input type="time" onChange={({ target: { value } }) => onChange(value)} {...rest} />
+        <input type="time" onChange={handleOnChange} {...rest} />
       </label>
     </div>
   )

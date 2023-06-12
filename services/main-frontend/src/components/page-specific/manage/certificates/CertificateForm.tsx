@@ -94,31 +94,31 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
           id={"ownerNamePosX"}
           error={errors.ownerNamePosX}
           label={"Position (X)"}
-          register={register("ownerNamePosX", { required: t("required-field") })}
+          {...register("ownerNamePosX", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNamePosY"}
           error={errors.ownerNamePosY}
           label={"Position (Y)"}
-          register={register("ownerNamePosY", { required: t("required-field") })}
+          {...register("ownerNamePosY", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNameFontSize"}
           error={errors.ownerNameFontSize}
           label={"Font size"}
-          register={register("ownerNameFontSize", { required: t("required-field") })}
+          {...register("ownerNameFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNameTextColor"}
           error={errors.ownerNameTextColor}
           label={"Text color"}
-          register={register("ownerNameTextColor", { required: t("required-field") })}
+          {...register("ownerNameTextColor", { required: t("required-field") })}
         />
         <SelectField
           id={"ownerNameTextAnchor"}
           options={anchorOptions}
           label="Text anchor"
-          register={register("ownerNameTextAnchor")}
+          {...register("ownerNameTextAnchor")}
         />
       </div>
       <hr />
@@ -128,31 +128,31 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
           id={"validateUrlPosX"}
           error={errors.validateUrlPosX}
           label={"Position (X)"}
-          register={register("validateUrlPosX", { required: t("required-field") })}
+          {...register("validateUrlPosX", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlPosY"}
           error={errors.validateUrlPosY}
           label={"Position (Y)"}
-          register={register("validateUrlPosY", { required: t("required-field") })}
+          {...register("validateUrlPosY", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlFontSize"}
           error={errors.validateUrlFontSize}
           label={"Font size"}
-          register={register("validateUrlFontSize", { required: t("required-field") })}
+          {...register("validateUrlFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlTextColor"}
           error={errors.validateUrlTextColor}
           label={"Text color"}
-          register={register("validateUrlTextColor", { required: t("required-field") })}
+          {...register("validateUrlTextColor", { required: t("required-field") })}
         />
         <SelectField
           id={"validateUrlTextAnchor"}
           options={anchorOptions}
           label="Text anchor"
-          register={register("validateUrlTextAnchor")}
+          {...register("validateUrlTextAnchor")}
         />
       </div>
       <hr />
@@ -162,31 +162,31 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
           id={"datePosX"}
           error={errors.datePosX}
           label={"Position (X)"}
-          register={register("datePosX", { required: t("required-field") })}
+          {...register("datePosX", { required: t("required-field") })}
         />
         <TextField
           id={"datePosY"}
           error={errors.datePosY}
           label={"Position (Y)"}
-          register={register("datePosY", { required: t("required-field") })}
+          {...register("datePosY", { required: t("required-field") })}
         />
         <TextField
           id={"dateFontSize"}
           error={errors.dateFontSize}
           label={"Font size"}
-          register={register("dateFontSize", { required: t("required-field") })}
+          {...register("dateFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"dateTextColor"}
           error={errors.dateTextColor}
           label={"Text color"}
-          register={register("dateTextColor", { required: t("required-field") })}
+          {...register("dateTextColor", { required: t("required-field") })}
         />
         <SelectField
           id={"dateTextAnchor"}
           options={anchorOptions}
           label="Text anchor"
-          register={register("dateTextAnchor")}
+          {...register("dateTextAnchor")}
         />
       </div>
       <hr />
@@ -194,13 +194,13 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
         id={"locale"}
         error={errors.locale}
         label={"Locale"}
-        register={register("locale", { required: t("required-field") })}
+        {...register("locale", { required: t("required-field") })}
       />
       <SelectField
         id={"paperSize"}
         options={paperSizeOptions}
         label="Paper size"
-        register={register("paperSize")}
+        {...register("paperSize")}
       />
       <FileField
         id={"backgroundSvg"}
@@ -210,7 +210,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
             ? `Background SVG (currently ${configuration.background_svg_path})`
             : `Background SVG`
         }
-        register={register(
+        {...register(
           "backgroundSvg",
           // required if configuration does not exist yet
           configuration ? undefined : { required: t("required-field") },
@@ -229,13 +229,13 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
               : "Overlay SVG (optional, currently not set)"
             : "Overlay SVG"
         }
-        register={register("overlaySvg")}
+        {...register("overlaySvg")}
         accept={".svg"}
       />
       <CheckBox
         id={"clearCurrentOverlaySvg"}
         label={"Delete current overlay SVG"}
-        register={register("clearCurrentOverlaySvg")}
+        {...register("clearCurrentOverlaySvg")}
         // disabled if no current overlay SVG
         disabled={configuration?.overlay_svg_path === null}
       />

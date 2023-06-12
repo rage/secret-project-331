@@ -115,7 +115,9 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     onContentChange(newContent)
   }
 
-  const [sidebarView, setSidebarView] = useState<"block-props" | "block-list" | "block-menu">(
+  const [sidebarView, setSidebarView] = useState<
+    "block-props" | "block-list" | "block-menu" | string
+  >(
     // eslint-disable-next-line i18next/no-literal-string
     "block-props",
   )
@@ -321,7 +323,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                       // eslint-disable-next-line i18next/no-literal-string
                       { value: "block-menu", label: t("block-menu") },
                     ]}
-                    onChange={(val) => setSidebarView(val)}
+                    onChangeByValue={(val) => setSidebarView(val)}
                   />
                 </div>
                 {inspectorButtons && (

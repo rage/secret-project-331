@@ -309,7 +309,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         {!courseGlobalEditor && (
           <CheckBox
             label={t("add-peer-review")}
-            onChange={(checked, _name) => toggleUsePeerReviewConfig(checked)}
+            onChangeByValue={(checked, _name) => toggleUsePeerReviewConfig(checked)}
             checked={peerReviewEnabled}
           />
         )}
@@ -318,7 +318,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             {!courseGlobalEditor && (
               <CheckBox
                 label={t("use-course-default-peer-review-config")}
-                onChange={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
+                onChangeByValue={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
                 checked={exerciseAttributes.use_course_default_peer_review}
               />
             )}
@@ -351,8 +351,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     label={t("peer-reviews-to-receive")}
                     required
                     value={parsedPeerReviewConfig.peer_reviews_to_receive}
-                    onChange={(e) => {
-                      handlePeerReviewValueChange(e, "peer_reviews_to_receive")
+                    onChangeByValue={(value) => {
+                      handlePeerReviewValueChange(value, "peer_reviews_to_receive")
                     }}
                   />
                   <TextField
@@ -364,7 +364,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     required
                     value={parsedPeerReviewConfig.peer_reviews_to_give}
                     label={t("peer-reviews-to-give")}
-                    onChange={(e) => handlePeerReviewValueChange(e, "peer_reviews_to_give")}
+                    onChangeByValue={(value) =>
+                      handlePeerReviewValueChange(value, "peer_reviews_to_give")
+                    }
                   />
                 </div>
                 <p
@@ -381,8 +383,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
                   label={t("peer-review-accepting-strategy")}
-                  onChange={(e) => {
-                    handlePeerReviewValueChange(e, "accepting_strategy")
+                  onChangeByValue={(value) => {
+                    handlePeerReviewValueChange(value, "accepting_strategy")
                   }}
                   options={peerReviewAcceptingStrategyOptions}
                   defaultValue={parsedPeerReviewConfig.accepting_strategy}
@@ -394,8 +396,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   min={0}
                   required
                   value={parsedPeerReviewConfig.accepting_threshold}
-                  onChange={(e) => {
-                    handlePeerReviewValueChange(e, "accepting_threshold")
+                  onChangeByValue={(value) => {
+                    handlePeerReviewValueChange(value, "accepting_threshold")
                   }}
                 />
                 <h2>{HEADING_TEXT}</h2>
@@ -418,8 +420,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         <StyledQuestionType>
                           <TextAreaField
                             label={t("peer-review-question")}
-                            onChange={(e) => {
-                              handlePeerReviewQuestionValueChange(id, e, "question")
+                            onChangeByValue={(value) => {
+                              handlePeerReviewQuestionValueChange(id, value, "question")
                             }}
                             defaultValue={question}
                             autoResize={true}

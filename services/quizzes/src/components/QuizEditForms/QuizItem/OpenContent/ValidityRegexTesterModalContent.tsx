@@ -76,7 +76,7 @@ export const ValidityRegexTesterModalContent: React.FC<
         <TextField
           label={t("validity-regular-expression")}
           value={variables.regex ?? ""}
-          onChange={(value) => {
+          onChangeByValue={(value) => {
             dispatch(setValidityTestRegex(storeItem.id, value))
             handleRegexChange(value)
           }}
@@ -85,7 +85,7 @@ export const ValidityRegexTesterModalContent: React.FC<
       <ModalContent>
         <TextField
           label={t("label-test")}
-          onChange={(value) => dispatch(setValidityRegexTestAnswer(storeItem.id, value))}
+          onChangeByValue={(value) => dispatch(setValidityRegexTestAnswer(storeItem.id, value))}
         />
       </ModalContent>
       <ModalContent>

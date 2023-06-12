@@ -34,7 +34,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
         <TextField
           label=""
           error={error}
-          onChange={(value) => onChange(value)}
+          onChangeByValue={(value) => onChange(value)}
           value={String(text)}
           placeholder={`${title}...`}
         />
@@ -43,7 +43,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
         <TextField
           label=""
           error={error}
-          onChange={(value) => onChange(value)}
+          onChangeByValue={(value) => onChange(value)}
           type={"number"}
           value={String(text)}
           placeholder={`${title}...`}

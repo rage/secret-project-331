@@ -176,7 +176,7 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
             margin-bottom: 0.3rem;
           `}
           disabled={!storeItem.multi}
-          onChange={(value) =>
+          onChangeByValue={(value) =>
             dispatch(
               editedMultipleChoiceMultipleOptionsGradingPolicy(
                 storeItem.id,

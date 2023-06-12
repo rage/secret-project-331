@@ -56,7 +56,7 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
       <TextField
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
-        register={register("gitUrl", { required: t("required-field") })}
+        {...register("gitUrl", { required: t("required-field") })}
         error={errors["gitUrl"]?.message}
       />
       <Button type="submit" size="medium" variant="primary" disabled={!isValid || isSubmitting}>

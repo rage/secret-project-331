@@ -66,7 +66,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
         `}
       >
         <TextArea
-          onChange={(newValue) => {
+          onChangeByValue={(newValue) => {
             if (quizItemAnswerState) {
               let valid = true
               if (quizItem.minWords && quizItem.minWords > wordCount(newValue)) {

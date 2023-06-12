@@ -233,9 +233,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             <TextField
               label={t("first-name")}
               placeholder={t("enter-first-name")}
-              register={register("first_name", {
-                required: t("required-field"),
-              })}
+              {...register("first_name", { required: t("required-field") })}
               required={true}
               error={errors.first_name}
             />
@@ -243,9 +241,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             <TextField
               label={t("last-name")}
               placeholder={t("enter-last-name")}
-              register={register("last_name", {
-                required: t("required-field"),
-              })}
+              {...register("last_name", { required: t("required-field") })}
               required={true}
               error={errors.last_name}
             />
@@ -253,7 +249,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
               label={t("email")}
               type="email"
               placeholder={t("enter-your-email")}
-              register={register("email", {
+              {...register("email", {
                 required: t("required-field"),
                 validate: {
                   isValidEmail: (value) =>
@@ -267,7 +263,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
               label={t("password")}
               type="password"
               placeholder={t("enter-your-password")}
-              register={register("password", {
+              {...register("password", {
                 required: t("required-field"),
                 minLength: {
                   value: 8,
@@ -282,7 +278,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
               label={t("confirm-password")}
               type="password"
               placeholder={t("confirm-your-password")}
-              register={register("password_confirmation", {
+              {...register("password_confirmation", {
                 required: t("required-field"),
                 minLength: {
                   value: 8,

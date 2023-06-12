@@ -97,11 +97,11 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
           value: x.id,
           label: x.name ?? t("label-default"),
         }))}
-        register={register("course_module_id", { required: t("required-field") })}
+        {...register("course_module_id", { required: t("required-field") })}
         aria-label={t("select-course-module")}
       />
       <p>{t("label-completion-date")}</p>
-      <DatePicker label={DATE} onChange={(value) => setDate(value)} />
+      <DatePicker label={DATE} onChangeByValue={(value) => setDate(value)} />
       <p>
         <Trans t={t} i18nKey="label-csv-completions">
           Format: csv with headers with fields:{" "}
@@ -111,7 +111,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       {errors.completions?.message && <p>{errors.completions.message}</p>}
       <TextAreaField
         placeholder={CSV_HEADER_FORMAT}
-        register={register("completions", { required: t("required-field") })}
+        {...register("completions", { required: t("required-field") })}
       />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
         {submitText ?? t("button-text-submit")}

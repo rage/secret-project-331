@@ -39,7 +39,7 @@ const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateFor
             required
             label={t("text-field-label-name")}
             value={name}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setName(value)
             }}
           />

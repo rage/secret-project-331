@@ -121,7 +121,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             autoResize
             label={t(`change-request-edited-result-label`)}
             defaultValue={block.accept_preview ?? undefined}
-            onChange={(newValue) =>
+            onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
                 if (block.accept_preview !== null) {
                   // eslint-disable-next-line i18next/no-literal-string

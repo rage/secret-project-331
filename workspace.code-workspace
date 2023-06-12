@@ -94,6 +94,7 @@
       // Speeds up type checking by making sqlx to not connect to the database in vscode. Also, this causes all the unprepaired queries to show up as an error in vscode that helps to remember to prepare them.
       "SQLX_OFFLINE": "true"
     },
+    "window.commandCenter": true,
   },
   "launch": {
     "configurations": [],

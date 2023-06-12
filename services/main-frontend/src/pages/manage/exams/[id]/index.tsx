@@ -118,7 +118,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             ))}
             <TextField
               label={t("add-course")}
-              onChange={function (value: string): void {
+              onChangeByValue={function (value: string): void {
                 setNewCourse(value)
               }}
               placeholder={t("course-id")}

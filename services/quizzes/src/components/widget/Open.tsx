@@ -48,7 +48,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
           label={t("answer")}
           type="text"
           value={quizItemAnswerState?.textData ?? ""}
-          onChange={(e) => handleChange(e)}
+          onChangeByValue={(e) => handleChange(e)}
           onFocus={() => setShowFormatError(true)}
           onBlur={() => setShowFormatError(false)}
           error={

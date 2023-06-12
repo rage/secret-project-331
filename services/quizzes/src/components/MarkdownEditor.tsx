@@ -41,7 +41,7 @@ export const MarkdownEditor: React.FC<React.PropsWithChildren<MarkdownEditorProp
               flex: 1;
             `}
           >
-            <TextField value={text} label={label} disabled={false} onChange={onChange} />
+            <TextField value={text} label={label} disabled={false} onChangeByValue={onChange} />
           </div>
         )}
         {previewVisible && (

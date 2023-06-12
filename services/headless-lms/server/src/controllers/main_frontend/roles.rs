@@ -51,7 +51,7 @@ pub async fn set(
     let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
@@ -75,7 +75,7 @@ pub async fn unset(
     let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::remove(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

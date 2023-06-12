@@ -1,21 +1,24 @@
 import { css, cx } from "@emotion/css"
-import React from "react"
+import { InputHTMLAttributes } from "react"
 
-interface DatePickerExtraProps {
+export interface DatePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   hint?: string
-  placeholder?: string
-  value?: string
-  max?: string
-  min?: string
-  /*   onBlur?: (name?:string) => void */
-  onChange: (value: string, name?: string) => void
-  className?: string
+  onChangeByValue: (value: string, name?: string) => void
 }
 
-export type DatePickerProps = React.HTMLAttributes<HTMLInputElement> & DatePickerExtraProps
-
-const DatePicker = ({ onChange, className, ...rest }: DatePickerExtraProps) => {
+const DatePicker = ({ onChange, onChangeByValue, className, ...rest }: DatePickerProps) => {
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChangeByValue) {
+      const {
+        target: { value },
+      } = event
+      onChangeByValue(value)
+    }
+    if (onChange) {
+      onChange(event)
+    }
+  }
   return (
     <div
       className={cx(
@@ -55,7 +58,7 @@ const DatePicker = ({ onChange, className, ...rest }: DatePickerExtraProps) => {
     >
       <label>
         <span>{rest.label}</span>
-        <input type="date" onChange={({ target: { value } }) => onChange(value)} {...rest} />
+        <input type="date" onChange={handleOnChange} {...rest} />
       </label>
     </div>
   )

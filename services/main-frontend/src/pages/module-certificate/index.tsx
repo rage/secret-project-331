@@ -84,7 +84,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
             required
             label={"Your name"}
             value={nameOnCertificate}
-            onChange={(val) => setNameOnCertificate(val)}
+            onChange={(event) => setNameOnCertificate(event.target.value)}
           ></TextField>
           <Button
             size="medium"

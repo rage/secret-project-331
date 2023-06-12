@@ -31,7 +31,7 @@ const UpdatePageDetailsForm: React.FC<React.PropsWithChildren<UpdatePageDetailsF
             required
             label={t("label-title")}
             value={title}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setTitle(value)
             }}
           />

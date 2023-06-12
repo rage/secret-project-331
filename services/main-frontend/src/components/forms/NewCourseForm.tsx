@@ -163,7 +163,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("text-field-label-name")}
             value={name}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setName(value)
               setSlug(normalizePath(value))
             }}
@@ -174,7 +174,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("text-field-label-or-header-slug-or-short-name")}
             value={slug}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setSlug(value)
             }}
           />
@@ -184,7 +184,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("teacher-in-charge-name")}
             value={teacherInChargeName}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setTeacherInChargeName(value)
             }}
           />
@@ -194,7 +194,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("teacher-in-charge-email")}
             value={teacherInChargeEmail}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setTeacherInChargeEmail(value)
             }}
           />
@@ -204,7 +204,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("text-field-label-description")}
             value={description}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setDescription(value)
             }}
           />
@@ -244,7 +244,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             <SelectField
               id="duplicate-course-select-menu"
               defaultValue={courses[0].id}
-              onChange={(e) => handleDuplicateMenu(e, courses)}
+              onChangeByValue={(value) => handleDuplicateMenu(value, courses)}
               options={courses.map((course) => {
                 return { label: course.name, value: course.id }
               })}
@@ -303,7 +303,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
                 required
                 label={t("language-code")}
                 value={languageCode}
-                onChange={(value) => {
+                onChangeByValue={(value) => {
                   setLanguageCode(value)
                   try {
                     normalizeIETFLanguageTag(value)

@@ -77,7 +77,7 @@ export const FormatRegexTesterModalContent: React.FC<
         <TextField
           label={t("format-regular-expression")}
           value={variables.formatRegex ?? ""}
-          onChange={(value) => {
+          onChangeByValue={(value) => {
             dispatch(setFormatTestRegex(storeItem.id, value))
             handleRegexChange(value)
           }}
@@ -86,7 +86,7 @@ export const FormatRegexTesterModalContent: React.FC<
       <ModalContent>
         <TextField
           label={t("label-test")}
-          onChange={(value) => dispatch(setFormatRegexTestAnswer(storeItem.id, value))}
+          onChangeByValue={(value) => dispatch(setFormatRegexTestAnswer(storeItem.id, value))}
         />
       </ModalContent>
       <ModalContent>

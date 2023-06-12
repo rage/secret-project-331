@@ -156,7 +156,7 @@ const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item
           error={!variables.validRegex ? t("error-title") : undefined}
           label={t("validity-regular-expression")}
           value={variables.regex ?? ""}
-          onChange={(value) => {
+          onChangeByValue={(value) => {
             dispatch(setValidityTestRegex(storeItem.id, value))
             handleValidRegexChange(value)
           }}
@@ -178,7 +178,7 @@ const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item
           error={!variables.validFormatRegex ? t("error-title") : undefined}
           label={t("format-regular-expression")}
           value={variables.formatRegex ?? ""}
-          onChange={(value) => {
+          onChangeByValue={(value) => {
             dispatch(setFormatTestRegex(storeItem.id, value))
             handleFormatRegexChange(value)
           }}

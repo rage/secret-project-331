@@ -76,7 +76,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             />
           </PreviewWrapper>
         ) : (
-          <TextField value={text} label={label} disabled={false} onChange={onChange} />
+          <TextField value={text} label={label} disabled={false} onChangeByValue={onChange} />
         )}
       </FlexWrapper>
       <Button

@@ -1,32 +1,12 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
-import { FieldError, UseFormRegisterReturn } from "react-hook-form"
+import React, { forwardRef, InputHTMLAttributes } from "react"
+import { FieldError } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 import { errorToDescription } from "../../utils/strings"
-
-interface FileFieldExtraProps {
-  name?: string
-  label?: string
-  labelStyle?: string
-  hint?: string
-  error?: string | FieldError
-  required?: boolean
-  value?: string | number
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
-  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
-  onChange?: (value: string, name?: string) => void
-  className?: string
-  disabled?: boolean
-  id?: string
-  register?: UseFormRegisterReturn
-  min?: number
-  step?: string
-  accept?: string
-}
 
 const ERRORCOLOR = baseTheme.colors.red[600]
 const DEFAULTCOLOR = "#dedede"
@@ -71,81 +51,93 @@ const errorClass = css`
   display: inline-block;
 `
 
-export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & FileFieldExtraProps
-
-const FileField = ({
-  onChange,
-  className,
-  register,
-  disabled,
-  error,
-  ...rest
-}: FileFieldExtraProps) => {
-  const { t } = useTranslation()
-  return (
-    <div
-      className={cx(
-        css`
-          margin-bottom: 1rem;
-          ${disabled &&
-          `cursor: not-allowed;
-            filter: opacity(0.5);`}
-        `,
-        className,
-      )}
-    >
-      <label
-        aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
-        className={cx(
-          css`
-            color: #333;
-            font-family: ${primaryFont};
-            font-weight: 500;
-            font-size: 14px;
-            display: block;
-            margin-bottom: 2px;
-            ${disabled && `color: ${baseTheme.colors.gray[400]};`}
-            ${disabled && `cursor: not-allowed;`}
-          `,
-          rest.labelStyle,
-        )}
-      >
-        {rest.label && (
-          <>
-            {rest.label} {rest.required === true && ` *`}
-          </>
-        )}
-        <Input
-          id={rest.id}
-          name={rest.name}
-          disabled={disabled}
-          type={"file"}
-          // eslint-disable-next-line i18next/no-literal-string
-          aria-errormessage={`${rest.id ?? rest.label}_error`}
-          aria-invalid={error !== undefined}
-          onChange={({ target: { value } }) => onChange && onChange(value)}
-          error={errorToDescription(error) ?? undefined}
-          {...rest}
-          // Register overrides onChange if specified
-          {...register}
-        />
-      </label>
-
-      <span
-        className={
-          error
-            ? cx(errorClass)
-            : css`
-                visibility: hidden;
-              `
-        }
-        id={`${rest.id ?? rest.label}_error`}
-        role="alert"
-      >
-        {errorToDescription(error)}
-      </span>
-    </div>
-  )
+export interface FileFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+  label?: string
+  labelStyle?: string
+  hint?: string
+  error?: string | FieldError
+  onChangeByValue?: (value: string, name?: string) => void
 }
 
+const FileField = forwardRef<HTMLInputElement, FileFieldProps>(
+  ({ onChange, onChangeByValue, className, disabled, error, ...rest }: FileFieldProps, ref) => {
+    const { t } = useTranslation()
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChangeByValue) {
+        const {
+          target: { value },
+        } = event
+        onChangeByValue(value)
+      }
+      if (onChange) {
+        onChange(event)
+      }
+    }
+    return (
+      <div
+        className={cx(
+          css`
+            margin-bottom: 1rem;
+            ${disabled &&
+            `cursor: not-allowed;
+            filter: opacity(0.5);`}
+          `,
+          className,
+        )}
+      >
+        <label
+          aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
+          className={cx(
+            css`
+              color: #333;
+              font-family: ${primaryFont};
+              font-weight: 500;
+              font-size: 14px;
+              display: block;
+              margin-bottom: 2px;
+              ${disabled && `color: ${baseTheme.colors.gray[400]};`}
+              ${disabled && `cursor: not-allowed;`}
+            `,
+            rest.labelStyle,
+          )}
+        >
+          {rest.label && (
+            <>
+              {rest.label} {rest.required === true && ` *`}
+            </>
+          )}
+          <Input
+            id={rest.id}
+            name={rest.name}
+            disabled={disabled}
+            type={"file"}
+            // eslint-disable-next-line i18next/no-literal-string
+            aria-errormessage={`${rest.id ?? rest.label}_error`}
+            aria-invalid={error !== undefined}
+            onChange={handleOnChange}
+            error={errorToDescription(error) ?? undefined}
+            ref={ref}
+            {...rest}
+          />
+        </label>
+
+        <span
+          className={
+            error
+              ? cx(errorClass)
+              : css`
+                  visibility: hidden;
+                `
+          }
+          id={`${rest.id ?? rest.label}_error`}
+          role="alert"
+        >
+          {errorToDescription(error)}
+        </span>
+      </div>
+    )
+  },
+)
+FileField.displayName = "FileField"
 export default FileField

@@ -2,7 +2,7 @@ use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use futures_util::TryStreamExt;
 use headless_lms_certificates as certificates;
-use headless_lms_utils::file_store::GenericPayload;
+use headless_lms_utils::{file_store::GenericPayload, icu4x::Icu4xBlob};
 use models::{
     course_module_certificate_configurations::{
         CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
@@ -76,9 +76,9 @@ pub async fn update_certificate_configuration(
         user,
     )
     .await;
-    tx.commit().await?;
     match result {
         Ok(files_to_delete) => {
+            tx.commit().await?;
             for file_to_delete in files_to_delete {
                 if let Err(err) = file_uploading::delete_file_from_storage(
                     &mut conn,
@@ -93,6 +93,8 @@ pub async fn update_certificate_configuration(
             }
         }
         Err(err) => {
+            // do not commit in error branch
+            drop(tx);
             // clean up files that were uploaded before something went wrong
             for uploaded_file in uploaded_files {
                 if let Err(err) = file_uploading::delete_file_from_storage(
@@ -192,17 +194,21 @@ async fn update_certificate_configuration_inner(
         .await
         .optional()?;
     // get new or existing background svg data for the update struct
-    // also ensure that a background svg already exists or a new one is uploaded
+    // also ensure that a background svg already exists or a new one is uploaded and delete old image if replaced
     let (background_svg_file_upload_id, background_svg_path) =
         match (&existing_configuration, &new_background_svg_file) {
             (Some(existing_configuration), None) => {
-                // use values from existing config
+                // configuration exists and no new background was uploaded, use old values
                 (
                     existing_configuration.background_svg_file_upload_id,
                     existing_configuration.background_svg_path.clone(),
                 )
             }
-            (_, Some(background_svg_file)) => {
+            (existing, Some(background_svg_file)) => {
+                // configuration exists and a new background was uploaded, delete old one
+                if let Some(existing) = existing {
+                    files_to_delete.push(existing.background_svg_file_upload_id);
+                }
                 // use new values
                 background_svg_file.clone()
             }
@@ -215,22 +221,36 @@ async fn update_certificate_configuration_inner(
                 ));
             }
         };
-    // check if the old overlay svgs need to be deleted
-    if let Some(existing_configuration) = &existing_configuration {
-        // delete previous background when a new one is uploaded
-        if new_background_svg_file.is_some() {
-            files_to_delete.push(background_svg_file_upload_id);
+    // get new or existing overlay svg data for the update struct
+    // also check if the old overlay svgs need to be deleted
+    let overlay_data = match (
+        &existing_configuration,
+        &new_overlay_svg_file,
+        metadata.clear_overlay_svg_file,
+    ) {
+        (_, Some(new_overlay), _) => {
+            // new overlay was uploaded, use new values
+            Some(new_overlay.clone())
         }
-        // delete overlay when either a new overlay is uploaded, or when deletion is explicitly requested
-        if new_overlay_svg_file.is_some() || metadata.clear_overlay_svg_file {
-            if let Some(overlay_svg_file_upload_id) =
-                existing_configuration.overlay_svg_file_upload_id
-            {
-                files_to_delete.push(overlay_svg_file_upload_id);
+        (Some(existing), None, false) => {
+            // no new overlay and no deletion requested, use old data
+            existing
+                .overlay_svg_file_upload_id
+                .zip(existing.overlay_svg_path.clone())
+        }
+        (Some(existing), None, true) => {
+            // requested deletion of old overlay
+            if let Some(existing_overlay) = existing.overlay_svg_file_upload_id {
+                files_to_delete.push(existing_overlay);
             }
+            None
         }
-    }
-    let (overlay_svg_file_id, overlay_svg_file_path) = new_overlay_svg_file.unzip();
+        (None, None, _) => {
+            // no action needed
+            None
+        }
+    };
+    let (overlay_svg_file_id, overlay_svg_file_path) = overlay_data.unzip();
     let conf = DatabaseCourseModuleCertificateConfiguration {
         course_module_id: metadata.course_module_id,
         course_instance_id: metadata.course_instance_id,
@@ -317,7 +337,7 @@ pub async fn generate_course_module_completion_certificate(
         ));
     }
     // Skip authorization: each user should be able to generate their own certificate for any module
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     // generate_and_insert verifies that the user can generate the certificate
     models::course_module_completion_certificates::generate_and_insert(
         &mut conn,
@@ -348,7 +368,7 @@ pub async fn get_course_module_completion_certificate(
     let course_module_id = params.0;
     let course_instance_id = params.1;
     // Each user should be able to view their own certificate
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let certificate = models::course_module_completion_certificates::get_certificate_for_user(
         &mut conn,
         user.id,
@@ -380,11 +400,12 @@ pub async fn get_cerficate_by_verification_id(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     query: web::Query<CertificateQuery>,
+    icu4x_blob: web::Data<Icu4xBlob>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
     // everyone needs to be able to view the certificate in order to verify its validity
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let certificate =
         models::course_module_completion_certificates::get_certificate_by_verification_id(
             &mut conn,
@@ -397,6 +418,7 @@ pub async fn get_cerficate_by_verification_id(
         file_store.as_ref(),
         &certificate,
         query.debug,
+        **icu4x_blob,
     )
     .await?;
     let max_age = if query.debug { 0 } else { 300 };

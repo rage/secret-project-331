@@ -99,15 +99,15 @@ const SelectMenu = ({
       <div className="select">
         <select
           id={id}
-          onChange={(event) => onChange(event)}
-          defaultValue={DEFAULT_VALUE_KEY}
+          onChange={onChange}
+          defaultValue={defaultValue ?? DEFAULT_VALUE_KEY}
           {...rest}
         >
-          <option value={DEFAULT_VALUE_KEY} key={defaultValue ?? DEFAULT_VALUE_KEY} disabled>
+          <option value={DEFAULT_VALUE_KEY} key={DEFAULT_VALUE_KEY} disabled>
             {t("please-choose-a-value")}
           </option>
           {options.map((o) => (
-            <option value={o.value} key={o.label}>
+            <option value={o.value} key={o.value}>
               {o.label}
             </option>
           ))}

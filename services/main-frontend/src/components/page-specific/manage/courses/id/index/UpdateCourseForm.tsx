@@ -59,7 +59,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
             required
             label={t("text-field-label-name")}
             value={name}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setName(value)
             }}
           />
@@ -68,7 +68,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
           <TextAreaField
             label={t("text-field-label-description")}
             value={description ?? ""}
-            onChange={(description) => {
+            onChangeByValue={(description) => {
               setDescription(description)
             }}
           />

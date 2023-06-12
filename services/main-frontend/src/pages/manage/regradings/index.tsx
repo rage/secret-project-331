@@ -159,7 +159,7 @@ const RegradingsPage: React.FC = () => {
         <TextAreaField
           label={t("label-exercise-task-submission-ids")}
           rows={20}
-          register={register("exerciseTaskSubmissionIds", {
+          {...register("exerciseTaskSubmissionIds", {
             validate: (input) => {
               const lines = input.trim().split("\n")
               if (lines.length === 0) {
@@ -170,7 +170,7 @@ const RegradingsPage: React.FC = () => {
             },
           })}
         />
-        <SelectField<UserPointsUpdateStrategy>
+        <SelectField
           id={"user-points-update-strategy"}
           label={t("label-user-points-update-strategy")}
           options={[
@@ -186,7 +186,7 @@ const RegradingsPage: React.FC = () => {
               value: "CanAddPointsAndCanRemovePoints",
             },
           ]}
-          register={register("userPointsUpdateStrategy")}
+          {...register("userPointsUpdateStrategy")}
         />
         <Button
           variant="primary"

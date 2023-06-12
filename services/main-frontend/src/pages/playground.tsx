@@ -206,7 +206,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           value={exampleUrl || ""}
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
-          onChange={(value) => handleUrlChange(value)}
+          onChangeByValue={(value) => handleUrlChange(value)}
           error={invalidUrl ? t("invalid-url") : undefined}
           className={css`
             margin-bottom: 1rem !important;
@@ -216,7 +216,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           value={String(exampleWidth) || ""}
           placeholder={t("label-width")}
           label={t("label-width")}
-          onChange={(value) => handleWidthChange(value)}
+          onChangeByValue={(value) => handleWidthChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -225,7 +225,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           value={exampleName}
           placeholder={t("label-example-name")}
           label={t("label-example-name")}
-          onChange={(value) => handleNameChange(value)}
+          onChangeByValue={(value) => handleNameChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}

@@ -89,11 +89,15 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           {/* eslint-disable-next-line i18next/no-literal-string */}
           {t("login-description")} <a href="https://mooc.fi">mooc.fi</a> {t("login-description2")}
         </div>
-        <TextField label={t("label-email")} onChange={(value) => setEmail(value)} required />
+        <TextField
+          label={t("label-email")}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+        />
         <TextField
           type="password"
           label={t("label-password")}
-          onChange={(value) => setPassword(value)}
+          onChange={(event) => setPassword(event.target.value)}
           required
         />
         {notification && (

@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import Layout from "../../components/Layout"
 import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, Page } from "../../shared-module/bindings"
@@ -70,7 +69,7 @@ const Pages = ({ query }: PagesProps) => {
     },
   )
   return (
-    <Layout>
+    <>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
       {getPage.isLoading && <Spinner variant={"medium"} />}
       {getPage.isSuccess && (
@@ -83,7 +82,7 @@ const Pages = ({ query }: PagesProps) => {
           />
         </PageContext.Provider>
       )}
-    </Layout>
+    </>
   )
 }
 

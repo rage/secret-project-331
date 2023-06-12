@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../components/Layout"
 import MainFrontendBreadCrumbs from "../../components/MainFrontendBreadCrumbs"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
 import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
@@ -25,7 +24,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
   const organizationQuery = useOrganizationQueryBySlug(query.organizationSlug)
 
   return (
-    <Layout>
+    <>
       <MainFrontendBreadCrumbs organizationSlug={query.organizationSlug} courseId={null} />
       <div>
         {organizationQuery.isSuccess && (
@@ -96,7 +95,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
 
         <DebugModal data={organizationQuery.data} />
       </div>
-    </Layout>
+    </>
   )
 }
 

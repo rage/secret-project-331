@@ -96,7 +96,7 @@
   "loading": "Loading",
   "max-points": "Max points",
   "max-score-n-marks": "Max score: <2>{{marks}} marks</2>",
-  "message-already-on-different-language-version": "Looks like you're already on a different language version of this course. Before answering any exercises, please return to <1>{{name}}</1> or change your active language in the settings.",
+  "message-already-on-different-language-version": "You're already on a different language version of this course. Before answering any exercises, please return to <1>{{name}}</1> or change your active language in the course settings.",
   "n-characters-left": "{{n}} characters left",
   "n-characters-over-limit": "{{n}} characters over the limit",
   "no-comments-yet": "No comments yet",

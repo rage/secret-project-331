@@ -1,7 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import MainFrontendBreadCrumbs from "../../../../components/MainFrontendBreadCrumbs"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
@@ -65,7 +64,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
   const PageToRender = CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"]
 
   return (
-    <Layout navVariant="simple">
+    <>
       <MainFrontendBreadCrumbs organizationSlug={null} courseId={courseId} />
       <TabLinkNavigation>
         <TabLink url={"overview"} isActive={path === "overview"}>
@@ -116,7 +115,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
       <TabLinkPanel>
         <PageToRender courseId={courseId} />
       </TabLinkPanel>
-    </Layout>
+    </>
   )
 }
 

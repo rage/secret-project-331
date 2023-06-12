@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
@@ -19,7 +19,8 @@ import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
 
 export interface CourseTranslationsListProps {
-  courseId: string
+  selectedCourseId: string
+  savedCourseId: string | undefined
   setIsLanguageChanged(languageChanged: boolean): void
   setSelectLanguage(setLanguage: string): void
 }
@@ -27,28 +28,13 @@ export interface CourseTranslationsListProps {
 const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsListProps>> = ({
   setIsLanguageChanged,
   setSelectLanguage,
+  selectedCourseId,
+  savedCourseId,
 }) => {
   const { t } = useTranslation()
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
-  const [langCode, setLangCode] = useState("")
   const { i18n } = useTranslation()
-
-  //Gets courseId and languageCode of the chosen language
-  const onChange = (event: { target: { value: string } }) => {
-    const values = event.target.value.split(",")
-    const changedCourseId = values[0]
-
-    setLangCode(values[1])
-    i18n.changeLanguage(values[1])
-    setSelectLanguage(changedCourseId)
-    if (currentCourseId == changedCourseId) {
-      setIsLanguageChanged(false)
-    } else {
-      setIsLanguageChanged(true)
-    }
-  }
-
   const useCourseLanguageVersionsList = useQuery(
     [formatLanguageVersionsQueryKey(currentCourseId ?? "")],
     () => fetchCourseLanguageVersions(currentCourseId ?? ""),
@@ -56,6 +42,30 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   const courseVersionsList = useCourseLanguageVersionsList.data?.filter(
     (course) => !course.is_draft,
   )
+
+  const langCode = courseVersionsList?.find(
+    (course) => course.id === selectedCourseId,
+  )?.language_code
+
+  //Gets courseId and languageCode of the chosen language
+  const onChange = (event: { target: { value: string } }) => {
+    const changedCourseId = event.target.value
+    const newLangCode = courseVersionsList?.find(
+      (course) => course.id === changedCourseId,
+    )?.language_code
+
+    if (newLangCode) {
+      i18n.changeLanguage(newLangCode)
+    }
+
+    setSelectLanguage(changedCourseId)
+
+    if (savedCourseId === undefined || savedCourseId === changedCourseId) {
+      setIsLanguageChanged(false)
+    } else {
+      setIsLanguageChanged(true)
+    }
+  }
 
   //Puts the current course at the top of the list
   if (courseVersionsList) {
@@ -72,7 +82,6 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
         return
       }
       i18n.changeLanguage(firstLanguageVersion.language_code)
-      setLangCode(firstLanguageVersion.language_code)
     }
   }, [currentCourseId, courseVersionsList, langCode, i18n])
 
@@ -117,7 +126,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           height: 37px;
         `}
       >
-        {GetLanguageFlag(langCode)}
+        {langCode && GetLanguageFlag(langCode)}
         <select
           className={css`
             box-sizing: border-box;
@@ -127,9 +136,10 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
           `}
           id="changeLanguage"
           onChange={onChange}
+          defaultValue={selectedCourseId}
         >
           {courseVersionsList?.map((course) => (
-            <option key={course.id} value={[course.id, course.language_code]}>
+            <option key={course.id} value={course.id}>
               {getLanguageName(course.language_code)}
             </option>
           ))}

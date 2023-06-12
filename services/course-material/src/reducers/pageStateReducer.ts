@@ -63,6 +63,10 @@ interface SetLoadingAction {
 export type PageStateAction = RawSetStateAction | SetDataAction | SetErrorAction | SetLoadingAction
 
 export default function pageStateReducer(prev: PageState, action: PageStateAction): PageState {
+  if (action === null || action === undefined) {
+    return prev
+  }
+  console.log({ prev, action })
   switch (action.type) {
     case "rawSetState":
       return action.payload

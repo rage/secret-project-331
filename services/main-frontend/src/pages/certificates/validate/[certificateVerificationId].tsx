@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import { fetchCertificateImage } from "../../../services/backend/certificates"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
@@ -26,7 +25,7 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
     async () => fetchCertificateImage(certificateVerificationId, debug === "true"),
   )
   return (
-    <Layout>
+    <>
       {certificate.isError && <ErrorBanner error={certificate.error} variant={"readOnly"} />}
       {certificate.isLoading && <Spinner variant={"medium"} />}
       {certificate.isSuccess && (
@@ -46,7 +45,7 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
           </a>
         </div>
       )}
-    </Layout>
+    </>
   )
 }
 

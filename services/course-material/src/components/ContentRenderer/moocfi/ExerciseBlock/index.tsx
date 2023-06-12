@@ -79,6 +79,9 @@ const ExerciseBlock: React.FC<
     exerciseBlockPostThisStateToIFrameReducer,
     null,
   )
+  const userOnWrongLanguageVersion =
+    pageContext.settings &&
+    pageContext.settings.current_course_instance_id !== pageContext.instance?.id
 
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
@@ -379,73 +382,75 @@ const ExerciseBlock: React.FC<
               }
             `}
           >
-            {getCourseMaterialExercise.data.can_post_submission && !inSubmissionView && (
-              <Button
-                size="medium"
-                variant="primary"
-                disabled={
-                  postSubmissionMutation.isLoading ||
-                  answers.size < (postThisStateToIFrame?.length ?? 0) ||
-                  Array.from(answers.values()).some((x) => !x.valid)
-                }
-                onClick={() => {
-                  if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
-                    return
+            {getCourseMaterialExercise.data.can_post_submission &&
+              !userOnWrongLanguageVersion &&
+              !inSubmissionView && (
+                <Button
+                  size="medium"
+                  variant="primary"
+                  disabled={
+                    postSubmissionMutation.isLoading ||
+                    answers.size < (postThisStateToIFrame?.length ?? 0) ||
+                    Array.from(answers.values()).some((x) => !x.valid)
                   }
-                  postSubmissionMutation.mutate(
-                    {
-                      exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
-                      exercise_task_submissions:
-                        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
-                          (task) => ({
-                            exercise_task_id: task.id,
-                            data_json: answers.get(task.id)?.data,
-                          }),
-                        ),
-                    },
-                    {
-                      onSuccess: (res) => {
-                        queryClient.setQueryData(
-                          queryUniqueKey,
-                          (old: CourseMaterialExercise | undefined) => {
-                            if (!old) {
-                              // eslint-disable-next-line i18next/no-literal-string
-                              throw new Error("No CourseMaterialExercise found")
-                            }
-                            return produce(old, (draft: CourseMaterialExercise) => {
-                              res.exercise_task_submission_results.forEach(
-                                (et_submission_result) => {
-                                  // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                  const receivedExerciseTaskSubmission =
-                                    et_submission_result.submission
-                                  const draftExerciseTask =
-                                    draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                      return (
-                                        et.id === et_submission_result.submission.exercise_task_id
-                                      )
-                                    })
-                                  if (draftExerciseTask) {
-                                    draftExerciseTask.previous_submission =
-                                      receivedExerciseTaskSubmission
-                                  }
-                                  // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                  if (isExam && et_submission_result.grading !== null) {
-                                    // eslint-disable-next-line i18next/no-literal-string
-                                    throw new Error("Exams should have hidden gradings")
-                                  }
-                                },
-                              )
-                            })
-                          },
-                        )
+                  onClick={() => {
+                    if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
+                      return
+                    }
+                    postSubmissionMutation.mutate(
+                      {
+                        exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
+                        exercise_task_submissions:
+                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
+                            (task) => ({
+                              exercise_task_id: task.id,
+                              data_json: answers.get(task.id)?.data,
+                            }),
+                          ),
                       },
-                    },
-                  )
-                }}
-              >
-                {t("submit-button")}
-              </Button>
-            )}
+                      {
+                        onSuccess: (res) => {
+                          queryClient.setQueryData(
+                            queryUniqueKey,
+                            (old: CourseMaterialExercise | undefined) => {
+                              if (!old) {
+                                // eslint-disable-next-line i18next/no-literal-string
+                                throw new Error("No CourseMaterialExercise found")
+                              }
+                              return produce(old, (draft: CourseMaterialExercise) => {
+                                res.exercise_task_submission_results.forEach(
+                                  (et_submission_result) => {
+                                    // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
+                                    const receivedExerciseTaskSubmission =
+                                      et_submission_result.submission
+                                    const draftExerciseTask =
+                                      draft.current_exercise_slide.exercise_tasks.find((et) => {
+                                        return (
+                                          et.id === et_submission_result.submission.exercise_task_id
+                                        )
+                                      })
+                                    if (draftExerciseTask) {
+                                      draftExerciseTask.previous_submission =
+                                        receivedExerciseTaskSubmission
+                                    }
+                                    // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                    if (isExam && et_submission_result.grading !== null) {
+                                      // eslint-disable-next-line i18next/no-literal-string
+                                      throw new Error("Exams should have hidden gradings")
+                                    }
+                                  },
+                                )
+                              })
+                            },
+                          )
+                        },
+                      },
+                    )
+                  }}
+                >
+                  {t("submit-button")}
+                </Button>
+              )}
             {inSubmissionView &&
               getCourseMaterialExercise.data.exercise.needs_peer_review &&
               exerciseSlideSubmissionId &&

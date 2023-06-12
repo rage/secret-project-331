@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import CertificateForm, {
   CertificateFields,
 } from "../../../../components/page-specific/manage/certificates/CertificateForm"
@@ -134,7 +133,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
   )
 
   return (
-    <Layout navVariant="simple">
+    <>
       <h2>
         {t("certificates")}: {courseInstanceId}
       </h2>
@@ -248,7 +247,7 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
           </ul>
         </>
       )}
-    </Layout>
+    </>
   )
 }
 

@@ -6,7 +6,6 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import FullWidthTable, { FullWidthTableRow } from "../../../components/tables/FullWidthTable"
 import {
   createNewRegrading,
@@ -70,23 +69,15 @@ const RegradingsPage: React.FC = () => {
   )
 
   if (regradingsQuery.isError) {
-    return (
-      <Layout navVariant="simple">
-        <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
-      </Layout>
-    )
+    return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
   }
 
   if (regradingsQuery.isLoading) {
-    return (
-      <Layout navVariant="simple">
-        <Spinner variant="medium" />
-      </Layout>
-    )
+    return <Spinner variant="medium" />
   }
 
   return (
-    <Layout navVariant="simple">
+    <>
       <div
         className={css`
           margin-top: 40px;
@@ -216,7 +207,7 @@ const RegradingsPage: React.FC = () => {
         </Button>
       </Dialog>
       <DebugModal data={regradingsQuery.data} />
-    </Layout>
+    </>
   )
 }
 

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
@@ -28,7 +27,7 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
     },
   )
   return (
-    <Layout>
+    <>
       {userCompletionInformation.isError && (
         <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
       )}
@@ -54,7 +53,7 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
           </Trans>
         </div>
       )}
-    </Layout>
+    </>
   )
 }
 

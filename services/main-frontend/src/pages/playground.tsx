@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../components/Layout"
 import {
   deletePlaygroundExample,
   fetchPlaygroundExamples,
@@ -169,7 +168,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout>
+    <>
       <div>
         <h2>{t("title-playground-exercise-iframe")}</h2>
         {getPlaygroundExamples.isError && (
@@ -310,7 +309,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           />
         </div>
       )}
-    </Layout>
+    </>
   )
 }
 

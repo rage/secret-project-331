@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
-import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { useCallback, useEffect, useReducer } from "react"
+import React, { useCallback, useContext, useEffect, useReducer } from "react"
 
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
-import Layout from "../../../../components/layout/Layout"
 import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
+import LayoutContext from "../../../../contexts/LayoutContext"
 import PageContext, {
   CoursePageDispatch,
   getDefaultPageState,
@@ -25,7 +24,6 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { courseFaqPageRoute } from "../../../../utils/routing"
 
 interface PagePageProps {
   // "organizationSlug" | "courseSlug" | "path"
@@ -33,6 +31,7 @@ interface PagePageProps {
 }
 
 const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) => {
+  const layoutContext = useContext(LayoutContext)
   const router = useRouter()
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
@@ -45,6 +44,10 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
       await getCoursePageByPath.refetch()
     }),
   )
+
+  useEffect(() => {
+    layoutContext.setPageState(pageState)
+  }, [layoutContext, pageState])
 
   useEffect(() => {
     if (getCoursePageByPath.isError) {
@@ -97,6 +100,14 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 
+  useEffect(() => {
+    if (getCoursePageByPath.data) {
+      layoutContext.setTitle(getCoursePageByPath.data.page.title)
+      layoutContext.setCourseId(getCoursePageByPath.data.page.course_id)
+    }
+    layoutContext.setOrganizationSlug(query.organizationSlug)
+  }, [getCoursePageByPath.data, layoutContext, query.organizationSlug])
+
   // Handle scrolling to selector if window has anchor
   useScrollToSelector(path)
 
@@ -121,27 +132,15 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <PageContext.Provider value={pageState}>
-        <Layout
-          faqUrl={courseFaqPageRoute(query.organizationSlug, courseSlug)}
-          title={getCoursePageByPath.data.page.title}
-          organizationSlug={query.organizationSlug}
-          courseSlug={courseSlug}
+        <PageMarginOffset
+          marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+          // eslint-disable-next-line i18next/no-literal-string
+          marginBottom={"0rem"}
         >
-          {getCoursePageByPath.data.page.hidden && (
-            <Head>
-              <meta name="robots" content="noindex" />
-            </Head>
-          )}
-          <PageMarginOffset
-            marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-            // eslint-disable-next-line i18next/no-literal-string
-            marginBottom={"0rem"}
-          >
-            <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
-            {<CourseTestModeNotification isTestMode={pageState.isTest} />}
-          </PageMarginOffset>
-          <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
-        </Layout>
+          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+        </PageMarginOffset>
+        <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

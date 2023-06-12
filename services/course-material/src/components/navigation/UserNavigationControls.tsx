@@ -12,7 +12,7 @@ import { logout } from "../../shared-module/services/backend/auth"
 import { baseTheme } from "../../shared-module/styles"
 import { useCurrentPagePathForReturnTo } from "../../shared-module/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "../../shared-module/utils/routes"
-import SelectCourseInstanceModal from "../modals/SelectCourseInstanceModal"
+import CourseSettingsModal from "../modals/CourseSettingsModal"
 
 export interface UserNavigationControlsProps {
   styles?: ClassNamesArg[]
@@ -53,7 +53,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   return loginStateContext.signedIn ? (
     <>
       {showSettings && (
-        <SelectCourseInstanceModal
+        <CourseSettingsModal
           onClose={() => {
             setShowSettings(false)
           }}

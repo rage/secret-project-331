@@ -17,7 +17,6 @@ import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
   courseId: string
-  courseSlug: string
   organizationSlug: string
 }
 
@@ -204,6 +203,9 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       <Link
                         href={`/${organizationSlug}/courses/${result.url_path}`}
                         key={result.id}
+                        onClick={() => {
+                          setOpen(false)
+                        }}
                         className={css`
                           text-decoration: none;
                           color: unset;

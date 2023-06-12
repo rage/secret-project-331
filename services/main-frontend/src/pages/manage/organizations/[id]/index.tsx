@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
 import { fetchOrganization } from "../../../../services/backend/organizations"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -43,15 +42,13 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   }
 
   return (
-    <Layout navVariant={"simple"}>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {contents}
-      </div>
-    </Layout>
+    <div
+      className={css`
+        margin-bottom: 1rem;
+      `}
+    >
+      {contents}
+    </div>
   )
 }
 

@@ -12,12 +12,12 @@ import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
 import LanguageMenu from "./LanguageMenu"
 import LanguageOption from "./LanguageOption"
 
-interface LanguageOption {
+export interface LanguageOption {
   tag: string
   name: string
 }
 
-const LANGUAGES: LanguageOption[] = [
+const DEFAULT_LANGUAGES: LanguageOption[] = [
   { tag: "en-US", name: "English" },
   { tag: "fi-FI", name: "Suomi" },
 ]
@@ -26,9 +26,15 @@ const ARROW = "arrow"
 
 export interface LanguageSelectionProps {
   placement: Placement
+  languages?: LanguageOption[]
+  handleLanguageChange?: (newLanguage: string) => void
 }
 
-const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
+const LanguageSelection: React.FC<LanguageSelectionProps> = ({
+  placement,
+  languages,
+  handleLanguageChange,
+}) => {
   const [visible, setVisible] = useState<boolean>(false)
   const [referenceElement, setReferenceElement] = useState<Element | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
@@ -39,7 +45,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
   })
   const { i18n, t } = useTranslation()
 
-  const handleLanguageChange = (newLanguage: string) => {
+  const defaultHandleLanguageChange = (newLanguage: string) => {
     i18n.changeLanguage(newLanguage)
     setVisible(false)
     const selectedLanguage = newLanguage.split("-")
@@ -90,11 +96,17 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
                 padding: 0;
               `}
             >
-              {LANGUAGES.map((x) => (
+              {(languages ?? DEFAULT_LANGUAGES).map((x) => (
                 <LanguageOption
                   key={x.tag}
                   label={x.name}
-                  onClick={() => handleLanguageChange(x.tag)}
+                  onClick={() => {
+                    if (handleLanguageChange) {
+                      handleLanguageChange(x.tag)
+                    } else {
+                      defaultHandleLanguageChange(x.tag)
+                    }
+                  }}
                 />
               ))}
             </ul>

@@ -3409,6 +3409,8 @@
 <a href="#3409" id="3409">3409</a>
 <a href="#3410" id="3410">3410</a>
 <a href="#3411" id="3411">3411</a>
+<a href="#3412" id="3412">3412</a>
+<a href="#3413" id="3413">3413</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -6101,6 +6103,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -6185,6 +6188,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte

@@ -73,7 +73,7 @@ const CertificateView: React.FC<Props> = ({ configuration, onClickEdit, onClickD
         {t("locale")}: {configuration.certificate_locale}
       </div>
       <div>
-        {t("paper-size")}: {configuration.certificate_locale}
+        {t("paper-size")}: {configuration.paper_size}
       </div>
       <div>
         {t("background-svg")}: {configuration.background_svg_path}

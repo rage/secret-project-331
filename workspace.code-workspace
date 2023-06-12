@@ -70,7 +70,7 @@
       "**/.git/subtree-cache/**": true,
       "**/node_modules/**": true,
       "**/.hg/store/**": true,
-      "services/headless-lms/target": true,
+      "/target": true,
       "**/.next/**": true
     },
     "eslint.lintTask.enable": true,

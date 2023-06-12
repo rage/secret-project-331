@@ -14,11 +14,22 @@ export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   return `course-${courseId}-language-versions`
 }
 
-const useFigureOutNewUrl = (selectedLangCourseId: string) => {
+/**
+When passed the id of the selected course, uses pagestate and a custom endpoint on backend to figure out what's the path
+to the same page in the selected language.
+*/
+const useFigureOutNewUrl = (
+  selectedLangCourseId: string | null,
+  pageLanguageGroupId: string | null,
+): string | null => {
   const course = useCourseInfo(selectedLangCourseId)
-  const pageState = useContext(PageContext)
 
-  const pageUrlPath = useNewPagePath(course.data?.id, pageState.pageData?.page_language_group_id)
+  const pageUrlPath = useNewPagePath(course.data?.id, pageLanguageGroupId)
+  const slug = course.data?.slug ?? null
+
+  if (selectedLangCourseId === null || pageUrlPath === null || slug === null) {
+    return null
+  }
   const orgSlug = window.location.pathname.split("/")
   const newUrl = window.location.origin.concat(
     "/",
@@ -28,8 +39,8 @@ const useFigureOutNewUrl = (selectedLangCourseId: string) => {
     "/",
     orgSlug[3],
     "/",
-    course.data?.slug || "",
-    pageUrlPath || "",
+    slug,
+    pageUrlPath,
   )
   return newUrl
 }

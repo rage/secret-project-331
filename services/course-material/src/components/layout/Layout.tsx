@@ -2,7 +2,8 @@ import { css } from "@emotion/css"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { ReactNode, useState } from "react"
+import React, { ReactNode, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import LayoutContext from "../../contexts/LayoutContext"
 import PageContext, { getDefaultPageState } from "../../contexts/PageContext"
@@ -19,6 +20,7 @@ import {
 } from "../../shared-module/components/Navigation/NavBar"
 import ietfLanguageTagToHumanReadableName from "../../shared-module/utils/ietfLanguageTagToHumanReadableName"
 import SearchDialog from "../SearchDialog"
+import { useFigureOutNewUrl } from "../modals/ChooseCourseLanguage"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import ScrollIndicator from "./ScrollIndicator"
@@ -38,6 +40,7 @@ const DEFAULT_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
   const router = useRouter()
+  const { i18n } = useTranslation()
 
   const [title, setTitle] = useState<string | null>(null)
   const fullTitle = title ? `${title} - ${DEFAULT_TITLE}` : DEFAULT_TITLE
@@ -45,12 +48,44 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const [courseId, setCourseId] = useState<string | null>(null)
   const [hideFromSearchEngines, setHideFromSearchEngines] = useState<boolean>(false)
   const [pageState, setPageState] = useState<PageState>(getDefaultPageState())
+  // When set, this will trigger a redirect to the same page in the selected language
+  const [changeLanguageToThisCourseId, setChangeLanguageToThisCourseId] = useState<string | null>(
+    null,
+  )
 
   const languageVersions = useCourseLanguageVersions(courseId)
   const languages: LanguageOption[] = (languageVersions?.data ?? []).map((languageVersion) => ({
     tag: languageVersion.language_code,
     name: ietfLanguageTagToHumanReadableName(languageVersion.language_code),
   }))
+  const currentLanguageVersion = languageVersions.data?.find(
+    (languageVersionCourse) => languageVersionCourse.id === courseId,
+  )
+  const currentLanguageCode = currentLanguageVersion?.language_code
+
+  const changedLanguageUrl = useFigureOutNewUrl(
+    changeLanguageToThisCourseId,
+    pageState.pageData?.page_language_group_id ?? null,
+  )
+
+  useEffect(() => {
+    const hrefWithSlash = `${document.location.href}/`
+    if (
+      changedLanguageUrl !== null &&
+      document.location.href !== changedLanguageUrl &&
+      hrefWithSlash !== changedLanguageUrl
+    ) {
+      console.info(`Redirecting to ${changedLanguageUrl} from ${document.location.href}`)
+      setChangeLanguageToThisCourseId(null)
+      router.push(changedLanguageUrl)
+    }
+  }, [changedLanguageUrl, router])
+
+  useEffect(() => {
+    if (currentLanguageCode && i18n.language !== currentLanguageCode) {
+      i18n.changeLanguage(currentLanguageCode)
+    }
+  }, [currentLanguageCode, i18n])
 
   return (
     <>
@@ -83,7 +118,19 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
                     placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT}
                     languages={languages}
                     handleLanguageChange={(newLanguage) => {
-                      console.log("Language changing to", newLanguage)
+                      console.info("Language changing to", newLanguage)
+                      if (!languageVersions.data) {
+                        console.error("No language versions found")
+                        return
+                      }
+                      const newLanguageVersion = languageVersions.data.find(
+                        (languageVersion) => languageVersion.language_code === newLanguage,
+                      )
+                      if (!newLanguageVersion) {
+                        console.error("No language version found for", newLanguage)
+                        return
+                      }
+                      setChangeLanguageToThisCourseId(newLanguageVersion.id)
                     }}
                   />
                 </NavItem>

@@ -11,6 +11,7 @@ interface NewCourseLanguageVersionDialogProps {
   organizationId: string
   handleSubmit: (newCourse: NewCourse) => Promise<void>
   onClose: () => void
+  courseId: string
 }
 
 const NewCourseLanguageVersionDialog: React.FC<

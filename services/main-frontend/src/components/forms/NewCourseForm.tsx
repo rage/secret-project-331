@@ -50,8 +50,6 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   )
 
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
-  const [isDraft, setIsDraft] = useState<boolean>(false)
-  const [isTest, setIsTest] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -80,8 +78,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         language_code: normalizedLanguageCode,
         teacher_in_charge_email: teacherInChargeEmail,
         teacher_in_charge_name: teacherInChargeName,
-        is_draft: isDraft,
-        is_test_mode: isTest,
+        is_draft: true,
+        is_test_mode: false,
       }
       if (courseId) {
         await onSubmitDuplicateCourseForm(courseId, newCourse)
@@ -113,8 +111,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         teacher_in_charge_name: teacherInChargeName,
         teacher_in_charge_email: teacherInChargeEmail,
         description,
-        is_draft: isDraft,
-        is_test_mode: isTest,
+        is_draft: true,
+        is_test_mode: false,
       })
       setName("")
       setSlug("")
@@ -209,24 +207,15 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             }}
           />
         </FieldContainer>
-        <FieldContainer>
-          <CheckBox
-            label={t("draft")}
-            onChange={() => {
-              setIsDraft(!isDraft)
-            }}
-            checked={isDraft}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <CheckBox
-            label={t("test-course")}
-            onChange={() => {
-              setIsTest(!isTest)
-            }}
-            checked={isTest}
-          />
-        </FieldContainer>
+
+        {!courses && (
+          <FieldContainer>
+            <CheckBox
+              label={"Grant access to this course to everyone who had access to the original one"}
+            ></CheckBox>
+          </FieldContainer>
+        )}
+
         {courses && (
           <FieldContainer>
             <CheckBox
@@ -240,16 +229,23 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           </FieldContainer>
         )}
         {courses && createDuplicate && (
-          <FieldContainer>
-            <SelectField
-              id="duplicate-course-select-menu"
-              defaultValue={courses[0].id}
-              onChangeByValue={(value) => handleDuplicateMenu(value, courses)}
-              options={courses.map((course) => {
-                return { label: course.name, value: course.id }
-              })}
-            ></SelectField>
-          </FieldContainer>
+          <div>
+            <FieldContainer>
+              <SelectField
+                id="duplicate-course-select-menu"
+                defaultValue={courses[0].id}
+                onChangeByValue={(value) => handleDuplicateMenu(value, courses)}
+                options={courses.map((course) => {
+                  return { label: course.name, value: course.id }
+                })}
+              ></SelectField>
+            </FieldContainer>
+            <FieldContainer>
+              <CheckBox
+                label={"Grant access to this course to everyone who had access to the original one"}
+              ></CheckBox>
+            </FieldContainer>
+          </div>
         )}
         <div>{t("course-language")}</div>
         <FieldContainer aria-labelledby={t("course-version-selection")}>

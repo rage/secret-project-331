@@ -44,6 +44,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               organizationId={getCourseQuery.data.organization_id}
               handleSubmit={handleCreateNewLanguageVersion}
               onClose={() => setShowNewLanguageVersionForm(false)}
+              courseId={courseId}
             />
           )}
           <h2

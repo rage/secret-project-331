@@ -20,45 +20,22 @@ spec:
           image: redis:7
           command:
             - redis-server
-            - "/redis-master/redis.conf"
           envFrom:
             - configMapRef:
                 name: redis-configuration
           env:
             - name: MASTER
               value: "true"
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis-credentials
-                  key: password
           ports:
             - containerPort: 6379
               name: redis
           volumeMounts:
             - mountPath: /redis-master-data
-              name: redis-data-mount
+              name: redis-volume-mount
             - mountPath: /redis-master
-              name: redis-config-mount
-          readinessProbe:
-            exec:
-              command:
-                - redis-cli
-                - ping
-            initialDelaySeconds: 15
-            timeoutSeconds: 2
-          livenessProbe:
-            exec:
-              command:
-                - redis-cli
-                - ping
-            initialDelaySeconds: 15
-            timeoutSeconds: 2
+              name: redis-volume-mount
       volumes:
-        - name: redis-data-mount
-          persistentVolumeClaim:
-            claimName: redis-pvc
-        - name: redis-config-mount
+        - name: redis-volume-mount
           persistentVolumeClaim:
             claimName: redis-pvc
 ---
@@ -80,15 +57,6 @@ metadata:
   name: redis-configuration
 data:
   redis-config: ""
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: redis-credentials
-type: Opaque
-data:
-  # for local development only, intentionally public
-  password: cmVkaXM=
 ---
 # We're storing the data locally
 apiVersion: v1

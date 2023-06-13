@@ -16,6 +16,7 @@ COPY --from=builder /bins /app
 COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/wait-for-db.sh /app/
 COPY --from=builder /app/wait-for-db-migrations.sh /app/
+COPY --from=builder /app/wait-for-redis.sh /app/
 
 # Used in the test mode
 RUN mkdir uploads && chown -R user uploads

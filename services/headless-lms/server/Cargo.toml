@@ -67,7 +67,7 @@ walkdir = "2.3.3"
 # higher level HTTP client library
 reqwest = { version = "0.11.17", features = ["brotli", "gzip", "json"] }
 # Sessions for Actix web
-actix-session = { version = "0.7.2", features = ["cookie-session"] }
+actix-session = { version = "0.7.2", features = ["redis-actor-session"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4.3.0"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -132,6 +132,8 @@ actix = "0.13.0"
 async-trait = "0.1.68"
 # Utilities for working with Tokio.
 tokio-util = "0.7.8"
+# Redis integration for Actix
+actix-redis = "0.12.0"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

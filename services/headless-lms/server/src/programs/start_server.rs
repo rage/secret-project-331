@@ -3,7 +3,7 @@ use std::{env, sync::Arc};
 use crate::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
 use actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
-    storage::CookieSessionStore,
+    storage::RedisActorSessionStore,
     SessionMiddleware,
 };
 use actix_web::{
@@ -33,6 +33,7 @@ pub async fn main() -> anyhow::Result<()> {
     // read environment variables
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be defined");
     let oauth_application_id =
         env::var("OAUTH_APPLICATION_ID").expect("OAUTH_APPLICATION_ID must be defined");
     let oauth_secret = env::var("OAUTH_SECRET").expect("OAUTH_SECRET must be defined");
@@ -86,7 +87,7 @@ pub async fn main() -> anyhow::Result<()> {
             .configure(move |config| crate::configure(config, file_store, app_conf, jwt_key_clone))
             .wrap(
                 SessionMiddleware::builder(
-                    CookieSessionStore::default(),
+                    RedisActorSessionStore::new(&redis_url),
                     Key::from(private_cookie_key.as_bytes()),
                 )
                 .cookie_name("session".to_string())

@@ -41,7 +41,7 @@ RUN mkdir /mold-ld-workaround \
 ENV RUSTFLAGS='-C link-arg=-B/mold-ld-workaround'
 
 RUN apt-get update \
-  && apt-get install -yy wait-for-it postgresql-client \
+  && apt-get install -yy wait-for-it postgresql-client redis \
   && rm -rf /var/lib/apt/lists/*
 
 RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \

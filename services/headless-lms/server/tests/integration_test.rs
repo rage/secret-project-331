@@ -1,7 +1,7 @@
 use std::{env, sync::Arc};
 
 use actix_http::{body::BoxBody, Request};
-use actix_session::{storage::RedisActorSessionStore, SessionMiddleware};
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, dev::ServiceResponse, test, web::Data, App};
 use headless_lms_models::{
     organizations::{self, Organization},
@@ -63,7 +63,6 @@ pub async fn init_actix() -> (
 ) {
     env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
     let db = init_db().await;
-    let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be defined");
     let private_cookie_key =
         "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
     let pool = PgPool::connect(&db)
@@ -85,7 +84,7 @@ pub async fn init_actix() -> (
         })
         .wrap(
             SessionMiddleware::builder(
-                RedisActorSessionStore::new(&redis_url),
+                CookieSessionStore::default(),
                 Key::from(private_cookie_key.as_bytes()),
             )
             .cookie_name("session".to_string())

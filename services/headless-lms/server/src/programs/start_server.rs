@@ -1,9 +1,9 @@
 use std::{env, sync::Arc};
 
-use crate::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
+use crate::{domain::models_requests::JwtKey, setup_tracing, Cache, OAuthClient};
 use actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
-    storage::RedisSessionStore,
+    storage::CookieSessionStore,
     SessionMiddleware,
 };
 use actix_web::{
@@ -73,9 +73,9 @@ pub async fn main() -> anyhow::Result<()> {
     ));
 
     let db_clone = db_pool.clone();
-    let redis_store = RedisSessionStore::new(&redis_url)
-        .await
-        .expect("Failed to initialise redis store");
+
+    let cache = Cache::new(redis_url).await;
+    let cache = Data::new(cache);
 
     let mut server = HttpServer::new(move || {
         let app_conf = ApplicationConfiguration {
@@ -90,7 +90,7 @@ pub async fn main() -> anyhow::Result<()> {
             .configure(move |config| crate::configure(config, file_store, app_conf, jwt_key_clone))
             .wrap(
                 SessionMiddleware::builder(
-                    redis_store.clone(),
+                    CookieSessionStore::default(),
                     Key::from(private_cookie_key.as_bytes()),
                 )
                 .cookie_name("session".to_string())
@@ -113,6 +113,7 @@ pub async fn main() -> anyhow::Result<()> {
             .app_data(Data::new(oauth_client.clone()))
             .app_data(Data::new(jwt_key.clone()))
             .app_data(icu4x_blob.clone())
+            .app_data(cache.clone())
     });
 
     server = match listenfd.take_tcp_listener(0)? {

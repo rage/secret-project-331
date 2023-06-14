@@ -79,24 +79,6 @@ spec:
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
-        - name: headless-lms-wait-for-redis
-          image: headless-lms
-          command:
-            - bash
-            - "-c"
-            - |
-              echo Waiting for redis to be available
-              timeout 120 ./wait-for-redis.sh
-          resources:
-            requests:
-              memory: 100Mi
-              cpu: 20m
-            limits:
-              memory: 300Mi
-              cpu: 200m
-          envFrom:
-            - secretRef:
-                name: headless-lms-secrets
 ---
 # Migrations
 apiVersion: batch/v1

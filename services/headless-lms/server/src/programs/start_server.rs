@@ -84,8 +84,11 @@ pub async fn main() -> anyhow::Result<()> {
             development_uuid_login,
         };
         let file_store = file_store.clone();
+        let jwt_key = jwt_key.clone();
         App::new()
-            .configure(move |config| crate::configure(config, file_store.clone(), app_conf))
+            .configure(move |config| {
+                crate::configure(config, file_store.clone(), app_conf, jwt_key)
+            })
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
@@ -109,7 +112,6 @@ pub async fn main() -> anyhow::Result<()> {
             ))
             .app_data(Data::new(db_clone.clone()))
             .app_data(Data::new(oauth_client.clone()))
-            .app_data(Data::new(jwt_key.clone()))
             .app_data(icu4x_blob.clone())
             .app_data(ip_to_country_mapper.clone())
     });

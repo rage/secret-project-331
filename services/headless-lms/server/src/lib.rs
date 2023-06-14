@@ -32,7 +32,7 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
-use domain::request_span_middleware::RequestSpan;
+use domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
 use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use oauth2::basic::BasicClient;
 use tracing_error::ErrorLayer;
@@ -45,6 +45,7 @@ pub fn configure(
     config: &mut ServiceConfig,
     file_store: Arc<dyn FileStore>,
     app_conf: ApplicationConfiguration,
+    jwt_key: JwtKey,
 ) {
     let json_config =
         web::JsonConfig::default()
@@ -65,7 +66,8 @@ pub fn configure(
         )
         // Not using Data::new for file_store to avoid double wrapping it in a arc
         .app_data(Data::from(file_store))
-        .app_data(Data::new(app_conf));
+        .app_data(Data::new(app_conf))
+        .app_data(Data::new(jwt_key));
 }
 
 /**

@@ -32,10 +32,8 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
-use domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
-use headless_lms_utils::{
-    file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
-};
+use domain::request_span_middleware::RequestSpan;
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use oauth2::basic::BasicClient;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
@@ -47,10 +45,7 @@ pub fn configure(
     config: &mut ServiceConfig,
     file_store: Arc<dyn FileStore>,
     app_conf: ApplicationConfiguration,
-    jwt_key: JwtKey,
 ) {
-    let ip_to_country_mapper =
-        IpToCountryMapper::new().expect("Could not load ip to country mapper");
     let json_config =
         web::JsonConfig::default()
             .limit(1048576)
@@ -70,9 +65,7 @@ pub fn configure(
         )
         // Not using Data::new for file_store to avoid double wrapping it in a arc
         .app_data(Data::from(file_store))
-        .app_data(Data::new(app_conf))
-        .app_data(Data::new(ip_to_country_mapper))
-        .app_data(Data::new(jwt_key));
+        .app_data(Data::new(app_conf));
 }
 
 /**

@@ -14,8 +14,6 @@ headless-lms-models = { path = "../models" }
 resvg = "0.34.1"
 # An SVG simplification library.
 usvg = "0.34.1"
-# A tiny Skia subset ported to Rust.
-tiny-skia = "0.11.0"
 # A simple, streaming XML writer.
 xmlwriter = "0.1.0"
 # High performance xml reader and writer

@@ -19,8 +19,12 @@ const FieldContainer = styled.div`
 
 interface NewCourseFormProps {
   organizationId: string
-  onSubmitNewCourseForm: (newCourse: NewCourse) => Promise<void>
-  onSubmitDuplicateCourseForm?: (oldCourseId: string, newCourse: NewCourse) => Promise<void>
+  onSubmitNewCourseForm: (newCourse: NewCourse, copyUserPermissions: boolean) => Promise<void>
+  onSubmitDuplicateCourseForm?: (
+    oldCourseId: string,
+    newCourse: NewCourse,
+    copyUserPermissions: boolean,
+  ) => Promise<void>
   courses?: Course[]
   onClose: () => void
 }
@@ -48,11 +52,11 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
   )
-
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copyCourseUserPermissions, setCopyUserCoursePermissions] = useState<boolean>(false)
 
   const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
     const findCourse = coursesData.find((course) => course.id === e)
@@ -82,7 +86,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         is_test_mode: false,
       }
       if (courseId) {
-        await onSubmitDuplicateCourseForm(courseId, newCourse)
+        await onSubmitDuplicateCourseForm(courseId, newCourse, copyCourseUserPermissions)
         setLanguageCode(DEFAULT_LANGUAGE_CODE)
         setSlug("")
         setTeacherInChargeName("")
@@ -98,22 +102,24 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
       setSubmitDisabled(false)
     }
   }
-
   const createNewCourse = async () => {
     try {
       setSubmitDisabled(true)
       const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-      await onSubmitNewCourseForm({
-        name,
-        slug,
-        organization_id: organizationId,
-        language_code: normalizedLanguageCode,
-        teacher_in_charge_name: teacherInChargeName,
-        teacher_in_charge_email: teacherInChargeEmail,
-        description,
-        is_draft: true,
-        is_test_mode: false,
-      })
+      await onSubmitNewCourseForm(
+        {
+          name,
+          slug,
+          organization_id: organizationId,
+          language_code: normalizedLanguageCode,
+          teacher_in_charge_name: teacherInChargeName,
+          teacher_in_charge_email: teacherInChargeEmail,
+          description,
+          is_draft: true,
+          is_test_mode: false,
+        },
+        copyCourseUserPermissions,
+      )
       setName("")
       setSlug("")
       setLanguageCode(DEFAULT_LANGUAGE_CODE)
@@ -212,6 +218,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           <FieldContainer>
             <CheckBox
               label={"Grant access to this course to everyone who had access to the original one"}
+              onChange={() => setCopyUserCoursePermissions(!copyCourseUserPermissions)}
+              checked={copyCourseUserPermissions}
             ></CheckBox>
           </FieldContainer>
         )}
@@ -243,6 +251,10 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             <FieldContainer>
               <CheckBox
                 label={"Grant access to this course to everyone who had access to the original one"}
+                onChange={() => {
+                  setCopyUserCoursePermissions(!copyCourseUserPermissions)
+                }}
+                checked={copyCourseUserPermissions}
               ></CheckBox>
             </FieldContainer>
           </div>

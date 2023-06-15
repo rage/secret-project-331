@@ -45,9 +45,10 @@ INSERT INTO courses (
     language_code,
     copied_from,
     course_language_group_id,
+    is_draft,
     base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)
 RETURNING id,
   name,
   created_at,
@@ -71,6 +72,7 @@ RETURNING id,
         new_course.language_code,
         parent_course.id,
         course_language_group_id,
+        new_course.is_draft,
         parent_course.base_module_completion_requires_n_submodule_completions,
     )
     .fetch_one(&mut tx)
@@ -646,6 +648,37 @@ AND deleted_at IS NULL;
     Ok(())
 }
 
+pub async fn copy_user_permissions(
+    conn: &mut PgConnection,
+    old_course_id: Uuid,
+    new_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO roles (
+    id,
+    user_id,
+    organization_id,
+    course_id,
+    role
+  )
+SELECT uuid_generate_v5($2, id::text),
+  user_id,
+  organization_id,
+  $2,
+  role
+FROM roles
+WHERE (course_id = $1)
+AND deleted_at IS NULL;
+    ",
+        old_course_id,
+        new_course_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -917,7 +950,7 @@ mod tests {
                 teacher_in_charge_name: "Teacher".to_string(),
                 teacher_in_charge_email: "teacher@example.com".to_string(),
                 description: "".to_string(),
-                is_draft: false,
+                is_draft: true,
                 is_test_mode: false,
             }
         }

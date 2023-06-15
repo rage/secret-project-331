@@ -68,8 +68,6 @@ test.describe("admin", () => {
     await page.fill('input[label="Teacher in charge name"]', "admin")
     // Fill div div:nth-child(4) div label .css-1m9fudm
     await page.fill('input[label="Teacher in charge email"]', "admin@example.com")
-    // Check input[type="checkbox"]
-    await page.check("input[label=Draft]")
 
     await page.check(`label:has-text("English")`)
 
@@ -117,7 +115,6 @@ test.describe("Teacher", () => {
     await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
     await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
     await page.getByLabel("Description").fill("draft")
-    await page.getByText("Draft", { exact: true }).click()
     await page.locator("label").filter({ hasText: "English" }).click()
     await page.getByRole("button", { name: "Create" }).click()
     await page.getByText("Operation successful!").waitFor()
@@ -135,5 +132,42 @@ test.describe("Teacher", () => {
     await page2.goto("http://project-331.local/org/uh-mathstat/courses/best-draft-course")
     await selectCourseInstanceIfPrompted(page2)
     await page2.getByRole("heading", { name: "In this course you'll..." }).click()
+  })
+
+  test.use({
+    storageState: "src/states/teacher@example.com.json",
+  })
+
+  test("teacher can copy course and grant users the same permissions as the original course", async ({
+    page,
+  }) => {
+    await page.goto("http://project-331.local/")
+    await page
+      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+      .click()
+    await page.getByRole("button", { name: "Create" }).first().click()
+    await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
+    await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
+    await page.getByLabel("Copy content from another course").check()
+    await page
+      .locator("#duplicate-course-select-menu")
+      .selectOption("639f4d25-9376-49b5-bcca-7cba18c38565")
+    await page
+      .getByLabel("Grant access to this course to everyone who had access to the original one")
+      .check()
+    await page.getByLabel("Name  *", { exact: true }).click()
+    await page.getByLabel("Name  *", { exact: true }).fill("Introduction to localizing copy")
+    await page.getByLabel("English").check()
+    await page.getByRole("button", { name: "Create" }).click()
+    await page
+      .locator("div")
+      .filter({ hasText: /^SuccessOperation successful!$/ })
+      .nth(3)
+      .click()
+    await page
+      .getByRole("link", { name: "Manage course 'Introduction to localizing copy'" })
+      .click()
+    await page.getByRole("tab", { name: "Permissions" }).click()
+    await page.getByRole("cell", { name: "language.teacher@example.com" }).click()
   })
 })

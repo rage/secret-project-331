@@ -4,7 +4,11 @@ import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewCourse, postNewCourseDuplicate } from "../../../../services/backend/courses"
+import {
+  copyCourseUserPermissions,
+  postNewCourse,
+  postNewCourseDuplicate,
+} from "../../../../services/backend/courses"
 import {
   fetchOrganizationCourseCount,
   fetchOrganizationCourses,
@@ -78,8 +82,15 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
     setNewCourseFormOpen(!newCourseFormOpen)
   }
 
-  const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
-    await postNewCourseDuplicate(oldCourseId, newCourse)
+  const handleSubmitDuplicateCourse = async (
+    oldCourseId: string,
+    newCourse: NewCourse,
+    copyUserPermissions: boolean,
+  ) => {
+    const newCourseWithId = await postNewCourseDuplicate(oldCourseId, newCourse)
+    if (copyUserPermissions) {
+      await copyCourseUserPermissions(oldCourseId, newCourseWithId.id)
+    }
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
     setNewCourseFormOpen(!newCourseFormOpen)

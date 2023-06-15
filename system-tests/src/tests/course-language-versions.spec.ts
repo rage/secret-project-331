@@ -69,3 +69,64 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.locator("text=Johdatus lokalisointiin").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/johdatus-lokalisointiin")
 })
+
+test("permission copied to new language version", async ({ page, headless }, testInfo) => {
+  await page.goto("http://project-331.local/")
+
+  await Promise.all([
+    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+  ])
+  await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
+
+  await page.locator("[aria-label=\"Manage course 'Johdatus lokalisointiin'\"] svg").click()
+
+  await page.getByRole("tab", { name: "Permissions" }).click()
+  await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
+    headless,
+    testInfo,
+    snapshotName: "creator-has-permission",
+    waitForTheseToBeVisibleAndStable: [page.getByText("language.teacher@example.com").first()],
+  })
+})
+
+test("can grant same user permissions as the original course when making a new language version", async ({
+  page,
+  headless,
+}, testInfo) => {
+  await page.goto("http://project-331.local/")
+  await page
+    .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
+    .click()
+  await page.getByRole("link", { name: "Manage course 'Introduction to localizing'" }).click()
+  await page.getByRole("tab", { name: "Permissions" }).click()
+  // add new permission to assistant
+  await page.getByPlaceholder("Enter email").fill("assistant@example.com")
+  await page.getByRole("button", { name: "Add user" }).click()
+  await page.getByText("Success", { exact: true }).click()
+
+  //make new language version
+  await page.getByRole("tab", { name: "Language versions" }).click()
+  await page.getByRole("button", { name: "New" }).click()
+  await page.getByLabel("Name  *", { exact: true }).fill("Johdatus lokalisointiin oikeuksilla")
+  await page.getByLabel("Teacher in charge name  *").fill("Teacher Example")
+  await page.getByLabel("Teacher in charge email  *").fill("teacher@example.com")
+  await page
+    .getByLabel("Grant access to this course to everyone who had access to the original one")
+    .check()
+  await page.getByLabel("Finnish").check()
+  await page.getByRole("button", { name: "Create" }).click()
+  //go to created language version and check permissions
+  await page.getByRole("link", { name: "Johdatus lokalisointiin oikeuksilla" }).click()
+  await page.getByRole("tab", { name: "Permissions" }).click()
+  await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
+    headless,
+    testInfo,
+    snapshotName: "permissions copied successfully",
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("language.teacher@example.com").first(),
+      page.getByText("assistant@example.com"),
+    ],
+  })
+})

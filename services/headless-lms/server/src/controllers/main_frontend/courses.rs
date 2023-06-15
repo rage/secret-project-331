@@ -400,6 +400,13 @@ pub async fn post_new_course_language_version(
 
     let copied_course =
         models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true).await?;
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(copied_course))
 }
@@ -422,6 +429,12 @@ Content-Type: application/json
 }
 ```
 */
+
+#[derive(Debug, Deserialize)]
+pub struct CourseId {
+    new_course_id: Uuid,
+}
+
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_duplicate(
@@ -442,6 +455,32 @@ pub async fn post_new_course_duplicate(
         models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
 
     token.authorized_ok(web::Json(copied_course))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn copy_course_user_permissions(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    new_course_id: web::Json<CourseId>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Duplicate,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    models::library::copying::copy_user_permissions(
+        &mut conn,
+        *course_id,
+        new_course_id.new_course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -1081,6 +1120,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/duplicate",
             web::post().to(post_new_course_duplicate),
+        )
+        .route(
+            "/{course_id}/duplicate/permissions",
+            web::post().to(copy_course_user_permissions),
         )
         .route("/{course_id}/upload", web::post().to(add_media_for_course))
         .route(

@@ -32,7 +32,6 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
-use argon2::{password_hash::SaltString, Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use cached::{AsyncRedisCache, IOCachedAsync};
 use controllers::auth::LoginToken;
 use domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
@@ -42,13 +41,11 @@ use headless_lms_utils::{
     file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
 };
 use oauth2::{basic::BasicClient, TokenResponse};
-use rand::rngs::OsRng;
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::sync::RwLock;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
-use uuid::Uuid;
 
 pub type OAuthClient = Arc<BasicClient>;
 
@@ -109,8 +106,8 @@ pub fn setup_tracing() -> Result<()> {
 /// Wrapper for accessing a redis cache.
 pub struct Cache {
     /// Cache for users that have authenticated using an access token through TMC.
-    /// The user is stored alongside a hash of the access token.
-    token_authenticated_users_cache: SpecializedCache<Uuid, (User, String)>,
+    /// The hashed access token is used as the key.
+    token_authenticated_users_cache: SpecializedCache<String, User>,
 }
 
 impl Cache {
@@ -125,27 +122,14 @@ impl Cache {
     }
 
     pub async fn cache_token_authenticated_user(&self, token: &LoginToken, user: User) -> bool {
-        let salt = SaltString::generate(&mut OsRng);
-        let argon2 = Argon2::default();
-        let hash = argon2
-            .hash_password(token.access_token().secret().as_bytes(), &salt)
-            .expect("failed to hash access token secret")
-            .to_string();
-        self.token_authenticated_users_cache
-            .set(user.id, (user, hash))
-            .await
+        let hash = blake3::hash(token.access_token().secret().as_bytes()).to_string();
+        self.token_authenticated_users_cache.set(hash, user).await
     }
 
-    pub async fn get_token_authenticated_user(&self, id: Uuid, token: &LoginToken) -> Option<User> {
-        let (user, token_hash) = self.token_authenticated_users_cache.get(&id).await?;
-
-        // verify that the token given matches the hash stored in redis
-        let argon2 = Argon2::default();
-        let token_hash = PasswordHash::new(&token_hash).expect("invalid token hash from redis");
-        match argon2.verify_password(token.access_token().secret().as_bytes(), &token_hash) {
-            Ok(_) => Some(user),
-            Err(_) => None,
-        }
+    pub async fn get_token_authenticated_user(&self, token: &LoginToken) -> Option<User> {
+        let hash = blake3::hash(token.access_token().secret().as_bytes()).to_string();
+        let user = self.token_authenticated_users_cache.get(&hash).await?;
+        Some(user)
     }
 }
 

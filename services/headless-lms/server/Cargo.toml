@@ -134,8 +134,6 @@ async-trait = "0.1.68"
 tokio-util = "0.7.8"
 # Redis integration for Actix
 cached = { version = "0.44.0", default-features = false, features = ["redis_tokio"] }
-# Pure Rust implementation of the Argon2 password hashing function.
-argon2 = "0.5.0"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

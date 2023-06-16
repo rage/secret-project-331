@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["RadiusOrder","Unit"],"struct":["Coord","RadiusOptions","RadiusSearchResult"]};

@@ -217,7 +217,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         {!courses && (
           <FieldContainer>
             <CheckBox
-              label={"Grant access to this course to everyone who had access to the original one"}
+              label={t("grant-access-to-users-with-permissions-to-original-course")}
               onChange={() => setCopyUserCoursePermissions(!copyCourseUserPermissions)}
               checked={copyCourseUserPermissions}
             ></CheckBox>
@@ -250,7 +250,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             </FieldContainer>
             <FieldContainer>
               <CheckBox
-                label={"Grant access to this course to everyone who had access to the original one"}
+                label={t("grant-access-to-users-with-permissions-to-original-course")}
                 onChange={() => {
                   setCopyUserCoursePermissions(!copyCourseUserPermissions)
                 }}

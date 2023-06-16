@@ -652,6 +652,7 @@ pub async fn copy_user_permissions(
     conn: &mut PgConnection,
     old_course_id: Uuid,
     new_course_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -669,10 +670,12 @@ SELECT uuid_generate_v5($2, id::text),
   role
 FROM roles
 WHERE (course_id = $1)
+AND NOT (user_id = $3)
 AND deleted_at IS NULL;
     ",
         old_course_id,
-        new_course_id
+        new_course_id,
+        user_id
     )
     .execute(conn)
     .await?;

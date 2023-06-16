@@ -5840,6 +5840,16 @@
     },
     "query": "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;"
   },
+  "4dfad46c56a2f729b23734eeb99f9cc249b333ee5a0ac7420c3a52cbe941540e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO roles (\n    id,\n    user_id,\n    organization_id,\n    course_id,\n    role\n  )\nSELECT uuid_generate_v5($2, id::text),\n  user_id,\n  organization_id,\n  $2,\n  role\nFROM roles\nWHERE (course_id = $1)\nAND NOT (user_id = $3)\nAND deleted_at IS NULL;\n    "
+  },
   "4dffcac2b11a34fa08132bc4b28e097e1c150fba42f6c7b10bbb1239767997cd": {
     "describe": {
       "columns": [
@@ -19003,16 +19013,6 @@
       }
     },
     "query": "\nSELECT id,\n  name,\n  instructions,\n  starts_at,\n  ends_at,\n  time_minutes,\n  organization_id,\n  minimum_points_treshold\nFROM exams\nWHERE exams.organization_id = $1\n  AND exams.deleted_at IS NULL\n"
-  },
-  "d7e62dce3e21c506a90c3408eac781694a9a9ae448ef4cea191cdc1bb5fdf508": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO roles (\n    id,\n    user_id,\n    organization_id,\n    course_id,\n    role\n  )\nSELECT uuid_generate_v5($2, id::text),\n  user_id,\n  organization_id,\n  $2,\n  role\nFROM roles\nWHERE (course_id = $1)\nAND deleted_at IS NULL;\n    "
   },
   "d8b2a6968b0e923cf3a3412460762b1218ca3a63b91467fe03d79349dd3d048b": {
     "describe": {

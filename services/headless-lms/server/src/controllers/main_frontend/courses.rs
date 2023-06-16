@@ -430,11 +430,6 @@ Content-Type: application/json
 ```
 */
 
-#[derive(Debug, Deserialize)]
-pub struct CourseId {
-    new_course_id: Uuid,
-}
-
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_duplicate(
@@ -454,9 +449,24 @@ pub async fn post_new_course_duplicate(
     let copied_course =
         models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
 
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
     token.authorized_ok(web::Json(copied_course))
 }
 
+#[derive(Debug, Deserialize)]
+pub struct CourseId {
+    new_course_id: Uuid,
+}
+
+/**
+POST `/api/v0/main-frontend/courses/:id/duplicate/permissions` - Copies user permissions from one course to another.
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn copy_course_user_permissions(
@@ -477,6 +487,7 @@ pub async fn copy_course_user_permissions(
         &mut conn,
         *course_id,
         new_course_id.new_course_id,
+        user.id,
     )
     .await?;
 

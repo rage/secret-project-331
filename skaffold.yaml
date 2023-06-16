@@ -96,6 +96,11 @@ portForward:
     namespace: default
     port: 5432
     localPort: 54328
+  - resourceType: statefulset
+    resourceName: redis
+    namespace: default
+    port: 6379
+    localPort: 63798
 
 profiles:
   - name: only-db

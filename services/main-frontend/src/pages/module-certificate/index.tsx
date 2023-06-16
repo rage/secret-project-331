@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../components/Layout"
 import { fetchCertificate, generateCertificate } from "../../services/backend/certificates"
 import { fetchCourseModule } from "../../services/backend/course-modules"
 import { getCourse } from "../../services/backend/courses"
@@ -62,7 +61,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
     },
   )
   return (
-    <Layout>
+    <>
       {courseAndModule.isError && (
         <ErrorBanner error={courseAndModule.error} variant={"readOnly"} />
       )}
@@ -105,7 +104,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
           </Button>
         </>
       )}
-    </Layout>
+    </>
   )
 }
 

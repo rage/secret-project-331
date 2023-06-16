@@ -11,7 +11,6 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "../components/page-specific/playground-views/PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "../components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
@@ -364,7 +363,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout>
+    <>
       <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
       <br />
 
@@ -911,7 +910,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
           </div>
         </div>
       </HideChildrenInSystemTests>
-    </Layout>
+    </>
   )
 }
 

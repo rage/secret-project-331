@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useRouter } from "next/router"
 import React, { useCallback, useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -28,21 +29,23 @@ export interface CourseTranslationsListProps {
   setSelectLanguage(setLanguage: string): void
 }
 
-export interface CourseInstanceSelectModalProps {
+export interface CourseSettingsModalProps {
   onClose: () => void
   manualOpen?: boolean
 }
 
-const CourseInstanceSelectModal: React.FC<
-  React.PropsWithChildren<CourseInstanceSelectModalProps>
-> = ({ onClose, manualOpen = false }) => {
+const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalProps>> = ({
+  onClose,
+  manualOpen = false,
+}) => {
   const { i18n, t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
   const dialogTitleId = useId()
+  const router = useRouter()
 
   const [selectedLangCourseId, setSelectLanguage] = React.useState(
-    pageState.pageData?.course_id ?? "",
+    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? "",
   )
   const [languageChanged, setIsLanguageChanged] = React.useState(false)
 
@@ -62,7 +65,10 @@ const CourseInstanceSelectModal: React.FC<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
-  const newUrl = useFigureOutNewUrl(selectedLangCourseId)
+  const newUrl = useFigureOutNewUrl(
+    selectedLangCourseId,
+    pageState.pageData?.page_language_group_id ?? null,
+  )
   const newLangcode = useFigureOutNewLangCode(selectedLangCourseId)
 
   useEffect(() => {
@@ -84,11 +90,6 @@ const CourseInstanceSelectModal: React.FC<
         await postSaveCourseSettings(instanceId, {
           background_question_answers: backgroundQuestionAnswers,
         })
-        if (languageChanged) {
-          window.location.assign(newUrl ?? "")
-          return
-        }
-        setOpen(false)
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
           console.info("Refetching page because the course instance has changed")
@@ -99,12 +100,17 @@ const CourseInstanceSelectModal: React.FC<
             "No refetching the page because there's no refetchPage function in the page context.",
           )
         }
+        if (languageChanged && newUrl) {
+          router.push(newUrl)
+        }
+        setOpen(false)
+
         onClose()
       } catch (e) {
         setSubmitError(e)
       }
     },
-    [onClose, pageState, languageChanged, newUrl, newLangcode, i18n],
+    [newLangcode, i18n, languageChanged, newUrl, pageState, onClose, router],
   )
 
   if (pageState.pageData?.course_id === null) {
@@ -136,8 +142,9 @@ const CourseInstanceSelectModal: React.FC<
           {t("title-course-settings")}
         </h1>
         <SelectCourseLanguage
-          courseId={pageState.pageData?.course_id ?? ""}
+          selectedCourseId={selectedLangCourseId}
           setSelectLanguage={setSelectLanguage}
+          savedCourseId={pageState.settings?.current_course_id}
           setIsLanguageChanged={setIsLanguageChanged}
         />
         {getCourseInstances.isError && (
@@ -148,7 +155,9 @@ const CourseInstanceSelectModal: React.FC<
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
             onSubmitForm={handleSubmitAndClose}
-            initialSelectedInstanceId={pageState.instance?.id}
+            initialSelectedInstanceId={
+              pageState.settings?.current_course_instance_id ?? pageState.instance?.id
+            }
             languageChanged={languageChanged}
           />
         )}
@@ -185,4 +194,4 @@ const CourseInstanceSelectModal: React.FC<
   )
 }
 
-export default withErrorBoundary(CourseInstanceSelectModal)
+export default withErrorBoundary(CourseSettingsModal)

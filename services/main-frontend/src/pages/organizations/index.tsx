@@ -3,7 +3,6 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../components/Layout"
 import OrganizationsList from "../../components/page-specific/organizations/index/OrganizationsList"
 import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -15,7 +14,7 @@ const GLOBAL_PERMISSIONS_HREF = "/manage/permissions"
 const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
-    <Layout>
+    <>
       <OrganizationsList />
 
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
@@ -66,7 +65,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
-    </Layout>
+    </>
   )
 }
 

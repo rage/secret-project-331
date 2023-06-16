@@ -4,14 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../components/Layout"
 import Button from "../shared-module/components/Button"
 import { baseTheme } from "../shared-module/styles"
 
 const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
-    <Layout>
+    <>
       <div
         className={css`
           background-color: ${baseTheme.colors.green[100]};
@@ -40,7 +39,7 @@ const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
           {t("home-page")}
         </Button>
       </Link>
-    </Layout>
+    </>
   )
 }
 

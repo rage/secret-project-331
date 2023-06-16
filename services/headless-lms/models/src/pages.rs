@@ -2690,6 +2690,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -2774,6 +2775,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte

@@ -175,8 +175,19 @@ fn generate_certificate_impl(
     );
 
     let start_render_background = Instant::now();
-    // TODO transform too backgrounds to be exactly the right size
-    rtree.render(resvg::tiny_skia::Transform::default(), &mut pixmap.as_mut());
+    // Scaling the background to the paper size, if the aspect ratio is wrong (for example if it does not follow the aspect ratio of A4 paper size), the background will get stretched.
+    // If that's the case, the you should fix the background svg.
+    let background_size = rtree.size.to_int_size();
+    let x_scale = paper_size.width_px() as f32 / background_size.width() as f32;
+    let y_scale = paper_size.height_px() as f32 / background_size.height() as f32;
+    info!(
+        "Background size {:?}, paper size: {:?}, x_scale: {}, y_scale: {}",
+        background_size, paper_size, x_scale, y_scale
+    );
+    rtree.render(
+        resvg::tiny_skia::Transform::from_scale(x_scale, y_scale),
+        &mut pixmap.as_mut(),
+    );
 
     info!(
         "Render background time {:?}",

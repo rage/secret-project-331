@@ -1,3 +1,5 @@
+use chrono::NaiveDate;
+
 use crate::prelude::*;
 
 pub struct NewPageVisitDatum {
@@ -48,4 +50,19 @@ RETURNING id
 /// Woothee uses UNKNOWN instead of None, this fixes that
 fn unknown_is_none(value: Option<String>) -> Option<String> {
     value.filter(|v| v != "UNKNOWN")
+}
+
+// Gets the oldest date there are some stastics for.
+pub async fn get_oldest_date(conn: &mut PgConnection) -> ModelResult<Option<NaiveDate>> {
+    let res = sqlx::query!(
+        r#"
+SELECT MIN(created_at) AS oldest_date
+FROM page_visit_datum
+WHERE deleted_at IS NULL
+"#,
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(res.and_then(|res| res.oldest_date.map(|d| d.date_naive())))
 }

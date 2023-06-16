@@ -1,0 +1,2 @@
+DROP TABLE page_view_daily_referrer_stats;
+DROP TABLE page_view_daily_utm_stats;

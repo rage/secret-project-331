@@ -46,6 +46,7 @@ pub mod other_domain_to_course_redirections;
 pub mod page_audio_files;
 pub mod page_history;
 pub mod page_language_groups;
+pub mod page_view_daily_referrer_stats;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod pages;

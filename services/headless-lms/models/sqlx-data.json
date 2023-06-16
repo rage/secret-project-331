@@ -6195,6 +6195,22 @@
     },
     "query": "\nSELECT DISTINCT ON (user_id)\n  id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\n        "
   },
+  "52549bc53053ad2edc1e988f040f4fc8551a9daebf9199457cd863deba8e55db": {
+    "describe": {
+      "columns": [
+        {
+          "name": "latest_date",
+          "ordinal": 0,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nSELECT MAX(visit_date) AS latest_date\nFROM page_view_daily_referrer_stats\nWHERE deleted_at IS NULL\n"
+  },
   "527d742c378dfc52f5d1c999138ee8c12547442f36d8ea9b3df18405f7e526d5": {
     "describe": {
       "columns": [
@@ -18431,6 +18447,22 @@
     },
     "query": "\n    INSERT INTO user_exercise_states (\n        user_id,\n        exercise_id,\n        course_instance_id,\n        selected_exercise_slide_id,\n        exam_id\n      )\n    VALUES ($1, $2, $3, $4, $5)\n    "
   },
+  "d29e71c211fd314405046b47e12599eba1b0c6245c572b7606c378d0f6e090b1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "oldest_date",
+          "ordinal": 0,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nSELECT MIN(created_at) AS oldest_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n"
+  },
   "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {
     "describe": {
       "columns": [],
@@ -20612,6 +20644,16 @@
       }
     },
     "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        "
+  },
+  "ee53dfa93b990c188d7f85fe33634942c305b48b77b634166c6ae830eb819df1": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Date"]
+      }
+    },
+    "query": "\nINSERT INTO page_view_daily_referrer_stats (\n    referrer,\n    page_id,\n    course_id,\n    num_visitors,\n    visit_date\n)\nSELECT\n    referrer,\n    page_id,\n    course_id,\n    COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n    $1 AS visit_date\nFROM page_visit_datum\nWHERE\n    deleted_at IS NULL\n    AND created_at::date = $1\nGROUP BY\n    referrer,\n    page_id,\n    course_id\n ON CONFLICT (page_id, course_id, visit_date, referrer) DO UPDATE SET\n    num_visitors = EXCLUDED.num_visitors\n"
   },
   "ee7145229275ac980ffb6c1f156e3bd4e793b17a5c28c5eda9549fdb68eb6187": {
     "describe": {

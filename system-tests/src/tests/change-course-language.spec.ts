@@ -45,7 +45,10 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Valitse kieli")],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Valitse kieli"),
+      page.locator("id=language-flag"),
+    ],
   })
 
   const value1 = page.locator("#changeLanguage")

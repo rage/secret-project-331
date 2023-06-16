@@ -6,7 +6,6 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../../components/Layout"
 import PeerReviewSubmissionSummaryAccordion from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/PeerReviewSubmissionSummaryAccordion"
 import { useCourseStructure } from "../../../../../hooks/useCourseStructure"
 import {
@@ -63,17 +62,15 @@ const CourseInstanceExerciseStatusList: React.FC<
     courseInstanceProgresses.isError
   ) {
     return (
-      <Layout>
-        <ErrorBanner
-          variant={"readOnly"}
-          error={
-            exerciseStatusSummariesQuery.error ||
-            courseStructure.error ||
-            courseModuleCompletionsQuery.error ||
-            courseInstanceProgresses.error
-          }
-        />
-      </Layout>
+      <ErrorBanner
+        variant={"readOnly"}
+        error={
+          exerciseStatusSummariesQuery.error ||
+          courseStructure.error ||
+          courseModuleCompletionsQuery.error ||
+          courseInstanceProgresses.error
+        }
+      />
     )
   }
 
@@ -84,11 +81,7 @@ const CourseInstanceExerciseStatusList: React.FC<
     !exerciseStatusSummariesQuery.data ||
     courseInstanceProgresses.isLoading
   ) {
-    return (
-      <Layout>
-        <Spinner variant="medium" />
-      </Layout>
-    )
+    return <Spinner variant="medium" />
   }
 
   const groupedByChapter = Object.entries(
@@ -99,7 +92,7 @@ const CourseInstanceExerciseStatusList: React.FC<
   )
 
   return (
-    <Layout navVariant="simple">
+    <>
       <h1>{t("course-status-summary")}</h1>
       <Section>
         <h2
@@ -516,7 +509,7 @@ const CourseInstanceExerciseStatusList: React.FC<
             })}
         </div>
       </Section>
-    </Layout>
+    </>
   )
 }
 

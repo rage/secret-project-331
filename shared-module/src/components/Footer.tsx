@@ -131,15 +131,9 @@ const LogoA = styled.a`
   }
 `
 
-export interface FooterExtraProps {
-  licenseUrl?: string
-}
+export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
-export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
-
-const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterProps>>> = ({
-  licenseUrl,
-}) => {
+const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterProps>>> = () => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
   return (
@@ -166,9 +160,7 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
           </Text>
           <Links>
             <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
-            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
-          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
-            {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
+            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink> */}
           </Links>
           <div
             className={css`

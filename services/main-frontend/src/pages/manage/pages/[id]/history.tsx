@@ -1,7 +1,6 @@
 import { useRouter } from "next/router"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
 
 const History: React.FC<React.PropsWithChildren<unknown>> = () => {
@@ -19,12 +18,10 @@ const History: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout navVariant="simple">
-      <div>
-        <h2>{t("title-page-edit-history")}</h2>
-        <HistoryView pageId={id} />
-      </div>
-    </Layout>
+    <div>
+      <h2>{t("title-page-edit-history")}</h2>
+      <HistoryView pageId={id} />
+    </div>
   )
 }
 

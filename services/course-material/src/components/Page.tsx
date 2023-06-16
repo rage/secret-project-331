@@ -22,7 +22,7 @@ import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
-import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
+import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
 interface Props {
@@ -101,7 +101,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               organizationSlug={organizationSlug}
             />
           )}
-        {courseId && <SelectCourseInstanceModal onClose={onRefresh} />}
+        {courseId && <CourseSettingsModal onClose={onRefresh} />}
 
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
           <AudioNotification>

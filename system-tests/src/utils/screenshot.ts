@@ -105,8 +105,10 @@ export default async function expectScreenshotsToMatchSnapshots({
 
       if (clearNotifications) {
         await page.evaluate(() => {
-          for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
-            notif.remove()
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+          )) {
+            notif.style.display = "none"
           }
         })
         await hideToasts(page)
@@ -144,6 +146,15 @@ export default async function expectScreenshotsToMatchSnapshots({
         screenshotTarget: screenshotTarget as any,
       })
     } finally {
+      if (clearNotifications) {
+        await page.evaluate(() => {
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+          )) {
+            notif.style.display = "block"
+          }
+        })
+      }
       if (originalViewPort) {
         // always restore the original viewport
         await page.setViewportSize(originalViewPort)

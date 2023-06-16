@@ -1,5 +1,5 @@
 sudo pacman -Syu --noconfirm
-sudo pacman -S --noconfirm --needed base-devel skaffold kubernetes-tools minikube kustomize docker postgresql sudo patch fakeroot git htop duf nginx
+sudo pacman -S --noconfirm --needed base-devel skaffold kubernetes-tools minikube kustomize docker postgresql redis sudo patch fakeroot git htop duf nginx
 sudo systemctl enable docker
 sudo usermod -a -G docker vagrant
 

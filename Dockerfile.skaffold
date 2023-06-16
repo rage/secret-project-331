@@ -1,7 +1,7 @@
 FROM archlinux
 
 RUN pacman -Syu --noconfirm \
-  && pacman -S --noconfirm skaffold kubernetes-tools minikube kustomize docker postgresql sudo patch fakeroot git \
+  && pacman -S --noconfirm skaffold kubernetes-tools minikube kustomize docker postgresql redis sudo patch fakeroot git \
   && yes | pacman -Scc
 
 # Add user for building packages

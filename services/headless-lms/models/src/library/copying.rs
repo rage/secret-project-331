@@ -145,6 +145,8 @@ WHERE id = $2;
     )
     .await?;
 
+    copy_peer_review_configs(&mut tx, copied_course.id, course_id).await?;
+
     tx.commit().await?;
     Ok(copied_course)
 }
@@ -646,6 +648,42 @@ AND deleted_at IS NULL;
     Ok(())
 }
 
+async fn copy_peer_review_configs(
+    tx: &mut Transaction<'_, Postgres>,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -> ModelResult<()> {
+    // Copy exercise tasks
+    sqlx::query!(
+        "
+INSERT INTO peer_review_configs (
+    id,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_strategy,
+    accepting_threshold
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  uuid_generate_v5($1, exercise_id::text),
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_strategy,
+  accepting_threshold
+FROM peer_review_configs
+WHERE course_id = $2
+AND deleted_at IS NULL;
+    ",
+        namespace_id,
+        parent_id,
+    )
+    .execute(tx)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -660,7 +698,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "en-US".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, false)
                 .await
                 .unwrap();
@@ -679,7 +717,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "fi-FI".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -698,7 +736,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "en-GB".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -718,7 +756,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "pt-BR".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -742,7 +780,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "sv-SV".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -759,7 +797,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "fr-CA".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -780,7 +818,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "es-US".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -835,7 +873,7 @@ mod tests {
             )
             .await
             .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "es-MX".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -866,7 +904,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "fi-SV".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -908,12 +946,12 @@ mod tests {
             }
         }
 
-        fn create_new_course(organization_id: Uuid) -> NewCourse {
+        fn create_new_course(organization_id: Uuid, language_code: String) -> NewCourse {
             NewCourse {
                 name: "Copied course".to_string(),
                 slug: "copied-course".to_string(),
                 organization_id,
-                language_code: "en-US".to_string(),
+                language_code,
                 teacher_in_charge_name: "Teacher".to_string(),
                 teacher_in_charge_email: "teacher@example.com".to_string(),
                 description: "".to_string(),

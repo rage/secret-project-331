@@ -10,4 +10,16 @@ ensure_program_in_path "kustomize"
 check_minikube_version
 ensure_common_programs_in_path
 
-run_command skaffold dev --force --filename ./skaffold.production.yaml "$@"
+run_command npm run postinstall
+echo ""
+echo -e "${BLUE}ℹ️  We're now doing a full production build of the project. Since this is a production with all optimizations enabled, this will be resource-intensive."
+echo -e "${BOLD}ℹ️  If you change your code after running this, you have to restart bin/test to trigger a new build.${RESET_EVERYTHING}${BLUE}"
+echo -e "ℹ️  This is because if we enabled file watching, and did the production build every time you change something in a file, it would repeatedly do production builds in the backround while you're coding."
+echo -e "ℹ️  That would slow down your computer and make it harder to do the coding. "
+echo -e "ℹ️  If you want to trigger a rebuild every time you save a file, run ${BOLD}bin/dev${RESET_EVERYTHING}${BLUE} instead."
+echo -e "$RESET_EVERYTHING"
+echo ""
+
+trap 'run_command skaffold delete --filename ./skaffold.production.yaml' EXIT
+
+run_command skaffold run --tail --force --port-forward=user --toot=true --cleanup=true --filename ./skaffold.production.yaml "$@"

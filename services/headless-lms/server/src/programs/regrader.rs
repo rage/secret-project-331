@@ -18,9 +18,11 @@ pub async fn main() -> anyhow::Result<()> {
     let jwt_key = Arc::new(JwtKey::try_from_env().expect("Could not initialise JwtKey"));
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
+    // Since this is repeating every 10 seconds we can keep the connection open.
+    let mut conn = PgConnection::connect(&db_url).await?;
     loop {
         interval.tick().await;
-        let mut conn = PgConnection::connect(&db_url).await?;
+
         let exercise_services_by_type =
             models::exercise_service_info::get_all_exercise_services_by_type(
                 &mut conn,

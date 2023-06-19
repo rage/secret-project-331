@@ -33,7 +33,7 @@ Make sure you have [cargo-edit](https://github.com/killercup/cargo-edit) install
 
 ```bash
 cd services/headless-lms
-cargo upgrade --incompatible allow --pinned allow
+cargo upgrade --incompatible allow --pinned allow --recursive true
 cargo update
 ```
 

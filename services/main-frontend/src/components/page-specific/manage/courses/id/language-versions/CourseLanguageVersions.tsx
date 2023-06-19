@@ -4,11 +4,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import {
-  copyCourseUserPermissions,
-  getCourse,
-  postNewCourseTranslation,
-} from "../../../../../../services/backend/courses"
+import { getCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
@@ -28,17 +24,11 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
   const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))
 
-  const handleCreateNewLanguageVersion = async (
-    newCourse: NewCourse,
-    copyUserPermissions: boolean,
-  ) => {
-    const newCourseWithId = await postNewCourseTranslation(courseId, newCourse)
+  const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
+    await postNewCourseTranslation(courseId, newCourse)
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
     queryClient.invalidateQueries([formatLanguageVersionsQueryKey(courseId)])
-    if (copyUserPermissions) {
-      await copyCourseUserPermissions(courseId, newCourseWithId.id)
-    }
   }
   return (
     <>

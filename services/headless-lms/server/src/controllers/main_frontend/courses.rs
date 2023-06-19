@@ -399,7 +399,8 @@ pub async fn post_new_course_language_version(
     .await?;
 
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true, user.id)
+            .await?;
     models::roles::insert(
         &mut conn,
         user.id,
@@ -447,7 +448,8 @@ pub async fn post_new_course_duplicate(
     )
     .await?;
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false, user.id)
+            .await?;
 
     models::roles::insert(
         &mut conn,
@@ -457,41 +459,6 @@ pub async fn post_new_course_duplicate(
     )
     .await?;
     token.authorized_ok(web::Json(copied_course))
-}
-
-#[derive(Debug, Deserialize)]
-pub struct CourseId {
-    new_course_id: Uuid,
-}
-
-/**
-POST `/api/v0/main-frontend/courses/:id/duplicate/permissions` - Copies user permissions from one course to another.
-*/
-#[generated_doc]
-#[instrument(skip(pool))]
-pub async fn copy_course_user_permissions(
-    pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
-    new_course_id: web::Json<CourseId>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Duplicate,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-    models::library::copying::copy_user_permissions(
-        &mut conn,
-        *course_id,
-        new_course_id.new_course_id,
-        user.id,
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -1131,10 +1098,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/duplicate",
             web::post().to(post_new_course_duplicate),
-        )
-        .route(
-            "/{course_id}/duplicate/permissions",
-            web::post().to(copy_course_user_permissions),
         )
         .route("/{course_id}/upload", web::post().to(add_media_for_course))
         .route(

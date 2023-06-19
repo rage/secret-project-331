@@ -19,12 +19,8 @@ const FieldContainer = styled.div`
 
 interface NewCourseFormProps {
   organizationId: string
-  onSubmitNewCourseForm: (newCourse: NewCourse, copyUserPermissions: boolean) => Promise<void>
-  onSubmitDuplicateCourseForm?: (
-    oldCourseId: string,
-    newCourse: NewCourse,
-    copyUserPermissions: boolean,
-  ) => Promise<void>
+  onSubmitNewCourseForm: (newCourse: NewCourse) => Promise<void>
+  onSubmitDuplicateCourseForm?: (oldCourseId: string, newCourse: NewCourse) => Promise<void>
   courses?: Course[]
   onClose: () => void
 }
@@ -84,9 +80,10 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         teacher_in_charge_name: teacherInChargeName,
         is_draft: true,
         is_test_mode: false,
+        copy_user_permissions: copyCourseUserPermissions,
       }
       if (courseId) {
-        await onSubmitDuplicateCourseForm(courseId, newCourse, copyCourseUserPermissions)
+        await onSubmitDuplicateCourseForm(courseId, newCourse)
         setLanguageCode(DEFAULT_LANGUAGE_CODE)
         setSlug("")
         setTeacherInChargeName("")
@@ -106,20 +103,18 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
     try {
       setSubmitDisabled(true)
       const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-      await onSubmitNewCourseForm(
-        {
-          name,
-          slug,
-          organization_id: organizationId,
-          language_code: normalizedLanguageCode,
-          teacher_in_charge_name: teacherInChargeName,
-          teacher_in_charge_email: teacherInChargeEmail,
-          description,
-          is_draft: true,
-          is_test_mode: false,
-        },
-        copyCourseUserPermissions,
-      )
+      await onSubmitNewCourseForm({
+        name,
+        slug,
+        organization_id: organizationId,
+        language_code: normalizedLanguageCode,
+        teacher_in_charge_name: teacherInChargeName,
+        teacher_in_charge_email: teacherInChargeEmail,
+        description,
+        is_draft: true,
+        is_test_mode: false,
+        copy_user_permissions: copyCourseUserPermissions,
+      })
       setName("")
       setSlug("")
       setLanguageCode(DEFAULT_LANGUAGE_CODE)

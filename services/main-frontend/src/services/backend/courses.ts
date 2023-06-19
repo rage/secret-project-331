@@ -85,20 +85,6 @@ export const postNewCourseDuplicate = async (
   return validateResponse(response, isCourse)
 }
 
-export const copyCourseUserPermissions = async (
-  courseId: string,
-  newCourseId: string,
-): Promise<string> => {
-  const response = await mainFrontendClient.post(
-    `/courses/${courseId}/duplicate/permissions`,
-    { new_course_id: newCourseId },
-    {
-      responseType: "json",
-    },
-  )
-  return response.status.toString()
-}
-
 export const updateCourse = async (courseId: string, data: CourseUpdate): Promise<Course> => {
   const response = await mainFrontendClient.put(`/courses/${courseId}`, data, {
     headers: { "Content-Type": "application/json" },

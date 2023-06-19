@@ -320,6 +320,7 @@ pub async fn seed_organization_uh_cs(
         description: "An example course.".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(

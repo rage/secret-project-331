@@ -9,7 +9,7 @@ interface NewCourseLanguageVersionDialogProps {
   showNewLanguageVersionForm: boolean
   courseName: string
   organizationId: string
-  handleSubmit: (newCourse: NewCourse, copyUserPermissions: boolean) => Promise<void>
+  handleSubmit: (newCourse: NewCourse) => Promise<void>
   onClose: () => void
   courseId: string
 }

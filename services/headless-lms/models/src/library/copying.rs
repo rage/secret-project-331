@@ -698,7 +698,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "en-US".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, false)
                 .await
                 .unwrap();
@@ -717,7 +717,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "fi-FI".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -736,7 +736,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "en-GB".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -756,7 +756,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "pt-BR".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -780,7 +780,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "sv-SV".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -797,7 +797,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "fr-CA".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -818,7 +818,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "es-US".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -873,7 +873,7 @@ mod tests {
             )
             .await
             .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "es-MX".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -904,7 +904,7 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
+            let new_course = create_new_course(org, "fi-SV".to_string());
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
@@ -946,12 +946,12 @@ mod tests {
             }
         }
 
-        fn create_new_course(organization_id: Uuid) -> NewCourse {
+        fn create_new_course(organization_id: Uuid, language_code: String) -> NewCourse {
             NewCourse {
                 name: "Copied course".to_string(),
                 slug: "copied-course".to_string(),
                 organization_id,
-                language_code: "en-US".to_string(),
+                language_code,
                 teacher_in_charge_name: "Teacher".to_string(),
                 teacher_in_charge_email: "teacher@example.com".to_string(),
                 description: "".to_string(),

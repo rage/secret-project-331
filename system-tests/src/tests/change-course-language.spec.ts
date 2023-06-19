@@ -31,6 +31,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Oletus").first().click()
   await page.getByRole("button", { name: "Jatka" }).click()
+  await page.getByRole("heading", { name: "Kurssin asetukset" }).waitFor({ state: "hidden" })
 
   await page.getByRole("heading", { name: "Kurssin yhteenveto" }).waitFor()
   await expect(page).toHaveURL(

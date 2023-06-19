@@ -16,7 +16,7 @@ use headless_lms_utils::icu4x::Icu4xBlob;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 use icu::calendar::Gregorian;
 use icu::datetime::TypedDateTimeFormatter;
-use resvg::FitTo;
+use resvg::tiny_skia;
 use std::path::Path;
 use std::time::Instant;
 use usvg::{fontdb, TreeParsing, TreeTextToPath};
@@ -147,43 +147,47 @@ fn generate_certificate_impl(
         ..Default::default()
     };
 
-    let mut pixmap = tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px())
+    let mut pixmap = resvg::tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px())
         .ok_or_else(|| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not create a pixmap".to_string(),
-                None,
-            )
-        })?;
-    info!("Setup time {:?}", start_setup.elapsed());
-    let parse_background_svg_start = Instant::now();
-    let mut rtree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            "Could not parse background svg".to_string(),
-            Some(original_error.into()),
+            "Could not create a pixmap".to_string(),
+            None,
         )
     })?;
-    rtree.convert_text(fontdb);
+    info!("Setup time {:?}", start_setup.elapsed());
+    let parse_background_svg_start = Instant::now();
+    let rtree = {
+        let mut rtree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not parse background svg".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+        rtree.convert_text(fontdb);
+        resvg::Tree::from_usvg(&rtree)
+    };
+
     info!(
         "Parse background svg time {:?}",
         parse_background_svg_start.elapsed()
     );
 
     let start_render_background = Instant::now();
-    resvg::render(
-        &rtree,
-        FitTo::Size(paper_size.width_px(), paper_size.height_px()),
-        tiny_skia::Transform::default(),
-        pixmap.as_mut(),
-    )
-    .ok_or_else(|| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not render background svg".to_string(),
-            None,
-        )
-    })?;
+    // Scaling the background to the paper size, if the aspect ratio is wrong (for example if it does not follow the aspect ratio of A4 paper size), the background will get stretched.
+    // If that's the case, the you should fix the background svg.
+    let background_size = rtree.size.to_int_size();
+    let x_scale = paper_size.width_px() as f32 / background_size.width() as f32;
+    let y_scale = paper_size.height_px() as f32 / background_size.height() as f32;
+    info!(
+        "Background size {:?}, paper size: {:?}, x_scale: {}, y_scale: {}",
+        background_size, paper_size, x_scale, y_scale
+    );
+    rtree.render(
+        resvg::tiny_skia::Transform::from_scale(x_scale, y_scale),
+        &mut pixmap.as_mut(),
+    );
 
     info!(
         "Render background time {:?}",
@@ -193,54 +197,41 @@ fn generate_certificate_impl(
     let text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)?;
     info!("{}", String::from_utf8_lossy(&text_svg_data));
     let parse_text_svg_start = Instant::now();
-    let mut text_rtree = usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not parse text svg".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-    text_rtree.convert_text(fontdb);
+    let text_rtree = {
+        let mut text_rtree =
+            usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "Could not parse text svg".to_string(),
+                    Some(original_error.into()),
+                )
+            })?;
+        text_rtree.convert_text(fontdb);
+        resvg::Tree::from_usvg(&text_rtree)
+    };
+
     info!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
 
     let render_text_start = Instant::now();
-    resvg::render(
-        &text_rtree,
-        FitTo::Original,
-        tiny_skia::Transform::default(),
-        pixmap.as_mut(),
-    )
-    .ok_or_else(|| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not render text svg".to_string(),
-            None,
-        )
-    })?;
+    text_rtree.render(tiny_skia::Transform::default(), &mut pixmap.as_mut());
     info!("Render text time {:?}", render_text_start.elapsed());
 
     if let Some(overlay_svg) = overlay_svg {
         let start_render_overlay = Instant::now();
-        let overlay_rtree = usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not parse overlay svg".to_string(),
-                Some(original_error.into()),
-            )
-        })?;
-        resvg::render(
-            &overlay_rtree,
-            FitTo::Size(paper_size.width_px(), paper_size.height_px()),
-            tiny_skia::Transform::default(),
-            pixmap.as_mut(),
-        )
-        .ok_or_else(|| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not render overlay svg".to_string(),
-                None,
-            )
-        })?;
+        let overlay_rtree = {
+            let mut overlay_rtree =
+                usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
+                    UtilError::new(
+                        UtilErrorType::Other,
+                        "Could not parse overlay svg".to_string(),
+                        Some(original_error.into()),
+                    )
+                })?;
+            overlay_rtree.convert_text(fontdb);
+            resvg::Tree::from_usvg(&overlay_rtree)
+        };
+
+        overlay_rtree.render(tiny_skia::Transform::default(), &mut pixmap.as_mut());
 
         info!("Overlay time {:?}", start_render_overlay.elapsed());
     }

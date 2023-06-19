@@ -1,13 +1,13 @@
-FROM rust:bullseye as rust-builder
+FROM rust:bookworm as rust-builder
 
 RUN cargo install sqlx-cli --no-default-features --features rustls,postgres
 
-FROM golang:bullseye as go-builder
+FROM golang:bookworm as go-builder
 
 RUN go install github.com/achiku/planter@latest \
   && go install github.com/k1LoW/tbls@latest
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 RUN apt-get update \
   && apt-get install -y plantuml postgresql-client pandoc git coreutils sed \

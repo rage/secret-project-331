@@ -174,6 +174,9 @@ export interface ImageAttributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
+  behaviors?: {
+    [k: string]: unknown
+  }
   lock?: {
     [k: string]: unknown
   }
@@ -989,6 +992,7 @@ export interface ButtonsDeprecated2Attributes {
 
 export interface CodeAttributes {
   content?: string
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }

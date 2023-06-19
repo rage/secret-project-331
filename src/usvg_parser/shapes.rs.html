@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.32.0/src/shapes.rs`."><title>shapes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.34.0/src/shapes.rs`."><title>shapes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -274,20 +274,74 @@
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
 <a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 </span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>rosvgtree::{<span class="self">self</span>, AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
 <span class="kw">use </span>svgtypes::Length;
-<span class="kw">use </span>usvg_tree::{FuzzyEq, IsValidLength, PathData, Rect, Units};
+<span class="kw">use </span>tiny_skia_path::Path;
+<span class="kw">use </span>usvg_tree::{tiny_skia_path, ApproxEqUlps, IsValidLength, Units};
 
-<span class="kw">use </span><span class="kw">crate</span>::rosvgtree_ext::SvgNodeExt2;
-<span class="kw">use crate</span>::{converter, units, SvgNodeExt};
+<span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, SvgNode};
+<span class="kw">use crate</span>::{converter, units};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
     <span class="kw">match </span>node.tag_name()<span class="question-mark">? </span>{
         EId::Rect =&gt; convert_rect(node, state),
         EId::Circle =&gt; convert_circle(node, state),
@@ -300,9 +354,9 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_path(node: rosvgtree::Node) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_path(node: SvgNode) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
     <span class="kw">let </span>value: <span class="kw-2">&amp;</span>str = node.attribute(AId::D)<span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>path = PathData::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
     <span class="kw">for </span>segment <span class="kw">in </span>svgtypes::SimplifyingPathParser::from(value) {
         <span class="kw">let </span>segment = <span class="kw">match </span>segment {
             <span class="prelude-val">Ok</span>(v) =&gt; v,
@@ -311,10 +365,13 @@
 
         <span class="kw">match </span>segment {
             svgtypes::SimplePathSegment::MoveTo { x, y } =&gt; {
-                path.push_move_to(x, y);
+                builder.move_to(x <span class="kw">as </span>f32, y <span class="kw">as </span>f32);
             }
             svgtypes::SimplePathSegment::LineTo { x, y } =&gt; {
-                path.push_line_to(x, y);
+                builder.line_to(x <span class="kw">as </span>f32, y <span class="kw">as </span>f32);
+            }
+            svgtypes::SimplePathSegment::Quadratic { x1, y1, x, y } =&gt; {
+                builder.quad_to(x1 <span class="kw">as </span>f32, y1 <span class="kw">as </span>f32, x <span class="kw">as </span>f32, y <span class="kw">as </span>f32);
             }
             svgtypes::SimplePathSegment::CurveTo {
                 x1,
@@ -324,25 +381,20 @@
                 x,
                 y,
             } =&gt; {
-                path.push_curve_to(x1, y1, x2, y2, x, y);
-            }
-            svgtypes::SimplePathSegment::Quadratic { x1, y1, x, y } =&gt; {
-                path.push_quad_to(x1, y1, x, y);
+                builder.cubic_to(
+                    x1 <span class="kw">as </span>f32, y1 <span class="kw">as </span>f32, x2 <span class="kw">as </span>f32, y2 <span class="kw">as </span>f32, x <span class="kw">as </span>f32, y <span class="kw">as </span>f32,
+                );
             }
             svgtypes::SimplePathSegment::ClosePath =&gt; {
-                path.push_close_path();
+                builder.close();
             }
         }
     }
 
-    <span class="kw">if </span>path.len() &gt;= <span class="number">2 </span>{
-        <span class="prelude-val">Some</span>(Rc::new(path))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>}
+    builder.finish().map(Rc::new)
 }
 
-<span class="kw">fn </span>convert_rect(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
+<span class="kw">fn </span>convert_rect(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
     <span class="comment">// &#39;width&#39; and &#39;height&#39; attributes must be positive and non-zero.
     </span><span class="kw">let </span>width = node.convert_user_length(AId::Width, state, Length::zero());
     <span class="kw">let </span>height = node.convert_user_length(AId::Height, state, Length::zero());
@@ -377,35 +429,35 @@
     }
 
     <span class="comment">// Conversion according to https://www.w3.org/TR/SVG11/shapes.html#RectElement
-    </span><span class="kw">let </span>path = <span class="kw">if </span>rx.fuzzy_eq(<span class="kw-2">&amp;</span><span class="number">0.0</span>) {
-        PathData::from_rect(Rect::new(x, y, width, height)<span class="question-mark">?</span>)
+    </span><span class="kw">let </span>path = <span class="kw">if </span>rx.approx_eq_ulps(<span class="kw-2">&amp;</span><span class="number">0.0</span>, <span class="number">4</span>) {
+        tiny_skia_path::PathBuilder::from_rect(usvg_tree::Rect::from_xywh(x, y, width, height)<span class="question-mark">?</span>)
     } <span class="kw">else </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>p = PathData::new();
-        p.push_move_to(x + rx, y);
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
+        builder.move_to(x + rx, y);
 
-        p.push_line_to(x + width - rx, y);
-        p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x + width, y + ry);
+        builder.line_to(x + width - rx, y);
+        builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x + width, y + ry);
 
-        p.push_line_to(x + width, y + height - ry);
-        p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x + width - rx, y + height);
+        builder.line_to(x + width, y + height - ry);
+        builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x + width - rx, y + height);
 
-        p.push_line_to(x + rx, y + height);
-        p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x, y + height - ry);
+        builder.line_to(x + rx, y + height);
+        builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x, y + height - ry);
 
-        p.push_line_to(x, y + ry);
-        p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x + rx, y);
+        builder.line_to(x, y + ry);
+        builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, x + rx, y);
 
-        p.push_close_path();
+        builder.close();
 
-        p
-    };
+        builder.finish()<span class="question-mark">?
+    </span>};
 
     <span class="prelude-val">Some</span>(Rc::new(path))
 }
 
-<span class="kw">fn </span>resolve_rx_ry(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; (f64, f64) {
-    <span class="kw">let </span><span class="kw-2">mut </span>rx_opt = node.parse_attribute::&lt;Length&gt;(AId::Rx);
-    <span class="kw">let </span><span class="kw-2">mut </span>ry_opt = node.parse_attribute::&lt;Length&gt;(AId::Ry);
+<span class="kw">fn </span>resolve_rx_ry(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; (f32, f32) {
+    <span class="kw">let </span><span class="kw-2">mut </span>rx_opt = node.attribute::&lt;Length&gt;(AId::Rx);
+    <span class="kw">let </span><span class="kw-2">mut </span>ry_opt = node.attribute::&lt;Length&gt;(AId::Ry);
 
     <span class="comment">// Remove negative values first.
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(v) = rx_opt {
@@ -438,42 +490,40 @@
     }
 }
 
-<span class="kw">fn </span>convert_line(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
+<span class="kw">fn </span>convert_line(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
     <span class="kw">let </span>x1 = node.convert_user_length(AId::X1, state, Length::zero());
     <span class="kw">let </span>y1 = node.convert_user_length(AId::Y1, state, Length::zero());
     <span class="kw">let </span>x2 = node.convert_user_length(AId::X2, state, Length::zero());
     <span class="kw">let </span>y2 = node.convert_user_length(AId::Y2, state, Length::zero());
 
-    <span class="kw">let </span><span class="kw-2">mut </span>path = PathData::new();
-    path.push_move_to(x1, y1);
-    path.push_line_to(x2, y2);
-    <span class="prelude-val">Some</span>(Rc::new(path))
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
+    builder.move_to(x1, y1);
+    builder.line_to(x2, y2);
+    builder.finish().map(Rc::new)
 }
 
-<span class="kw">fn </span>convert_polyline(node: rosvgtree::Node) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
-    points_to_path(node, <span class="string">&quot;Polyline&quot;</span>).map(Rc::new)
+<span class="kw">fn </span>convert_polyline(node: SvgNode) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
+    <span class="kw">let </span>builder = points_to_path(node, <span class="string">&quot;Polyline&quot;</span>)<span class="question-mark">?</span>;
+    builder.finish().map(Rc::new)
 }
 
-<span class="kw">fn </span>convert_polygon(node: rosvgtree::Node) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>path) = points_to_path(node, <span class="string">&quot;Polygon&quot;</span>) {
-        path.push_close_path();
-        <span class="prelude-val">Some</span>(Rc::new(path))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>}
+<span class="kw">fn </span>convert_polygon(node: SvgNode) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = points_to_path(node, <span class="string">&quot;Polygon&quot;</span>)<span class="question-mark">?</span>;
+    builder.close();
+    builder.finish().map(Rc::new)
 }
 
-<span class="kw">fn </span>points_to_path(node: rosvgtree::Node, eid: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;PathData&gt; {
+<span class="kw">fn </span>points_to_path(node: SvgNode, eid: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia_path::PathBuilder&gt; {
     <span class="kw">use </span>svgtypes::PointsParser;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>path = PathData::new();
-    <span class="kw">match </span>node.attribute(AId::Points) {
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
+    <span class="kw">match </span>node.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::Points) {
         <span class="prelude-val">Some</span>(text) =&gt; {
             <span class="kw">for </span>(x, y) <span class="kw">in </span>PointsParser::from(text) {
-                <span class="kw">if </span>path.is_empty() {
-                    path.push_move_to(x, y);
+                <span class="kw">if </span>builder.is_empty() {
+                    builder.move_to(x <span class="kw">as </span>f32, y <span class="kw">as </span>f32);
                 } <span class="kw">else </span>{
-                    path.push_line_to(x, y);
+                    builder.line_to(x <span class="kw">as </span>f32, y <span class="kw">as </span>f32);
                 }
             }
         }
@@ -488,7 +538,7 @@
     };
 
     <span class="comment">// &#39;polyline&#39; and &#39;polygon&#39; elements must contain at least 2 points.
-    </span><span class="kw">if </span>path.len() &lt; <span class="number">2 </span>{
+    </span><span class="kw">if </span>builder.len() &lt; <span class="number">2 </span>{
         <span class="macro">log::warn!</span>(
             <span class="string">&quot;{} &#39;{}&#39; has less than 2 points. Skipped.&quot;</span>,
             eid,
@@ -497,10 +547,10 @@
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="prelude-val">Some</span>(path)
+    <span class="prelude-val">Some</span>(builder)
 }
 
-<span class="kw">fn </span>convert_circle(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
+<span class="kw">fn </span>convert_circle(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
     <span class="kw">let </span>cx = node.convert_user_length(AId::Cx, state, Length::zero());
     <span class="kw">let </span>cy = node.convert_user_length(AId::Cy, state, Length::zero());
     <span class="kw">let </span>r = node.convert_user_length(AId::R, state, Length::zero());
@@ -513,10 +563,10 @@
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="prelude-val">Some</span>(Rc::new(ellipse_to_path(cx, cy, r, r)))
+    ellipse_to_path(cx, cy, r, r)
 }
 
-<span class="kw">fn </span>convert_ellipse(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;PathData&gt;&gt; {
+<span class="kw">fn </span>convert_ellipse(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
     <span class="kw">let </span>cx = node.convert_user_length(AId::Cx, state, Length::zero());
     <span class="kw">let </span>cy = node.convert_user_length(AId::Cy, state, Length::zero());
     <span class="kw">let </span>(rx, ry) = resolve_rx_ry(node, state);
@@ -537,17 +587,75 @@
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="prelude-val">Some</span>(Rc::new(ellipse_to_path(cx, cy, rx, ry)))
+    ellipse_to_path(cx, cy, rx, ry)
 }
 
-<span class="kw">fn </span>ellipse_to_path(cx: f64, cy: f64, rx: f64, ry: f64) -&gt; PathData {
-    <span class="kw">let </span><span class="kw-2">mut </span>p = PathData::new();
-    p.push_move_to(cx + rx, cy);
-    p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx, cy + ry);
-    p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx - rx, cy);
-    p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx, cy - ry);
-    p.push_arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx + rx, cy);
-    p.push_close_path();
-    p
+<span class="kw">fn </span>ellipse_to_path(cx: f32, cy: f32, rx: f32, ry: f32) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;Path&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
+    builder.move_to(cx + rx, cy);
+    builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx, cy + ry);
+    builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx - rx, cy);
+    builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx, cy - ry);
+    builder.arc_to(rx, ry, <span class="number">0.0</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, cx + rx, cy);
+    builder.close();
+    builder.finish().map(Rc::new)
+}
+
+<span class="kw">trait </span>PathBuilderExt {
+    <span class="kw">fn </span>arc_to(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        rx: f32,
+        ry: f32,
+        x_axis_rotation: f32,
+        large_arc: bool,
+        sweep: bool,
+        x: f32,
+        y: f32,
+    );
+}
+
+<span class="kw">impl </span>PathBuilderExt <span class="kw">for </span>tiny_skia_path::PathBuilder {
+    <span class="kw">fn </span>arc_to(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        rx: f32,
+        ry: f32,
+        x_axis_rotation: f32,
+        large_arc: bool,
+        sweep: bool,
+        x: f32,
+        y: f32,
+    ) {
+        <span class="kw">let </span>prev = <span class="kw">match </span><span class="self">self</span>.last_point() {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
+        };
+
+        <span class="kw">let </span>svg_arc = kurbo::SvgArc {
+            from: kurbo::Point::new(prev.x <span class="kw">as </span>f64, prev.y <span class="kw">as </span>f64),
+            to: kurbo::Point::new(x <span class="kw">as </span>f64, y <span class="kw">as </span>f64),
+            radii: kurbo::Vec2::new(rx <span class="kw">as </span>f64, ry <span class="kw">as </span>f64),
+            x_rotation: (x_axis_rotation <span class="kw">as </span>f64).to_radians(),
+            large_arc,
+            sweep,
+        };
+
+        <span class="kw">match </span>kurbo::Arc::from_svg_arc(<span class="kw-2">&amp;</span>svg_arc) {
+            <span class="prelude-val">Some</span>(arc) =&gt; {
+                arc.to_cubic_beziers(<span class="number">0.1</span>, |p1, p2, p| {
+                    <span class="self">self</span>.cubic_to(
+                        p1.x <span class="kw">as </span>f32,
+                        p1.y <span class="kw">as </span>f32,
+                        p2.x <span class="kw">as </span>f32,
+                        p2.y <span class="kw">as </span>f32,
+                        p.x <span class="kw">as </span>f32,
+                        p.y <span class="kw">as </span>f32,
+                    );
+                });
+            }
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="self">self</span>.line_to(x, y);
+            }
+        }
+    }
 }
 </code></pre></div></section></main></body></html>

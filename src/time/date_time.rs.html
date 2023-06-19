@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-0.3.20/src/date_time.rs`."><title>date_time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time/index.html"><img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-0.3.22/src/date_time.rs`."><title>date_time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time/index.html"><img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1156,6 +1156,26 @@
 <a href="#1156" id="1156">1156</a>
 <a href="#1157" id="1157">1157</a>
 <a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The [`DateTime`] struct and its associated `impl`s.
 
 </span><span class="comment">// TODO(jhpratt) Document everything before making public.
@@ -1174,6 +1194,7 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">use </span>std::time::SystemTime;
 
+<span class="kw">use </span><span class="kw">crate</span>::convert::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::date::{MAX_YEAR, MIN_YEAR};
 <span class="attr">#[cfg(feature = <span class="string">&quot;formatting&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::formatting::Formattable;
@@ -1304,7 +1325,8 @@
     <span class="kw">if </span>O::STATIC_OFFSET.is_some() {
         O::STATIC_OFFSET
     } <span class="kw">else if </span>O::HAS_MEMORY_OFFSET {
-        <span class="kw">union </span>Convert&lt;O: MaybeOffset&gt; {
+        <span class="attr">#[repr(C)] </span><span class="comment">// needed to guarantee they align at the start
+        </span><span class="kw">union </span>Convert&lt;O: MaybeOffset&gt; {
             input: O::MemoryOffsetType,
             output: UtcOffset,
         }
@@ -1329,7 +1351,8 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>maybe_offset_from_offset&lt;O: MaybeOffset&gt;(
     offset: UtcOffset,
 ) -&gt; O::MemoryOffsetType {
-    <span class="kw">union </span>Convert&lt;O: MaybeOffset&gt; {
+    <span class="attr">#[repr(C)] </span><span class="comment">// needed to guarantee the types align at the start
+    </span><span class="kw">union </span>Convert&lt;O: MaybeOffset&gt; {
         input: UtcOffset,
         output: O::MemoryOffsetType,
     }
@@ -1415,14 +1438,14 @@
 
         <span class="comment">// Use the unchecked method here, as the input validity has already been verified.
         </span><span class="kw">let </span>date = Date::from_julian_day_unchecked(
-            UNIX_EPOCH_JULIAN_DAY + <span class="macro">div_floor!</span>(timestamp, <span class="number">86_400</span>) <span class="kw">as </span>i32,
+            UNIX_EPOCH_JULIAN_DAY + <span class="macro">div_floor!</span>(timestamp, Second.per(Day) <span class="kw">as </span>i64) <span class="kw">as </span>i32,
         );
 
-        <span class="kw">let </span>seconds_within_day = timestamp.rem_euclid(<span class="number">86_400</span>);
+        <span class="kw">let </span>seconds_within_day = timestamp.rem_euclid(Second.per(Day) <span class="kw">as _</span>);
         <span class="kw">let </span>time = Time::__from_hms_nanos_unchecked(
-            (seconds_within_day / <span class="number">3_600</span>) <span class="kw">as _</span>,
-            ((seconds_within_day % <span class="number">3_600</span>) / <span class="number">60</span>) <span class="kw">as _</span>,
-            (seconds_within_day % <span class="number">60</span>) <span class="kw">as _</span>,
+            (seconds_within_day / Second.per(Hour) <span class="kw">as </span>i64) <span class="kw">as _</span>,
+            ((seconds_within_day % Second.per(Hour) <span class="kw">as </span>i64) / Minute.per(Hour) <span class="kw">as </span>i64) <span class="kw">as _</span>,
+            (seconds_within_day % Second.per(Minute) <span class="kw">as </span>i64) <span class="kw">as _</span>,
             <span class="number">0</span>,
         );
 
@@ -1437,9 +1460,10 @@
     <span class="kw">where
         </span>O: HasLogicalOffset,
     {
-        <span class="kw">let </span>datetime = <span class="macro">const_try!</span>(<span class="self">Self</span>::from_unix_timestamp(
-            <span class="macro">div_floor!</span>(timestamp, <span class="number">1_000_000_000</span>) <span class="kw">as </span>i64
-        ));
+        <span class="kw">let </span>datetime = <span class="macro">const_try!</span>(<span class="self">Self</span>::from_unix_timestamp(<span class="macro">div_floor!</span>(
+            timestamp,
+            Nanosecond.per(Second) <span class="kw">as </span>i128
+        ) <span class="kw">as </span>i64));
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             date: datetime.date,
@@ -1447,7 +1471,7 @@
                 datetime.hour(),
                 datetime.minute(),
                 datetime.second(),
-                timestamp.rem_euclid(<span class="number">1_000_000_000</span>) <span class="kw">as </span>u32,
+                timestamp.rem_euclid(Nanosecond.per(Second) <span class="kw">as _</span>) <span class="kw">as </span>u32,
             ),
             offset: maybe_offset_from_offset::&lt;O&gt;(UtcOffset::UTC),
         })
@@ -1608,9 +1632,10 @@
     {
         <span class="kw">let </span>offset = maybe_offset_as_offset::&lt;O&gt;(<span class="self">self</span>.offset).whole_seconds() <span class="kw">as </span>i64;
 
-        <span class="kw">let </span>days = (<span class="self">self</span>.to_julian_day() <span class="kw">as </span>i64 - UNIX_EPOCH_JULIAN_DAY <span class="kw">as </span>i64) * <span class="number">86_400</span>;
-        <span class="kw">let </span>hours = <span class="self">self</span>.hour() <span class="kw">as </span>i64 * <span class="number">3_600</span>;
-        <span class="kw">let </span>minutes = <span class="self">self</span>.minute() <span class="kw">as </span>i64 * <span class="number">60</span>;
+        <span class="kw">let </span>days =
+            (<span class="self">self</span>.to_julian_day() <span class="kw">as </span>i64 - UNIX_EPOCH_JULIAN_DAY <span class="kw">as </span>i64) * Second.per(Day) <span class="kw">as </span>i64;
+        <span class="kw">let </span>hours = <span class="self">self</span>.hour() <span class="kw">as </span>i64 * Second.per(Hour) <span class="kw">as </span>i64;
+        <span class="kw">let </span>minutes = <span class="self">self</span>.minute() <span class="kw">as </span>i64 * Second.per(Minute) <span class="kw">as </span>i64;
         <span class="kw">let </span>seconds = <span class="self">self</span>.second() <span class="kw">as </span>i64;
         days + hours + minutes + seconds - offset
     }
@@ -1619,7 +1644,7 @@
     <span class="kw">where
         </span>O: HasLogicalOffset,
     {
-        <span class="self">self</span>.unix_timestamp() <span class="kw">as </span>i128 * <span class="number">1_000_000_000 </span>+ <span class="self">self</span>.nanosecond() <span class="kw">as </span>i128
+        <span class="self">self</span>.unix_timestamp() <span class="kw">as </span>i128 * Nanosecond.per(Second) <span class="kw">as </span>i128 + <span class="self">self</span>.nanosecond() <span class="kw">as </span>i128
     }
     <span class="comment">// endregion unix timestamp getters
     // endregion: getters
@@ -1649,39 +1674,49 @@
     <span class="kw">where
         </span>O: HasLogicalOffset,
     {
+        <span class="macro">expect_opt!</span>(
+            <span class="self">self</span>.checked_to_offset(offset),
+            <span class="string">&quot;local datetime out of valid range&quot;
+        </span>)
+    }
+
+    <span class="kw">pub const fn </span>checked_to_offset(<span class="self">self</span>, offset: UtcOffset) -&gt; <span class="prelude-ty">Option</span>&lt;DateTime&lt;offset_kind::Fixed&gt;&gt;
+    <span class="kw">where
+        </span>O: HasLogicalOffset,
+    {
         <span class="kw">let </span>self_offset = maybe_offset_as_offset::&lt;O&gt;(<span class="self">self</span>.offset);
 
         <span class="kw">if </span>self_offset.whole_hours() == offset.whole_hours()
             &amp;&amp; self_offset.minutes_past_hour() == offset.minutes_past_hour()
             &amp;&amp; self_offset.seconds_past_minute() == offset.seconds_past_minute()
         {
-            <span class="kw">return </span>DateTime {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(DateTime {
                 date: <span class="self">self</span>.date,
                 time: <span class="self">self</span>.time,
                 offset,
-            };
+            });
         }
 
         <span class="kw">let </span>(year, ordinal, time) = <span class="self">self</span>.to_offset_raw(offset);
 
         <span class="kw">if </span>year &gt; MAX_YEAR || year &lt; MIN_YEAR {
-            <span class="macro">panic!</span>(<span class="string">&quot;local datetime out of valid range&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        DateTime {
+        <span class="prelude-val">Some</span>(DateTime {
             date: Date::__from_ordinal_date_unchecked(year, ordinal),
             time,
             offset,
-        }
+        })
     }
 
     <span class="doccomment">/// Equivalent to `.to_offset(UtcOffset::UTC)`, but returning the year, ordinal, and time. This
     /// avoids constructing an invalid [`Date`] if the new value is out of range.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>to_offset_raw(<span class="self">self</span>, offset: UtcOffset) -&gt; (i32, u16, Time) {
-        <span class="macro">guard!</span>(<span class="kw">let </span><span class="prelude-val">Some</span>(from) = maybe_offset_as_offset_opt::&lt;O&gt;(<span class="self">self</span>.offset) <span class="kw">else </span>{
+        <span class="kw">let </span><span class="prelude-val">Some</span>(from) = maybe_offset_as_offset_opt::&lt;O&gt;(<span class="self">self</span>.offset) <span class="kw">else </span>{
             <span class="comment">// No adjustment is needed because there is no offset.
             </span><span class="kw">return </span>(<span class="self">self</span>.year(), <span class="self">self</span>.ordinal(), <span class="self">self</span>.time);
-        });
+        };
         <span class="kw">let </span>to = offset;
 
         <span class="comment">// Fast path for when no conversion is necessary.
@@ -1701,12 +1736,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ordinal = ordinal <span class="kw">as </span>i16;
 
         <span class="comment">// Cascade the values twice. This is needed because the values are adjusted twice above.
-        </span><span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; minute);
-        <span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; minute);
-        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; hour);
-        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; hour);
-        <span class="macro">cascade!</span>(hour <span class="kw">in </span><span class="number">0</span>..<span class="number">24 </span>=&gt; ordinal);
-        <span class="macro">cascade!</span>(hour <span class="kw">in </span><span class="number">0</span>..<span class="number">24 </span>=&gt; ordinal);
+        </span><span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..Second.per(Minute) <span class="kw">as </span>i16 =&gt; minute);
+        <span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..Second.per(Minute) <span class="kw">as </span>i16 =&gt; minute);
+        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..Minute.per(Hour) <span class="kw">as </span>i16 =&gt; hour);
+        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..Minute.per(Hour) <span class="kw">as </span>i16 =&gt; hour);
+        <span class="macro">cascade!</span>(hour <span class="kw">in </span><span class="number">0</span>..Hour.per(Day) <span class="kw">as </span>i8 =&gt; ordinal);
+        <span class="macro">cascade!</span>(hour <span class="kw">in </span><span class="number">0</span>..Hour.per(Day) <span class="kw">as </span>i8 =&gt; ordinal);
         <span class="macro">cascade!</span>(ordinal =&gt; year);
 
         <span class="macro">debug_assert!</span>(ordinal &gt; <span class="number">0</span>);
@@ -1965,7 +2000,7 @@
         }
 
         <span class="kw">let </span>(year, ordinal, time) = <span class="self">self</span>.to_offset_raw(UtcOffset::UTC);
-        <span class="macro">guard!</span>(<span class="kw">let </span><span class="prelude-val">Ok</span>(date) = Date::from_ordinal_date(year, ordinal) <span class="kw">else </span>{ <span class="kw">return </span><span class="bool-val">false </span>});
+        <span class="kw">let </span><span class="prelude-val">Ok</span>(date) = Date::from_ordinal_date(year, ordinal) <span class="kw">else </span>{ <span class="kw">return </span><span class="bool-val">false </span>};
 
         time.hour() == <span class="number">23
             </span>&amp;&amp; time.minute() == <span class="number">59
@@ -1981,7 +2016,8 @@
     // `OffsetDateTime` is made an alias of `DateTime&lt;Fixed&gt;`. Consider hiding these methods from
     // documentation in the future.
 
-    </span><span class="attr">#[allow(dead_code)] </span><span class="comment">// while functionally private
+    </span><span class="attr">#[doc(hidden)]
+    #[allow(dead_code)] </span><span class="comment">// while functionally private
     </span><span class="attr">#[deprecated(since = <span class="string">&quot;0.3.18&quot;</span>, note = <span class="string">&quot;use `as_hms` instead&quot;</span>)]
     </span><span class="kw">pub const fn </span>to_hms(<span class="self">self</span>) -&gt; (u8, u8, u8)
     <span class="kw">where
@@ -1990,7 +2026,8 @@
         <span class="self">self</span>.time.as_hms()
     }
 
-    <span class="attr">#[allow(dead_code)] </span><span class="comment">// while functionally private
+    <span class="attr">#[doc(hidden)]
+    #[allow(dead_code)] </span><span class="comment">// while functionally private
     </span><span class="attr">#[deprecated(since = <span class="string">&quot;0.3.18&quot;</span>, note = <span class="string">&quot;use `as_hms_milli` instead&quot;</span>)]
     </span><span class="kw">pub const fn </span>to_hms_milli(<span class="self">self</span>) -&gt; (u8, u8, u8, u16)
     <span class="kw">where
@@ -1999,7 +2036,8 @@
         <span class="self">self</span>.time.as_hms_milli()
     }
 
-    <span class="attr">#[allow(dead_code)] </span><span class="comment">// while functionally private
+    <span class="attr">#[doc(hidden)]
+    #[allow(dead_code)] </span><span class="comment">// while functionally private
     </span><span class="attr">#[deprecated(since = <span class="string">&quot;0.3.18&quot;</span>, note = <span class="string">&quot;use `as_hms_micro` instead&quot;</span>)]
     </span><span class="kw">pub const fn </span>to_hms_micro(<span class="self">self</span>) -&gt; (u8, u8, u8, u32)
     <span class="kw">where
@@ -2008,7 +2046,8 @@
         <span class="self">self</span>.time.as_hms_micro()
     }
 
-    <span class="attr">#[allow(dead_code)] </span><span class="comment">// while functionally private
+    <span class="attr">#[doc(hidden)]
+    #[allow(dead_code)] </span><span class="comment">// while functionally private
     </span><span class="attr">#[deprecated(since = <span class="string">&quot;0.3.18&quot;</span>, note = <span class="string">&quot;use `as_hms_nano` instead&quot;</span>)]
     </span><span class="kw">pub const fn </span>to_hms_nano(<span class="self">self</span>) -&gt; (u8, u8, u8, u32)
     <span class="kw">where
@@ -2295,7 +2334,7 @@
 </span><span class="kw">impl </span>From&lt;js_sys::Date&gt; <span class="kw">for </span>DateTime&lt;offset_kind::Fixed&gt; {
     <span class="kw">fn </span>from(js_date: js_sys::Date) -&gt; <span class="self">Self </span>{
         <span class="comment">// get_time() returns milliseconds
-        </span><span class="kw">let </span>timestamp_nanos = (js_date.get_time() * <span class="number">1_000_000.0</span>) <span class="kw">as </span>i128;
+        </span><span class="kw">let </span>timestamp_nanos = (js_date.get_time() * Nanosecond.per(Millisecond) <span class="kw">as </span>f64) <span class="kw">as </span>i128;
         <span class="self">Self</span>::from_unix_timestamp_nanos(timestamp_nanos)
             .expect(<span class="string">&quot;invalid timestamp: Timestamp cannot fit in range&quot;</span>)
     }
@@ -2309,7 +2348,8 @@
 </span><span class="kw">impl </span>From&lt;DateTime&lt;offset_kind::Fixed&gt;&gt; <span class="kw">for </span>js_sys::Date {
     <span class="kw">fn </span>from(datetime: DateTime&lt;offset_kind::Fixed&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// new Date() takes milliseconds
-        </span><span class="kw">let </span>timestamp = (datetime.unix_timestamp_nanos() / <span class="number">1_000_000</span>) <span class="kw">as </span>f64;
+        </span><span class="kw">let </span>timestamp =
+            (datetime.unix_timestamp_nanos() / Nanosecond.per(Millisecond) <span class="kw">as </span>i128) <span class="kw">as </span>f64;
         js_sys::Date::new(<span class="kw-2">&amp;</span>timestamp.into())
     }
 }

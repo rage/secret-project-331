@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.32.0/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.34.1/src/writer.rs`."><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1214,6 +1214,15 @@
 <a href="#1214" id="1214">1214</a>
 <a href="#1215" id="1215">1215</a>
 <a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1223,7 +1232,7 @@
 <span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">use </span><span class="kw">crate</span>::TreeWriting;
-<span class="kw">use </span>usvg_parser::rosvgtree::{AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
+<span class="kw">use </span>usvg_parser::{AId, EId};
 <span class="kw">use </span>usvg_tree::<span class="kw-2">*</span>;
 <span class="kw">use </span>xmlwriter::XmlWriter;
 
@@ -1300,7 +1309,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>filters = Vec::new();
     tree.filters(|filter| {
         <span class="kw">if </span>!filters.iter().any(|other| Rc::ptr_eq(<span class="kw-2">&amp;</span>filter, other)) {
-            filters.push(filter.clone());
+            filters.push(filter);
         }
     });
 
@@ -1526,7 +1535,7 @@
                         <span class="macro">format_args!</span>(<span class="string">&quot;{} {}&quot;</span>, matrix.matrix.columns, matrix.matrix.rows),
                     );
                     xml.write_numbers(AId::KernelMatrix, <span class="kw-2">&amp;</span>matrix.matrix.data);
-                    xml.write_svg_attribute(AId::Divisor, <span class="kw-2">&amp;</span>matrix.divisor.value());
+                    xml.write_svg_attribute(AId::Divisor, <span class="kw-2">&amp;</span>matrix.divisor.get());
                     xml.write_svg_attribute(AId::Bias, <span class="kw-2">&amp;</span>matrix.bias);
                     xml.write_svg_attribute(AId::TargetX, <span class="kw-2">&amp;</span>matrix.matrix.target_x);
                     xml.write_svg_attribute(AId::TargetY, <span class="kw-2">&amp;</span>matrix.matrix.target_y);
@@ -1603,7 +1612,14 @@
                     xml.write_filter_primitive_attrs(fe);
                     xml.write_svg_attribute(AId::Result, <span class="kw-2">&amp;</span>fe.result);
 
-                    xml.write_point(AId::BaseFrequency, turbulence.base_frequency);
+                    xml.write_attribute_fmt(
+                        AId::BaseFrequency.to_str(),
+                        <span class="macro">format_args!</span>(
+                            <span class="string">&quot;{} {}&quot;</span>,
+                            turbulence.base_frequency_x.get(),
+                            turbulence.base_frequency_y.get()
+                        ),
+                    );
                     xml.write_svg_attribute(AId::NumOctaves, <span class="kw-2">&amp;</span>turbulence.num_octaves);
                     xml.write_svg_attribute(AId::Seed, <span class="kw-2">&amp;</span>turbulence.seed);
                     xml.write_svg_attribute(
@@ -1715,7 +1731,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>clip_paths = Vec::new();
     tree.clip_paths(|clip| {
         <span class="kw">if </span>!clip_paths.iter().any(|other| Rc::ptr_eq(<span class="kw-2">&amp;</span>clip, other)) {
-            clip_paths.push(clip.clone());
+            clip_paths.push(clip);
         }
     });
     <span class="kw">for </span>clip <span class="kw">in </span>clip_paths {
@@ -1736,7 +1752,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>masks = Vec::new();
     tree.masks(|mask| {
         <span class="kw">if </span>!masks.iter().any(|other| Rc::ptr_eq(<span class="kw-2">&amp;</span>mask, other)) {
-            masks.push(mask.clone());
+            masks.push(mask);
         }
     });
     <span class="kw">for </span>mask <span class="kw">in </span>masks {
@@ -1806,8 +1822,11 @@
                 // `clip-path` on it.
 
                 </span><span class="kw">if let </span>NodeKind::Path(<span class="kw-2">ref </span>path) = <span class="kw-2">*</span>node.first_child().unwrap().borrow() {
+                    <span class="kw">let </span><span class="kw-2">mut </span>path = path.clone();
+                    path.transform = g.transform.pre_concat(path.transform);
+
                     <span class="kw">let </span>clip_id = g.clip_path.as_ref().map(|cp| cp.id.as_str());
-                    write_path(path, is_clip_path, clip_id, opt, xml);
+                    write_path(<span class="kw-2">&amp;</span>path, is_clip_path, clip_id, opt, xml);
                 }
 
                 <span class="kw">return</span>;
@@ -1835,11 +1854,11 @@
                     .collect();
                 xml.write_svg_attribute(AId::Filter, <span class="kw-2">&amp;</span>ids.join(<span class="string">&quot; &quot;</span>));
 
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>fill) = g.filter_fill {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>fill) = g.filter_fill_paint() {
                     write_paint(AId::Fill, fill, opt, xml);
                 }
 
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>stroke) = g.filter_stroke {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>stroke) = g.filter_stroke_paint() {
                     write_paint(AId::Stroke, stroke, opt, xml);
                 }
             }
@@ -1900,9 +1919,8 @@
     <span class="kw">fn </span>write_transform(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, units: Transform, opt: <span class="kw-2">&amp;</span>XmlOptions);
     <span class="kw">fn </span>write_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: Visibility);
     <span class="kw">fn </span>write_func_iri(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, id: <span class="kw-2">&amp;</span>str, opt: <span class="kw-2">&amp;</span>XmlOptions);
-    <span class="kw">fn </span>write_rect_attrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: Rect);
-    <span class="kw">fn </span>write_numbers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, list: <span class="kw-2">&amp;</span>[f64]);
-    <span class="kw">fn </span>write_point&lt;T: Display&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, p: Point&lt;T&gt;);
+    <span class="kw">fn </span>write_rect_attrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: NonZeroRect);
+    <span class="kw">fn </span>write_numbers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, list: <span class="kw-2">&amp;</span>[f32]);
     <span class="kw">fn </span>write_image_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, kind: <span class="kw-2">&amp;</span>ImageKind);
     <span class="kw">fn </span>write_filter_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, input: <span class="kw-2">&amp;</span>filter::Input);
     <span class="kw">fn </span>write_filter_primitive_attrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fe: <span class="kw-2">&amp;</span>filter::Primitive);
@@ -2007,17 +2025,17 @@
         <span class="kw">if </span>!ts.is_default() {
             <span class="self">self</span>.write_attribute_raw(id.to_str(), |buf| {
                 buf.extend_from_slice(<span class="string">b&quot;matrix(&quot;</span>);
-                write_num(ts.a, buf, opt.transforms_precision);
+                write_num(ts.sx, buf, opt.transforms_precision);
                 buf.push(<span class="string">b&#39; &#39;</span>);
-                write_num(ts.b, buf, opt.transforms_precision);
+                write_num(ts.ky, buf, opt.transforms_precision);
                 buf.push(<span class="string">b&#39; &#39;</span>);
-                write_num(ts.c, buf, opt.transforms_precision);
+                write_num(ts.kx, buf, opt.transforms_precision);
                 buf.push(<span class="string">b&#39; &#39;</span>);
-                write_num(ts.d, buf, opt.transforms_precision);
+                write_num(ts.sy, buf, opt.transforms_precision);
                 buf.push(<span class="string">b&#39; &#39;</span>);
-                write_num(ts.e, buf, opt.transforms_precision);
+                write_num(ts.tx, buf, opt.transforms_precision);
                 buf.push(<span class="string">b&#39; &#39;</span>);
-                write_num(ts.f, buf, opt.transforms_precision);
+                write_num(ts.ty, buf, opt.transforms_precision);
                 buf.extend_from_slice(<span class="string">b&quot;)&quot;</span>);
             });
         }
@@ -2036,14 +2054,14 @@
         <span class="self">self</span>.write_attribute_fmt(aid.to_str(), <span class="macro">format_args!</span>(<span class="string">&quot;url(#{}{})&quot;</span>, prefix, id));
     }
 
-    <span class="kw">fn </span>write_rect_attrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: Rect) {
+    <span class="kw">fn </span>write_rect_attrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: NonZeroRect) {
         <span class="self">self</span>.write_svg_attribute(AId::X, <span class="kw-2">&amp;</span>r.x());
         <span class="self">self</span>.write_svg_attribute(AId::Y, <span class="kw-2">&amp;</span>r.y());
         <span class="self">self</span>.write_svg_attribute(AId::Width, <span class="kw-2">&amp;</span>r.width());
         <span class="self">self</span>.write_svg_attribute(AId::Height, <span class="kw-2">&amp;</span>r.height());
     }
 
-    <span class="kw">fn </span>write_numbers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, list: <span class="kw-2">&amp;</span>[f64]) {
+    <span class="kw">fn </span>write_numbers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, aid: AId, list: <span class="kw-2">&amp;</span>[f32]) {
         <span class="self">self</span>.write_attribute_raw(aid.to_str(), |buf| {
             <span class="kw">for </span>n <span class="kw">in </span>list {
                 buf.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{} &quot;</span>, n)).unwrap();
@@ -2053,10 +2071,6 @@
                 buf.pop();
             }
         });
-    }
-
-    <span class="kw">fn </span>write_point&lt;T: Display&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, p: Point&lt;T&gt;) {
-        <span class="self">self</span>.write_attribute_fmt(id.to_str(), <span class="macro">format_args!</span>(<span class="string">&quot;{} {}&quot;</span>, p.x, p.y));
     }
 
     <span class="kw">fn </span>write_filter_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: AId, input: <span class="kw-2">&amp;</span>filter::Input) {
@@ -2239,53 +2253,57 @@
     xml.write_transform(AId::Transform, path.transform, opt);
 
     xml.write_attribute_raw(<span class="string">&quot;d&quot;</span>, |buf| {
+        <span class="kw">use </span>tiny_skia_path::PathSegment;
+
         <span class="kw">for </span>seg <span class="kw">in </span>path.data.segments() {
             <span class="kw">match </span>seg {
-                PathSegment::MoveTo { x, y } =&gt; {
+                PathSegment::MoveTo(p) =&gt; {
                     buf.extend_from_slice(<span class="string">b&quot;M &quot;</span>);
-                    write_num(x, buf, opt.coordinates_precision);
+                    write_num(p.x, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(y, buf, opt.coordinates_precision);
+                    write_num(p.y, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
                 }
-                PathSegment::LineTo { x, y } =&gt; {
+                PathSegment::LineTo(p) =&gt; {
                     buf.extend_from_slice(<span class="string">b&quot;L &quot;</span>);
-                    write_num(x, buf, opt.coordinates_precision);
+                    write_num(p.x, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(y, buf, opt.coordinates_precision);
+                    write_num(p.y, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
                 }
-                PathSegment::CurveTo {
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    x,
-                    y,
-                } =&gt; {
+                PathSegment::QuadTo(p1, p) =&gt; {
+                    buf.extend_from_slice(<span class="string">b&quot;Q &quot;</span>);
+                    write_num(p1.x, buf, opt.coordinates_precision);
+                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    write_num(p1.y, buf, opt.coordinates_precision);
+                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    write_num(p.x, buf, opt.coordinates_precision);
+                    buf.push(<span class="string">b&#39; &#39;</span>);
+                    write_num(p.y, buf, opt.coordinates_precision);
+                    buf.push(<span class="string">b&#39; &#39;</span>);
+                }
+                PathSegment::CubicTo(p1, p2, p) =&gt; {
                     buf.extend_from_slice(<span class="string">b&quot;C &quot;</span>);
-                    write_num(x1, buf, opt.coordinates_precision);
+                    write_num(p1.x, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(y1, buf, opt.coordinates_precision);
+                    write_num(p1.y, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(x2, buf, opt.coordinates_precision);
+                    write_num(p2.x, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(y2, buf, opt.coordinates_precision);
+                    write_num(p2.y, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(x, buf, opt.coordinates_precision);
+                    write_num(p.x, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
-                    write_num(y, buf, opt.coordinates_precision);
+                    write_num(p.y, buf, opt.coordinates_precision);
                     buf.push(<span class="string">b&#39; &#39;</span>);
                 }
-                PathSegment::ClosePath =&gt; {
+                PathSegment::Close =&gt; {
                     buf.extend_from_slice(<span class="string">b&quot;Z &quot;</span>);
                 }
             }
         }
 
-        <span class="kw">if </span>!path.data.is_empty() {
-            buf.pop();
-        }
+        buf.pop();
     });
 
     xml.end_element();
@@ -2321,7 +2339,7 @@
             xml.write_svg_attribute(AId::StrokeOpacity, <span class="kw-2">&amp;</span>stroke.opacity.get());
         }
 
-        <span class="kw">if </span>!(stroke.dashoffset <span class="kw">as </span>f64).is_fuzzy_zero() {
+        <span class="kw">if </span>!stroke.dashoffset.approx_zero_ulps(<span class="number">4</span>) {
             xml.write_svg_attribute(AId::StrokeDashoffset, <span class="kw-2">&amp;</span>stroke.dashoffset)
         }
 
@@ -2396,7 +2414,7 @@
     xml.end_element();
 }
 
-<span class="kw">static </span>POW_VEC: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[f64] = <span class="kw-2">&amp;</span>[
+<span class="kw">static </span>POW_VEC: <span class="kw-2">&amp;</span>[f32] = <span class="kw-2">&amp;</span>[
     <span class="number">1.0</span>,
     <span class="number">10.0</span>,
     <span class="number">100.0</span>,
@@ -2412,9 +2430,9 @@
     <span class="number">1_000_000_000_000.0</span>,
 ];
 
-<span class="kw">fn </span>write_num(num: f64, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, precision: u8) {
+<span class="kw">fn </span>write_num(num: f32, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, precision: u8) {
     <span class="comment">// If number is an integer, it&#39;s faster to write it as i32.
-    </span><span class="kw">if </span>num.fract().is_fuzzy_zero() {
+    </span><span class="kw">if </span>num.fract().approx_zero_ulps(<span class="number">4</span>) {
         <span class="macro">write!</span>(buf, <span class="string">&quot;{}&quot;</span>, num <span class="kw">as </span>i32).unwrap();
         <span class="kw">return</span>;
     }

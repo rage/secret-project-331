@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["util"]};
+window.SIDEBAR_ITEMS = {"mod":["convert","util"]};

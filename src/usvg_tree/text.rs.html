@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-tree-0.32.0/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_tree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_tree/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-tree-0.34.0/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_tree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_tree/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -342,9 +342,9 @@
 
 </span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>strict_num::NonZeroPositiveF64;
+<span class="kw">use </span>strict_num::NonZeroPositiveF32;
 
-<span class="kw">use crate</span>::{Fill, PaintOrder, PathData, Stroke, TextRendering, Transform, Visibility};
+<span class="kw">use crate</span>::{Fill, PaintOrder, Stroke, TextRendering, Transform, Visibility};
 
 <span class="doccomment">/// A font stretch property.
 </span><span class="attr">#[allow(missing_docs)]
@@ -456,7 +456,7 @@
     Baseline,
     Subscript,
     Superscript,
-    Number(f64),
+    Number(f32),
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>BaselineShift {
@@ -510,11 +510,11 @@
 /// Spans do not overlap inside a text chunk.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>TextSpan {
-    <span class="doccomment">/// A span start in UTF-8 codepoints.
+    <span class="doccomment">/// A span start in bytes.
     ///
     /// Offset is relative to the parent text chunk and not the parent text element.
     </span><span class="kw">pub </span>start: usize,
-    <span class="doccomment">/// A span end in UTF-8 codepoints.
+    <span class="doccomment">/// A span end in bytes.
     ///
     /// Offset is relative to the parent text chunk and not the parent text element.
     </span><span class="kw">pub </span>end: usize,
@@ -527,7 +527,7 @@
     <span class="doccomment">/// A font.
     </span><span class="kw">pub </span>font: Font,
     <span class="doccomment">/// A font size.
-    </span><span class="kw">pub </span>font_size: NonZeroPositiveF64,
+    </span><span class="kw">pub </span>font_size: NonZeroPositiveF32,
     <span class="doccomment">/// Indicates that small caps should be used.
     ///
     /// Set by `font-variant=&quot;small-caps&quot;`
@@ -549,11 +549,11 @@
     <span class="doccomment">/// A visibility property.
     </span><span class="kw">pub </span>visibility: Visibility,
     <span class="doccomment">/// A letter spacing property.
-    </span><span class="kw">pub </span>letter_spacing: f64,
+    </span><span class="kw">pub </span>letter_spacing: f32,
     <span class="doccomment">/// A word spacing property.
-    </span><span class="kw">pub </span>word_spacing: f64,
+    </span><span class="kw">pub </span>word_spacing: f32,
     <span class="doccomment">/// A text length property.
-    </span><span class="kw">pub </span>text_length: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>text_length: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="doccomment">/// A length adjust property.
     </span><span class="kw">pub </span>length_adjust: LengthAdjust,
 }
@@ -579,10 +579,10 @@
     <span class="doccomment">/// A text offset in SVG coordinates.
     ///
     /// Percentage values already resolved.
-    </span><span class="kw">pub </span>start_offset: f64,
+    </span><span class="kw">pub </span>start_offset: f32,
 
     <span class="doccomment">/// A path.
-    </span><span class="kw">pub </span>path: Rc&lt;PathData&gt;,
+    </span><span class="kw">pub </span>path: Rc&lt;tiny_skia_path::Path&gt;,
 }
 
 <span class="doccomment">/// A text chunk flow property.
@@ -602,9 +602,9 @@
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>TextChunk {
     <span class="doccomment">/// An absolute X axis offset.
-    </span><span class="kw">pub </span>x: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>x: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="doccomment">/// An absolute Y axis offset.
-    </span><span class="kw">pub </span>y: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>y: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="doccomment">/// A text anchor.
     </span><span class="kw">pub </span>anchor: TextAnchor,
     <span class="doccomment">/// A list of text chunk style spans.
@@ -621,13 +621,13 @@
 </span><span class="attr">#[derive(Clone, Copy, Debug)]
 </span><span class="kw">pub struct </span>CharacterPosition {
     <span class="doccomment">/// An absolute X axis position.
-    </span><span class="kw">pub </span>x: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>x: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="doccomment">/// An absolute Y axis position.
-    </span><span class="kw">pub </span>y: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>y: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="doccomment">/// A relative X axis offset.
-    </span><span class="kw">pub </span>dx: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>dx: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="doccomment">/// A relative Y axis offset.
-    </span><span class="kw">pub </span>dy: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+    </span><span class="kw">pub </span>dy: <span class="prelude-ty">Option</span>&lt;f32&gt;,
 }
 
 <span class="doccomment">/// A writing mode.
@@ -660,13 +660,13 @@
 
     <span class="doccomment">/// A list of character positions.
     ///
-    /// One position for each Unicode codepoint. Aka `char` in Rust and not UTF-8 byte.
+    /// One position for each Unicode codepoint. Aka `char` in Rust.
     </span><span class="kw">pub </span>positions: Vec&lt;CharacterPosition&gt;,
 
     <span class="doccomment">/// A list of rotation angles.
     ///
-    /// One angle for each Unicode codepoint. Aka `char` in Rust and not UTF-8 byte.
-    </span><span class="kw">pub </span>rotate: Vec&lt;f64&gt;,
+    /// One angle for each Unicode codepoint. Aka `char` in Rust.
+    </span><span class="kw">pub </span>rotate: Vec&lt;f32&gt;,
 
     <span class="doccomment">/// A writing mode.
     </span><span class="kw">pub </span>writing_mode: WritingMode,

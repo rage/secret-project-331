@@ -418,6 +418,25 @@
 <a href="#418" id="418">418</a>
 <a href="#419" id="419">419</a>
 <a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Context;
 <span class="kw">use </span>blake3::Hash;
 <span class="kw">use </span>git2::{build::RepoBuilder, Cred, FetchOptions, RemoteCallbacks, Repository};
@@ -798,7 +817,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>std::str::FromStr;
+    <span class="kw">use </span>std::{fs::Permissions, os::unix::prelude::PermissionsExt, str::FromStr};
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>finds_exercise_dirs() {
@@ -812,6 +831,25 @@
 
         std::fs::create_dir_all(repo.path().join(<span class="string">&quot;part02/01_exercise&quot;</span>)).unwrap();
         std::fs::write(repo.path().join(<span class="string">&quot;part02/01_exercise/file&quot;</span>), <span class="string">&quot;1234&quot;</span>).unwrap();
+
+        <span class="comment">// Make sure permissions are the same on all systems. Some systems have different default permissions in the temp folder.
+        </span><span class="kw">let </span>file_paths = <span class="macro">vec!</span>[
+            repo.path().join(<span class="string">&quot;part01/01_exercise/file&quot;</span>),
+            repo.path().join(<span class="string">&quot;part01/02_exercise/file&quot;</span>),
+            repo.path().join(<span class="string">&quot;part02/01_exercise/file&quot;</span>),
+        ];
+        <span class="kw">let </span>folder_paths = <span class="macro">vec!</span>[
+            repo.path().join(<span class="string">&quot;part01/01_exercise&quot;</span>),
+            repo.path().join(<span class="string">&quot;part01/02_exercise&quot;</span>),
+            repo.path().join(<span class="string">&quot;part02/01_exercise&quot;</span>),
+            repo.path().to_path_buf(),
+        ];
+        <span class="kw">for </span>path <span class="kw">in </span>file_paths {
+            std::fs::set_permissions(path, Permissions::from_mode(<span class="number">0o644</span>)).unwrap();
+        }
+        <span class="kw">for </span>path <span class="kw">in </span>folder_paths {
+            std::fs::set_permissions(path, Permissions::from_mode(<span class="number">0o755</span>)).unwrap();
+        }
 
         <span class="kw">let </span><span class="kw-2">mut </span>paths = find_exercise_directories(repo.path()).<span class="kw">await</span>.unwrap();
         paths.sort_by(|a, b| a.path.cmp(<span class="kw-2">&amp;</span>b.path));

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.32.0/src/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../resvg/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.34.1/src/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../resvg/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -264,299 +264,261 @@
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-</span><span class="kw">use crate</span>::{render::Canvas, ConvTransform};
+</span><span class="kw">use </span><span class="kw">crate</span>::render::TinySkiaPixmapMutExt;
+<span class="kw">use </span><span class="kw">crate</span>::tree::{BBoxes, Node, Tree};
 
-<span class="kw">pub fn </span>draw(image: <span class="kw-2">&amp;</span>usvg::Image, canvas: <span class="kw-2">&amp;mut </span>Canvas) -&gt; usvg::PathBbox {
-    <span class="kw">if </span>image.visibility != usvg::Visibility::Visible {
-        <span class="kw">return </span>image.view_box.rect.to_path_bbox();
-    }
-
-    draw_kind(<span class="kw-2">&amp;</span>image.kind, image.view_box, image.rendering_mode, canvas);
-    image.view_box.rect.to_path_bbox()
+<span class="kw">pub enum </span>ImageKind {
+    <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
+    </span>Raster(tiny_skia::Pixmap),
+    Vector(Tree),
 }
 
-<span class="kw">pub fn </span>draw_kind(
-    kind: <span class="kw-2">&amp;</span>usvg::ImageKind,
-    view_box: usvg::ViewBox,
-    <span class="attr">#[allow(unused_variables)] </span>rendering_mode: usvg::ImageRendering,
-    canvas: <span class="kw-2">&amp;mut </span>Canvas,
-) {
-    <span class="kw">match </span>kind {
-        usvg::ImageKind::SVG(<span class="kw-2">ref </span>subtree) =&gt; {
-            draw_svg(subtree, view_box, canvas);
-        }
+<span class="kw">pub struct </span>Image {
+    <span class="kw">pub </span>transform: tiny_skia::Transform,
+    <span class="kw">pub </span>view_box: usvg::ViewBox,
+    <span class="kw">pub </span>quality: tiny_skia::FilterQuality,
+    <span class="kw">pub </span>kind: ImageKind,
+}
+
+<span class="kw">pub fn </span>convert(image: <span class="kw-2">&amp;</span>usvg::Image, children: <span class="kw-2">&amp;mut </span>Vec&lt;Node&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;BBoxes&gt; {
+    <span class="kw">let </span>object_bbox = image.view_box.rect.to_rect();
+    <span class="kw">let </span>bboxes = BBoxes {
+        object: usvg::BBox::from(object_bbox),
+        transformed_object: usvg::BBox::from(object_bbox.transform(image.transform)<span class="question-mark">?</span>),
+        layer: usvg::BBox::from(object_bbox),
+    };
+
+    <span class="kw">if </span>image.visibility != usvg::Visibility::Visible {
+        <span class="kw">return </span><span class="prelude-val">Some</span>(bboxes);
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>quality = tiny_skia::FilterQuality::Bicubic;
+    <span class="kw">if </span>image.rendering_mode == usvg::ImageRendering::OptimizeSpeed {
+        quality = tiny_skia::FilterQuality::Nearest;
+    }
+
+    <span class="kw">let </span>kind = <span class="kw">match </span>image.kind {
+        usvg::ImageKind::SVG(<span class="kw-2">ref </span>utree) =&gt; ImageKind::Vector(Tree::from_usvg(utree)),
         <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
-        </span>usvg::ImageKind::JPEG(<span class="kw-2">ref </span>data) =&gt; <span class="kw">match </span>raster_images::read_jpeg(data) {
-            <span class="prelude-val">Some</span>(image) =&gt; {
-                raster_images::draw_raster(<span class="kw-2">&amp;</span>image, view_box, rendering_mode, canvas);
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to decode a JPEG image.&quot;</span>),
-        },
-        <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
-        </span>usvg::ImageKind::PNG(<span class="kw-2">ref </span>data) =&gt; <span class="kw">match </span>raster_images::read_png(data) {
-            <span class="prelude-val">Some</span>(image) =&gt; {
-                raster_images::draw_raster(<span class="kw-2">&amp;</span>image, view_box, rendering_mode, canvas);
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to decode a PNG image.&quot;</span>),
-        },
-        <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
-        </span>usvg::ImageKind::GIF(<span class="kw-2">ref </span>data) =&gt; <span class="kw">match </span>raster_images::read_gif(data) {
-            <span class="prelude-val">Some</span>(image) =&gt; {
-                raster_images::draw_raster(<span class="kw-2">&amp;</span>image, view_box, rendering_mode, canvas);
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to decode a GIF image.&quot;</span>),
-        },
+        </span><span class="kw">_ </span>=&gt; ImageKind::Raster(raster_images::decode_raster(image)<span class="question-mark">?</span>),
         <span class="attr">#[cfg(not(feature = <span class="string">&quot;raster-images&quot;</span>))]
         </span><span class="kw">_ </span>=&gt; {
             <span class="macro">log::warn!</span>(<span class="string">&quot;Images decoding was disabled by a build feature.&quot;</span>);
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+    };
+
+    children.push(Node::Image(Image {
+        transform: image.transform,
+        view_box: image.view_box,
+        quality,
+        kind,
+    }));
+
+    <span class="prelude-val">Some</span>(bboxes)
+}
+
+<span class="kw">pub fn </span>render_image(
+    image: <span class="kw-2">&amp;</span>Image,
+    transform: tiny_skia::Transform,
+    pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
+) {
+    <span class="kw">match </span>image.kind {
+        <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
+        </span>ImageKind::Raster(<span class="kw-2">ref </span>raster) =&gt; {
+            raster_images::render_raster(image, raster, transform, pixmap);
+        }
+        ImageKind::Vector(<span class="kw-2">ref </span>rtree) =&gt; {
+            render_vector(image, rtree, transform, pixmap);
         }
     }
 }
 
-<span class="kw">fn </span>draw_svg(tree: <span class="kw-2">&amp;</span>usvg::Tree, view_box: usvg::ViewBox, canvas: <span class="kw-2">&amp;mut </span>Canvas) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-    <span class="kw">let </span>img_size = tree.size.to_screen_size();
-    <span class="kw">let </span>(ts, clip) = usvg::utils::view_box_to_transform_with_clip(<span class="kw-2">&amp;</span>view_box, img_size);
+<span class="kw">fn </span>render_vector(
+    image: <span class="kw-2">&amp;</span>Image,
+    tree: <span class="kw-2">&amp;</span>Tree,
+    transform: tiny_skia::Transform,
+    pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
+) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    <span class="kw">let </span>img_size = tree.size.to_int_size();
+    <span class="kw">let </span>(ts, clip) = <span class="kw">crate</span>::geom::view_box_to_transform_with_clip(<span class="kw-2">&amp;</span>image.view_box, img_size);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>sub_pixmap = canvas.pixmap.to_owned();
-    sub_pixmap.fill(tiny_skia::Color::TRANSPARENT);
-    <span class="kw">let </span><span class="kw-2">mut </span>sub_canvas = Canvas::from(sub_pixmap.as_mut());
-    sub_canvas.transform = canvas.transform;
-    sub_canvas.apply_transform(ts.to_native());
-    <span class="kw">crate</span>::render::render_to_canvas(tree, img_size, <span class="kw-2">&amp;mut </span>sub_canvas);
+    <span class="kw">let </span><span class="kw-2">mut </span>sub_pixmap = tiny_skia::Pixmap::new(pixmap.width(), pixmap.height()).unwrap();
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(clip) = clip {
-        <span class="kw">let </span>rr = tiny_skia::Rect::from_xywh(
-            clip.x() <span class="kw">as </span>f32,
-            clip.y() <span class="kw">as </span>f32,
-            clip.width() <span class="kw">as </span>f32,
-            clip.height() <span class="kw">as </span>f32,
-        )<span class="question-mark">?</span>;
-        canvas.set_clip_rect(rr);
-    }
+    <span class="kw">let </span>source_transform = transform;
+    <span class="kw">let </span>transform = transform.pre_concat(image.transform).pre_concat(ts);
 
-    canvas.pixmap.draw_pixmap(
+    tree.render(transform, <span class="kw-2">&amp;mut </span>sub_pixmap.as_mut());
+
+    <span class="kw">let </span>mask = <span class="kw">if let </span><span class="prelude-val">Some</span>(clip) = clip {
+        pixmap.create_rect_mask(source_transform, clip.to_rect())
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
+
+    pixmap.draw_pixmap(
         <span class="number">0</span>,
         <span class="number">0</span>,
         sub_pixmap.as_ref(),
         <span class="kw-2">&amp;</span>tiny_skia::PixmapPaint::default(),
         tiny_skia::Transform::identity(),
-        canvas.clip.as_ref(),
+        mask.as_ref(),
     );
-    canvas.clip = <span class="prelude-val">None</span>;
 
     <span class="prelude-val">Some</span>(())
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;raster-images&quot;</span>)]
 </span><span class="kw">mod </span>raster_images {
-    <span class="kw">use </span><span class="kw">crate</span>::render::Canvas;
+    <span class="kw">use </span><span class="kw">super</span>::Image;
+    <span class="kw">use </span><span class="kw">crate</span>::render::TinySkiaPixmapMutExt;
+    <span class="kw">use </span><span class="kw">crate</span>::tree::OptionLog;
 
-    <span class="kw">pub fn </span>draw_raster(
-        img: <span class="kw-2">&amp;</span>Image,
-        view_box: usvg::ViewBox,
-        rendering_mode: usvg::ImageRendering,
-        canvas: <span class="kw-2">&amp;mut </span>Canvas,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-        <span class="kw">let </span>(w, h) = img.size.dimensions();
-        <span class="kw">let </span><span class="kw-2">mut </span>pixmap = tiny_skia::Pixmap::new(w, h)<span class="question-mark">?</span>;
-        image_to_pixmap(img, pixmap.data_mut());
-
-        <span class="kw">let </span><span class="kw-2">mut </span>filter = tiny_skia::FilterQuality::Bicubic;
-        <span class="kw">if </span>rendering_mode == usvg::ImageRendering::OptimizeSpeed {
-            filter = tiny_skia::FilterQuality::Nearest;
-        }
-
-        <span class="kw">let </span>r = image_rect(<span class="kw-2">&amp;</span>view_box, img.size);
-        <span class="kw">let </span>rect = tiny_skia::Rect::from_xywh(
-            r.x() <span class="kw">as </span>f32,
-            r.y() <span class="kw">as </span>f32,
-            r.width() <span class="kw">as </span>f32,
-            r.height() <span class="kw">as </span>f32,
-        )<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>ts = tiny_skia::Transform::from_row(
-            rect.width() / pixmap.width() <span class="kw">as </span>f32,
-            <span class="number">0.0</span>,
-            <span class="number">0.0</span>,
-            rect.height() / pixmap.height() <span class="kw">as </span>f32,
-            r.x() <span class="kw">as </span>f32,
-            r.y() <span class="kw">as </span>f32,
-        );
-
-        <span class="kw">let </span>pattern =
-            tiny_skia::Pattern::new(pixmap.as_ref(), tiny_skia::SpreadMode::Pad, filter, <span class="number">1.0</span>, ts);
-        <span class="kw">let </span><span class="kw-2">mut </span>paint = tiny_skia::Paint::default();
-        paint.shader = pattern;
-
-        <span class="kw">if </span>view_box.aspect.slice {
-            <span class="kw">let </span>r = view_box.rect;
-            <span class="kw">let </span>rect = tiny_skia::Rect::from_xywh(
-                r.x() <span class="kw">as </span>f32,
-                r.y() <span class="kw">as </span>f32,
-                r.width() <span class="kw">as </span>f32,
-                r.height() <span class="kw">as </span>f32,
-            )<span class="question-mark">?</span>;
-
-            canvas.set_clip_rect(rect);
-        }
-
-        canvas
-            .pixmap
-            .fill_rect(rect, <span class="kw-2">&amp;</span>paint, canvas.transform, canvas.clip.as_ref());
-        canvas.clip = <span class="prelude-val">None</span>;
-
-        <span class="prelude-val">Some</span>(())
-    }
-
-    <span class="kw">fn </span>image_to_pixmap(image: <span class="kw-2">&amp;</span>Image, pixmap: <span class="kw-2">&amp;mut </span>[u8]) {
-        <span class="kw">use </span>rgb::FromSlice;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-        <span class="kw">match </span><span class="kw-2">&amp;</span>image.data {
-            ImageData::RGB(data) =&gt; {
-                <span class="kw">for </span>p <span class="kw">in </span>data.as_rgb() {
-                    pixmap[i + <span class="number">0</span>] = p.r;
-                    pixmap[i + <span class="number">1</span>] = p.g;
-                    pixmap[i + <span class="number">2</span>] = p.b;
-                    pixmap[i + <span class="number">3</span>] = <span class="number">255</span>;
-
-                    i += tiny_skia::BYTES_PER_PIXEL;
-                }
+    <span class="kw">pub fn </span>decode_raster(image: <span class="kw-2">&amp;</span>usvg::Image) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Pixmap&gt; {
+        <span class="kw">match </span>image.kind {
+            usvg::ImageKind::SVG(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            usvg::ImageKind::JPEG(<span class="kw-2">ref </span>data) =&gt; {
+                decode_jpeg(data).log_none(|| <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to decode a JPEG image.&quot;</span>))
             }
-            ImageData::RGBA(data) =&gt; {
-                <span class="kw">for </span>p <span class="kw">in </span>data.as_rgba() {
-                    <span class="kw">let </span>a = p.a <span class="kw">as </span>f64 / <span class="number">255.0</span>;
-                    pixmap[i + <span class="number">0</span>] = (p.r <span class="kw">as </span>f64 * a + <span class="number">0.5</span>) <span class="kw">as </span>u8;
-                    pixmap[i + <span class="number">1</span>] = (p.g <span class="kw">as </span>f64 * a + <span class="number">0.5</span>) <span class="kw">as </span>u8;
-                    pixmap[i + <span class="number">2</span>] = (p.b <span class="kw">as </span>f64 * a + <span class="number">0.5</span>) <span class="kw">as </span>u8;
-                    pixmap[i + <span class="number">3</span>] = p.a;
-
-                    i += tiny_skia::BYTES_PER_PIXEL;
-                }
+            usvg::ImageKind::PNG(<span class="kw-2">ref </span>data) =&gt; {
+                decode_png(data).log_none(|| <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to decode a PNG image.&quot;</span>))
+            }
+            usvg::ImageKind::GIF(<span class="kw-2">ref </span>data) =&gt; {
+                decode_gif(data).log_none(|| <span class="macro">log::warn!</span>(<span class="string">&quot;Failed to decode a GIF image.&quot;</span>))
             }
         }
     }
 
-    <span class="kw">pub struct </span>Image {
-        data: ImageData,
-        size: usvg::ScreenSize,
+    <span class="kw">fn </span>decode_png(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Pixmap&gt; {
+        tiny_skia::Pixmap::decode_png(data).ok()
     }
 
-    <span class="kw">enum </span>ImageData {
-        RGB(Vec&lt;u8&gt;),
-        RGBA(Vec&lt;u8&gt;),
-    }
-
-    <span class="kw">pub fn </span>read_png(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Image&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>decoder = png::Decoder::new(data);
-        decoder.set_transformations(png::Transformations::normalize_to_color8());
-        <span class="kw">let </span><span class="kw-2">mut </span>reader = decoder.read_info().ok()<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>img_data = <span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
-        <span class="kw">let </span>info = reader.next_frame(<span class="kw-2">&amp;mut </span>img_data).ok()<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>size = usvg::ScreenSize::new(info.width, info.height)<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>data = <span class="kw">match </span>info.color_type {
-            png::ColorType::Rgb =&gt; ImageData::RGB(img_data),
-            png::ColorType::Rgba =&gt; ImageData::RGBA(img_data),
-            png::ColorType::Grayscale =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>rgb_data = Vec::with_capacity(img_data.len() * <span class="number">3</span>);
-                <span class="kw">for </span>gray <span class="kw">in </span>img_data {
-                    rgb_data.push(gray);
-                    rgb_data.push(gray);
-                    rgb_data.push(gray);
-                }
-
-                ImageData::RGB(rgb_data)
-            }
-            png::ColorType::GrayscaleAlpha =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>rgba_data = Vec::with_capacity(img_data.len() * <span class="number">2</span>);
-                <span class="kw">for </span>slice <span class="kw">in </span>img_data.chunks(<span class="number">2</span>) {
-                    <span class="kw">let </span>gray = slice[<span class="number">0</span>];
-                    <span class="kw">let </span>alpha = slice[<span class="number">1</span>];
-                    rgba_data.push(gray);
-                    rgba_data.push(gray);
-                    rgba_data.push(gray);
-                    rgba_data.push(alpha);
-                }
-
-                ImageData::RGBA(rgba_data)
-            }
-            png::ColorType::Indexed =&gt; {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;Indexed PNG is not supported.&quot;</span>);
-                <span class="kw">return </span><span class="prelude-val">None</span>;
-            }
-        };
-
-        <span class="prelude-val">Some</span>(Image { data, size })
-    }
-
-    <span class="kw">pub fn </span>read_jpeg(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Image&gt; {
+    <span class="kw">fn </span>decode_jpeg(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Pixmap&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = jpeg_decoder::Decoder::new(data);
         <span class="kw">let </span>img_data = decoder.decode().ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>info = decoder.info()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>size = usvg::ScreenSize::new(info.width <span class="kw">as </span>u32, info.height <span class="kw">as </span>u32)<span class="question-mark">?</span>;
+        <span class="kw">let </span>size = tiny_skia::IntSize::from_wh(info.width <span class="kw">as </span>u32, info.height <span class="kw">as </span>u32)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>data = <span class="kw">match </span>info.pixel_format {
-            jpeg_decoder::PixelFormat::RGB24 =&gt; ImageData::RGB(img_data),
+            jpeg_decoder::PixelFormat::RGB24 =&gt; img_data,
             jpeg_decoder::PixelFormat::L8 =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>rgb_data = Vec::with_capacity(img_data.len() * <span class="number">3</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>rgb_data: Vec&lt;u8&gt; = Vec::with_capacity(img_data.len() * <span class="number">3</span>);
                 <span class="kw">for </span>gray <span class="kw">in </span>img_data {
                     rgb_data.push(gray);
                     rgb_data.push(gray);
                     rgb_data.push(gray);
                 }
 
-                ImageData::RGB(rgb_data)
+                rgb_data
             }
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         };
 
-        <span class="prelude-val">Some</span>(Image { data, size })
+        <span class="kw">let </span>(w, h) = size.dimensions();
+        <span class="kw">let </span><span class="kw-2">mut </span>pixmap = tiny_skia::Pixmap::new(w, h)<span class="question-mark">?</span>;
+        rgb_to_pixmap(<span class="kw-2">&amp;</span>data, <span class="kw-2">&amp;mut </span>pixmap);
+        <span class="prelude-val">Some</span>(pixmap)
     }
 
-    <span class="kw">pub fn </span>read_gif(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Image&gt; {
+    <span class="kw">fn </span>decode_gif(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Pixmap&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = gif::DecodeOptions::new();
         decoder.set_color_output(gif::ColorOutput::RGBA);
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = decoder.read_info(data).ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>first_frame = decoder.read_next_frame().ok()<span class="question-mark">??</span>;
 
-        <span class="kw">let </span>size =
-            usvg::ScreenSize::new(u32::from(first_frame.width), u32::from(first_frame.height))<span class="question-mark">?</span>;
+        <span class="kw">let </span>size = tiny_skia::IntSize::from_wh(
+            u32::from(first_frame.width),
+            u32::from(first_frame.height),
+        )<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Some</span>(Image {
-            data: ImageData::RGBA(first_frame.buffer.to_vec()),
-            size,
-        })
+        <span class="kw">let </span>(w, h) = size.dimensions();
+        <span class="kw">let </span><span class="kw-2">mut </span>pixmap = tiny_skia::Pixmap::new(w, h)<span class="question-mark">?</span>;
+        rgba_to_pixmap(<span class="kw-2">&amp;</span>first_frame.buffer, <span class="kw-2">&amp;mut </span>pixmap);
+        <span class="prelude-val">Some</span>(pixmap)
+    }
+
+    <span class="kw">fn </span>rgb_to_pixmap(data: <span class="kw-2">&amp;</span>[u8], pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap) {
+        <span class="kw">use </span>rgb::FromSlice;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+        <span class="kw">let </span>dst = pixmap.data_mut();
+        <span class="kw">for </span>p <span class="kw">in </span>data.as_rgb() {
+            dst[i + <span class="number">0</span>] = p.r;
+            dst[i + <span class="number">1</span>] = p.g;
+            dst[i + <span class="number">2</span>] = p.b;
+            dst[i + <span class="number">3</span>] = <span class="number">255</span>;
+
+            i += tiny_skia::BYTES_PER_PIXEL;
+        }
+    }
+
+    <span class="kw">fn </span>rgba_to_pixmap(data: <span class="kw-2">&amp;</span>[u8], pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::Pixmap) {
+        <span class="kw">use </span>rgb::FromSlice;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+        <span class="kw">let </span>dst = pixmap.data_mut();
+        <span class="kw">for </span>p <span class="kw">in </span>data.as_rgba() {
+            <span class="kw">let </span>a = p.a <span class="kw">as </span>f64 / <span class="number">255.0</span>;
+            dst[i + <span class="number">0</span>] = (p.r <span class="kw">as </span>f64 * a + <span class="number">0.5</span>) <span class="kw">as </span>u8;
+            dst[i + <span class="number">1</span>] = (p.g <span class="kw">as </span>f64 * a + <span class="number">0.5</span>) <span class="kw">as </span>u8;
+            dst[i + <span class="number">2</span>] = (p.b <span class="kw">as </span>f64 * a + <span class="number">0.5</span>) <span class="kw">as </span>u8;
+            dst[i + <span class="number">3</span>] = p.a;
+
+            i += tiny_skia::BYTES_PER_PIXEL;
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>render_raster(
+        image: <span class="kw-2">&amp;</span>Image,
+        raster: <span class="kw-2">&amp;</span>tiny_skia::Pixmap,
+        transform: tiny_skia::Transform,
+        pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+        <span class="kw">let </span>img_size = tiny_skia::IntSize::from_wh(raster.width(), raster.height())<span class="question-mark">?</span>;
+        <span class="kw">let </span>rect = image_rect(<span class="kw-2">&amp;</span>image.view_box, img_size);
+
+        <span class="kw">let </span>ts = tiny_skia::Transform::from_row(
+            rect.width() / raster.width() <span class="kw">as </span>f32,
+            <span class="number">0.0</span>,
+            <span class="number">0.0</span>,
+            rect.height() / raster.height() <span class="kw">as </span>f32,
+            rect.x(),
+            rect.y(),
+        );
+
+        <span class="kw">let </span>pattern = tiny_skia::Pattern::new(
+            raster.as_ref(),
+            tiny_skia::SpreadMode::Pad,
+            image.quality,
+            <span class="number">1.0</span>,
+            ts,
+        );
+        <span class="kw">let </span><span class="kw-2">mut </span>paint = tiny_skia::Paint::default();
+        paint.shader = pattern;
+
+        <span class="kw">let </span>mask = <span class="kw">if </span>image.view_box.aspect.slice {
+            pixmap.create_rect_mask(transform, image.view_box.rect.to_rect())
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+
+        <span class="kw">let </span>transform = transform.pre_concat(image.transform);
+        pixmap.fill_rect(rect.to_rect(), <span class="kw-2">&amp;</span>paint, transform, mask.as_ref());
+
+        <span class="prelude-val">Some</span>(())
     }
 
     <span class="doccomment">/// Calculates an image rect depending on the provided view box.
-    </span><span class="kw">fn </span>image_rect(view_box: <span class="kw-2">&amp;</span>usvg::ViewBox, img_size: usvg::ScreenSize) -&gt; usvg::Rect {
-        <span class="kw">let </span>new_size = img_size.to_size().fit_view_box(view_box);
+    </span><span class="kw">fn </span>image_rect(
+        view_box: <span class="kw-2">&amp;</span>usvg::ViewBox,
+        img_size: tiny_skia::IntSize,
+    ) -&gt; tiny_skia::NonZeroRect {
+        <span class="kw">let </span>new_size = <span class="kw">crate</span>::geom::fit_view_box(img_size.to_size(), view_box);
         <span class="kw">let </span>(x, y) = usvg::utils::aligned_pos(
             view_box.aspect.align,
             view_box.rect.x(),
@@ -565,7 +527,7 @@
             view_box.rect.height() - new_size.height(),
         );
 
-        new_size.to_rect(x, y)
+        new_size.to_non_zero_rect(x, y)
     }
 }
 </code></pre></div></section></main></body></html>

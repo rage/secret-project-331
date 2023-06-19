@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.32.0/src/use_node.rs`."><title>use_node.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.34.0/src/use_node.rs`."><title>use_node.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -324,23 +324,31 @@
 <a href="#324" id="324">324</a>
 <a href="#325" id="325">325</a>
 <a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 </span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>rosvgtree::{<span class="self">self</span>, AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
 <span class="kw">use </span>svgtypes::{Length, LengthUnit};
 <span class="kw">use </span>usvg_tree::{
-    Group, IsValidLength, Node, NodeExt, NodeKind, Path, PathData, Rect, Size, Transform,
+    tiny_skia_path, Group, IsValidLength, Node, NodeExt, NodeKind, NonZeroRect, Path, Size,
+    Transform,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::rosvgtree_ext::SvgNodeExt2;
-<span class="kw">use crate</span>::{converter, SvgNodeExt};
+<span class="kw">use </span><span class="kw">crate</span>::converter;
+<span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, SvgNode};
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(
-    node: rosvgtree::Node,
+    node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Node,
@@ -355,24 +363,24 @@
     }
 
     <span class="comment">// We require an original transformation to setup &#39;clipPath&#39;.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>orig_ts: Transform = node.parse_attribute(AId::Transform).unwrap_or_default();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>orig_ts: Transform = node.attribute(AId::Transform).unwrap_or_default();
     <span class="kw">let </span><span class="kw-2">mut </span>new_ts = Transform::default();
 
     {
         <span class="kw">let </span>x = node.convert_user_length(AId::X, state, Length::zero());
         <span class="kw">let </span>y = node.convert_user_length(AId::Y, state, Length::zero());
-        new_ts.translate(x, y);
+        new_ts = new_ts.pre_translate(x, y);
     }
 
     <span class="kw">let </span>linked_to_symbol = child.tag_name() == <span class="prelude-val">Some</span>(EId::Symbol);
 
     <span class="kw">if </span>linked_to_symbol {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = viewbox_transform(node, child, state) {
-            new_ts.append(<span class="kw-2">&amp;</span>ts);
+            new_ts = new_ts.pre_concat(ts);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(clip_rect) = get_clip_rect(node, child, state) {
-            <span class="kw">let </span><span class="kw-2">mut </span>g = clip_element(node, clip_rect, orig_ts, cache, parent);
+            <span class="kw">let </span><span class="kw-2">mut </span>g = clip_element(node, clip_rect, orig_ts, state, cache, parent);
 
             <span class="comment">// Make group for `use`.
             </span><span class="kw">let </span><span class="kw-2">mut </span>parent = <span class="kw">match </span>converter::convert_group(node, state, <span class="bool-val">true</span>, cache, <span class="kw-2">&amp;mut </span>g) {
@@ -395,7 +403,7 @@
         }
     }
 
-    orig_ts.append(<span class="kw-2">&amp;</span>new_ts);
+    orig_ts = orig_ts.pre_concat(new_ts);
 
     <span class="kw">if </span>linked_to_symbol {
         <span class="comment">// Make group for `use`.
@@ -453,23 +461,23 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_svg(
-    node: rosvgtree::Node,
+    node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Node,
 ) {
     <span class="comment">// We require original transformation to setup &#39;clipPath&#39;.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>orig_ts: Transform = node.parse_attribute(AId::Transform).unwrap_or_default();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>orig_ts: Transform = node.attribute(AId::Transform).unwrap_or_default();
     <span class="kw">let </span><span class="kw-2">mut </span>new_ts = Transform::default();
 
     {
         <span class="kw">let </span>x = node.convert_user_length(AId::X, state, Length::zero());
         <span class="kw">let </span>y = node.convert_user_length(AId::Y, state, Length::zero());
-        new_ts.translate(x, y);
+        new_ts = new_ts.pre_translate(x, y);
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = viewbox_transform(node, node, state) {
-        new_ts.append(<span class="kw-2">&amp;</span>ts);
+        new_ts = new_ts.pre_concat(ts);
     }
 
     <span class="comment">// We have to create a new state which would have its viewBox set to the current SVG element.
@@ -490,23 +498,24 @@
             </span>w = new_state.use_size.<span class="number">0</span>.unwrap_or(w);
             h = new_state.use_size.<span class="number">1</span>.unwrap_or(h);
 
-            Rect::new(x, y, w, h).unwrap_or(new_state.view_box)
+            NonZeroRect::from_xywh(x, y, w, h).unwrap_or(new_state.view_box)
         }
     };
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(clip_rect) = get_clip_rect(node, node, <span class="kw-2">&amp;</span>state) {
-        <span class="kw">let </span><span class="kw-2">mut </span>g = clip_element(node, clip_rect, orig_ts, cache, parent);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(clip_rect) = get_clip_rect(node, node, state) {
+        <span class="kw">let </span><span class="kw-2">mut </span>g = clip_element(node, clip_rect, orig_ts, state, cache, parent);
         convert_children(node, new_ts, <span class="kw-2">&amp;</span>new_state, cache, <span class="kw-2">&amp;mut </span>g);
     } <span class="kw">else </span>{
-        orig_ts.append(<span class="kw-2">&amp;</span>new_ts);
+        orig_ts = orig_ts.pre_concat(new_ts);
         convert_children(node, orig_ts, <span class="kw-2">&amp;</span>new_state, cache, parent);
     }
 }
 
 <span class="kw">fn </span>clip_element(
-    node: rosvgtree::Node,
-    clip_rect: Rect,
+    node: SvgNode,
+    clip_rect: NonZeroRect,
     transform: Transform,
+    state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Node,
 ) -&gt; Node {
@@ -533,14 +542,21 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>clip_path = usvg_tree::ClipPath::default();
     clip_path.id = cache.gen_clip_path_id();
 
-    clip_path.root.append_kind(NodeKind::Path(Path {
-        fill: <span class="prelude-val">Some</span>(usvg_tree::Fill::default()),
-        data: Rc::new(PathData::from_rect(clip_rect)),
-        ..Path::default()
-    }));
+    <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(Rc::new(tiny_skia_path::PathBuilder::from_rect(
+        clip_rect.to_rect(),
+    )));
+    path.fill = <span class="prelude-val">Some</span>(usvg_tree::Fill::default());
+    clip_path.root.append_kind(NodeKind::Path(path));
+
+    <span class="comment">// Nodes generated by markers must not have an ID. Otherwise we would have duplicates.
+    </span><span class="kw">let </span>id = <span class="kw">if </span>state.parent_markers.is_empty() {
+        node.element_id().to_string()
+    } <span class="kw">else </span>{
+        String::new()
+    };
 
     parent.append_kind(NodeKind::Group(Group {
-        id: node.element_id().to_string(),
+        id,
         transform,
         clip_path: <span class="prelude-val">Some</span>(Rc::new(clip_path)),
         ..Group::default()
@@ -548,13 +564,13 @@
 }
 
 <span class="kw">fn </span>convert_children(
-    node: rosvgtree::Node,
+    node: SvgNode,
     transform: Transform,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Node,
 ) {
-    <span class="kw">let </span>required = !transform.is_default();
+    <span class="kw">let </span>required = !transform.is_identity();
     <span class="kw">let </span><span class="kw-2">mut </span>parent = <span class="kw">match </span>converter::convert_group(node, state, required, cache, parent) {
         converter::GroupKind::Create(g) =&gt; {
             <span class="kw">if let </span>NodeKind::Group(<span class="kw-2">ref mut </span>g) = <span class="kw-2">*</span>g.borrow_mut() {
@@ -575,10 +591,10 @@
 }
 
 <span class="kw">fn </span>get_clip_rect(
-    use_node: rosvgtree::Node,
-    symbol_node: rosvgtree::Node,
+    use_node: SvgNode,
+    symbol_node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
-) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
+) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
     <span class="comment">// No need to clip elements with overflow:visible.
     </span><span class="kw">if </span><span class="macro">matches!</span>(
         symbol_node.attribute(AId::Overflow),
@@ -617,10 +633,10 @@
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    Rect::new(x, y, w, h)
+    NonZeroRect::from_xywh(x, y, w, h)
 }
 
-<span class="kw">fn </span>use_node_size(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; (f64, f64) {
+<span class="kw">fn </span>use_node_size(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; (f32, f32) {
     <span class="kw">let </span>def = Length::new(<span class="number">100.0</span>, LengthUnit::Percent);
     <span class="kw">let </span>w = node.convert_user_length(AId::Width, state, def);
     <span class="kw">let </span>h = node.convert_user_length(AId::Height, state, def);
@@ -628,8 +644,8 @@
 }
 
 <span class="kw">fn </span>viewbox_transform(
-    node: rosvgtree::Node,
-    linked: rosvgtree::Node,
+    node: SvgNode,
+    linked: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;Transform&gt; {
     <span class="kw">let </span>(<span class="kw-2">mut </span>w, <span class="kw-2">mut </span>h) = use_node_size(node, state);
@@ -642,10 +658,10 @@
         h = state.use_size.<span class="number">1</span>.unwrap_or(h);
     }
 
-    <span class="kw">let </span>size = Size::new(w, h)<span class="question-mark">?</span>;
+    <span class="kw">let </span>size = Size::from_wh(w, h)<span class="question-mark">?</span>;
     <span class="kw">let </span>vb = linked.parse_viewbox()<span class="question-mark">?</span>;
     <span class="kw">let </span>aspect = linked
-        .parse_attribute(AId::PreserveAspectRatio)
+        .attribute(AId::PreserveAspectRatio)
         .unwrap_or_default();
 
     <span class="prelude-val">Some</span>(usvg_tree::utils::view_box_to_transform(vb, aspect, size))

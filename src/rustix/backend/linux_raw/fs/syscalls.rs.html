@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustix-0.37.18/src/backend/linux_raw/fs/syscalls.rs`."><title>syscalls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="rustix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../rustix/index.html"><img class="rust-logo" src="../../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustix-0.37.20/src/backend/linux_raw/fs/syscalls.rs`."><title>syscalls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="rustix" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../../rustix/index.html"><img class="rust-logo" src="../../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1668,6 +1668,17 @@
 <a href="#1668" id="1668">1668</a>
 <a href="#1669" id="1669">1669</a>
 <a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! linux_raw syscalls supporting `rustix::fs`.
 //!
 //! # Safety
@@ -1702,7 +1713,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::process::{Gid, Uid};
 <span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
 </span><span class="kw">use </span>core::convert::TryInto;
-<span class="kw">use </span>core::mem::MaybeUninit;
+<span class="kw">use </span>core::mem::{transmute, zeroed, MaybeUninit};
 <span class="attr">#[cfg(target_arch = <span class="string">&quot;mips64&quot;</span>)]
 </span><span class="kw">use </span>linux_raw_sys::general::stat <span class="kw">as </span>linux_stat64;
 <span class="kw">use </span>linux_raw_sys::general::{
@@ -2112,9 +2123,15 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fstat(fd: BorrowedFd&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; io::Result&lt;Stat&gt; {
-    <span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
+    <span class="comment">// 32-bit and mips64 Linux: `struct stat64` is not y2038 compatible; use
+    // `statx`.
+    //
+    // And, some old platforms don&#39;t support `statx`, and some fail with a
+    // confusing error code, so we call `crate::fs::statx` to handle that. If
+    // `statx` isn&#39;t available, fall back to the buggy system call.
+    </span><span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
     </span>{
-        <span class="kw">match </span>statx(fd, <span class="macro">cstr!</span>(<span class="string">&quot;&quot;</span>), AtFlags::EMPTY_PATH, StatxFlags::BASIC_STATS) {
+        <span class="kw">match </span><span class="kw">crate</span>::fs::statx(fd, <span class="macro">cstr!</span>(<span class="string">&quot;&quot;</span>), AtFlags::EMPTY_PATH, StatxFlags::BASIC_STATS) {
             <span class="prelude-val">Ok</span>(x) =&gt; statx_to_stat(x),
             <span class="prelude-val">Err</span>(io::Errno::NOSYS) =&gt; fstat_old(fd),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
@@ -2148,9 +2165,10 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>stat(filename: <span class="kw-2">&amp;</span>CStr) -&gt; io::Result&lt;Stat&gt; {
-    <span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
+    <span class="comment">// See the comments in `fstat` about using `crate::fs::statx` here.
+    </span><span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
     </span>{
-        <span class="kw">match </span>statx(
+        <span class="kw">match </span><span class="kw">crate</span>::fs::statx(
             <span class="kw">crate</span>::fs::cwd().as_fd(),
             filename,
             AtFlags::empty(),
@@ -2207,9 +2225,10 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>statat(dirfd: BorrowedFd&lt;<span class="lifetime">&#39;_</span>&gt;, filename: <span class="kw-2">&amp;</span>CStr, flags: AtFlags) -&gt; io::Result&lt;Stat&gt; {
-    <span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
+    <span class="comment">// See the comments in `fstat` about using `crate::fs::statx` here.
+    </span><span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
     </span>{
-        <span class="kw">match </span>statx(dirfd, filename, flags, StatxFlags::BASIC_STATS) {
+        <span class="kw">match </span><span class="kw">crate</span>::fs::statx(dirfd, filename, flags, StatxFlags::BASIC_STATS) {
             <span class="prelude-val">Ok</span>(x) =&gt; statx_to_stat(x),
             <span class="prelude-val">Err</span>(io::Errno::NOSYS) =&gt; statat_old(dirfd, filename, flags),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
@@ -2261,9 +2280,10 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lstat(filename: <span class="kw-2">&amp;</span>CStr) -&gt; io::Result&lt;Stat&gt; {
-    <span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
+    <span class="comment">// See the comments in `fstat` about using `crate::fs::statx` here.
+    </span><span class="attr">#[cfg(any(target_pointer_width = <span class="string">&quot;32&quot;</span>, target_arch = <span class="string">&quot;mips64&quot;</span>))]
     </span>{
-        <span class="kw">match </span>statx(
+        <span class="kw">match </span><span class="kw">crate</span>::fs::statx(
             <span class="kw">crate</span>::fs::cwd().as_fd(),
             filename,
             AtFlags::SYMLINK_NOFOLLOW,
@@ -2747,7 +2767,7 @@
             l_start: <span class="number">0</span>,
             l_len: <span class="number">0</span>,
 
-            ..core::mem::zeroed()
+            ..zeroed()
         };
 
         <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
@@ -2978,9 +2998,11 @@
     flags: AtFlags,
 ) -&gt; io::Result&lt;()&gt; {
     <span class="comment">// Assert that `Timestamps` has the expected layout.
-    </span><span class="kw">let _ </span>= <span class="kw">unsafe </span>{ core::mem::transmute::&lt;Timestamps, [__kernel_timespec; <span class="number">2</span>]&gt;(times.clone()) };
+    </span><span class="kw">let _ </span>= <span class="kw">unsafe </span>{ transmute::&lt;Timestamps, [__kernel_timespec; <span class="number">2</span>]&gt;(times.clone()) };
 
-    <span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
+    <span class="comment">// `utimensat_time64` was introduced in Linux 5.1. The old `utimensat`
+    // syscall is not y2038-compatible on 32-bit architectures.
+    </span><span class="attr">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
     </span><span class="kw">unsafe </span>{
         <span class="kw">match </span>ret(<span class="macro">syscall_readonly!</span>(
             __NR_utimensat_time64,
@@ -3070,9 +3092,9 @@
     }
 
     <span class="comment">// Linux&#39;s `faccessat` syscall doesn&#39;t have a flags argument, so if we have
-    // any flags, use the newer `faccessat2` which does. Unless we&#39;re on
-    // Android where using newer system calls can cause seccomp to abort the
-    // process.
+    // any flags, use the newer `faccessat2` introduced in Linux 5.8 which
+    // does. Unless we&#39;re on Android where using newer system calls can cause
+    // seccomp to abort the process.
     </span><span class="attr">#[cfg(not(target_os = <span class="string">&quot;android&quot;</span>))]
     </span><span class="kw">if </span>!flags.is_empty() {
         <span class="kw">unsafe </span>{
@@ -3159,7 +3181,7 @@
 }
 
 <span class="attr">#[inline]
-#[cfg(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
+#[cfg(linux_kernel)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mount(
     source: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CStr&gt;,
     target: <span class="kw-2">&amp;</span>CStr,
@@ -3180,7 +3202,7 @@
 }
 
 <span class="attr">#[inline]
-#[cfg(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;linux&quot;</span>))]
+#[cfg(linux_kernel)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unmount(target: <span class="kw-2">&amp;</span>CStr, flags: <span class="kw">super</span>::types::UnmountFlags) -&gt; io::Result&lt;()&gt; {
     <span class="kw">unsafe </span>{ ret(<span class="macro">syscall_readonly!</span>(__NR_umount2, target, flags)) }
 }
@@ -3326,16 +3348,16 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>removexattr(path: <span class="kw-2">&amp;</span>CStr, name: <span class="kw-2">&amp;</span>CStr) -&gt; io::Result&lt;()&gt; {
-    <span class="kw">unsafe </span>{ ret(<span class="macro">syscall!</span>(__NR_removexattr, path, name)) }
+    <span class="kw">unsafe </span>{ ret(<span class="macro">syscall_readonly!</span>(__NR_removexattr, path, name)) }
 }
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lremovexattr(path: <span class="kw-2">&amp;</span>CStr, name: <span class="kw-2">&amp;</span>CStr) -&gt; io::Result&lt;()&gt; {
-    <span class="kw">unsafe </span>{ ret(<span class="macro">syscall!</span>(__NR_lremovexattr, path, name)) }
+    <span class="kw">unsafe </span>{ ret(<span class="macro">syscall_readonly!</span>(__NR_lremovexattr, path, name)) }
 }
 
 <span class="attr">#[inline]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fremovexattr(fd: BorrowedFd&lt;<span class="lifetime">&#39;_</span>&gt;, name: <span class="kw-2">&amp;</span>CStr) -&gt; io::Result&lt;()&gt; {
-    <span class="kw">unsafe </span>{ ret(<span class="macro">syscall!</span>(__NR_fremovexattr, fd, name)) }
+    <span class="kw">unsafe </span>{ ret(<span class="macro">syscall_readonly!</span>(__NR_fremovexattr, fd, name)) }
 }
 </code></pre></div></section></main></body></html>

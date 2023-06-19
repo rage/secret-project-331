@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/aes-gcm-0.10.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="aes_gcm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../aes_gcm/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/aes-gcm-0.10.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="aes_gcm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../aes_gcm/index.html"><img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -309,6 +309,68 @@
 <a href="#309" id="309">309</a>
 <a href="#310" id="310">310</a>
 <a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
 </pre></div><pre class="rust"><code><span class="attr">#![no_std]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc = <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]
@@ -323,19 +385,37 @@
 //!
 //! Simple usage (allocating, no associated data):
 //!
-</span><span class="attr">#![cfg_attr(all(feature = <span class="string">&quot;getrandom&quot;</span>, feature = <span class="string">&quot;std&quot;</span>), doc = <span class="string">&quot;```&quot;</span>)]
-#![cfg_attr(not(all(feature = <span class="string">&quot;getrandom&quot;</span>, feature = <span class="string">&quot;std&quot;</span>)), doc = <span class="string">&quot;```ignore&quot;</span>)]
-</span><span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! ```
 //! use aes_gcm::{
-//!     aead::{Aead, KeyInit, OsRng},
-//!     Aes256Gcm, Nonce // Or `Aes128Gcm`
+//!     aead::{Aead, AeadCore, KeyInit, OsRng},
+//!     Aes256Gcm, Nonce, Key // Or `Aes128Gcm`
 //! };
 //!
-//! let key = Aes256Gcm::generate_key(&amp;mut OsRng);
+//! # fn gen_key() -&gt; Result&lt;(), core::array::TryFromSliceError&gt; {
+//! // The encryption key can be generated randomly:
+//! # #[cfg(all(feature = &quot;getrandom&quot;, feature = &quot;std&quot;))] {
+//! let key = Aes256Gcm::generate_key(OsRng);
+//! # }
+//!
+//! // Transformed from a byte array:
+//! let key: &amp;[u8; 32] = &amp;[42; 32];
+//! let key: &amp;Key&lt;Aes256Gcm&gt; = key.into();
+//!
+//! // Note that you can get byte array from slice using the `TryInto` trait:
+//! let key: &amp;[u8] = &amp;[42; 32];
+//! let key: [u8; 32] = key.try_into()?;
+//! # Ok(()) }
+//!
+//! # fn main() -&gt; Result&lt;(), aes_gcm::Error&gt; {
+//! // Alternatively, the key can be transformed directly from a byte slice
+//! // (panicks on length mismatch):
+//! # let key: &amp;[u8] = &amp;[42; 32];
+//! let key = Key::&lt;Aes256Gcm&gt;::from_slice(key);
+//!
 //! let cipher = Aes256Gcm::new(&amp;key);
-//! let nonce = Nonce::from_slice(b&quot;unique nonce&quot;); // 96-bits; unique per message
-//! let ciphertext = cipher.encrypt(nonce, b&quot;plaintext message&quot;.as_ref())?;
-//! let plaintext = cipher.decrypt(nonce, ciphertext.as_ref())?;
+//! let nonce = Aes256Gcm::generate_nonce(&amp;mut OsRng); // 96-bits; unique per message
+//! let ciphertext = cipher.encrypt(&amp;nonce, b&quot;plaintext message&quot;.as_ref())?;
+//! let plaintext = cipher.decrypt(&amp;nonce, ciphertext.as_ref())?;
 //! assert_eq!(&amp;plaintext, b&quot;plaintext message&quot;);
 //! # Ok(())
 //! # }
@@ -366,29 +446,33 @@
 </span>)]
 </span><span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 //! use aes_gcm::{
-//!     aead::{AeadInPlace, KeyInit, OsRng, heapless::Vec},
+//!     aead::{AeadCore, AeadInPlace, KeyInit, OsRng, heapless::Vec},
 //!     Aes256Gcm, Nonce, // Or `Aes128Gcm`
 //! };
 //!
 //! let key = Aes256Gcm::generate_key(&amp;mut OsRng);
 //! let cipher = Aes256Gcm::new(&amp;key);
-//! let nonce = Nonce::from_slice(b&quot;unique nonce&quot;); // 96-bits; unique per message
+//! let nonce = Aes256Gcm::generate_nonce(&amp;mut OsRng); // 96-bits; unique per message
 //!
-//! let mut buffer: Vec&lt;u8, 128&gt; = Vec::new(); // Note: buffer needs 16-bytes overhead for auth tag tag
+//! let mut buffer: Vec&lt;u8, 128&gt; = Vec::new(); // Note: buffer needs 16-bytes overhead for auth tag
 //! buffer.extend_from_slice(b&quot;plaintext message&quot;);
 //!
 //! // Encrypt `buffer` in-place, replacing the plaintext contents with ciphertext
-//! cipher.encrypt_in_place(nonce, b&quot;&quot;, &amp;mut buffer)?;
+//! cipher.encrypt_in_place(&amp;nonce, b&quot;&quot;, &amp;mut buffer)?;
 //!
 //! // `buffer` now contains the message ciphertext
 //! assert_ne!(&amp;buffer, b&quot;plaintext message&quot;);
 //!
 //! // Decrypt `buffer` in-place, replacing its ciphertext context with the original plaintext
-//! cipher.decrypt_in_place(nonce, b&quot;&quot;, &amp;mut buffer)?;
+//! cipher.decrypt_in_place(&amp;nonce, b&quot;&quot;, &amp;mut buffer)?;
 //! assert_eq!(&amp;buffer, b&quot;plaintext message&quot;);
 //! # Ok(())
 //! # }
 //! ```
+//!
+//! Similarly, enabling the `arrayvec` feature of this crate will provide an impl of
+//! [`aead::Buffer`] for `arrayvec::ArrayVec` (re-exported from the [`aead`] crate as
+//! [`aead::arrayvec::ArrayVec`]).
 
 </span><span class="kw">pub use </span>aead::{<span class="self">self</span>, AeadCore, AeadInPlace, Error, Key, KeyInit, KeySizeUser};
 
@@ -422,7 +506,28 @@
 </span><span class="kw">pub type </span>Nonce&lt;NonceSize&gt; = GenericArray&lt;u8, NonceSize&gt;;
 
 <span class="doccomment">/// AES-GCM tags.
-</span><span class="kw">pub type </span>Tag = GenericArray&lt;u8, U16&gt;;
+</span><span class="kw">pub type </span>Tag&lt;TagSize = U16&gt; = GenericArray&lt;u8, TagSize&gt;;
+
+<span class="doccomment">/// Trait implemented for valid tag sizes, i.e.
+/// [`U12`][consts::U12], [`U13`][consts::U13], [`U14`][consts::U14],
+/// [`U15`][consts::U15] and [`U16`][consts::U16].
+</span><span class="kw">pub trait </span>TagSize: private::SealedTagSize {}
+
+<span class="kw">impl</span>&lt;T: private::SealedTagSize&gt; TagSize <span class="kw">for </span>T {}
+
+<span class="kw">mod </span>private {
+    <span class="kw">use </span>aead::generic_array::ArrayLength;
+    <span class="kw">use </span>cipher::{consts, Unsigned};
+
+    <span class="comment">// Sealed traits stop other crates from implementing any traits that use it.
+    </span><span class="kw">pub trait </span>SealedTagSize: ArrayLength&lt;u8&gt; + Unsigned {}
+
+    <span class="kw">impl </span>SealedTagSize <span class="kw">for </span>consts::U12 {}
+    <span class="kw">impl </span>SealedTagSize <span class="kw">for </span>consts::U13 {}
+    <span class="kw">impl </span>SealedTagSize <span class="kw">for </span>consts::U14 {}
+    <span class="kw">impl </span>SealedTagSize <span class="kw">for </span>consts::U15 {}
+    <span class="kw">impl </span>SealedTagSize <span class="kw">for </span>consts::U16 {}
+}
 
 <span class="doccomment">/// AES-GCM with a 128-bit key and 96-bit nonce.
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;aes&quot;</span>)]
@@ -448,13 +553,20 @@
 /// It is NOT intended to be instantiated with any block cipher besides AES!
 /// Doing so runs the risk of unintended cryptographic properties!
 ///
-/// The `N` generic parameter can be used to instantiate AES-GCM with other
+/// The `NonceSize` generic parameter can be used to instantiate AES-GCM with other
 /// nonce sizes, however it&#39;s recommended to use it with `typenum::U12`,
 /// the default of 96-bits.
 ///
+/// The `TagSize` generic parameter can be used to instantiate AES-GCM with other
+/// authorization tag sizes, however it&#39;s recommended to use it with `typenum::U16`,
+/// the default of 128-bits.
+///
 /// If in doubt, use the built-in [`Aes128Gcm`] and [`Aes256Gcm`] type aliases.
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>AesGcm&lt;Aes, NonceSize&gt; {
+</span><span class="kw">pub struct </span>AesGcm&lt;Aes, NonceSize, TagSize = U16&gt;
+<span class="kw">where
+    </span>TagSize: <span class="self">self</span>::TagSize,
+{
     <span class="doccomment">/// Encryption cipher.
     </span>cipher: Aes,
 
@@ -463,27 +575,33 @@
 
     <span class="doccomment">/// Length of the nonce.
     </span>nonce_size: PhantomData&lt;NonceSize&gt;,
+
+    <span class="doccomment">/// Length of the tag.
+    </span>tag_size: PhantomData&lt;TagSize&gt;,
 }
 
-<span class="kw">impl</span>&lt;Aes, NonceSize&gt; KeySizeUser <span class="kw">for </span>AesGcm&lt;Aes, NonceSize&gt;
+<span class="kw">impl</span>&lt;Aes, NonceSize, TagSize&gt; KeySizeUser <span class="kw">for </span>AesGcm&lt;Aes, NonceSize, TagSize&gt;
 <span class="kw">where
     </span>Aes: KeySizeUser,
+    TagSize: <span class="self">self</span>::TagSize,
 {
     <span class="kw">type </span>KeySize = Aes::KeySize;
 }
 
-<span class="kw">impl</span>&lt;Aes, NonceSize&gt; KeyInit <span class="kw">for </span>AesGcm&lt;Aes, NonceSize&gt;
+<span class="kw">impl</span>&lt;Aes, NonceSize, TagSize&gt; KeyInit <span class="kw">for </span>AesGcm&lt;Aes, NonceSize, TagSize&gt;
 <span class="kw">where
     </span>Aes: BlockSizeUser&lt;BlockSize = U16&gt; + BlockEncrypt + KeyInit,
+    TagSize: <span class="self">self</span>::TagSize,
 {
     <span class="kw">fn </span>new(key: <span class="kw-2">&amp;</span>Key&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
         Aes::new(key).into()
     }
 }
 
-<span class="kw">impl</span>&lt;Aes, NonceSize&gt; From&lt;Aes&gt; <span class="kw">for </span>AesGcm&lt;Aes, NonceSize&gt;
+<span class="kw">impl</span>&lt;Aes, NonceSize, TagSize&gt; From&lt;Aes&gt; <span class="kw">for </span>AesGcm&lt;Aes, NonceSize, TagSize&gt;
 <span class="kw">where
     </span>Aes: BlockSizeUser&lt;BlockSize = U16&gt; + BlockEncrypt,
+    TagSize: <span class="self">self</span>::TagSize,
 {
     <span class="kw">fn </span>from(cipher: Aes) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>ghash_key = ghash::Key::default();
@@ -498,30 +616,33 @@
             cipher,
             ghash,
             nonce_size: PhantomData,
+            tag_size: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;Aes, NonceSize&gt; AeadCore <span class="kw">for </span>AesGcm&lt;Aes, NonceSize&gt;
+<span class="kw">impl</span>&lt;Aes, NonceSize, TagSize&gt; AeadCore <span class="kw">for </span>AesGcm&lt;Aes, NonceSize, TagSize&gt;
 <span class="kw">where
     </span>NonceSize: ArrayLength&lt;u8&gt;,
+    TagSize: <span class="self">self</span>::TagSize,
 {
     <span class="kw">type </span>NonceSize = NonceSize;
-    <span class="kw">type </span>TagSize = U16;
+    <span class="kw">type </span>TagSize = TagSize;
     <span class="kw">type </span>CiphertextOverhead = U0;
 }
 
-<span class="kw">impl</span>&lt;Aes, NonceSize&gt; AeadInPlace <span class="kw">for </span>AesGcm&lt;Aes, NonceSize&gt;
+<span class="kw">impl</span>&lt;Aes, NonceSize, TagSize&gt; AeadInPlace <span class="kw">for </span>AesGcm&lt;Aes, NonceSize, TagSize&gt;
 <span class="kw">where
     </span>Aes: BlockCipher + BlockSizeUser&lt;BlockSize = U16&gt; + BlockEncrypt,
     NonceSize: ArrayLength&lt;u8&gt;,
+    TagSize: <span class="self">self</span>::TagSize,
 {
     <span class="kw">fn </span>encrypt_in_place_detached(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         nonce: <span class="kw-2">&amp;</span>Nonce&lt;NonceSize&gt;,
         associated_data: <span class="kw-2">&amp;</span>[u8],
         buffer: <span class="kw-2">&amp;mut </span>[u8],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Tag, Error&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Tag&lt;TagSize&gt;, Error&gt; {
         <span class="kw">if </span>buffer.len() <span class="kw">as </span>u64 &gt; P_MAX || associated_data.len() <span class="kw">as </span>u64 &gt; A_MAX {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error);
         }
@@ -531,7 +652,9 @@
         <span class="comment">// TODO(tarcieri): interleave encryption with GHASH
         // See: &lt;https://github.com/RustCrypto/AEADs/issues/74&gt;
         </span>ctr.apply_keystream_partial(buffer.into());
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.compute_tag(mask, associated_data, buffer))
+
+        <span class="kw">let </span>full_tag = <span class="self">self</span>.compute_tag(mask, associated_data, buffer);
+        <span class="prelude-val">Ok</span>(Tag::clone_from_slice(<span class="kw-2">&amp;</span>full_tag[..TagSize::to_usize()]))
     }
 
     <span class="kw">fn </span>decrypt_in_place_detached(
@@ -539,7 +662,7 @@
         nonce: <span class="kw-2">&amp;</span>Nonce&lt;NonceSize&gt;,
         associated_data: <span class="kw-2">&amp;</span>[u8],
         buffer: <span class="kw-2">&amp;mut </span>[u8],
-        tag: <span class="kw-2">&amp;</span>Tag,
+        tag: <span class="kw-2">&amp;</span>Tag&lt;TagSize&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">if </span>buffer.len() <span class="kw">as </span>u64 &gt; C_MAX || associated_data.len() <span class="kw">as </span>u64 &gt; A_MAX {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error);
@@ -553,7 +676,7 @@
         ctr.apply_keystream_partial(buffer.into());
 
         <span class="kw">use </span>subtle::ConstantTimeEq;
-        <span class="kw">if </span>expected_tag.ct_eq(tag).into() {
+        <span class="kw">if </span>expected_tag[..TagSize::to_usize()].ct_eq(tag).into() {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error)
@@ -561,10 +684,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;Aes, NonceSize&gt; AesGcm&lt;Aes, NonceSize&gt;
+<span class="kw">impl</span>&lt;Aes, NonceSize, TagSize&gt; AesGcm&lt;Aes, NonceSize, TagSize&gt;
 <span class="kw">where
     </span>Aes: BlockCipher + BlockSizeUser&lt;BlockSize = U16&gt; + BlockEncrypt,
     NonceSize: ArrayLength&lt;u8&gt;,
+    TagSize: <span class="self">self</span>::TagSize,
 {
     <span class="doccomment">/// Initialize counter mode.
     ///

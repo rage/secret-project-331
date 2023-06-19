@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.32.0/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.34.0/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -778,22 +778,61 @@
 <a href="#778" id="778">778</a>
 <a href="#779" id="779">779</a>
 <a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 </span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>rosvgtree::{<span class="self">self</span>, AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
-<span class="kw">use </span>strict_num::NonZeroPositiveF64;
+<span class="kw">use </span>kurbo::{ParamCurve, ParamCurveArclen};
 <span class="kw">use </span>svgtypes::{Length, LengthUnit};
 <span class="kw">use </span>usvg_tree::<span class="kw-2">*</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::rosvgtree_ext::{FromValue, SvgNodeExt2};
-<span class="kw">use crate</span>::{converter, style, SvgNodeExt};
+<span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, FromValue, SvgNode};
+<span class="kw">use crate</span>::{converter, style};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::TextAnchor {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: rosvgtree::Node, <span class="kw">_</span>: rosvgtree::AttributeId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
             <span class="string">&quot;start&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextAnchor::Start),
             <span class="string">&quot;middle&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::TextAnchor::Middle),
@@ -804,7 +843,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::AlignmentBaseline {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: rosvgtree::Node, <span class="kw">_</span>: rosvgtree::AttributeId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
             <span class="string">&quot;auto&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::AlignmentBaseline::Auto),
             <span class="string">&quot;baseline&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::AlignmentBaseline::Baseline),
@@ -824,7 +863,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::DominantBaseline {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: rosvgtree::Node, <span class="kw">_</span>: rosvgtree::AttributeId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
             <span class="string">&quot;auto&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::DominantBaseline::Auto),
             <span class="string">&quot;use-script&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::DominantBaseline::UseScript),
@@ -844,7 +883,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::LengthAdjust {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: rosvgtree::Node, <span class="kw">_</span>: rosvgtree::AttributeId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
             <span class="string">&quot;spacing&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::LengthAdjust::Spacing),
             <span class="string">&quot;spacingAndGlyphs&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::LengthAdjust::SpacingAndGlyphs),
@@ -854,7 +893,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::FontStyle {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: rosvgtree::Node, <span class="kw">_</span>: rosvgtree::AttributeId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
             <span class="string">&quot;normal&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::FontStyle::Normal),
             <span class="string">&quot;italic&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::FontStyle::Italic),
@@ -865,7 +904,7 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(
-    text_node: rosvgtree::Node,
+    text_node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Node,
@@ -877,11 +916,18 @@
     <span class="kw">let </span>chunks = collect_text_chunks(text_node, <span class="kw-2">&amp;</span>pos_list, state, cache);
 
     <span class="kw">let </span>rendering_mode: TextRendering = text_node
-        .find_and_parse_attribute(AId::TextRendering)
+        .find_attribute(AId::TextRendering)
         .unwrap_or(state.opt.text_rendering);
 
+    <span class="comment">// Nodes generated by markers must not have an ID. Otherwise we would have duplicates.
+    </span><span class="kw">let </span>id = <span class="kw">if </span>state.parent_markers.is_empty() {
+        text_node.element_id().to_string()
+    } <span class="kw">else </span>{
+        String::new()
+    };
+
     <span class="kw">let </span>text = Text {
-        id: text_node.element_id().to_string(),
+        id,
         transform: Transform::default(),
         rendering_mode,
         positions: pos_list,
@@ -901,7 +947,7 @@
 }
 
 <span class="kw">fn </span>collect_text_chunks(
-    text_node: rosvgtree::Node,
+    text_node: SvgNode,
     pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
@@ -927,8 +973,8 @@
 }
 
 <span class="kw">fn </span>collect_text_chunks_impl(
-    text_node: rosvgtree::Node,
-    parent: rosvgtree::Node,
+    text_node: SvgNode,
+    parent: SvgNode,
     pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
@@ -976,13 +1022,11 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let </span>anchor = parent
-            .find_and_parse_attribute(AId::TextAnchor)
-            .unwrap_or_default();
+        <span class="kw">let </span>anchor = parent.find_attribute(AId::TextAnchor).unwrap_or_default();
 
         <span class="comment">// TODO: what to do when &lt;= 0? UB?
         </span><span class="kw">let </span>font_size = <span class="kw">crate</span>::units::resolve_font_size(parent, state);
-        <span class="kw">let </span>font_size = <span class="kw">match </span>NonZeroPositiveF64::new(font_size) {
+        <span class="kw">let </span>font_size = <span class="kw">match </span>NonZeroPositiveF32::new(font_size) {
             <span class="prelude-val">Some</span>(n) =&gt; n,
             <span class="prelude-val">None </span>=&gt; {
                 <span class="comment">// Skip this span.
@@ -993,13 +1037,12 @@
 
         <span class="kw">let </span>font = convert_font(parent, state);
 
-        <span class="kw">let </span>raw_paint_order: svgtypes::PaintOrder = parent
-            .find_and_parse_attribute(AId::PaintOrder)
-            .unwrap_or_default();
+        <span class="kw">let </span>raw_paint_order: svgtypes::PaintOrder =
+            parent.find_attribute(AId::PaintOrder).unwrap_or_default();
         <span class="kw">let </span>paint_order = <span class="kw">crate</span>::converter::svg_paint_order_to_usvg(raw_paint_order);
 
         <span class="kw">let </span><span class="kw-2">mut </span>dominant_baseline = parent
-            .find_and_parse_attribute(AId::DominantBaseline)
+            .find_attribute(AId::DominantBaseline)
             .unwrap_or_default();
 
         <span class="comment">// `no-change` means &quot;use parent&quot;.
@@ -1007,7 +1050,7 @@
             dominant_baseline = parent
                 .parent_element()
                 .unwrap()
-                .find_and_parse_attribute(AId::DominantBaseline)
+                .find_attribute(AId::DominantBaseline)
                 .unwrap_or_default();
         }
 
@@ -1015,11 +1058,7 @@
         <span class="attr">#[allow(clippy::if_same_then_else)]
         </span><span class="kw">if </span>parent.resolve_length(AId::Kerning, state, -<span class="number">1.0</span>) == <span class="number">0.0 </span>{
             apply_kerning = <span class="bool-val">false</span>;
-        } <span class="kw">else if </span>parent
-            .find_attribute(AId::FontKerning)
-            .and_then(|n| n.attribute(AId::FontKerning))
-            == <span class="prelude-val">Some</span>(<span class="string">&quot;none&quot;</span>)
-        {
+        } <span class="kw">else if </span>parent.find_attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::FontKerning) == <span class="prelude-val">Some</span>(<span class="string">&quot;none&quot;</span>) {
             apply_kerning = <span class="bool-val">false</span>;
         }
 
@@ -1040,26 +1079,19 @@
             paint_order,
             font,
             font_size,
-            small_caps: parent
-                .find_attribute(AId::FontVariant)
-                .and_then(|n| n.attribute(AId::FontVariant))
-                == <span class="prelude-val">Some</span>(<span class="string">&quot;small-caps&quot;</span>),
+            small_caps: parent.find_attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::FontVariant) == <span class="prelude-val">Some</span>(<span class="string">&quot;small-caps&quot;</span>),
             apply_kerning,
             decoration: resolve_decoration(text_node, parent, state, cache),
-            visibility: parent
-                .find_and_parse_attribute(AId::Visibility)
-                .unwrap_or_default(),
+            visibility: parent.find_attribute(AId::Visibility).unwrap_or_default(),
             dominant_baseline,
             alignment_baseline: parent
-                .find_and_parse_attribute(AId::AlignmentBaseline)
+                .find_attribute(AId::AlignmentBaseline)
                 .unwrap_or_default(),
             baseline_shift: convert_baseline_shift(parent, state),
             letter_spacing: parent.resolve_length(AId::LetterSpacing, state, <span class="number">0.0</span>),
             word_spacing: parent.resolve_length(AId::WordSpacing, state, <span class="number">0.0</span>),
             text_length,
-            length_adjust: parent
-                .find_and_parse_attribute(AId::LengthAdjust)
-                .unwrap_or_default(),
+            length_adjust: parent.find_attribute(AId::LengthAdjust).unwrap_or_default(),
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>is_new_span = <span class="bool-val">true</span>;
@@ -1121,26 +1153,25 @@
     }
 }
 
-<span class="kw">fn </span>resolve_text_flow(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;TextFlow&gt; {
-    <span class="kw">let </span>linked_node = node.parse_attribute::&lt;rosvgtree::Node&gt;(AId::Href)<span class="question-mark">?</span>;
+<span class="kw">fn </span>resolve_text_flow(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;TextFlow&gt; {
+    <span class="kw">let </span>linked_node = node.attribute::&lt;SvgNode&gt;(AId::Href)<span class="question-mark">?</span>;
     <span class="kw">let </span>path = <span class="kw">crate</span>::shapes::convert(linked_node, state)<span class="question-mark">?</span>;
 
     <span class="comment">// The reference path&#39;s transform needs to be applied
-    </span><span class="kw">let </span>path =
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(node_transform) = linked_node.parse_attribute::&lt;Transform&gt;(AId::Transform) {
-            <span class="kw">let </span><span class="kw-2">mut </span>path_copy = path.as_ref().clone();
-            path_copy.transform(node_transform);
-            Rc::new(path_copy)
-        } <span class="kw">else </span>{
-            path
-        };
+    </span><span class="kw">let </span>path = <span class="kw">if let </span><span class="prelude-val">Some</span>(node_transform) = linked_node.attribute::&lt;Transform&gt;(AId::Transform) {
+        <span class="kw">let </span><span class="kw-2">mut </span>path_copy = path.as_ref().clone();
+        path_copy = path_copy.transform(node_transform)<span class="question-mark">?</span>;
+        Rc::new(path_copy)
+    } <span class="kw">else </span>{
+        path
+    };
 
-    <span class="kw">let </span>start_offset: Length = node.parse_attribute(AId::StartOffset).unwrap_or_default();
+    <span class="kw">let </span>start_offset: Length = node.attribute(AId::StartOffset).unwrap_or_default();
     <span class="kw">let </span>start_offset = <span class="kw">if </span>start_offset.unit == LengthUnit::Percent {
         <span class="comment">// &#39;If a percentage is given, then the `startOffset` represents
         // a percentage distance along the entire path.&#39;
-        </span><span class="kw">let </span>path_len = path.length();
-        path_len * (start_offset.number / <span class="number">100.0</span>)
+        </span><span class="kw">let </span>path_len = path_length(<span class="kw-2">&amp;</span>path);
+        (path_len * (start_offset.number / <span class="number">100.0</span>)) <span class="kw">as </span>f32
     } <span class="kw">else </span>{
         node.resolve_length(AId::StartOffset, state, <span class="number">0.0</span>)
     };
@@ -1148,10 +1179,8 @@
     <span class="prelude-val">Some</span>(TextFlow::Path(Rc::new(TextPath { start_offset, path })))
 }
 
-<span class="kw">fn </span>convert_font(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Font {
-    <span class="kw">let </span>style: FontStyle = node
-        .find_and_parse_attribute(AId::FontStyle)
-        .unwrap_or_default();
+<span class="kw">fn </span>convert_font(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Font {
+    <span class="kw">let </span>style: FontStyle = node.find_attribute(AId::FontStyle).unwrap_or_default();
     <span class="kw">let </span>stretch = conv_font_stretch(node);
     <span class="kw">let </span>weight = resolve_font_weight(node);
 
@@ -1165,11 +1194,11 @@
     <span class="kw">for </span><span class="kw-2">mut </span>family <span class="kw">in </span>font_family.split(<span class="string">&#39;,&#39;</span>) {
         <span class="comment">// TODO: to a proper parser
 
-        </span><span class="kw">if </span>family.starts_with(<span class="string">&#39;\&#39;&#39;</span>) {
+        </span><span class="kw">if </span>family.starts_with([<span class="string">&#39;\&#39;&#39;</span>, <span class="string">&#39;&quot;&#39;</span>]) {
             family = <span class="kw-2">&amp;</span>family[<span class="number">1</span>..];
         }
 
-        <span class="kw">if </span>family.ends_with(<span class="string">&#39;\&#39;&#39;</span>) {
+        <span class="kw">if </span>family.ends_with([<span class="string">&#39;\&#39;&#39;</span>, <span class="string">&#39;&quot;&#39;</span>]) {
             family = <span class="kw-2">&amp;</span>family[..family.len() - <span class="number">1</span>];
         }
 
@@ -1193,7 +1222,7 @@
 }
 
 <span class="comment">// TODO: properly resolve narrower/wider
-</span><span class="kw">fn </span>conv_font_stretch(node: rosvgtree::Node) -&gt; FontStretch {
+</span><span class="kw">fn </span>conv_font_stretch(node: SvgNode) -&gt; FontStretch {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = node.ancestors().find(|n| n.has_attribute(AId::FontStretch)) {
         <span class="kw">match </span>n.attribute(AId::FontStretch).unwrap_or(<span class="string">&quot;&quot;</span>) {
             <span class="string">&quot;narrower&quot; </span>| <span class="string">&quot;condensed&quot; </span>=&gt; FontStretch::Condensed,
@@ -1211,7 +1240,7 @@
     }
 }
 
-<span class="kw">fn </span>resolve_font_weight(node: rosvgtree::Node) -&gt; u16 {
+<span class="kw">fn </span>resolve_font_weight(node: SvgNode) -&gt; u16 {
     <span class="kw">fn </span>bound(min: usize, val: usize, max: usize) -&gt; usize {
         std::cmp::max(min, std::cmp::min(max, val))
     }
@@ -1318,10 +1347,7 @@
 /// ```
 ///
 /// The result should be: `[100, 50, 120, None]`
-</span><span class="kw">fn </span>resolve_positions_list(
-    text_node: rosvgtree::Node,
-    state: <span class="kw-2">&amp;</span>converter::State,
-) -&gt; Vec&lt;CharacterPosition&gt; {
+</span><span class="kw">fn </span>resolve_positions_list(text_node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Vec&lt;CharacterPosition&gt; {
     <span class="comment">// Allocate a list that has all characters positions set to `None`.
     </span><span class="kw">let </span>total_chars = count_chars(text_node);
     <span class="kw">let </span><span class="kw-2">mut </span>list = <span class="macro">vec!</span>[
@@ -1377,14 +1403,14 @@
 /// ![](https://www.w3.org/TR/SVG11/images/text/tspan05-diagram.png)
 ///
 /// Note: this algorithm differs from the position resolving one.
-</span><span class="kw">fn </span>resolve_rotate_list(text_node: rosvgtree::Node) -&gt; Vec&lt;f64&gt; {
+</span><span class="kw">fn </span>resolve_rotate_list(text_node: SvgNode) -&gt; Vec&lt;f32&gt; {
     <span class="comment">// Allocate a list that has all characters angles set to `0.0`.
     </span><span class="kw">let </span><span class="kw-2">mut </span>list = <span class="macro">vec!</span>[<span class="number">0.0</span>; count_chars(text_node)];
     <span class="kw">let </span><span class="kw-2">mut </span>last = <span class="number">0.0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
     <span class="kw">for </span>child <span class="kw">in </span>text_node.descendants() {
         <span class="kw">if </span>child.is_element() {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(rotate) = child.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::Rotate) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(rotate) = child.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::Rotate) {
                 <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..count_chars(child) {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = rotate.get(i).cloned() {
                         list[offset + i] = a;
@@ -1409,8 +1435,8 @@
 ///
 /// `text` and `tspan` can point to the same node.
 </span><span class="kw">fn </span>resolve_decoration(
-    text_node: rosvgtree::Node,
-    tspan: rosvgtree::Node,
+    text_node: SvgNode,
+    tspan: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
 ) -&gt; TextDecoration {
@@ -1448,10 +1474,10 @@
 }
 
 <span class="doccomment">/// Resolves the `text` node&#39;s `text-decoration` property.
-</span><span class="kw">fn </span>conv_text_decoration(text_node: rosvgtree::Node) -&gt; TextDecorationTypes {
-    <span class="kw">fn </span>find_decoration(node: rosvgtree::Node, value: <span class="kw-2">&amp;</span>str) -&gt; bool {
+</span><span class="kw">fn </span>conv_text_decoration(text_node: SvgNode) -&gt; TextDecorationTypes {
+    <span class="kw">fn </span>find_decoration(node: SvgNode, value: <span class="kw-2">&amp;</span>str) -&gt; bool {
         node.ancestors().any(|n| {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(str_value) = n.attribute(AId::TextDecoration) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(str_value) = n.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::TextDecoration) {
                 str_value.split(<span class="string">&#39; &#39;</span>).any(|v| v == value)
             } <span class="kw">else </span>{
                 <span class="bool-val">false
@@ -1467,7 +1493,7 @@
 }
 
 <span class="doccomment">/// Resolves the default `text-decoration` property.
-</span><span class="kw">fn </span>conv_text_decoration2(tspan: rosvgtree::Node) -&gt; TextDecorationTypes {
+</span><span class="kw">fn </span>conv_text_decoration2(tspan: SvgNode) -&gt; TextDecorationTypes {
     <span class="kw">let </span>s = tspan.attribute(AId::TextDecoration);
     TextDecorationTypes {
         has_underline: s == <span class="prelude-val">Some</span>(<span class="string">&quot;underline&quot;</span>),
@@ -1476,16 +1502,16 @@
     }
 }
 
-<span class="kw">fn </span>convert_baseline_shift(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Vec&lt;BaselineShift&gt; {
+<span class="kw">fn </span>convert_baseline_shift(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Vec&lt;BaselineShift&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>shift = Vec::new();
     <span class="kw">let </span>nodes: Vec&lt;<span class="kw">_</span>&gt; = node
         .ancestors()
         .take_while(|n| n.tag_name() != <span class="prelude-val">Some</span>(EId::Text))
         .collect();
     <span class="kw">for </span>n <span class="kw">in </span>nodes {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = n.parse_attribute::&lt;Length&gt;(AId::BaselineShift) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = n.attribute::&lt;Length&gt;(AId::BaselineShift) {
             <span class="kw">if </span>len.unit == LengthUnit::Percent {
-                <span class="kw">let </span>n = <span class="kw">crate</span>::units::resolve_font_size(n, state) * (len.number / <span class="number">100.0</span>);
+                <span class="kw">let </span>n = <span class="kw">crate</span>::units::resolve_font_size(n, state) * (len.number <span class="kw">as </span>f32 / <span class="number">100.0</span>);
                 shift.push(BaselineShift::Number(n));
             } <span class="kw">else </span>{
                 <span class="kw">let </span>n = <span class="kw">crate</span>::units::convert_length(
@@ -1516,7 +1542,7 @@
     shift
 }
 
-<span class="kw">fn </span>count_chars(node: rosvgtree::Node) -&gt; usize {
+<span class="kw">fn </span>count_chars(node: SvgNode) -&gt; usize {
     node.descendants()
         .filter(|n| n.is_text())
         .fold(<span class="number">0</span>, |w, n| w + n.text().chars().count())
@@ -1545,7 +1571,7 @@
 ///
 /// [SVG 2]: https://www.w3.org/TR/SVG2/text.html#WritingModeProperty
 /// [CSS Writing Modes Level 3]: https://www.w3.org/TR/css-writing-modes-3/#svg-writing-mode-css
-</span><span class="kw">fn </span>convert_writing_mode(text_node: rosvgtree::Node) -&gt; WritingMode {
+</span><span class="kw">fn </span>convert_writing_mode(text_node: SvgNode) -&gt; WritingMode {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = text_node
         .ancestors()
         .find(|n| n.has_attribute(AId::WritingMode))
@@ -1557,5 +1583,59 @@
     } <span class="kw">else </span>{
         WritingMode::LeftToRight
     }
+}
+
+<span class="kw">fn </span>path_length(path: <span class="kw-2">&amp;</span>tiny_skia_path::Path) -&gt; f64 {
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_mx = path.points()[<span class="number">0</span>].x;
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_my = path.points()[<span class="number">0</span>].y;
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_x = prev_mx;
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_y = prev_my;
+
+    <span class="kw">fn </span>create_curve_from_line(px: f32, py: f32, x: f32, y: f32) -&gt; kurbo::CubicBez {
+        <span class="kw">let </span>line = kurbo::Line::new(
+            kurbo::Point::new(px <span class="kw">as </span>f64, py <span class="kw">as </span>f64),
+            kurbo::Point::new(x <span class="kw">as </span>f64, y <span class="kw">as </span>f64),
+        );
+        <span class="kw">let </span>p1 = line.eval(<span class="number">0.33</span>);
+        <span class="kw">let </span>p2 = line.eval(<span class="number">0.66</span>);
+        kurbo::CubicBez::new(line.p0, p1, p2, line.p1)
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>length = <span class="number">0.0</span>;
+    <span class="kw">for </span>seg <span class="kw">in </span>path.segments() {
+        <span class="kw">let </span>curve = <span class="kw">match </span>seg {
+            tiny_skia_path::PathSegment::MoveTo(p) =&gt; {
+                prev_mx = p.x;
+                prev_my = p.y;
+                prev_x = p.x;
+                prev_y = p.y;
+                <span class="kw">continue</span>;
+            }
+            tiny_skia_path::PathSegment::LineTo(p) =&gt; {
+                create_curve_from_line(prev_x, prev_y, p.x, p.y)
+            }
+            tiny_skia_path::PathSegment::QuadTo(p1, p) =&gt; kurbo::QuadBez::new(
+                kurbo::Point::new(prev_x <span class="kw">as </span>f64, prev_y <span class="kw">as </span>f64),
+                kurbo::Point::new(p1.x <span class="kw">as </span>f64, p1.y <span class="kw">as </span>f64),
+                kurbo::Point::new(p.x <span class="kw">as </span>f64, p.y <span class="kw">as </span>f64),
+            )
+            .raise(),
+            tiny_skia_path::PathSegment::CubicTo(p1, p2, p) =&gt; kurbo::CubicBez::new(
+                kurbo::Point::new(prev_x <span class="kw">as </span>f64, prev_y <span class="kw">as </span>f64),
+                kurbo::Point::new(p1.x <span class="kw">as </span>f64, p1.y <span class="kw">as </span>f64),
+                kurbo::Point::new(p2.x <span class="kw">as </span>f64, p2.y <span class="kw">as </span>f64),
+                kurbo::Point::new(p.x <span class="kw">as </span>f64, p.y <span class="kw">as </span>f64),
+            ),
+            tiny_skia_path::PathSegment::Close =&gt; {
+                create_curve_from_line(prev_x, prev_y, prev_mx, prev_my)
+            }
+        };
+
+        length += curve.arclen(<span class="number">0.5</span>);
+        prev_x = curve.p3.x <span class="kw">as </span>f32;
+        prev_y = curve.p3.y <span class="kw">as </span>f32;
+    }
+
+    length
 }
 </code></pre></div></section></main></body></html>

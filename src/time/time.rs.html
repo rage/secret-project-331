@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-0.3.20/src/time.rs`."><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time/index.html"><img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-0.3.22/src/time.rs`."><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="time" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time/index.html"><img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -759,6 +759,22 @@
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
 <a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The [`Time`] struct and its associated `impl`s.
 
 </span><span class="kw">use </span>core::fmt;
@@ -767,6 +783,7 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;formatting&quot;</span>)]
 </span><span class="kw">use </span>std::io;
 
+<span class="kw">use </span><span class="kw">crate</span>::convert::<span class="kw-2">*</span>;
 <span class="attr">#[cfg(feature = <span class="string">&quot;formatting&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::formatting::Formattable;
 <span class="attr">#[cfg(feature = <span class="string">&quot;parsing&quot;</span>)]
@@ -832,10 +849,10 @@
         second: u8,
         nanosecond: u32,
     ) -&gt; <span class="self">Self </span>{
-        <span class="macro">debug_assert!</span>(hour &lt; <span class="number">24</span>);
-        <span class="macro">debug_assert!</span>(minute &lt; <span class="number">60</span>);
-        <span class="macro">debug_assert!</span>(second &lt; <span class="number">60</span>);
-        <span class="macro">debug_assert!</span>(nanosecond &lt; <span class="number">1_000_000_000</span>);
+        <span class="macro">debug_assert!</span>(hour &lt; Hour.per(Day));
+        <span class="macro">debug_assert!</span>(minute &lt; Minute.per(Hour));
+        <span class="macro">debug_assert!</span>(second &lt; Second.per(Minute));
+        <span class="macro">debug_assert!</span>(nanosecond &lt; Nanosecond.per(Second));
 
         <span class="self">Self </span>{
             hour,
@@ -860,9 +877,9 @@
     /// assert!(Time::from_hms(0, 0, 60).is_err()); // 60 isn&#39;t a valid second.
     /// ```
     </span><span class="kw">pub const fn </span>from_hms(hour: u8, minute: u8, second: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">23</span>);
-        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
+        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; Hour.per(Day) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; Minute.per(Hour) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; Second.per(Minute) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(hour, minute, second, <span class="number">0</span>))
     }
 
@@ -886,15 +903,15 @@
         second: u8,
         millisecond: u16,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">23</span>);
-        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(millisecond <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">999</span>);
+        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; Hour.per(Day) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; Minute.per(Hour) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; Second.per(Minute) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(millisecond <span class="kw">in </span><span class="number">0 </span>=&gt; Millisecond.per(Second) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             hour,
             minute,
             second,
-            millisecond <span class="kw">as </span>u32 * <span class="number">1_000_000</span>,
+            millisecond <span class="kw">as </span>u32 * Nanosecond.per(Millisecond),
         ))
     }
 
@@ -918,15 +935,15 @@
         second: u8,
         microsecond: u32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">23</span>);
-        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(microsecond <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">999_999</span>);
+        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; Hour.per(Day) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; Minute.per(Hour) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; Second.per(Minute) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(microsecond <span class="kw">in </span><span class="number">0 </span>=&gt; Microsecond.per(Second) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             hour,
             minute,
             second,
-            microsecond * <span class="number">1_000</span>,
+            microsecond * Nanosecond.per(Microsecond) <span class="kw">as </span>u32,
         ))
     }
 
@@ -950,10 +967,10 @@
         second: u8,
         nanosecond: u32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">23</span>);
-        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
-        <span class="macro">ensure_value_in_range!</span>(nanosecond <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">999_999_999</span>);
+        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; Hour.per(Day) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; Minute.per(Hour) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; Second.per(Minute) - <span class="number">1</span>);
+        <span class="macro">ensure_value_in_range!</span>(nanosecond <span class="kw">in </span><span class="number">0 </span>=&gt; Nanosecond.per(Second) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             hour, minute, second, nanosecond,
         ))
@@ -984,7 +1001,7 @@
             <span class="self">self</span>.hour,
             <span class="self">self</span>.minute,
             <span class="self">self</span>.second,
-            (<span class="self">self</span>.nanosecond / <span class="number">1_000_000</span>) <span class="kw">as </span>u16,
+            (<span class="self">self</span>.nanosecond / Nanosecond.per(Millisecond)) <span class="kw">as </span>u16,
         )
     }
 
@@ -999,7 +1016,12 @@
     /// );
     /// ```
     </span><span class="kw">pub const fn </span>as_hms_micro(<span class="self">self</span>) -&gt; (u8, u8, u8, u32) {
-        (<span class="self">self</span>.hour, <span class="self">self</span>.minute, <span class="self">self</span>.second, <span class="self">self</span>.nanosecond / <span class="number">1_000</span>)
+        (
+            <span class="self">self</span>.hour,
+            <span class="self">self</span>.minute,
+            <span class="self">self</span>.second,
+            <span class="self">self</span>.nanosecond / Nanosecond.per(Microsecond) <span class="kw">as </span>u32,
+        )
     }
 
     <span class="doccomment">/// Get the clock hour, minute, second, and nanosecond.
@@ -1065,7 +1087,7 @@
     /// assert_eq!(time!(23:59:59.999).millisecond(), 999);
     /// ```
     </span><span class="kw">pub const fn </span>millisecond(<span class="self">self</span>) -&gt; u16 {
-        (<span class="self">self</span>.nanosecond / <span class="number">1_000_000</span>) <span class="kw">as _
+        (<span class="self">self</span>.nanosecond / Nanosecond.per(Millisecond)) <span class="kw">as _
     </span>}
 
     <span class="doccomment">/// Get the microseconds within the second.
@@ -1078,8 +1100,8 @@
     /// assert_eq!(time!(23:59:59.999_999).microsecond(), 999_999);
     /// ```
     </span><span class="kw">pub const fn </span>microsecond(<span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.nanosecond / <span class="number">1_000
-    </span>}
+        <span class="self">self</span>.nanosecond / Nanosecond.per(Microsecond) <span class="kw">as </span>u32
+    }
 
     <span class="doccomment">/// Get the nanoseconds within the second.
     ///
@@ -1100,19 +1122,21 @@
     /// the date is different.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>adjusting_add(<span class="self">self</span>, duration: Duration) -&gt; (DateAdjustment, <span class="self">Self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>nanoseconds = <span class="self">self</span>.nanosecond <span class="kw">as </span>i32 + duration.subsec_nanoseconds();
-        <span class="kw">let </span><span class="kw-2">mut </span>seconds = <span class="self">self</span>.second <span class="kw">as </span>i8 + (duration.whole_seconds() % <span class="number">60</span>) <span class="kw">as </span>i8;
-        <span class="kw">let </span><span class="kw-2">mut </span>minutes = <span class="self">self</span>.minute <span class="kw">as </span>i8 + (duration.whole_minutes() % <span class="number">60</span>) <span class="kw">as </span>i8;
-        <span class="kw">let </span><span class="kw-2">mut </span>hours = <span class="self">self</span>.hour <span class="kw">as </span>i8 + (duration.whole_hours() % <span class="number">24</span>) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>seconds =
+            <span class="self">self</span>.second <span class="kw">as </span>i8 + (duration.whole_seconds() % Second.per(Minute) <span class="kw">as </span>i64) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>minutes =
+            <span class="self">self</span>.minute <span class="kw">as </span>i8 + (duration.whole_minutes() % Minute.per(Hour) <span class="kw">as </span>i64) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>hours = <span class="self">self</span>.hour <span class="kw">as </span>i8 + (duration.whole_hours() % Hour.per(Day) <span class="kw">as </span>i64) <span class="kw">as </span>i8;
         <span class="kw">let </span><span class="kw-2">mut </span>date_adjustment = DateAdjustment::None;
 
-        <span class="macro">cascade!</span>(nanoseconds <span class="kw">in </span><span class="number">0</span>..<span class="number">1_000_000_000 </span>=&gt; seconds);
-        <span class="macro">cascade!</span>(seconds <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; minutes);
-        <span class="macro">cascade!</span>(minutes <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; hours);
-        <span class="kw">if </span>hours &gt;= <span class="number">24 </span>{
-            hours -= <span class="number">24</span>;
+        <span class="macro">cascade!</span>(nanoseconds <span class="kw">in </span><span class="number">0</span>..Nanosecond.per(Second) <span class="kw">as _ </span>=&gt; seconds);
+        <span class="macro">cascade!</span>(seconds <span class="kw">in </span><span class="number">0</span>..Second.per(Minute) <span class="kw">as _ </span>=&gt; minutes);
+        <span class="macro">cascade!</span>(minutes <span class="kw">in </span><span class="number">0</span>..Minute.per(Hour) <span class="kw">as _ </span>=&gt; hours);
+        <span class="kw">if </span>hours &gt;= Hour.per(Day) <span class="kw">as _ </span>{
+            hours -= Hour.per(Day) <span class="kw">as </span>i8;
             date_adjustment = DateAdjustment::Next;
         } <span class="kw">else if </span>hours &lt; <span class="number">0 </span>{
-            hours += <span class="number">24</span>;
+            hours += Hour.per(Day) <span class="kw">as </span>i8;
             date_adjustment = DateAdjustment::Previous;
         }
 
@@ -1131,19 +1155,21 @@
     /// whether the date is different.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>adjusting_sub(<span class="self">self</span>, duration: Duration) -&gt; (DateAdjustment, <span class="self">Self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>nanoseconds = <span class="self">self</span>.nanosecond <span class="kw">as </span>i32 - duration.subsec_nanoseconds();
-        <span class="kw">let </span><span class="kw-2">mut </span>seconds = <span class="self">self</span>.second <span class="kw">as </span>i8 - (duration.whole_seconds() % <span class="number">60</span>) <span class="kw">as </span>i8;
-        <span class="kw">let </span><span class="kw-2">mut </span>minutes = <span class="self">self</span>.minute <span class="kw">as </span>i8 - (duration.whole_minutes() % <span class="number">60</span>) <span class="kw">as </span>i8;
-        <span class="kw">let </span><span class="kw-2">mut </span>hours = <span class="self">self</span>.hour <span class="kw">as </span>i8 - (duration.whole_hours() % <span class="number">24</span>) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>seconds =
+            <span class="self">self</span>.second <span class="kw">as </span>i8 - (duration.whole_seconds() % Second.per(Minute) <span class="kw">as </span>i64) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>minutes =
+            <span class="self">self</span>.minute <span class="kw">as </span>i8 - (duration.whole_minutes() % Minute.per(Hour) <span class="kw">as </span>i64) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>hours = <span class="self">self</span>.hour <span class="kw">as </span>i8 - (duration.whole_hours() % Hour.per(Day) <span class="kw">as </span>i64) <span class="kw">as </span>i8;
         <span class="kw">let </span><span class="kw-2">mut </span>date_adjustment = DateAdjustment::None;
 
-        <span class="macro">cascade!</span>(nanoseconds <span class="kw">in </span><span class="number">0</span>..<span class="number">1_000_000_000 </span>=&gt; seconds);
-        <span class="macro">cascade!</span>(seconds <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; minutes);
-        <span class="macro">cascade!</span>(minutes <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; hours);
-        <span class="kw">if </span>hours &gt;= <span class="number">24 </span>{
-            hours -= <span class="number">24</span>;
+        <span class="macro">cascade!</span>(nanoseconds <span class="kw">in </span><span class="number">0</span>..Nanosecond.per(Second) <span class="kw">as _ </span>=&gt; seconds);
+        <span class="macro">cascade!</span>(seconds <span class="kw">in </span><span class="number">0</span>..Second.per(Minute) <span class="kw">as _ </span>=&gt; minutes);
+        <span class="macro">cascade!</span>(minutes <span class="kw">in </span><span class="number">0</span>..Minute.per(Hour) <span class="kw">as _ </span>=&gt; hours);
+        <span class="kw">if </span>hours &gt;= Hour.per(Day) <span class="kw">as _ </span>{
+            hours -= Hour.per(Day) <span class="kw">as </span>i8;
             date_adjustment = DateAdjustment::Next;
         } <span class="kw">else if </span>hours &lt; <span class="number">0 </span>{
-            hours += <span class="number">24</span>;
+            hours += Hour.per(Day) <span class="kw">as </span>i8;
             date_adjustment = DateAdjustment::Previous;
         }
 
@@ -1162,16 +1188,18 @@
     /// returning whether the date is the previous date as the first element of the tuple.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>adjusting_add_std(<span class="self">self</span>, duration: StdDuration) -&gt; (bool, <span class="self">Self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>nanosecond = <span class="self">self</span>.nanosecond + duration.subsec_nanos();
-        <span class="kw">let </span><span class="kw-2">mut </span>second = <span class="self">self</span>.second + (duration.as_secs() % <span class="number">60</span>) <span class="kw">as </span>u8;
-        <span class="kw">let </span><span class="kw-2">mut </span>minute = <span class="self">self</span>.minute + ((duration.as_secs() / <span class="number">60</span>) % <span class="number">60</span>) <span class="kw">as </span>u8;
-        <span class="kw">let </span><span class="kw-2">mut </span>hour = <span class="self">self</span>.hour + ((duration.as_secs() / <span class="number">3_600</span>) % <span class="number">24</span>) <span class="kw">as </span>u8;
+        <span class="kw">let </span><span class="kw-2">mut </span>second = <span class="self">self</span>.second + (duration.as_secs() % Second.per(Minute) <span class="kw">as </span>u64) <span class="kw">as </span>u8;
+        <span class="kw">let </span><span class="kw-2">mut </span>minute = <span class="self">self</span>.minute
+            + ((duration.as_secs() / Second.per(Minute) <span class="kw">as </span>u64) % Minute.per(Hour) <span class="kw">as </span>u64) <span class="kw">as </span>u8;
+        <span class="kw">let </span><span class="kw-2">mut </span>hour = <span class="self">self</span>.hour
+            + ((duration.as_secs() / Second.per(Hour) <span class="kw">as </span>u64) % Hour.per(Day) <span class="kw">as </span>u64) <span class="kw">as </span>u8;
         <span class="kw">let </span><span class="kw-2">mut </span>is_next_day = <span class="bool-val">false</span>;
 
-        <span class="macro">cascade!</span>(nanosecond <span class="kw">in </span><span class="number">0</span>..<span class="number">1_000_000_000 </span>=&gt; second);
-        <span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; minute);
-        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; hour);
-        <span class="kw">if </span>hour &gt;= <span class="number">24 </span>{
-            hour -= <span class="number">24</span>;
+        <span class="macro">cascade!</span>(nanosecond <span class="kw">in </span><span class="number">0</span>..Nanosecond.per(Second) =&gt; second);
+        <span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..Second.per(Minute) =&gt; minute);
+        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..Minute.per(Hour) =&gt; hour);
+        <span class="kw">if </span>hour &gt;= Hour.per(Day) {
+            hour -= Hour.per(Day);
             is_next_day = <span class="bool-val">true</span>;
         }
 
@@ -1185,16 +1213,18 @@
     /// returning whether the date is the previous date as the first element of the tuple.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>adjusting_sub_std(<span class="self">self</span>, duration: StdDuration) -&gt; (bool, <span class="self">Self</span>) {
         <span class="kw">let </span><span class="kw-2">mut </span>nanosecond = <span class="self">self</span>.nanosecond <span class="kw">as </span>i32 - duration.subsec_nanos() <span class="kw">as </span>i32;
-        <span class="kw">let </span><span class="kw-2">mut </span>second = <span class="self">self</span>.second <span class="kw">as </span>i8 - (duration.as_secs() % <span class="number">60</span>) <span class="kw">as </span>i8;
-        <span class="kw">let </span><span class="kw-2">mut </span>minute = <span class="self">self</span>.minute <span class="kw">as </span>i8 - ((duration.as_secs() / <span class="number">60</span>) % <span class="number">60</span>) <span class="kw">as </span>i8;
-        <span class="kw">let </span><span class="kw-2">mut </span>hour = <span class="self">self</span>.hour <span class="kw">as </span>i8 - ((duration.as_secs() / <span class="number">3_600</span>) % <span class="number">24</span>) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>second = <span class="self">self</span>.second <span class="kw">as </span>i8 - (duration.as_secs() % Second.per(Minute) <span class="kw">as </span>u64) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>minute = <span class="self">self</span>.minute <span class="kw">as </span>i8
+            - ((duration.as_secs() / Second.per(Minute) <span class="kw">as </span>u64) % Minute.per(Hour) <span class="kw">as </span>u64) <span class="kw">as </span>i8;
+        <span class="kw">let </span><span class="kw-2">mut </span>hour = <span class="self">self</span>.hour <span class="kw">as </span>i8
+            - ((duration.as_secs() / Second.per(Hour) <span class="kw">as </span>u64) % Hour.per(Day) <span class="kw">as </span>u64) <span class="kw">as </span>i8;
         <span class="kw">let </span><span class="kw-2">mut </span>is_previous_day = <span class="bool-val">false</span>;
 
-        <span class="macro">cascade!</span>(nanosecond <span class="kw">in </span><span class="number">0</span>..<span class="number">1_000_000_000 </span>=&gt; second);
-        <span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; minute);
-        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..<span class="number">60 </span>=&gt; hour);
+        <span class="macro">cascade!</span>(nanosecond <span class="kw">in </span><span class="number">0</span>..Nanosecond.per(Second) <span class="kw">as _ </span>=&gt; second);
+        <span class="macro">cascade!</span>(second <span class="kw">in </span><span class="number">0</span>..Second.per(Minute) <span class="kw">as _ </span>=&gt; minute);
+        <span class="macro">cascade!</span>(minute <span class="kw">in </span><span class="number">0</span>..Minute.per(Hour) <span class="kw">as _ </span>=&gt; hour);
         <span class="kw">if </span>hour &lt; <span class="number">0 </span>{
-            hour += <span class="number">24</span>;
+            hour += Hour.per(Day) <span class="kw">as </span>i8;
             is_previous_day = <span class="bool-val">true</span>;
         }
 
@@ -1218,7 +1248,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `Time`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_hour(<span class="self">self</span>, hour: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">23</span>);
+        <span class="macro">ensure_value_in_range!</span>(hour <span class="kw">in </span><span class="number">0 </span>=&gt; Hour.per(Day) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             hour,
             <span class="self">self</span>.minute,
@@ -1239,7 +1269,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `Time`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_minute(<span class="self">self</span>, minute: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
+        <span class="macro">ensure_value_in_range!</span>(minute <span class="kw">in </span><span class="number">0 </span>=&gt; Minute.per(Hour) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             <span class="self">self</span>.hour,
             minute,
@@ -1260,7 +1290,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `Time`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_second(<span class="self">self</span>, second: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">59</span>);
+        <span class="macro">ensure_value_in_range!</span>(second <span class="kw">in </span><span class="number">0 </span>=&gt; Second.per(Minute) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             <span class="self">self</span>.hour,
             <span class="self">self</span>.minute,
@@ -1284,12 +1314,12 @@
         <span class="self">self</span>,
         millisecond: u16,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(millisecond <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">999</span>);
+        <span class="macro">ensure_value_in_range!</span>(millisecond <span class="kw">in </span><span class="number">0 </span>=&gt; Millisecond.per(Second) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             <span class="self">self</span>.hour,
             <span class="self">self</span>.minute,
             <span class="self">self</span>.second,
-            millisecond <span class="kw">as </span>u32 * <span class="number">1_000_000</span>,
+            millisecond <span class="kw">as </span>u32 * Nanosecond.per(Millisecond),
         ))
     }
 
@@ -1308,12 +1338,12 @@
         <span class="self">self</span>,
         microsecond: u32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(microsecond <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">999_999</span>);
+        <span class="macro">ensure_value_in_range!</span>(microsecond <span class="kw">in </span><span class="number">0 </span>=&gt; Microsecond.per(Second) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             <span class="self">self</span>.hour,
             <span class="self">self</span>.minute,
             <span class="self">self</span>.second,
-            microsecond * <span class="number">1000</span>,
+            microsecond * Nanosecond.per(Microsecond) <span class="kw">as </span>u32,
         ))
     }
 
@@ -1329,7 +1359,7 @@
     /// ```
     </span><span class="attr">#[must_use = <span class="string">&quot;This method does not mutate the original `Time`.&quot;</span>]
     </span><span class="kw">pub const fn </span>replace_nanosecond(<span class="self">self</span>, nanosecond: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, error::ComponentRange&gt; {
-        <span class="macro">ensure_value_in_range!</span>(nanosecond <span class="kw">in </span><span class="number">0 </span>=&gt; <span class="number">999_999_999</span>);
+        <span class="macro">ensure_value_in_range!</span>(nanosecond <span class="kw">in </span><span class="number">0 </span>=&gt; Nanosecond.per(Second) - <span class="number">1</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::__from_hms_nanos_unchecked(
             <span class="self">self</span>.hour,
             <span class="self">self</span>.minute,
@@ -1506,12 +1536,14 @@
         <span class="kw">let </span>second_diff = (<span class="self">self</span>.second <span class="kw">as </span>i8) - (rhs.second <span class="kw">as </span>i8);
         <span class="kw">let </span>nanosecond_diff = (<span class="self">self</span>.nanosecond <span class="kw">as </span>i32) - (rhs.nanosecond <span class="kw">as </span>i32);
 
-        <span class="kw">let </span>seconds = hour_diff <span class="kw">as </span>i64 * <span class="number">3_600 </span>+ minute_diff <span class="kw">as </span>i64 * <span class="number">60 </span>+ second_diff <span class="kw">as </span>i64;
+        <span class="kw">let </span>seconds = hour_diff <span class="kw">as </span>i64 * Second.per(Hour) <span class="kw">as </span>i64
+            + minute_diff <span class="kw">as </span>i64 * Second.per(Minute) <span class="kw">as </span>i64
+            + second_diff <span class="kw">as </span>i64;
 
         <span class="kw">let </span>(seconds, nanoseconds) = <span class="kw">if </span>seconds &gt; <span class="number">0 </span>&amp;&amp; nanosecond_diff &lt; <span class="number">0 </span>{
-            (seconds - <span class="number">1</span>, nanosecond_diff + <span class="number">1_000_000_000</span>)
+            (seconds - <span class="number">1</span>, nanosecond_diff + Nanosecond.per(Second) <span class="kw">as </span>i32)
         } <span class="kw">else if </span>seconds &lt; <span class="number">0 </span>&amp;&amp; nanosecond_diff &gt; <span class="number">0 </span>{
-            (seconds + <span class="number">1</span>, nanosecond_diff - <span class="number">1_000_000_000</span>)
+            (seconds + <span class="number">1</span>, nanosecond_diff - Nanosecond.per(Second) <span class="kw">as </span>i32)
         } <span class="kw">else </span>{
             (seconds, nanosecond_diff)
         };

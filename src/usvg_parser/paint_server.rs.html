@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.32.0/src/paint_server.rs`."><title>paint_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.34.0/src/paint_server.rs`."><title>paint_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -525,21 +525,6 @@
 <a href="#525" id="525">525</a>
 <a href="#526" id="526">526</a>
 <a href="#527" id="527">527</a>
-<a href="#528" id="528">528</a>
-<a href="#529" id="529">529</a>
-<a href="#530" id="530">530</a>
-<a href="#531" id="531">531</a>
-<a href="#532" id="532">532</a>
-<a href="#533" id="533">533</a>
-<a href="#534" id="534">534</a>
-<a href="#535" id="535">535</a>
-<a href="#536" id="536">536</a>
-<a href="#537" id="537">537</a>
-<a href="#538" id="538">538</a>
-<a href="#539" id="539">539</a>
-<a href="#540" id="540">540</a>
-<a href="#541" id="541">541</a>
-<a href="#542" id="542">542</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -547,13 +532,13 @@
 </span><span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::str::FromStr;
 
-<span class="kw">use </span>rosvgtree::{<span class="self">self</span>, AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
-<span class="kw">use </span>strict_num::PositiveF64;
+<span class="kw">use </span>strict_num::PositiveF32;
 <span class="kw">use </span>svgtypes::{Length, LengthUnit <span class="kw">as </span>Unit};
 <span class="kw">use </span>usvg_tree::<span class="kw-2">*</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::rosvgtree_ext::{OpacityWrapper, SvgColorExt, SvgNodeExt2};
-<span class="kw">use crate</span>::{converter, OptionLog, SvgNodeExt};
+<span class="kw">use </span><span class="kw">crate</span>::converter::SvgColorExt;
+<span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, SvgNode};
+<span class="kw">use crate</span>::{converter, OptionLog};
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ServerOrColor {
     Server(Paint),
@@ -561,7 +546,7 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(
-    node: rosvgtree::Node,
+    node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;ServerOrColor&gt; {
@@ -588,7 +573,7 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_linear(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;ServerOrColor&gt; {
+</span><span class="kw">fn </span>convert_linear(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;ServerOrColor&gt; {
     <span class="kw">let </span>stops = convert_stops(find_gradient_with_stops(node)<span class="question-mark">?</span>);
     <span class="kw">if </span>stops.len() &lt; <span class="number">2 </span>{
         <span class="kw">return </span>stops_to_color(<span class="kw-2">&amp;</span>stops);
@@ -596,7 +581,7 @@
 
     <span class="kw">let </span>units = convert_units(node, AId::GradientUnits, Units::ObjectBoundingBox);
     <span class="kw">let </span>transform = resolve_attr(node, AId::GradientTransform)
-        .parse_attribute(AId::GradientTransform)
+        .attribute(AId::GradientTransform)
         .unwrap_or_default();
 
     <span class="kw">let </span>gradient = LinearGradient {
@@ -625,7 +610,7 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_radial(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;ServerOrColor&gt; {
+</span><span class="kw">fn </span>convert_radial(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;ServerOrColor&gt; {
     <span class="kw">let </span>stops = convert_stops(find_gradient_with_stops(node)<span class="question-mark">?</span>);
     <span class="kw">if </span>stops.len() &lt; <span class="number">2 </span>{
         <span class="kw">return </span>stops_to_color(<span class="kw-2">&amp;</span>stops);
@@ -661,17 +646,17 @@
         state,
         Length::new(<span class="number">50.0</span>, Unit::Percent),
     );
-    <span class="kw">let </span>fx = resolve_number(node, AId::Fx, units, state, Length::new_number(cx));
-    <span class="kw">let </span>fy = resolve_number(node, AId::Fy, units, state, Length::new_number(cy));
+    <span class="kw">let </span>fx = resolve_number(node, AId::Fx, units, state, Length::new_number(cx <span class="kw">as </span>f64));
+    <span class="kw">let </span>fy = resolve_number(node, AId::Fy, units, state, Length::new_number(cy <span class="kw">as </span>f64));
     <span class="kw">let </span>transform = resolve_attr(node, AId::GradientTransform)
-        .parse_attribute(AId::GradientTransform)
+        .attribute(AId::GradientTransform)
         .unwrap_or_default();
 
     <span class="kw">let </span>gradient = RadialGradient {
         id: node.element_id().to_string(),
         cx,
         cy,
-        r: PositiveF64::new(r).unwrap(),
+        r: PositiveF32::new(r).unwrap(),
         fx,
         fy,
         base: BaseGradient {
@@ -689,7 +674,7 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">fn </span>convert_pattern(
-    node: rosvgtree::Node,
+    node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;ServerOrColor&gt; {
@@ -700,9 +685,7 @@
         <span class="kw">let </span>n2 = resolve_attr(node, AId::PreserveAspectRatio);
         n1.parse_viewbox().map(|vb| ViewBox {
             rect: vb,
-            aspect: n2
-                .parse_attribute(AId::PreserveAspectRatio)
-                .unwrap_or_default(),
+            aspect: n2.attribute(AId::PreserveAspectRatio).unwrap_or_default(),
         })
     };
 
@@ -710,10 +693,10 @@
     <span class="kw">let </span>content_units = convert_units(node, AId::PatternContentUnits, Units::UserSpaceOnUse);
 
     <span class="kw">let </span>transform = resolve_attr(node, AId::PatternTransform)
-        .parse_attribute(AId::PatternTransform)
+        .attribute(AId::PatternTransform)
         .unwrap_or_default();
 
-    <span class="kw">let </span>rect = Rect::new(
+    <span class="kw">let </span>rect = NonZeroRect::from_xywh(
         resolve_number(node, AId::X, units, state, Length::zero()),
         resolve_number(node, AId::Y, units, state, Length::zero()),
         resolve_number(node, AId::Width, units, state, Length::zero()),
@@ -745,19 +728,19 @@
     <span class="prelude-val">Some</span>(ServerOrColor::Server(Paint::Pattern(Rc::new(patt))))
 }
 
-<span class="kw">fn </span>convert_spread_method(node: rosvgtree::Node) -&gt; SpreadMethod {
+<span class="kw">fn </span>convert_spread_method(node: SvgNode) -&gt; SpreadMethod {
     <span class="kw">let </span>node = resolve_attr(node, AId::SpreadMethod);
-    node.parse_attribute(AId::SpreadMethod).unwrap_or_default()
+    node.attribute(AId::SpreadMethod).unwrap_or_default()
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_units(node: rosvgtree::Node, name: AId, def: Units) -&gt; Units {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert_units(node: SvgNode, name: AId, def: Units) -&gt; Units {
     <span class="kw">let </span>node = resolve_attr(node, name);
-    node.parse_attribute(name).unwrap_or(def)
+    node.attribute(name).unwrap_or(def)
 }
 
 <span class="kw">fn </span>find_gradient_with_stops&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
+    node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">if </span>!link.tag_name().unwrap().is_gradient() {
             <span class="macro">log::warn!</span>(
@@ -777,8 +760,8 @@
 </span>}
 
 <span class="kw">fn </span>find_pattern_with_children&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
+    node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">if </span>link.tag_name() != <span class="prelude-val">Some</span>(EId::Pattern) {
             <span class="macro">log::warn!</span>(
@@ -797,7 +780,7 @@
     <span class="prelude-val">None
 </span>}
 
-<span class="kw">fn </span>convert_stops(grad: rosvgtree::Node) -&gt; Vec&lt;Stop&gt; {
+<span class="kw">fn </span>convert_stops(grad: SvgNode) -&gt; Vec&lt;Stop&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>stops = Vec::new();
 
     {
@@ -809,18 +792,18 @@
             }
 
             <span class="comment">// `number` can be either a number or a percentage.
-            </span><span class="kw">let </span>offset = stop.parse_attribute(AId::Offset).unwrap_or(prev_offset);
+            </span><span class="kw">let </span>offset = stop.attribute(AId::Offset).unwrap_or(prev_offset);
             <span class="kw">let </span>offset = <span class="kw">match </span>offset.unit {
                 Unit::None =&gt; offset.number,
                 Unit::Percent =&gt; offset.number / <span class="number">100.0</span>,
                 <span class="kw">_ </span>=&gt; prev_offset.number,
             };
-            <span class="kw">let </span>offset = <span class="kw">crate</span>::f64_bound(<span class="number">0.0</span>, offset, <span class="number">1.0</span>);
             prev_offset = Length::new_number(offset);
+            <span class="kw">let </span>offset = <span class="kw">crate</span>::f32_bound(<span class="number">0.0</span>, offset <span class="kw">as </span>f32, <span class="number">1.0</span>);
 
             <span class="kw">let </span>(color, opacity) = <span class="kw">match </span>stop.attribute(AId::StopColor) {
                 <span class="prelude-val">Some</span>(<span class="string">&quot;currentColor&quot;</span>) =&gt; stop
-                    .find_and_parse_attribute(AId::Color)
+                    .find_attribute(AId::Color)
                     .unwrap_or_else(svgtypes::Color::black),
                 <span class="prelude-val">Some</span>(value) =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(c) = svgtypes::Color::from_str(value) {
@@ -835,8 +818,7 @@
             .split_alpha();
 
             <span class="kw">let </span>stop_opacity = stop
-                .parse_attribute::&lt;OpacityWrapper&gt;(AId::StopOpacity)
-                .map(|v| v.<span class="number">0</span>)
+                .attribute::&lt;Opacity&gt;(AId::StopOpacity)
                 .unwrap_or(Opacity::ONE);
             stops.push(Stop {
                 offset: StopOffset::new_clamped(offset),
@@ -861,7 +843,7 @@
             <span class="kw">let </span>offset2 = stops[i + <span class="number">1</span>].offset.get();
             <span class="kw">let </span>offset3 = stops[i + <span class="number">2</span>].offset.get();
 
-            <span class="kw">if </span>offset1.fuzzy_eq(<span class="kw-2">&amp;</span>offset2) &amp;&amp; offset2.fuzzy_eq(<span class="kw-2">&amp;</span>offset3) {
+            <span class="kw">if </span>offset1.approx_eq_ulps(<span class="kw-2">&amp;</span>offset2, <span class="number">4</span>) &amp;&amp; offset2.approx_eq_ulps(<span class="kw-2">&amp;</span>offset3, <span class="number">4</span>) {
                 <span class="comment">// Remove offset in the middle.
                 </span>stops.remove(i + <span class="number">1</span>);
             } <span class="kw">else </span>{
@@ -887,8 +869,8 @@
             <span class="kw">let </span>offset1 = stops[i + <span class="number">0</span>].offset.get();
             <span class="kw">let </span>offset2 = stops[i + <span class="number">1</span>].offset.get();
 
-            <span class="kw">if </span>offset1.is_fuzzy_zero() &amp;&amp; offset2.is_fuzzy_zero() {
-                stops[i + <span class="number">1</span>].offset = StopOffset::new_clamped(offset1 + f64::EPSILON);
+            <span class="kw">if </span>offset1.approx_eq_ulps(<span class="kw-2">&amp;</span><span class="number">0.0</span>, <span class="number">4</span>) &amp;&amp; offset2.approx_eq_ulps(<span class="kw-2">&amp;</span><span class="number">0.0</span>, <span class="number">4</span>) {
+                stops[i + <span class="number">1</span>].offset = StopOffset::new_clamped(offset1 + f32::EPSILON);
             }
 
             i += <span class="number">1</span>;
@@ -913,9 +895,9 @@
             <span class="kw">let </span>offset2 = stops[i - <span class="number">0</span>].offset.get();
 
             <span class="comment">// Next offset must be smaller then previous.
-            </span><span class="kw">if </span>offset1 &gt; offset2 || offset1.fuzzy_eq(<span class="kw-2">&amp;</span>offset2) {
+            </span><span class="kw">if </span>offset1 &gt; offset2 || offset1.approx_eq_ulps(<span class="kw-2">&amp;</span>offset2, <span class="number">4</span>) {
                 <span class="comment">// Make previous offset a bit smaller.
-                </span><span class="kw">let </span>new_offset = offset1 - f64::EPSILON;
+                </span><span class="kw">let </span>new_offset = offset1 - f32::EPSILON;
                 stops[i - <span class="number">1</span>].offset = StopOffset::new_clamped(new_offset);
                 stops[i - <span class="number">0</span>].offset = StopOffset::new_clamped(offset1);
             }
@@ -929,19 +911,16 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>resolve_number(
-    node: rosvgtree::Node,
+    node: SvgNode,
     name: AId,
     units: Units,
     state: <span class="kw-2">&amp;</span>converter::State,
     def: Length,
-) -&gt; f64 {
+) -&gt; f32 {
     resolve_attr(node, name).convert_length(name, units, state, def)
 }
 
-<span class="kw">fn </span>resolve_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-    name: AId,
-) -&gt; rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">fn </span>resolve_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, name: AId) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
     <span class="kw">if </span>node.has_attribute(name) {
         <span class="kw">return </span>node;
     }
@@ -955,10 +934,7 @@
     }
 }
 
-<span class="kw">fn </span>resolve_lg_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-    name: AId,
-) -&gt; rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">fn </span>resolve_lg_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, name: AId) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">let </span>tag_name = <span class="kw">match </span>link.tag_name() {
             <span class="prelude-val">Some</span>(v) =&gt; v,
@@ -991,10 +967,7 @@
     node
 }
 
-<span class="kw">fn </span>resolve_rg_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-    name: AId,
-) -&gt; rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">fn </span>resolve_rg_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, name: AId) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">let </span>tag_name = <span class="kw">match </span>link.tag_name() {
             <span class="prelude-val">Some</span>(v) =&gt; v,
@@ -1029,9 +1002,9 @@
 }
 
 <span class="kw">fn </span>resolve_pattern_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
+    node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
     name: AId,
-) -&gt; rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">let </span>tag_name = <span class="kw">match </span>link.tag_name() {
             <span class="prelude-val">Some</span>(v) =&gt; v,
@@ -1050,10 +1023,7 @@
     node
 }
 
-<span class="kw">fn </span>resolve_filter_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;,
-    aid: AId,
-) -&gt; rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
+<span class="kw">fn </span>resolve_filter_attr&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt;(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt;, aid: AId) -&gt; SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">let </span>tag_name = <span class="kw">match </span>link.tag_name() {
             <span class="prelude-val">Some</span>(v) =&gt; v,

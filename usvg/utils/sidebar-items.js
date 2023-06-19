@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["aligned_pos","view_box_to_transform","view_box_to_transform_with_clip"]};
+window.SIDEBAR_ITEMS = {"fn":["aligned_pos","view_box_to_transform"]};

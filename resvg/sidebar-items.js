@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FitTo"],"fn":["render","render_node","trim_transparency"]};
+window.SIDEBAR_ITEMS = {"struct":["Tree"]};

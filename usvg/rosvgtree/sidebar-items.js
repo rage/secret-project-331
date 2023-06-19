@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AttributeId","ElementId","Error"],"mod":["roxmltree"],"struct":["Ancestors","Attribute","Children","Descendants","Document","HrefIter","Node"]};

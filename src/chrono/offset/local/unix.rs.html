@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.24/src/offset/local/unix.rs`."><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../chrono/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.26/src/offset/local/unix.rs`."><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../chrono/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -169,20 +169,6 @@
 <a href="#169" id="169">169</a>
 <a href="#170" id="170">170</a>
 <a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
@@ -196,15 +182,18 @@
 </span><span class="kw">use </span>std::{cell::RefCell, collections::hash_map, env, fs, hash::Hasher, time::SystemTime};
 
 <span class="kw">use </span><span class="kw">super</span>::tz_info::TimeZone;
-<span class="kw">use super</span>::{DateTime, FixedOffset, Local, NaiveDateTime};
-<span class="kw">use crate</span>::{Datelike, LocalResult, Utc};
+<span class="kw">use super</span>::{FixedOffset, NaiveDateTime};
+<span class="kw">use crate</span>::{Datelike, LocalResult};
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>now() -&gt; DateTime&lt;Local&gt; {
-    <span class="kw">let </span>now = Utc::now().naive_utc();
-    naive_to_local(<span class="kw-2">&amp;</span>now, <span class="bool-val">false</span>).unwrap()
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>offset_from_utc_datetime(utc: <span class="kw-2">&amp;</span>NaiveDateTime) -&gt; LocalResult&lt;FixedOffset&gt; {
+    offset(utc, <span class="bool-val">false</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>naive_to_local(d: <span class="kw-2">&amp;</span>NaiveDateTime, local: bool) -&gt; LocalResult&lt;DateTime&lt;Local&gt;&gt; {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>offset_from_local_datetime(local: <span class="kw-2">&amp;</span>NaiveDateTime) -&gt; LocalResult&lt;FixedOffset&gt; {
+    offset(local, <span class="bool-val">true</span>)
+}
+
+<span class="kw">fn </span>offset(d: <span class="kw-2">&amp;</span>NaiveDateTime, local: bool) -&gt; LocalResult&lt;FixedOffset&gt; {
     TZ_INFO.with(|maybe_cache| {
         maybe_cache.borrow_mut().get_or_insert_with(Cache::default).offset(<span class="kw-2">*</span>d, local)
     })
@@ -253,19 +242,18 @@
     last_checked: SystemTime,
 }
 
-<span class="attr">#[cfg(target_os = <span class="string">&quot;android&quot;</span>)]
-</span><span class="kw">const </span>TZDB_LOCATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot; /system/usr/share/zoneinfo&quot;</span>;
-
 <span class="attr">#[cfg(target_os = <span class="string">&quot;aix&quot;</span>)]
 </span><span class="kw">const </span>TZDB_LOCATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;/usr/share/lib/zoneinfo&quot;</span>;
 
-<span class="attr">#[allow(dead_code)] </span><span class="comment">// keeps the cfg simpler
-</span><span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;aix&quot;</span>)))]
+<span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;aix&quot;</span>)))]
 </span><span class="kw">const </span>TZDB_LOCATION: <span class="kw-2">&amp;</span>str = <span class="string">&quot;/usr/share/zoneinfo&quot;</span>;
 
 <span class="kw">fn </span>fallback_timezone() -&gt; <span class="prelude-ty">Option</span>&lt;TimeZone&gt; {
     <span class="kw">let </span>tz_name = iana_time_zone::get_timezone().ok()<span class="question-mark">?</span>;
-    <span class="kw">let </span>bytes = fs::read(<span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, TZDB_LOCATION, tz_name)).ok()<span class="question-mark">?</span>;
+    <span class="attr">#[cfg(not(target_os = <span class="string">&quot;android&quot;</span>))]
+    </span><span class="kw">let </span>bytes = fs::read(<span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, TZDB_LOCATION, tz_name)).ok()<span class="question-mark">?</span>;
+    <span class="attr">#[cfg(target_os = <span class="string">&quot;android&quot;</span>)]
+    </span><span class="kw">let </span>bytes = android_tzdata::find_tz_data(<span class="kw-2">&amp;</span>tz_name).ok()<span class="question-mark">?</span>;
     TimeZone::from_tz_data(<span class="kw-2">&amp;</span>bytes).ok()
 }
 
@@ -273,7 +261,7 @@
     <span class="kw">fn </span>default() -&gt; Cache {
         <span class="comment">// default to UTC if no local timezone can be found
         </span><span class="kw">let </span>env_tz = env::var(<span class="string">&quot;TZ&quot;</span>).ok();
-        <span class="kw">let </span>env_ref = env_tz.as_ref().map(|s| s.as_str());
+        <span class="kw">let </span>env_ref = env_tz.as_deref();
         Cache {
             last_checked: SystemTime::now(),
             source: Source::new(env_ref),
@@ -287,7 +275,7 @@
 }
 
 <span class="kw">impl </span>Cache {
-    <span class="kw">fn </span>offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, d: NaiveDateTime, local: bool) -&gt; LocalResult&lt;DateTime&lt;Local&gt;&gt; {
+    <span class="kw">fn </span>offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, d: NaiveDateTime, local: bool) -&gt; LocalResult&lt;FixedOffset&gt; {
         <span class="kw">let </span>now = SystemTime::now();
 
         <span class="kw">match </span>now.duration_since(<span class="self">self</span>.last_checked) {
@@ -299,7 +287,7 @@
             </span><span class="prelude-val">Ok</span>(d) <span class="kw">if </span>d.as_secs() &lt; <span class="number">1 </span>=&gt; (),
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span>env_tz = env::var(<span class="string">&quot;TZ&quot;</span>).ok();
-                <span class="kw">let </span>env_ref = env_tz.as_ref().map(|s| s.as_str());
+                <span class="kw">let </span>env_ref = env_tz.as_deref();
                 <span class="kw">let </span>new_source = Source::new(env_ref);
 
                 <span class="kw">let </span>out_of_date = <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.source, <span class="kw-2">&amp;</span>new_source) {
@@ -339,33 +327,17 @@
                 .offset();
 
             <span class="kw">return match </span>FixedOffset::east_opt(offset) {
-                <span class="prelude-val">Some</span>(offset) =&gt; LocalResult::Single(DateTime::from_utc(d, offset)),
+                <span class="prelude-val">Some</span>(offset) =&gt; LocalResult::Single(offset),
                 <span class="prelude-val">None </span>=&gt; LocalResult::None,
             };
         }
 
         <span class="comment">// we pass through the year as the year of a local point in time must either be valid in that locale, or
-        // the entire time was skipped in which case we will return LocalResult::None anywa.
-        </span><span class="kw">match </span><span class="self">self
-            </span>.zone
+        // the entire time was skipped in which case we will return LocalResult::None anyway.
+        </span><span class="self">self</span>.zone
             .find_local_time_type_from_local(d.timestamp(), d.year())
             .expect(<span class="string">&quot;unable to select local time type&quot;</span>)
-        {
-            LocalResult::None =&gt; LocalResult::None,
-            LocalResult::Ambiguous(early, late) =&gt; {
-                <span class="kw">let </span>early_offset = FixedOffset::east_opt(early.offset()).unwrap();
-                <span class="kw">let </span>late_offset = FixedOffset::east_opt(late.offset()).unwrap();
-
-                LocalResult::Ambiguous(
-                    DateTime::from_utc(d - early_offset, early_offset),
-                    DateTime::from_utc(d - late_offset, late_offset),
-                )
-            }
-            LocalResult::Single(tt) =&gt; {
-                <span class="kw">let </span>offset = FixedOffset::east_opt(tt.offset()).unwrap();
-                LocalResult::Single(DateTime::from_utc(d - offset, offset))
-            }
-        }
+            .map(|o| FixedOffset::east_opt(o.offset()).unwrap())
     }
 }
 </code></pre></div></section></main></body></html>

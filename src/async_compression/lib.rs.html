@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/async-compression-0.3.15/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="async_compression" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../async_compression/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/async-compression-0.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="async_compression" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../async_compression/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -258,6 +258,90 @@
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Adaptors between compression crates and Rust&#39;s modern asynchronous IO types.
 //!
 
@@ -296,38 +380,6 @@
 #![cfg_attr(
     not(feature = <span class="string">&quot;futures-io&quot;</span>),
     doc = <span class="string">&quot;`futures-io` (*inactive*) | `futures::io::AsyncBufRead`, `futures::io::AsyncWrite`&quot;
-</span>)]
-#![cfg_attr(
-    feature = <span class="string">&quot;futures-bufread&quot;</span>,
-    doc = <span class="string">&quot;`futures-bufread` | (*deprecated*, use `futures-io`)&quot;
-</span>)]
-#![cfg_attr(
-    feature = <span class="string">&quot;futures-write&quot;</span>,
-    doc = <span class="string">&quot;`futures-write` | (*deprecated*, use `futures-io`)&quot;
-</span>)]
-#![cfg_attr(
-    feature = <span class="string">&quot;stream&quot;</span>,
-    doc = <span class="string">&quot;[`stream`] | (*deprecated*, see [`async-compression:stream`](crate::stream) docs for migration)&quot;
-</span>)]
-#![cfg_attr(
-    not(feature = <span class="string">&quot;stream&quot;</span>),
-    doc = <span class="string">&quot;`stream` (*inactive*) | (*deprecated*, see `async-compression::stream` docs for migration)&quot;
-</span>)]
-#![cfg_attr(
-    feature = <span class="string">&quot;tokio-02&quot;</span>,
-    doc = <span class="string">&quot;[`tokio-02`](crate::tokio_02) | [`tokio::io::AsyncBufRead`](::tokio_02::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio_02::io::AsyncWrite)&quot;
-</span>)]
-#![cfg_attr(
-    not(feature = <span class="string">&quot;tokio-02&quot;</span>),
-    doc = <span class="string">&quot;`tokio-02` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;
-</span>)]
-#![cfg_attr(
-    feature = <span class="string">&quot;tokio-03&quot;</span>,
-    doc = <span class="string">&quot;[`tokio-03`](crate::tokio_03) | [`tokio::io::AsyncBufRead`](::tokio_03::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio_03::io::AsyncWrite)&quot;
-</span>)]
-#![cfg_attr(
-    not(feature = <span class="string">&quot;tokio-03&quot;</span>),
-    doc = <span class="string">&quot;`tokio-03` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;
 </span>)]
 #![cfg_attr(
     feature = <span class="string">&quot;tokio&quot;</span>,
@@ -413,7 +465,7 @@
 </span>)]
 </span><span class="doccomment">//!
 
-</span><span class="attr">#![cfg_attr(docsrs, feature(doc_cfg))]
+</span><span class="attr">#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![warn(
     missing_docs,
     rust_2018_idioms,
@@ -422,25 +474,17 @@
 )]
 #![cfg_attr(not(all), allow(unused))]
 
-#[macro_use]
+#[cfg(any(feature = <span class="string">&quot;bzip2&quot;</span>, feature = <span class="string">&quot;flate2&quot;</span>, feature = <span class="string">&quot;xz2&quot;</span>))]
+</span><span class="kw">use </span>std::convert::TryInto;
+
+<span class="attr">#[macro_use]
 </span><span class="kw">mod </span>macros;
 <span class="kw">mod </span>codec;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;futures-io&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;futures-io&quot;</span>)))]
 </span><span class="kw">pub mod </span>futures;
-<span class="attr">#[cfg(feature = <span class="string">&quot;stream&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;stream&quot;</span>)))]
-</span><span class="kw">pub mod </span>stream;
 <span class="attr">#[cfg(feature = <span class="string">&quot;tokio&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio&quot;</span>)))]
 </span><span class="kw">pub mod </span>tokio;
-<span class="attr">#[cfg(feature = <span class="string">&quot;tokio-02&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-02&quot;</span>)))]
-</span><span class="kw">pub mod </span>tokio_02;
-<span class="attr">#[cfg(feature = <span class="string">&quot;tokio-03&quot;</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-03&quot;</span>)))]
-</span><span class="kw">pub mod </span>tokio_03;
 
 <span class="kw">mod </span>unshared;
 <span class="kw">mod </span>util;
@@ -462,7 +506,7 @@
     /// qualities. The interpretation of this depends on the algorithm chosen
     /// and the specific implementation backing it.
     /// Qualities are implicitly clamped to the algorithm&#39;s maximum.
-    </span>Precise(u32),
+    </span>Precise(i32),
 }
 
 <span class="kw">impl </span>Level {
@@ -471,7 +515,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Fastest =&gt; params.quality = <span class="number">0</span>,
             <span class="self">Self</span>::Best =&gt; params.quality = <span class="number">11</span>,
-            <span class="self">Self</span>::Precise(quality) =&gt; params.quality = quality.min(<span class="number">11</span>) <span class="kw">as </span>i32,
+            <span class="self">Self</span>::Precise(quality) =&gt; params.quality = quality.clamp(<span class="number">0</span>, <span class="number">11</span>),
             <span class="self">Self</span>::Default =&gt; (),
         }
 
@@ -480,30 +524,47 @@
 
     <span class="attr">#[cfg(feature = <span class="string">&quot;bzip2&quot;</span>)]
     </span><span class="kw">fn </span>into_bzip2(<span class="self">self</span>) -&gt; bzip2::Compression {
+        <span class="kw">let </span>fastest = bzip2::Compression::fast();
+        <span class="kw">let </span>best = bzip2::Compression::best();
+
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Fastest =&gt; bzip2::Compression::fast(),
-            <span class="self">Self</span>::Best =&gt; bzip2::Compression::best(),
-            <span class="self">Self</span>::Precise(quality) =&gt; bzip2::Compression::new(quality.max(<span class="number">1</span>).min(<span class="number">9</span>)),
+            <span class="self">Self</span>::Fastest =&gt; fastest,
+            <span class="self">Self</span>::Best =&gt; best,
+            <span class="self">Self</span>::Precise(quality) =&gt; bzip2::Compression::new(
+                quality
+                    .try_into()
+                    .unwrap_or(<span class="number">0</span>)
+                    .clamp(fastest.level(), best.level()),
+            ),
             <span class="self">Self</span>::Default =&gt; bzip2::Compression::default(),
         }
     }
 
     <span class="attr">#[cfg(feature = <span class="string">&quot;flate2&quot;</span>)]
     </span><span class="kw">fn </span>into_flate2(<span class="self">self</span>) -&gt; flate2::Compression {
+        <span class="kw">let </span>fastest = flate2::Compression::fast();
+        <span class="kw">let </span>best = flate2::Compression::best();
+
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Fastest =&gt; flate2::Compression::fast(),
-            <span class="self">Self</span>::Best =&gt; flate2::Compression::best(),
-            <span class="self">Self</span>::Precise(quality) =&gt; flate2::Compression::new(quality.min(<span class="number">10</span>)),
+            <span class="self">Self</span>::Fastest =&gt; fastest,
+            <span class="self">Self</span>::Best =&gt; best,
+            <span class="self">Self</span>::Precise(quality) =&gt; flate2::Compression::new(
+                quality
+                    .try_into()
+                    .unwrap_or(<span class="number">0</span>)
+                    .clamp(fastest.level(), best.level()),
+            ),
             <span class="self">Self</span>::Default =&gt; flate2::Compression::default(),
         }
     }
 
     <span class="attr">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
     </span><span class="kw">fn </span>into_zstd(<span class="self">self</span>) -&gt; i32 {
+        <span class="kw">let </span>(fastest, best) = libzstd::compression_level_range().into_inner();
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Fastest =&gt; <span class="number">1</span>,
-            <span class="self">Self</span>::Best =&gt; <span class="number">21</span>,
-            <span class="self">Self</span>::Precise(quality) =&gt; quality.min(<span class="number">21</span>) <span class="kw">as </span>i32,
+            <span class="self">Self</span>::Fastest =&gt; fastest,
+            <span class="self">Self</span>::Best =&gt; best,
+            <span class="self">Self</span>::Precise(quality) =&gt; quality.clamp(fastest, best),
             <span class="self">Self</span>::Default =&gt; libzstd::DEFAULT_COMPRESSION_LEVEL,
         }
     }
@@ -513,9 +574,116 @@
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Fastest =&gt; <span class="number">0</span>,
             <span class="self">Self</span>::Best =&gt; <span class="number">9</span>,
-            <span class="self">Self</span>::Precise(quality) =&gt; quality.min(<span class="number">9</span>),
+            <span class="self">Self</span>::Precise(quality) =&gt; quality.try_into().unwrap_or(<span class="number">0</span>).min(<span class="number">9</span>),
             <span class="self">Self</span>::Default =&gt; <span class="number">5</span>,
         }
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
+</span><span class="doccomment">/// This module contains zstd-specific types for async-compression.
+</span><span class="kw">pub mod </span>zstd {
+    <span class="kw">use </span>libzstd::stream::raw::CParameter::<span class="kw-2">*</span>;
+
+    <span class="doccomment">/// A compression parameter for zstd. This is a stable wrapper around zstd&#39;s own `CParameter`
+    /// type, to abstract over different versions of the zstd library.
+    ///
+    /// See the [zstd documentation](https://facebook.github.io/zstd/zstd_manual.html) for more
+    /// information on these parameters.
+    </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+    </span><span class="kw">pub struct </span>CParameter(libzstd::stream::raw::CParameter);
+
+    <span class="kw">impl </span>CParameter {
+        <span class="doccomment">/// Window size in bytes (as a power of two)
+        </span><span class="kw">pub fn </span>window_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(WindowLog(value))
+        }
+
+        <span class="doccomment">/// Size of the initial probe table in 4-byte entries (as a power of two)
+        </span><span class="kw">pub fn </span>hash_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(HashLog(value))
+        }
+
+        <span class="doccomment">/// Size of the multi-probe table in 4-byte entries (as a power of two)
+        </span><span class="kw">pub fn </span>chain_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(ChainLog(value))
+        }
+
+        <span class="doccomment">/// Number of search attempts (as a power of two)
+        </span><span class="kw">pub fn </span>search_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(SearchLog(value))
+        }
+
+        <span class="doccomment">/// Minimum size of matches searched for
+        </span><span class="kw">pub fn </span>min_match(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(MinMatch(value))
+        }
+
+        <span class="doccomment">/// Strategy-dependent length modifier
+        </span><span class="kw">pub fn </span>target_length(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(TargetLength(value))
+        }
+
+        <span class="doccomment">/// Enable long-distance matching mode to look for and emit long-distance references.
+        ///
+        /// This increases the default window size.
+        </span><span class="kw">pub fn </span>enable_long_distance_matching(value: bool) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(EnableLongDistanceMatching(value))
+        }
+
+        <span class="doccomment">/// Size of the long-distance matching table (as a power of two)
+        </span><span class="kw">pub fn </span>ldm_hash_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(LdmHashLog(value))
+        }
+
+        <span class="doccomment">/// Minimum size of long-distance matches searched for
+        </span><span class="kw">pub fn </span>ldm_min_match(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(LdmMinMatch(value))
+        }
+
+        <span class="doccomment">/// Size of each bucket in the LDM hash table for collision resolution (as a power of two)
+        </span><span class="kw">pub fn </span>ldm_bucket_size_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(LdmBucketSizeLog(value))
+        }
+
+        <span class="doccomment">/// Frequency of using the LDM hash table (as a power of two)
+        </span><span class="kw">pub fn </span>ldm_hash_rate_log(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(LdmHashRateLog(value))
+        }
+
+        <span class="doccomment">/// Emit the size of the content (default: true).
+        </span><span class="kw">pub fn </span>content_size_flag(value: bool) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(ContentSizeFlag(value))
+        }
+
+        <span class="doccomment">/// Emit a checksum (default: false).
+        </span><span class="kw">pub fn </span>checksum_flag(value: bool) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(ChecksumFlag(value))
+        }
+
+        <span class="doccomment">/// Emit a dictionary ID when using a custom dictionary (default: true).
+        </span><span class="kw">pub fn </span>dict_id_flag(value: bool) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(DictIdFlag(value))
+        }
+
+        <span class="doccomment">/// Number of threads to spawn.
+        ///
+        /// If set to 0, compression functions will block; if set to 1 or more, compression will
+        /// run in background threads and `flush` pushes bytes through the compressor.
+        </span><span class="kw">pub fn </span>nb_workers(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(NbWorkers(value))
+        }
+
+        <span class="doccomment">/// Number of bytes given to each worker.
+        ///
+        /// If set to 0, zstd selects a job size based on compression parameters.
+        </span><span class="kw">pub fn </span>job_size(value: u32) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(JobSize(value))
+        }
+
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_zstd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; libzstd::stream::raw::CParameter {
+            <span class="self">self</span>.<span class="number">0
+        </span>}
     }
 }
 </code></pre></div></section></main></body></html>

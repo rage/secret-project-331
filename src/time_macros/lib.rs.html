@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-macros-0.2.8/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="time_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time_macros/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/time-macros-0.2.9/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="time_macros" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../time_macros/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -273,6 +273,8 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
 </pre></div><pre class="rust"><code><span class="attr">#![deny(
     anonymous_parameters,
     clippy::all,
@@ -317,9 +319,6 @@
 
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>quote;
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;formatting&quot;</span>, feature = <span class="string">&quot;parsing&quot;</span>))]
-#[macro_use]
-</span><span class="kw">mod </span>shim;
 
 <span class="kw">mod </span>date;
 <span class="kw">mod </span>datetime;
@@ -506,36 +505,41 @@
         <span class="comment">// We now have two options. The user can either provide a format description as a string or
         // they can provide a path to a format description. If the latter, all remaining tokens are
         // assumed to be part of the path.
-        </span><span class="kw">let </span>(format, raw_format_string) = <span class="kw">match </span>tokens.peek() {
+        </span><span class="kw">let </span>(format, format_description_display) = <span class="kw">match </span>tokens.peek() {
             <span class="comment">// string literal
             </span><span class="prelude-val">Some</span>(TokenTree::Literal(<span class="kw">_</span>)) =&gt; {
                 <span class="kw">let </span>(span, format_string) = helpers::get_string_literal(tokens)<span class="question-mark">?</span>;
                 <span class="kw">let </span>items = format_description::parse_with_version(version, <span class="kw-2">&amp;</span>format_string, span)<span class="question-mark">?</span>;
                 <span class="kw">let </span>items: TokenStream =
                     items.into_iter().map(|item| <span class="macro">quote! </span>{ #S(item), }).collect();
-                <span class="kw">let </span>items = <span class="macro">quote! </span>{ <span class="kw-2">&amp;</span>[#S(items)] };
+                <span class="kw">let </span>items = <span class="macro">quote! </span>{
+                    <span class="kw">const </span>ITEMS: <span class="kw-2">&amp;</span>[::time::format_description::FormatItem&lt;<span class="lifetime">&#39;_</span>&gt;] = <span class="kw-2">&amp;</span>[#S(items)];
+                    ITEMS
+                };
 
-                (
-                    items,
-                    <span class="prelude-val">Some</span>(String::from_utf8_lossy(<span class="kw-2">&amp;</span>format_string).into_owned()),
-                )
+                (items, String::from_utf8_lossy(<span class="kw-2">&amp;</span>format_string).into_owned())
             }
             <span class="comment">// path
-            </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; (
-                <span class="macro">quote! </span>{{
-                    <span class="comment">// We can&#39;t just do `super::path` because the path could be an absolute path. In
-                    // that case, we&#39;d be generating `super::::path`, which is invalid. Even if we
-                    // took that into account, it&#39;s not possible to know if it&#39;s an external crate,
-                    // which would just require emitting `path` directly. By taking this approach,
-                    // we can leave it to the compiler to do the actual resolution.
-                    </span><span class="kw">mod </span>__path_hack {
-                        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::<span class="kw-2">*</span>;
-                        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>#S(tokens.collect::&lt;TokenStream&gt;()) <span class="kw">as </span>FORMAT;
-                    }
-                    __path_hack::FORMAT
-                }},
-                <span class="prelude-val">None</span>,
-            ),
+            </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>tokens = tokens.collect::&lt;TokenStream&gt;();
+                <span class="kw">let </span>tokens_string = tokens.to_string();
+                (
+                    <span class="macro">quote! </span>{{
+                        <span class="comment">// We can&#39;t just do `super::path` because the path could be an absolute
+                        // path. In that case, we&#39;d be generating `super::::path`, which is invalid.
+                        // Even if we took that into account, it&#39;s not possible to know if it&#39;s an
+                        // external crate, which would just require emitting `path` directly. By
+                        // taking this approach, we can leave it to the compiler to do the actual
+                        // resolution.
+                        </span><span class="kw">mod </span>__path_hack {
+                            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::<span class="kw-2">*</span>;
+                            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>#S(tokens) <span class="kw">as </span>FORMAT;
+                        }
+                        __path_hack::FORMAT
+                    }},
+                    tokens_string,
+                )
+            }
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnexpectedEndOfInput),
         };
 
@@ -543,7 +547,7 @@
             mod_name,
             formattable,
             format,
-            raw_format_string,
+            format_description_display,
         ))
     })()
     .unwrap_or_else(|err: Error| err.to_compile_error_standalone())

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.32.0/src/filter.rs`."><title>filter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.34.0/src/filter.rs`."><title>filter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1136,6 +1136,49 @@
 <a href="#1136" id="1136">1136</a>
 <a href="#1137" id="1137">1137</a>
 <a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1146,18 +1189,21 @@
 <span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::str::FromStr;
 
-<span class="kw">use </span>rosvgtree::{<span class="self">self</span>, AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
-<span class="kw">use </span>strict_num::PositiveF64;
+<span class="kw">use </span>strict_num::PositiveF32;
 <span class="kw">use </span>svgtypes::{Length, LengthUnit <span class="kw">as </span>Unit};
 <span class="kw">use </span>usvg_tree::filter::<span class="kw-2">*</span>;
-<span class="kw">use </span>usvg_tree::{Color, FuzzyZero, Group, Node, NodeKind, NonZeroF64, Opacity, Point, Rect, Units};
+<span class="kw">use </span>usvg_tree::{
+    strict_num, ApproxZeroUlps, Color, Group, Node, NodeKind, NonZeroF32, NonZeroRect, Opacity,
+    Paint, Units,
+};
 
+<span class="kw">use </span><span class="kw">crate</span>::converter::SvgColorExt;
 <span class="kw">use </span><span class="kw">crate</span>::paint_server::{convert_units, resolve_number};
-<span class="kw">use </span><span class="kw">crate</span>::rosvgtree_ext::{OpacityWrapper, SvgColorExt, SvgNodeExt, SvgNodeExt2};
-<span class="kw">use crate</span>::{converter, FromValue, OptionLog};
+<span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, FromValue, SvgNode};
+<span class="kw">use crate</span>::{converter, OptionLog};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>: <span class="lifetime">&#39;a</span>&gt; FromValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;input</span>&gt; <span class="kw">for </span>usvg_tree::filter::ColorInterpolation {
-    <span class="kw">fn </span>parse(<span class="kw">_</span>: rosvgtree::Node, <span class="kw">_</span>: rosvgtree::AttributeId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+    <span class="kw">fn </span>parse(<span class="kw">_</span>: SvgNode, <span class="kw">_</span>: AId, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">match </span>value {
             <span class="string">&quot;sRGB&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::filter::ColorInterpolation::SRGB),
             <span class="string">&quot;linearRGB&quot; </span>=&gt; <span class="prelude-val">Some</span>(usvg_tree::filter::ColorInterpolation::LinearRGB),
@@ -1167,11 +1213,11 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(
-    node: rosvgtree::Node,
+    node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Rc&lt;Filter&gt;&gt;, ()&gt; {
-    <span class="kw">let </span>value = <span class="kw">match </span>node.attribute(AId::Filter) {
+    <span class="kw">let </span>value = <span class="kw">match </span>node.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::Filter) {
         <span class="prelude-val">Some</span>(v) =&gt; v,
         <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Vec::new()),
     };
@@ -1179,35 +1225,38 @@
     <span class="kw">let </span><span class="kw-2">mut </span>has_invalid_urls = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>filters = Vec::new();
 
-    <span class="kw">let </span>create_base_filter_func = |kind,
-                                   filters: <span class="kw-2">&amp;mut </span>Vec&lt;Rc&lt;Filter&gt;&gt;,
-                                   cache: <span class="kw-2">&amp;mut </span>converter::Cache| {
-        <span class="comment">// Filter functions, unlike `filter` elements, do not have a filter region.
-        // We&#39;re currently do not support an unlimited region, so we simply use a fairly large one.
-        // This if far from ideal, but good for now.
-        // TODO: Should be fixed eventually.
-        </span><span class="kw">let </span>rect = <span class="kw">match </span>kind {
-            Kind::DropShadow(<span class="kw">_</span>) | Kind::GaussianBlur(<span class="kw">_</span>) =&gt; Rect::new(-<span class="number">1.0</span>, -<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">2.0</span>).unwrap(),
-            <span class="kw">_ </span>=&gt; Rect::new(-<span class="number">0.1</span>, -<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">1.2</span>).unwrap(),
-        };
+    <span class="kw">let </span>create_base_filter_func =
+        |kind, filters: <span class="kw-2">&amp;mut </span>Vec&lt;Rc&lt;Filter&gt;&gt;, cache: <span class="kw-2">&amp;mut </span>converter::Cache| {
+            <span class="comment">// Filter functions, unlike `filter` elements, do not have a filter region.
+            // We&#39;re currently do not support an unlimited region, so we simply use a fairly large one.
+            // This if far from ideal, but good for now.
+            // TODO: Should be fixed eventually.
+            </span><span class="kw">let </span>rect = <span class="kw">match </span>kind {
+                Kind::DropShadow(<span class="kw">_</span>) | Kind::GaussianBlur(<span class="kw">_</span>) =&gt; {
+                    NonZeroRect::from_xywh(-<span class="number">0.5</span>, -<span class="number">0.5</span>, <span class="number">2.0</span>, <span class="number">2.0</span>).unwrap()
+                }
+                <span class="kw">_ </span>=&gt; NonZeroRect::from_xywh(-<span class="number">0.1</span>, -<span class="number">0.1</span>, <span class="number">1.2</span>, <span class="number">1.2</span>).unwrap(),
+            };
 
-        filters.push(Rc::new(Filter {
-            id: cache.gen_filter_id(),
-            units: Units::ObjectBoundingBox,
-            primitive_units: Units::UserSpaceOnUse,
-            rect,
-            primitives: <span class="macro">vec!</span>[Primitive {
-                x: <span class="prelude-val">None</span>,
-                y: <span class="prelude-val">None</span>,
-                width: <span class="prelude-val">None</span>,
-                height: <span class="prelude-val">None</span>,
-                <span class="comment">// Unlike `filter` elements, filter functions use sRGB colors by default.
-                </span>color_interpolation: ColorInterpolation::SRGB,
-                result: <span class="string">&quot;result&quot;</span>.to_string(),
-                kind,
-            }],
-        }));
-    };
+            filters.push(Rc::new(Filter {
+                id: cache.gen_filter_id(),
+                units: Units::ObjectBoundingBox,
+                primitive_units: Units::UserSpaceOnUse,
+                rect,
+                fill_paint: <span class="prelude-val">None</span>,
+                stroke_paint: <span class="prelude-val">None</span>,
+                primitives: <span class="macro">vec!</span>[Primitive {
+                    x: <span class="prelude-val">None</span>,
+                    y: <span class="prelude-val">None</span>,
+                    width: <span class="prelude-val">None</span>,
+                    height: <span class="prelude-val">None</span>,
+                    <span class="comment">// Unlike `filter` elements, filter functions use sRGB colors by default.
+                    </span>color_interpolation: ColorInterpolation::SRGB,
+                    result: <span class="string">&quot;result&quot;</span>.to_string(),
+                    kind,
+                }],
+            }));
+        };
 
     <span class="kw">for </span>func <span class="kw">in </span>svgtypes::FilterValueListParser::from(value) {
         <span class="kw">let </span>func = <span class="kw">match </span>func {
@@ -1261,7 +1310,7 @@
             }
             svgtypes::FilterValue::Url(url) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(link) = node.document().element_by_id(url) {
-                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(res) = convert_url(link, state, cache) {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(res) = convert_url(node, link, state, cache) {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = res {
                             filters.push(f);
                         }
@@ -1287,7 +1336,8 @@
 }
 
 <span class="kw">fn </span>convert_url(
-    node: rosvgtree::Node,
+    group_node: SvgNode,
+    node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Rc&lt;Filter&gt;&gt;, ()&gt; {
@@ -1298,7 +1348,7 @@
     <span class="kw">let </span>units = convert_units(node, AId::FilterUnits, Units::ObjectBoundingBox);
     <span class="kw">let </span>primitive_units = convert_units(node, AId::PrimitiveUnits, Units::UserSpaceOnUse);
 
-    <span class="kw">let </span>rect = Rect::new(
+    <span class="kw">let </span>rect = NonZeroRect::from_xywh(
         resolve_number(
             node,
             AId::X,
@@ -1346,11 +1396,16 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(());
     }
 
+    <span class="kw">let </span>fill_paint = resolve_filter_fill(group_node, state, <span class="kw-2">&amp;</span>primitives, cache);
+    <span class="kw">let </span>stroke_paint = resolve_filter_stroke(group_node, state, <span class="kw-2">&amp;</span>primitives, cache);
+
     <span class="kw">let </span>filter = Rc::new(Filter {
         id: node.element_id().to_string(),
         units,
         primitive_units,
         rect,
+        fill_paint,
+        stroke_paint,
         primitives,
     });
 
@@ -1361,9 +1416,43 @@
     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(filter))
 }
 
-<span class="kw">fn </span>find_filter_with_primitives&lt;<span class="lifetime">&#39;a</span>&gt;(
-    node: rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;rosvgtree::Node&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="kw">fn </span>resolve_filter_fill(
+    group_node: SvgNode,
+    state: <span class="kw-2">&amp;</span>converter::State,
+    primitives: <span class="kw-2">&amp;</span>[Primitive],
+    cache: <span class="kw-2">&amp;mut </span>converter::Cache,
+) -&gt; <span class="prelude-ty">Option</span>&lt;Paint&gt; {
+    <span class="kw">let </span>has_fill_paint = primitives
+        .iter()
+        .any(|c| c.kind.has_input(<span class="kw-2">&amp;</span>Input::FillPaint));
+
+    <span class="kw">if </span>!has_fill_paint {
+        <span class="kw">return </span><span class="prelude-val">None</span>;
+    }
+
+    <span class="kw">let </span>stroke = <span class="kw">crate</span>::style::resolve_fill(group_node, <span class="bool-val">true</span>, state, cache)<span class="question-mark">?</span>;
+    <span class="prelude-val">Some</span>(stroke.paint)
+}
+
+<span class="kw">fn </span>resolve_filter_stroke(
+    group_node: SvgNode,
+    state: <span class="kw-2">&amp;</span>converter::State,
+    primitives: <span class="kw-2">&amp;</span>[Primitive],
+    cache: <span class="kw-2">&amp;mut </span>converter::Cache,
+) -&gt; <span class="prelude-ty">Option</span>&lt;Paint&gt; {
+    <span class="kw">let </span>has_stroke_paint = primitives
+        .iter()
+        .any(|c| c.kind.has_input(<span class="kw-2">&amp;</span>Input::StrokePaint));
+
+    <span class="kw">if </span>!has_stroke_paint {
+        <span class="kw">return </span><span class="prelude-val">None</span>;
+    }
+
+    <span class="kw">let </span>stroke = <span class="kw">crate</span>::style::resolve_stroke(group_node, <span class="bool-val">true</span>, state, cache)<span class="question-mark">?</span>;
+    <span class="prelude-val">Some</span>(stroke.paint)
+}
+
+<span class="kw">fn </span>find_filter_with_primitives&lt;<span class="lifetime">&#39;a</span>&gt;(node: SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;SvgNode&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>&gt;&gt; {
     <span class="kw">for </span>link <span class="kw">in </span>node.href_iter() {
         <span class="kw">if </span>link.tag_name() != <span class="prelude-val">Some</span>(EId::Filter) {
             <span class="macro">log::warn!</span>(
@@ -1388,7 +1477,7 @@
 }
 
 <span class="kw">fn </span>collect_children(
-    filter: <span class="kw-2">&amp;</span>rosvgtree::Node,
+    filter: <span class="kw-2">&amp;</span>SvgNode,
     units: Units,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
@@ -1444,7 +1533,7 @@
 }
 
 <span class="kw">fn </span>convert_primitive(
-    fe: rosvgtree::Node,
+    fe: SvgNode,
     kind: Kind,
     units: Units,
     state: <span class="kw-2">&amp;</span>converter::State,
@@ -1457,7 +1546,7 @@
         </span>width: fe.try_convert_length(AId::Width, units, state),
         height: fe.try_convert_length(AId::Height, units, state),
         color_interpolation: fe
-            .find_and_parse_attribute(AId::ColorInterpolationFilters)
+            .find_attribute(AId::ColorInterpolationFilters)
             .unwrap_or_default(),
         result: gen_result(fe, results),
         kind,
@@ -1476,7 +1565,7 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>resolve_input(node: rosvgtree::Node, aid: AId, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Input {
+</span><span class="kw">fn </span>resolve_input(node: SvgNode, aid: AId, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Input {
     <span class="kw">match </span>node.attribute(aid) {
         <span class="prelude-val">Some</span>(s) =&gt; {
             <span class="kw">let </span>input = parse_in(s);
@@ -1521,8 +1610,8 @@
     }
 }
 
-<span class="kw">fn </span>gen_result(node: rosvgtree::Node, results: <span class="kw-2">&amp;mut </span>FilterResults) -&gt; String {
-    <span class="kw">match </span>node.attribute(AId::Result) {
+<span class="kw">fn </span>gen_result(node: SvgNode, results: <span class="kw-2">&amp;mut </span>FilterResults) -&gt; String {
+    <span class="kw">match </span>node.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::Result) {
         <span class="prelude-val">Some</span>(s) =&gt; {
             <span class="comment">// Remember predefined result.
             </span>results.names.insert(s.to_string());
@@ -1544,8 +1633,8 @@
     }
 }
 
-<span class="kw">fn </span>convert_blend(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
-    <span class="kw">let </span>mode = fe.parse_attribute(AId::Mode).unwrap_or_default();
+<span class="kw">fn </span>convert_blend(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+    <span class="kw">let </span>mode = fe.attribute(AId::Mode).unwrap_or_default();
     <span class="kw">let </span>input1 = resolve_input(fe, AId::In, primitives);
     <span class="kw">let </span>input2 = resolve_input(fe, AId::In2, primitives);
     Kind::Blend(Blend {
@@ -1555,7 +1644,7 @@
     })
 }
 
-<span class="kw">fn </span>convert_color_matrix(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_color_matrix(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span>kind = convert_color_matrix_kind(fe).unwrap_or_default();
     Kind::ColorMatrix(ColorMatrix {
         input: resolve_input(fe, AId::In, primitives),
@@ -1563,20 +1652,20 @@
     })
 }
 
-<span class="kw">fn </span>convert_color_matrix_kind(fe: rosvgtree::Node) -&gt; <span class="prelude-ty">Option</span>&lt;ColorMatrixKind&gt; {
+<span class="kw">fn </span>convert_color_matrix_kind(fe: SvgNode) -&gt; <span class="prelude-ty">Option</span>&lt;ColorMatrixKind&gt; {
     <span class="kw">match </span>fe.attribute(AId::Type) {
         <span class="prelude-val">Some</span>(<span class="string">&quot;saturate&quot;</span>) =&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::Values) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::Values) {
                 <span class="kw">if </span>!list.is_empty() {
-                    <span class="kw">let </span>n = <span class="kw">crate</span>::f64_bound(<span class="number">0.0</span>, list[<span class="number">0</span>], <span class="number">1.0</span>);
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(ColorMatrixKind::Saturate(PositiveF64::new(n).unwrap()));
+                    <span class="kw">let </span>n = <span class="kw">crate</span>::f32_bound(<span class="number">0.0</span>, list[<span class="number">0</span>], <span class="number">1.0</span>);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(ColorMatrixKind::Saturate(PositiveF32::new(n).unwrap()));
                 } <span class="kw">else </span>{
-                    <span class="kw">return </span><span class="prelude-val">Some</span>(ColorMatrixKind::Saturate(PositiveF64::new(<span class="number">1.0</span>).unwrap()));
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(ColorMatrixKind::Saturate(PositiveF32::new(<span class="number">1.0</span>).unwrap()));
                 }
             }
         }
         <span class="prelude-val">Some</span>(<span class="string">&quot;hueRotate&quot;</span>) =&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::Values) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::Values) {
                 <span class="kw">if </span>!list.is_empty() {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(ColorMatrixKind::HueRotate(list[<span class="number">0</span>]));
                 } <span class="kw">else </span>{
@@ -1589,7 +1678,7 @@
         }
         <span class="kw">_ </span>=&gt; {
             <span class="comment">// Fallback to `matrix`.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::Values) {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::Values) {
                 <span class="kw">if </span>list.len() == <span class="number">20 </span>{
                     <span class="kw">return </span><span class="prelude-val">Some</span>(ColorMatrixKind::Matrix(list));
                 }
@@ -1600,7 +1689,7 @@
     <span class="prelude-val">None
 </span>}
 
-<span class="kw">fn </span>convert_component_transfer(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_component_transfer(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span><span class="kw-2">mut </span>kind = ComponentTransfer {
         input: resolve_input(fe, AId::In, primitives),
         func_r: TransferFunction::Identity,
@@ -1624,41 +1713,41 @@
     Kind::ComponentTransfer(kind)
 }
 
-<span class="kw">fn </span>convert_transfer_function(node: rosvgtree::Node) -&gt; <span class="prelude-ty">Option</span>&lt;TransferFunction&gt; {
+<span class="kw">fn </span>convert_transfer_function(node: SvgNode) -&gt; <span class="prelude-ty">Option</span>&lt;TransferFunction&gt; {
     <span class="kw">match </span>node.attribute(AId::Type)<span class="question-mark">? </span>{
         <span class="string">&quot;identity&quot; </span>=&gt; <span class="prelude-val">Some</span>(TransferFunction::Identity),
-        <span class="string">&quot;table&quot; </span>=&gt; <span class="kw">match </span>node.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::TableValues) {
+        <span class="string">&quot;table&quot; </span>=&gt; <span class="kw">match </span>node.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::TableValues) {
             <span class="prelude-val">Some</span>(values) =&gt; <span class="prelude-val">Some</span>(TransferFunction::Table(values)),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(TransferFunction::Table(Vec::new())),
         },
-        <span class="string">&quot;discrete&quot; </span>=&gt; <span class="kw">match </span>node.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::TableValues) {
+        <span class="string">&quot;discrete&quot; </span>=&gt; <span class="kw">match </span>node.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::TableValues) {
             <span class="prelude-val">Some</span>(values) =&gt; <span class="prelude-val">Some</span>(TransferFunction::Discrete(values)),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(TransferFunction::Discrete(Vec::new())),
         },
         <span class="string">&quot;linear&quot; </span>=&gt; <span class="prelude-val">Some</span>(TransferFunction::Linear {
-            slope: node.parse_attribute(AId::Slope).unwrap_or(<span class="number">1.0</span>),
-            intercept: node.parse_attribute(AId::Intercept).unwrap_or(<span class="number">0.0</span>),
+            slope: node.attribute(AId::Slope).unwrap_or(<span class="number">1.0</span>),
+            intercept: node.attribute(AId::Intercept).unwrap_or(<span class="number">0.0</span>),
         }),
         <span class="string">&quot;gamma&quot; </span>=&gt; <span class="prelude-val">Some</span>(TransferFunction::Gamma {
-            amplitude: node.parse_attribute(AId::Amplitude).unwrap_or(<span class="number">1.0</span>),
-            exponent: node.parse_attribute(AId::Exponent).unwrap_or(<span class="number">1.0</span>),
-            offset: node.parse_attribute(AId::Offset).unwrap_or(<span class="number">0.0</span>),
+            amplitude: node.attribute(AId::Amplitude).unwrap_or(<span class="number">1.0</span>),
+            exponent: node.attribute(AId::Exponent).unwrap_or(<span class="number">1.0</span>),
+            offset: node.attribute(AId::Offset).unwrap_or(<span class="number">0.0</span>),
         }),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">fn </span>convert_composite(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_composite(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span>operator = <span class="kw">match </span>fe.attribute(AId::Operator).unwrap_or(<span class="string">&quot;over&quot;</span>) {
         <span class="string">&quot;in&quot; </span>=&gt; CompositeOperator::In,
         <span class="string">&quot;out&quot; </span>=&gt; CompositeOperator::Out,
         <span class="string">&quot;atop&quot; </span>=&gt; CompositeOperator::Atop,
         <span class="string">&quot;xor&quot; </span>=&gt; CompositeOperator::Xor,
         <span class="string">&quot;arithmetic&quot; </span>=&gt; CompositeOperator::Arithmetic {
-            k1: fe.parse_attribute::&lt;f64&gt;(AId::K1).unwrap_or(<span class="number">0.0</span>),
-            k2: fe.parse_attribute::&lt;f64&gt;(AId::K2).unwrap_or(<span class="number">0.0</span>),
-            k3: fe.parse_attribute::&lt;f64&gt;(AId::K3).unwrap_or(<span class="number">0.0</span>),
-            k4: fe.parse_attribute::&lt;f64&gt;(AId::K4).unwrap_or(<span class="number">0.0</span>),
+            k1: fe.attribute(AId::K1).unwrap_or(<span class="number">0.0</span>),
+            k2: fe.attribute(AId::K2).unwrap_or(<span class="number">0.0</span>),
+            k3: fe.attribute(AId::K3).unwrap_or(<span class="number">0.0</span>),
+            k4: fe.attribute(AId::K4).unwrap_or(<span class="number">0.0</span>),
         },
         <span class="kw">_ </span>=&gt; CompositeOperator::Over,
     };
@@ -1673,10 +1762,10 @@
     })
 }
 
-<span class="kw">fn </span>convert_convolve_matrix(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
-    <span class="kw">fn </span>parse_target(target: <span class="prelude-ty">Option</span>&lt;f64&gt;, order: u32) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+<span class="kw">fn </span>convert_convolve_matrix(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
+    <span class="kw">fn </span>parse_target(target: <span class="prelude-ty">Option</span>&lt;f32&gt;, order: u32) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
         <span class="kw">let </span>default_target = (order <span class="kw">as </span>f32 / <span class="number">2.0</span>).floor() <span class="kw">as </span>u32;
-        <span class="kw">let </span>target = target.unwrap_or(default_target <span class="kw">as </span>f64) <span class="kw">as </span>i32;
+        <span class="kw">let </span>target = target.unwrap_or(default_target <span class="kw">as </span>f32) <span class="kw">as </span>i32;
         <span class="kw">if </span>target &lt; <span class="number">0 </span>|| target &gt;= order <span class="kw">as </span>i32 {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
@@ -1686,7 +1775,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>order_x = <span class="number">3</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>order_y = <span class="number">3</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = fe.attribute(AId::Order) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = fe.attribute::&lt;<span class="kw-2">&amp;</span>str&gt;(AId::Order) {
         <span class="kw">let </span><span class="kw-2">mut </span>s = svgtypes::NumberListParser::from(value);
         <span class="kw">let </span>x = s.next().and_then(|a| a.ok()).map(|n| n <span class="kw">as </span>i32).unwrap_or(<span class="number">3</span>);
         <span class="kw">let </span>y = s.next().and_then(|a| a.ok()).map(|n| n <span class="kw">as </span>i32).unwrap_or(x);
@@ -1697,28 +1786,28 @@
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>matrix = Vec::new();
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::KernelMatrix) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::KernelMatrix) {
         <span class="kw">if </span>list.len() == (order_x * order_y) <span class="kw">as </span>usize {
             matrix = list;
         }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>kernel_sum: f64 = matrix.iter().sum();
+    <span class="kw">let </span><span class="kw-2">mut </span>kernel_sum: f32 = matrix.iter().sum();
     <span class="comment">// Round up to prevent float precision issues.
     </span>kernel_sum = (kernel_sum * <span class="number">1_000_000.0</span>).round() / <span class="number">1_000_000.0</span>;
-    <span class="kw">if </span>kernel_sum.is_fuzzy_zero() {
+    <span class="kw">if </span>kernel_sum.approx_zero_ulps(<span class="number">4</span>) {
         kernel_sum = <span class="number">1.0</span>;
     }
 
-    <span class="kw">let </span>divisor = fe.parse_attribute(AId::Divisor).unwrap_or(kernel_sum);
-    <span class="kw">if </span>divisor.is_fuzzy_zero() {
+    <span class="kw">let </span>divisor = fe.attribute(AId::Divisor).unwrap_or(kernel_sum);
+    <span class="kw">if </span>divisor.approx_zero_ulps(<span class="number">4</span>) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let </span>bias = fe.parse_attribute(AId::Bias).unwrap_or(<span class="number">0.0</span>);
+    <span class="kw">let </span>bias = fe.attribute(AId::Bias).unwrap_or(<span class="number">0.0</span>);
 
-    <span class="kw">let </span>target_x = parse_target(fe.parse_attribute(AId::TargetX), order_x)<span class="question-mark">?</span>;
-    <span class="kw">let </span>target_y = parse_target(fe.parse_attribute(AId::TargetY), order_y)<span class="question-mark">?</span>;
+    <span class="kw">let </span>target_x = parse_target(fe.attribute(AId::TargetX), order_x)<span class="question-mark">?</span>;
+    <span class="kw">let </span>target_y = parse_target(fe.attribute(AId::TargetY), order_y)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>kernel_matrix = ConvolveMatrixData::new(target_x, target_y, order_x, order_y, matrix)<span class="question-mark">?</span>;
 
@@ -1733,14 +1822,14 @@
     <span class="prelude-val">Some</span>(Kind::ConvolveMatrix(ConvolveMatrix {
         input: resolve_input(fe, AId::In, primitives),
         matrix: kernel_matrix,
-        divisor: NonZeroF64::new(divisor).unwrap(),
+        divisor: NonZeroF32::new(divisor).unwrap(),
         bias,
         edge_mode,
         preserve_alpha,
     }))
 }
 
-<span class="kw">fn </span>convert_displacement_map(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_displacement_map(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span>parse_channel = |aid| <span class="kw">match </span>fe.attribute(aid).unwrap_or(<span class="string">&quot;A&quot;</span>) {
         <span class="string">&quot;R&quot; </span>=&gt; ColorChannel::R,
         <span class="string">&quot;G&quot; </span>=&gt; ColorChannel::G,
@@ -1751,29 +1840,28 @@
     Kind::DisplacementMap(DisplacementMap {
         input1: resolve_input(fe, AId::In, primitives),
         input2: resolve_input(fe, AId::In2, primitives),
-        scale: fe.parse_attribute(AId::Scale).unwrap_or(<span class="number">0.0</span>),
+        scale: fe.attribute(AId::Scale).unwrap_or(<span class="number">0.0</span>),
         x_channel_selector: parse_channel(AId::XChannelSelector),
         y_channel_selector: parse_channel(AId::YChannelSelector),
     })
 }
 
-<span class="kw">fn </span>convert_drop_shadow(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_drop_shadow(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span>(std_dev_x, std_dev_y) = convert_std_dev_attr(fe, <span class="string">&quot;2 2&quot;</span>);
 
     <span class="kw">let </span>(color, opacity) = fe
-        .parse_attribute(AId::FloodColor)
+        .attribute(AId::FloodColor)
         .unwrap_or_else(svgtypes::Color::black)
         .split_alpha();
 
     <span class="kw">let </span>flood_opacity = fe
-        .parse_attribute::&lt;OpacityWrapper&gt;(AId::FloodOpacity)
-        .map(|v| v.<span class="number">0</span>)
+        .attribute::&lt;Opacity&gt;(AId::FloodOpacity)
         .unwrap_or(Opacity::ONE);
 
     Kind::DropShadow(DropShadow {
         input: resolve_input(fe, AId::In, primitives),
-        dx: fe.parse_attribute(AId::Dx).unwrap_or(<span class="number">2.0</span>),
-        dy: fe.parse_attribute(AId::Dy).unwrap_or(<span class="number">2.0</span>),
+        dx: fe.attribute(AId::Dx).unwrap_or(<span class="number">2.0</span>),
+        dy: fe.attribute(AId::Dy).unwrap_or(<span class="number">2.0</span>),
         std_dev_x,
         std_dev_y,
         color,
@@ -1781,15 +1869,14 @@
     })
 }
 
-<span class="kw">fn </span>convert_flood(fe: rosvgtree::Node) -&gt; Kind {
+<span class="kw">fn </span>convert_flood(fe: SvgNode) -&gt; Kind {
     <span class="kw">let </span>(color, opacity) = fe
-        .parse_attribute(AId::FloodColor)
+        .attribute(AId::FloodColor)
         .unwrap_or_else(svgtypes::Color::black)
         .split_alpha();
 
     <span class="kw">let </span>flood_opacity = fe
-        .parse_attribute::&lt;OpacityWrapper&gt;(AId::FloodOpacity)
-        .map(|v| v.<span class="number">0</span>)
+        .attribute::&lt;Opacity&gt;(AId::FloodOpacity)
         .unwrap_or(Opacity::ONE);
 
     Kind::Flood(Flood {
@@ -1798,7 +1885,7 @@
     })
 }
 
-<span class="kw">fn </span>convert_gaussian_blur(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_gaussian_blur(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span>(std_dev_x, std_dev_y) = convert_std_dev_attr(fe, <span class="string">&quot;0 0&quot;</span>);
     Kind::GaussianBlur(GaussianBlur {
         input: resolve_input(fe, AId::In, primitives),
@@ -1807,7 +1894,7 @@
     })
 }
 
-<span class="kw">fn </span>convert_std_dev_attr(fe: rosvgtree::Node, default: <span class="kw-2">&amp;</span>str) -&gt; (PositiveF64, PositiveF64) {
+<span class="kw">fn </span>convert_std_dev_attr(fe: SvgNode, default: <span class="kw-2">&amp;</span>str) -&gt; (PositiveF32, PositiveF32) {
     <span class="kw">let </span>text = fe.attribute(AId::StdDeviation).unwrap_or(default);
     <span class="kw">let </span><span class="kw-2">mut </span>parser = svgtypes::NumberListParser::from(text);
 
@@ -1823,25 +1910,19 @@
         <span class="kw">_ </span>=&gt; (<span class="number">0.0</span>, <span class="number">0.0</span>),
     };
 
-    <span class="kw">let </span>std_dev_x = PositiveF64::new(std_dev_x).unwrap_or(PositiveF64::ZERO);
-    <span class="kw">let </span>std_dev_y = PositiveF64::new(std_dev_y).unwrap_or(PositiveF64::ZERO);
+    <span class="kw">let </span>std_dev_x = PositiveF32::new(std_dev_x <span class="kw">as </span>f32).unwrap_or(PositiveF32::ZERO);
+    <span class="kw">let </span>std_dev_y = PositiveF32::new(std_dev_y <span class="kw">as </span>f32).unwrap_or(PositiveF32::ZERO);
 
     (std_dev_x, std_dev_y)
 }
 
-<span class="kw">fn </span>convert_image(
-    fe: rosvgtree::Node,
-    state: <span class="kw-2">&amp;</span>converter::State,
-    cache: <span class="kw-2">&amp;mut </span>converter::Cache,
-) -&gt; Kind {
-    <span class="kw">let </span>aspect = fe
-        .parse_attribute(AId::PreserveAspectRatio)
-        .unwrap_or_default();
+<span class="kw">fn </span>convert_image(fe: SvgNode, state: <span class="kw-2">&amp;</span>converter::State, cache: <span class="kw-2">&amp;mut </span>converter::Cache) -&gt; Kind {
+    <span class="kw">let </span>aspect = fe.attribute(AId::PreserveAspectRatio).unwrap_or_default();
     <span class="kw">let </span>rendering_mode = fe
-        .find_and_parse_attribute(AId::ImageRendering)
+        .find_attribute(AId::ImageRendering)
         .unwrap_or(state.opt.image_rendering);
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(node) = fe.parse_attribute::&lt;rosvgtree::Node&gt;(AId::Href) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(node) = fe.attribute::&lt;SvgNode&gt;(AId::Href) {
         <span class="kw">let </span><span class="kw-2">mut </span>state = state.clone();
         state.fe_image_link = <span class="bool-val">true</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>root = Node::new(NodeKind::Group(Group::default()));
@@ -1879,32 +1960,32 @@
     })
 }
 
-<span class="kw">fn </span>convert_diffuse_lighting(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
+<span class="kw">fn </span>convert_diffuse_lighting(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
     <span class="kw">let </span>light_source = convert_light_source(fe)<span class="question-mark">?</span>;
     <span class="prelude-val">Some</span>(Kind::DiffuseLighting(DiffuseLighting {
         input: resolve_input(fe, AId::In, primitives),
-        surface_scale: fe.parse_attribute(AId::SurfaceScale).unwrap_or(<span class="number">1.0</span>),
-        diffuse_constant: fe.parse_attribute(AId::DiffuseConstant).unwrap_or(<span class="number">1.0</span>),
+        surface_scale: fe.attribute(AId::SurfaceScale).unwrap_or(<span class="number">1.0</span>),
+        diffuse_constant: fe.attribute(AId::DiffuseConstant).unwrap_or(<span class="number">1.0</span>),
         lighting_color: convert_lighting_color(fe),
         light_source,
     }))
 }
 
-<span class="kw">fn </span>convert_specular_lighting(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
+<span class="kw">fn </span>convert_specular_lighting(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
     <span class="kw">let </span>light_source = convert_light_source(fe)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>specular_exponent = fe.parse_attribute(AId::SpecularExponent).unwrap_or(<span class="number">1.0</span>);
+    <span class="kw">let </span>specular_exponent = fe.attribute(AId::SpecularExponent).unwrap_or(<span class="number">1.0</span>);
     <span class="kw">if </span>!(<span class="number">1.0</span>..=<span class="number">128.0</span>).contains(<span class="kw-2">&amp;</span>specular_exponent) {
         <span class="comment">// When exponent is out of range, the whole filter primitive should be ignored.
         </span><span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let </span>specular_exponent = <span class="kw">crate</span>::f64_bound(<span class="number">1.0</span>, specular_exponent, <span class="number">128.0</span>);
+    <span class="kw">let </span>specular_exponent = <span class="kw">crate</span>::f32_bound(<span class="number">1.0</span>, specular_exponent, <span class="number">128.0</span>);
 
     <span class="prelude-val">Some</span>(Kind::SpecularLighting(SpecularLighting {
         input: resolve_input(fe, AId::In, primitives),
-        surface_scale: fe.parse_attribute(AId::SurfaceScale).unwrap_or(<span class="number">1.0</span>),
-        specular_constant: fe.parse_attribute(AId::SpecularConstant).unwrap_or(<span class="number">1.0</span>),
+        surface_scale: fe.attribute(AId::SurfaceScale).unwrap_or(<span class="number">1.0</span>),
+        specular_constant: fe.attribute(AId::SpecularConstant).unwrap_or(<span class="number">1.0</span>),
         specular_exponent,
         lighting_color: convert_lighting_color(fe),
         light_source,
@@ -1912,11 +1993,11 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_lighting_color(node: rosvgtree::Node) -&gt; Color {
+</span><span class="kw">fn </span>convert_lighting_color(node: SvgNode) -&gt; Color {
     <span class="comment">// Color&#39;s alpha doesn&#39;t affect lighting-color. Simply skip it.
     </span><span class="kw">match </span>node.attribute(AId::LightingColor) {
         <span class="prelude-val">Some</span>(<span class="string">&quot;currentColor&quot;</span>) =&gt; {
-            node.find_and_parse_attribute(AId::Color)
+            node.find_attribute(AId::Color)
                 <span class="comment">// Yes, a missing `currentColor` resolves to black and not white.
                 </span>.unwrap_or(svgtypes::Color::black())
                 .split_alpha()
@@ -1935,7 +2016,7 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_light_source(parent: rosvgtree::Node) -&gt; <span class="prelude-ty">Option</span>&lt;LightSource&gt; {
+</span><span class="kw">fn </span>convert_light_source(parent: SvgNode) -&gt; <span class="prelude-ty">Option</span>&lt;LightSource&gt; {
     <span class="kw">let </span>child = parent.children().find(|n| {
         <span class="macro">matches!</span>(
             n.tag_name(),
@@ -1945,35 +2026,35 @@
 
     <span class="kw">match </span>child.tag_name() {
         <span class="prelude-val">Some</span>(EId::FeDistantLight) =&gt; <span class="prelude-val">Some</span>(LightSource::DistantLight(DistantLight {
-            azimuth: child.parse_attribute(AId::Azimuth).unwrap_or(<span class="number">0.0</span>),
-            elevation: child.parse_attribute(AId::Elevation).unwrap_or(<span class="number">0.0</span>),
+            azimuth: child.attribute(AId::Azimuth).unwrap_or(<span class="number">0.0</span>),
+            elevation: child.attribute(AId::Elevation).unwrap_or(<span class="number">0.0</span>),
         })),
         <span class="prelude-val">Some</span>(EId::FePointLight) =&gt; <span class="prelude-val">Some</span>(LightSource::PointLight(PointLight {
-            x: child.parse_attribute(AId::X).unwrap_or(<span class="number">0.0</span>),
-            y: child.parse_attribute(AId::Y).unwrap_or(<span class="number">0.0</span>),
-            z: child.parse_attribute(AId::Z).unwrap_or(<span class="number">0.0</span>),
+            x: child.attribute(AId::X).unwrap_or(<span class="number">0.0</span>),
+            y: child.attribute(AId::Y).unwrap_or(<span class="number">0.0</span>),
+            z: child.attribute(AId::Z).unwrap_or(<span class="number">0.0</span>),
         })),
         <span class="prelude-val">Some</span>(EId::FeSpotLight) =&gt; {
-            <span class="kw">let </span>specular_exponent = child.parse_attribute(AId::SpecularExponent).unwrap_or(<span class="number">1.0</span>);
-            <span class="kw">let </span>specular_exponent = PositiveF64::new(specular_exponent)
-                .unwrap_or_else(|| PositiveF64::new(<span class="number">1.0</span>).unwrap());
+            <span class="kw">let </span>specular_exponent = child.attribute(AId::SpecularExponent).unwrap_or(<span class="number">1.0</span>);
+            <span class="kw">let </span>specular_exponent = PositiveF32::new(specular_exponent)
+                .unwrap_or_else(|| PositiveF32::new(<span class="number">1.0</span>).unwrap());
 
             <span class="prelude-val">Some</span>(LightSource::SpotLight(SpotLight {
-                x: child.parse_attribute(AId::X).unwrap_or(<span class="number">0.0</span>),
-                y: child.parse_attribute(AId::Y).unwrap_or(<span class="number">0.0</span>),
-                z: child.parse_attribute(AId::Z).unwrap_or(<span class="number">0.0</span>),
-                points_at_x: child.parse_attribute(AId::PointsAtX).unwrap_or(<span class="number">0.0</span>),
-                points_at_y: child.parse_attribute(AId::PointsAtY).unwrap_or(<span class="number">0.0</span>),
-                points_at_z: child.parse_attribute(AId::PointsAtZ).unwrap_or(<span class="number">0.0</span>),
+                x: child.attribute(AId::X).unwrap_or(<span class="number">0.0</span>),
+                y: child.attribute(AId::Y).unwrap_or(<span class="number">0.0</span>),
+                z: child.attribute(AId::Z).unwrap_or(<span class="number">0.0</span>),
+                points_at_x: child.attribute(AId::PointsAtX).unwrap_or(<span class="number">0.0</span>),
+                points_at_y: child.attribute(AId::PointsAtY).unwrap_or(<span class="number">0.0</span>),
+                points_at_z: child.attribute(AId::PointsAtZ).unwrap_or(<span class="number">0.0</span>),
                 specular_exponent,
-                limiting_cone_angle: child.parse_attribute(AId::LimitingConeAngle),
+                limiting_cone_angle: child.attribute(AId::LimitingConeAngle),
             }))
         }
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">fn </span>convert_merge(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_merge(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span><span class="kw-2">mut </span>inputs = Vec::new();
     <span class="kw">for </span>child <span class="kw">in </span>fe.children() {
         inputs.push(resolve_input(child, AId::In, primitives));
@@ -1982,15 +2063,15 @@
     Kind::Merge(Merge { inputs })
 }
 
-<span class="kw">fn </span>convert_morphology(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_morphology(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     <span class="kw">let </span>operator = <span class="kw">match </span>fe.attribute(AId::Operator).unwrap_or(<span class="string">&quot;erode&quot;</span>) {
         <span class="string">&quot;dilate&quot; </span>=&gt; MorphologyOperator::Dilate,
         <span class="kw">_ </span>=&gt; MorphologyOperator::Erode,
     };
 
-    <span class="kw">let </span><span class="kw-2">mut </span>radius_x = PositiveF64::new(<span class="number">1.0</span>).unwrap();
-    <span class="kw">let </span><span class="kw-2">mut </span>radius_y = PositiveF64::new(<span class="number">1.0</span>).unwrap();
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::Radius) {
+    <span class="kw">let </span><span class="kw-2">mut </span>radius_x = PositiveF32::new(<span class="number">1.0</span>).unwrap();
+    <span class="kw">let </span><span class="kw-2">mut </span>radius_y = PositiveF32::new(<span class="number">1.0</span>).unwrap();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::Radius) {
         <span class="kw">let </span><span class="kw-2">mut </span>rx = <span class="number">0.0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ry = <span class="number">0.0</span>;
         <span class="kw">if </span>list.len() == <span class="number">2 </span>{
@@ -2001,24 +2082,24 @@
             ry = list[<span class="number">0</span>]; <span class="comment">// The same as `rx`.
         </span>}
 
-        <span class="kw">if </span>rx.is_fuzzy_zero() &amp;&amp; ry.is_fuzzy_zero() {
+        <span class="kw">if </span>rx.approx_zero_ulps(<span class="number">4</span>) &amp;&amp; ry.approx_zero_ulps(<span class="number">4</span>) {
             rx = <span class="number">1.0</span>;
             ry = <span class="number">1.0</span>;
         }
 
         <span class="comment">// If only one of the values is zero, reset it to 1.0
         // This is not specified in the spec, but this is how Chrome and Safari work.
-        </span><span class="kw">if </span>rx.is_fuzzy_zero() &amp;&amp; !ry.is_fuzzy_zero() {
+        </span><span class="kw">if </span>rx.approx_zero_ulps(<span class="number">4</span>) &amp;&amp; !ry.approx_zero_ulps(<span class="number">4</span>) {
             rx = <span class="number">1.0</span>;
         }
-        <span class="kw">if </span>!rx.is_fuzzy_zero() &amp;&amp; ry.is_fuzzy_zero() {
+        <span class="kw">if </span>!rx.approx_zero_ulps(<span class="number">4</span>) &amp;&amp; ry.approx_zero_ulps(<span class="number">4</span>) {
             ry = <span class="number">1.0</span>;
         }
 
         <span class="comment">// Both values must be positive.
         </span><span class="kw">if </span>rx.is_sign_positive() &amp;&amp; ry.is_sign_positive() {
-            radius_x = PositiveF64::new(rx).unwrap();
-            radius_y = PositiveF64::new(ry).unwrap();
+            radius_x = PositiveF32::new(rx).unwrap();
+            radius_y = PositiveF32::new(ry).unwrap();
         }
     }
 
@@ -2030,23 +2111,24 @@
     })
 }
 
-<span class="kw">fn </span>convert_offset(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_offset(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     Kind::Offset(Offset {
         input: resolve_input(fe, AId::In, primitives),
-        dx: fe.parse_attribute::&lt;f64&gt;(AId::Dx).unwrap_or(<span class="number">0.0</span>),
-        dy: fe.parse_attribute::&lt;f64&gt;(AId::Dy).unwrap_or(<span class="number">0.0</span>),
+        dx: fe.attribute(AId::Dx).unwrap_or(<span class="number">0.0</span>),
+        dy: fe.attribute(AId::Dy).unwrap_or(<span class="number">0.0</span>),
     })
 }
 
-<span class="kw">fn </span>convert_tile(fe: rosvgtree::Node, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
+<span class="kw">fn </span>convert_tile(fe: SvgNode, primitives: <span class="kw-2">&amp;</span>[Primitive]) -&gt; Kind {
     Kind::Tile(Tile {
         input: resolve_input(fe, AId::In, primitives),
     })
 }
 
-<span class="kw">fn </span>convert_turbulence(fe: rosvgtree::Node) -&gt; Kind {
-    <span class="kw">let </span><span class="kw-2">mut </span>base_frequency = Point::new(PositiveF64::ZERO, PositiveF64::ZERO);
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.parse_attribute::&lt;Vec&lt;f64&gt;&gt;(AId::BaseFrequency) {
+<span class="kw">fn </span>convert_turbulence(fe: SvgNode) -&gt; Kind {
+    <span class="kw">let </span><span class="kw-2">mut </span>base_frequency_x = PositiveF32::ZERO;
+    <span class="kw">let </span><span class="kw-2">mut </span>base_frequency_y = PositiveF32::ZERO;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = fe.attribute::&lt;Vec&lt;f32&gt;&gt;(AId::BaseFrequency) {
         <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0.0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>y = <span class="number">0.0</span>;
         <span class="kw">if </span>list.len() == <span class="number">2 </span>{
@@ -2058,11 +2140,12 @@
         </span>}
 
         <span class="kw">if </span>x.is_sign_positive() &amp;&amp; y.is_sign_positive() {
-            base_frequency = Point::new(PositiveF64::new(x).unwrap(), PositiveF64::new(y).unwrap());
+            base_frequency_x = PositiveF32::new(x).unwrap();
+            base_frequency_y = PositiveF32::new(y).unwrap();
         }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>num_octaves = fe.parse_attribute(AId::NumOctaves).unwrap_or(<span class="number">1.0</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>num_octaves = fe.attribute(AId::NumOctaves).unwrap_or(<span class="number">1.0</span>);
     <span class="kw">if </span>num_octaves.is_sign_negative() {
         num_octaves = <span class="number">0.0</span>;
     }
@@ -2073,17 +2156,18 @@
     };
 
     Kind::Turbulence(Turbulence {
-        base_frequency,
+        base_frequency_x,
+        base_frequency_y,
         num_octaves: num_octaves.round() <span class="kw">as </span>u32,
-        seed: fe.parse_attribute(AId::Seed).unwrap_or(<span class="number">0.0</span>).trunc() <span class="kw">as </span>i32,
+        seed: fe.attribute::&lt;f32&gt;(AId::Seed).unwrap_or(<span class="number">0.0</span>).trunc() <span class="kw">as </span>i32,
         stitch_tiles: fe.attribute(AId::StitchTiles) == <span class="prelude-val">Some</span>(<span class="string">&quot;stitch&quot;</span>),
         kind,
     })
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_grayscale_function(<span class="kw-2">mut </span>amount: f64) -&gt; Kind {
-    amount = amount.min(<span class="number">1.0</span>);
+</span><span class="kw">fn </span>convert_grayscale_function(amount: f64) -&gt; Kind {
+    <span class="kw">let </span>amount = amount.min(<span class="number">1.0</span>) <span class="kw">as </span>f32;
     Kind::ColorMatrix(ColorMatrix {
         input: Input::SourceGraphic,
         kind: ColorMatrixKind::Matrix(<span class="macro">vec!</span>[
@@ -2112,8 +2196,8 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_sepia_function(<span class="kw-2">mut </span>amount: f64) -&gt; Kind {
-    amount = amount.min(<span class="number">1.0</span>);
+</span><span class="kw">fn </span>convert_sepia_function(amount: f64) -&gt; Kind {
+    <span class="kw">let </span>amount = amount.min(<span class="number">1.0</span>) <span class="kw">as </span>f32;
     Kind::ColorMatrix(ColorMatrix {
         input: Input::SourceGraphic,
         kind: ColorMatrixKind::Matrix(<span class="macro">vec!</span>[
@@ -2143,7 +2227,7 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">fn </span>convert_saturate_function(amount: f64) -&gt; Kind {
-    <span class="kw">let </span>amount = PositiveF64::new(amount).unwrap_or(PositiveF64::ZERO);
+    <span class="kw">let </span>amount = PositiveF32::new(amount <span class="kw">as </span>f32).unwrap_or(PositiveF32::ZERO);
     Kind::ColorMatrix(ColorMatrix {
         input: Input::SourceGraphic,
         kind: ColorMatrixKind::Saturate(amount),
@@ -2154,13 +2238,13 @@
 </span><span class="kw">fn </span>convert_hue_rotate_function(amount: svgtypes::Angle) -&gt; Kind {
     Kind::ColorMatrix(ColorMatrix {
         input: Input::SourceGraphic,
-        kind: ColorMatrixKind::HueRotate(amount.to_degrees()),
+        kind: ColorMatrixKind::HueRotate(amount.to_degrees() <span class="kw">as </span>f32),
     })
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_invert_function(<span class="kw-2">mut </span>amount: f64) -&gt; Kind {
-    amount = amount.min(<span class="number">1.0</span>);
+</span><span class="kw">fn </span>convert_invert_function(amount: f64) -&gt; Kind {
+    <span class="kw">let </span>amount = amount.min(<span class="number">1.0</span>) <span class="kw">as </span>f32;
     Kind::ComponentTransfer(ComponentTransfer {
         input: Input::SourceGraphic,
         func_r: TransferFunction::Table(<span class="macro">vec!</span>[amount, <span class="number">1.0 </span>- amount]),
@@ -2171,8 +2255,8 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_opacity_function(<span class="kw-2">mut </span>amount: f64) -&gt; Kind {
-    amount = amount.min(<span class="number">1.0</span>);
+</span><span class="kw">fn </span>convert_opacity_function(amount: f64) -&gt; Kind {
+    <span class="kw">let </span>amount = amount.min(<span class="number">1.0</span>) <span class="kw">as </span>f32;
     Kind::ComponentTransfer(ComponentTransfer {
         input: Input::SourceGraphic,
         func_r: TransferFunction::Identity,
@@ -2184,6 +2268,7 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">fn </span>convert_brightness_function(amount: f64) -&gt; Kind {
+    <span class="kw">let </span>amount = amount <span class="kw">as </span>f32;
     Kind::ComponentTransfer(ComponentTransfer {
         input: Input::SourceGraphic,
         func_r: TransferFunction::Linear {
@@ -2204,6 +2289,7 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">fn </span>convert_contrast_function(amount: f64) -&gt; Kind {
+    <span class="kw">let </span>amount = amount <span class="kw">as </span>f32;
     Kind::ComponentTransfer(ComponentTransfer {
         input: Input::SourceGraphic,
         func_r: TransferFunction::Linear {
@@ -2223,15 +2309,15 @@
 }
 
 <span class="attr">#[inline(never)]
-</span><span class="kw">fn </span>convert_blur_function(node: rosvgtree::Node, std_dev: Length, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Kind {
-    <span class="kw">let </span>std_dev = PositiveF64::new(<span class="kw">crate</span>::units::convert_length(
+</span><span class="kw">fn </span>convert_blur_function(node: SvgNode, std_dev: Length, state: <span class="kw-2">&amp;</span>converter::State) -&gt; Kind {
+    <span class="kw">let </span>std_dev = PositiveF32::new(<span class="kw">crate</span>::units::convert_length(
         std_dev,
         node,
         AId::Dx,
         Units::UserSpaceOnUse,
         state,
     ))
-    .unwrap_or(PositiveF64::ZERO);
+    .unwrap_or(PositiveF32::ZERO);
     Kind::GaussianBlur(GaussianBlur {
         input: Input::SourceGraphic,
         std_dev_x: std_dev,
@@ -2241,25 +2327,25 @@
 
 <span class="attr">#[inline(never)]
 </span><span class="kw">fn </span>convert_drop_shadow_function(
-    node: rosvgtree::Node,
+    node: SvgNode,
     color: <span class="prelude-ty">Option</span>&lt;svgtypes::Color&gt;,
     dx: Length,
     dy: Length,
     std_dev: Length,
     state: <span class="kw-2">&amp;</span>converter::State,
 ) -&gt; Kind {
-    <span class="kw">let </span>std_dev = PositiveF64::new(<span class="kw">crate</span>::units::convert_length(
+    <span class="kw">let </span>std_dev = PositiveF32::new(<span class="kw">crate</span>::units::convert_length(
         std_dev,
         node,
         AId::Dx,
         Units::UserSpaceOnUse,
         state,
     ))
-    .unwrap_or(PositiveF64::ZERO);
+    .unwrap_or(PositiveF32::ZERO);
 
     <span class="kw">let </span>(color, opacity) = color
         .unwrap_or_else(|| {
-            node.find_and_parse_attribute(AId::Color)
+            node.find_attribute(AId::Color)
                 .unwrap_or_else(svgtypes::Color::black)
         })
         .split_alpha();

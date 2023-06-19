@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.32.0/src/marker.rs`."><title>marker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-parser-0.34.0/src/marker.rs`."><title>marker.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_parser/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -471,25 +471,51 @@
 <a href="#471" id="471">471</a>
 <a href="#472" id="472">472</a>
 <a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-</span><span class="kw">use </span>std::f64;
-<span class="kw">use </span>std::rc::Rc;
+</span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use </span>rosvgtree::{<span class="self">self</span>, AttributeId <span class="kw">as </span>AId, ElementId <span class="kw">as </span>EId};
-<span class="kw">use </span>strict_num::NonZeroPositiveF64;
+<span class="kw">use </span>strict_num::NonZeroPositiveF32;
 <span class="kw">use </span>svgtypes::Length;
+<span class="kw">use </span>tiny_skia_path::Point;
 <span class="kw">use </span>usvg_tree::{
-    ClipPath, FuzzyEq, FuzzyZero, Group, Node, NodeExt, NodeKind, Path, PathData,
-    PathSegment <span class="kw">as </span>Segment, Rect, Size, Transform, ViewBox,
+    strict_num, tiny_skia_path, ApproxEqUlps, ApproxZeroUlps, ClipPath, Group, Node, NodeExt,
+    NodeKind, NonZeroRect, Path, Size, Transform, ViewBox,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::rosvgtree_ext::SvgNodeExt2;
-<span class="kw">use crate</span>::{converter, SvgNodeExt};
+<span class="kw">use </span><span class="kw">crate</span>::converter;
+<span class="kw">use </span><span class="kw">crate</span>::svgtree::{AId, EId, SvgNode};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_valid(node: rosvgtree::Node) -&gt; bool {
+<span class="comment">// Similar to `tiny_skia_path::PathSegment`, but without the `QuadTo`.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
+</span><span class="kw">enum </span>Segment {
+    MoveTo(Point),
+    LineTo(Point),
+    CubicTo(Point, Point, Point),
+    Close,
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_valid(node: SvgNode) -&gt; bool {
     <span class="comment">// `marker-*` attributes cannot be set on shapes inside a `clipPath`.
     </span><span class="kw">if </span>node
         .ancestors()
@@ -498,15 +524,15 @@
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="kw">let </span>start = node.find_and_parse_attribute::&lt;rosvgtree::Node&gt;(AId::MarkerStart);
-    <span class="kw">let </span>mid = node.find_and_parse_attribute::&lt;rosvgtree::Node&gt;(AId::MarkerMid);
-    <span class="kw">let </span>end = node.find_and_parse_attribute::&lt;rosvgtree::Node&gt;(AId::MarkerEnd);
+    <span class="kw">let </span>start = node.find_attribute::&lt;SvgNode&gt;(AId::MarkerStart);
+    <span class="kw">let </span>mid = node.find_attribute::&lt;SvgNode&gt;(AId::MarkerMid);
+    <span class="kw">let </span>end = node.find_attribute::&lt;SvgNode&gt;(AId::MarkerEnd);
     start.is_some() || mid.is_some() || end.is_some()
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>convert(
-    node: rosvgtree::Node,
-    path: <span class="kw-2">&amp;</span>PathData,
+    node: SvgNode,
+    path: <span class="kw-2">&amp;</span>tiny_skia_path::Path,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
     parent: <span class="kw-2">&amp;mut </span>Node,
@@ -519,7 +545,7 @@
 
     <span class="kw">for </span>(aid, kind) <span class="kw">in </span><span class="kw-2">&amp;</span>list {
         <span class="kw">let </span><span class="kw-2">mut </span>marker = <span class="prelude-val">None</span>;
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(link) = node.find_and_parse_attribute::&lt;rosvgtree::Node&gt;(<span class="kw-2">*</span>aid) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(link) = node.find_attribute::&lt;SvgNode&gt;(<span class="kw-2">*</span>aid) {
             <span class="kw">if </span>link.tag_name() == <span class="prelude-val">Some</span>(EId::Marker) {
                 marker = <span class="prelude-val">Some</span>(link);
             }
@@ -547,13 +573,13 @@
 
 <span class="kw">enum </span>MarkerOrientation {
     Auto,
-    Angle(f64),
+    Angle(f32),
 }
 
 <span class="kw">fn </span>resolve(
-    shape_node: rosvgtree::Node,
-    path: <span class="kw-2">&amp;</span>PathData,
-    marker_node: rosvgtree::Node,
+    shape_node: SvgNode,
+    path: <span class="kw-2">&amp;</span>tiny_skia_path::Path,
+    marker_node: SvgNode,
     marker_kind: MarkerKind,
     state: <span class="kw-2">&amp;</span>converter::State,
     cache: <span class="kw-2">&amp;mut </span>converter::Cache,
@@ -566,7 +592,7 @@
     <span class="kw">let </span>view_box = marker_node.parse_viewbox().map(|vb| ViewBox {
         rect: vb,
         aspect: marker_node
-            .parse_attribute(AId::PreserveAspectRatio)
+            .attribute(AId::PreserveAspectRatio)
             .unwrap_or_default(),
     });
 
@@ -580,17 +606,18 @@
         <span class="kw">let </span>clip_rect = <span class="kw">if let </span><span class="prelude-val">Some</span>(vbox) = view_box {
             vbox.rect
         } <span class="kw">else </span>{
-            r.size().to_rect(<span class="number">0.0</span>, <span class="number">0.0</span>)
+            r.size().to_non_zero_rect(<span class="number">0.0</span>, <span class="number">0.0</span>)
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>clip_path = ClipPath::default();
         clip_path.id = cache.gen_clip_path_id();
 
-        clip_path.root.append_kind(NodeKind::Path(Path {
-            fill: <span class="prelude-val">Some</span>(usvg_tree::Fill::default()),
-            data: Rc::new(PathData::from_rect(clip_rect)),
-            ..Path::default()
-        }));
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(Rc::new(tiny_skia_path::PathBuilder::from_rect(
+            clip_rect.to_rect(),
+        )));
+        path.fill = <span class="prelude-val">Some</span>(usvg_tree::Fill::default());
+
+        clip_path.root.append_kind(NodeKind::Path(path));
 
         <span class="prelude-val">Some</span>(Rc::new(clip_path))
     } <span class="kw">else </span>{
@@ -598,30 +625,58 @@
     </span>};
 
     <span class="comment">// TODO: avoid allocation
-    </span><span class="kw">let </span>segments: Vec&lt;Segment&gt; = path.segments().collect();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>segments: Vec&lt;Segment&gt; = Vec::with_capacity(path.len());
+    <span class="kw">let </span><span class="kw-2">mut </span>prev = Point::zero();
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_move = Point::zero();
+    <span class="kw">for </span>seg <span class="kw">in </span>path.segments() {
+        <span class="kw">match </span>seg {
+            tiny_skia_path::PathSegment::MoveTo(p) =&gt; {
+                segments.push(Segment::MoveTo(p));
+                prev = p;
+                prev_move = p;
+            }
+            tiny_skia_path::PathSegment::LineTo(p) =&gt; {
+                segments.push(Segment::LineTo(p));
+                prev = p;
+            }
+            tiny_skia_path::PathSegment::QuadTo(p1, p) =&gt; {
+                <span class="kw">let </span>(p1, p2, p) = quad_to_curve(prev, p1, p);
+                segments.push(Segment::CubicTo(p1, p2, p));
+                prev = p;
+            }
+            tiny_skia_path::PathSegment::CubicTo(p1, p2, p) =&gt; {
+                segments.push(Segment::CubicTo(p1, p2, p));
+                prev = p;
+            }
+            tiny_skia_path::PathSegment::Close =&gt; {
+                segments.push(Segment::Close);
+                prev = prev_move;
+            }
+        }
+    }
 
-    <span class="kw">let </span>draw_marker = |x: f64, y: f64, idx: usize| {
-        <span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::new_translate(x, y);
+    <span class="kw">let </span>draw_marker = |p: tiny_skia_path::Point, idx: usize| {
+        <span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::from_translate(p.x, p.y);
 
         <span class="kw">let </span>angle = <span class="kw">match </span>convert_orientation(marker_node) {
             MarkerOrientation::Auto =&gt; calc_vertex_angle(<span class="kw-2">&amp;</span>segments, idx),
             MarkerOrientation::Angle(angle) =&gt; angle,
         };
 
-        <span class="kw">if </span>!angle.is_fuzzy_zero() {
-            ts.rotate(angle);
+        <span class="kw">if </span>!angle.approx_zero_ulps(<span class="number">4</span>) {
+            ts = ts.pre_rotate(angle);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(vbox) = view_box {
-            <span class="kw">let </span>size = Size::new(r.width() * stroke_scale, r.height() * stroke_scale).unwrap();
+            <span class="kw">let </span>size = Size::from_wh(r.width() * stroke_scale, r.height() * stroke_scale).unwrap();
             <span class="kw">let </span>vbox_ts = usvg_tree::utils::view_box_to_transform(vbox.rect, vbox.aspect, size);
             <span class="kw">let </span>(sx, sy) = vbox_ts.get_scale();
-            ts.scale(sx, sy);
+            ts = ts.pre_scale(sx, sy);
         } <span class="kw">else </span>{
-            ts.scale(stroke_scale, stroke_scale);
+            ts = ts.pre_scale(stroke_scale, stroke_scale);
         }
 
-        ts.translate(-r.x(), -r.y());
+        ts = ts.pre_translate(-r.x(), -r.y());
 
         <span class="comment">// TODO: do not create a group when no clipPath
         </span><span class="kw">let </span><span class="kw-2">mut </span>g_node = parent.append_kind(NodeKind::Group(Group {
@@ -645,41 +700,41 @@
 }
 
 <span class="kw">fn </span>stroke_scale(
-    path_node: rosvgtree::Node,
-    marker_node: rosvgtree::Node,
+    path_node: SvgNode,
+    marker_node: SvgNode,
     state: <span class="kw-2">&amp;</span>converter::State,
-) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroPositiveF64&gt; {
+) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroPositiveF32&gt; {
     <span class="kw">match </span>marker_node.attribute(AId::MarkerUnits) {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;userSpaceOnUse&quot;</span>) =&gt; NonZeroPositiveF64::new(<span class="number">1.0</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;userSpaceOnUse&quot;</span>) =&gt; NonZeroPositiveF32::new(<span class="number">1.0</span>),
         <span class="kw">_ </span>=&gt; path_node.resolve_valid_length(AId::StrokeWidth, state, <span class="number">1.0</span>),
     }
 }
 
 <span class="kw">fn </span>draw_markers&lt;P&gt;(path: <span class="kw-2">&amp;</span>[Segment], kind: MarkerKind, <span class="kw-2">mut </span>draw_marker: P)
 <span class="kw">where
-    </span>P: FnMut(f64, f64, usize),
+    </span>P: FnMut(tiny_skia_path::Point, usize),
 {
     <span class="kw">match </span>kind {
         MarkerKind::Start =&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(Segment::MoveTo { x, y }) = path.first().cloned() {
-                draw_marker(x, y, <span class="number">0</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(Segment::MoveTo(p)) = path.first().cloned() {
+                draw_marker(p, <span class="number">0</span>);
             }
         }
         MarkerKind::Middle =&gt; {
             <span class="kw">let </span>total = path.len() - <span class="number">1</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
             <span class="kw">while </span>i &lt; total {
-                <span class="kw">let </span>(x, y) = <span class="kw">match </span>path[i] {
-                    Segment::MoveTo { x, y } =&gt; (x, y),
-                    Segment::LineTo { x, y } =&gt; (x, y),
-                    Segment::CurveTo { x, y, .. } =&gt; (x, y),
+                <span class="kw">let </span>p = <span class="kw">match </span>path[i] {
+                    Segment::MoveTo(p) =&gt; p,
+                    Segment::LineTo(p) =&gt; p,
+                    Segment::CubicTo(<span class="kw">_</span>, <span class="kw">_</span>, p) =&gt; p,
                     <span class="kw">_ </span>=&gt; {
                         i += <span class="number">1</span>;
                         <span class="kw">continue</span>;
                     }
                 };
 
-                draw_marker(x, y, i);
+                draw_marker(p, i);
 
                 i += <span class="number">1</span>;
             }
@@ -687,15 +742,15 @@
         MarkerKind::End =&gt; {
             <span class="kw">let </span>idx = path.len() - <span class="number">1</span>;
             <span class="kw">match </span>path.last().cloned() {
-                <span class="prelude-val">Some</span>(Segment::LineTo { x, y }) =&gt; {
-                    draw_marker(x, y, idx);
+                <span class="prelude-val">Some</span>(Segment::LineTo(p)) =&gt; {
+                    draw_marker(p, idx);
                 }
-                <span class="prelude-val">Some</span>(Segment::CurveTo { x, y, .. }) =&gt; {
-                    draw_marker(x, y, idx);
+                <span class="prelude-val">Some</span>(Segment::CubicTo(<span class="kw">_</span>, <span class="kw">_</span>, p)) =&gt; {
+                    draw_marker(p, idx);
                 }
-                <span class="prelude-val">Some</span>(Segment::ClosePath) =&gt; {
-                    <span class="kw">let </span>(x, y) = get_subpath_start(path, idx);
-                    draw_marker(x, y, idx);
+                <span class="prelude-val">Some</span>(Segment::Close) =&gt; {
+                    <span class="kw">let </span>p = get_subpath_start(path, idx);
+                    draw_marker(p, idx);
                 }
                 <span class="kw">_ </span>=&gt; {}
             }
@@ -703,7 +758,7 @@
     }
 }
 
-<span class="kw">fn </span>calc_vertex_angle(path: <span class="kw-2">&amp;</span>[Segment], idx: usize) -&gt; f64 {
+<span class="kw">fn </span>calc_vertex_angle(path: <span class="kw-2">&amp;</span>[Segment], idx: usize) -&gt; f32 {
     <span class="kw">if </span>idx == <span class="number">0 </span>{
         <span class="comment">// First segment.
 
@@ -713,14 +768,12 @@
         <span class="kw">let </span>seg2 = path[<span class="number">1</span>];
 
         <span class="kw">match </span>(seg1, seg2) {
-            (Segment::MoveTo { x: mx, y: my }, Segment::LineTo { x, y }) =&gt; {
-                calc_line_angle(mx, my, x, y)
-            }
-            (Segment::MoveTo { x: mx, y: my }, Segment::CurveTo { x1, y1, x, y, .. }) =&gt; {
-                <span class="kw">if </span>mx.fuzzy_eq(<span class="kw-2">&amp;</span>x1) &amp;&amp; my.fuzzy_eq(<span class="kw-2">&amp;</span>y1) {
-                    calc_line_angle(mx, my, x, y)
+            (Segment::MoveTo(pm), Segment::LineTo(p)) =&gt; calc_line_angle(pm.x, pm.y, p.x, p.y),
+            (Segment::MoveTo(pm), Segment::CubicTo(p1, <span class="kw">_</span>, p)) =&gt; {
+                <span class="kw">if </span>pm.x.approx_eq_ulps(<span class="kw-2">&amp;</span>p1.x, <span class="number">4</span>) &amp;&amp; pm.y.approx_eq_ulps(<span class="kw-2">&amp;</span>p1.y, <span class="number">4</span>) {
+                    calc_line_angle(pm.x, pm.y, p.x, p.y)
                 } <span class="kw">else </span>{
-                    calc_line_angle(mx, my, x1, y1)
+                    calc_line_angle(pm.x, pm.y, p1.x, p1.y)
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="number">0.0</span>,
@@ -732,39 +785,30 @@
         <span class="kw">let </span>seg2 = path[idx];
 
         <span class="kw">match </span>(seg1, seg2) {
-            (<span class="kw">_</span>, Segment::MoveTo { .. }) =&gt; <span class="number">0.0</span>, <span class="comment">// unreachable
-            </span>(<span class="kw">_</span>, Segment::LineTo { x, y }) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                calc_line_angle(px, py, x, y)
+            (<span class="kw">_</span>, Segment::MoveTo(<span class="kw">_</span>)) =&gt; <span class="number">0.0</span>, <span class="comment">// unreachable
+            </span>(<span class="kw">_</span>, Segment::LineTo(p)) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                calc_line_angle(prev.x, prev.y, p.x, p.y)
             }
-            (
-                <span class="kw">_</span>,
-                Segment::CurveTo {
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    x,
-                    y,
-                    ..
-                },
-            ) =&gt; {
-                <span class="kw">if </span>x2.fuzzy_eq(<span class="kw-2">&amp;</span>x) &amp;&amp; y2.fuzzy_eq(<span class="kw-2">&amp;</span>y) {
-                    calc_line_angle(x1, y1, x, y)
+            (<span class="kw">_</span>, Segment::CubicTo(p1, p2, p)) =&gt; {
+                <span class="kw">if </span>p2.x.approx_eq_ulps(<span class="kw-2">&amp;</span>p.x, <span class="number">4</span>) &amp;&amp; p2.y.approx_eq_ulps(<span class="kw-2">&amp;</span>p.y, <span class="number">4</span>) {
+                    calc_line_angle(p1.x, p1.y, p.x, p.y)
                 } <span class="kw">else </span>{
-                    calc_line_angle(x2, y2, x, y)
+                    calc_line_angle(p2.x, p2.y, p.x, p.y)
                 }
             }
-            (Segment::LineTo { x, y }, Segment::ClosePath) =&gt; {
-                <span class="kw">let </span>(nx, ny) = get_subpath_start(path, idx);
-                calc_line_angle(x, y, nx, ny)
+            (Segment::LineTo(p), Segment::Close) =&gt; {
+                <span class="kw">let </span>next = get_subpath_start(path, idx);
+                calc_line_angle(p.x, p.y, next.x, next.y)
             }
-            (Segment::CurveTo { x2, y2, x, y, .. }, Segment::ClosePath) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                <span class="kw">let </span>(nx, ny) = get_subpath_start(path, idx);
-                calc_curves_angle(px, py, x2, y2, x, y, nx, ny, nx, ny)
+            (Segment::CubicTo(<span class="kw">_</span>, p2, p), Segment::Close) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                <span class="kw">let </span>next = get_subpath_start(path, idx);
+                calc_curves_angle(
+                    prev.x, prev.y, p2.x, p2.y, p.x, p.y, next.x, next.y, next.x, next.y,
+                )
             }
-            (<span class="kw">_</span>, Segment::ClosePath) =&gt; <span class="number">0.0</span>,
+            (<span class="kw">_</span>, Segment::Close) =&gt; <span class="number">0.0</span>,
         }
     } <span class="kw">else </span>{
         <span class="comment">// Middle segments.
@@ -774,108 +818,87 @@
 
         <span class="comment">// TODO: Not sure if there is a better way.
         </span><span class="kw">match </span>(seg1, seg2) {
-            (Segment::MoveTo { x: mx, y: my }, Segment::LineTo { x, y }) =&gt; {
-                calc_line_angle(mx, my, x, y)
+            (Segment::MoveTo(pm), Segment::LineTo(p)) =&gt; calc_line_angle(pm.x, pm.y, p.x, p.y),
+            (Segment::MoveTo(pm), Segment::CubicTo(p1, <span class="kw">_</span>, <span class="kw">_</span>)) =&gt; {
+                calc_line_angle(pm.x, pm.y, p1.x, p1.y)
             }
-            (Segment::MoveTo { x: mx, y: my }, Segment::CurveTo { x1, y1, .. }) =&gt; {
-                calc_line_angle(mx, my, x1, y1)
+            (Segment::LineTo(p1), Segment::LineTo(p2)) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                calc_angle(prev.x, prev.y, p1.x, p1.y, p1.x, p1.y, p2.x, p2.y)
             }
-            (Segment::LineTo { x: x1, y: y1 }, Segment::LineTo { x: x2, y: y2 }) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                calc_angle(px, py, x1, y1, x1, y1, x2, y2)
+            (Segment::CubicTo(<span class="kw">_</span>, c1_p2, c1_p), Segment::CubicTo(c2_p1, <span class="kw">_</span>, c2_p)) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                calc_curves_angle(
+                    prev.x, prev.y, c1_p2.x, c1_p2.y, c1_p.x, c1_p.y, c2_p1.x, c2_p1.y, c2_p.x,
+                    c2_p.y,
+                )
             }
-            (
-                Segment::CurveTo {
-                    x2: c1_x2,
-                    y2: c1_y2,
-                    x,
-                    y,
-                    ..
-                },
-                Segment::CurveTo {
-                    x1: c2_x1,
-                    y1: c2_y1,
-                    x: nx,
-                    y: ny,
-                    ..
-                },
-            ) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                calc_curves_angle(px, py, c1_x2, c1_y2, x, y, c2_x1, c2_y1, nx, ny)
+            (Segment::LineTo(pl), Segment::CubicTo(p1, <span class="kw">_</span>, p)) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                calc_curves_angle(
+                    prev.x, prev.y, prev.x, prev.y, pl.x, pl.y, p1.x, p1.y, p.x, p.y,
+                )
             }
-            (
-                Segment::LineTo { x, y },
-                Segment::CurveTo {
-                    x1,
-                    y1,
-                    x: nx,
-                    y: ny,
-                    ..
-                },
-            ) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                calc_curves_angle(px, py, px, py, x, y, x1, y1, nx, ny)
+            (Segment::CubicTo(<span class="kw">_</span>, p2, p), Segment::LineTo(pl)) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                calc_curves_angle(prev.x, prev.y, p2.x, p2.y, p.x, p.y, pl.x, pl.y, pl.x, pl.y)
             }
-            (Segment::CurveTo { x2, y2, x, y, .. }, Segment::LineTo { x: nx, y: ny }) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                calc_curves_angle(px, py, x2, y2, x, y, nx, ny, nx, ny)
+            (Segment::LineTo(p), Segment::MoveTo(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                calc_line_angle(prev.x, prev.y, p.x, p.y)
             }
-            (Segment::LineTo { x, y }, Segment::MoveTo { .. }) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                calc_line_angle(px, py, x, y)
-            }
-            (Segment::CurveTo { x2, y2, x, y, .. }, Segment::MoveTo { .. }) =&gt; {
-                <span class="kw">if </span>x.fuzzy_eq(<span class="kw-2">&amp;</span>x2) &amp;&amp; y.fuzzy_eq(<span class="kw-2">&amp;</span>y2) {
-                    <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                    calc_line_angle(px, py, x, y)
+            (Segment::CubicTo(<span class="kw">_</span>, p2, p), Segment::MoveTo(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">if </span>p.x.approx_eq_ulps(<span class="kw-2">&amp;</span>p2.x, <span class="number">4</span>) &amp;&amp; p.y.approx_eq_ulps(<span class="kw-2">&amp;</span>p2.y, <span class="number">4</span>) {
+                    <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                    calc_line_angle(prev.x, prev.y, p.x, p.y)
                 } <span class="kw">else </span>{
-                    calc_line_angle(x2, y2, x, y)
+                    calc_line_angle(p2.x, p2.y, p.x, p.y)
                 }
             }
-            (Segment::LineTo { x, y }, Segment::ClosePath) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                <span class="kw">let </span>(nx, ny) = get_subpath_start(path, idx);
-                calc_angle(px, py, x, y, x, y, nx, ny)
+            (Segment::LineTo(p), Segment::Close) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                <span class="kw">let </span>next = get_subpath_start(path, idx);
+                calc_angle(prev.x, prev.y, p.x, p.y, p.x, p.y, next.x, next.y)
             }
-            (<span class="kw">_</span>, Segment::ClosePath) =&gt; {
-                <span class="kw">let </span>(px, py) = get_prev_vertex(path, idx);
-                <span class="kw">let </span>(nx, ny) = get_subpath_start(path, idx);
-                calc_line_angle(px, py, nx, ny)
+            (<span class="kw">_</span>, Segment::Close) =&gt; {
+                <span class="kw">let </span>prev = get_prev_vertex(path, idx);
+                <span class="kw">let </span>next = get_subpath_start(path, idx);
+                calc_line_angle(prev.x, prev.y, next.x, next.y)
             }
-            (<span class="kw">_</span>, Segment::MoveTo { .. }) | (Segment::ClosePath, <span class="kw">_</span>) =&gt; <span class="number">0.0</span>,
+            (<span class="kw">_</span>, Segment::MoveTo(<span class="kw">_</span>)) | (Segment::Close, <span class="kw">_</span>) =&gt; <span class="number">0.0</span>,
         }
     }
 }
 
-<span class="kw">fn </span>calc_line_angle(x1: f64, y1: f64, x2: f64, y2: f64) -&gt; f64 {
+<span class="kw">fn </span>calc_line_angle(x1: f32, y1: f32, x2: f32, y2: f32) -&gt; f32 {
     calc_angle(x1, y1, x2, y2, x1, y1, x2, y2)
 }
 
 <span class="kw">fn </span>calc_curves_angle(
-    px: f64,
-    py: f64, <span class="comment">// previous vertex
-    </span>cx1: f64,
-    cy1: f64, <span class="comment">// previous control point
-    </span>x: f64,
-    y: f64, <span class="comment">// current vertex
-    </span>cx2: f64,
-    cy2: f64, <span class="comment">// next control point
-    </span>nx: f64,
-    ny: f64, <span class="comment">// next vertex
-</span>) -&gt; f64 {
-    <span class="kw">if </span>cx1.fuzzy_eq(<span class="kw-2">&amp;</span>x) &amp;&amp; cy1.fuzzy_eq(<span class="kw-2">&amp;</span>y) {
+    px: f32,
+    py: f32, <span class="comment">// previous vertex
+    </span>cx1: f32,
+    cy1: f32, <span class="comment">// previous control point
+    </span>x: f32,
+    y: f32, <span class="comment">// current vertex
+    </span>cx2: f32,
+    cy2: f32, <span class="comment">// next control point
+    </span>nx: f32,
+    ny: f32, <span class="comment">// next vertex
+</span>) -&gt; f32 {
+    <span class="kw">if </span>cx1.approx_eq_ulps(<span class="kw-2">&amp;</span>x, <span class="number">4</span>) &amp;&amp; cy1.approx_eq_ulps(<span class="kw-2">&amp;</span>y, <span class="number">4</span>) {
         calc_angle(px, py, x, y, x, y, cx2, cy2)
-    } <span class="kw">else if </span>x.fuzzy_eq(<span class="kw-2">&amp;</span>cx2) &amp;&amp; y.fuzzy_eq(<span class="kw-2">&amp;</span>cy2) {
+    } <span class="kw">else if </span>x.approx_eq_ulps(<span class="kw-2">&amp;</span>cx2, <span class="number">4</span>) &amp;&amp; y.approx_eq_ulps(<span class="kw-2">&amp;</span>cy2, <span class="number">4</span>) {
         calc_angle(cx1, cy1, x, y, x, y, nx, ny)
     } <span class="kw">else </span>{
         calc_angle(cx1, cy1, x, y, x, y, cx2, cy2)
     }
 }
 
-<span class="kw">fn </span>calc_angle(x1: f64, y1: f64, x2: f64, y2: f64, x3: f64, y3: f64, x4: f64, y4: f64) -&gt; f64 {
-    <span class="kw">use </span>std::f64::consts::<span class="kw-2">*</span>;
+<span class="kw">fn </span>calc_angle(x1: f32, y1: f32, x2: f32, y2: f32, x3: f32, y3: f32, x4: f32, y4: f32) -&gt; f32 {
+    <span class="kw">use </span>std::f32::consts::<span class="kw-2">*</span>;
 
-    <span class="kw">fn </span>normalize(rad: f64) -&gt; f64 {
+    <span class="kw">fn </span>normalize(rad: f32) -&gt; f32 {
         <span class="kw">let </span>v = rad % (PI * <span class="number">2.0</span>);
         <span class="kw">if </span>v &lt; <span class="number">0.0 </span>{
             v + PI * <span class="number">2.0
@@ -884,7 +907,7 @@
         }
     }
 
-    <span class="kw">fn </span>vector_angle(vx: f64, vy: f64) -&gt; f64 {
+    <span class="kw">fn </span>vector_angle(vx: f32, vy: f32) -&gt; f32 {
         <span class="kw">let </span>rad = vy.atan2(vx);
         <span class="kw">if </span>rad.is_nan() {
             <span class="number">0.0
@@ -905,28 +928,28 @@
     normalize(angle).to_degrees()
 }
 
-<span class="kw">fn </span>get_subpath_start(segments: <span class="kw-2">&amp;</span>[Segment], idx: usize) -&gt; (f64, f64) {
+<span class="kw">fn </span>get_subpath_start(segments: <span class="kw-2">&amp;</span>[Segment], idx: usize) -&gt; tiny_skia_path::Point {
     <span class="kw">let </span>offset = segments.len() - idx;
     <span class="kw">for </span>seg <span class="kw">in </span>segments.iter().rev().skip(offset) {
-        <span class="kw">if let </span>Segment::MoveTo { x, y } = <span class="kw-2">*</span>seg {
-            <span class="kw">return </span>(x, y);
+        <span class="kw">if let </span>Segment::MoveTo(p) = <span class="kw-2">*</span>seg {
+            <span class="kw">return </span>p;
         }
     }
 
-    (<span class="number">0.0</span>, <span class="number">0.0</span>)
+    tiny_skia_path::Point::zero()
 }
 
-<span class="kw">fn </span>get_prev_vertex(segments: <span class="kw-2">&amp;</span>[Segment], idx: usize) -&gt; (f64, f64) {
+<span class="kw">fn </span>get_prev_vertex(segments: <span class="kw-2">&amp;</span>[Segment], idx: usize) -&gt; tiny_skia_path::Point {
     <span class="kw">match </span>segments[idx - <span class="number">1</span>] {
-        Segment::MoveTo { x, y } =&gt; (x, y),
-        Segment::LineTo { x, y } =&gt; (x, y),
-        Segment::CurveTo { x, y, .. } =&gt; (x, y),
-        Segment::ClosePath =&gt; get_subpath_start(segments, idx),
+        Segment::MoveTo(p) =&gt; p,
+        Segment::LineTo(p) =&gt; p,
+        Segment::CubicTo(<span class="kw">_</span>, <span class="kw">_</span>, p) =&gt; p,
+        Segment::Close =&gt; get_subpath_start(segments, idx),
     }
 }
 
-<span class="kw">fn </span>convert_rect(node: rosvgtree::Node, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
-    Rect::new(
+<span class="kw">fn </span>convert_rect(node: SvgNode, state: <span class="kw-2">&amp;</span>converter::State) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroRect&gt; {
+    NonZeroRect::from_xywh(
         node.convert_user_length(AId::RefX, state, Length::zero()),
         node.convert_user_length(AId::RefY, state, Length::zero()),
         node.convert_user_length(AId::MarkerWidth, state, Length::new_number(<span class="number">3.0</span>)),
@@ -934,14 +957,27 @@
     )
 }
 
-<span class="kw">fn </span>convert_orientation(node: rosvgtree::Node) -&gt; MarkerOrientation {
+<span class="kw">fn </span>convert_orientation(node: SvgNode) -&gt; MarkerOrientation {
     <span class="kw">if </span>node.attribute(AId::Orient) == <span class="prelude-val">Some</span>(<span class="string">&quot;auto&quot;</span>) {
         MarkerOrientation::Auto
     } <span class="kw">else </span>{
-        <span class="kw">match </span>node.parse_attribute::&lt;svgtypes::Angle&gt;(AId::Orient) {
-            <span class="prelude-val">Some</span>(angle) =&gt; MarkerOrientation::Angle(angle.to_degrees()),
+        <span class="kw">match </span>node.attribute::&lt;svgtypes::Angle&gt;(AId::Orient) {
+            <span class="prelude-val">Some</span>(angle) =&gt; MarkerOrientation::Angle(angle.to_degrees() <span class="kw">as </span>f32),
             <span class="prelude-val">None </span>=&gt; MarkerOrientation::Angle(<span class="number">0.0</span>),
         }
     }
+}
+
+<span class="kw">fn </span>quad_to_curve(prev: Point, p1: Point, p: Point) -&gt; (Point, Point, Point) {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>calc(n1: f32, n2: f32) -&gt; f32 {
+        (n1 + n2 * <span class="number">2.0</span>) / <span class="number">3.0
+    </span>}
+
+    (
+        Point::from_xy(calc(prev.x, p1.x), calc(prev.y, p1.y)),
+        Point::from_xy(calc(p.x, p1.x), calc(p.y, p1.y)),
+        p,
+    )
 }
 </code></pre></div></section></main></body></html>

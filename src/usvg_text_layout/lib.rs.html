@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.32.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_text_layout/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-text-layout-0.34.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="usvg_text_layout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../usvg_text_layout/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1900,10 +1900,6 @@
 <a href="#1900" id="1900">1900</a>
 <a href="#1901" id="1901">1901</a>
 <a href="#1902" id="1902">1902</a>
-<a href="#1903" id="1903">1903</a>
-<a href="#1904" id="1904">1904</a>
-<a href="#1905" id="1905">1905</a>
-<a href="#1906" id="1906">1906</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1911,7 +1907,7 @@
 </span><span class="doccomment">/*!
 An [SVG] text layout implementation on top of [usvg] crate.
 
-[usvg]: https://github.com/RazrFalcon/resvg/usvg
+[usvg]: https://github.com/RazrFalcon/resvg/crates/usvg
 [SVG]: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 */
 
@@ -1963,10 +1959,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
 <span class="kw">impl </span>TextToPath <span class="kw">for </span>Text {
     <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>, fontdb: <span class="kw-2">&amp;</span>fontdb::Database, absolute_ts: Transform) -&gt; <span class="prelude-ty">Option</span>&lt;Node&gt; {
-        <span class="kw">let </span>(new_paths, bbox) = text_to_paths(<span class="self">self</span>, fontdb, absolute_ts);
-        <span class="kw">if </span>new_paths.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
-        }
+        <span class="kw">let </span>(new_paths, bbox) = text_to_paths(<span class="self">self</span>, fontdb, absolute_ts)<span class="question-mark">?</span>;
 
         <span class="comment">// Create a group will all paths that was created during text-to-path conversion.
         </span><span class="kw">let </span>group = Node::new(NodeKind::Group(Group {
@@ -2005,7 +1998,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="kw">let </span><span class="kw-2">mut </span>new_node = <span class="prelude-val">None</span>;
         <span class="kw">if let </span>NodeKind::Text(<span class="kw-2">ref </span>text) = <span class="kw-2">*</span>node.borrow() {
             <span class="kw">let </span><span class="kw-2">mut </span>absolute_ts = node.parent().unwrap().abs_transform();
-            absolute_ts.append(<span class="kw-2">&amp;</span>text.transform);
+            absolute_ts = absolute_ts.pre_concat(text.transform);
             new_node = text.convert(fontdb, absolute_ts);
         }
 
@@ -2019,7 +2012,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
 <span class="kw">trait </span>DatabaseExt {
     <span class="kw">fn </span>load_font(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID) -&gt; <span class="prelude-ty">Option</span>&lt;ResolvedFont&gt;;
-    <span class="kw">fn </span>outline(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;PathData&gt;;
+    <span class="kw">fn </span>outline(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia_path::Path&gt;;
     <span class="kw">fn </span>has_char(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID, c: char) -&gt; bool;
 }
 
@@ -2098,15 +2091,15 @@ An [SVG] text layout implementation on top of [usvg] crate.
     </span>}
 
     <span class="attr">#[inline(never)]
-    </span><span class="kw">fn </span>outline(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;PathData&gt; {
-        <span class="self">self</span>.with_face_data(id, |data, face_index| -&gt; <span class="prelude-ty">Option</span>&lt;PathData&gt; {
+    </span><span class="kw">fn </span>outline(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia_path::Path&gt; {
+        <span class="self">self</span>.with_face_data(id, |data, face_index| -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia_path::Path&gt; {
             <span class="kw">let </span>font = ttf_parser::Face::parse(data, face_index).ok()<span class="question-mark">?</span>;
 
             <span class="kw">let </span><span class="kw-2">mut </span>builder = PathBuilder {
-                path: PathData::new(),
+                builder: tiny_skia_path::PathBuilder::new(),
             };
             font.outline_glyph(glyph_id, <span class="kw-2">&amp;mut </span>builder)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(builder.path)
+            builder.builder.finish()
         })<span class="question-mark">?
     </span>}
 
@@ -2147,56 +2140,56 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
 <span class="kw">impl </span>ResolvedFont {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>scale(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        font_size / <span class="self">self</span>.units_per_em.get() <span class="kw">as </span>f64
+    </span><span class="kw">fn </span>scale(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        font_size / <span class="self">self</span>.units_per_em.get() <span class="kw">as </span>f32
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>ascent(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.ascent <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>ascent(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.ascent <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>descent(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.descent <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>descent(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.descent <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
+    </span><span class="kw">fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
         <span class="self">self</span>.ascent(font_size) - <span class="self">self</span>.descent(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>x_height(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.x_height.get() <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>x_height(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.x_height.get() <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>underline_position(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.underline_position <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>underline_position(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.underline_position <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>underline_thickness(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.underline_thickness.get() <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>underline_thickness(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.underline_thickness.get() <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>line_through_position(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.line_through_position <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>line_through_position(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.line_through_position <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>subscript_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.subscript_offset <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>subscript_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.subscript_offset <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>superscript_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f64) -&gt; f64 {
-        <span class="self">self</span>.superscript_offset <span class="kw">as </span>f64 * <span class="self">self</span>.scale(font_size)
+    </span><span class="kw">fn </span>superscript_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, font_size: f32) -&gt; f32 {
+        <span class="self">self</span>.superscript_offset <span class="kw">as </span>f32 * <span class="self">self</span>.scale(font_size)
     }
 
-    <span class="kw">fn </span>dominant_baseline_shift(<span class="kw-2">&amp;</span><span class="self">self</span>, baseline: DominantBaseline, font_size: f64) -&gt; f64 {
+    <span class="kw">fn </span>dominant_baseline_shift(<span class="kw-2">&amp;</span><span class="self">self</span>, baseline: DominantBaseline, font_size: f32) -&gt; f32 {
         <span class="kw">let </span>alignment = <span class="kw">match </span>baseline {
             DominantBaseline::Auto =&gt; AlignmentBaseline::Auto,
             DominantBaseline::UseScript =&gt; AlignmentBaseline::Auto, <span class="comment">// unsupported
@@ -2244,7 +2237,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     //
     // But that&#39;s not all! SVG 2 and CSS Inline Layout 3 did a baseline handling overhaul,
     // and it&#39;s far more complex now. Not sure if anyone actually supports it.
-    </span><span class="kw">fn </span>alignment_baseline_shift(<span class="kw-2">&amp;</span><span class="self">self</span>, alignment: AlignmentBaseline, font_size: f64) -&gt; f64 {
+    </span><span class="kw">fn </span>alignment_baseline_shift(<span class="kw-2">&amp;</span><span class="self">self</span>, alignment: AlignmentBaseline, font_size: f32) -&gt; f32 {
         <span class="kw">match </span>alignment {
             AlignmentBaseline::Auto =&gt; <span class="number">0.0</span>,
             AlignmentBaseline::Baseline =&gt; <span class="number">0.0</span>,
@@ -2265,31 +2258,28 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">struct </span>PathBuilder {
-    path: PathData,
+    builder: tiny_skia_path::PathBuilder,
 }
 
 <span class="kw">impl </span>ttf_parser::OutlineBuilder <span class="kw">for </span>PathBuilder {
     <span class="kw">fn </span>move_to(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: f32, y: f32) {
-        <span class="self">self</span>.path.push_move_to(x <span class="kw">as </span>f64, y <span class="kw">as </span>f64);
+        <span class="self">self</span>.builder.move_to(x, y);
     }
 
     <span class="kw">fn </span>line_to(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: f32, y: f32) {
-        <span class="self">self</span>.path.push_line_to(x <span class="kw">as </span>f64, y <span class="kw">as </span>f64);
+        <span class="self">self</span>.builder.line_to(x, y);
     }
 
     <span class="kw">fn </span>quad_to(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x1: f32, y1: f32, x: f32, y: f32) {
-        <span class="self">self</span>.path
-            .push_quad_to(x1 <span class="kw">as </span>f64, y1 <span class="kw">as </span>f64, x <span class="kw">as </span>f64, y <span class="kw">as </span>f64);
+        <span class="self">self</span>.builder.quad_to(x1, y1, x, y);
     }
 
     <span class="kw">fn </span>curve_to(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x1: f32, y1: f32, x2: f32, y2: f32, x: f32, y: f32) {
-        <span class="self">self</span>.path.push_curve_to(
-            x1 <span class="kw">as </span>f64, y1 <span class="kw">as </span>f64, x2 <span class="kw">as </span>f64, y2 <span class="kw">as </span>f64, x <span class="kw">as </span>f64, y <span class="kw">as </span>f64,
-        );
+        <span class="self">self</span>.builder.cubic_to(x1, y1, x2, y2, x, y);
     }
 
     <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.path.push_close_path();
+        <span class="self">self</span>.builder.close();
     }
 }
 
@@ -2348,7 +2338,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 // For now, resvg simply tries to match Chrome&#39;s output and not the mythical SVG spec output.
 //
 // See `alignment_baseline_shift` method comment for more details.
-</span><span class="kw">fn </span>resolve_baseline(span: <span class="kw-2">&amp;</span>TextSpan, font: <span class="kw-2">&amp;</span>ResolvedFont, writing_mode: WritingMode) -&gt; f64 {
+</span><span class="kw">fn </span>resolve_baseline(span: <span class="kw-2">&amp;</span>TextSpan, font: <span class="kw-2">&amp;</span>ResolvedFont, writing_mode: WritingMode) -&gt; f32 {
     <span class="kw">let </span><span class="kw-2">mut </span>shift = -resolve_baseline_shift(<span class="kw-2">&amp;</span>span.baseline_shift, font, span.font_size.get());
 
     <span class="comment">// TODO: support vertical layout as well
@@ -2371,7 +2361,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     text_node: <span class="kw-2">&amp;</span>Text,
     fontdb: <span class="kw-2">&amp;</span>fontdb::Database,
     abs_ts: Transform,
-) -&gt; (Vec&lt;Path&gt;, PathBbox) {
+) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;Path&gt;, Rect)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>fonts_cache: FontsCache = HashMap::new();
     <span class="kw">for </span>chunk <span class="kw">in </span><span class="kw-2">&amp;</span>text_node.chunks {
         <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
@@ -2383,7 +2373,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>bbox = PathBbox::new_bbox();
+    <span class="kw">let </span><span class="kw-2">mut </span>bbox = BBox::default();
     <span class="kw">let </span><span class="kw-2">mut </span>char_offset = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>last_x = <span class="number">0.0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>last_y = <span class="number">0.0</span>;
@@ -2418,7 +2408,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="kw">let </span><span class="kw-2">mut </span>text_ts = Transform::default();
         <span class="kw">if </span>text_node.writing_mode == WritingMode::TopToBottom {
             <span class="kw">if let </span>TextFlow::Linear = chunk.text_flow {
-                text_ts.rotate_at(<span class="number">90.0</span>, x, y);
+                text_ts = text_ts.pre_rotate_at(<span class="number">90.0</span>, x, y);
             }
         }
 
@@ -2431,14 +2421,14 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="kw">let </span>decoration_spans = collect_decoration_spans(span, <span class="kw-2">&amp;</span>clusters);
 
             <span class="kw">let </span><span class="kw-2">mut </span>span_ts = text_ts;
-            span_ts.translate(x, y);
+            span_ts = span_ts.pre_translate(x, y);
             <span class="kw">if let </span>TextFlow::Linear = chunk.text_flow {
                 <span class="kw">let </span>shift = resolve_baseline(span, font, text_node.writing_mode);
 
                 <span class="comment">// In case of a horizontal flow, shift transform and not clusters,
                 // because clusters can be rotated and an additional shift will lead
                 // to invalid results.
-                </span>span_ts.translate(<span class="number">0.0</span>, shift);
+                </span>span_ts = span_ts.pre_translate(<span class="number">0.0</span>, shift);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(decoration) = span.decoration.underline.clone() {
@@ -2451,14 +2441,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
                     WritingMode::TopToBottom =&gt; font.height(span.font_size.get()) / <span class="number">2.0</span>,
                 };
 
-                <span class="kw">let </span>path =
-                    convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts);
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = path.data.bbox() {
-                    bbox = bbox.expand(r);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) =
+                    convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts)
+                {
+                    bbox = bbox.expand(path.data.bounds());
+                    new_paths.push(path);
                 }
-
-                new_paths.push(path);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(decoration) = span.decoration.overline.clone() {
@@ -2467,20 +2455,18 @@ An [SVG] text layout implementation on top of [usvg] crate.
                     WritingMode::TopToBottom =&gt; -font.height(span.font_size.get()) / <span class="number">2.0</span>,
                 };
 
-                <span class="kw">let </span>path =
-                    convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts);
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = path.data.bbox() {
-                    bbox = bbox.expand(r);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) =
+                    convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts)
+                {
+                    bbox = bbox.expand(path.data.bounds());
+                    new_paths.push(path);
                 }
-
-                new_paths.push(path);
             }
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = convert_span(span, <span class="kw-2">&amp;mut </span>clusters, <span class="kw-2">&amp;</span>span_ts) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = convert_span(span, <span class="kw-2">&amp;mut </span>clusters, span_ts) {
                 <span class="comment">// Use `text_bbox` here and not `path.data.bbox()`.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r) = path.text_bbox {
-                    bbox = bbox.expand(r.to_path_bbox());
+                    bbox = bbox.expand(r);
                 }
 
                 new_paths.push(path);
@@ -2492,14 +2478,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
                     WritingMode::TopToBottom =&gt; <span class="number">0.0</span>,
                 };
 
-                <span class="kw">let </span>path =
-                    convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts);
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = path.data.bbox() {
-                    bbox = bbox.expand(r);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) =
+                    convert_decoration(offset, span, font, decoration, <span class="kw-2">&amp;</span>decoration_spans, span_ts)
+                {
+                    bbox = bbox.expand(path.data.bounds());
+                    new_paths.push(path);
                 }
-
-                new_paths.push(path);
             }
         }
 
@@ -2515,7 +2499,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
         last_y = y + curr_pos.<span class="number">1</span>;
     }
 
-    (new_paths, bbox)
+    <span class="kw">let </span>bbox = bbox.to_rect()<span class="question-mark">?</span>;
+    <span class="prelude-val">Some</span>((new_paths, bbox))
 }
 
 <span class="kw">fn </span>resolve_font(font: <span class="kw-2">&amp;</span>Font, fontdb: <span class="kw-2">&amp;</span>fontdb::Database) -&gt; <span class="prelude-ty">Option</span>&lt;ResolvedFont&gt; {
@@ -2570,10 +2555,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
 <span class="kw">fn </span>convert_span(
     span: <span class="kw-2">&amp;</span>TextSpan,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
-    text_ts: <span class="kw-2">&amp;</span>Transform,
+    text_ts: Transform,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;Path&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>path_data = PathData::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>bboxes_data = PathData::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>path_builder = tiny_skia_path::PathBuilder::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>bboxes_builder = tiny_skia_path::PathBuilder::new();
 
     <span class="kw">for </span>cluster <span class="kw">in </span>clusters {
         <span class="kw">if </span>!cluster.visible {
@@ -2581,26 +2566,36 @@ An [SVG] text layout implementation on top of [usvg] crate.
         }
 
         <span class="kw">if </span>span_contains(span, cluster.byte_idx) {
-            <span class="kw">let </span><span class="kw-2">mut </span>path = std::mem::replace(<span class="kw-2">&amp;mut </span>cluster.path, PathData::new());
-            path.transform(cluster.transform);
+            <span class="kw">let </span>path = cluster
+                .path
+                .take()
+                .and_then(|p| p.transform(cluster.transform));
 
-            path_data.push_path(<span class="kw-2">&amp;</span>path);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = path {
+                path_builder.push_path(<span class="kw-2">&amp;</span>path);
+            }
+
+            <span class="comment">// TODO: make sure `advance` is never negative beforehand.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>advance = cluster.advance;
+            <span class="kw">if </span>advance &lt;= <span class="number">0.0 </span>{
+                advance = <span class="number">1.0</span>;
+            }
 
             <span class="comment">// We have to calculate text bbox using font metrics and not glyph shape.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r) = Rect::new(<span class="number">0.0</span>, -cluster.ascent, cluster.advance, cluster.height()) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = r.transform(<span class="kw-2">&amp;</span>cluster.transform) {
-                    bboxes_data.push_rect(r);
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r) = NonZeroRect::from_xywh(<span class="number">0.0</span>, -cluster.ascent, advance, cluster.height())
+            {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = r.transform(cluster.transform) {
+                    bboxes_builder.push_rect(r.to_rect());
                 }
             }
         }
     }
 
-    <span class="kw">if </span>path_data.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">None</span>;
-    }
+    <span class="kw">let </span><span class="kw-2">mut </span>path = path_builder.finish()<span class="question-mark">?</span>;
+    path = path.transform(text_ts)<span class="question-mark">?</span>;
 
-    path_data.transform(<span class="kw-2">*</span>text_ts);
-    bboxes_data.transform(<span class="kw-2">*</span>text_ts);
+    <span class="kw">let </span><span class="kw-2">mut </span>bboxes = bboxes_builder.finish()<span class="question-mark">?</span>;
+    bboxes = bboxes.transform(text_ts)<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>fill = span.fill.clone();
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>fill) = fill {
@@ -2620,8 +2615,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
         stroke: span.stroke.clone(),
         paint_order: span.paint_order,
         rendering_mode: ShapeRendering::default(),
-        text_bbox: bboxes_data.bbox().and_then(|r| r.to_rect()),
-        data: Rc::new(path_data),
+        text_bbox: <span class="prelude-val">Some</span>(bboxes.bounds().to_non_zero_rect()<span class="question-mark">?</span>),
+        data: Rc::new(path),
     };
 
     <span class="prelude-val">Some</span>(path)
@@ -2661,20 +2656,20 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">fn </span>convert_decoration(
-    dy: f64,
+    dy: f32,
     span: <span class="kw-2">&amp;</span>TextSpan,
     font: <span class="kw-2">&amp;</span>ResolvedFont,
     <span class="kw-2">mut </span>decoration: TextDecorationStyle,
     decoration_spans: <span class="kw-2">&amp;</span>[DecorationSpan],
     transform: Transform,
-) -&gt; Path {
+) -&gt; <span class="prelude-ty">Option</span>&lt;Path&gt; {
     <span class="macro">debug_assert!</span>(!decoration_spans.is_empty());
 
     <span class="kw">let </span>thickness = font.underline_thickness(span.font_size.get());
 
-    <span class="kw">let </span><span class="kw-2">mut </span>path = PathData::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
     <span class="kw">for </span>dec_span <span class="kw">in </span>decoration_spans {
-        <span class="kw">let </span>rect = <span class="kw">match </span>Rect::new(<span class="number">0.0</span>, -thickness / <span class="number">2.0</span>, dec_span.width, thickness) {
+        <span class="kw">let </span>rect = <span class="kw">match </span>NonZeroRect::from_xywh(<span class="number">0.0</span>, -thickness / <span class="number">2.0</span>, dec_span.width, thickness) {
             <span class="prelude-val">Some</span>(v) =&gt; v,
             <span class="prelude-val">None </span>=&gt; {
                 <span class="macro">log::warn!</span>(<span class="string">&quot;a decoration span has a malformed bbox&quot;</span>);
@@ -2682,29 +2677,31 @@ An [SVG] text layout implementation on top of [usvg] crate.
             }
         };
 
-        <span class="kw">let </span>start_idx = path.len();
-        path.push_rect(rect);
+        <span class="kw">let </span>ts = dec_span.transform.pre_translate(<span class="number">0.0</span>, dy);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ts = dec_span.transform;
-        ts.translate(<span class="number">0.0</span>, dy);
-        path.transform_from(start_idx, ts);
+        <span class="kw">let </span><span class="kw-2">mut </span>path = tiny_skia_path::PathBuilder::from_rect(rect.to_rect());
+        path = <span class="kw">match </span>path.transform(ts) {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
+        };
+
+        builder.push_path(<span class="kw-2">&amp;</span>path);
     }
 
-    path.transform(transform);
+    <span class="kw">let </span><span class="kw-2">mut </span>path_data = builder.finish()<span class="question-mark">?</span>;
+    path_data = path_data.transform(transform)<span class="question-mark">?</span>;
 
-    Path {
-        visibility: span.visibility,
-        fill: decoration.fill.take(),
-        stroke: decoration.stroke.take(),
-        data: Rc::new(path),
-        ..Path::default()
-    }
+    <span class="kw">let </span><span class="kw-2">mut </span>path = Path::new(Rc::new(path_data));
+    path.visibility = span.visibility;
+    path.fill = decoration.fill.take();
+    path.stroke = decoration.stroke.take();
+    <span class="prelude-val">Some</span>(path)
 }
 
 <span class="doccomment">/// By the SVG spec, `tspan` doesn&#39;t have a bbox and uses the parent `text` bbox.
 /// Since we converted `text` and `tspan` to `path`, we have to update
 /// all linked paint servers (gradients and patterns) too.
-</span><span class="kw">fn </span>fix_obj_bounding_box(path: <span class="kw-2">&amp;mut </span>Path, bbox: PathBbox) {
+</span><span class="kw">fn </span>fix_obj_bounding_box(path: <span class="kw-2">&amp;mut </span>Path, bbox: Rect) {
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>fill) = path.fill {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(new_paint) = paint_server_to_user_space_on_use(fill.paint.clone(), bbox) {
             fill.paint = new_paint;
@@ -2723,7 +2720,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 /// Creates a deep copy of a selected paint server and returns its ID.
 ///
 /// Returns `None` if a paint server already uses `UserSpaceOnUse`.
-</span><span class="kw">fn </span>paint_server_to_user_space_on_use(paint: Paint, bbox: PathBbox) -&gt; <span class="prelude-ty">Option</span>&lt;Paint&gt; {
+</span><span class="kw">fn </span>paint_server_to_user_space_on_use(paint: Paint, bbox: Rect) -&gt; <span class="prelude-ty">Option</span>&lt;Paint&gt; {
     <span class="kw">if </span>paint.units() != <span class="prelude-val">Some</span>(Units::ObjectBoundingBox) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
@@ -2733,12 +2730,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
     // If not, the `convert` module will remove unused defs anyway.
 
     // Update id, transform and units.
-    </span><span class="kw">let </span>ts = Transform::from_bbox(bbox.to_rect()<span class="question-mark">?</span>);
+    </span><span class="kw">let </span>ts = Transform::from_bbox(bbox.to_non_zero_rect()<span class="question-mark">?</span>);
     <span class="kw">let </span>paint = <span class="kw">match </span>paint {
         Paint::Color(<span class="kw">_</span>) =&gt; paint,
         Paint::LinearGradient(<span class="kw-2">ref </span>lg) =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>transform = lg.transform;
-            transform.prepend(<span class="kw-2">&amp;</span>ts);
+            <span class="kw">let </span>transform = lg.transform.post_concat(ts);
             Paint::LinearGradient(Rc::new(LinearGradient {
                 id: String::new(),
                 x1: lg.x1,
@@ -2754,8 +2750,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             }))
         }
         Paint::RadialGradient(<span class="kw-2">ref </span>rg) =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>transform = rg.transform;
-            transform.prepend(<span class="kw-2">&amp;</span>ts);
+            <span class="kw">let </span>transform = rg.transform.post_concat(ts);
             Paint::RadialGradient(Rc::new(RadialGradient {
                 id: String::new(),
                 cx: rg.cx,
@@ -2772,8 +2767,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             }))
         }
         Paint::Pattern(<span class="kw-2">ref </span>patt) =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>transform = patt.transform;
-            transform.prepend(<span class="kw-2">&amp;</span>ts);
+            <span class="kw">let </span>transform = patt.transform.post_concat(ts);
             Paint::Pattern(Rc::new(Pattern {
                 id: String::new(),
                 units: Units::UserSpaceOnUse,
@@ -2795,7 +2789,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 /// It doesn&#39;t have a height, since it depends on the Font metrics.
 </span><span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">struct </span>DecorationSpan {
-    width: f64,
+    width: f32,
     transform: Transform,
 }
 
@@ -2857,21 +2851,21 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="doccomment">/// Cluster&#39;s width.
     ///
     /// It&#39;s different from advance in that it&#39;s not affected by letter spacing and word spacing.
-    </span>width: f64,
+    </span>width: f32,
 
     <span class="doccomment">/// An advance along the X axis.
     ///
     /// Can be negative.
-    </span>advance: f64,
+    </span>advance: f32,
 
     <span class="doccomment">/// An ascent in SVG coordinates.
-    </span>ascent: f64,
+    </span>ascent: f32,
 
     <span class="doccomment">/// A descent in SVG coordinates.
-    </span>descent: f64,
+    </span>descent: f32,
 
     <span class="doccomment">/// A x-height in SVG coordinates.
-    </span>x_height: f64,
+    </span>x_height: f32,
 
     <span class="doccomment">/// Indicates that this cluster was affected by the relative shift (via dx/dy attributes)
     /// during the text layouting. Which breaks the `text-decoration` line.
@@ -2880,7 +2874,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     </span>has_relative_shift: bool,
 
     <span class="doccomment">/// An actual outline.
-    </span>path: PathData,
+    </span>path: <span class="prelude-ty">Option</span>&lt;tiny_skia_path::Path&gt;,
 
     <span class="doccomment">/// A cluster&#39;s transform that contains it&#39;s position, rotation, etc.
     </span>transform: Transform,
@@ -2892,7 +2886,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">impl </span>OutlinedCluster {
-    <span class="kw">fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+    <span class="kw">fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
         <span class="self">self</span>.ascent - <span class="self">self</span>.descent
     }
 }
@@ -3163,26 +3157,24 @@ An [SVG] text layout implementation on top of [usvg] crate.
 </span><span class="kw">fn </span>outline_cluster(
     glyphs: <span class="kw-2">&amp;</span>[Glyph],
     text: <span class="kw-2">&amp;</span>str,
-    font_size: f64,
+    font_size: f32,
     db: <span class="kw-2">&amp;</span>fontdb::Database,
 ) -&gt; OutlinedCluster {
     <span class="macro">debug_assert!</span>(!glyphs.is_empty());
 
-    <span class="kw">let </span><span class="kw-2">mut </span>path = PathData::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = tiny_skia_path::PathBuilder::new();
     <span class="kw">let </span><span class="kw-2">mut </span>width = <span class="number">0.0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0.0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>x: f32 = <span class="number">0.0</span>;
 
     <span class="kw">for </span>glyph <span class="kw">in </span>glyphs {
-        <span class="kw">let </span><span class="kw-2">mut </span>outline = db.outline(glyph.font.id, glyph.id).unwrap_or_default();
-
         <span class="kw">let </span>sx = glyph.font.scale(font_size);
 
-        <span class="kw">if </span>!outline.is_empty() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(outline) = db.outline(glyph.font.id, glyph.id) {
             <span class="comment">// By default, glyphs are upside-down, so we have to mirror them.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::new_scale(<span class="number">1.0</span>, -<span class="number">1.0</span>);
+            </span><span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::from_scale(<span class="number">1.0</span>, -<span class="number">1.0</span>);
 
             <span class="comment">// Scale to font-size.
-            </span>ts.scale(sx, sx);
+            </span>ts = ts.pre_scale(sx, sx);
 
             <span class="comment">// Apply offset.
             //
@@ -3190,16 +3182,16 @@ An [SVG] text layout implementation on top of [usvg] crate.
             // but the later one will have an offset from the &quot;current position&quot;.
             // So we have to keep an advance.
             // TODO: should be done only inside a single text span
-            </span>ts.translate(x + glyph.dx <span class="kw">as </span>f64, glyph.dy <span class="kw">as </span>f64);
+            </span>ts = ts.pre_translate(x + glyph.dx <span class="kw">as </span>f32, glyph.dy <span class="kw">as </span>f32);
 
-            outline.transform(ts);
-
-            path.push_path(<span class="kw-2">&amp;</span>outline);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(outline) = outline.transform(ts) {
+                builder.push_path(<span class="kw-2">&amp;</span>outline);
+            }
         }
 
-        x += glyph.width <span class="kw">as </span>f64;
+        x += glyph.width <span class="kw">as </span>f32;
 
-        <span class="kw">let </span>glyph_width = glyph.width <span class="kw">as </span>f64 * sx;
+        <span class="kw">let </span>glyph_width = glyph.width <span class="kw">as </span>f32 * sx;
         <span class="kw">if </span>glyph_width &gt; width {
             width = glyph_width;
         }
@@ -3216,7 +3208,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
         descent: font.descent(font_size),
         x_height: font.x_height(font_size),
         has_relative_shift: <span class="bool-val">false</span>,
-        path,
+        path: builder.finish(),
         transform: Transform::default(),
         visible: <span class="bool-val">true</span>,
     }
@@ -3280,12 +3272,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     char_offset: usize,
     pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
-    rotate_list: <span class="kw-2">&amp;</span>[f64],
+    rotate_list: <span class="kw-2">&amp;</span>[f32],
     writing_mode: WritingMode,
     ts: Transform,
     fonts_cache: <span class="kw-2">&amp;</span>FontsCache,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
-) -&gt; (f64, f64) {
+) -&gt; (f32, f32) {
     <span class="kw">match </span>chunk.text_flow {
         TextFlow::Linear =&gt; resolve_clusters_positions_horizontal(
             chunk,
@@ -3313,10 +3305,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     offset: usize,
     pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
-    rotate_list: <span class="kw-2">&amp;</span>[f64],
+    rotate_list: <span class="kw-2">&amp;</span>[f32],
     writing_mode: WritingMode,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
-) -&gt; (f64, f64) {
+) -&gt; (f32, f32) {
     <span class="kw">let </span><span class="kw-2">mut </span>x = process_anchor(chunk.anchor, clusters_length(clusters));
     <span class="kw">let </span><span class="kw-2">mut </span>y = <span class="number">0.0</span>;
 
@@ -3333,11 +3325,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
             cluster.has_relative_shift = pos.dx.is_some() || pos.dy.is_some();
         }
 
-        cluster.transform.translate(x, y);
+        cluster.transform = cluster.transform.pre_translate(x, y);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(angle) = rotate_list.get(cp).cloned() {
-            <span class="kw">if </span>!angle.is_fuzzy_zero() {
-                cluster.transform.rotate(angle);
+            <span class="kw">if </span>!angle.approx_zero_ulps(<span class="number">4</span>) {
+                cluster.transform = cluster.transform.pre_rotate(angle);
                 cluster.has_relative_shift = <span class="bool-val">true</span>;
             }
         }
@@ -3353,12 +3345,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
     char_offset: usize,
     path: <span class="kw-2">&amp;</span>TextPath,
     pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
-    rotate_list: <span class="kw-2">&amp;</span>[f64],
+    rotate_list: <span class="kw-2">&amp;</span>[f32],
     writing_mode: WritingMode,
     ts: Transform,
     fonts_cache: <span class="kw-2">&amp;</span>FontsCache,
     clusters: <span class="kw-2">&amp;mut </span>[OutlinedCluster],
-) -&gt; (f64, f64) {
+) -&gt; (f32, f32) {
     <span class="kw">let </span><span class="kw-2">mut </span>last_x = <span class="number">0.0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>last_y = <span class="number">0.0</span>;
 
@@ -3401,8 +3393,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
         <span class="comment">// Clusters should be rotated by the x-midpoint x baseline position.
         </span><span class="kw">let </span>half_width = cluster.width / <span class="number">2.0</span>;
         cluster.transform = Transform::default();
-        cluster.transform.translate(x - half_width, y);
-        cluster.transform.rotate_at(angle, half_width, <span class="number">0.0</span>);
+        cluster.transform = cluster.transform.pre_translate(x - half_width, y);
+        cluster.transform = cluster.transform.pre_rotate_at(angle, half_width, <span class="number">0.0</span>);
 
         <span class="kw">let </span>cp = char_offset + cluster.byte_idx.code_point_at(<span class="kw-2">&amp;</span>chunk.text);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = pos_list.get(cp) {
@@ -3421,19 +3413,21 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
         <span class="comment">// Shift only by `dy` since we already applied `dx`
         // during offset along the path calculation.
-        </span><span class="kw">if </span>!dy.is_fuzzy_zero() || !baseline_shift.is_fuzzy_zero() {
-            <span class="kw">let </span>shift = kurbo::Vec2::new(<span class="number">0.0</span>, dy - baseline_shift);
-            cluster.transform.translate(shift.x, shift.y);
+        </span><span class="kw">if </span>!dy.approx_zero_ulps(<span class="number">4</span>) || !baseline_shift.approx_zero_ulps(<span class="number">4</span>) {
+            <span class="kw">let </span>shift = kurbo::Vec2::new(<span class="number">0.0</span>, (dy - baseline_shift) <span class="kw">as </span>f64);
+            cluster.transform = cluster
+                .transform
+                .pre_translate(shift.x <span class="kw">as </span>f32, shift.y <span class="kw">as </span>f32);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(angle) = rotate_list.get(cp).cloned() {
-            <span class="kw">if </span>!angle.is_fuzzy_zero() {
-                cluster.transform.rotate(angle);
+            <span class="kw">if </span>!angle.approx_zero_ulps(<span class="number">4</span>) {
+                cluster.transform = cluster.transform.pre_rotate(angle);
             }
         }
 
         <span class="comment">// The possible `lengthAdjust` transform should be applied after text-on-path positioning.
-        </span>cluster.transform.append(<span class="kw-2">&amp;</span>orig_ts);
+        </span>cluster.transform = cluster.transform.pre_concat(orig_ts);
 
         last_x = x + cluster.advance;
         last_y = y;
@@ -3442,11 +3436,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
     (last_x, last_y)
 }
 
-<span class="kw">fn </span>clusters_length(clusters: <span class="kw-2">&amp;</span>[OutlinedCluster]) -&gt; f64 {
+<span class="kw">fn </span>clusters_length(clusters: <span class="kw-2">&amp;</span>[OutlinedCluster]) -&gt; f32 {
     clusters.iter().fold(<span class="number">0.0</span>, |w, cluster| w + cluster.advance)
 }
 
-<span class="kw">fn </span>process_anchor(a: TextAnchor, text_width: f64) -&gt; f64 {
+<span class="kw">fn </span>process_anchor(a: TextAnchor, text_width: f32) -&gt; f32 {
     <span class="kw">match </span>a {
         TextAnchor::Start =&gt; <span class="number">0.0</span>, <span class="comment">// Nothing.
         </span>TextAnchor::Middle =&gt; -text_width / <span class="number">2.0</span>,
@@ -3455,22 +3449,20 @@ An [SVG] text layout implementation on top of [usvg] crate.
 }
 
 <span class="kw">struct </span>PathNormal {
-    x: f64,
-    y: f64,
-    angle: f64,
+    x: f32,
+    y: f32,
+    angle: f32,
 }
 
 <span class="kw">fn </span>collect_normals(
     chunk: <span class="kw-2">&amp;</span>TextChunk,
     clusters: <span class="kw-2">&amp;</span>[OutlinedCluster],
-    path: <span class="kw-2">&amp;</span>PathData,
+    path: <span class="kw-2">&amp;</span>tiny_skia_path::Path,
     pos_list: <span class="kw-2">&amp;</span>[CharacterPosition],
     char_offset: usize,
-    offset: f64,
+    offset: f32,
     ts: Transform,
 ) -&gt; Vec&lt;<span class="prelude-ty">Option</span>&lt;PathNormal&gt;&gt; {
-    <span class="macro">debug_assert!</span>(!path.is_empty());
-
     <span class="kw">let </span><span class="kw-2">mut </span>offsets = Vec::with_capacity(clusters.len());
     <span class="kw">let </span><span class="kw-2">mut </span>normals = Vec::with_capacity(clusters.len());
     {
@@ -3492,43 +3484,59 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 normals.push(<span class="prelude-val">None</span>);
             }
 
-            offsets.push(offset);
+            offsets.push(offset <span class="kw">as </span>f64);
             advance += cluster.advance;
         }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>prev_mx = path.points()[<span class="number">0</span>];
-    <span class="kw">let </span><span class="kw-2">mut </span>prev_my = path.points()[<span class="number">1</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_mx = path.points()[<span class="number">0</span>].x;
+    <span class="kw">let </span><span class="kw-2">mut </span>prev_my = path.points()[<span class="number">0</span>].y;
     <span class="kw">let </span><span class="kw-2">mut </span>prev_x = prev_mx;
     <span class="kw">let </span><span class="kw-2">mut </span>prev_y = prev_my;
 
-    <span class="kw">fn </span>create_curve_from_line(px: f64, py: f64, x: f64, y: f64) -&gt; kurbo::CubicBez {
-        <span class="kw">let </span>line = kurbo::Line::new(kurbo::Point::new(px, py), kurbo::Point::new(x, y));
+    <span class="kw">fn </span>create_curve_from_line(px: f32, py: f32, x: f32, y: f32) -&gt; kurbo::CubicBez {
+        <span class="kw">let </span>line = kurbo::Line::new(
+            kurbo::Point::new(px <span class="kw">as </span>f64, py <span class="kw">as </span>f64),
+            kurbo::Point::new(x <span class="kw">as </span>f64, y <span class="kw">as </span>f64),
+        );
         <span class="kw">let </span>p1 = line.eval(<span class="number">0.33</span>);
         <span class="kw">let </span>p2 = line.eval(<span class="number">0.66</span>);
-        cubic_from_points(px, py, p1.x, p1.y, p2.x, p2.y, x, y)
+        kurbo::CubicBez {
+            p0: line.p0,
+            p1,
+            p2,
+            p3: line.p1,
+        }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>length = <span class="number">0.0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>length: f64 = <span class="number">0.0</span>;
     <span class="kw">for </span>seg <span class="kw">in </span>path.segments() {
         <span class="kw">let </span>curve = <span class="kw">match </span>seg {
-            PathSegment::MoveTo { x, y } =&gt; {
-                prev_mx = x;
-                prev_my = y;
-                prev_x = x;
-                prev_y = y;
+            tiny_skia_path::PathSegment::MoveTo(p) =&gt; {
+                prev_mx = p.x;
+                prev_my = p.y;
+                prev_x = p.x;
+                prev_y = p.y;
                 <span class="kw">continue</span>;
             }
-            PathSegment::LineTo { x, y } =&gt; create_curve_from_line(prev_x, prev_y, x, y),
-            PathSegment::CurveTo {
-                x1,
-                y1,
-                x2,
-                y2,
-                x,
-                y,
-            } =&gt; cubic_from_points(prev_x, prev_y, x1, y1, x2, y2, x, y),
-            PathSegment::ClosePath =&gt; create_curve_from_line(prev_x, prev_y, prev_mx, prev_my),
+            tiny_skia_path::PathSegment::LineTo(p) =&gt; {
+                create_curve_from_line(prev_x, prev_y, p.x, p.y)
+            }
+            tiny_skia_path::PathSegment::QuadTo(p1, p) =&gt; kurbo::QuadBez {
+                p0: kurbo::Point::new(prev_x <span class="kw">as </span>f64, prev_y <span class="kw">as </span>f64),
+                p1: kurbo::Point::new(p1.x <span class="kw">as </span>f64, p1.y <span class="kw">as </span>f64),
+                p2: kurbo::Point::new(p.x <span class="kw">as </span>f64, p.y <span class="kw">as </span>f64),
+            }
+            .raise(),
+            tiny_skia_path::PathSegment::CubicTo(p1, p2, p) =&gt; kurbo::CubicBez {
+                p0: kurbo::Point::new(prev_x <span class="kw">as </span>f64, prev_y <span class="kw">as </span>f64),
+                p1: kurbo::Point::new(p1.x <span class="kw">as </span>f64, p1.y <span class="kw">as </span>f64),
+                p2: kurbo::Point::new(p2.x <span class="kw">as </span>f64, p2.y <span class="kw">as </span>f64),
+                p3: kurbo::Point::new(p.x <span class="kw">as </span>f64, p.y <span class="kw">as </span>f64),
+            },
+            tiny_skia_path::PathSegment::Close =&gt; {
+                create_curve_from_line(prev_x, prev_y, prev_mx, prev_my)
+            }
         };
 
         <span class="kw">let </span>arclen_accuracy = {
@@ -3541,11 +3549,11 @@ An [SVG] text layout implementation on top of [usvg] crate.
             </span>base_arclen_accuracy / (sx * sy).sqrt().max(<span class="number">1.0</span>)
         };
 
-        <span class="kw">let </span>curve_len = curve.arclen(arclen_accuracy);
+        <span class="kw">let </span>curve_len = curve.arclen(arclen_accuracy <span class="kw">as </span>f64);
 
         <span class="kw">for </span>offset <span class="kw">in </span><span class="kw-2">&amp;</span>offsets[normals.len()..] {
             <span class="kw">if </span><span class="kw-2">*</span>offset &gt;= length &amp;&amp; <span class="kw-2">*</span>offset &lt;= length + curve_len {
-                <span class="kw">let </span><span class="kw-2">mut </span>offset = curve.inv_arclen(offset - length, arclen_accuracy);
+                <span class="kw">let </span><span class="kw-2">mut </span>offset = curve.inv_arclen(offset - length, arclen_accuracy <span class="kw">as </span>f64);
                 <span class="comment">// some rounding error may occur, so we give offset a little tolerance
                 </span><span class="macro">debug_assert!</span>((-<span class="number">1.0e-3</span>..=<span class="number">1.0 </span>+ <span class="number">1.0e-3</span>).contains(<span class="kw-2">&amp;</span>offset));
                 offset = offset.min(<span class="number">1.0</span>).max(<span class="number">0.0</span>);
@@ -3556,9 +3564,9 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 </span><span class="kw">let </span>angle = d.atan2().to_degrees() - <span class="number">90.0</span>;
 
                 normals.push(<span class="prelude-val">Some</span>(PathNormal {
-                    x: pos.x,
-                    y: pos.y,
-                    angle,
+                    x: pos.x <span class="kw">as </span>f32,
+                    y: pos.y <span class="kw">as </span>f32,
+                    angle: angle <span class="kw">as </span>f32,
                 }));
 
                 <span class="kw">if </span>normals.len() == offsets.len() {
@@ -3568,8 +3576,8 @@ An [SVG] text layout implementation on top of [usvg] crate.
         }
 
         length += curve_len;
-        prev_x = curve.p3.x;
-        prev_y = curve.p3.y;
+        prev_x = curve.p3.x <span class="kw">as </span>f32;
+        prev_y = curve.p3.y <span class="kw">as </span>f32;
     }
 
     <span class="comment">// If path ended and we still have unresolved normals - set them to `None`.
@@ -3588,7 +3596,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     </span><span class="kw">if </span>!chunk
         .spans
         .iter()
-        .any(|span| !span.letter_spacing.is_fuzzy_zero())
+        .any(|span| !span.letter_spacing.approx_zero_ulps(<span class="number">4</span>))
     {
         <span class="kw">return</span>;
     }
@@ -3613,7 +3621,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
                 </span><span class="kw">if </span>!cluster.advance.is_valid_length() {
                     cluster.width = <span class="number">0.0</span>;
                     cluster.advance = <span class="number">0.0</span>;
-                    cluster.path.clear();
+                    cluster.path = <span class="prelude-val">None</span>;
                 }
             }
         }
@@ -3657,7 +3665,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
     </span><span class="kw">if </span>!chunk
         .spans
         .iter()
-        .any(|span| !span.word_spacing.is_fuzzy_zero())
+        .any(|span| !span.word_spacing.approx_zero_ulps(<span class="number">4</span>))
     {
         <span class="kw">return</span>;
     }
@@ -3690,10 +3698,9 @@ An [SVG] text layout implementation on top of [usvg] crate.
     <span class="kw">let </span>is_horizontal = <span class="macro">matches!</span>(chunk.text_flow, TextFlow::Linear);
 
     <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>chunk.spans {
-        <span class="kw">let </span>target_width = <span class="kw">if let </span><span class="prelude-val">Some</span>(w) = span.text_length {
-            w
-        } <span class="kw">else </span>{
-            <span class="kw">continue</span>;
+        <span class="kw">let </span>target_width = <span class="kw">match </span>span.text_length {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>width = <span class="number">0.0</span>;
@@ -3719,10 +3726,10 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
         <span class="kw">if </span>span.length_adjust == LengthAdjust::Spacing {
             <span class="kw">let </span>factor = <span class="kw">if </span>cluster_indexes.len() &gt; <span class="number">1 </span>{
-                (target_width - width) / (cluster_indexes.len() - <span class="number">1</span>) <span class="kw">as </span>f64
+                (target_width - width) / (cluster_indexes.len() - <span class="number">1</span>) <span class="kw">as </span>f32
             } <span class="kw">else </span>{
-                <span class="number">0 </span><span class="kw">as </span>f64
-            };
+                <span class="number">0.0
+            </span>};
 
             <span class="kw">for </span>i <span class="kw">in </span>cluster_indexes {
                 clusters[i].advance = clusters[i].width + factor;
@@ -3735,7 +3742,7 @@ An [SVG] text layout implementation on top of [usvg] crate.
             }
 
             <span class="kw">for </span>i <span class="kw">in </span>cluster_indexes {
-                clusters[i].transform.scale(factor, <span class="number">1.0</span>);
+                clusters[i].transform = clusters[i].transform.pre_scale(factor, <span class="number">1.0</span>);
 
                 <span class="comment">// Technically just a hack to support the current text-on-path algorithm.
                 </span><span class="kw">if </span>!is_horizontal {
@@ -3762,10 +3769,13 @@ An [SVG] text layout implementation on top of [usvg] crate.
 
             <span class="comment">// Rotate a cluster 90deg counter clockwise by the center.
             </span><span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::default();
-            ts.translate(cluster.width / <span class="number">2.0</span>, <span class="number">0.0</span>);
-            ts.rotate(-<span class="number">90.0</span>);
-            ts.translate(-cluster.width / <span class="number">2.0</span>, -dy);
-            cluster.path.transform(ts);
+            ts = ts.pre_translate(cluster.width / <span class="number">2.0</span>, <span class="number">0.0</span>);
+            ts = ts.pre_rotate(-<span class="number">90.0</span>);
+            ts = ts.pre_translate(-cluster.width / <span class="number">2.0</span>, -dy);
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = cluster.path.take() {
+                cluster.path = path.transform(ts);
+            }
 
             <span class="comment">// Move &quot;baseline&quot; to the middle and make height equal to width.
             </span>cluster.ascent = cluster.width / <span class="number">2.0</span>;
@@ -3774,12 +3784,12 @@ An [SVG] text layout implementation on top of [usvg] crate.
             <span class="comment">// Could not find a spec that explains this,
             // but this is how other applications are shifting the &quot;rotated&quot; characters
             // in the top-to-bottom mode.
-            </span>cluster.transform.translate(<span class="number">0.0</span>, cluster.x_height / <span class="number">2.0</span>);
+            </span>cluster.transform = cluster.transform.pre_translate(<span class="number">0.0</span>, cluster.x_height / <span class="number">2.0</span>);
         }
     }
 }
 
-<span class="kw">fn </span>resolve_baseline_shift(baselines: <span class="kw-2">&amp;</span>[BaselineShift], font: <span class="kw-2">&amp;</span>ResolvedFont, font_size: f64) -&gt; f64 {
+<span class="kw">fn </span>resolve_baseline_shift(baselines: <span class="kw-2">&amp;</span>[BaselineShift], font: <span class="kw-2">&amp;</span>ResolvedFont, font_size: f32) -&gt; f32 {
     <span class="kw">let </span><span class="kw-2">mut </span>shift = <span class="number">0.0</span>;
     <span class="kw">for </span>baseline <span class="kw">in </span>baselines.iter().rev() {
         <span class="kw">match </span>baseline {
@@ -3791,23 +3801,5 @@ An [SVG] text layout implementation on top of [usvg] crate.
     }
 
     shift
-}
-
-<span class="kw">fn </span>cubic_from_points(
-    px: f64,
-    py: f64,
-    x1: f64,
-    y1: f64,
-    x2: f64,
-    y2: f64,
-    x: f64,
-    y: f64,
-) -&gt; kurbo::CubicBez {
-    kurbo::CubicBez {
-        p0: kurbo::Point::new(px, py),
-        p1: kurbo::Point::new(x1, y1),
-        p2: kurbo::Point::new(x2, y2),
-        p3: kurbo::Point::new(x, y),
-    }
 }
 </code></pre></div></section></main></body></html>

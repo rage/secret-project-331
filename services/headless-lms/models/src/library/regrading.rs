@@ -43,7 +43,7 @@ pub async fn regrade(
     // set of regradings that should not be marked as completed by the end
     let mut incomplete_regradings = HashSet::new();
 
-    tracing::info!("fetching uncompleted regradings");
+    tracing::debug!("fetching uncompleted regradings");
     let regrading_ids =
         models::regradings::get_uncompleted_regradings_and_mark_as_started(&mut *conn).await?;
     for regrading_id in regrading_ids.iter().copied() {

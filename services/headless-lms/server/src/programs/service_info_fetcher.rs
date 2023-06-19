@@ -31,7 +31,7 @@ pub async fn main() -> anyhow::Result<()> {
     loop {
         let exercise_services =
             headless_lms_models::exercise_services::get_exercise_services(&mut conn).await?;
-        info!(
+        debug!(
             "Fetching and updating statuses from {} services",
             exercise_services.len()
         );

@@ -21,10 +21,6 @@ RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
   && apt-get install -yy location \
   && rm -rf /var/lib/apt/lists/*
 
-# Fix location export. Ideally we would contribute this back to location but I can't find where they accept patches
-COPY location-export.patch /location-export.patch
-RUN patch /usr/lib/python3/dist-packages/location/export.py < /location-export.patch && rm /location-export.patch
-
 RUN location update \
   && mkdir -p /ips-to-country \
   && location export --directory /ips-to-country \
@@ -41,7 +37,7 @@ RUN mkdir /mold-ld-workaround \
 ENV RUSTFLAGS='-C link-arg=-B/mold-ld-workaround'
 
 RUN apt-get update \
-  && apt-get install -yy wait-for-it postgresql-client redis \
+  && apt-get install -yy wait-for-it postgresql-client redis-tools \
   && rm -rf /var/lib/apt/lists/*
 
 RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \

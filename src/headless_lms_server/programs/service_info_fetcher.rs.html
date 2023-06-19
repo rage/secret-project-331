@@ -96,7 +96,7 @@
     <span class="kw">loop </span>{
         <span class="kw">let </span>exercise_services =
             headless_lms_models::exercise_services::get_exercise_services(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">info!</span>(
+        <span class="macro">debug!</span>(
             <span class="string">&quot;Fetching and updating statuses from {} services&quot;</span>,
             exercise_services.len()
         );

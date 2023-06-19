@@ -153,6 +153,11 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc};
 
 <span class="kw">use crate</span>::{domain::models_requests::JwtKey, setup_tracing, Cache, OAuthClient};
@@ -173,6 +178,7 @@
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
     icu4x::Icu4xBlob,
+    ip_to_country::IpToCountryMapper,
     ApplicationConfiguration,
 };
 <span class="kw">use </span>listenfd::ListenFd;
@@ -229,6 +235,9 @@
 
     <span class="kw">let </span>db_clone = db_pool.clone();
 
+    <span class="kw">let </span>ip_to_country_mapper =
+        Data::new(IpToCountryMapper::new().expect(<span class="string">&quot;Could not load ip to country mapper&quot;</span>));
+    <span class="kw">let </span>file_store = setup_file_store();
     <span class="kw">let </span>cache = Cache::new(redis_url).<span class="kw">await</span>;
     <span class="kw">let </span>cache = Data::new(cache);
 
@@ -238,11 +247,12 @@
             test_mode,
             development_uuid_login,
         };
-        <span class="kw">let </span>file_store = setup_file_store();
-        <span class="kw">let </span>jwt_key_clone = jwt_key.clone();
-
+        <span class="kw">let </span>file_store = file_store.clone();
+        <span class="kw">let </span>jwt_key = jwt_key.clone();
         App::new()
-            .configure(<span class="kw">move </span>|config| <span class="kw">crate</span>::configure(config, file_store, app_conf, jwt_key_clone))
+            .configure(<span class="kw">move </span>|config| {
+                <span class="kw">crate</span>::configure(config, file_store.clone(), app_conf, jwt_key)
+            })
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
@@ -266,8 +276,8 @@
             ))
             .app_data(Data::new(db_clone.clone()))
             .app_data(Data::new(oauth_client.clone()))
-            .app_data(Data::new(jwt_key.clone()))
             .app_data(icu4x_blob.clone())
+            .app_data(ip_to_country_mapper.clone())
             .app_data(cache.clone())
     });
 
@@ -292,7 +302,7 @@
 Setups file store so that it can be passed to actix web as data.
 Using Arc here so that this can be accessed from all the different worker threads.
 */
-</span><span class="kw">fn </span>setup_file_store() -&gt; Arc&lt;<span class="kw">dyn </span>FileStore&gt; {
+</span><span class="kw">fn </span>setup_file_store() -&gt; Arc&lt;<span class="kw">dyn </span>FileStore + Send + Sync&gt; {
     <span class="kw">if </span>env::var(<span class="string">&quot;FILE_STORE_USE_GOOGLE_CLOUD_STORAGE&quot;</span>).is_ok() {
         <span class="macro">info!</span>(<span class="string">&quot;Using Google Cloud Storage as the file store&quot;</span>);
         <span class="kw">let </span>bucket_name = env::var(<span class="string">&quot;GOOGLE_CLOUD_STORAGE_BUCKET_NAME&quot;</span>).expect(<span class="string">&quot;env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.&quot;</span>);

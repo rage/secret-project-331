@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
-import React, { useCallback, useContext, useEffect, useId, useState } from "react"
+import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
@@ -11,6 +11,7 @@ import Dialog from "../../shared-module/components/Dialog"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "../../shared-module/styles"
 import { LANGUAGE_COOKIE_KEY } from "../../shared-module/utils/constants"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -78,8 +79,12 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
   }, [loginState, pageState, manualOpen])
 
-  const handleSubmitAndClose = useCallback(
-    async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
+  const handleSubmitAndCloseMutation = useToastMutation<
+    unknown,
+    unknown,
+    { instanceId: string; backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[] }
+  >(
+    async (variables) => {
       const newLanguage = newLangcode ?? ""
       const selectedLanguage = newLanguage.split("-")
       i18n.changeLanguage(newLanguage)
@@ -87,30 +92,32 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
 
       try {
-        await postSaveCourseSettings(instanceId, {
-          background_question_answers: backgroundQuestionAnswers,
+        await postSaveCourseSettings(variables.instanceId, {
+          background_question_answers: variables.backgroundQuestionAnswers,
         })
+        if (languageChanged && newUrl) {
+          await router.push(newUrl)
+        }
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
           console.info("Refetching page because the course instance has changed")
-          pageState.refetchPage()
+          await pageState.refetchPage()
         } else {
           console.warn(
             // eslint-disable-next-line i18next/no-literal-string
             "No refetching the page because there's no refetchPage function in the page context.",
           )
         }
-        if (languageChanged && newUrl) {
-          router.push(newUrl)
-        }
+
         setOpen(false)
 
         onClose()
       } catch (e) {
         setSubmitError(e)
       }
+      return null
     },
-    [newLangcode, i18n, languageChanged, newUrl, pageState, onClose, router],
+    { notify: false },
   )
 
   if (pageState.pageData?.course_id === null) {
@@ -154,7 +161,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         {getCourseInstances.isSuccess && (
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
-            onSubmitForm={handleSubmitAndClose}
+            submitMutation={handleSubmitAndCloseMutation}
             initialSelectedInstanceId={
               pageState.settings?.current_course_instance_id ?? pageState.instance?.id
             }

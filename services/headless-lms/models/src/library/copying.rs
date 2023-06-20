@@ -47,7 +47,7 @@ INSERT INTO courses (
     course_language_group_id,
     base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id,
   name,
   created_at,

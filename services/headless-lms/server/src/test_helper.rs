@@ -153,6 +153,7 @@ macro_rules! insert_data {
                 description: "description".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                copy_user_permissions: false,
             },
             $user,
             |_, _, _| unimplemented!(),

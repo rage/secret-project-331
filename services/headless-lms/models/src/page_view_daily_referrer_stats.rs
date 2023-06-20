@@ -36,7 +36,8 @@ pub async fn calculate_and_update_for_date(
     conn: &mut PgConnection,
     date: NaiveDate,
 ) -> ModelResult<Option<PageViewDailyReferrerStat>> {
-    let res = sqlx::query!(
+    let res = sqlx::query_as!(
+        PageViewDailyReferrerStat,
         r#"
 INSERT INTO page_view_daily_referrer_stats (
     referrer,
@@ -44,23 +45,26 @@ INSERT INTO page_view_daily_referrer_stats (
     course_id,
     num_visitors,
     visit_date
-)
-SELECT
-    referrer,
+  )
+SELECT referrer,
+  page_id,
+  course_id,
+  COUNT(DISTINCT anonymous_identifier) AS num_visitors,
+  $1 AS visit_date
+FROM page_visit_datum
+WHERE deleted_at IS NULL
+  AND created_at::date = $1
+GROUP BY referrer,
+  page_id,
+  course_id ON CONFLICT (
     page_id,
     course_id,
-    COUNT(DISTINCT anonymous_identifier) AS num_visitors,
-    $1 AS visit_date
-FROM page_visit_datum
-WHERE
-    deleted_at IS NULL
-    AND created_at::date = $1
-GROUP BY
+    visit_date,
     referrer,
-    page_id,
-    course_id
- ON CONFLICT (page_id, course_id, visit_date, referrer) DO UPDATE SET
-    num_visitors = EXCLUDED.num_visitors
+    deleted_at
+  ) DO
+UPDATE
+SET num_visitors = EXCLUDED.num_visitors
 RETURNING *
 "#,
         date

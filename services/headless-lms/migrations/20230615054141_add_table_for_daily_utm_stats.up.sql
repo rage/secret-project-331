@@ -11,7 +11,18 @@ CREATE TABLE page_view_daily_utm_stats (
   page_id UUID NOT NULL REFERENCES pages(id),
   course_id UUID NOT NULL REFERENCES courses(id),
   num_visitors INTEGER NOT NULL DEFAULT 0,
-  visit_date DATE NOT NULL
+  visit_date DATE NOT NULL,
+  UNIQUE NULLS NOT DISTINCT (
+    page_id,
+    course_id,
+    visit_date,
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    utm_term,
+    utm_content,
+    deleted_at
+  )
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON page_view_daily_utm_stats FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -39,7 +50,14 @@ CREATE TABLE page_view_daily_referrer_stats (
   page_id UUID NOT NULL REFERENCES pages(id),
   course_id UUID NOT NULL REFERENCES courses(id),
   num_visitors INTEGER NOT NULL DEFAULT 0,
-  visit_date DATE NOT NULL
+  visit_date DATE NOT NULL,
+  UNIQUE NULLS NOT DISTINCT (
+    page_id,
+    course_id,
+    visit_date,
+    referrer,
+    deleted_at
+  )
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON page_view_daily_referrer_stats FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

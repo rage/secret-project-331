@@ -1,0 +1,1 @@
+DROP INDEX course_language_group_id_and_language_code_uniqueness;

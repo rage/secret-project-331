@@ -82,6 +82,7 @@ const GetLanguageFlag = (langCode: string) => {
 
   return (
     <div
+      id={"language-flag"}
       className={css`
         box-sizing: border-box;
         border: 2px solid ${baseTheme.colors.gray[200]};

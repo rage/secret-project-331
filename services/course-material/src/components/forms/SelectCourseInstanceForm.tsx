@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
+import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -28,17 +28,22 @@ const AdditionalQuestionWrapper = styled.div`
 
 interface SelectCourseInstanceFormProps {
   courseInstances: CourseInstance[]
-  onSubmitForm: (
-    courseInstanceId: string,
-    newCourseBackgroundQuestionAnswer: NewCourseBackgroundQuestionAnswer[],
-  ) => void
+  submitMutation: UseMutationResult<
+    unknown,
+    unknown,
+    {
+      instanceId: string
+      backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]
+    },
+    unknown
+  >
   initialSelectedInstanceId?: string
   languageChanged: boolean
 }
 
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
-> = ({ courseInstances, onSubmitForm, initialSelectedInstanceId, languageChanged }) => {
+> = ({ courseInstances, submitMutation, initialSelectedInstanceId, languageChanged }) => {
   const { t } = useTranslation()
   const [instance, setInstance] = useState(
     figureOutInitialValue(courseInstances, initialSelectedInstanceId),
@@ -83,7 +88,10 @@ const SelectCourseInstanceForm: React.FC<
 
   const enrollOnCourse = async () => {
     if (instance) {
-      onSubmitForm(instance, additionalQuestionAnswers)
+      submitMutation.mutate({
+        instanceId: instance,
+        backgroundQuestionAnswers: additionalQuestionAnswers,
+      })
     }
   }
 

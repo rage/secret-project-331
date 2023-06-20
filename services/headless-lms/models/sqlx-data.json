@@ -2389,117 +2389,6 @@
     },
     "query": "\nSELECT *\nFROM user_course_instance_exercise_service_variables\nWHERE deleted_at IS NULL\n  AND user_id = $1\n  AND (course_instance_id = $2 OR course_instance_id IS NULL)\n  AND (exam_id = $3 OR exam_id IS NULL);\n    "
   },
-  "21de18fb8660376e4e3ab8928df274890217d4db22af032cabc9f5444a06a7f6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exam_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "chapter_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "url_path",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "title",
-          "ordinal": 7,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 8,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "content",
-          "ordinal": 9,
-          "type_info": "Jsonb"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 10,
-          "type_info": "Int4"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 11,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "hidden",
-          "ordinal": 12,
-          "type_info": "Bool"
-        },
-        {
-          "name": "page_language_group_id",
-          "ordinal": 13,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        false,
-        false,
-        true,
-        false,
-        false,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Jsonb",
-          "Varchar",
-          "Varchar",
-          "Int4",
-          "Uuid",
-          {
-            "Custom": {
-              "kind": "Simple",
-              "name": "regconfig"
-            }
-          },
-          "Uuid"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO pages(\n    course_id,\n    exam_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language,\n    page_language_group_id\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig, $9)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  pages.hidden,\n  page_language_group_id\n          "
-  },
   "21f873be8ae7d46b9aafa8b49f108fd8fadacc2334da674241ac2a6e221b2719": {
     "describe": {
       "columns": [
@@ -7204,7 +7093,7 @@
     },
     "query": "\nSELECT *\nFROM peer_review_question_submissions\nWHERE peer_review_submission_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL\n            "
   },
-  "5febc5e19415fa57f7f92e0fccc519c5fec927ac06ab69955eecbe75ecdd7b17": {
+  "5f2094a61c95d6ab4b5e0402e3dc65b420f52e2cb8613676c73548efa6762ab4": {
     "describe": {
       "columns": [
         {
@@ -7319,7 +7208,7 @@
         ]
       }
     },
-    "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions\n  )\nVALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
+    "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
   },
   "60b4d9ad7ac2d73ccda5d003284a9c1f8976ed4ec2020ad43c4c37bf16de5d80": {
     "describe": {
@@ -12583,6 +12472,117 @@
       }
     },
     "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\nAND re.deleted_at IS NULL\nand er.deleted_at IS NULL\n"
+  },
+  "8ed2051947d490a69f8ce2851f2c790d6912cb23c1001c7d3b7e1f61bb1a67cb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "chapter_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "url_path",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "title",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "content",
+          "ordinal": 9,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 11,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "hidden",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "page_language_group_id",
+          "ordinal": 13,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Uuid",
+          {
+            "Custom": {
+              "kind": "Simple",
+              "name": "regconfig"
+            }
+          },
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO pages(\n    course_id,\n    exam_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language,\n    page_language_group_id\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  pages.hidden,\n  page_language_group_id\n          "
   },
   "8eec12a84339d2b51c3a819162f81860ee76d77b461ef26fe90d5b85621fca4a": {
     "describe": {

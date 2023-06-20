@@ -46,12 +46,18 @@ CREATE FUNCTION trigger_set_pages_content_search() RETURNS TRIGGER AS $$ BEGIN I
   OR NEW.content_search IS NULL
 ) THEN
 declare begin NEW.content_search = setweight(
-    to_tsvector(NEW.content_search_language, NEW.title),
+    to_tsvector(
+      NEW.content_search_language::REGCONFIG,
+      NEW.title
+    ),
     'A'
   ) || setweight (
     (
       SELECT coalesce(
-          to_tsvector(NEW.content_search_language, jsonb_agg(value)),
+          to_tsvector(
+            NEW.content_search_language::REGCONFIG,
+            jsonb_agg(value)
+          ),
           to_tsvector('')
         )
       FROM (

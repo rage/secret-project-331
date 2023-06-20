@@ -76,10 +76,10 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     { enabled: !!courseId },
   )
 
-  const getElementBySelectorAsync = (selector: string) =>
+  const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
     new Promise((resolve) => {
       const getElement = () => {
-        const element = document.querySelector(selector)
+        const element: SVGLineElement | null = document.querySelector(selector)
         if (element) {
           resolve(element)
         } else {
@@ -128,7 +128,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   useEffect(() => {
     const getMap = async () => {
-      const mapElement: any = await getElementBySelectorAsync(".world-map")
+      const mapElement: SVGLineElement = await getElementBySelectorAsync(".world-map")
       setMap(mapElement)
     }
 
@@ -210,7 +210,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   return (
     <Wrapper>
-      {studentCountryAdded ? (
+      {!studentCountryAdded ? (
         <>
           <CotentWrapper>
             <h3>{t("add-country-to-map")}</h3>

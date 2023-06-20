@@ -74,13 +74,15 @@ mod test {
     #[tokio::test]
     async fn caches() {
         tracing_subscriber::fmt().init();
+        let redis_url = std::env::var("REDIS_URL")
+            .unwrap_or("redis://redis.default.svc.cluster.local/1".to_string());
 
         #[derive(Deserialize, Serialize)]
         struct S {
             field: String,
         }
 
-        let cache = Cache::new("redis://redis.default.svc.cluster.local/1").await;
+        let cache = Cache::new(&redis_url).await;
         let value = S {
             field: "value".to_string(),
         };

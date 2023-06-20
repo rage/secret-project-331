@@ -22,6 +22,7 @@ pub async fn copy_course(
     course_id: Uuid,
     new_course: &NewCourse,
     same_language_group: bool,
+    user_id: Uuid,
 ) -> ModelResult<Course> {
     let parent_course = get_course(conn, course_id).await?;
 
@@ -45,9 +46,10 @@ INSERT INTO courses (
     language_code,
     copied_from,
     course_language_group_id,
+    is_draft,
     base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)
 RETURNING id,
   name,
   created_at,
@@ -71,6 +73,7 @@ RETURNING id,
         new_course.language_code,
         parent_course.id,
         course_language_group_id,
+        new_course.is_draft,
         parent_course.base_module_completion_requires_n_submodule_completions,
     )
     .fetch_one(&mut tx)
@@ -79,6 +82,10 @@ RETURNING id,
     copy_course_modules(&mut tx, copied_course.id, course_id).await?;
 
     copy_course_chapters(&mut tx, copied_course.id, course_id).await?;
+
+    if new_course.copy_user_permissions {
+        copy_user_permissions(&mut tx, copied_course.id, course_id, user_id).await?;
+    }
 
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
     let contents_iter =
@@ -144,6 +151,8 @@ WHERE id = $2;
         },
     )
     .await?;
+
+    copy_peer_review_configs(&mut tx, copied_course.id, course_id).await?;
 
     tx.commit().await?;
     Ok(copied_course)
@@ -646,6 +655,76 @@ AND deleted_at IS NULL;
     Ok(())
 }
 
+pub async fn copy_user_permissions(
+    conn: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO roles (
+    id,
+    user_id,
+    organization_id,
+    course_id,
+    role
+  )
+SELECT uuid_generate_v5($2, id::text),
+  user_id,
+  organization_id,
+  $2,
+  role
+FROM roles
+WHERE (course_id = $1)
+AND NOT (user_id = $3)
+AND deleted_at IS NULL;
+    ",
+        old_course_id,
+        new_course_id,
+        user_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+async fn copy_peer_review_configs(
+    tx: &mut Transaction<'_, Postgres>,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -> ModelResult<()> {
+    // Copy exercise tasks
+    sqlx::query!(
+        "
+INSERT INTO peer_review_configs (
+    id,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_strategy,
+    accepting_threshold
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  uuid_generate_v5($1, exercise_id::text),
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_strategy,
+  accepting_threshold
+FROM peer_review_configs
+WHERE course_id = $2
+AND deleted_at IS NULL;
+    ",
+        namespace_id,
+        parent_id,
+    )
+    .execute(tx)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -660,8 +739,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, false)
+            let new_course = create_new_course(org, "en-US".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, false, user)
                 .await
                 .unwrap();
             assert_eq!(copied_course.name, "Copied course".to_string());
@@ -679,8 +758,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "fi-FI".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             assert_eq!(copied_course.name, "Copied course".to_string());
@@ -698,8 +777,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "en-GB".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             let copied_instances = crate::course_instances::get_course_instances_for_course(
@@ -718,8 +797,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "pt-BR".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
 
@@ -742,8 +821,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "sv-SV".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
@@ -759,8 +838,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "fr-CA".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
@@ -780,8 +859,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "es-US".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             let mut original_pages_by_id: HashMap<Uuid, Page> =
@@ -835,8 +914,8 @@ mod tests {
             )
             .await
             .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "es-MX".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
@@ -866,8 +945,8 @@ mod tests {
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let new_course = create_new_course(org);
-            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+            let new_course = create_new_course(org, "fi-SV".to_string());
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true, user)
                 .await
                 .unwrap();
             let copied_exercises =
@@ -908,17 +987,18 @@ mod tests {
             }
         }
 
-        fn create_new_course(organization_id: Uuid) -> NewCourse {
+        fn create_new_course(organization_id: Uuid, language_code: String) -> NewCourse {
             NewCourse {
                 name: "Copied course".to_string(),
                 slug: "copied-course".to_string(),
                 organization_id,
-                language_code: "en-US".to_string(),
+                language_code,
                 teacher_in_charge_name: "Teacher".to_string(),
                 teacher_in_charge_email: "teacher@example.com".to_string(),
                 description: "".to_string(),
-                is_draft: false,
+                is_draft: true,
                 is_test_mode: false,
+                copy_user_permissions: false,
             }
         }
     }

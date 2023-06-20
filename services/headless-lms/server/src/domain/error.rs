@@ -70,7 +70,7 @@ All the information in the error is meant to be seen by the user. The type of er
 ```no_run
 # use headless_lms_server::prelude::*;
 # fn random_function() -> ControllerResult<web::Json<()>> {
-#    let token = skip_authorize()?;
+#    let token = skip_authorize();
 #    let erroneous_condition = 1 == 1;
 if erroneous_condition {
     return Err(ControllerError::new(
@@ -98,7 +98,7 @@ Used when calling a function that returns an error that cannot be automatically 
 # }
 #
 # fn random_function() -> ControllerResult<web::Json<()>> {
-#    let token = skip_authorize()?;
+#    let token = skip_authorize();
 #    let erroneous_condition = 1 == 1;
 some_function_returning_an_error().map_err(|original_error| {
     ControllerError::new(

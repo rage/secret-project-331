@@ -1,12 +1,11 @@
 import { css, cx } from "@emotion/css"
-import React, { useState } from "react"
+import React, { InputHTMLAttributes, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CheckBox from "./CheckBox"
 
-export interface CheckboxFieldWrapperProps {
+export interface CheckboxFieldWrapperProps extends InputHTMLAttributes<HTMLInputElement> {
   fieldName: string
-  className?: string
   onUncheck: () => void
   initialChecked?: boolean
 }
@@ -21,7 +20,7 @@ const CheckboxFieldWrapper: React.FC<
       <CheckBox
         label={t("set-field-value", { name: fieldName })}
         checked={checked}
-        onChange={(checked: boolean) => {
+        onChangeByValue={(checked: boolean) => {
           if (!checked) {
             onUncheck()
           }

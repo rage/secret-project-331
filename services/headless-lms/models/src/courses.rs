@@ -70,6 +70,8 @@ pub struct NewCourse {
     pub description: String,
     pub is_draft: bool,
     pub is_test_mode: bool,
+    /// If true, copies all user permissions from the original course to the new one.
+    pub copy_user_permissions: bool,
 }
 
 pub async fn insert(
@@ -724,6 +726,7 @@ mod test {
                 description: "description".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                copy_user_permissions: false,
             }
         }
     }

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import ExerciseServiceContainer from "../../../components/page-specific/manage/exercise-services/ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "../../../components/page-specific/manage/exercise-services/ExerciseServiceCreationModal"
 import {
@@ -94,37 +93,35 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout navVariant={"simple"}>
-      <div>
-        <h1>{t("title-manage-exercise-services")}</h1>
-        <Button onClick={openModal} variant="primary" size="medium">
-          {t("button-text-new")}
-        </Button>
-        <br />
-        {getExerciseServices.isError && (
-          <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
-        )}
-        {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
-        {getExerciseServices.isSuccess && (
-          <>
-            <ExerciseServiceContainer
-              exerciseServices={getExerciseServices.data}
-              refetch={getExerciseServices.refetch}
-            />
-            <ExerciseServiceCreationModal
-              open={open}
-              handleClose={handleClose}
-              exercise_service={exerciseService}
-              onChange={onChangeCreationModal}
-              onChangeName={onChangeName}
-              handleSubmit={async () => {
-                createExerciseServiceMutation.mutateAsync()
-              }}
-            />
-          </>
-        )}
-      </div>
-    </Layout>
+    <div>
+      <h1>{t("title-manage-exercise-services")}</h1>
+      <Button onClick={openModal} variant="primary" size="medium">
+        {t("button-text-new")}
+      </Button>
+      <br />
+      {getExerciseServices.isError && (
+        <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
+      )}
+      {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
+      {getExerciseServices.isSuccess && (
+        <>
+          <ExerciseServiceContainer
+            exerciseServices={getExerciseServices.data}
+            refetch={getExerciseServices.refetch}
+          />
+          <ExerciseServiceCreationModal
+            open={open}
+            handleClose={handleClose}
+            exercise_service={exerciseService}
+            onChange={onChangeCreationModal}
+            onChangeName={onChangeName}
+            handleSubmit={async () => {
+              createExerciseServiceMutation.mutateAsync()
+            }}
+          />
+        </>
+      )}
+    </div>
   )
 }
 

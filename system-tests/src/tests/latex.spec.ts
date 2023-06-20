@@ -18,7 +18,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
       .click(),
   ])
 
-  await page.click(`button:text("Create")`)
+  await page.getByRole("button", { name: "Create", exact: true }).first().click()
 
   await page.click('input[type="radio"]')
   // Fill input[type="text"]

@@ -122,7 +122,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 color: ${baseTheme.colors.clear[100]};
               `}
               placeholder={t("name-of-module")}
-              register={register("name", { required: true })}
+              {...register("name", { required: true })}
               error={errors["name"]?.message}
             />
           ) : (
@@ -181,7 +181,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   options={chapters.map((c) => {
                     return { value: c.toString(), label: c.toString() }
                   })}
-                  register={register("starts", { required: true, valueAsNumber: true })}
+                  {...register("starts", { required: true, valueAsNumber: true })}
                   error={errors["starts"]?.message}
                 />
                 <SelectField
@@ -198,7 +198,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   options={chapters.map((cn) => {
                     return { value: cn.toString(), label: cn.toString() }
                   })}
-                  register={register("ends", { required: true, valueAsNumber: true })}
+                  {...register("ends", { required: true, valueAsNumber: true })}
                   error={errors["ends"]?.message}
                 />
               </div>
@@ -206,7 +206,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
 
             <Checkbox
               label={t("enable-automatic-completion")}
-              register={register("automatic_completion")}
+              {...register("automatic_completion")}
               className={css`
                 label {
                   color: #fff !important;
@@ -232,7 +232,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   color: #fff;
                 `}
                 placeholder={t("automatic-completion-points-treshold")}
-                register={register("automatic_completion_number_of_points_treshold", {
+                {...register("automatic_completion_number_of_points_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
@@ -249,7 +249,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 placeholder={t("automatic-completion-exercise-treshold")}
                 type="number"
-                register={register("automatic_completion_number_of_exercises_attempted_treshold", {
+                {...register("automatic_completion_number_of_exercises_attempted_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
@@ -264,7 +264,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 >
                   <Checkbox
                     label={t("automatic-completion-requires-exam")}
-                    register={register("automatic_completion_requires_exam", {
+                    {...register("automatic_completion_requires_exam", {
                       disabled: !isChecked,
                     })}
                     className={css`
@@ -288,7 +288,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             >
               <Checkbox
                 label={t("override-completion-registration-link")}
-                register={register("override_completion_link")}
+                {...register("override_completion_link")}
                 className={css`
                   label {
                     color: #fff !important;
@@ -304,7 +304,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 className={css`
                   margin-bottom: 0;
                 `}
-                register={register("completion_registration_link_override", {
+                {...register("completion_registration_link_override", {
                   disabled: !overrideLink,
                   minLength: 10,
                 })}
@@ -313,7 +313,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </div>
             <Checkbox
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              register={register("enable_registering_completion_to_uh_open_university")}
+              {...register("enable_registering_completion_to_uh_open_university")}
               className={css`
                 label {
                   color: #fff !important;
@@ -345,7 +345,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 labelStyle={css`
                   color: #fff;
                 `}
-                register={register("uh_course_code")}
+                {...register("uh_course_code")}
                 error={errors["name"]?.message}
               />
               <TextField
@@ -360,7 +360,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 placeholder={t("ects-credits")}
                 type="number"
-                register={register("ects_credits", {
+                {...register("ects_credits", {
                   valueAsNumber: true,
                 })}
               />

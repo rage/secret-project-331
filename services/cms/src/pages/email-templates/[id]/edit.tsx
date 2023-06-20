@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import Layout from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
 import { fetchCourseInstance } from "../../../services/backend/course-instances"
 import {
@@ -72,14 +71,12 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
 
   return (
     <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
-      <Layout>
-        <EmailEditor
-          data={templateQuery.data}
-          handleSave={handleSave}
-          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-        />
-      </Layout>
+      <EmailEditor
+        data={templateQuery.data}
+        handleSave={handleSave}
+        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+      />
     </CourseContext.Provider>
   )
 }

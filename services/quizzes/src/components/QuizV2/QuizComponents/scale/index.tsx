@@ -37,7 +37,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-scale-name")}>
       <TextField
-        onChange={(title) => {
+        onChangeByValue={(title) => {
           updateState((draft) => {
             if (!draft) {
               return
@@ -56,7 +56,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
             value={selected.minValue ?? 0}
             label={t("minimum")}
             name={t("minimum")}
-            onChange={(minimum) => {
+            onChangeByValue={(minimum) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -72,7 +72,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
             value={selected.maxValue ?? 0}
             label={t("maximum")}
             name={t("maximum")}
-            onChange={(maximum) => {
+            onChangeByValue={(maximum) => {
               updateState((draft) => {
                 if (!draft) {
                   return

@@ -8,6 +8,16 @@ members = [
   "certificates",
 ]
 
+[workspace.package]
+version = "0.1.0"
+authors = [
+  "University of Helsinki <mooc@cs.helsinki.fi>",
+  "Henrik Nygren <nygrenh@gmail.com>",
+]
+edition = "2021"
+rust-version = "1.66.0" # minimum required Rust version, update if you use a new API
+license = "Apache-2.0"
+
 [profile.dev]
 # Include only line tables so that we get line numbers in backtraces
 debug = 1

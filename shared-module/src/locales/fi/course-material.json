@@ -93,7 +93,7 @@
   "loading": "Lataa",
   "max-points": "Maksimipisteet",
   "max-score-n-marks": "Maksimi pisteet: <2>{{marks}}</2>",
-  "message-already-on-different-language-version": "Vaikuttaa että olet kurssilla jo toisella kielellä. Ennen kuin vastaat mihinkään tehtävään, palaa <1>{{name}}</1> tai vaihda käytössä oleva kieli asetuksista.",
+  "message-already-on-different-language-version": "Olet tekemässä kurssia jo toisella kielellä. Ennen kuin vastaat mihinkään tehtävään, palaa kieliversioon <1>{{name}}</1> tai vaihda käytössä oleva kieli kurssin asetuksista.",
   "n-characters-left": "{{n}} merkkiä jäljellä",
   "n-characters-over-limit": "{{n}} Merkkiä yli rajan",
   "no-comments-yet": "Ei kommentteja vielä",

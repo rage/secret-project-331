@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import RegisterCompletion from "../../../components/page-specific/register-completion/RegisterCompletion"
 import { fetchUserCompletionInformation } from "../../../services/backend/course-modules"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
@@ -41,7 +40,7 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
     )
   }
   return (
-    <Layout>
+    <>
       {userCompletionInformation.isError && (
         <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
       )}
@@ -52,7 +51,7 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
           registrationFormUrl={`${router.asPath.split("?")[0]}/${REDIRECT}`}
         />
       )}
-    </Layout>
+    </>
   )
 }
 

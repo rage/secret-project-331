@@ -1018,52 +1018,6 @@
     },
     "query": "\nSELECT id as \"id!\",\n  course_id as \"course_id!\",\n  exercise_id,\n  peer_reviews_to_give as \"peer_reviews_to_give!\",\n  peer_reviews_to_receive as \"peer_reviews_to_receive!\",\n  accepting_strategy AS \"accepting_strategy!: _\",\n  accepting_threshold \"accepting_threshold!\"\nFROM peer_review_configs\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    "
   },
-  "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "rank",
-          "ordinal": 1,
-          "type_info": "Float4"
-        },
-        {
-          "name": "title_headline",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "content_headline",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "url_path",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false, null, null, null, false],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "kind": "Simple",
-              "name": "regconfig"
-            }
-          },
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it\n    -- becomes a prefix match. This way the search will also contain results when the last word in the search term\n    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.\n    SELECT ts_rewrite(\n        phraseto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        "
-  },
   "0ed1883e278007de6c43a3db3d4a14e0150bc27f462f085e2a35d861d80b680b": {
     "describe": {
       "columns": [
@@ -5840,6 +5794,16 @@
     },
     "query": "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;"
   },
+  "4dfad46c56a2f729b23734eeb99f9cc249b333ee5a0ac7420c3a52cbe941540e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO roles (\n    id,\n    user_id,\n    organization_id,\n    course_id,\n    role\n  )\nSELECT uuid_generate_v5($2, id::text),\n  user_id,\n  organization_id,\n  $2,\n  role\nFROM roles\nWHERE (course_id = $1)\nAND NOT (user_id = $3)\nAND deleted_at IS NULL;\n    "
+  },
   "4dffcac2b11a34fa08132bc4b28e097e1c150fba42f6c7b10bbb1239767997cd": {
     "describe": {
       "columns": [
@@ -7240,6 +7204,123 @@
     },
     "query": "\nSELECT *\nFROM peer_review_question_submissions\nWHERE peer_review_submission_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL\n            "
   },
+  "5febc5e19415fa57f7f92e0fccc519c5fec927ac06ab69955eecbe75ecdd7b17": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "organization_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "slug",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "content_search_language",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "language_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_language_group_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "description",
+          "ordinal": 11,
+          "type_info": "Text"
+        },
+        {
+          "name": "is_draft",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "is_test_mode",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "base_module_completion_requires_n_submodule_completions",
+          "ordinal": 14,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          {
+            "Custom": {
+              "kind": "Simple",
+              "name": "regconfig"
+            }
+          },
+          "Varchar",
+          "Uuid",
+          "Uuid",
+          "Bool",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions\n  )\nVALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
+  },
   "60b4d9ad7ac2d73ccda5d003284a9c1f8976ed4ec2020ad43c4c37bf16de5d80": {
     "describe": {
       "columns": [
@@ -7583,6 +7664,52 @@
       }
     },
     "query": "\n    SELECT\n        p.id as page_id,\n        p.title as page_title,\n        c.id as \"course_id?\",\n        c.name as \"course_name?\",\n        c.slug as \"course_slug?\",\n        o.slug as \"organization_slug?\"\n    FROM pages p\n    LEFT JOIN courses c\n        on c.id = p.course_id\n    LEFT JOIN organizations o\n        on o.id = c.organization_id\n    WHERE p.id = $1;\n        "
+  },
+  "638ed4d8404f56dc045e29928b128b15554a1bb7d3ae2741d7bf772eff84bc92": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "rank",
+          "ordinal": 1,
+          "type_info": "Float4"
+        },
+        {
+          "name": "title_headline",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "content_headline",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "url_path",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, null, null, null, false],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "kind": "Simple",
+              "name": "regconfig"
+            }
+          },
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it\n    -- becomes a prefix match. This way the search will also contain results when the last word in the search term\n    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.\n    SELECT ts_rewrite(\n        phraseto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND hidden IS FALSE\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        "
   },
   "63d58cdbacf38184f86b054d840c4d9a5dead359588dd2c6f028003211e0184e": {
     "describe": {
@@ -9178,122 +9305,6 @@
       }
     },
     "query": "\nSELECT id\nFROM chapters\nWHERE course_module_id = $1\nAND deleted_at IS NULL\n"
-  },
-  "6e81b9df8ac3afd88ad2dbb818bb6e59a46e257bce1a6ca1080d35f782fc934b": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "organization_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "slug",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "content_search_language",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "language_code",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 9,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_language_group_id",
-          "ordinal": 10,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "description",
-          "ordinal": 11,
-          "type_info": "Text"
-        },
-        {
-          "name": "is_draft",
-          "ordinal": 12,
-          "type_info": "Bool"
-        },
-        {
-          "name": "is_test_mode",
-          "ordinal": 13,
-          "type_info": "Bool"
-        },
-        {
-          "name": "base_module_completion_requires_n_submodule_completions",
-          "ordinal": 14,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        null,
-        false,
-        true,
-        false,
-        true,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Uuid",
-          "Varchar",
-          {
-            "Custom": {
-              "kind": "Simple",
-              "name": "regconfig"
-            }
-          },
-          "Varchar",
-          "Uuid",
-          "Uuid",
-          "Int4"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    base_module_completion_requires_n_submodule_completions\n  )\nVALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
   },
   "6e839a249fbc2dbf1ff7dc7bc4c46bf6b93f0f0ff5f1ca8488e177c46490d389": {
     "describe": {
@@ -12123,52 +12134,6 @@
       }
     },
     "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE created_at < now() - '1 hour'::interval\n"
-  },
-  "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "rank",
-          "ordinal": 1,
-          "type_info": "Float4"
-        },
-        {
-          "name": "title_headline",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "content_headline",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "url_path",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false, null, null, null, false],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "kind": "Simple",
-              "name": "regconfig"
-            }
-          },
-          "Text",
-          "Text"
-        ]
-      }
-    },
-    "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the\n    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in\n    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement\n    -- will be skipped.\n    SELECT ts_rewrite(\n        plainto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        "
   },
   "886ce1402b7ffe6cffd8db5fb2e0e6486d9aa6ba52db7183f76d009069ade7be": {
     "describe": {
@@ -15679,6 +15644,16 @@
       }
     },
     "query": "\nINSERT INTO page_language_groups (\n  id,\n  course_language_group_id\n  )\nVALUES ($1, $2)\nRETURNING id\n        "
+  },
+  "b4378911706be769676c407cea2444ed687dce6820884197045ee0499a52c3a3": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO peer_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_strategy,\n    accepting_threshold\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  uuid_generate_v5($1, exercise_id::text),\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_strategy,\n  accepting_threshold\nFROM peer_review_configs\nWHERE course_id = $2\nAND deleted_at IS NULL;\n    "
   },
   "b4aa488f4f835c2b3900955ae54fd4bdff8818c3c2935c88aa89848bb276dea6": {
     "describe": {
@@ -20498,6 +20473,52 @@
       }
     },
     "query": "\nSELECT c.id\nFROM course_module_certificate_configurations AS cmcc\nJOIN course_modules AS cm ON cmcc.course_module_id = cm.id\nJOIN courses AS c ON cm.course_id = c.id\nWHERE cmcc.id = $1\nAND cmcc.deleted_at IS NULL\n    "
+  },
+  "ecd2f2b3e84b325523948ef4fe9d37776b279427e4e536acdbb87bb2d245478d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "rank",
+          "ordinal": 1,
+          "type_info": "Float4"
+        },
+        {
+          "name": "title_headline",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "content_headline",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "url_path",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, null, null, null, false],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "kind": "Simple",
+              "name": "regconfig"
+            }
+          },
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the\n    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in\n    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement\n    -- will be skipped.\n    SELECT ts_rewrite(\n        plainto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND hidden IS FALSE\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        "
   },
   "ee186fc1b8fd129fbfc96ede2df1eb0513d4d0e5c2f5bf5a17cdc088f8d3af1b": {
     "describe": {

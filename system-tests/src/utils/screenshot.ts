@@ -105,8 +105,10 @@ export default async function expectScreenshotsToMatchSnapshots({
 
       if (clearNotifications) {
         await page.evaluate(() => {
-          for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
-            notif.remove()
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+          )) {
+            notif.style.display = "none"
           }
         })
         await hideToasts(page)
@@ -144,6 +146,15 @@ export default async function expectScreenshotsToMatchSnapshots({
         screenshotTarget: screenshotTarget as any,
       })
     } finally {
+      if (clearNotifications) {
+        await page.evaluate(() => {
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+          )) {
+            notif.style.display = "block"
+          }
+        })
+      }
       if (originalViewPort) {
         // always restore the original viewport
         await page.setViewportSize(originalViewPort)
@@ -263,13 +274,22 @@ export async function takeScreenshotAndComparetoSnapshot(
     newScreenshot = true
   }
 
+  const originalUpdateSnapshotsSetting = testInfo.config.updateSnapshots
+
   try {
+    if (testInfo.config.updateSnapshots === "all") {
+      // Special handling for the case when we're updating all screenshots.
+      // If the screenshot y coordinate is not stable, we'll have to restore the scroll position before updating the screenshot so that the screenshot does not change on every run.
+      testInfo.config.updateSnapshots = "missing"
+    }
+
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   } catch (e: unknown) {
+    testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     // sometimes snapshots have wild race conditions, lets try again in a moment
     console.warn(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
@@ -289,6 +309,8 @@ export async function takeScreenshotAndComparetoSnapshot(
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
+  } finally {
+    testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
   }
   if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
     // When updating snapshots, optimize the new image so that it does not take extra space in version control.

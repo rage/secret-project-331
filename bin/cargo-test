@@ -2,7 +2,10 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-POD_NAME=$(kubectl get pods -l app=headless-lms -o name --sort-by=.metadata.creationTimestamp | tac | head -n 1)
-[ -z "$POD_NAME" ] && { echo "Failed to find pod name. Note that this command assumes you have the headless-lms pod running."; exit 1; }
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/headless-lms/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
-run_command kubectl exec -it "$POD_NAME" -- cargo test "$@"
+run_command cd "$RELATIVE_PATH" || exit
+
+run_command cargo test "$@"

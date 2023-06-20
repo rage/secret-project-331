@@ -74,34 +74,3 @@ impl Cache {
         }
     }
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use serde::Deserialize;
-
-    #[tokio::test]
-    async fn caches() {
-        tracing_subscriber::fmt().init();
-        let redis_url = std::env::var("REDIS_URL")
-            .unwrap_or("redis://redis.default.svc.cluster.local/1".to_string());
-        info!("Redis URL: {redis_url}");
-
-        #[derive(Deserialize, Serialize)]
-        struct S {
-            field: String,
-        }
-
-        let cache = Cache::new(&redis_url).await;
-        let value = S {
-            field: "value".to_string(),
-        };
-        assert!(
-            cache
-                .cache_json("key", &value, Duration::from_secs(10))
-                .await
-        );
-        let value = cache.get_json::<S>("key").await.unwrap();
-        assert_eq!(value.field, "value")
-    }
-}

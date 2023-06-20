@@ -106,7 +106,7 @@ test("creator of new language version can grant permissions to same users as the
   await page
     .getByLabel("Grant access to this course to everyone who had access to the original one")
     .check()
-  await page.getByLabel("English").check()
+  await page.getByLabel("Swedish").check()
   await page.getByRole("button", { name: "Create" }).click()
   //go to created language version and check permissions
   await page.getByRole("link", { name: "Intro to localizing with permissions" }).click()

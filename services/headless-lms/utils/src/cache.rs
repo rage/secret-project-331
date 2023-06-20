@@ -2,6 +2,7 @@
 
 use redis::{AsyncCommands, Client, ToRedisArgs};
 use serde::{de::DeserializeOwned, Serialize};
+use std::time::Duration;
 
 /// Wrapper for accessing a redis cache.
 pub struct Cache {
@@ -18,7 +19,12 @@ impl Cache {
     }
 
     /// Stores the given value in the redis cache as JSON (`Vec<u8>`).
-    pub async fn cache_json<V>(&self, key: impl ToRedisArgs + Send + Sync, value: &V) -> bool
+    pub async fn cache_json<V>(
+        &self,
+        key: impl ToRedisArgs + Send + Sync,
+        value: &V,
+        expires_in: Duration,
+    ) -> bool
     where
         V: Serialize,
     {
@@ -27,7 +33,10 @@ impl Cache {
                 let Ok(value) = serde_json::to_vec(value) else {
                   return false;
               };
-                match conn.set::<_, _, ()>(key, value).await {
+                match conn
+                    .set_ex::<_, _, ()>(key, value, expires_in.as_secs() as usize)
+                    .await
+                {
                     Ok(_) => true,
                     Err(err) => {
                         error!("Error caching json: {err:#}");
@@ -76,6 +85,7 @@ mod test {
         tracing_subscriber::fmt().init();
         let redis_url = std::env::var("REDIS_URL")
             .unwrap_or("redis://redis.default.svc.cluster.local/1".to_string());
+        info!("Redis URL: {redis_url}");
 
         #[derive(Deserialize, Serialize)]
         struct S {
@@ -86,7 +96,11 @@ mod test {
         let value = S {
             field: "value".to_string(),
         };
-        cache.cache_json("key", &value).await;
+        assert!(
+            cache
+                .cache_json("key", &value, Duration::from_secs(10))
+                .await
+        );
         let value = cache.get_json::<S>("key").await.unwrap();
         assert_eq!(value.field, "value")
     }

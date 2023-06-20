@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.100.1/src/verify_cert.rs`."><title>verify_cert.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-0.22.0/src/verify_cert.rs`."><title>verify_cert.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,10 +350,6 @@
 <a href="#350" id="350">350</a>
 <a href="#351" id="351">351</a>
 <a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -370,10 +366,10 @@
 
 </span><span class="kw">use crate</span>::{
     cert::{<span class="self">self</span>, Cert, EndEntityOrCa},
-    der, signed_data, subject_name, time, Error, SignatureAlgorithm, TrustAnchor,
+    der, name, signed_data, time, Error, SignatureAlgorithm, TrustAnchor,
 };
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>build_chain(
+<span class="kw">pub fn </span>build_chain(
     required_eku_if_present: KeyPurposeId,
     supported_sig_algs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>SignatureAlgorithm],
     trust_anchors: <span class="kw-2">&amp;</span>[TrustAnchor],
@@ -407,19 +403,9 @@
         }
     }
 
-    <span class="comment">// for the purpose of name constraints checking, only end-entity server certificates
-    // could plausibly have a DNS name as a subject commonName that could contribute to
-    // path validity
-    </span><span class="kw">let </span>subject_common_name_contents =
-        <span class="kw">if </span>required_eku_if_present == EKU_SERVER_AUTH &amp;&amp; used_as_ca == UsedAsCa::No {
-            subject_name::SubjectCommonNameContents::DnsName
-        } <span class="kw">else </span>{
-            subject_name::SubjectCommonNameContents::Ignore
-        };
-
     <span class="comment">// TODO: revocation.
 
-    </span><span class="kw">let </span>result = loop_while_non_fatal_error(trust_anchors, |trust_anchor: <span class="kw-2">&amp;</span>TrustAnchor| {
+    </span><span class="kw">match </span>loop_while_non_fatal_error(trust_anchors, |trust_anchor: <span class="kw-2">&amp;</span>TrustAnchor| {
         <span class="kw">let </span>trust_anchor_subject = untrusted::Input::from(trust_anchor.subject);
         <span class="kw">if </span>cert.issuer != trust_anchor_subject {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
@@ -428,7 +414,7 @@
         <span class="kw">let </span>name_constraints = trust_anchor.name_constraints.map(untrusted::Input::from);
 
         untrusted::read_all_optional(name_constraints, Error::BadDer, |value| {
-            subject_name::check_name_constraints(value, cert, subject_common_name_contents)
+            name::check_name_constraints(value, <span class="kw-2">&amp;</span>cert)
         })<span class="question-mark">?</span>;
 
         <span class="kw">let </span>trust_anchor_spki = untrusted::Input::from(trust_anchor.spki);
@@ -438,16 +424,18 @@
         </span>check_signatures(supported_sig_algs, cert, trust_anchor_spki)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
-    });
-
-    <span class="comment">// If the error is not fatal, then keep going.
-    </span><span class="kw">if </span>result.is_ok() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+    }) {
+        <span class="prelude-val">Ok</span>(()) =&gt; {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+        }
+        <span class="prelude-val">Err</span>(..) =&gt; {
+            <span class="comment">// If the error is not fatal, then keep going.
+        </span>}
     }
 
     loop_while_non_fatal_error(intermediate_certs, |cert_der| {
         <span class="kw">let </span>potential_issuer =
-            cert::parse_cert(untrusted::Input::from(cert_der), EndEntityOrCa::Ca(cert))<span class="question-mark">?</span>;
+            cert::parse_cert(untrusted::Input::from(<span class="kw-2">*</span>cert_der), EndEntityOrCa::Ca(<span class="kw-2">&amp;</span>cert))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>potential_issuer.subject != cert.issuer {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
@@ -472,7 +460,7 @@
         }
 
         untrusted::read_all_optional(potential_issuer.name_constraints, Error::BadDer, |value| {
-            subject_name::check_name_constraints(value, cert, subject_common_name_contents)
+            name::check_name_constraints(value, <span class="kw-2">&amp;</span>cert)
         })<span class="question-mark">?</span>;
 
         <span class="kw">let </span>next_sub_ca_count = <span class="kw">match </span>used_as_ca {
@@ -567,7 +555,7 @@
     </span><span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[derive(Clone, Copy, PartialEq)]
+<span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">enum </span>UsedAsCa {
     Yes,
     No,
@@ -616,8 +604,8 @@
     }
 }
 
-<span class="attr">#[derive(Clone, Copy, PartialEq, Eq)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>KeyPurposeId {
+<span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">pub struct </span>KeyPurposeId {
     oid_value: untrusted::Input&lt;<span class="lifetime">&#39;static</span>&gt;,
 }
 
@@ -626,19 +614,19 @@
 
 // id-kp-serverAuth   OBJECT IDENTIFIER ::= { id-kp 1 }
 </span><span class="attr">#[allow(clippy::identity_op)] </span><span class="comment">// TODO: Make this clearer
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>EKU_SERVER_AUTH: KeyPurposeId = KeyPurposeId {
+</span><span class="kw">pub static </span>EKU_SERVER_AUTH: KeyPurposeId = KeyPurposeId {
     oid_value: untrusted::Input::from(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">1</span>]),
 };
 
 <span class="comment">// id-kp-clientAuth   OBJECT IDENTIFIER ::= { id-kp 2 }
 </span><span class="attr">#[allow(clippy::identity_op)] </span><span class="comment">// TODO: Make this clearer
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>EKU_CLIENT_AUTH: KeyPurposeId = KeyPurposeId {
+</span><span class="kw">pub static </span>EKU_CLIENT_AUTH: KeyPurposeId = KeyPurposeId {
     oid_value: untrusted::Input::from(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">2</span>]),
 };
 
 <span class="comment">// id-kp-OCSPSigning  OBJECT IDENTIFIER ::= { id-kp 9 }
 </span><span class="attr">#[allow(clippy::identity_op)] </span><span class="comment">// TODO: Make this clearer
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static </span>EKU_OCSP_SIGNING: KeyPurposeId = KeyPurposeId {
+</span><span class="kw">pub static </span>EKU_OCSP_SIGNING: KeyPurposeId = KeyPurposeId {
     oid_value: untrusted::Input::from(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">9</span>]),
 };
 
@@ -703,9 +691,13 @@
     </span>V: IntoIterator,
 {
     <span class="kw">for </span>v <span class="kw">in </span>values {
-        <span class="comment">// If the error is not fatal, then keep going.
-        </span><span class="kw">if </span>f(v).is_ok() {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+        <span class="kw">match </span>f(v) {
+            <span class="prelude-val">Ok</span>(()) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+            }
+            <span class="prelude-val">Err</span>(..) =&gt; {
+                <span class="comment">// If the error is not fatal, then keep going.
+            </span>}
         }
     }
     <span class="prelude-val">Err</span>(Error::UnknownIssuer)

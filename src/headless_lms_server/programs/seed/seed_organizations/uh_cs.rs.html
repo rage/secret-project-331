@@ -661,6 +661,7 @@
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
 <a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
@@ -983,6 +984,7 @@
         description: <span class="string">&quot;An example course.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(

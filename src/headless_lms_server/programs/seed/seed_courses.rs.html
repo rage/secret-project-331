@@ -4367,6 +4367,11 @@
 <a href="#4367" id="4367">4367</a>
 <a href="#4368" id="4368">4368</a>
 <a href="#4369" id="4369">4369</a>
+<a href="#4370" id="4370">4370</a>
+<a href="#4371" id="4371">4371</a>
+<a href="#4372" id="4372">4372</a>
+<a href="#4373" id="4373">4373</a>
+<a href="#4374" id="4374">4374</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4437,6 +4442,7 @@
         description: <span class="string">&quot;Sample course.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -6235,6 +6241,7 @@
         description: <span class="string">&quot;Sample course.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
 
     <span class="kw">let </span>(course, _front_page, _default_instance, default_module) =
@@ -6349,6 +6356,7 @@
         description: <span class="string">&quot;The definitive introduction to course material.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, front_page, _default_instance, default_module) =
         library::content_management::create_new_course(
@@ -7077,6 +7085,7 @@
         description: <span class="string">&quot;Sample course.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -8444,6 +8453,7 @@
         description: <span class="string">&quot;Sample course.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
 
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(

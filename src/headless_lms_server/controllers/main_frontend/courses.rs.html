@@ -1167,6 +1167,23 @@
 <a href="#1167" id="1167">1167</a>
 <a href="#1168" id="1168">1168</a>
 <a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>chrono::Utc;
@@ -1568,7 +1585,15 @@ Content-Type: application/json
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>copied_course =
-        models::library::copying::copy_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::library::copying::copy_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>, <span class="bool-val">true</span>, user.id)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    models::roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     token.authorized_ok(web::Json(copied_course))
 }
@@ -1591,6 +1616,7 @@ Content-Type: application/json
 }
 ```
 */
+
 </span><span class="attr">#[generated_doc]
 #[instrument(skip(pool))]
 </span><span class="kw">pub async fn </span>post_new_course_duplicate(
@@ -1608,8 +1634,16 @@ Content-Type: application/json
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>copied_course =
-        models::library::copying::copy_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>, <span class="bool-val">false</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        models::library::copying::copy_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, <span class="kw-2">&amp;</span>payload.<span class="number">0</span>, <span class="bool-val">false</span>, user.id)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    models::roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(copied_course))
 }
 

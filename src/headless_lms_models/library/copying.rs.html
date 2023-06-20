@@ -961,6 +961,48 @@
 <a href="#961" id="961">961</a>
 <a href="#962" id="962">962</a>
 <a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -985,6 +1027,7 @@
     course_id: Uuid,
     new_course: <span class="kw-2">&amp;</span>NewCourse,
     same_language_group: bool,
+    user_id: Uuid,
 ) -&gt; ModelResult&lt;Course&gt; {
     <span class="kw">let </span>parent_course = get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1008,9 +1051,10 @@ INSERT INTO courses (
     language_code,
     copied_from,
     course_language_group_id,
+    is_draft,
     base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)
 RETURNING id,
   name,
   created_at,
@@ -1034,6 +1078,7 @@ RETURNING id,
         new_course.language_code,
         parent_course.id,
         course_language_group_id,
+        new_course.is_draft,
         parent_course.base_module_completion_requires_n_submodule_completions,
     )
     .fetch_one(<span class="kw-2">&amp;mut </span>tx)
@@ -1042,6 +1087,10 @@ RETURNING id,
     copy_course_modules(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
     copy_course_chapters(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">if </span>new_course.copy_user_permissions {
+        copy_user_permissions(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    }
 
     <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.
     </span><span class="kw">let </span>contents_iter =
@@ -1611,6 +1660,40 @@ AND deleted_at IS NULL;
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="kw">pub async fn </span>copy_user_permissions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+INSERT INTO roles (
+    id,
+    user_id,
+    organization_id,
+    course_id,
+    role
+  )
+SELECT uuid_generate_v5($2, id::text),
+  user_id,
+  organization_id,
+  $2,
+  role
+FROM roles
+WHERE (course_id = $1)
+AND NOT (user_id = $3)
+AND deleted_at IS NULL;
+    &quot;</span>,
+        old_course_id,
+        new_course_id,
+        user_id
+    )
+    .execute(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
 <span class="kw">async fn </span>copy_peer_review_configs(
     tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
     namespace_id: Uuid,
@@ -1662,7 +1745,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en-US&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">false</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">false</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">&quot;Copied course&quot;</span>.to_string());
@@ -1681,7 +1764,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fi-FI&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">&quot;Copied course&quot;</span>.to_string());
@@ -1700,7 +1783,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en-GB&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>copied_instances = <span class="kw">crate</span>::course_instances::get_course_instances_for_course(
@@ -1720,7 +1803,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;pt-BR&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
 
@@ -1744,7 +1827,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;sv-SV&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>copied_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), copied_course.id)
@@ -1761,7 +1844,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fr-CA&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>copied_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), copied_course.id)
@@ -1782,7 +1865,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;es-US&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span><span class="kw-2">mut </span>original_pages_by_id: HashMap&lt;Uuid, Page&gt; =
@@ -1837,7 +1920,7 @@ AND deleted_at IS NULL;
             .<span class="kw">await
             </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;es-MX&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>copied_pages = <span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility(
@@ -1868,7 +1951,7 @@ AND deleted_at IS NULL;
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;fi-SV&quot;</span>.to_string());
-            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>, user)
                 .<span class="kw">await
                 </span>.unwrap();
             <span class="kw">let </span>copied_exercises =
@@ -1918,8 +2001,9 @@ AND deleted_at IS NULL;
                 teacher_in_charge_name: <span class="string">&quot;Teacher&quot;</span>.to_string(),
                 teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>.to_string(),
                 description: <span class="string">&quot;&quot;</span>.to_string(),
-                is_draft: <span class="bool-val">false</span>,
+                is_draft: <span class="bool-val">true</span>,
                 is_test_mode: <span class="bool-val">false</span>,
+                copy_user_permissions: <span class="bool-val">false</span>,
             }
         }
     }

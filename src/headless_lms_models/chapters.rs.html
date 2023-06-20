@@ -640,6 +640,7 @@
 <a href="#640" id="640">640</a>
 <a href="#641" id="641">641</a>
 <a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
 <span class="kw">use crate</span>::{
@@ -1251,6 +1252,7 @@ AND deleted_at IS NULL
                     description: <span class="string">&quot;&quot;</span>.to_string(),
                     is_draft: <span class="bool-val">false</span>,
                     is_test_mode: <span class="bool-val">false</span>,
+                    copy_user_permissions: <span class="bool-val">false</span>,
                 },
                 user,
                 |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),

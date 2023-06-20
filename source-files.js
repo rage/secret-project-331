@@ -338,7 +338,7 @@ var sourcesIndex = JSON.parse('{\
 "uuid":["",[["external",[],["serde_support.rs"]]],["builder.rs","error.rs","external.rs","fmt.rs","lib.rs","macros.rs","parser.rs","rng.rs","sha1.rs","timestamp.rs","v4.rs","v5.rs"]],\
 "walkdir":["",[],["dent.rs","error.rs","lib.rs","util.rs"]],\
 "want":["",[],["lib.rs"]],\
-"webpki":["",[["subject_name",[],["dns_name.rs","ip_address.rs","mod.rs","name.rs","verify.rs"]]],["calendar.rs","cert.rs","der.rs","end_entity.rs","error.rs","lib.rs","signed_data.rs","time.rs","trust_anchor.rs","verify_cert.rs"]],\
+"webpki":["",[["name",[],["dns_name.rs","ip_address.rs","verify.rs"]]],["calendar.rs","cert.rs","der.rs","end_entity.rs","error.rs","lib.rs","name.rs","signed_data.rs","time.rs","trust_anchor.rs","verify_cert.rs"]],\
 "webpki_roots":["",[],["lib.rs"]],\
 "weezl":["",[],["decode.rs","encode.rs","error.rs","lib.rs"]],\
 "whoami":["",[],["lib.rs","unix.rs"]],\

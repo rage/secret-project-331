@@ -171,6 +171,10 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -232,6 +236,7 @@
         description: <span class="string">&quot;Introduces you to the wonderful world of statistics!&quot;</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(
         statistics_course,
@@ -276,6 +281,7 @@
         description: <span class="string">&quot;Just a draft.&quot;</span>.to_string(),
         is_draft: <span class="bool-val">true</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
     };
     library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -316,8 +322,10 @@
             description: <span class="string">&quot;Just a draft.&quot;</span>.to_string(),
             is_draft: <span class="bool-val">false</span>,
             is_test_mode: <span class="bool-val">false</span>,
+            copy_user_permissions: <span class="bool-val">false</span>,
         },
         <span class="bool-val">true</span>,
+        admin_user_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

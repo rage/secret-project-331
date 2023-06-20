@@ -435,6 +435,7 @@ export interface NewCourse {
   description: string
   is_draft: boolean
   is_test_mode: boolean
+  copy_user_permissions: boolean
 }
 
 export interface CourseBreadcrumbInfo {

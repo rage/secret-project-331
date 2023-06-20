@@ -157,6 +157,7 @@ async fn insert_data(
                 description: "".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                copy_user_permissions: false,
             },
             user_1,
             models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),

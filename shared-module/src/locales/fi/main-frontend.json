@@ -206,6 +206,7 @@
   "grading": "Arvostelu",
   "grading-description": "Käytä mukautettuja pisteitä, kun haluat antaa muuta kuin 0 tai täydet pisteet",
   "grading-explanation": "Tehtäväpalvelu luo tämän datan grade endpointista kun backend lähettää tehtäväpalautuksen sille arvosteltavaksi.",
+  "grant-access-to-users-with-permissions-to-original-course": "Myönnä oikeudet tälle kurssille kaikille, joilla on oikeudet alkuperäisellä kurssilla",
   "guest": "vieras",
   "header-answers-requiring-attention": "Huomiota tarvitsevia vastaukset",
   "header-course-instance-enrollments": "Kurssiversioille ilmoittatumiset",

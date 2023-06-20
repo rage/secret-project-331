@@ -30,7 +30,6 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
     setShowNewLanguageVersionForm(false)
     queryClient.invalidateQueries([formatLanguageVersionsQueryKey(courseId)])
   }
-
   return (
     <>
       {getCourseQuery.isError && <ErrorBanner error={getCourseQuery.error} variant={"readOnly"} />}
@@ -44,6 +43,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               organizationId={getCourseQuery.data.organization_id}
               handleSubmit={handleCreateNewLanguageVersion}
               onClose={() => setShowNewLanguageVersionForm(false)}
+              courseId={courseId}
             />
           )}
           <h2

@@ -15645,6 +15645,16 @@
     },
     "query": "\nINSERT INTO page_language_groups (\n  id,\n  course_language_group_id\n  )\nVALUES ($1, $2)\nRETURNING id\n        "
   },
+  "b4378911706be769676c407cea2444ed687dce6820884197045ee0499a52c3a3": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO peer_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_strategy,\n    accepting_threshold\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  uuid_generate_v5($1, exercise_id::text),\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_strategy,\n  accepting_threshold\nFROM peer_review_configs\nWHERE course_id = $2\nAND deleted_at IS NULL;\n    "
+  },
   "b4aa488f4f835c2b3900955ae54fd4bdff8818c3c2935c88aa89848bb276dea6": {
     "describe": {
       "columns": [

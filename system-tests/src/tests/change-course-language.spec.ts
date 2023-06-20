@@ -31,6 +31,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Oletus").first().click()
   await page.getByRole("button", { name: "Jatka" }).click()
+  await page.getByRole("heading", { name: "Kurssin asetukset" }).waitFor({ state: "hidden" })
 
   await page.getByRole("heading", { name: "Kurssin yhteenveto" }).waitFor()
   await expect(page).toHaveURL(
@@ -45,7 +46,10 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Valitse kieli")],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Valitse kieli"),
+      page.locator("id=language-flag"),
+    ],
   })
 
   const value1 = page.locator("#changeLanguage")

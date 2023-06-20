@@ -70,7 +70,7 @@ pub struct NewCourse {
     pub description: String,
     pub is_draft: bool,
     pub is_test_mode: bool,
-    // If true, copies all user permissions from the original course to the new one.
+    /// If true, copies all user permissions from the original course to the new one.
     pub copy_user_permissions: bool,
 }
 

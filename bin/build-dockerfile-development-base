@@ -8,6 +8,6 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command docker pull rust:bullseye
+run_command docker pull rust:bookworm
 
 run_command docker build . --file DockerfileDevelopmentBase.dockerfile -t eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base

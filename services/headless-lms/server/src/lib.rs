@@ -37,9 +37,7 @@ use controllers::auth::LoginToken;
 use domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
 use futures_util::{Future, FutureExt};
 use headless_lms_models::users::User;
-use headless_lms_utils::{
-    file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
-};
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use oauth2::{basic::BasicClient, TokenResponse};
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::sync::RwLock;
@@ -55,8 +53,6 @@ pub fn configure(
     app_conf: ApplicationConfiguration,
     jwt_key: JwtKey,
 ) {
-    let ip_to_country_mapper =
-        IpToCountryMapper::new().expect("Could not load ip to country mapper");
     let json_config =
         web::JsonConfig::default()
             .limit(1048576)
@@ -77,7 +73,6 @@ pub fn configure(
         // Not using Data::new for file_store to avoid double wrapping it in a arc
         .app_data(Data::from(file_store))
         .app_data(Data::new(app_conf))
-        .app_data(Data::new(ip_to_country_mapper))
         .app_data(Data::new(jwt_key));
 }
 

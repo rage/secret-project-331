@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect, useMemo } from "react"
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../contexts/PageContext"
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   height: auto;
   background: #ecf0fa;
   display: grid;
-  padding: 2rem 0 0 2rem;
+  padding: 2rem 0 1rem 2rem;
   h3 {
     color: #687eaf;
     padding-bottom: 0.5rem;
@@ -76,6 +76,19 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     { enabled: !!courseId },
   )
 
+  const getElementBySelectorAsync = (selector: string) =>
+    new Promise((resolve) => {
+      const getElement = () => {
+        const element = document.querySelector(selector)
+        if (element) {
+          resolve(element)
+        } else {
+          requestAnimationFrame(getElement)
+        }
+      }
+      getElement()
+    })
+
   const uploadStudentCountry = useToastMutation(
     (country: string) => {
       if (!country) {
@@ -111,8 +124,15 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     return child.tagName === "g" || child.tagName === "path"
   }
 
+  const [map, setMap] = useState<SVGLineElement | null>(null)
+
   useEffect(() => {
-    const map = document.querySelector(".world-map")
+    const getMap = async () => {
+      const mapElement: any = await getElementBySelectorAsync(".world-map")
+      setMap(mapElement)
+    }
+
+    getMap()
 
     const eventHandler = (evt: Event) => {
       const formattedIdentifier = countryCodes.map((str) => str.substring(1))
@@ -152,7 +172,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
       }
     }
 
-    if (map !== null) {
+    if (map) {
       const children = Array.from(map.children)
       children?.forEach((child: RouteElement) => {
         // HOVER SHOULD ONLY WORK FOR HIGHLIGHTED COUNTRIES....
@@ -167,7 +187,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
         }
       })
     }
-  }, [countryCodes])
+  }, [countryCodes, map])
 
   const handleCountryChange = (event: React.ChangeEvent<HTMLFormElement>) => {
     if (!event.currentTarget.country) {
@@ -188,14 +208,26 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     formattedCountryCodes = countryCodes.join(",")
   }
 
-  console.log("countryCodes", formattedCountryCodes)
-
   return (
     <Wrapper>
-      {!studentCountryAdded ? (
+      {studentCountryAdded ? (
         <>
           <CotentWrapper>
             <h3>{t("add-country-to-map")}</h3>
+            <span
+              className={css`
+                display: inline-block;
+                color: #374461;
+                width: 40rem;
+                font-size: 18px;
+                line-height: 120%;
+                padding: 0.5rem 0 1rem 0;
+                line-height: 130%;
+                opacity: 0.8;
+              `}
+            >
+              {t("map-instruction")}
+            </span>
             <StyledForm
               onSubmit={handleCountryChange}
               className={css`
@@ -230,6 +262,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
                 font-size: 15px;
                 line-height: 120%;
                 padding-bottom: 2.4rem;
+                padding-left: 2px;
               `}
             >
               {t("use-of-info")}

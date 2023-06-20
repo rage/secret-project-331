@@ -171,5 +171,6 @@
   "student-in-this-region": "Students are in this regions",
   "country-added-successfully": "Country addedd successfully",
   "add-country-to-map": "  Add your country to view map",
-  "use-of-info": "The information you are about to submit is secured and will not be use for any other purposes besides populating the map."
+  "map-instruction": "Select your country of residence. After you have submitted your answer, you can view a map that highlights the countries where the course has participants.",
+  "use-of-info": "*The information about your country of residence will not be used for any other purposes besides populating the map."
 }

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["RedisCacheError"],"macro":["cached","cached_control","cached_key","cached_key_result","cached_result"],"mod":["macros"],"struct":["AsyncRedisCache","ExpiringValueCache","RedisCache","SizedCache","TimedCache","TimedSizedCache","UnboundCache"],"trait":["Cached","CachedAsync","CanExpire","IOCached","IOCachedAsync"]};

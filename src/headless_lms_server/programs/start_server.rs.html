@@ -158,9 +158,10 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc};
 
-<span class="kw">use crate</span>::{domain::models_requests::JwtKey, setup_tracing, Cache, OAuthClient};
+<span class="kw">use crate</span>::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
 <span class="kw">use </span>actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
@@ -174,6 +175,7 @@
 };
 <span class="kw">use </span>dotenv::dotenv;
 <span class="kw">use </span>headless_lms_utils::{
+    cache::Cache,
     file_store::{
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
@@ -238,7 +240,7 @@
     <span class="kw">let </span>ip_to_country_mapper =
         Data::new(IpToCountryMapper::new().expect(<span class="string">&quot;Could not load ip to country mapper&quot;</span>));
     <span class="kw">let </span>file_store = setup_file_store();
-    <span class="kw">let </span>cache = Cache::new(redis_url).<span class="kw">await</span>;
+    <span class="kw">let </span>cache = Cache::new(<span class="kw-2">&amp;</span>redis_url).<span class="kw">await</span>;
     <span class="kw">let </span>cache = Data::new(cache);
 
     <span class="kw">let </span><span class="kw-2">mut </span>server = HttpServer::new(<span class="kw">move </span>|| {

@@ -569,11 +569,11 @@ assert!(multiple_inserts(conn, PKeyPolicy::Fixed(foobar)).await.is_ok());
     }
 }
 
-<span class="doccomment">/// A &quot;trait alias&quot; so this for&lt;&#39;a&gt; ... string doesn&#39;t need to be repeated everywhere
+<span class="doccomment">/// A &quot;trait alias&quot; so this `for&lt;&#39;a&gt;` ... string doesn&#39;t need to be repeated everywhere
 /// Arguments:
-///   Url: The URL that the request is sent to (the exercise service&#39;s endpoint)
-///   &amp;str: Exercise type/service slug
-///   Option&lt;Value&gt;: The Json for the request, for example the private spec in a public spec request
+///   `Url`: The URL that the request is sent to (the exercise service&#39;s endpoint)
+///   `&amp;str`: Exercise type/service slug
+///   `Option&lt;Value&gt;`: The Json for the request, for example the private spec in a public spec request
 </span><span class="kw">pub trait </span>SpecFetcher:
     <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Fn(
     Url,

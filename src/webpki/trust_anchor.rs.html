@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-0.22.0/src/trust_anchor.rs`."><title>trust_anchor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.100.1/src/trust_anchor.rs`."><title>trust_anchor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -103,23 +103,9 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::cert::{certificate_serial_number, Cert};
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::cert::{lenient_certificate_serial_number, Cert};
 <span class="kw">use crate</span>::{
-    cert::{parse_cert_internal, EndEntityOrCa},
+    cert::{parse_cert, EndEntityOrCa},
     der, Error,
 };
 
@@ -129,8 +115,8 @@
 /// anchors as full X.509 root certificates. However, those certificates
 /// contain a lot more data than is needed for verifying certificates. The
 /// `TrustAnchor` representation allows an application to store just the
-/// essential elements of trust anchors. The `webpki::trust_anchor_util` module
-/// provides functions for converting X.509 certificates to to the minimized
+/// essential elements of trust anchors. The `TrustAnchor::try_from_cert_der`
+/// function allows converting X.509 certificates to to the minimized
 /// `TrustAnchor` representation, either at runtime or in a build script.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>TrustAnchor&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -165,31 +151,17 @@
         // because we don&#39;t have a reference to a child cert, which is needed for
         // `EndEntityOrCA::CA`. For this purpose, it doesn&#39;t matter.
         //
-        // v1 certificates will result in `Error::BadDER` because `parse_cert` will
+        // v1 certificates will result in `Error::BadDer` because `parse_cert` will
         // expect a version field that isn&#39;t there. In that case, try to parse the
         // certificate using a special parser for v1 certificates. Notably, that
         // parser doesn&#39;t allow extensions, so there&#39;s no need to worry about
         // embedded name constraints in a v1 certificate.
-        </span><span class="kw">match </span>parse_cert_internal(
-            cert_der,
-            EndEntityOrCa::EndEntity,
-            possibly_invalid_certificate_serial_number,
-        ) {
+        </span><span class="kw">match </span>parse_cert(cert_der, EndEntityOrCa::EndEntity) {
             <span class="prelude-val">Ok</span>(cert) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from(cert)),
             <span class="prelude-val">Err</span>(Error::UnsupportedCertVersion) =&gt; parse_cert_v1(cert_der).or(<span class="prelude-val">Err</span>(Error::BadDer)),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
         }
     }
-}
-
-<span class="kw">fn </span>possibly_invalid_certificate_serial_number(input: <span class="kw-2">&amp;mut </span>untrusted::Reader) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.1.2.2:
-    // * Conforming CAs MUST NOT use serialNumber values longer than 20 octets.&quot;
-    // * &quot;The serial number MUST be a positive integer [...]&quot;
-    //
-    // However, we don&#39;t enforce these constraints on trust anchors, as there
-    // are widely-deployed trust anchors that violate these constraints.
-    </span>skip(input, der::Tag::Integer)
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Cert&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>TrustAnchor&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -209,7 +181,7 @@
         der::nested(cert_der, der::Tag::Sequence, Error::BadDer, |cert_der| {
             <span class="kw">let </span>anchor = der::nested(cert_der, der::Tag::Sequence, Error::BadDer, |tbs| {
                 <span class="comment">// The version number field does not appear in v1 certificates.
-                </span>certificate_serial_number(tbs)<span class="question-mark">?</span>;
+                </span>lenient_certificate_serial_number(tbs)<span class="question-mark">?</span>;
 
                 skip(tbs, der::Tag::Sequence)<span class="question-mark">?</span>; <span class="comment">// signature.
                 </span>skip(tbs, der::Tag::Sequence)<span class="question-mark">?</span>; <span class="comment">// issuer.

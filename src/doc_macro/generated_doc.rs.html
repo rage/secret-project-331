@@ -108,11 +108,11 @@
     ReturnType, Type, TypePath,
 };
 
-<span class="kw">pub fn </span>generated_doc_impl(item: TokenStream) -&gt; TokenStream {
+<span class="kw">pub fn </span>generated_doc_impl(attr: TokenStream, item: TokenStream) -&gt; TokenStream {
     <span class="kw">let </span><span class="kw-2">mut </span>stream = TokenStream::new();
     stream.extend(
-        <span class="string">&quot;#[cfg_attr(doc, generated_doc_inner)]&quot;
-            </span>.parse::&lt;TokenStream&gt;()
+        <span class="macro">format!</span>(<span class="string">&quot;#[cfg_attr(all(doc, not(doctest)), generated_doc_inner({attr}))]&quot;</span>)
+            .parse::&lt;TokenStream&gt;()
             .unwrap(),
     );
     stream.extend(item);

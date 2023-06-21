@@ -34,8 +34,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 6379:6379
 
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +61,7 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
           DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration
-          REDIS_URL: redis://localhost:6379
+          REDIS_URL: redis://redis:6379
 
   cms:
     runs-on: ubuntu-latest

@@ -23,8 +23,6 @@ extern crate tracing;
 #[macro_use]
 extern crate doc_macro;
 
-use std::sync::Arc;
-
 use actix_http::{body::MessageBody, StatusCode};
 use actix_web::{
     error::InternalError,
@@ -33,10 +31,9 @@ use actix_web::{
 };
 use anyhow::Result;
 use domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
-use headless_lms_utils::{
-    file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
-};
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use oauth2::basic::BasicClient;
+use std::sync::Arc;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
@@ -49,8 +46,6 @@ pub fn configure(
     app_conf: ApplicationConfiguration,
     jwt_key: JwtKey,
 ) {
-    let ip_to_country_mapper =
-        IpToCountryMapper::new().expect("Could not load ip to country mapper");
     let json_config =
         web::JsonConfig::default()
             .limit(1048576)
@@ -71,7 +66,6 @@ pub fn configure(
         // Not using Data::new for file_store to avoid double wrapping it in a arc
         .app_data(Data::from(file_store))
         .app_data(Data::new(app_conf))
-        .app_data(Data::new(ip_to_country_mapper))
         .app_data(Data::new(jwt_key));
 }
 

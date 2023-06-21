@@ -48,13 +48,11 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
   )
-
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
-  const [isDraft, setIsDraft] = useState<boolean>(false)
-  const [isTest, setIsTest] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copyCourseUserPermissions, setCopyUserCoursePermissions] = useState<boolean>(false)
 
   const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
     const findCourse = coursesData.find((course) => course.id === e)
@@ -80,8 +78,9 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         language_code: normalizedLanguageCode,
         teacher_in_charge_email: teacherInChargeEmail,
         teacher_in_charge_name: teacherInChargeName,
-        is_draft: isDraft,
-        is_test_mode: isTest,
+        is_draft: true,
+        is_test_mode: false,
+        copy_user_permissions: copyCourseUserPermissions,
       }
       if (courseId) {
         await onSubmitDuplicateCourseForm(courseId, newCourse)
@@ -100,7 +99,6 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
       setSubmitDisabled(false)
     }
   }
-
   const createNewCourse = async () => {
     try {
       setSubmitDisabled(true)
@@ -113,8 +111,9 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         teacher_in_charge_name: teacherInChargeName,
         teacher_in_charge_email: teacherInChargeEmail,
         description,
-        is_draft: isDraft,
-        is_test_mode: isTest,
+        is_draft: true,
+        is_test_mode: false,
+        copy_user_permissions: copyCourseUserPermissions,
       })
       setName("")
       setSlug("")
@@ -163,7 +162,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("text-field-label-name")}
             value={name}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setName(value)
               setSlug(normalizePath(value))
             }}
@@ -174,7 +173,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("text-field-label-or-header-slug-or-short-name")}
             value={slug}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setSlug(value)
             }}
           />
@@ -184,7 +183,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("teacher-in-charge-name")}
             value={teacherInChargeName}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setTeacherInChargeName(value)
             }}
           />
@@ -194,7 +193,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("teacher-in-charge-email")}
             value={teacherInChargeEmail}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setTeacherInChargeEmail(value)
             }}
           />
@@ -204,29 +203,22 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             required
             label={t("text-field-label-description")}
             value={description}
-            onChange={(value) => {
+            onChangeByValue={(value) => {
               setDescription(value)
             }}
           />
         </FieldContainer>
-        <FieldContainer>
-          <CheckBox
-            label={t("draft")}
-            onChange={() => {
-              setIsDraft(!isDraft)
-            }}
-            checked={isDraft}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <CheckBox
-            label={t("test-course")}
-            onChange={() => {
-              setIsTest(!isTest)
-            }}
-            checked={isTest}
-          />
-        </FieldContainer>
+
+        {!courses && (
+          <FieldContainer>
+            <CheckBox
+              label={t("grant-access-to-users-with-permissions-to-original-course")}
+              onChange={() => setCopyUserCoursePermissions(!copyCourseUserPermissions)}
+              checked={copyCourseUserPermissions}
+            ></CheckBox>
+          </FieldContainer>
+        )}
+
         {courses && (
           <FieldContainer>
             <CheckBox
@@ -240,16 +232,27 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           </FieldContainer>
         )}
         {courses && createDuplicate && (
-          <FieldContainer>
-            <SelectField
-              id="duplicate-course-select-menu"
-              defaultValue={courses[0].id}
-              onChange={(e) => handleDuplicateMenu(e, courses)}
-              options={courses.map((course) => {
-                return { label: course.name, value: course.id }
-              })}
-            ></SelectField>
-          </FieldContainer>
+          <div>
+            <FieldContainer>
+              <SelectField
+                id="duplicate-course-select-menu"
+                defaultValue={courses[0].id}
+                onChangeByValue={(value) => handleDuplicateMenu(value, courses)}
+                options={courses.map((course) => {
+                  return { label: course.name, value: course.id }
+                })}
+              ></SelectField>
+            </FieldContainer>
+            <FieldContainer>
+              <CheckBox
+                label={t("grant-access-to-users-with-permissions-to-original-course")}
+                onChange={() => {
+                  setCopyUserCoursePermissions(!copyCourseUserPermissions)
+                }}
+                checked={copyCourseUserPermissions}
+              ></CheckBox>
+            </FieldContainer>
+          </div>
         )}
         <div>{t("course-language")}</div>
         <FieldContainer aria-labelledby={t("course-version-selection")}>
@@ -303,7 +306,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
                 required
                 label={t("language-code")}
                 value={languageCode}
-                onChange={(value) => {
+                onChangeByValue={(value) => {
                   setLanguageCode(value)
                   try {
                     normalizeIETFLanguageTag(value)

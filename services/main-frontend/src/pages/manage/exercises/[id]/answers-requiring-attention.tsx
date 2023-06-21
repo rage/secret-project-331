@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import AnswersRequiringAttentionList from "../../../../components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
 import { fetchAnswersRequiringAttention } from "../../../../services/backend/answers-requiring-attention"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -34,42 +33,40 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
     () => fetchAnswersRequiringAttention(query.id, paginationInfo.page, paginationInfo.limit),
   )
   return (
-    <Layout navVariant="simple">
-      <div>
-        <h4
-          className={css`
-            color: #313947;
-            font-family: ${primaryFont};
-            font-size: 30px;
-            font-weight: 500;
-            line-height: 30px;
-            letter-spacing: 0em;
-            text-align: center;
-            opacity: 0.8;
-            margin-bottom: 1em;
-          `}
-        >
-          {t("header-answers-requiring-attention")}
-        </h4>
-        {getAnswersRequiringAttention.isError && (
-          <ErrorBanner variant={"readOnly"} error={getAnswersRequiringAttention.error} />
-        )}
-        {getAnswersRequiringAttention.isLoading && <Spinner variant={"medium"} />}
-        {getAnswersRequiringAttention.isSuccess && (
-          <>
-            <AnswersRequiringAttentionList
-              answersRequiringAttention={getAnswersRequiringAttention.data.data}
-              exercise_max_points={getAnswersRequiringAttention.data.exercise_max_points}
-              refetch={getAnswersRequiringAttention.refetch}
-            />
-            <Pagination
-              totalPages={getAnswersRequiringAttention.data?.total_pages}
-              paginationInfo={paginationInfo}
-            />
-          </>
-        )}
-      </div>
-    </Layout>
+    <div>
+      <h4
+        className={css`
+          color: #313947;
+          font-family: ${primaryFont};
+          font-size: 30px;
+          font-weight: 500;
+          line-height: 30px;
+          letter-spacing: 0em;
+          text-align: center;
+          opacity: 0.8;
+          margin-bottom: 1em;
+        `}
+      >
+        {t("header-answers-requiring-attention")}
+      </h4>
+      {getAnswersRequiringAttention.isError && (
+        <ErrorBanner variant={"readOnly"} error={getAnswersRequiringAttention.error} />
+      )}
+      {getAnswersRequiringAttention.isLoading && <Spinner variant={"medium"} />}
+      {getAnswersRequiringAttention.isSuccess && (
+        <>
+          <AnswersRequiringAttentionList
+            answersRequiringAttention={getAnswersRequiringAttention.data.data}
+            exercise_max_points={getAnswersRequiringAttention.data.exercise_max_points}
+            refetch={getAnswersRequiringAttention.refetch}
+          />
+          <Pagination
+            totalPages={getAnswersRequiringAttention.data?.total_pages}
+            paginationInfo={paginationInfo}
+          />
+        </>
+      )}
+    </div>
   )
 }
 

@@ -2,12 +2,12 @@ const path = require("path")
 const fs = require("fs")
 const { merge } = require("webpack-merge")
 const svgoConfig = require("../src/utils/svgoConfig")
-import type { StorybookConfig } from '@storybook/react-webpack5';
+import type { StorybookConfig } from "@storybook/react-webpack5"
 
 const config: StorybookConfig = {
   framework: {
-    name: '@storybook/react-webpack5',
-    options: {}
+    name: "@storybook/react-webpack5",
+    options: {},
   },
   stories: ["../stories/**/*.stories.mdx", "../stories/**/*.stories.@(js|jsx|ts|tsx)"],
   addons: [
@@ -19,7 +19,19 @@ const config: StorybookConfig = {
   ],
   typescript: {
     check: false,
-    reactDocgen: 'react-docgen-typescript',
+    reactDocgen: "react-docgen-typescript",
+  },
+  webpackFinal: async (config) => {
+    if (config.resolve?.fallback) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        stream: false,
+        zlib: false,
+      }
+    }
+
+    return config
   },
   // webpackFinal: async (config) => {
   //   // this modifies the existing image rule to exclude .svg files
@@ -40,8 +52,6 @@ const config: StorybookConfig = {
   //   if (imageRule) {
   //     (imageRule as any).exclude = /\.svg$/
   //   }
-
-
 
   //   return merge(config, {
   //     resolve: {

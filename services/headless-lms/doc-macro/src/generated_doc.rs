@@ -5,10 +5,10 @@ use syn::{
     ReturnType, Type, TypePath,
 };
 
-pub fn generated_doc_impl(item: TokenStream) -> TokenStream {
+pub fn generated_doc_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut stream = TokenStream::new();
     stream.extend(
-        "#[cfg_attr(doc, generated_doc_inner)]"
+        format!("#[cfg_attr(all(doc, not(doctest)), generated_doc_inner({attr}))]")
             .parse::<TokenStream>()
             .unwrap(),
     );

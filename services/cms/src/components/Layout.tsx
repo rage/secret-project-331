@@ -26,10 +26,6 @@ export const SIDEBAR_WIDTH_PX = 350
 
 type LayoutProps = {
   children: ReactNode
-  navVariant?: "simple" | "complex"
-  faqUrl?: string
-  title?: string
-  licenseUrl?: string
 }
 
 const DynamicToaster = dynamic(
@@ -37,14 +33,9 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
-  children,
-  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
-  navVariant,
-  // faqUrl,
-  licenseUrl,
-}) => {
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
   const router = useRouter()
+  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
   return (
     <>
       <Head>
@@ -59,12 +50,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <NavBar
-          // faqUrl={faqUrl}
-          variant={navVariant ?? "simple"}
-          // Return to path can be override per page
-          // returnToPath={returnToPath ?? returnPath}
-        >
+        <NavBar variant={"simple"}>
           <NavContainer>
             <NavItems>
               <NavItem>
@@ -100,7 +86,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         </main>
       </div>
       <DynamicToaster />
-      <Footer licenseUrl={licenseUrl} />
+      <Footer />
     </>
   )
 }

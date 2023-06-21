@@ -14,10 +14,12 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use headless_lms_utils::{
+    cache::Cache,
     file_store::{
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
     icu4x::Icu4xBlob,
+    ip_to_country::IpToCountryMapper,
     ApplicationConfiguration,
 };
 use listenfd::ListenFd;
@@ -33,6 +35,7 @@ pub async fn main() -> anyhow::Result<()> {
     // read environment variables
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be defined");
     let oauth_application_id =
         env::var("OAUTH_APPLICATION_ID").expect("OAUTH_APPLICATION_ID must be defined");
     let oauth_secret = env::var("OAUTH_SECRET").expect("OAUTH_SECRET must be defined");
@@ -73,17 +76,24 @@ pub async fn main() -> anyhow::Result<()> {
 
     let db_clone = db_pool.clone();
 
+    let ip_to_country_mapper =
+        Data::new(IpToCountryMapper::new().expect("Could not load ip to country mapper"));
+    let file_store = setup_file_store();
+    let cache = Cache::new(&redis_url).await;
+    let cache = Data::new(cache);
+
     let mut server = HttpServer::new(move || {
         let app_conf = ApplicationConfiguration {
             base_url: base_url.clone(),
             test_mode,
             development_uuid_login,
         };
-        let file_store = setup_file_store();
-        let jwt_key_clone = jwt_key.clone();
-
+        let file_store = file_store.clone();
+        let jwt_key = jwt_key.clone();
         App::new()
-            .configure(move |config| crate::configure(config, file_store, app_conf, jwt_key_clone))
+            .configure(move |config| {
+                crate::configure(config, file_store.clone(), app_conf, jwt_key)
+            })
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
@@ -107,8 +117,9 @@ pub async fn main() -> anyhow::Result<()> {
             ))
             .app_data(Data::new(db_clone.clone()))
             .app_data(Data::new(oauth_client.clone()))
-            .app_data(Data::new(jwt_key.clone()))
             .app_data(icu4x_blob.clone())
+            .app_data(ip_to_country_mapper.clone())
+            .app_data(cache.clone())
     });
 
     server = match listenfd.take_tcp_listener(0)? {
@@ -132,7 +143,7 @@ pub async fn main() -> anyhow::Result<()> {
 Setups file store so that it can be passed to actix web as data.
 Using Arc here so that this can be accessed from all the different worker threads.
 */
-fn setup_file_store() -> Arc<dyn FileStore> {
+fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
     if env::var("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE").is_ok() {
         info!("Using Google Cloud Storage as the file store");
         let bucket_name = env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME").expect("env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.");

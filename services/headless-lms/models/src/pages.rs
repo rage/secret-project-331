@@ -2004,7 +2004,7 @@ INSERT INTO pages(
     content_search_language,
     page_language_group_id
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id,
   created_at,
   updated_at,
@@ -2690,6 +2690,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -2774,6 +2775,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte

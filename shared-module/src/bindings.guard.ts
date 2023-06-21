@@ -922,7 +922,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["teacher_in_charge_email"] === "string" &&
     typeof typedObj["description"] === "string" &&
     typeof typedObj["is_draft"] === "boolean" &&
-    typeof typedObj["is_test_mode"] === "boolean"
+    typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["copy_user_permissions"] === "boolean"
   )
 }
 

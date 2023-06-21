@@ -273,11 +273,11 @@ impl CourseOrExamId {
     }
 }
 
-/// A "trait alias" so this for<'a> ... string doesn't need to be repeated everywhere
+/// A "trait alias" so this `for<'a>` ... string doesn't need to be repeated everywhere
 /// Arguments:
-///   Url: The URL that the request is sent to (the exercise service's endpoint)
-///   &str: Exercise type/service slug
-///   Option<Value>: The Json for the request, for example the private spec in a public spec request
+///   `Url`: The URL that the request is sent to (the exercise service's endpoint)
+///   `&str`: Exercise type/service slug
+///   `Option<Value>`: The Json for the request, for example the private spec in a public spec request
 pub trait SpecFetcher:
     for<'a> Fn(
     Url,

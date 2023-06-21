@@ -4,7 +4,6 @@ import { BlockRendererProps, blockToRendererMap } from ".."
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import DefaultBlock from "../DefaultBlock"
-import Map from "../moocfi/Map"
 
 import CourseObjectiveSection, { CourseObjectiveSectionProps } from "./CourseObjective/index"
 
@@ -21,7 +20,6 @@ const CourseObjectiveSectionBlock: React.FC<
           })}
         </CourseObjectiveSection>
       </BreakFromCentered>
-      <Map />
     </>
   )
 }

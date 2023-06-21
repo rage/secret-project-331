@@ -1,5 +1,6 @@
 //! Commonly used utils.
 
+pub mod cache;
 pub mod document_schema_processor;
 pub mod email_processor;
 pub mod error;

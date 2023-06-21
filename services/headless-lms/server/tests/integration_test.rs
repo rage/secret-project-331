@@ -25,7 +25,7 @@ pub async fn init_db() -> String {
     }
     dotenv::dotenv().ok();
     let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| {
-        "postgres://headless-lms@localhost:54328/headless_lms_test_rust".to_string()
+        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test".to_string()
     });
     if Postgres::database_exists(&db)
         .await

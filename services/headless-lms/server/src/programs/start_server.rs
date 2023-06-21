@@ -1,6 +1,6 @@
 use std::{env, sync::Arc};
 
-use crate::{domain::models_requests::JwtKey, setup_tracing, Cache, OAuthClient};
+use crate::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
 use actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
@@ -14,6 +14,7 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use headless_lms_utils::{
+    cache::Cache,
     file_store::{
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
@@ -78,7 +79,7 @@ pub async fn main() -> anyhow::Result<()> {
     let ip_to_country_mapper =
         Data::new(IpToCountryMapper::new().expect("Could not load ip to country mapper"));
     let file_store = setup_file_store();
-    let cache = Cache::new(redis_url).await;
+    let cache = Cache::new(&redis_url).await;
     let cache = Data::new(cache);
 
     let mut server = HttpServer::new(move || {

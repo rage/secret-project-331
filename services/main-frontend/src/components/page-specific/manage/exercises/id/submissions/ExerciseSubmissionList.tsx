@@ -30,13 +30,20 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
           border-collapse: collapse;
           border: 1px solid ${baseTheme.colors.clear[300]};
           margin-top: 1.5rem;
+          width: 100%;
+
           td,
           th {
+            max-width: 0;
             border-left: 1px solid ${baseTheme.colors.clear[300]};
             border-right: 1px solid ${baseTheme.colors.clear[300]};
-            padding-left: 2rem;
-            padding-right: 2rem;
+            padding-left: 30px;
+            padding-right: 30px;
             text-align: left;
+            height: 60px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         `}
       >
@@ -49,14 +56,44 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
               color: ${baseTheme.colors.gray[600]};
               text-transform: uppercase;
               opacity: 0.8;
-              height: 4rem;
+              padding-right: 30px;
             `}
           >
-            <th>{t("label-link")}</th>
-            <th>{t("label-submission-time")}</th>
-            <th>{t("label-student")}</th>
-            <th>{t("label-course-instance")}</th>
-            <th>{t("label-exam")}</th>
+            <th
+              className={css`
+                width: 9%;
+              `}
+            >
+              {t("label-link")}
+            </th>
+            <th
+              className={css`
+                width: 19%;
+              `}
+            >
+              {t("label-submission-time")}
+            </th>
+            <th
+              className={css`
+                width: 27%;
+              `}
+            >
+              {t("label-student")}
+            </th>
+            <th
+              className={css`
+                width: 27%;
+              `}
+            >
+              {t("label-course-instance")}
+            </th>
+            <th
+              className={css`
+                width: 18%;
+              `}
+            >
+              {t("label-exam")}
+            </th>
           </tr>
         </thead>
         <tbody
@@ -74,7 +111,6 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                 font-weight: ${fontWeights.normal};
                 font-size: ${baseTheme.fontSizes[16]};
                 color: ${baseTheme.colors.gray[400]};
-                height: 4.4rem;
                 line-height: 1rem;
               `}
             >
@@ -85,7 +121,11 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                     query: { id: x.id },
                   }}
                 >
-                  <LinkIcon />
+                  <LinkIcon
+                    className={css`
+                      font-size: 20px;
+                    `}
+                  />
                 </Link>
               </td>
               <td>{x.created_at.toLocaleString()}</td>

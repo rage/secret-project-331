@@ -27,6 +27,7 @@ import {
   PeerReviewsRecieved,
   SaveCourseSettingsPayload,
   SearchRequest,
+  StudentCountry,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -56,6 +57,7 @@ import {
   isPageSearchResult,
   isPageWithExercises,
   isPeerReviewsRecieved,
+  isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
   isUserCourseInstanceChapterExerciseProgress,
@@ -450,6 +452,23 @@ export const fetchCourseLanguageVersions = async (courseId: string): Promise<Arr
     responseType: "json",
   })
   return validateResponse(response, isArray(isCourse))
+}
+
+export const postStudentCountry = async (
+  course_id: string,
+  course_instance_id: string,
+  country_code: string,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/courses/${course_id}/course-instances/${course_instance_id}/student-countries/${country_code}`,
+  )
+}
+
+export const fetchStudentCountries = async (course_id: string): Promise<StudentCountry[]> => {
+  const response = await courseMaterialClient.get(`/courses/${course_id}/student-countries`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isStudentCountry))
 }
 
 export const fetchPageByCourseIdAndLanguageGroupId = async (

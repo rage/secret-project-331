@@ -97,5 +97,7 @@
   "use-course-default-peer-review-config": "Use course default peer review config",
   "use-default-text-for-label": "Use default text for label",
   "welcome-message-for-course": "Welcome message for course...",
-  "width-of-table": "Width of table"
+  "width-of-table": "Width of table",
+  "map-block-placeholder": "Map block placeholder",
+  "map-block-placeholder-explanation": "This is a placeholder for a map that shows countries of student enrolled in a course."
 }

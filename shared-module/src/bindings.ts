@@ -1479,6 +1479,16 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
 
+export interface StudentCountry {
+  id: string
+  user_id: string
+  course_id: string
+  course_instance_id: string
+  country_code: string
+  created_at: Date
+  deleted_at: Date | null
+}
+
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string
   exercise_id: string

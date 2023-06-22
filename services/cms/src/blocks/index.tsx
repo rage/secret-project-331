@@ -21,6 +21,7 @@ import LandingPageCopyText from "./LandingPageCopyText"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import LearningObjectives from "./LearningObjectives"
+import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
 import TableBox from "./TableBox"
@@ -51,6 +52,7 @@ export const blockTypeMapForPages = [
   ["moocfi/instructionbox", InstructionBox],
   ["moocfi/tablebox", TableBox],
   ["moocfi/iframe", Iframe],
+  ["moocfi/map", Map],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -67,6 +69,7 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/landing-page-copy-text", LandingPageCopyText],
   ["moocfi/iframe", Iframe],
+  ["moocfi/map", Map],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

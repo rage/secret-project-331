@@ -125,6 +125,9 @@ use headless_lms_models::{
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::ExerciseStatusSummaryForUser,
     page_audio_files::PageAudioFile,
+    page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+    page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
+    page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     peer_review_configs::CourseMaterialPeerReviewConfig,
     peer_review_question_submissions::{
         PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
@@ -1596,6 +1599,69 @@ fn models() {
             completion_granter_user_id: Some(
                 Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()
             ),
+        }
+    );
+
+    doc!(
+        Vec,
+        PageVisitDatumSummaryByCourse {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            course_id: Some(Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()),
+            exam_id,
+            country,
+            device_type,
+            referrer,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_term,
+            utm_content,
+            num_visitors: 200,
+            visit_date,
+        }
+    );
+    doc!(
+        Vec,
+        PageVisitDatumSummaryByPages {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            exam_id,
+            course_id: Some(Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()),
+            page_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            country,
+            device_type,
+            referrer,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_term,
+            utm_content,
+            num_visitors: 3000,
+            visit_date,
+        }
+    );
+    doc!(
+        Vec,
+        PageVisitDatumSummaryByCourseDeviceTypes {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            country: Some("fi".to_string()),
+            browser: Some("firefox".to_string()),
+            browser_version,
+            operating_system,
+            operating_system_version,
+            device_type: Some("desktop".to_string()),
+            course_id: Some(Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()),
+            exam_id,
+            num_visitors: 8234,
+            visit_date,
         }
     );
 }

@@ -1047,6 +1047,7 @@ pub async fn course_instances_export(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
 */
+#[generated_doc]
 pub async fn get_page_visit_datum_summary(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1065,6 +1066,7 @@ pub async fn get_page_visit_datum_summary(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
 */
+#[generated_doc]
 pub async fn get_page_visit_datum_summary_by_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1083,6 +1085,7 @@ pub async fn get_page_visit_datum_summary_by_pages(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
 */
+#[generated_doc]
 pub async fn get_page_visit_datum_summary_by_device_types(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

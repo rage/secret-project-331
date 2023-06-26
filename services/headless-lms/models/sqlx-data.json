@@ -3367,62 +3367,6 @@
     },
     "query": "\nUPDATE course_modules\nSET name = COALESCE($2, name),\n  order_number = $3,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8,\n  automatic_completion_requires_exam = $9,\n  completion_registration_link_override = $10,\n  enable_registering_completion_to_uh_open_university = $11\nWHERE id = $1\n        "
   },
-  "2f8efa82b91e6436926b4347010942f2b7ea352e4da30370aff8dd6def49a68b": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "referrer",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "page_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 6,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "num_visitors",
-          "ordinal": 7,
-          "type_info": "Int4"
-        },
-        {
-          "name": "visit_date",
-          "ordinal": 8,
-          "type_info": "Date"
-        }
-      ],
-      "nullable": [false, false, false, true, true, false, false, false, false],
-      "parameters": {
-        "Left": ["Date"]
-      }
-    },
-    "query": "\nINSERT INTO page_view_daily_referrer_stats (\n    referrer,\n    page_id,\n    course_id,\n    num_visitors,\n    visit_date\n  )\nSELECT referrer,\n  page_id,\n  course_id,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\nGROUP BY referrer,\n  page_id,\n  course_id ON CONFLICT (\n    page_id,\n    course_id,\n    visit_date,\n    referrer,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
-  },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
     "describe": {
       "columns": [
@@ -4400,6 +4344,120 @@
       }
     },
     "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE exercise_id = $1 AND user_id = $2 AND course_instance_id = $3\n"
+  },
+  "3bf058bcac008632cb2c4657342f86550b2be22266ccd4f1efcb55f6b42c53b7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "device_type",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "referrer",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_source",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_medium",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_campaign",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_term",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_content",
+          "ordinal": 14,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 15,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 16,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Date"]
+      }
+    },
+    "query": "\nINSERT INTO page_visit_datum_summary_by_pages (\n    course_id,\n    exam_id,\n    page_id,\n    country,\n    device_type,\n    referrer,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  page_id,\n  country,\n  device_type,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  page_id,\n  country,\n  device_type,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content ON CONFLICT (\n    course_id,\n    exam_id,\n    page_id,\n    country,\n    device_type,\n    referrer,\n    visit_date,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
   },
   "3c54ad6a3cc0b88764f80e64680724a116966367fb28fcb0c85eb1a04c4e8624": {
     "describe": {
@@ -6061,6 +6119,102 @@
     },
     "query": "\nSELECT ucs.*\nFROM courses c\n  JOIN user_course_settings ucs ON (\n    ucs.course_language_group_id = c.course_language_group_id\n  )\nWHERE c.id = $1\n  AND ucs.user_id = $2\n  AND c.deleted_at IS NULL\n  AND ucs.deleted_at IS NULL;\n        "
   },
+  "4fbd5a17fe45ed5277fb8d64c297636a26781f4c3688bd92f6d04a9922562e81": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "country",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "browser",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "browser_version",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operating_system",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operating_system_version",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "device_type",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 11,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 13,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_visit_datum_summary_by_courses_device_types\nWHERE course_id = $1\n  AND deleted_at IS NULL\n"
+  },
   "506df024df23a7e649d8d69b1a1a37bf7b13743f2fea316a0012e2f779508679": {
     "describe": {
       "columns": [
@@ -6250,22 +6404,6 @@
       }
     },
     "query": "\nSELECT DISTINCT ON (user_id)\n  id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\n        "
-  },
-  "52549bc53053ad2edc1e988f040f4fc8551a9daebf9199457cd863deba8e55db": {
-    "describe": {
-      "columns": [
-        {
-          "name": "latest_date",
-          "ordinal": 0,
-          "type_info": "Date"
-        }
-      ],
-      "nullable": [null],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "\nSELECT MAX(visit_date) AS latest_date\nFROM page_view_daily_referrer_stats\nWHERE deleted_at IS NULL\n"
   },
   "527d742c378dfc52f5d1c999138ee8c12547442f36d8ea9b3df18405f7e526d5": {
     "describe": {
@@ -9417,36 +9555,6 @@
       }
     },
     "query": "\nSELECT prqs.*\nFROM peer_review_submissions prs\n  JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id\nWHERE prs.exercise_slide_submission_id = $1\n  AND prs.deleted_at IS NULL\n  AND prqs.deleted_at IS NULL\n    "
-  },
-  "6eb06f9e457be39ce3a14caba6aaadf8bcf4590ff5c1df048d7ace1aa4087e0d": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Bool",
-          "Jsonb",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO page_visit_datum (course_id, exam_id, page_id, country, browser, browser_version, operating_system, operating_system_version, device_type, referrer, is_bot, utm_tags, anonymous_identifier)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nRETURNING id\n"
   },
   "6f2e58a27e907e090727b45fb17e8e2658ea8d2d08ae97a2d21361aab63b40e5": {
     "describe": {
@@ -12645,6 +12753,40 @@
     },
     "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\nAND re.deleted_at IS NULL\nand er.deleted_at IS NULL\n"
   },
+  "8ea13e0a449c89ff9814eb6c5b313b7959a2f8a9c37b3d649c2579e114e4030c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO page_visit_datum (\n    course_id,\n    exam_id,\n    page_id,\n    country,\n    browser,\n    browser_version,\n    operating_system,\n    operating_system_version,\n    device_type,\n    referrer,\n    is_bot,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    anonymous_identifier\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17\n  )\nRETURNING id\n"
+  },
   "8eec12a84339d2b51c3a819162f81860ee76d77b461ef26fe90d5b85621fca4a": {
     "describe": {
       "columns": [],
@@ -12797,6 +12939,102 @@
       }
     },
     "query": "\nSELECT registration_link\nFROM open_university_registration_links\nWHERE uh_course_code = $1\n  AND deleted_at IS NULL\n        "
+  },
+  "95a8e1338b854042aea644ef5083b195beb5259f98ae27440b3abcbf894ea991": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "country",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "browser",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "browser_version",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operating_system",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operating_system_version",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "device_type",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 11,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 13,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Date"]
+      }
+    },
+    "query": "\nINSERT INTO page_visit_datum_summary_by_courses_device_types (\n    course_id,\n    exam_id,\n    country,\n    browser,\n    browser_version,\n    operating_system,\n    operating_system_version,\n    device_type,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  country,\n  browser,\n  browser_version,\n  operating_system,\n  operating_system_version,\n  device_type,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  course_id,\n  exam_id,\n  country,\n  browser,\n  browser_version,\n  operating_system,\n  operating_system_version,\n  device_type\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    visit_date,\n    country,\n    browser,\n    browser_version,\n    operating_system,\n    operating_system_version,\n    device_type,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *;\n"
   },
   "9725efd61b9041c572a3a1cfe81bbbf6ac6497b62d3c9194757cf3f9e423977c": {
     "describe": {
@@ -15474,6 +15712,114 @@
       }
     },
     "query": "\nUPDATE course_modules\nSET name = $1\nWHERE id = $2\n"
+  },
+  "b1b37450a624f1c34245e049431f26f2ebd6e36e487fae571b0ca2be7dfa5b68": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "device_type",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "referrer",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_source",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_medium",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_campaign",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_term",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_content",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 14,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 15,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Date"]
+      }
+    },
+    "query": "\nINSERT INTO page_visit_datum_summary_by_courses (\n    course_id,\n    exam_id,\n    country,\n    device_type,\n    referrer,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    num_visitors,\n    visit_date\n  )\nSELECT\n  course_id,\n  exam_id,\n  country,\n  device_type,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  country,\n  device_type,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    country,\n    device_type,\n    referrer,\n    visit_date,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
   },
   "b27922e66ed8dd5b05c89d85f50c8b9fb2620fac9a78fe0f99d7372a60c6ccd3": {
     "describe": {
@@ -18395,6 +18741,114 @@
     },
     "query": "\nSELECT courses.organization_id\nFROM course_instances\n  JOIN courses ON courses.id = course_instances.course_id\nWHERE course_instances.id = $1\n"
   },
+  "d0d647cabb34006b51278fefae09a49ed68aafb275309f0ddc1192e81fbc0316": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "device_type",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "referrer",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_source",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_medium",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_campaign",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_term",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_content",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 14,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 15,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_visit_datum_summary_by_courses\nWHERE course_id = $1\nAND deleted_at IS NULL\n"
+  },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {
     "describe": {
       "columns": [],
@@ -20140,6 +20594,22 @@
     },
     "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4\nWHERE id = $5\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
   },
+  "e7ad9cc94bf52798593e8fa61c9996e24f0a8e767b8a153b17ded9184cda5df9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "latest_date",
+          "ordinal": 0,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nSELECT MAX(visit_date) AS latest_date\nFROM page_visit_datum_summary_by_courses\nWHERE deleted_at IS NULL\n"
+  },
   "e81d160c322b0c903d8105d39f22a1f26f37ffe46fa0d15f4c038b4ba2adc89c": {
     "describe": {
       "columns": [
@@ -20596,6 +21066,120 @@
       }
     },
     "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the\n    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in\n    -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement\n    -- will be skipped.\n    SELECT ts_rewrite(\n        plainto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND hidden IS FALSE\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        "
+  },
+  "eda078e5f32758b2d1ff20a1085af4b42739d3bff2761a612f3f54bd8eeced07": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "device_type",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "referrer",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_source",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_medium",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_campaign",
+          "ordinal": 12,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_term",
+          "ordinal": 13,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "utm_content",
+          "ordinal": 14,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 15,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 16,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM page_visit_datum_summary_by_pages\nWHERE course_id = $1\n  AND deleted_at IS NULL\n"
   },
   "ee186fc1b8fd129fbfc96ede2df1eb0513d4d0e5c2f5bf5a17cdc088f8d3af1b": {
     "describe": {

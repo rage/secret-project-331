@@ -108,7 +108,11 @@ async fn get_course_page_by_path(
     let RequestInformation {
         ip,
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         user_agent,
         has_bot_user_agent,
@@ -147,7 +151,11 @@ async fn get_course_page_by_path(
             device_type,
             referrer,
             is_bot: has_bot_user_agent || browser_admits_its_a_bot,
-            utm_tags,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_term,
+            utm_content,
             anonymous_identifier,
             exam_id: page_with_user_data.page.exam_id,
         },
@@ -161,7 +169,11 @@ struct RequestInformation {
     ip: Option<IpAddr>,
     user_agent: String,
     referrer: Option<String>,
-    utm_tags: Option<serde_json::Value>,
+    utm_source: Option<String>,
+    utm_medium: Option<String>,
+    utm_campaign: Option<String>,
+    utm_term: Option<String>,
+    utm_content: Option<String>,
     country: Option<String>,
     has_bot_user_agent: bool,
     browser_admits_its_a_bot: bool,
@@ -177,8 +189,9 @@ async fn derive_information_from_requester(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<RequestInformation> {
-    let headers = req.headers();
-    let user_agent = headers.get(header::USER_AGENT);
+    let mut headers = req.headers().clone();
+    let headers_clone = headers.clone();
+    let user_agent = headers_clone.get(header::USER_AGENT);
     let bots = Bots::default();
     let has_bot_user_agent = user_agent
         .and_then(|ua| ua.to_str().ok())
@@ -212,9 +225,36 @@ async fn derive_information_from_requester(
         .map(|c| c.to_string());
 
     let utm_tags = headers
-        .get("utm-tags")
-        .and_then(|utms| utms.to_str().ok())
-        .and_then(|utms| serde_json::to_value(utms).ok());
+        .remove("utm-tags")
+        .next()
+        .and_then(|utms| String::from_utf8(utms.as_bytes().to_vec()).ok())
+        .and_then(|utms| serde_json::from_str::<serde_json::Value>(&utms).ok())
+        .and_then(|o| o.as_object().cloned());
+
+    let utm_source = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_source"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_medium = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_medium"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_campaign = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_campaign"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_term = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_term"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_content = utm_tags
+        .and_then(|mut tags| tags.remove("utm_content"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
     let referrer = headers
         .get("Orignal-Referrer")
         .and_then(|r| r.to_str().ok())
@@ -235,7 +275,11 @@ async fn derive_information_from_requester(
             .unwrap_or_default()
             .to_string(),
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         has_bot_user_agent,
         browser_admits_its_a_bot,

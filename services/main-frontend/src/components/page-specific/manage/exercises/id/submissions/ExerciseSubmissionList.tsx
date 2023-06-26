@@ -68,25 +68,13 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
             </th>
             <th
               className={css`
-                width: 19%;
+                width: 18%;
               `}
             >
               {t("label-submission-time")}
             </th>
-            <th
-              className={css`
-                width: 27%;
-              `}
-            >
-              {t("label-student")}
-            </th>
-            <th
-              className={css`
-                width: 27%;
-              `}
-            >
-              {t("label-course-instance")}
-            </th>
+            <th>{t("label-student")}</th>
+            <th>{t("label-course-instance")}</th>
             <th
               className={css`
                 width: 18%;
@@ -114,18 +102,19 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                 line-height: 1rem;
               `}
             >
-              <td>
+              <td
+                className={css`
+                  font-size: 20px;
+                  text-align: center !important;
+                `}
+              >
                 <Link
                   href={{
                     pathname: "/submissions/[id]",
                     query: { id: x.id },
                   }}
                 >
-                  <LinkIcon
-                    className={css`
-                      font-size: 20px;
-                    `}
-                  />
+                  <LinkIcon />
                 </Link>
               </td>
               <td>{x.created_at.toLocaleString()}</td>

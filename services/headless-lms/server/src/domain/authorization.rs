@@ -1,7 +1,7 @@
-use std::pin::Pin;
+//! Common functionality related to authorization
 
 use crate::prelude::*;
-
+use crate::OAuthClient;
 use actix_http::Payload;
 use actix_session::Session;
 use actix_session::SessionExt;
@@ -9,10 +9,18 @@ use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use futures::Future;
-use headless_lms_models::{self as models, roles::UserRole};
+use headless_lms_models::{self as models, roles::UserRole, users::User};
 use models::{roles::Role, CourseOrExamId};
+use oauth2::basic::BasicTokenType;
+use oauth2::reqwest::AsyncHttpClientError;
+use oauth2::EmptyExtraTokenFields;
+use oauth2::ResourceOwnerPassword;
+use oauth2::ResourceOwnerUsername;
+use oauth2::StandardTokenResponse;
+use oauth2::TokenResponse;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+use std::pin::Pin;
 #[cfg(feature = "ts_rs")]
 pub use ts_rs::TS;
 use uuid::Uuid;
@@ -617,6 +625,186 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
         )
     })?;
     Ok(secret_key)
+}
+
+/// Authenticates the user with mooc.fi, returning the authenticated user and their oauth token.
+pub async fn authenticate_moocfi_user(
+    conn: &mut PgConnection,
+    client: &OAuthClient,
+    email: String,
+    password: String,
+) -> anyhow::Result<(User, LoginToken)> {
+    let token = exchange_password_with_moocfi(client, email, password).await?;
+    let user = get_user_from_moocfi(&token, conn).await?;
+    Ok((user, token))
+}
+
+pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
+pub async fn exchange_password_with_moocfi(
+    client: &OAuthClient,
+    email: String,
+    password: String,
+) -> anyhow::Result<LoginToken> {
+    let token = client
+        .exchange_password(
+            &ResourceOwnerUsername::new(email),
+            &ResourceOwnerPassword::new(password),
+        )
+        .request_async(async_http_client_with_headers)
+        .await?;
+    Ok(token)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GraphQLRquest<'a> {
+    query: &'a str,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiCurrentUserResponse {
+    pub data: MoocfiCurrentUserResponseData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiCurrentUserResponseData {
+    #[serde(rename = "currentUser")]
+    pub current_user: MoocfiCurrentUser,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiCurrentUser {
+    pub id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: String,
+    pub upstream_id: i32,
+}
+
+pub async fn get_user_from_moocfi(
+    token: &LoginToken,
+    conn: &mut PgConnection,
+) -> anyhow::Result<User> {
+    info!("Getting user details from mooc.fi");
+    let moocfi_graphql_url = "https://www.mooc.fi/api";
+    let client = reqwest::Client::default();
+    let res = client
+        .post(moocfi_graphql_url)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .json(&GraphQLRquest {
+            query: r#"
+{
+    currentUser {
+    id
+    email
+    first_name
+    last_name
+    upstream_id
+    }
+}
+            "#,
+        })
+        .bearer_auth(token.access_token().secret())
+        .send()
+        .await
+        .context("Failed to send request to Mooc.fi")?;
+    if !res.status().is_success() {
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
+    }
+    let current_user_response: MoocfiCurrentUserResponse = res
+        .json()
+        .await
+        .context("Unexpected response from Mooc.fi")?;
+    let MoocfiCurrentUser {
+        id: moocfi_id,
+        first_name,
+        last_name,
+        email,
+        upstream_id,
+    } = current_user_response.data.current_user;
+
+    // fetch existing user or create new one
+    let user =
+        match models::users::find_by_upstream_id(conn, upstream_id).await? {
+            Some(existing_user) => existing_user,
+            None => {
+                models::users::insert_with_upstream_id_and_moocfi_id(
+                    conn,
+                    &email,
+                    // convert empty names to None
+                    first_name.as_deref().and_then(|n| {
+                        if n.trim().is_empty() {
+                            None
+                        } else {
+                            Some(n)
+                        }
+                    }),
+                    last_name
+                        .as_deref()
+                        .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
+                    upstream_id,
+                    moocfi_id,
+                )
+                .await?
+            }
+        };
+    Ok(user)
+}
+
+// Only used for testing, not to use in production.
+pub async fn authenticate_test_user(
+    conn: &mut PgConnection,
+    email: &str,
+    password: &str,
+    application_configuration: &ApplicationConfiguration,
+) -> anyhow::Result<User> {
+    // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
+    assert!(application_configuration.test_mode);
+    let user = if email == "admin@example.com" && password == "admin" {
+        models::users::get_by_email(conn, "admin@example.com").await?
+    } else if email == "teacher@example.com" && password == "teacher" {
+        models::users::get_by_email(conn, "teacher@example.com").await?
+    } else if email == "language.teacher@example.com" && password == "language.teacher" {
+        models::users::get_by_email(conn, "language.teacher@example.com").await?
+    } else if email == "user@example.com" && password == "user" {
+        models::users::get_by_email(conn, "user@example.com").await?
+    } else if email == "assistant@example.com" && password == "assistant" {
+        models::users::get_by_email(conn, "assistant@example.com").await?
+    } else if email == "creator@example.com" && password == "creator" {
+        models::users::get_by_email(conn, "creator@example.com").await?
+    } else if email == "student1@example.com" && password == "student.1" {
+        models::users::get_by_email(conn, "student1@example.com").await?
+    } else if email == "student2@example.com" && password == "student.2" {
+        models::users::get_by_email(conn, "student2@example.com").await?
+    } else if email == "student3@example.com" && password == "student.3" {
+        models::users::get_by_email(conn, "student3@example.com").await?
+    } else if email == "teaching-and-learning-services@example.com"
+        && password == "teaching-and-learning-services"
+    {
+        models::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
+    } else {
+        anyhow::bail!("Invalid email or password");
+    };
+    Ok(user)
+}
+
+/**
+ * HTTP Client used only for authing with TMC server, this is to ensure that TMC server
+ * does not rate limit auth requests from backend
+ */
+async fn async_http_client_with_headers(
+    mut request: oauth2::HttpRequest,
+) -> Result<oauth2::HttpResponse, AsyncHttpClientError> {
+    let ratelimit_api_key = std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    request.headers.append(
+        "RATELIMIT-PROTECTION-SAFE-API-KEY",
+        ratelimit_api_key.parse().map_err(|_err| {
+            AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+        })?,
+    );
+    let result = oauth2::reqwest::async_http_client(request).await?;
+    Ok(result)
 }
 
 #[cfg(test)]

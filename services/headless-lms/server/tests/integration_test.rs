@@ -73,7 +73,7 @@ pub async fn init_actix() -> (
         .unwrap();
     let pool = server_config.db_pool.clone().into_inner().as_ref().clone();
     let app = App::new()
-        .configure(move |config| headless_lms_server::config::configure(config, &server_config))
+        .configure(move |config| headless_lms_server::config::configure(config, server_config))
         .wrap(
             SessionMiddleware::builder(
                 CookieSessionStore::default(),

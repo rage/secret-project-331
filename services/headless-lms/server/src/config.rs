@@ -128,7 +128,7 @@ pub struct ServerConfig {
 }
 
 /// Common configuration that is used by both production and testing.
-pub fn configure(config: &mut ServiceConfig, server_config: &ServerConfig) {
+pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
     let ServerConfig {
         json_config,
         db_pool,
@@ -141,15 +141,15 @@ pub fn configure(config: &mut ServiceConfig, server_config: &ServerConfig) {
         cache,
     } = server_config;
     config
-        .app_data(json_config.clone())
-        .app_data(db_pool.clone())
-        .app_data(oauth_client.clone())
-        .app_data(icu4x_blob.clone())
-        .app_data(ip_to_country_mapper.clone())
-        .app_data(file_store.clone())
-        .app_data(app_conf.clone())
-        .app_data(jwt_key.clone())
-        .app_data(cache.clone())
+        .app_data(json_config)
+        .app_data(db_pool)
+        .app_data(oauth_client)
+        .app_data(icu4x_blob)
+        .app_data(ip_to_country_mapper)
+        .app_data(file_store)
+        .app_data(app_conf)
+        .app_data(jwt_key)
+        .app_data(cache)
         .service(
             web::scope("/api/v0")
                 .wrap(RequestSpan)

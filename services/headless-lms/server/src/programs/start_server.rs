@@ -40,7 +40,7 @@ pub async fn main() -> anyhow::Result<()> {
     let mut server = HttpServer::new(move || {
         let server_config = server_config.clone();
         App::new()
-            .configure(move |config| config::configure(config, &server_config))
+            .configure(move |config| config::configure(config, server_config))
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),

@@ -208,6 +208,7 @@
   "global-permissions": "Global permissions",
   "grading": "Grading",
   "grading-explanation": "The exercise service creates this data from the grade endpoint when the backend posts a submission to it to be graded.",
+  "grant-access-to-users-with-permissions-to-original-course": "Grant access to this course to everyone who had access to the original one",
   "guest": "guest",
   "header-answers-requiring-attention": "Answers requiring attention",
   "header-course-instance-enrollments": "Course instance enrollments",

@@ -187,6 +187,7 @@ import {
   SaveCourseSettingsPayload,
   SearchRequest,
   SpecRequest,
+  StudentCountry,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
@@ -924,7 +925,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["teacher_in_charge_email"] === "string" &&
     typeof typedObj["description"] === "string" &&
     typeof typedObj["is_draft"] === "boolean" &&
-    typeof typedObj["is_test_mode"] === "boolean"
+    typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["copy_user_permissions"] === "boolean"
   )
 }
 
@@ -2657,6 +2659,20 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "CourseOrExamCreator" ||
     typedObj === "MaterialViewer" ||
     typedObj === "TeachingAndLearningServices"
+  )
+}
+
+export function isStudentCountry(obj: unknown): obj is StudentCountry {
+  const typedObj = obj as StudentCountry
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["country_code"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 

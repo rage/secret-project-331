@@ -3,6 +3,7 @@
 use std::{collections::HashMap, net::IpAddr, path::Path};
 
 use actix_http::header;
+use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
@@ -23,6 +24,7 @@ use models::{
     },
     pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},
+    student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
 
@@ -709,6 +711,49 @@ async fn get_page_by_course_id_and_language_group(
 }
 
 /**
+POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn student_country(
+    query: web::Path<(Uuid, Uuid, String)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let (course_id, course_instance_id, country_code) = query.into_inner();
+
+    models::student_countries::insert(
+        &mut conn,
+        user.id,
+        course_id,
+        course_instance_id,
+        &country_code,
+    )
+    .await?;
+    let token = skip_authorize();
+
+    token.authorized_ok(Json(true))
+}
+
+/**
+GET `/api/v0/{course_id}/student-countries - Returns countries of student registered in a course.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_student_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<StudentCountry>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let res = models::student_countries::get_countries(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -761,5 +806,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
             web::get().to(get_page_by_course_id_and_language_group),
         )
-        .route("/{course_id}/pages", web::get().to(get_public_course_pages));
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
+        .route(
+            "/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}",
+            web::post().to(student_country),
+        )
+        .route(
+            "/{course_id}/student-countries",
+            web::get().to(get_student_countries),
+        );
 }

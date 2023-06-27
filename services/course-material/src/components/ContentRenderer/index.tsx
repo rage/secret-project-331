@@ -52,6 +52,7 @@ import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
+import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import PartnersBlock from "./moocfi/PartnersBlock"
 import TableBox from "./moocfi/TableBox"
@@ -141,6 +142,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
   "moocfi/iframe": IframeBlock,
   "moocfi/audio-upload": AudioPlayer,
+  "moocfi/map": Map,
 }
 
 const highlightedBlockStyles = css`

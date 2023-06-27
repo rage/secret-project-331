@@ -435,6 +435,7 @@ export interface NewCourse {
   description: string
   is_draft: boolean
   is_test_mode: boolean
+  copy_user_permissions: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -1477,6 +1478,16 @@ export type UserRole =
   | "CourseOrExamCreator"
   | "MaterialViewer"
   | "TeachingAndLearningServices"
+
+export interface StudentCountry {
+  id: string
+  user_id: string
+  course_id: string
+  course_instance_id: string
+  country_code: string
+  created_at: Date
+  deleted_at: Date | null
+}
 
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string

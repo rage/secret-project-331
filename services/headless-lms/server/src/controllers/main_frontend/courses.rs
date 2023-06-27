@@ -402,7 +402,15 @@ pub async fn post_new_course_language_version(
     .await?;
 
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true, user.id)
+            .await?;
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(copied_course))
 }
@@ -425,6 +433,7 @@ Content-Type: application/json
 }
 ```
 */
+
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_duplicate(
@@ -442,8 +451,16 @@ pub async fn post_new_course_duplicate(
     )
     .await?;
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false, user.id)
+            .await?;
 
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
     token.authorized_ok(web::Json(copied_course))
 }
 

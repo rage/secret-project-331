@@ -57,7 +57,7 @@ GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]
+#[generated_doc(Vec<StudyRegistryCompletion>)]
 #[instrument(skip(req, pool))]
 async fn get_completions(
     req: HttpRequest,
@@ -160,7 +160,7 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]
+#[generated_doc(Vec<StudyRegistryCompletion>)]
 #[instrument(skip(req, pool))]
 async fn get_module_completions(
     req: HttpRequest,

@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-// /// Calculates the latest statistics for dates that are not yet calculated yet.
+/// Calculates the latest statistics for dates that are not yet calculated yet.
 pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
     let latest_date = crate::page_visit_datum_summary_by_courses::get_latest_date(conn).await?;
     let date_today = Utc::now().naive_utc().date();

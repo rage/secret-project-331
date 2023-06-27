@@ -48,6 +48,9 @@ pub mod page_history;
 pub mod page_language_groups;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
+pub mod page_visit_datum_summary_by_courses;
+pub mod page_visit_datum_summary_by_courses_device_types;
+pub mod page_visit_datum_summary_by_pages;
 pub mod pages;
 pub mod peer_review_configs;
 pub mod peer_review_question_submissions;
@@ -74,6 +77,7 @@ pub mod user_exercise_task_states;
 pub mod users;
 
 pub mod error;
+
 pub mod prelude;
 #[cfg(test)]
 pub mod test_helper;

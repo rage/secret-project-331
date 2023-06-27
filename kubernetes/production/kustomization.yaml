@@ -24,6 +24,11 @@ patches:
       version: v1
       kind: CronJob
       name: ended-exams-processor
+  - path: headless-lms/patch-calculate-page-visit-stats.yml
+    target:
+      version: v1
+      kind: CronJob
+      name: calculate-page-visit-stats
   - path: headless-lms/patch-open-university-registration-link-fetcher.yml
     target:
       version: v1

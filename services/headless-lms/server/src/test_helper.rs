@@ -1,7 +1,18 @@
-use crate::setup_tracing;
+use crate::{
+    config::{ServerConfig, ServerConfigBuilder},
+    setup_tracing,
+};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;
+
+pub async fn test_config() -> ServerConfig {
+    ServerConfigBuilder::try_from_env()
+        .unwrap()
+        .build()
+        .await
+        .unwrap()
+}
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);

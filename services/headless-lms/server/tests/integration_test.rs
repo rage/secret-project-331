@@ -7,7 +7,9 @@ use headless_lms_models::{
     organizations::{self, Organization},
     PKeyPolicy,
 };
-use headless_lms_server::{domain::models_requests::JwtKey, setup_tracing};
+use headless_lms_server::{
+    config::ServerConfigBuilder, domain::models_requests::JwtKey, setup_tracing,
+};
 use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use tokio::sync::Mutex;
@@ -62,26 +64,16 @@ pub async fn init_actix() -> (
     PgPool,
 ) {
     env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp");
-    let db = init_db().await;
     let private_cookie_key =
         "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
-    let pool = PgPool::connect(&db)
+    let server_config = ServerConfigBuilder::try_from_env()
+        .unwrap()
+        .build()
         .await
-        .expect("failed to connect to test db");
-    let file_store = Arc::new(futures::executor::block_on(async {
-        LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
-            .expect("Failed to initialize test file store")
-    }));
-    let app_conf = ApplicationConfiguration {
-        test_mode: true,
-        base_url: "http://project-331.local".to_string(),
-        development_uuid_login: false,
-    };
-    let jwt_key = make_jwt_key();
+        .unwrap();
+    let pool = server_config.db_pool.clone().into_inner().as_ref().clone();
     let app = App::new()
-        .configure(move |config| {
-            headless_lms_server::configure(config, file_store, app_conf, jwt_key)
-        })
+        .configure(move |config| headless_lms_server::config::configure(config, &server_config))
         .wrap(
             SessionMiddleware::builder(
                 CookieSessionStore::default(),
@@ -90,9 +82,7 @@ pub async fn init_actix() -> (
             .cookie_name("session".to_string())
             .cookie_secure(false)
             .build(),
-        )
-        // .app_data(Data::new(oauth_client.clone()))
-        .app_data(Data::new(pool.clone()));
+        );
     (actix_web::test::init_service(app).await, pool)
 }
 

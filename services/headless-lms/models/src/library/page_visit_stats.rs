@@ -6,6 +6,7 @@ use crate::prelude::*;
 pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
     let latest_date = crate::page_visit_datum_summary_by_courses::get_latest_date(conn).await?;
     let date_today = Utc::now().naive_utc().date();
+    let yesterday = date_today - chrono::Duration::days(1);
     let cutoff_date = {
         let cutoff_date = latest_date.map(|d| d - chrono::Duration::days(1));
         if let Some(cutoff_date) = cutoff_date {
@@ -18,10 +19,10 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
 
     info!(
         "Calculating page view daily stats from {} to {}",
-        cutoff_date, date_today
+        cutoff_date, yesterday
     );
     let mut current_date = cutoff_date;
-    while current_date <= date_today {
+    while current_date <= yesterday {
         info!("Calculating page view daily stats for {}", current_date);
         info!("Calculating page view daily stats by courses");
         let res_by_courses =

@@ -160,46 +160,26 @@ COMMENT ON COLUMN page_visit_datum_summary_by_courses_device_types.visit_date IS
 ALTER TABLE page_visit_datum
 ADD column utm_source VARCHAR(255);
 UPDATE page_visit_datum
-SET utm_source = REPLACE(
-    REPLACE(REPLACE(utm_tags::text, '"{', '{'), '}"', '}'),
-    '\"',
-    '"'
-  )::jsonb->'utm_source';
+SET utm_source = (utm_tags#>>'{}')::jsonb->'utm_source';
 ---
 ALTER TABLE page_visit_datum
 ADD column utm_medium VARCHAR(255);
 UPDATE page_visit_datum
-SET utm_medium = REPLACE(
-    REPLACE(REPLACE(utm_tags::text, '"{', '{'), '}"', '}'),
-    '\"',
-    '"'
-  )::jsonb->'utm_medium';
+SET utm_medium = (utm_tags#>>'{}')::jsonb->'utm_medium';
 ---
 ALTER TABLE page_visit_datum
 ADD column utm_campaign VARCHAR(255);
 UPDATE page_visit_datum
-SET utm_campaign = REPLACE(
-    REPLACE(REPLACE(utm_tags::text, '"{', '{'), '}"', '}'),
-    '\"',
-    '"'
-  )::jsonb->'utm_campaign';
+SET utm_campaign = (utm_tags#>>'{}')::jsonb->'utm_campaign';
 ---
 ALTER TABLE page_visit_datum
 ADD column utm_term VARCHAR(255);
 UPDATE page_visit_datum
-SET utm_term = REPLACE(
-    REPLACE(REPLACE(utm_tags::text, '"{', '{'), '}"', '}'),
-    '\"',
-    '"'
-  )::jsonb->'utm_term';
+SET utm_term = (utm_tags#>>'{}')::jsonb->'utm_term';
 ---
 ALTER TABLE page_visit_datum
 ADD column utm_content VARCHAR(255);
 UPDATE page_visit_datum
-SET utm_content = REPLACE(
-    REPLACE(REPLACE(utm_tags::text, '"{', '{'), '}"', '}'),
-    '\"',
-    '"'
-  )::jsonb->'utm_content';
+SET utm_content = (utm_tags#>>'{}')::jsonb->'utm_content';
 --
 ALTER TABLE page_visit_datum DROP COLUMN utm_tags;

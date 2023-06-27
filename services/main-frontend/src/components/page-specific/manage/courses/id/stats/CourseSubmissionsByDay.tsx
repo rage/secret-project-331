@@ -63,16 +63,8 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
         height={200 * Object.keys(getCourseDailySubmissionCounts.data.eChartsData).length}
         options={{
           tooltip: {
-            // eslint-disable-next-line i18next/no-literal-string
-            position: "top",
-            formatter: (a) => {
-              return t("daily-submissions-visualization-tooltip", {
-                // @ts-expect-error: todo
-                day: a.data[0],
-                // @ts-expect-error: todo
-                submissions: a.data[1],
-              })
-            },
+            trigger: "item",
+            formatter: "{b}: {c} ({d}%)",
           },
           visualMap: {
             show: false,

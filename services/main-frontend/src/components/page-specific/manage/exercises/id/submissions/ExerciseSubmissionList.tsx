@@ -37,6 +37,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
             max-width: 0;
             border-left: 1px solid ${baseTheme.colors.clear[300]};
             border-right: 1px solid ${baseTheme.colors.clear[300]};
+            color: ${baseTheme.colors.gray[500]};
             padding-left: 30px;
             padding-right: 30px;
             text-align: left;
@@ -53,7 +54,6 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
               font-family: ${secondaryFont};
               font-weight: ${fontWeights.semibold};
               font-size: ${baseTheme.fontSizes[14]};
-              color: ${baseTheme.colors.gray[600]};
               text-transform: uppercase;
               opacity: 0.8;
               padding-right: 30px;
@@ -68,7 +68,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
             </th>
             <th
               className={css`
-                width: 18%;
+                width: 19%;
               `}
             >
               {t("label-submission-time")}
@@ -96,10 +96,9 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
               key={x.id}
               className={css`
                 font-family: ${headingFont};
-                font-weight: ${fontWeights.normal};
+                font-weight: ${fontWeights.medium};
                 font-size: ${baseTheme.fontSizes[16]};
-                color: ${baseTheme.colors.gray[400]};
-                line-height: 1rem;
+                line-height: 19px;
               `}
             >
               <td
@@ -114,7 +113,11 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                     query: { id: x.id },
                   }}
                 >
-                  <LinkIcon />
+                  <LinkIcon
+                    className={css`
+                      color: #868b93;
+                    `}
+                  />
                 </Link>
               </td>
               <td>{x.created_at.toLocaleString()}</td>

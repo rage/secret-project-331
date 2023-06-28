@@ -7,5 +7,5 @@ type Vec<PageVisitDatumSummaryByPages> = Array<{
   course_id: string | null
   page_id: string
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }>

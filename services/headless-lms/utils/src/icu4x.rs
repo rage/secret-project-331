@@ -11,12 +11,9 @@ pub struct Icu4xBlob {
 }
 
 impl Icu4xBlob {
-    /// Tries to init from env, panicking on error
-    pub fn try_from_env() -> anyhow::Result<Self> {
+    pub fn new(icu4x_postcard_path: &str) -> anyhow::Result<Self> {
         let data = ICU4X_POSTCARD.get_or_try_init(|| {
-            let icu4x_postcard_path =
-                std::env::var("ICU4X_POSTCARD_PATH").context("ICU4X_POSTCARD_PATH not defined")?;
-            let postcard = std::fs::read(&icu4x_postcard_path).with_context(|| {
+            let postcard = std::fs::read(icu4x_postcard_path).with_context(|| {
                 format!("could not read icu4x postcard from {icu4x_postcard_path}")
             })?;
             anyhow::Ok(postcard)
@@ -25,6 +22,13 @@ impl Icu4xBlob {
         Ok(Self {
             postcard: data.as_slice(),
         })
+    }
+
+    /// Tries to init from env
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let icu4x_postcard_path =
+            std::env::var("ICU4X_POSTCARD_PATH").context("ICU4X_POSTCARD_PATH not defined")?;
+        Self::new(&icu4x_postcard_path)
     }
 
     pub fn get(&self) -> &'static [u8] {

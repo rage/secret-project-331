@@ -1193,7 +1193,7 @@ export function isExerciseSlideSubmissionCount(obj: unknown): obj is ExerciseSli
   const typedObj = obj as ExerciseSlideSubmissionCount
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typedObj["date"] === null || typedObj["date"] instanceof Date) &&
+    (typedObj["date"] === null || typeof typedObj["date"] === "string") &&
     (typedObj["count"] === null || typeof typedObj["count"] === "number")
   )
 }
@@ -2869,7 +2869,7 @@ export function isPageVisitDatumSummaryByCourse(
     (typedObj["utm_term"] === null || typeof typedObj["utm_term"] === "string") &&
     (typedObj["utm_content"] === null || typeof typedObj["utm_content"] === "string") &&
     typeof typedObj["num_visitors"] === "number" &&
-    typedObj["visit_date"] instanceof Date
+    typeof typedObj["visit_date"] === "string"
   )
 }
 
@@ -2890,7 +2890,7 @@ export function isPageVisitDatumSummaryByCourseDeviceTypes(
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["num_visitors"] === "number" &&
-    typedObj["visit_date"] instanceof Date
+    typeof typedObj["visit_date"] === "string"
   )
 }
 
@@ -2906,7 +2906,7 @@ export function isPageVisitDatumSummaryByPages(obj: unknown): obj is PageVisitDa
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     typeof typedObj["page_id"] === "string" &&
     typeof typedObj["num_visitors"] === "number" &&
-    typedObj["visit_date"] instanceof Date
+    typeof typedObj["visit_date"] === "string"
   )
 }
 
@@ -2924,7 +2924,7 @@ export function isPageVisitDatumSummaryByCoursesCountries(
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["num_visitors"] === "number" &&
-    typedObj["visit_date"] instanceof Date
+    typeof typedObj["visit_date"] === "string"
   )
 }
 

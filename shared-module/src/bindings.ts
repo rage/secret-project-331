@@ -612,7 +612,7 @@ export interface ExerciseSlideSubmission {
 }
 
 export interface ExerciseSlideSubmissionCount {
-  date: Date | null
+  date: string | null
   count: number | null
 }
 
@@ -1620,7 +1620,7 @@ export interface PageVisitDatumSummaryByCourse {
   utm_term: string | null
   utm_content: string | null
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }
 
 export interface PageVisitDatumSummaryByCourseDeviceTypes {
@@ -1635,7 +1635,7 @@ export interface PageVisitDatumSummaryByCourseDeviceTypes {
   course_id: string | null
   exam_id: string | null
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }
 
 export interface PageVisitDatumSummaryByPages {
@@ -1647,7 +1647,7 @@ export interface PageVisitDatumSummaryByPages {
   course_id: string | null
   page_id: string
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }
 
 export interface PageVisitDatumSummaryByCoursesCountries {
@@ -1659,7 +1659,7 @@ export interface PageVisitDatumSummaryByCoursesCountries {
   course_id: string | null
   exam_id: string | null
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }
 
 export interface UploadResult {

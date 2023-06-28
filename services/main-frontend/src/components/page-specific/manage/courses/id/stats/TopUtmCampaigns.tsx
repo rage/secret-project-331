@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
 import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -17,7 +16,6 @@ export interface TopUTMCampaignsProps {
 }
 
 const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> = ({ courseId }) => {
-  const { t } = useTranslation()
   const query = useCoursePageVisitDatumSummary(courseId)
 
   const aggregatedData = useMemo(() => {

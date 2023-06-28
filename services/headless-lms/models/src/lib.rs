@@ -49,6 +49,7 @@ pub mod page_language_groups;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod page_visit_datum_summary_by_courses;
+pub mod page_visit_datum_summary_by_courses_countries;
 pub mod page_visit_datum_summary_by_courses_device_types;
 pub mod page_visit_datum_summary_by_pages;
 pub mod pages;

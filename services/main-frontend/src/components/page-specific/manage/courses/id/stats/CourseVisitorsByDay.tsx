@@ -32,8 +32,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
     // Total by date
     const totalByDate: { [date: string]: number } = Array.from(allDates).reduce((acc, date) => {
       const count = query.data.filter((o) => o.visit_date === date).length
-      const dateStr = date.toISOString().split("T")[0]
-      return { ...acc, [dateStr]: count }
+      return { ...acc, [date]: count }
     }, {})
     // group totalByDate by year
     const totalByYear: { [year: string]: { date: string; count: number }[] } = Object.entries(

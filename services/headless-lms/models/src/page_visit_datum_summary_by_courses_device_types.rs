@@ -9,11 +9,9 @@ pub struct PageVisitDatumSummaryByCourseDeviceTypes {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub country: Option<String>,
     pub browser: Option<String>,
     pub browser_version: Option<String>,
     pub operating_system: Option<String>,
-    pub operating_system_version: Option<String>,
     pub device_type: Option<String>,
     pub course_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
@@ -32,22 +30,18 @@ pub async fn calculate_and_update_for_date(
 INSERT INTO page_visit_datum_summary_by_courses_device_types (
     course_id,
     exam_id,
-    country,
     browser,
     browser_version,
     operating_system,
-    operating_system_version,
     device_type,
     num_visitors,
     visit_date
   )
 SELECT course_id,
   exam_id,
-  country,
   browser,
   browser_version,
   operating_system,
-  operating_system_version,
   device_type,
   COUNT(DISTINCT anonymous_identifier) AS num_visitors,
   $1 AS visit_date
@@ -58,21 +52,17 @@ WHERE deleted_at IS NULL
 GROUP BY course_id,
   course_id,
   exam_id,
-  country,
   browser,
   browser_version,
   operating_system,
-  operating_system_version,
   device_type
   ON CONFLICT (
     course_id,
     exam_id,
     visit_date,
-    country,
     browser,
     browser_version,
     operating_system,
-    operating_system_version,
     device_type,
     deleted_at
   ) DO

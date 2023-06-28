@@ -56,6 +56,16 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
             "Calculated {} page view daily stats by courses device types",
             res_by_courses_device_types.len()
         );
+        let res_by_courses_countries =
+            crate::page_visit_datum_summary_by_courses_countries::calculate_and_update_for_date(
+                conn,
+                current_date,
+            )
+            .await?;
+        info!(
+            "Calculated {} page view daily stats by courses countries",
+            res_by_courses_countries.len()
+        );
         current_date += chrono::Duration::days(1);
     }
     Ok(())

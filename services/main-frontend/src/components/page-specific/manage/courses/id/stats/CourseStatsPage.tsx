@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
+import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
 import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"

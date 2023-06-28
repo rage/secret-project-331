@@ -83,7 +83,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
           options={{
             tooltip: {
               trigger: "item",
-              formatter: "{b}: {c} ({d}%)",
+              formatter: "{b}: {c}",
             },
             visualMap: {
               show: false,

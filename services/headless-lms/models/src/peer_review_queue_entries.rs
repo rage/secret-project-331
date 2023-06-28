@@ -82,7 +82,9 @@ INSERT INTO peer_review_queue_entries (
     receiving_peer_reviews_exercise_slide_submission_id,
     received_enough_peer_reviews
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id, deleted_at) DO
+UPDATE
+SET peer_review_priority = $4
 RETURNING *
         ",
         user_id,

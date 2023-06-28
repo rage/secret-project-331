@@ -17,6 +17,9 @@ import {
   NewCourse,
   NewMaterialReference,
   Page,
+  PageVisitDatumSummaryByCourse,
+  PageVisitDatumSummaryByCourseDeviceTypes,
+  PageVisitDatumSummaryByPages,
   Term,
   TermUpdate,
 } from "../../shared-module/bindings"
@@ -29,6 +32,9 @@ import {
   isExerciseAnswersInCourseRequiringAttentionCount,
   isExerciseSlideSubmissionCountByWeekAndHour,
   isExerciseUserCounts,
+  isPageVisitDatumSummaryByCourse,
+  isPageVisitDatumSummaryByCourseDeviceTypes,
+  isPageVisitDatumSummaryByPages,
   isTerm,
 } from "../../shared-module/bindings.guard"
 import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
@@ -127,6 +133,39 @@ export const fetchCourseUsersCountByExercise = async (
     },
   )
   return validateResponse(response, isArray(isExerciseUserCounts))
+}
+
+export const fetchCoursePageVisitDatumSummaries = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByCourse>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/page-visit-datum-summary`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByCourse))
+}
+
+export const fetchCoursePageVisitDatumSummariesByDeviceTypes = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByCourseDeviceTypes>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/page-visit-datum-summary-by-device-types`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByCourseDeviceTypes))
+}
+
+export const fetchCoursePageVisitDatumSummaryByPages = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByPages>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/page-visit-datum-summary-by-pages`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByPages))
 }
 
 export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {

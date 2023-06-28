@@ -21,6 +21,7 @@ async fn main() -> anyhow::Result<()> {
         "start-server" => programs::start_server::main().await?,
         "sorter" => programs::sorter::sort()?,
         "sync-tmc-users" => programs::sync_tmc_users::main().await?,
+        "calculate-page-visit-stats" => programs::calculate_page_visit_stats::main().await?,
         _ => panic!("Unknown program name: {}", program_name),
     };
 

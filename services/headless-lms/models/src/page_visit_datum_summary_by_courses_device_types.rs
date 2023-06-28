@@ -50,13 +50,11 @@ WHERE deleted_at IS NULL
   AND created_at::date = $1
   AND is_bot = FALSE
 GROUP BY course_id,
-  course_id,
   exam_id,
   browser,
   browser_version,
   operating_system,
-  device_type
-  ON CONFLICT (
+  device_type ON CONFLICT (
     course_id,
     exam_id,
     visit_date,

@@ -1613,8 +1613,6 @@ export interface PageVisitDatumSummaryByCourse {
   deleted_at: Date | null
   course_id: string | null
   exam_id: string | null
-  country: string | null
-  device_type: string | null
   referrer: string | null
   utm_source: string | null
   utm_medium: string | null
@@ -1630,11 +1628,9 @@ export interface PageVisitDatumSummaryByCourseDeviceTypes {
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  country: string | null
   browser: string | null
   browser_version: string | null
   operating_system: string | null
-  operating_system_version: string | null
   device_type: string | null
   course_id: string | null
   exam_id: string | null
@@ -1650,14 +1646,18 @@ export interface PageVisitDatumSummaryByPages {
   exam_id: string | null
   course_id: string | null
   page_id: string
+  num_visitors: number
+  visit_date: Date
+}
+
+export interface PageVisitDatumSummaryByCoursesCountries {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
   country: string | null
-  device_type: string | null
-  referrer: string | null
-  utm_source: string | null
-  utm_medium: string | null
-  utm_campaign: string | null
-  utm_term: string | null
-  utm_content: string | null
+  course_id: string | null
+  exam_id: string | null
   num_visitors: number
   visit_date: Date
 }

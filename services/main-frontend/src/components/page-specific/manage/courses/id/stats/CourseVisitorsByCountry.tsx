@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
-import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
+import { fetchCoursePageVisitDatumSummariesByCountry } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
@@ -19,8 +19,9 @@ export interface CourseVisitorsByCountryProps {
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
-  const { t } = useTranslation()
-  const query = useCoursePageVisitDatumSummary(courseId)
+  const query = useQuery([`course-page-visit-datum-summary-by-country${courseId}`], () =>
+    fetchCoursePageVisitDatumSummariesByCountry(courseId),
+  )
 
   const aggregatedData = useMemo(() => {
     if (!query.data || query.data.length === 0) {

@@ -39,8 +39,6 @@ const DailyVisitCountsGroupedByUtm: React.FC<
           num_visitors: 0,
           // Excluded fields
           referrer: null,
-          device_type: null,
-          country: null,
         }
       }
       acc[key].num_visitors += row.num_visitors

@@ -151,6 +151,7 @@ import {
   PageSearchResult,
   PageVisitDatumSummaryByCourse,
   PageVisitDatumSummaryByCourseDeviceTypes,
+  PageVisitDatumSummaryByCoursesCountries,
   PageVisitDatumSummaryByPages,
   PageWithExercises,
   Pagination,
@@ -2861,8 +2862,6 @@ export function isPageVisitDatumSummaryByCourse(
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
-    (typedObj["country"] === null || typeof typedObj["country"] === "string") &&
-    (typedObj["device_type"] === null || typeof typedObj["device_type"] === "string") &&
     (typedObj["referrer"] === null || typeof typedObj["referrer"] === "string") &&
     (typedObj["utm_source"] === null || typeof typedObj["utm_source"] === "string") &&
     (typedObj["utm_medium"] === null || typeof typedObj["utm_medium"] === "string") &&
@@ -2884,12 +2883,9 @@ export function isPageVisitDatumSummaryByCourseDeviceTypes(
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
-    (typedObj["country"] === null || typeof typedObj["country"] === "string") &&
     (typedObj["browser"] === null || typeof typedObj["browser"] === "string") &&
     (typedObj["browser_version"] === null || typeof typedObj["browser_version"] === "string") &&
     (typedObj["operating_system"] === null || typeof typedObj["operating_system"] === "string") &&
-    (typedObj["operating_system_version"] === null ||
-      typeof typedObj["operating_system_version"] === "string") &&
     (typedObj["device_type"] === null || typeof typedObj["device_type"] === "string") &&
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
@@ -2909,14 +2905,24 @@ export function isPageVisitDatumSummaryByPages(obj: unknown): obj is PageVisitDa
     (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
     typeof typedObj["page_id"] === "string" &&
+    typeof typedObj["num_visitors"] === "number" &&
+    typedObj["visit_date"] instanceof Date
+  )
+}
+
+export function isPageVisitDatumSummaryByCoursesCountries(
+  obj: unknown,
+): obj is PageVisitDatumSummaryByCoursesCountries {
+  const typedObj = obj as PageVisitDatumSummaryByCoursesCountries
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["country"] === null || typeof typedObj["country"] === "string") &&
-    (typedObj["device_type"] === null || typeof typedObj["device_type"] === "string") &&
-    (typedObj["referrer"] === null || typeof typedObj["referrer"] === "string") &&
-    (typedObj["utm_source"] === null || typeof typedObj["utm_source"] === "string") &&
-    (typedObj["utm_medium"] === null || typeof typedObj["utm_medium"] === "string") &&
-    (typedObj["utm_campaign"] === null || typeof typedObj["utm_campaign"] === "string") &&
-    (typedObj["utm_term"] === null || typeof typedObj["utm_term"] === "string") &&
-    (typedObj["utm_content"] === null || typeof typedObj["utm_content"] === "string") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
     typeof typedObj["num_visitors"] === "number" &&
     typedObj["visit_date"] instanceof Date
   )

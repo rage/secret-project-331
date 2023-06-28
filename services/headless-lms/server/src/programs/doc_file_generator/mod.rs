@@ -136,6 +136,7 @@ use headless_lms_models::{
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
     proposed_block_edits::EditedBlockStillExistsData,
+    student_countries::StudentCountry,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
 };
@@ -1666,6 +1667,18 @@ fn models() {
             exam_id,
             num_visitors: 8234,
             visit_date,
+        }
+    );
+    doc!(
+        Vec,
+        StudentCountry {
+            id,
+            user_id,
+            course_id,
+            course_instance_id,
+            country_code: "fi".to_string(),
+            created_at,
+            deleted_at,
         }
     );
 }

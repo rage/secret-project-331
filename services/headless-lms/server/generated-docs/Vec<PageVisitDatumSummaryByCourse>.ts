@@ -12,5 +12,5 @@ type Vec<PageVisitDatumSummaryByCourse> = Array<{
   utm_term: string | null
   utm_content: string | null
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }>

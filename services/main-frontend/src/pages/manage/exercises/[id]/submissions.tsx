@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -9,6 +10,7 @@ import Pagination from "../../../../shared-module/components/Pagination"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
+import { fontWeights } from "../../../../shared-module/styles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -30,7 +32,13 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
 
   return (
     <div>
-      <h4>{t("header-submissions")}</h4>
+      <h3
+        className={css`
+          font-weight: ${fontWeights.medium};
+        `}
+      >
+        {t("header-submissions")}
+      </h3>
       {getExerciseSubmissions.isError && (
         <ErrorBanner variant={"readOnly"} error={getExerciseSubmissions.error} />
       )}

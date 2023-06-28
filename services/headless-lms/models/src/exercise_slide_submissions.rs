@@ -439,6 +439,7 @@ SELECT id,
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
+ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
         "#,
         exercise_id,

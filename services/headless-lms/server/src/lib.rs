@@ -34,7 +34,7 @@ use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
-pub type OAuthClient = Arc<BasicClient>;
+pub type OAuthClient = BasicClient;
 
 /**
 Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level

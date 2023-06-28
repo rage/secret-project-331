@@ -75,12 +75,13 @@ impl ServerConfigBuilder {
             .await?;
         let db_pool = Data::new(db_pool);
 
-        let oauth_client: OAuthClient = Arc::new(BasicClient::new(
+        let oauth_client = BasicClient::new(
             ClientId::new(self.oauth_application_id),
             Some(ClientSecret::new(self.oauth_secret)),
             AuthUrl::from_url(self.auth_url.clone()),
             Some(TokenUrl::from_url(self.auth_url)),
-        ));
+        );
+        let oauth_client = Data::new(oauth_client);
 
         let icu4x_blob = Icu4xBlob::new(&self.icu4x_postcard_path)?;
         let icu4x_blob = Data::new(icu4x_blob);
@@ -115,7 +116,7 @@ impl ServerConfigBuilder {
 pub struct ServerConfig {
     pub json_config: Data<web::JsonConfig>,
     pub db_pool: Data<PgPool>,
-    pub oauth_client: OAuthClient,
+    pub oauth_client: Data<OAuthClient>,
     pub icu4x_blob: Data<Icu4xBlob>,
     pub ip_to_country_mapper: Data<IpToCountryMapper>,
     pub file_store: Arc<dyn FileStore + Send + Sync>,

@@ -2538,6 +2538,7 @@ dependencies = [
 name = "mooc-langs-api"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "oauth2",
  "serde",
  "thiserror",

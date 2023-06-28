@@ -490,6 +490,27 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     Ok(course_instances)
 }
 
+pub async fn get_enrolled_course_instances_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseInstance>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT ci.*
+FROM course_instances AS ci
+  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
+WHERE cie.user_id = $1
+  AND ci.deleted_at IS NULL
+  AND cie.deleted_at IS NULL
+"#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

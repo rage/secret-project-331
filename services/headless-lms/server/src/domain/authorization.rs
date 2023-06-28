@@ -782,9 +782,23 @@ pub async fn authenticate_test_user(
         && password == "teaching-and-learning-services"
     {
         models::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
+    } else if email == "langs@example.com" && password == "langs" {
+        models::users::get_by_email(conn, "langs@example.com").await?
     } else {
         anyhow::bail!("Invalid email or password");
     };
+    Ok(user)
+}
+
+// Only used for testing, not to use in production.
+pub async fn authenticate_test_token(
+    conn: &mut PgConnection,
+    token: &str,
+    application_configuration: &ApplicationConfiguration,
+) -> anyhow::Result<User> {
+    // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
+    assert!(application_configuration.test_mode);
+    let user = models::users::get_by_email(conn, token).await?;
     Ok(user)
 }
 

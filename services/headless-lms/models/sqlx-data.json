@@ -6699,6 +6699,77 @@
     },
     "query": "\nSELECT *\nFROM course_module_completion_certificates\nWHERE user_id = $1\n  AND course_module_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n"
   },
+  "58d0d6ca7c6257dfdc7eb77322643c1fa55ae29b85378e774485430a8f20d2e0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "starts_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "name",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "description",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "support_email",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "teacher_in_charge_name",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "teacher_in_charge_email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true, true, true, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT ci.*\nFROM course_instances AS ci\n  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id\nWHERE cie.user_id = $1\n  AND ci.deleted_at IS NULL\n  AND cie.deleted_at IS NULL\n"
+  },
   "59830bf03af0473697a647c7ff0ee73027922ef7fc4ebfe705e47caf4b9ee7e9": {
     "describe": {
       "columns": [

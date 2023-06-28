@@ -35,6 +35,10 @@ impl FromRequest for AuthToken {
             .app_data::<web::Data<PgPool>>()
             .expect("Missing database pool")
             .clone();
+        let app_conf = req
+            .app_data::<web::Data<ApplicationConfiguration>>()
+            .expect("Missing application configuration")
+            .clone();
         let cache = req
             .app_data::<web::Data<Cache>>()
             .expect("Missing cache")
@@ -50,7 +54,13 @@ impl FromRequest for AuthToken {
                 return Err(ControllerError::new(ControllerErrorType::BadRequest, "Missing bearer token".to_string(), None));
             };
             let mut conn = pool.acquire().await?;
-            let user = match load_user(&cache, &token).await {
+
+
+        let user = if app_conf.test_mode {
+            warn!("Using test credentials. Normal accounts won't work.");
+            authorization::authenticate_test_token(&mut conn, &token, &app_conf).await?
+        } else {
+            match load_user(&cache, &token).await {
                 Some(user) => user,
                 None => {
                     let token = LoginToken::new(
@@ -63,7 +73,9 @@ impl FromRequest for AuthToken {
                         .await;
                     user
                 }
-            };
+            }
+        };
+
             Ok(Self(user))
         }
         .boxed_local()

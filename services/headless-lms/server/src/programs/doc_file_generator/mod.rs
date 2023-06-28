@@ -126,6 +126,7 @@ use headless_lms_models::{
     exercises::ExerciseStatusSummaryForUser,
     page_audio_files::PageAudioFile,
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+    page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     peer_review_configs::CourseMaterialPeerReviewConfig,
@@ -1646,6 +1647,21 @@ fn models() {
             browser_version,
             operating_system,
             device_type: Some("desktop".to_string()),
+            course_id: Some(Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()),
+            exam_id,
+            num_visitors: 8234,
+            visit_date,
+        }
+    );
+
+    doc!(
+        Vec,
+        PageVisitDatumSummaryByCoursesCountries {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            country: Some("fi".to_string()),
             course_id: Some(Uuid::parse_str("d0adc0cb-4d38-4a9f-a36c-9b2cb981a654").unwrap()),
             exam_id,
             num_visitors: 8234,

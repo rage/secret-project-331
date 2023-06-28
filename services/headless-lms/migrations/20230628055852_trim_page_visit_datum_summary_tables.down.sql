@@ -25,3 +25,5 @@ ADD COLUMN utm_term TEXT;
 ALTER TABLE page_visit_datum_summary_by_pages DROP CONSTRAINT pvdsbp_no_duplicate_data;
 ALTER TABLE page_visit_datum_summary_by_courses DROP CONSTRAINT pvdsbc_no_duplicate_data;
 ALTER TABLE page_visit_datum_summary_by_courses_device_types DROP CONSTRAINT pvdsbcdt_no_duplicate_data;
+--
+DROP TABLE page_visit_datum_summary_by_courses_countries;

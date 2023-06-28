@@ -19,6 +19,7 @@ use models::{
     library,
     material_references::{MaterialReference, NewMaterialReference},
     page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+    page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     pages::Page,
@@ -1121,6 +1122,27 @@ pub async fn get_page_visit_datum_summary_by_device_types(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
+*/
+#[generated_doc]
+pub async fn get_page_visit_datum_summary_by_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCoursesCountries>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res = models::page_visit_datum_summary_by_courses_countries::get_all_for_course(
+        &mut conn, course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1256,5 +1278,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/page-visit-datum-summary-by-device-types",
             web::get().to(get_page_visit_datum_summary_by_device_types),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-countries",
+            web::get().to(get_page_visit_datum_summary_by_countries),
         );
 }

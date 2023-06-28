@@ -42,8 +42,7 @@ WHERE deleted_at IS NULL
   AND is_bot = FALSE
 GROUP BY course_id,
   exam_id,
-  page_id,
-  country
+  page_id
   ON CONFLICT (
     course_id,
     exam_id,

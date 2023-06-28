@@ -21,15 +21,15 @@ use std::{env, sync::Arc};
 use url::Url;
 
 pub struct ServerConfigBuilder {
-    database_url: String,
-    oauth_application_id: String,
-    oauth_secret: String,
-    auth_url: Url,
-    icu4x_postcard_path: String,
-    file_store: Arc<dyn FileStore + Send + Sync>,
-    app_conf: ApplicationConfiguration,
-    redis_url: String,
-    jwt_password: String,
+    pub database_url: String,
+    pub oauth_application_id: String,
+    pub oauth_secret: String,
+    pub auth_url: Url,
+    pub icu4x_postcard_path: String,
+    pub file_store: Arc<dyn FileStore + Send + Sync>,
+    pub app_conf: ApplicationConfiguration,
+    pub redis_url: String,
+    pub jwt_password: String,
 }
 
 impl ServerConfigBuilder {

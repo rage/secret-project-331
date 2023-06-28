@@ -88,9 +88,6 @@ impl ServerConfigBuilder {
         let ip_to_country_mapper = IpToCountryMapper::new()?;
         let ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
-        // Not using Data::new for file_store to avoid double wrapping it in a arc
-        let file_store = Data::from(self.file_store);
-
         let app_conf = Data::new(self.app_conf);
 
         let cache = Cache::new(&self.redis_url).await;
@@ -105,7 +102,7 @@ impl ServerConfigBuilder {
             oauth_client,
             icu4x_blob,
             ip_to_country_mapper,
-            file_store,
+            file_store: self.file_store,
             app_conf,
             jwt_key,
             cache,
@@ -121,7 +118,7 @@ pub struct ServerConfig {
     pub oauth_client: OAuthClient,
     pub icu4x_blob: Data<Icu4xBlob>,
     pub ip_to_country_mapper: Data<IpToCountryMapper>,
-    pub file_store: Data<dyn FileStore + Send + Sync>,
+    pub file_store: Arc<dyn FileStore + Send + Sync>,
     pub app_conf: Data<ApplicationConfiguration>,
     pub cache: Data<Cache>,
     pub jwt_key: Data<JwtKey>,
@@ -140,6 +137,9 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         jwt_key,
         cache,
     } = server_config;
+    // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
+    // Not using Data::new for file_store to avoid double wrapping it in a arc
+    let file_store = Data::from(file_store as Arc<dyn FileStore>);
     config
         .app_data(json_config)
         .app_data(db_pool)

@@ -41,10 +41,8 @@ WHERE deleted_at IS NULL
   AND created_at::date = $1
   AND is_bot = FALSE
 GROUP BY course_id,
-  course_id,
   exam_id,
-  country
-  ON CONFLICT (
+  country ON CONFLICT (
     course_id,
     exam_id,
     visit_date,

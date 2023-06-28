@@ -73,8 +73,12 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
       >
         {aggregatedData && (
           <Echarts
-            height={query.data.length * 100}
+            height={200 + categories.length * 25}
             options={{
+              grid: {
+                containLabel: true,
+                left: 0,
+              },
               yAxis: {
                 type: "category",
                 data: categories,
@@ -90,7 +94,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
               ],
               tooltip: {
                 trigger: "item",
-                formatter: "{b}: {c} ({d}%)",
+                formatter: "{b}: {c}",
               },
             }}
           />

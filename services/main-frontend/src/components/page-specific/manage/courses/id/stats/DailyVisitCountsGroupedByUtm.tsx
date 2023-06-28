@@ -14,6 +14,7 @@ import Accordion from "../../../../../../shared-module/components/Accordion"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../../shared-module/styles"
 import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
@@ -104,13 +105,27 @@ const DailyVisitCountsGroupedByUtm: React.FC<
             className={css`
               table {
                 width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
               }
-              th {
-                text-align: left;
-              }
+
               td {
-                padding: 0.5rem 2rem;
-                padding-left: 0;
+                padding: 0.5rem 0.7rem;
+                max-width: 250px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                border: 1px solid ${baseTheme.colors.clear[300]};
+              }
+              thead {
+                th {
+                  text-align: left;
+                  padding-left: 0.5rem;
+                  font-weight: 600;
+                  font-size: 14px;
+                  line-height: 16px;
+                  color: ${baseTheme.colors.gray[500]};
+                }
               }
             `}
           >

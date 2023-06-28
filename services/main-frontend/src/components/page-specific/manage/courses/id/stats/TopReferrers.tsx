@@ -25,15 +25,22 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
     const allReferrersInData = Array.from(new Set(query.data.map((item) => item.referrer))).filter(
       (item) => !!item,
     )
-    const totalCountsByReferrer: { [referrer: string]: number } = Array.from(
+    const totalCountsByReferrer: { referrer: string; visitors: number }[] = Array.from(
       allReferrersInData,
-    ).reduce((acc, referrer) => {
-      const totalCount = query.data
-        .filter((item) => item.referrer === referrer)
-        .reduce((acc, item) => acc + item.num_visitors, 0)
-      return { ...acc, [referrer ?? "null"]: totalCount }
-    }, {})
-    return totalCountsByReferrer
+    )
+      .map((referrer) => {
+        const totalCount = query.data
+          .filter((item) => item.referrer === referrer)
+          .reduce((acc, item) => acc + item.num_visitors, 0)
+        return { referrer: referrer ?? "null", visitors: totalCount }
+      })
+      .sort((a, b) => a.visitors - b.visitors)
+    const totalCountsByReferrerObject: { [referrer: string]: number } =
+      totalCountsByReferrer.reduce((acc, d) => {
+        acc[d.referrer ?? "null"] = d.visitors
+        return acc
+      }, {} as Record<string, number>)
+    return totalCountsByReferrerObject
   }, [query.data])
 
   const categories = useMemo(() => {
@@ -73,8 +80,12 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
       >
         {aggregatedData && (
           <Echarts
-            height={query.data.length * 100}
+            height={200 + categories.length * 25}
             options={{
+              grid: {
+                containLabel: true,
+                left: 0,
+              },
               yAxis: {
                 type: "category",
                 data: categories,
@@ -90,7 +101,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
               ],
               tooltip: {
                 trigger: "item",
-                formatter: "{b}: {c} ({d}%)",
+                formatter: "{b}: {c}",
               },
             }}
           />

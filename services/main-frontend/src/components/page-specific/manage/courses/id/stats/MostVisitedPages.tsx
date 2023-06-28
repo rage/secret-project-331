@@ -90,7 +90,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
       >
         {aggregatedData && (
           <Echarts
-            height={query.data.length * 100}
+            height={200 + categories.length * 25}
             options={{
               grid: {
                 containLabel: true,
@@ -111,7 +111,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
               ],
               tooltip: {
                 trigger: "item",
-                formatter: "{b}: {c} ({d}%)",
+                formatter: "{b}: {c}",
               },
             }}
           />

@@ -7,14 +7,6 @@
     "exam_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
     "course_id": "d0adc0cb-4d38-4a9f-a36c-9b2cb981a654",
     "page_id": "edf6dbcf-d6c2-43ce-9724-adc81e24e8df",
-    "country": "Sample string",
-    "device_type": "Sample string",
-    "referrer": "Sample string",
-    "utm_source": "Sample string",
-    "utm_medium": "Sample string",
-    "utm_campaign": "Sample string",
-    "utm_term": "Sample string",
-    "utm_content": "Sample string",
     "num_visitors": 3000,
     "visit_date": "2022-01-01"
   }

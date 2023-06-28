@@ -1,0 +1,27 @@
+ALTER TABLE page_visit_datum_summary_by_courses
+ADD COLUMN device_type TEXT;
+ALTER TABLE page_visit_datum_summary_by_courses
+ADD COLUMN country TEXT;
+ALTER TABLE page_visit_datum_summary_by_courses_device_types
+ADD COLUMN country TEXT;
+ALTER TABLE page_visit_datum_summary_by_courses_device_types
+ADD COLUMN operating_system_version TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN country TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN device_type TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN referrer TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN utm_source TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN utm_medium TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN utm_campaign TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN utm_content TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages
+ADD COLUMN utm_term TEXT;
+ALTER TABLE page_visit_datum_summary_by_pages DROP CONSTRAINT pvdsbp_no_duplicate_data;
+ALTER TABLE page_visit_datum_summary_by_courses DROP CONSTRAINT pvdsbc_no_duplicate_data;
+ALTER TABLE page_visit_datum_summary_by_courses_device_types DROP CONSTRAINT pvdsbcdt_no_duplicate_data;

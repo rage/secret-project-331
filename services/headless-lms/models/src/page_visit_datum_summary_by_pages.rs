@@ -12,14 +12,6 @@ pub struct PageVisitDatumSummaryByPages {
     pub exam_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
     pub page_id: Uuid,
-    pub country: Option<String>,
-    pub device_type: Option<String>,
-    pub referrer: Option<String>,
-    pub utm_source: Option<String>,
-    pub utm_medium: Option<String>,
-    pub utm_campaign: Option<String>,
-    pub utm_term: Option<String>,
-    pub utm_content: Option<String>,
     pub num_visitors: i32,
     pub visit_date: NaiveDate,
 }
@@ -36,28 +28,12 @@ INSERT INTO page_visit_datum_summary_by_pages (
     course_id,
     exam_id,
     page_id,
-    country,
-    device_type,
-    referrer,
-    utm_source,
-    utm_medium,
-    utm_campaign,
-    utm_term,
-    utm_content,
     num_visitors,
     visit_date
   )
 SELECT course_id,
   exam_id,
   page_id,
-  country,
-  device_type,
-  referrer,
-  utm_source,
-  utm_medium,
-  utm_campaign,
-  utm_term,
-  utm_content,
   COUNT(DISTINCT anonymous_identifier) AS num_visitors,
   $1 AS visit_date
 FROM page_visit_datum
@@ -67,26 +43,12 @@ WHERE deleted_at IS NULL
 GROUP BY course_id,
   exam_id,
   page_id,
-  country,
-  device_type,
-  referrer,
-  utm_source,
-  utm_medium,
-  utm_campaign,
-  utm_term,
-  utm_content ON CONFLICT (
+  country
+  ON CONFLICT (
     course_id,
     exam_id,
     page_id,
-    country,
-    device_type,
-    referrer,
     visit_date,
-    utm_source,
-    utm_medium,
-    utm_campaign,
-    utm_term,
-    utm_content,
     deleted_at
   ) DO
 UPDATE

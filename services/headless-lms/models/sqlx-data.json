@@ -10154,6 +10154,62 @@
     },
     "query": "\nSELECT *\nFROM exercise_service_info\nWHERE exercise_service_id = $1\n    "
   },
+  "747f27a8faee046a1f0399dfcf47117d4d3aa4435cba44fd88bb29fa6afec9b8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "num_visitors",
+          "ordinal": 7,
+          "type_info": "Int4"
+        },
+        {
+          "name": "visit_date",
+          "ordinal": 8,
+          "type_info": "Date"
+        }
+      ],
+      "nullable": [false, false, false, true, true, true, false, false, false],
+      "parameters": {
+        "Left": ["Date"]
+      }
+    },
+    "query": "\nINSERT INTO page_visit_datum_summary_by_pages (\n    course_id,\n    exam_id,\n    page_id,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  page_id,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  page_id\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    page_id,\n    visit_date,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
+  },
   "74d82f3b6234558038f0d4cebd6f4b05aaef172cb0b75276f9ae429f7c3c10ec": {
     "describe": {
       "columns": [
@@ -17220,62 +17276,6 @@
       }
     },
     "query": "\nSELECT COUNT(*) filter (\n  where proposed_page_edits.pending = true\n) AS pending,\nCOUNT(*) filter (\n  where proposed_page_edits.pending = false\n) AS handled\nFROM proposed_page_edits\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\n"
-  },
-  "c04e36e051f3605b23ce21dd3c53c9c842ff28d40b6e8a62a19180b5ce7ce46e": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exam_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "page_id",
-          "ordinal": 6,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "num_visitors",
-          "ordinal": 7,
-          "type_info": "Int4"
-        },
-        {
-          "name": "visit_date",
-          "ordinal": 8,
-          "type_info": "Date"
-        }
-      ],
-      "nullable": [false, false, false, true, true, true, false, false, false],
-      "parameters": {
-        "Left": ["Date"]
-      }
-    },
-    "query": "\nINSERT INTO page_visit_datum_summary_by_pages (\n    course_id,\n    exam_id,\n    page_id,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  page_id,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  page_id,\n  country\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    page_id,\n    visit_date,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
   },
   "c0b9a180c35f5891305a61ef57a65bceba00f6e0190612ad7348ad7185ca89f2": {
     "describe": {

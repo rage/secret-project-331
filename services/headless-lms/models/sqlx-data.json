@@ -23179,6 +23179,82 @@
     },
     "query": "\nselect max(p.order_number) as order_number\nfrom pages p\nwhere p.course_id = $1\n  and p.chapter_id is null\n  and p.deleted_at is null;\n"
   },
+  "ffb21394a250cb5874f815af037de8e881b7be9f4bb2615b7d0526634d087dbd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "exercise_slide_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 8,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_points_update_strategy: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              },
+              "name": "user_points_update_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true, true, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Int8", "Int8"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT $2 OFFSET $3\n        "
+  },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {
     "describe": {
       "columns": [

@@ -39,8 +39,6 @@ const DailyVisitCountsGroupedByUtm: React.FC<
           num_visitors: 0,
           // Excluded fields
           referrer: null,
-          device_type: null,
-          country: null,
         }
       }
       acc[key].num_visitors += row.num_visitors
@@ -65,7 +63,6 @@ const DailyVisitCountsGroupedByUtm: React.FC<
   const columns = [
     columnHelper.accessor("visit_date", {
       header: t("header-visit-date"),
-      cell: (props) => props.row.original.visit_date.toISOString().split("T")[0],
     }),
     columnHelper.accessor("utm_source", { header: "UTM Source" }),
     columnHelper.accessor("utm_medium", { header: "UTM Medium" }),

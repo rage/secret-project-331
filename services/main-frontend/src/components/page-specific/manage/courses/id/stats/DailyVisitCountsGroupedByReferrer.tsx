@@ -38,8 +38,6 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
           ...row,
           num_visitors: 0,
           // Excluded fields
-          device_type: null,
-          country: null,
           utm_source: null,
           utm_medium: null,
           utm_campaign: null,
@@ -69,7 +67,6 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
   const columns = [
     columnHelper.accessor("visit_date", {
       header: t("header-visit-date"),
-      cell: (props) => props.row.original.visit_date.toISOString().split("T")[0],
     }),
     columnHelper.accessor("referrer", { header: t("header-referrer") }),
     columnHelper.accessor("num_visitors", { header: t("header-number-of-visitors") }),

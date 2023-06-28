@@ -1,11 +1,11 @@
-type Vec<PageVisitDatumSummaryByPages> = Array<{
+type Vec<PageVisitDatumSummaryByCoursesCountries> = Array<{
   id: string
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  exam_id: string | null
+  country: string | null
   course_id: string | null
-  page_id: string
+  exam_id: string | null
   num_visitors: number
   visit_date: Date
 }>

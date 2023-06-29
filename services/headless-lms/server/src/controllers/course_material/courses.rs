@@ -751,7 +751,7 @@ async fn get_student_countries(
     let token = skip_authorize();
 
     let country_codes: Vec<String> =
-        models::student_countries::get_countries(&mut conn, *course_id, course_instance_id)
+        models::student_countries::get_countries(&mut conn, *course_id, *course_instance_id)
             .await?
             .into_iter()
             .map(|c| (c.country_code))

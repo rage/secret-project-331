@@ -70,13 +70,13 @@ export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(
     () => [
-      { code: ".ng", count: 30 },
-      { code: ".nl", count: 43 },
-      { code: ".ad", count: 43 },
-      { code: ".zw", count: 3 },
-      { code: ".zm", count: 20 },
-      { code: ".fi", count: 20 },
-      { code: ".sa", count: 20 },
+      // { code: ".ng", count: 30 },
+      // { code: ".nl", count: 43 },
+      // { code: ".ad", count: 43 },
+      // { code: ".zw", count: 3 },
+      // { code: ".zm", count: 20 },
+      // { code: ".fi", count: 20 },
+      // { code: ".sa", count: 20 },
     ],
     [],
   )

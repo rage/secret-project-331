@@ -464,11 +464,20 @@ export const postStudentCountry = async (
   )
 }
 
-export const fetchStudentCountries = async (course_id: string): Promise<StudentCountry[]> => {
+export const fetchStudentCountry = async (course_id: string): Promise<StudentCountry> => {
+  const response = await courseMaterialClient.get(`/courses/${course_id}/student-country`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isStudentCountry)
+}
+
+export const fetchStudentCountries = async (
+  course_id: string,
+): Promise<Array<{ [key: string]: number }>> => {
   const response = await courseMaterialClient.get(`/courses/${course_id}/student-countries`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isStudentCountry))
+  return response.data
 }
 
 export const fetchPageByCourseIdAndLanguageGroupId = async (

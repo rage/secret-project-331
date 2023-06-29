@@ -1,14 +1,19 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect, useMemo, useState } from "react"
+import React, { Fragment, useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../contexts/PageContext"
-import { fetchStudentCountries, postStudentCountry } from "../../../services/backend"
+import {
+  fetchStudentCountries,
+  fetchStudentCountry,
+  postStudentCountry,
+} from "../../../services/backend"
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import useUserInfo from "../../../shared-module/hooks/useUserInfo"
+import { baseTheme } from "../../../shared-module/styles"
 import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 
 import { countryList } from "./../util/Countries"
@@ -17,13 +22,14 @@ import WorldMap from "./worldMap.svg"
 const Wrapper = styled.div`
   display: relative;
   height: auto;
-  background: #ecf0fa;
+  background: #f7f8f9;
   display: grid;
   padding: 2rem 0 1rem 2rem;
+
   h3 {
-    color: #687eaf;
+    color: ${baseTheme.colors.gray[700]};
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #dde2ee;
+    border-bottom: 2px solid #edf0f2;
     font-weight: 500;
     font-size: 22px;
   }
@@ -69,9 +75,17 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   // change to nullish hook
   const getCountries = useQuery(
-    [`course-${courseId}-country`],
+    [`course-${courseId}-countries`],
     () => {
       return fetchStudentCountries(assertNotNullOrUndefined(courseId))
+    },
+    { enabled: !!courseId },
+  )
+
+  const getCountry = useQuery(
+    [`course-${courseId}-country`],
+    () => {
+      return fetchStudentCountry(assertNotNullOrUndefined(courseId))
     },
     { enabled: !!courseId },
   )
@@ -200,82 +214,128 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   let studentCountryAdded = false
   let formattedCountryCodes
+  let activeStudentCountry
 
-  if (getCountries.isSuccess && getCountries.data.length !== 0) {
-    studentCountryAdded = getCountries.data.some((country) => country.user_id === userId)
-    const storedCountryCodes = getCountries.data.map((country) => `.${country.country_code}`)
+  if (getCountry.isSuccess && getCountry.data) {
+    studentCountryAdded = getCountry.data.user_id === userId
+    activeStudentCountry = getCountry.data.country_code
+  }
+
+  if (getCountries.isSuccess && getCountries.data.length !== 0 && activeStudentCountry) {
+    console.log("getCountries", getCountries.data)
+    const storedCountryCodes = Object.entries(getCountries.data).map(([key, value]) => `.${key}`)
     countryCodes = [...countryCodes, ...new Set(storedCountryCodes)]
     formattedCountryCodes = countryCodes.join(",")
   }
 
   return (
-    <Wrapper>
-      {!studentCountryAdded ? (
-        <>
-          <CotentWrapper>
-            <h3>{t("add-country-to-map")}</h3>
-            <span
-              className={css`
-                display: inline-block;
-                color: #374461;
-                width: 40rem;
-                font-size: 18px;
-                line-height: 120%;
-                padding: 0.5rem 0 1rem 0;
-                line-height: 130%;
-                opacity: 0.8;
-              `}
-            >
-              {t("map-instruction")}
-            </span>
-            <StyledForm
-              onSubmit={handleCountryChange}
-              className={css`
-                input[type="submit"] {
-                  border: none;
-                  color: #fff;
-                  cursor: pointer;
-                  width: 100px;
-                  font-size: 17px;
-                  padding: 8px 10px 10px 10px;
-                  transition: background 0.2s ease-in-out;
-                  background: #374461;
-                  margin: auto 0 1rem 15px;
-                  border: 1px solid #374461;
-                }
-              `}
-            >
-              <SelectField
-                id={`country`}
-                label={`Country`}
-                onChange={() => null}
-                options={countryList}
-                defaultValue={countryList[90].label}
-              />
-              <input type="submit" value={t("submit")} />
-            </StyledForm>
-            <span
-              className={css`
-                display: inline-block;
-                color: #878d9d;
-                width: 30rem;
-                font-size: 15px;
-                line-height: 120%;
-                padding-bottom: 2.4rem;
-                padding-left: 2px;
-              `}
-            >
-              {t("use-of-info")}
-            </span>
-          </CotentWrapper>
-        </>
-      ) : (
-        <>
-          <h3>{t("student-in-this-region")}</h3>
-          <StyledMap codes={formattedCountryCodes} className="world-map" />
-        </>
+    <Fragment>
+      <Wrapper>
+        {!studentCountryAdded ? (
+          <>
+            <CotentWrapper>
+              <h3>{t("add-country-to-map")}</h3>
+              <span
+                className={css`
+                  display: inline-block;
+                  color: ${baseTheme.colors.gray[600]};
+                  width: 40rem;
+                  font-size: 18px;
+                  line-height: 120%;
+                  padding: 0.5rem 0 1rem 0;
+                  line-height: 130%;
+                  opacity: 0.8;
+                `}
+              >
+                {t("map-instruction")}
+              </span>
+              <StyledForm
+                onSubmit={handleCountryChange}
+                className={css`
+                  input[type="submit"] {
+                    border: none;
+                    color: #fff;
+                    cursor: pointer;
+                    width: 100px;
+                    font-size: 17px;
+                    padding: 8px 10px 10px 10px;
+                    transition: background 0.2s ease-in-out;
+                    background: ${baseTheme.colors.gray[600]};
+                    margin: auto 0 1rem 15px;
+                    border: 1px solid #374461;
+                  }
+                `}
+              >
+                <SelectField
+                  id={`country`}
+                  label={`Country`}
+                  onChange={() => null}
+                  options={countryList}
+                  defaultValue={countryList[90].label}
+                />
+                <input type="submit" value={t("submit")} />
+              </StyledForm>
+              <span
+                className={css`
+                  display: inline-block;
+                  color: ${baseTheme.colors.gray[400]};
+                  width: 30rem;
+                  font-size: 15px;
+                  line-height: 120%;
+                  padding-bottom: 2.4rem;
+                  padding-left: 2px;
+                `}
+              >
+                {t("use-of-info")}
+              </span>
+            </CotentWrapper>
+          </>
+        ) : (
+          <>
+            <Fragment>
+              <h3>{t("student-in-this-region")}</h3>
+              <StyledMap codes={formattedCountryCodes} className="world-map" />
+            </Fragment>
+          </>
+        )}
+      </Wrapper>
+      {studentCountryAdded && (
+        <table
+          className={css`
+            width: 100%;
+            margin-top: 1rem;
+            text-align: left;
+
+            th {
+              color: ${baseTheme.colors.gray[300]};
+              border-bottom: 2px solid ${baseTheme.colors.gray[100]};
+              padding: 0.4rem 0;
+            }
+
+            td {
+              color: ${baseTheme.colors.gray[400]};
+              border-bottom: 2px solid ${baseTheme.colors.gray[100]};
+              padding: 0.4rem 0;
+            }
+          `}
+        >
+          <tr>
+            <th>{t("popular-regions")}</th>
+            <th>{t("number-of-student")}</th>
+          </tr>
+          {countryCodes.map((code) => {
+            const formattedCode = code.replace(/\./g, "").toUpperCase()
+            const country = countryList.find((c) => c.value === formattedCode)?.label
+            return (
+              <tr key={code}>
+                <td>{country}</td>
+                <td>20</td>
+              </tr>
+            )
+          })}
+        </table>
       )}
-    </Wrapper>
+    </Fragment>
   )
 }
 

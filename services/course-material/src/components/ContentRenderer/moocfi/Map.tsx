@@ -68,7 +68,18 @@ interface CountryCountPair {
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
-  let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
+  let countryCodeCount: CountryCountPair[] = useMemo(
+    () => [
+      { code: ".ng", count: 30 },
+      { code: ".nl", count: 43 },
+      { code: ".ad", count: 43 },
+      { code: ".zw", count: 3 },
+      { code: ".zm", count: 20 },
+      { code: ".fi", count: 20 },
+      { code: ".sa", count: 20 },
+    ],
+    [],
+  )
   const { t } = useTranslation()
 
   const pageState = useContext(PageContext)
@@ -78,7 +89,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id
 
-  // change to nullish hook
   const getCountries = useQuery([`course-${courseId}-countries`], () => {
     return fetchStudentCountries(
       assertNotNullOrUndefined(courseId),
@@ -332,10 +342,14 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
             width: 100%;
             margin-top: 1rem;
             text-align: left;
+            border-collapse: collapse;
+
+            tr {
+              border-bottom: 2px solid ${baseTheme.colors.gray[100]};
+            }
 
             th {
               color: ${baseTheme.colors.gray[500]};
-              border-bottom: 2px solid ${baseTheme.colors.gray[100]};
               padding: 0.4rem 0;
               font-weight: 600;
               font-size: 18px;
@@ -343,7 +357,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
             td {
               color: ${baseTheme.colors.gray[400]};
-              border-bottom: 2px solid ${baseTheme.colors.gray[100]};
               padding: 0.4rem 0;
               font-size: 18px;
             }

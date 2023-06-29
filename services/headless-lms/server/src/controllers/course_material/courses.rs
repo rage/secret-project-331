@@ -742,16 +742,16 @@ GET `/api/v0/{course_id}/student-countries - Returns countries of student regist
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_student_countries(
-    course_id: web::Path<Uuid>,
-    course_instance_id: web::Path<Uuid>,
+    query: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<HashMap<String, u32>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+    let (course_id, course_instance_id) = query.into_inner();
 
     let country_codes: Vec<String> =
-        models::student_countries::get_countries(&mut conn, *course_id, *course_instance_id)
+        models::student_countries::get_countries(&mut conn, course_id, course_instance_id)
             .await?
             .into_iter()
             .map(|c| (c.country_code))

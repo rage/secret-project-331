@@ -149,6 +149,10 @@ import {
   PageProposal,
   PageRoutingData,
   PageSearchResult,
+  PageVisitDatumSummaryByCourse,
+  PageVisitDatumSummaryByCourseDeviceTypes,
+  PageVisitDatumSummaryByCoursesCountries,
+  PageVisitDatumSummaryByPages,
   PageWithExercises,
   Pagination,
   PaperSize,
@@ -1189,7 +1193,7 @@ export function isExerciseSlideSubmissionCount(obj: unknown): obj is ExerciseSli
   const typedObj = obj as ExerciseSlideSubmissionCount
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typedObj["date"] === null || typedObj["date"] instanceof Date) &&
+    (typedObj["date"] === null || typeof typedObj["date"] === "string") &&
     (typedObj["count"] === null || typeof typedObj["count"] === "number")
   )
 }
@@ -2843,6 +2847,84 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     (typedObj["email_domain"] === null || typeof typedObj["email_domain"] === "string")
+  )
+}
+
+export function isPageVisitDatumSummaryByCourse(
+  obj: unknown,
+): obj is PageVisitDatumSummaryByCourse {
+  const typedObj = obj as PageVisitDatumSummaryByCourse
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (typedObj["referrer"] === null || typeof typedObj["referrer"] === "string") &&
+    (typedObj["utm_source"] === null || typeof typedObj["utm_source"] === "string") &&
+    (typedObj["utm_medium"] === null || typeof typedObj["utm_medium"] === "string") &&
+    (typedObj["utm_campaign"] === null || typeof typedObj["utm_campaign"] === "string") &&
+    (typedObj["utm_term"] === null || typeof typedObj["utm_term"] === "string") &&
+    (typedObj["utm_content"] === null || typeof typedObj["utm_content"] === "string") &&
+    typeof typedObj["num_visitors"] === "number" &&
+    typeof typedObj["visit_date"] === "string"
+  )
+}
+
+export function isPageVisitDatumSummaryByCourseDeviceTypes(
+  obj: unknown,
+): obj is PageVisitDatumSummaryByCourseDeviceTypes {
+  const typedObj = obj as PageVisitDatumSummaryByCourseDeviceTypes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["browser"] === null || typeof typedObj["browser"] === "string") &&
+    (typedObj["browser_version"] === null || typeof typedObj["browser_version"] === "string") &&
+    (typedObj["operating_system"] === null || typeof typedObj["operating_system"] === "string") &&
+    (typedObj["device_type"] === null || typeof typedObj["device_type"] === "string") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["num_visitors"] === "number" &&
+    typeof typedObj["visit_date"] === "string"
+  )
+}
+
+export function isPageVisitDatumSummaryByPages(obj: unknown): obj is PageVisitDatumSummaryByPages {
+  const typedObj = obj as PageVisitDatumSummaryByPages
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    typeof typedObj["page_id"] === "string" &&
+    typeof typedObj["num_visitors"] === "number" &&
+    typeof typedObj["visit_date"] === "string"
+  )
+}
+
+export function isPageVisitDatumSummaryByCoursesCountries(
+  obj: unknown,
+): obj is PageVisitDatumSummaryByCoursesCountries {
+  const typedObj = obj as PageVisitDatumSummaryByCoursesCountries
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["country"] === null || typeof typedObj["country"] === "string") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["num_visitors"] === "number" &&
+    typeof typedObj["visit_date"] === "string"
   )
 }
 

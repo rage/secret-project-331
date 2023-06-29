@@ -49,7 +49,7 @@ tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.67"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "54263034d33818c292b9470cd61e2a2c8dff6097", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb065091261b3b64c019381", features = [
   "chrono-impl",
   "serde-compat",
   "serde-json-impl",

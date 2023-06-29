@@ -1,1 +1,1 @@
-type Vec<ExerciseSlideSubmissionCount> = Array<{ date: Date | null; count: number | null }>
+type Vec<ExerciseSlideSubmissionCount> = Array<{ date: string | null; count: number | null }>

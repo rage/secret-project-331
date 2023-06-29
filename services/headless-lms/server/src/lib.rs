@@ -7,6 +7,7 @@ The server that handles the requests.
 * [headless_lms_models]
 */
 
+pub mod config;
 pub mod controllers;
 pub mod domain;
 pub mod prelude;
@@ -23,51 +24,17 @@ extern crate tracing;
 #[macro_use]
 extern crate doc_macro;
 
-use actix_http::{body::MessageBody, StatusCode};
-use actix_web::{
-    error::InternalError,
-    web::{self, Data, ServiceConfig},
-    HttpResponse,
-};
 use anyhow::Result;
-use domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
-use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
+use headless_lms_utils::file_store::{
+    google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
+};
 use oauth2::basic::BasicClient;
-use std::sync::Arc;
+use std::{env, sync::Arc};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
-pub type OAuthClient = Arc<BasicClient>;
-
-pub fn configure(
-    config: &mut ServiceConfig,
-    file_store: Arc<dyn FileStore>,
-    app_conf: ApplicationConfiguration,
-    jwt_key: JwtKey,
-) {
-    let json_config =
-        web::JsonConfig::default()
-            .limit(1048576)
-            .error_handler(|err, _req| -> actix_web::Error {
-                info!("Bad request: {}", &err);
-                let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);
-                // create custom error response
-                let response = HttpResponse::with_body(StatusCode::BAD_REQUEST, body.boxed());
-                InternalError::from_response(err, response).into()
-            });
-    config
-        .app_data(json_config)
-        .service(
-            web::scope("/api/v0")
-                .wrap(RequestSpan)
-                .configure(controllers::configure_controllers),
-        )
-        // Not using Data::new for file_store to avoid double wrapping it in a arc
-        .app_data(Data::from(file_store))
-        .app_data(Data::new(app_conf))
-        .app_data(Data::new(jwt_key));
-}
+pub type OAuthClient = BasicClient;
 
 /**
 Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level
@@ -89,6 +56,27 @@ pub fn setup_tracing() -> Result<()> {
     tracing::subscriber::set_global_default(subscriber)?;
     LogTracer::init()?;
     Ok(())
+}
+
+/**
+Setups file store so that it can be passed to actix web as data.
+Using Arc here so that this can be accessed from all the different worker threads.
+*/
+pub fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
+    if env::var("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE").is_ok() {
+        info!("Using Google Cloud Storage as the file store");
+        let bucket_name = env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME").expect("env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.");
+        Arc::new(GoogleCloudFileStore::new(bucket_name).expect("Failed to initialize file store"))
+    } else {
+        info!("Using local file storage as the file store");
+        Arc::new(
+            LocalFileStore::new(
+                "uploads".into(),
+                "http://project-331.local/api/v0/files/uploads/".into(),
+            )
+            .expect("Failed to initialize file store"),
+        )
+    }
 }
 
 /// Includes the type's JSON example and/or TypeScript definition

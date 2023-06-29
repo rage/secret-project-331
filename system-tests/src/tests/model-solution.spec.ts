@@ -28,8 +28,8 @@ test.describe("Model solutions", () => {
     await page.locator("text=Exercises").click()
     await page.locator("text=Best exercise").first().click()
     await page.locator(`text="Submission time"`).waitFor()
+    await page.click("td > a")
 
-    await page.click('a:has-text("link")')
     await expectUrlPathWithRandomUuid(page, "/submissions/[id]")
 
     // Wait for the frame to be visible

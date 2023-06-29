@@ -7,6 +7,7 @@ pub mod course_instances;
 pub mod csv_export;
 pub mod error;
 pub mod exercise_repositories;
+pub mod exercises;
 pub mod langs;
 pub mod models_requests;
 pub mod rate_limit_middleware_builder;

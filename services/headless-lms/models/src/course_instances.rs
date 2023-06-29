@@ -490,19 +490,36 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     Ok(course_instances)
 }
 
+pub struct CourseInstanceWithCourseInfo {
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_description: Option<String>,
+    pub course_instance_id: Uuid,
+    pub course_instance_name: Option<String>,
+    pub course_instance_description: Option<String>,
+}
+
 pub async fn get_enrolled_course_instances_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
-) -> ModelResult<Vec<CourseInstance>> {
+) -> ModelResult<Vec<CourseInstanceWithCourseInfo>> {
     let course_instances = sqlx::query_as!(
-        CourseInstance,
+        CourseInstanceWithCourseInfo,
         r#"
-SELECT ci.*
+SELECT
+    c.id AS course_id,
+    c.name AS course_name,
+    c.description AS course_description,
+    ci.id AS course_instance_id,
+    ci.name AS course_instance_name,
+    ci.description AS course_instance_description
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
+  LEFT JOIN courses AS c ON ci.course_id = c.id
 WHERE cie.user_id = $1
   AND ci.deleted_at IS NULL
   AND cie.deleted_at IS NULL
+  AND c.deleted_at IS NULL
 "#,
         user_id
     )

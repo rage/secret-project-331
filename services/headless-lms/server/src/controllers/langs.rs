@@ -1,6 +1,7 @@
 use crate::domain::langs::{convert::Convert, token::AuthToken};
-use crate::domain::models_requests;
+use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
+use bytes::Bytes;
 use models::user_exercise_states::CourseInstanceOrExamId;
 use mooc_langs_api as api;
 
@@ -96,8 +97,52 @@ async fn exercise(
     }))
 }
 
+/**
+ * GET /api/v0/langs/exercises/:id/download
+ *
+ * Downloads an exercise.
+ */
+#[instrument(skip(pool))]
+async fn download_exercise(
+    pool: web::Data<PgPool>,
+    user: AuthToken,
+    exercise_id: web::Path<Uuid>,
+) -> ControllerResult<Bytes> {
+    todo!()
+}
+
+async fn submit(
+    pool: web::Data<PgPool>,
+    jwt_key: web::Data<JwtKey>,
+    exercise_id: web::Path<Uuid>,
+    submission: web::Json<api::ExerciseSlideSubmission>,
+    user: AuthToken,
+) -> ControllerResult<web::Json<api::ExerciseSlideSubmissionResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let result = domain::exercises::process_submission(
+        &mut conn,
+        user.id,
+        exercise,
+        submission.into_inner().convert(),
+        jwt_key.into_inner(),
+    )
+    .await?;
+    token.authorized_ok(web::Json(result.convert()))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/course-instances", web::get().to(course_instances))
         .route("/courses/{id}/exercises", web::get().to(course_exercises))
-        .route("/exercises/{id}", web::get().to(exercise));
+        .route("/exercises/{id}", web::get().to(exercise))
+        .route("/exercises/{id}/download", web::get().to(download_exercise))
+        .route("/exercises/{id}", web::post().to(submit));
 }

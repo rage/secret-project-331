@@ -13,14 +13,18 @@ pub type Token =
 pub struct CourseInstance {
     pub id: Uuid,
     pub course_id: Uuid,
-    pub name: Option<String>,
-    pub description: Option<String>,
+    pub course_name: String,
+    pub course_description: Option<String>,
+    pub instance_name: Option<String>,
+    pub instance_description: Option<String>,
+    pub default_instance: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exercise {
     pub id: Uuid,
     pub name: String,
+    pub order_number: i32,
     pub deadline: Option<DateTime<Utc>>,
 }
 
@@ -36,3 +40,18 @@ pub struct ExerciseSlide {
 pub struct ExerciseTask {
     pub id: Uuid,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExerciseSlideSubmission {
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_submissions: Vec<ExerciseTaskSubmission>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExerciseTaskSubmission {
+    pub exercise_task_id: Uuid,
+    pub data_json: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExerciseSlideSubmissionResult {}

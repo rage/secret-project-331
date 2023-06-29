@@ -69,6 +69,8 @@ import {
 import {
   isArray,
   isNull,
+  isNumber,
+  isObjectMap,
   isString,
   isUnion,
   validateResponse,
@@ -464,20 +466,27 @@ export const postStudentCountry = async (
   )
 }
 
-export const fetchStudentCountry = async (course_id: string): Promise<StudentCountry> => {
-  const response = await courseMaterialClient.get(`/courses/${course_id}/student-country`, {
-    responseType: "json",
-  })
+export const fetchStudentCountry = async (course_instance_id: string): Promise<StudentCountry> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_instance_id}/student-country`,
+    {
+      responseType: "json",
+    },
+  )
   return validateResponse(response, isStudentCountry)
 }
 
 export const fetchStudentCountries = async (
   course_id: string,
-): Promise<Array<{ [key: string]: number }>> => {
-  const response = await courseMaterialClient.get(`/courses/${course_id}/student-countries`, {
-    responseType: "json",
-  })
-  return response.data
+  course_instance_id: string,
+): Promise<{ [key: string]: number }> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/course-instances/${course_instance_id}/student-countries`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isObjectMap(isNumber))
 }
 
 export const fetchPageByCourseIdAndLanguageGroupId = async (

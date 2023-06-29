@@ -60,10 +60,15 @@ export interface MapExtraProps {
   content?: string
 }
 
+interface CountryCountPair {
+  code: string
+  count: number
+}
+
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
-  let countryCodes: string[] = useMemo(() => [".fi", ".us"], [])
+  let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
   const { t } = useTranslation()
 
   const pageState = useContext(PageContext)
@@ -74,20 +79,19 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const userId = userInfo.data?.user_id
 
   // change to nullish hook
-  const getCountries = useQuery(
-    [`course-${courseId}-countries`],
-    () => {
-      return fetchStudentCountries(assertNotNullOrUndefined(courseId))
-    },
-    { enabled: !!courseId },
-  )
+  const getCountries = useQuery([`course-${courseId}-countries`], () => {
+    return fetchStudentCountries(
+      assertNotNullOrUndefined(courseId),
+      assertNotNullOrUndefined(courseInstanceId),
+    )
+  })
 
   const getCountry = useQuery(
-    [`course-${courseId}-country`],
+    [`course-${courseInstanceId}-country`],
     () => {
-      return fetchStudentCountry(assertNotNullOrUndefined(courseId))
+      return fetchStudentCountry(assertNotNullOrUndefined(courseInstanceId))
     },
-    { enabled: !!courseId },
+    { enabled: !!courseInstanceId },
   )
 
   const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
@@ -149,7 +153,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     getMap()
 
     const eventHandler = (evt: Event) => {
-      const formattedIdentifier = countryCodes.map((str) => str.substring(1))
+      const formattedIdentifier = countryCodeCount.map((obj) => obj.code.substring(1))
 
       let svgElement = null
       if (evt.target instanceof Element) {
@@ -178,8 +182,12 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
           (country) => country.value === formattedSelectedCountryCode,
         )?.label
 
+        const count = countryCodeCount.find(
+          (country) => country.code === `.${selectedCountryCode}`,
+        )?.count
+
         if (evt.type === "mouseover") {
-          svgElement.innerHTML = `<title style=''>${text}</title>`
+          svgElement.innerHTML = `<title style=''>${text} - ${count} student</title>`
         } else if (evt.type === "mouseout") {
           svgElement.innerHTML = ""
         }
@@ -201,7 +209,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
         }
       })
     }
-  }, [countryCodes, map])
+  }, [countryCodeCount, map])
 
   const handleCountryChange = (event: React.ChangeEvent<HTMLFormElement>) => {
     if (!event.currentTarget.country) {
@@ -214,7 +222,8 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
   let studentCountryAdded = false
   let formattedCountryCodes
-  let activeStudentCountry
+  let activeStudentCountry = ""
+  let countryTableData
 
   if (getCountry.isSuccess && getCountry.data) {
     studentCountryAdded = getCountry.data.user_id === userId
@@ -222,10 +231,28 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   }
 
   if (getCountries.isSuccess && getCountries.data.length !== 0 && activeStudentCountry) {
-    console.log("getCountries", getCountries.data)
-    const storedCountryCodes = Object.entries(getCountries.data).map(([key, value]) => `.${key}`)
-    countryCodes = [...countryCodes, ...new Set(storedCountryCodes)]
-    formattedCountryCodes = countryCodes.join(",")
+    const storedCountryCodes = Object.entries(getCountries.data).map(([key, value]) => ({
+      code: `.${key}`,
+      count: value,
+    }))
+
+    countryCodeCount = [...countryCodeCount, ...new Set(storedCountryCodes)]
+
+    const codes = countryCodeCount.map((item) => item.code)
+    formattedCountryCodes = codes.join(",")
+
+    countryTableData = [...countryCodeCount].sort((a, b) => b.count - a.count).slice(0, 6)
+
+    const userCountryCodeCount = countryCodeCount.find(
+      (item) => item.code === `.${activeStudentCountry}`,
+    )
+    const isFoundInSortedArray = countryTableData.find(
+      (country) => country.code === `.${activeStudentCountry}`,
+    )
+
+    if (!isFoundInSortedArray && userCountryCodeCount) {
+      countryTableData = [...countryTableData, userCountryCodeCount]
+    }
   }
 
   return (
@@ -307,15 +334,18 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
             text-align: left;
 
             th {
-              color: ${baseTheme.colors.gray[300]};
+              color: ${baseTheme.colors.gray[500]};
               border-bottom: 2px solid ${baseTheme.colors.gray[100]};
               padding: 0.4rem 0;
+              font-weight: 600;
+              font-size: 18px;
             }
 
             td {
               color: ${baseTheme.colors.gray[400]};
               border-bottom: 2px solid ${baseTheme.colors.gray[100]};
               padding: 0.4rem 0;
+              font-size: 18px;
             }
           `}
         >
@@ -323,16 +353,17 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
             <th>{t("popular-regions")}</th>
             <th>{t("number-of-student")}</th>
           </tr>
-          {countryCodes.map((code) => {
-            const formattedCode = code.replace(/\./g, "").toUpperCase()
-            const country = countryList.find((c) => c.value === formattedCode)?.label
-            return (
-              <tr key={code}>
-                <td>{country}</td>
-                <td>20</td>
-              </tr>
-            )
-          })}
+          {countryTableData &&
+            countryTableData.map(({ code, count }) => {
+              const formattedCode = code.replace(/\./g, "").toUpperCase()
+              const country = countryList.find((c) => c.value === formattedCode)?.label
+              return (
+                <tr key={code}>
+                  <td>{country}</td>
+                  <td>{count}</td>
+                </tr>
+              )
+            })}
         </table>
       )}
     </Fragment>

@@ -699,6 +699,7 @@ GET `/api/v0/{course_id}/student-countries - Returns countries of student regist
 #[instrument(skip(pool))]
 async fn get_student_countries(
     course_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<HashMap<String, u32>>> {
@@ -706,7 +707,7 @@ async fn get_student_countries(
     let token = skip_authorize();
 
     let country_codes: Vec<String> =
-        models::student_countries::get_countries(&mut conn, *course_id)
+        models::student_countries::get_countries(&mut conn, *course_id, course_instance_id)
             .await?
             .into_iter()
             .map(|c| (c.country_code))
@@ -726,12 +727,14 @@ GET `/api/v0/{course_id}/student-country - Returns country of a student register
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_student_country(
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<StudentCountry>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let res = models::student_countries::get_country_by_id(&mut conn, user.id).await?;
+    let res = models::student_countries::get_country_by_id(&mut conn, user.id, *course_instance_id)
+        .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -795,11 +798,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(student_country),
         )
         .route(
-            "/{course_id}/student-country",
+            "/{course_instance_id}/student-country",
             web::get().to(get_student_country),
         )
         .route(
-            "/{course_id}/student-countries",
+            "/{course_id}/course-instances/{course_instance_id}/student-countries",
             web::get().to(get_student_countries),
         );
 }

@@ -353,17 +353,16 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
             <th>{t("popular-regions")}</th>
             <th>{t("number-of-student")}</th>
           </tr>
-          {countryTableData &&
-            countryTableData.map(({ code, count }) => {
-              const formattedCode = code.replace(/\./g, "").toUpperCase()
-              const country = countryList.find((c) => c.value === formattedCode)?.label
-              return (
-                <tr key={code}>
-                  <td>{country}</td>
-                  <td>{count}</td>
-                </tr>
-              )
-            })}
+          {countryTableData?.map(({ code, count }) => {
+            const formattedCode = code.replace(/\./g, "").toUpperCase()
+            const country = countryList.find((c) => c.value === formattedCode)?.label
+            return (
+              <tr key={code}>
+                <td>{country}</td>
+                <td>{count}</td>
+              </tr>
+            )
+          })}
         </table>
       )}
     </Fragment>

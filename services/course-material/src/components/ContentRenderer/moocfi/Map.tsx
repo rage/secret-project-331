@@ -89,12 +89,15 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id
 
-  const getCountries = useQuery([`course-${courseId}-countries`], () => {
-    return fetchStudentCountries(
-      assertNotNullOrUndefined(courseId),
-      assertNotNullOrUndefined(courseInstanceId),
-    )
-  })
+  const getCountries = useQuery(
+    [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
+    () => {
+      return fetchStudentCountries(
+        assertNotNullOrUndefined(courseId),
+        assertNotNullOrUndefined(courseInstanceId),
+      )
+    },
+  )
 
   const getCountry = useQuery(
     [`course-${courseInstanceId}-country`],

@@ -20,8 +20,6 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "management-page",
-    // The link has a visible name
-    axeSkip: ["link-name"],
   })
 
   // create certificate with cancel and confirm on save
@@ -88,8 +86,6 @@ test("test", async ({ page, headless }, testInfo) => {
     // wait for the Cancel button to be visible to ensure the form has rendered completely
     waitForTheseToBeVisibleAndStable: [page.locator("text=Cancel")],
     clearNotifications: true,
-    // The link has a visible name
-    axeSkip: ["link-name"],
   })
   await page
     .getByRole("listitem")

@@ -12,6 +12,7 @@ import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import FileField from "../../../../shared-module/components/InputFields/FileField"
 import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
+import MaskOverThisInSystemTests from "../../../../shared-module/components/system-tests/MaskOverThisInSystemTests"
 import { baseTheme } from "../../../../shared-module/styles"
 
 interface Props {
@@ -109,36 +110,38 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
         label="Paper size"
         {...register("paperSize")}
       />
-      <FileField
-        id={"backgroundSvg"}
-        error={errors.backgroundSvg}
-        label={
-          configuration
-            ? `Background SVG (currently ${configuration.background_svg_path})`
-            : `Background SVG`
-        }
-        {...register(
-          "backgroundSvg",
-          // required if configuration does not exist yet
-          configuration ? undefined : { required: t("required-field") },
-        )}
-        // required for new configurations
-        required={configuration === null}
-        accept={".svg"}
-      />
-      <FileField
-        id={"overlaySvg"}
-        error={errors.overlaySvg}
-        label={
-          configuration
-            ? configuration.overlay_svg_path
-              ? `Overlay SVG (currently ${configuration.overlay_svg_path})`
-              : "Overlay SVG (optional, currently not set)"
-            : "Overlay SVG"
-        }
-        {...register("overlaySvg")}
-        accept={".svg"}
-      />
+      <MaskOverThisInSystemTests>
+        <FileField
+          id={"backgroundSvg"}
+          error={errors.backgroundSvg}
+          label={
+            configuration
+              ? `Background SVG (currently ${configuration.background_svg_path})`
+              : `Background SVG`
+          }
+          {...register(
+            "backgroundSvg",
+            // required if configuration does not exist yet
+            configuration ? undefined : { required: t("required-field") },
+          )}
+          // required for new configurations
+          required={configuration === null}
+          accept={".svg"}
+        />
+        <FileField
+          id={"overlaySvg"}
+          error={errors.overlaySvg}
+          label={
+            configuration
+              ? configuration.overlay_svg_path
+                ? `Overlay SVG (currently ${configuration.overlay_svg_path})`
+                : "Overlay SVG (optional, currently not set)"
+              : "Overlay SVG"
+          }
+          {...register("overlaySvg")}
+          accept={".svg"}
+        />
+      </MaskOverThisInSystemTests>
       <CheckBox
         id={"clearCurrentOverlaySvg"}
         label={"Delete current overlay SVG"}

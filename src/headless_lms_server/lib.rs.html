@@ -114,18 +114,6 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 The server that handles the requests.
 
@@ -135,7 +123,8 @@ The server that handles the requests.
 * [headless_lms_models]
 */
 
-</span><span class="kw">pub mod </span>controllers;
+</span><span class="kw">pub mod </span>config;
+<span class="kw">pub mod </span>controllers;
 <span class="kw">pub mod </span>domain;
 <span class="kw">pub mod </span>prelude;
 
@@ -151,51 +140,17 @@ The server that handles the requests.
 <span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>doc_macro;
 
-<span class="kw">use </span>actix_http::{body::MessageBody, StatusCode};
-<span class="kw">use </span>actix_web::{
-    error::InternalError,
-    web::{<span class="self">self</span>, Data, ServiceConfig},
-    HttpResponse,
-};
 <span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span>domain::{models_requests::JwtKey, request_span_middleware::RequestSpan};
-<span class="kw">use </span>headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
+<span class="kw">use </span>headless_lms_utils::file_store::{
+    google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
+};
 <span class="kw">use </span>oauth2::basic::BasicClient;
-<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::{env, sync::Arc};
 <span class="kw">use </span>tracing_error::ErrorLayer;
 <span class="kw">use </span>tracing_log::LogTracer;
 <span class="kw">use </span>tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
-<span class="kw">pub type </span>OAuthClient = Arc&lt;BasicClient&gt;;
-
-<span class="kw">pub fn </span>configure(
-    config: <span class="kw-2">&amp;mut </span>ServiceConfig,
-    file_store: Arc&lt;<span class="kw">dyn </span>FileStore&gt;,
-    app_conf: ApplicationConfiguration,
-    jwt_key: JwtKey,
-) {
-    <span class="kw">let </span>json_config =
-        web::JsonConfig::default()
-            .limit(<span class="number">1048576</span>)
-            .error_handler(|err, _req| -&gt; actix_web::Error {
-                <span class="macro">info!</span>(<span class="string">&quot;Bad request: {}&quot;</span>, <span class="kw-2">&amp;</span>err);
-                <span class="kw">let </span>body = <span class="macro">format!</span>(<span class="string">&quot;{{\&quot;title\&quot;: \&quot;Bad Request\&quot;, \&quot;message\&quot;: \&quot;{}\&quot;}}&quot;</span>, <span class="kw-2">&amp;</span>err);
-                <span class="comment">// create custom error response
-                </span><span class="kw">let </span>response = HttpResponse::with_body(StatusCode::BAD_REQUEST, body.boxed());
-                InternalError::from_response(err, response).into()
-            });
-    config
-        .app_data(json_config)
-        .service(
-            web::scope(<span class="string">&quot;/api/v0&quot;</span>)
-                .wrap(RequestSpan)
-                .configure(controllers::configure_controllers),
-        )
-        <span class="comment">// Not using Data::new for file_store to avoid double wrapping it in a arc
-        </span>.app_data(Data::from(file_store))
-        .app_data(Data::new(app_conf))
-        .app_data(Data::new(jwt_key));
-}
+<span class="kw">pub type </span>OAuthClient = BasicClient;
 
 <span class="doccomment">/**
 Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level
@@ -217,6 +172,27 @@ env::set_var(&quot;RUST_LOG&quot;, &quot;info,actix_web=info,sqlx=warn&quot;);
     tracing::subscriber::set_global_default(subscriber)<span class="question-mark">?</span>;
     LogTracer::init()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="doccomment">/**
+Setups file store so that it can be passed to actix web as data.
+Using Arc here so that this can be accessed from all the different worker threads.
+*/
+</span><span class="kw">pub fn </span>setup_file_store() -&gt; Arc&lt;<span class="kw">dyn </span>FileStore + Send + Sync&gt; {
+    <span class="kw">if </span>env::var(<span class="string">&quot;FILE_STORE_USE_GOOGLE_CLOUD_STORAGE&quot;</span>).is_ok() {
+        <span class="macro">info!</span>(<span class="string">&quot;Using Google Cloud Storage as the file store&quot;</span>);
+        <span class="kw">let </span>bucket_name = env::var(<span class="string">&quot;GOOGLE_CLOUD_STORAGE_BUCKET_NAME&quot;</span>).expect(<span class="string">&quot;env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.&quot;</span>);
+        Arc::new(GoogleCloudFileStore::new(bucket_name).expect(<span class="string">&quot;Failed to initialize file store&quot;</span>))
+    } <span class="kw">else </span>{
+        <span class="macro">info!</span>(<span class="string">&quot;Using local file storage as the file store&quot;</span>);
+        Arc::new(
+            LocalFileStore::new(
+                <span class="string">&quot;uploads&quot;</span>.into(),
+                <span class="string">&quot;http://project-331.local/api/v0/files/uploads/&quot;</span>.into(),
+            )
+            .expect(<span class="string">&quot;Failed to initialize file store&quot;</span>),
+        )
+    }
 }
 
 <span class="doccomment">/// Includes the type&#39;s JSON example and/or TypeScript definition

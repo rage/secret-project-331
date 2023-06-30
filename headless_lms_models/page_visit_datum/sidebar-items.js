@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["insert","unknown_is_none"],"struct":["NewPageVisitDatum","Record"]};
+window.SIDEBAR_ITEMS = {"fn":["get_oldest_date","insert","unknown_is_none"],"struct":["NewPageVisitDatum","Record"]};

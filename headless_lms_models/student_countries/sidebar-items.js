@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["delete_student_country","get_countries","insert"],"struct":["StudentCountry"]};

@@ -753,6 +753,7 @@
 <a href="#753" id="753">753</a>
 <a href="#754" id="754">754</a>
 <a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::NaiveDate;
@@ -1194,6 +1195,7 @@ SELECT id,
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
+ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
         &quot;#</span>,
         exercise_id,

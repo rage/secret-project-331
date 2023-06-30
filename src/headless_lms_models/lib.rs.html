@@ -295,6 +295,12 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Functions and structs for interacting with the database.
 
@@ -345,6 +351,10 @@ Each submodule corresponds to a database table.
 <span class="kw">pub mod </span>page_language_groups;
 <span class="kw">pub mod </span>page_visit_datum;
 <span class="kw">pub mod </span>page_visit_datum_daily_visit_hashing_keys;
+<span class="kw">pub mod </span>page_visit_datum_summary_by_courses;
+<span class="kw">pub mod </span>page_visit_datum_summary_by_courses_countries;
+<span class="kw">pub mod </span>page_visit_datum_summary_by_courses_device_types;
+<span class="kw">pub mod </span>page_visit_datum_summary_by_pages;
 <span class="kw">pub mod </span>pages;
 <span class="kw">pub mod </span>peer_review_configs;
 <span class="kw">pub mod </span>peer_review_question_submissions;
@@ -358,6 +368,7 @@ Each submodule corresponds to a database table.
 <span class="kw">pub mod </span>regradings;
 <span class="kw">pub mod </span>repository_exercises;
 <span class="kw">pub mod </span>roles;
+<span class="kw">pub mod </span>student_countries;
 <span class="kw">pub mod </span>study_registry_registrars;
 <span class="kw">pub mod </span>teacher_grading_decisions;
 <span class="kw">pub mod </span>url_redirections;
@@ -370,6 +381,7 @@ Each submodule corresponds to a database table.
 <span class="kw">pub mod </span>users;
 
 <span class="kw">pub mod </span>error;
+
 <span class="kw">pub mod </span>prelude;
 <span class="attr">#[cfg(test)]
 </span><span class="kw">pub mod </span>test_helper;

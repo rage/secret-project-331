@@ -82,86 +82,10 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc};
-
-<span class="kw">use crate</span>::{domain::models_requests::JwtKey, setup_tracing, OAuthClient};
+</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
+    config::{<span class="self">self</span>, ServerConfigBuilder},
+    setup_tracing,
+};
 <span class="kw">use </span>actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
@@ -170,23 +94,11 @@
 <span class="kw">use </span>actix_web::{
     cookie::{Key, SameSite},
     middleware::Logger,
-    web::Data,
     App, HttpServer,
 };
 <span class="kw">use </span>dotenv::dotenv;
-<span class="kw">use </span>headless_lms_utils::{
-    cache::Cache,
-    file_store::{
-        google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
-    },
-    icu4x::Icu4xBlob,
-    ip_to_country::IpToCountryMapper,
-    ApplicationConfiguration,
-};
 <span class="kw">use </span>listenfd::ListenFd;
-<span class="kw">use </span>oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
-<span class="kw">use </span>sqlx::postgres::PgPoolOptions;
-<span class="kw">use </span>url::Url;
+<span class="kw">use </span>std::env;
 
 <span class="doccomment">/// The entrypoint to the server.
 </span><span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
@@ -194,67 +106,25 @@
     setup_tracing()<span class="question-mark">?</span>;
 
     <span class="comment">// read environment variables
-    </span><span class="kw">let </span>database_url = env::var(<span class="string">&quot;DATABASE_URL&quot;</span>)
-        .unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.to_string());
-    <span class="kw">let </span>redis_url = env::var(<span class="string">&quot;REDIS_URL&quot;</span>).expect(<span class="string">&quot;REDIS_URL must be defined&quot;</span>);
-    <span class="kw">let </span>oauth_application_id =
-        env::var(<span class="string">&quot;OAUTH_APPLICATION_ID&quot;</span>).expect(<span class="string">&quot;OAUTH_APPLICATION_ID must be defined&quot;</span>);
-    <span class="kw">let </span>oauth_secret = env::var(<span class="string">&quot;OAUTH_SECRET&quot;</span>).expect(<span class="string">&quot;OAUTH_SECRET must be defined&quot;</span>);
-    <span class="kw">let </span>private_cookie_key =
+    </span><span class="kw">let </span>private_cookie_key =
         env::var(<span class="string">&quot;PRIVATE_COOKIE_KEY&quot;</span>).expect(<span class="string">&quot;PRIVATE_COOKIE_KEY must be defined&quot;</span>);
-    <span class="kw">let </span>base_url = env::var(<span class="string">&quot;BASE_URL&quot;</span>).expect(<span class="string">&quot;BASE_URL must be defined&quot;</span>);
     <span class="kw">let </span>test_mode = env::var(<span class="string">&quot;TEST_MODE&quot;</span>).is_ok();
     <span class="kw">let </span>allow_no_https_for_development = env::var(<span class="string">&quot;ALLOW_NO_HTTPS_FOR_DEVELOPMENT&quot;</span>).is_ok();
-    <span class="kw">let </span>jwt_key = JwtKey::try_from_env().expect(<span class="string">&quot;Failed to create JwtKey&quot;</span>);
-    <span class="kw">let </span>icu4x_blob = Data::new(Icu4xBlob::try_from_env().expect(<span class="string">&quot;Failed to create Icu4xBlob&quot;</span>));
 
     <span class="kw">if </span>test_mode {
         <span class="macro">info!</span>(<span class="string">&quot;***********************************&quot;</span>);
         <span class="macro">info!</span>(<span class="string">&quot;*  Starting backend in test mode  *&quot;</span>);
         <span class="macro">info!</span>(<span class="string">&quot;***********************************&quot;</span>);
     }
-    <span class="kw">let </span>development_uuid_login = env::var(<span class="string">&quot;DEVELOPMENT_UUID_LOGIN&quot;</span>).is_ok();
-
-    <span class="comment">// this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
-    </span><span class="kw">let </span><span class="kw-2">mut </span>listenfd = ListenFd::from_env();
-
-    <span class="kw">let </span>db_pool = PgPoolOptions::new()
-        .max_connections(<span class="number">15</span>)
-        .min_connections(<span class="number">5</span>)
-        .connect(<span class="kw-2">&amp;</span>database_url)
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>auth_url: Url = <span class="string">&quot;https://tmc.mooc.fi/oauth/token&quot;
-        </span>.parse()
-        .expect(<span class="string">&quot;known to work&quot;</span>);
-
-    <span class="kw">let </span>oauth_client: OAuthClient = Arc::new(BasicClient::new(
-        ClientId::new(oauth_application_id),
-        <span class="prelude-val">Some</span>(ClientSecret::new(oauth_secret)),
-        AuthUrl::from_url(auth_url.clone()),
-        <span class="prelude-val">Some</span>(TokenUrl::from_url(auth_url)),
-    ));
-
-    <span class="kw">let </span>db_clone = db_pool.clone();
-
-    <span class="kw">let </span>ip_to_country_mapper =
-        Data::new(IpToCountryMapper::new().expect(<span class="string">&quot;Could not load ip to country mapper&quot;</span>));
-    <span class="kw">let </span>file_store = setup_file_store();
-    <span class="kw">let </span>cache = Cache::new(<span class="kw-2">&amp;</span>redis_url).<span class="kw">await</span>;
-    <span class="kw">let </span>cache = Data::new(cache);
-
+    <span class="kw">let </span>server_config = ServerConfigBuilder::try_from_env()
+        .expect(<span class="string">&quot;Failed to create server config builder&quot;</span>)
+        .build()
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;Failed to create server config&quot;</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>server = HttpServer::new(<span class="kw">move </span>|| {
-        <span class="kw">let </span>app_conf = ApplicationConfiguration {
-            base_url: base_url.clone(),
-            test_mode,
-            development_uuid_login,
-        };
-        <span class="kw">let </span>file_store = file_store.clone();
-        <span class="kw">let </span>jwt_key = jwt_key.clone();
+        <span class="kw">let </span>server_config = server_config.clone();
         App::new()
-            .configure(<span class="kw">move </span>|config| {
-                <span class="kw">crate</span>::configure(config, file_store.clone(), app_conf, jwt_key)
-            })
+            .configure(<span class="kw">move </span>|config| config::configure(config, server_config))
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
@@ -276,13 +146,10 @@
             .wrap(Logger::new(
                 <span class="string">&quot;Completed %r %s %b bytes - %D ms, request_id=%{request-id}o&quot;</span>,
             ))
-            .app_data(Data::new(db_clone.clone()))
-            .app_data(Data::new(oauth_client.clone()))
-            .app_data(icu4x_blob.clone())
-            .app_data(ip_to_country_mapper.clone())
-            .app_data(cache.clone())
     });
 
+    <span class="comment">// this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
+    </span><span class="kw">let </span><span class="kw-2">mut </span>listenfd = ListenFd::from_env();
     server = <span class="kw">match </span>listenfd.take_tcp_listener(<span class="number">0</span>)<span class="question-mark">? </span>{
         <span class="prelude-val">Some</span>(listener) =&gt; server.listen(listener)<span class="question-mark">?</span>,
         <span class="prelude-val">None </span>=&gt; {
@@ -298,26 +165,5 @@
     server.run().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
-}
-
-<span class="doccomment">/**
-Setups file store so that it can be passed to actix web as data.
-Using Arc here so that this can be accessed from all the different worker threads.
-*/
-</span><span class="kw">fn </span>setup_file_store() -&gt; Arc&lt;<span class="kw">dyn </span>FileStore + Send + Sync&gt; {
-    <span class="kw">if </span>env::var(<span class="string">&quot;FILE_STORE_USE_GOOGLE_CLOUD_STORAGE&quot;</span>).is_ok() {
-        <span class="macro">info!</span>(<span class="string">&quot;Using Google Cloud Storage as the file store&quot;</span>);
-        <span class="kw">let </span>bucket_name = env::var(<span class="string">&quot;GOOGLE_CLOUD_STORAGE_BUCKET_NAME&quot;</span>).expect(<span class="string">&quot;env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.&quot;</span>);
-        Arc::new(GoogleCloudFileStore::new(bucket_name).expect(<span class="string">&quot;Failed to initialize file store&quot;</span>))
-    } <span class="kw">else </span>{
-        <span class="macro">info!</span>(<span class="string">&quot;Using local file storage as the file store&quot;</span>);
-        Arc::new(
-            LocalFileStore::new(
-                <span class="string">&quot;uploads&quot;</span>.into(),
-                <span class="string">&quot;http://project-331.local/api/v0/files/uploads/&quot;</span>.into(),
-            )
-            .expect(<span class="string">&quot;Failed to initialize file store&quot;</span>),
-        )
-    }
 }
 </code></pre></div></section></main></body></html>

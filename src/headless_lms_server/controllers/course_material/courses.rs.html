@@ -719,11 +719,109 @@
 <a href="#719" id="719">719</a>
 <a href="#720" id="720">720</a>
 <a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
 
 <span class="kw">use </span>actix_http::header;
+<span class="kw">use </span>actix_web::web::Json;
 <span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>futures::{future::OptionFuture, FutureExt};
 <span class="kw">use </span>headless_lms_utils::ip_to_country::IpToCountryMapper;
@@ -744,6 +842,7 @@
     },
     pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{<span class="self">self</span>, NewProposedPageEdits},
+    student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
 
@@ -829,7 +928,11 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     <span class="kw">let </span>RequestInformation {
         ip,
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         user_agent,
         has_bot_user_agent,
@@ -868,7 +971,11 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
             device_type,
             referrer,
             is_bot: has_bot_user_agent || browser_admits_its_a_bot,
-            utm_tags,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_term,
+            utm_content,
             anonymous_identifier,
             exam_id: page_with_user_data.page.exam_id,
         },
@@ -882,7 +989,11 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     ip: <span class="prelude-ty">Option</span>&lt;IpAddr&gt;,
     user_agent: String,
     referrer: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    utm_tags: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    utm_source: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    utm_medium: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    utm_campaign: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    utm_term: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    utm_content: <span class="prelude-ty">Option</span>&lt;String&gt;,
     country: <span class="prelude-ty">Option</span>&lt;String&gt;,
     has_bot_user_agent: bool,
     browser_admits_its_a_bot: bool,
@@ -898,8 +1009,9 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     req: HttpRequest,
     ip_to_country_mapper: web::Data&lt;IpToCountryMapper&gt;,
 ) -&gt; ControllerResult&lt;RequestInformation&gt; {
-    <span class="kw">let </span>headers = req.headers();
-    <span class="kw">let </span>user_agent = headers.get(header::USER_AGENT);
+    <span class="kw">let </span><span class="kw-2">mut </span>headers = req.headers().clone();
+    <span class="kw">let </span>headers_clone = headers.clone();
+    <span class="kw">let </span>user_agent = headers_clone.get(header::USER_AGENT);
     <span class="kw">let </span>bots = Bots::default();
     <span class="kw">let </span>has_bot_user_agent = user_agent
         .and_then(|ua| ua.to_str().ok())
@@ -933,9 +1045,36 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
         .map(|c| c.to_string());
 
     <span class="kw">let </span>utm_tags = headers
-        .get(<span class="string">&quot;utm-tags&quot;</span>)
-        .and_then(|utms| utms.to_str().ok())
-        .and_then(|utms| serde_json::to_value(utms).ok());
+        .remove(<span class="string">&quot;utm-tags&quot;</span>)
+        .next()
+        .and_then(|utms| String::from_utf8(utms.as_bytes().to_vec()).ok())
+        .and_then(|utms| serde_json::from_str::&lt;serde_json::Value&gt;(<span class="kw-2">&amp;</span>utms).ok())
+        .and_then(|o| o.as_object().cloned());
+
+    <span class="kw">let </span>utm_source = utm_tags
+        .clone()
+        .and_then(|<span class="kw-2">mut </span>tags| tags.remove(<span class="string">&quot;utm_source&quot;</span>))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    <span class="kw">let </span>utm_medium = utm_tags
+        .clone()
+        .and_then(|<span class="kw-2">mut </span>tags| tags.remove(<span class="string">&quot;utm_medium&quot;</span>))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    <span class="kw">let </span>utm_campaign = utm_tags
+        .clone()
+        .and_then(|<span class="kw-2">mut </span>tags| tags.remove(<span class="string">&quot;utm_campaign&quot;</span>))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    <span class="kw">let </span>utm_term = utm_tags
+        .clone()
+        .and_then(|<span class="kw-2">mut </span>tags| tags.remove(<span class="string">&quot;utm_term&quot;</span>))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    <span class="kw">let </span>utm_content = utm_tags
+        .and_then(|<span class="kw-2">mut </span>tags| tags.remove(<span class="string">&quot;utm_content&quot;</span>))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
     <span class="kw">let </span>referrer = headers
         .get(<span class="string">&quot;Orignal-Referrer&quot;</span>)
         .and_then(|r| r.to_str().ok())
@@ -956,7 +1095,11 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
             .unwrap_or_default()
             .to_string(),
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         has_bot_user_agent,
         browser_admits_its_a_bot,
@@ -1386,6 +1529,49 @@ GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - R
 }
 
 <span class="doccomment">/**
+POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student&#39;s country entry.
+*/
+</span><span class="attr">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>student_country(
+    query: web::Path&lt;(Uuid, Uuid, String)&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(course_id, course_instance_id, country_code) = query.into_inner();
+
+    models::student_countries::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        user.id,
+        course_id,
+        course_instance_id,
+        <span class="kw-2">&amp;</span>country_code,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
+
+    token.authorized_ok(Json(<span class="bool-val">true</span>))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/{course_id}/student-countries - Returns countries of student registered in a course.
+ */
+</span><span class="attr">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_student_countries(
+    course_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;StudentCountry&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
+    <span class="kw">let </span>res = models::student_countries::get_countries(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1438,6 +1624,14 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">&quot;/{course_id}/pages/by-language-group-id/{page_language_group_id}&quot;</span>,
             web::get().to(get_page_by_course_id_and_language_group),
         )
-        .route(<span class="string">&quot;/{course_id}/pages&quot;</span>, web::get().to(get_public_course_pages));
+        .route(<span class="string">&quot;/{course_id}/pages&quot;</span>, web::get().to(get_public_course_pages))
+        .route(
+            <span class="string">&quot;/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}&quot;</span>,
+            web::post().to(student_country),
+        )
+        .route(
+            <span class="string">&quot;/{course_id}/student-countries&quot;</span>,
+            web::get().to(get_student_countries),
+        );
 }
 </code></pre></div></section></main></body></html>

@@ -381,6 +381,26 @@
 <a href="#381" id="381">381</a>
 <a href="#382" id="382">382</a>
 <a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Helper functions related to uploading to file storage.
 
 </span><span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::AuthorizationToken;
@@ -395,6 +415,8 @@
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
 <span class="kw">use </span>models::organizations::DatabaseOrganization;
+<span class="kw">use </span>rand::distributions::Alphanumeric;
+<span class="kw">use </span>rand::distributions::DistString;
 <span class="kw">use </span>std::{collections::HashMap, path::Path};
 <span class="kw">use </span>std::{path::PathBuf, sync::Arc};
 
@@ -558,9 +580,10 @@
     uploader: AuthUser,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Uuid, PathBuf), ControllerError&gt; {
     <span class="kw">let </span>path = path(file_name, FileType::Image, StoreKind::Course(course_id));
+    <span class="kw">let </span>safe_path = make_filename_safe(<span class="kw-2">&amp;</span>path);
     <span class="kw">let </span>id = upload_file_to_storage(
         conn,
-        <span class="kw-2">&amp;</span>path,
+        <span class="kw-2">&amp;</span>safe_path,
         file_name,
         <span class="string">&quot;image/svg+xml&quot;</span>,
         file,
@@ -568,7 +591,7 @@
         <span class="prelude-val">Some</span>(uploader),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((id, path))
+    <span class="prelude-val">Ok</span>((id, safe_path))
 }
 
 <span class="kw">async fn </span>upload_file_to_storage(
@@ -593,6 +616,23 @@
     file_store.upload_stream(path, file, mime_type).<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(id)
+}
+
+<span class="kw">fn </span>make_filename_safe(path: <span class="kw-2">&amp;</span>PathBuf) -&gt; PathBuf {
+    <span class="kw">let </span><span class="kw-2">mut </span>path_buf = path.to_owned();
+    <span class="kw">let </span>random_string = Alphanumeric.sample_string(<span class="kw-2">&amp;mut </span>rand::thread_rng(), <span class="number">25</span>);
+    path_buf.set_file_name(random_string);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ext) = path.extension() {
+        <span class="comment">// For convenience, we&#39;ll keep the original extension in most cases. We&#39;ll just filter out any potentially problematic characters.
+        </span><span class="kw">let </span>ext = ext
+            .to_str()
+            .unwrap_or(<span class="string">&quot;&quot;</span>)
+            .chars()
+            .filter(|c| c.is_alphanumeric())
+            .collect::&lt;String&gt;();
+        path_buf.set_extension(ext);
+    }
+    path_buf
 }
 
 <span class="kw">pub async fn </span>delete_file_from_storage(

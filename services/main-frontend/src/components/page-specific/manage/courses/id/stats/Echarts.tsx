@@ -3,6 +3,7 @@ import dynamic from "next/dynamic"
 import React from "react"
 
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), {
   ssr: false,
@@ -24,4 +25,4 @@ const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, hei
   )
 }
 
-export default Echarts
+export default withErrorBoundary(Echarts)

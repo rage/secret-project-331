@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
 import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -17,7 +16,6 @@ export interface TopUTMCampaignsProps {
 }
 
 const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> = ({ courseId }) => {
-  const { t } = useTranslation()
   const query = useCoursePageVisitDatumSummary(courseId)
 
   const aggregatedData = useMemo(() => {
@@ -75,8 +73,12 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
       >
         {aggregatedData && (
           <Echarts
-            height={query.data.length * 100}
+            height={200 + categories.length * 25}
             options={{
+              grid: {
+                containLabel: true,
+                left: 0,
+              },
               yAxis: {
                 type: "category",
                 data: categories,
@@ -92,7 +94,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
               ],
               tooltip: {
                 trigger: "item",
-                formatter: "{b}: {c} ({d}%)",
+                formatter: "{b}: {c}",
               },
             }}
           />

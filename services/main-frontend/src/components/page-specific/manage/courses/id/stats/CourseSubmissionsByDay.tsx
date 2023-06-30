@@ -64,7 +64,7 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
         options={{
           tooltip: {
             trigger: "item",
-            formatter: "{b}: {c} ({d}%)",
+            formatter: "{b}: {c}",
           },
           visualMap: {
             show: false,

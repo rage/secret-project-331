@@ -28,6 +28,11 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
     internal_url: "",
     max_reprocessing_submissions_at_once: 1,
   })
+
+  const sortServices = () => {
+    getExerciseServices.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
+  }
+
   const createExerciseServiceMutation = useToastMutation(
     async () => {
       if (!canSave(exerciseService)) {
@@ -40,6 +45,7 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
     {
       onSuccess: () => {
         getExerciseServices.refetch()
+        sortServices()
         handleClose()
         resetExerciseService()
       },
@@ -83,6 +89,7 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   const getExerciseServices = useQuery([`exercise-services`], () => fetchExerciseServices())
+  sortServices()
 
   const handleClose = () => {
     setOpen(false)

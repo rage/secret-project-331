@@ -5,8 +5,6 @@ type Vec<PageVisitDatumSummaryByCourse> = Array<{
   deleted_at: Date | null
   course_id: string | null
   exam_id: string | null
-  country: string | null
-  device_type: string | null
   referrer: string | null
   utm_source: string | null
   utm_medium: string | null
@@ -14,5 +12,5 @@ type Vec<PageVisitDatumSummaryByCourse> = Array<{
   utm_term: string | null
   utm_content: string | null
   num_visitors: number
-  visit_date: Date
+  visit_date: string
 }>

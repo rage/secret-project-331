@@ -4,7 +4,8 @@ use crate::prelude::*;
 
 /// Calculates the latest statistics for dates that are not yet calculated yet.
 pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
-    let latest_date = crate::page_visit_datum_summary_by_courses::get_latest_date(conn).await?;
+    let latest_date =
+        crate::page_visit_datum_summary_by_courses::get_latest_date(&mut *conn).await?;
     let date_today = Utc::now().naive_utc().date();
     let yesterday = date_today - chrono::Duration::days(1);
     let cutoff_date = {
@@ -12,7 +13,7 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
         if let Some(cutoff_date) = cutoff_date {
             cutoff_date
         } else {
-            let oldest_date = crate::page_visit_datum::get_oldest_date(conn).await?;
+            let oldest_date = crate::page_visit_datum::get_oldest_date(&mut *conn).await?;
             oldest_date.unwrap_or(date_today) - chrono::Duration::days(1)
         }
     };
@@ -23,11 +24,12 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
     );
     let mut current_date = cutoff_date;
     while current_date <= yesterday {
+        let mut tx = conn.begin().await?;
         info!("Calculating page view daily stats for {}", current_date);
         info!("Calculating page view daily stats by courses");
         let res_by_courses =
             crate::page_visit_datum_summary_by_courses::calculate_and_update_for_date(
-                conn,
+                &mut tx,
                 current_date,
             )
             .await?;
@@ -35,9 +37,9 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
             "Calculated {} page view daily stats by courses",
             res_by_courses.len()
         );
-        info!("Calculated page view daily stats by pages");
+        info!("Calculating page view daily stats by pages");
         let res_by_pages = crate::page_visit_datum_summary_by_pages::calculate_and_update_for_date(
-            conn,
+            &mut tx,
             current_date,
         )
         .await?;
@@ -45,10 +47,10 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
             "Calculated {} page view daily stats by pages",
             res_by_pages.len()
         );
-        info!("Calculated page view daily stats by courses device types");
+        info!("Calculating page view daily stats by courses device types");
         let res_by_courses_device_types =
             crate::page_visit_datum_summary_by_courses_device_types::calculate_and_update_for_date(
-                conn,
+                &mut tx,
                 current_date,
             )
             .await?;
@@ -56,7 +58,20 @@ pub async fn calculate_latest(conn: &mut PgConnection) -> ModelResult<()> {
             "Calculated {} page view daily stats by courses device types",
             res_by_courses_device_types.len()
         );
+        info!("Calculating page view daily stats by courses countries");
+        let res_by_courses_countries =
+            crate::page_visit_datum_summary_by_courses_countries::calculate_and_update_for_date(
+                &mut tx,
+                current_date,
+            )
+            .await?;
+        info!(
+            "Calculated {} page view daily stats by courses countries",
+            res_by_courses_countries.len()
+        );
+        tx.commit().await?;
         current_date += chrono::Duration::days(1);
     }
+
     Ok(())
 }

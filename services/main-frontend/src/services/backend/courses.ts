@@ -19,6 +19,7 @@ import {
   Page,
   PageVisitDatumSummaryByCourse,
   PageVisitDatumSummaryByCourseDeviceTypes,
+  PageVisitDatumSummaryByCoursesCountries,
   PageVisitDatumSummaryByPages,
   Term,
   TermUpdate,
@@ -34,6 +35,7 @@ import {
   isExerciseUserCounts,
   isPageVisitDatumSummaryByCourse,
   isPageVisitDatumSummaryByCourseDeviceTypes,
+  isPageVisitDatumSummaryByCoursesCountries,
   isPageVisitDatumSummaryByPages,
   isTerm,
 } from "../../shared-module/bindings.guard"
@@ -142,6 +144,18 @@ export const fetchCoursePageVisitDatumSummaries = async (
     responseType: "json",
   })
   return validateResponse(response, isArray(isPageVisitDatumSummaryByCourse))
+}
+
+export const fetchCoursePageVisitDatumSummariesByCountry = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByCoursesCountries>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/page-visit-datum-summary-by-countries`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByCoursesCountries))
 }
 
 export const fetchCoursePageVisitDatumSummariesByDeviceTypes = async (

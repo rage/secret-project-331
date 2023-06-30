@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
-import useCoursePageVisitDatumSummary from "../../../../../../hooks/useCoursePageVisitDatumSummary"
+import { fetchCoursePageVisitDatumSummariesByCountry } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
@@ -19,15 +19,16 @@ export interface CourseVisitorsByCountryProps {
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
-  const { t } = useTranslation()
-  const query = useCoursePageVisitDatumSummary(courseId)
+  const query = useQuery([`course-page-visit-datum-summary-by-country${courseId}`], () =>
+    fetchCoursePageVisitDatumSummariesByCountry(courseId),
+  )
 
   const aggregatedData = useMemo(() => {
     if (!query.data || query.data.length === 0) {
       return null
     }
     const allCountriesInData = new Set(query.data.map((d) => d.country))
-    const totalCountsByCountry = Array.from(allCountriesInData)
+    let totalCountsByCountry = Array.from(allCountriesInData)
       .map((country) => {
         const countryData = query.data.filter((d) => d.country === country)
         return {
@@ -36,6 +37,9 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
         }
       })
       .sort((a, b) => a.num_visitors - b.num_visitors)
+    if (totalCountsByCountry.length > 15) {
+      totalCountsByCountry = totalCountsByCountry.filter((d) => d.num_visitors >= 10)
+    }
     const totalCountsByCountryObject = totalCountsByCountry.reduce((acc, d) => {
       acc[d.country ?? "null"] = d.num_visitors
       return acc
@@ -80,7 +84,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
       >
         {aggregatedData && (
           <Echarts
-            height={query.data.length * 100}
+            height={200 + categories.length * 25}
             options={{
               yAxis: {
                 type: "category",
@@ -97,7 +101,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
               ],
               tooltip: {
                 trigger: "item",
-                formatter: "{b}: {c} ({d}%)",
+                formatter: "{b}: {c}",
               },
             }}
           />

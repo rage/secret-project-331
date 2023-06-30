@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
 import { fetchCoursePageVisitDatumSummaryByPages } from "../../../../../../services/backend/courses"
@@ -21,7 +20,6 @@ export interface CourseVisitorsByCountryProps {
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
-  const { t } = useTranslation()
   const query = useQuery([`course-page-visit-datum-summary-by-pages-${courseId}`], () =>
     fetchCoursePageVisitDatumSummaryByPages(courseId),
   )
@@ -92,7 +90,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
       >
         {aggregatedData && (
           <Echarts
-            height={query.data.length * 100}
+            height={200 + categories.length * 25}
             options={{
               grid: {
                 containLabel: true,
@@ -113,7 +111,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
               ],
               tooltip: {
                 trigger: "item",
-                formatter: "{b}: {c} ({d}%)",
+                formatter: "{b}: {c}",
               },
             }}
           />

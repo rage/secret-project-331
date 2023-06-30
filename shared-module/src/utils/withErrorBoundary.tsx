@@ -20,6 +20,20 @@ export default function withErrorBoundary<T>(
     }
 
     componentDidCatch(error: Error, info: ErrorInfo) {
+      console.group(
+        `ErrorBoundary caught an error in ${
+          Component.displayName ?? "unknown"
+        } expand for more info`,
+      )
+      console.error(`Error.message: ${error.message}`)
+      console.error(`Error.stack: ${error.stack}`)
+      console.error(`ErrorInfo.componentStack: ${info.componentStack}`)
+
+      console.groupEnd()
+      if (this.state.error !== undefined) {
+        console.warn(`ErrorBoundary caught multiple errors. Showing only the first one.`)
+        return
+      }
       this.setState({ error: error.message, trace: info.componentStack })
     }
 

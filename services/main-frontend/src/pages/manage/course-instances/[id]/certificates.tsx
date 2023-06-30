@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -23,6 +24,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
+import { baseTheme } from "../../../../shared-module/styles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -134,9 +136,9 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
 
   return (
     <>
-      <h2>
+      <h1>
         {t("certificates")}: {courseInstanceId}
-      </h2>
+      </h1>
       {getCertificateConfigurations.isError && (
         <ErrorBanner variant={"readOnly"} error={getCertificateConfigurations.error} />
       )}
@@ -155,11 +157,19 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                 }
               })
               .map(({ module, configuration }) => (
-                <li key={module.id}>
-                  <div>
+                <li
+                  key={module.id}
+                  className={css`
+                    list-style-type: none;
+                    margin: 2rem 0;
+                    border: 1px solid ${baseTheme.colors.clear[500]};
+                    padding: 1rem;
+                  `}
+                >
+                  <h2>
                     {module.name ? `${t("module")}: ${module.name}` : t("default-module")}{" "}
                     <HideTextInSystemTests text={module.id} testPlaceholder="module-id" />
-                  </div>
+                  </h2>
                   {module.id === editingConfiguration && (
                     <CertificateForm
                       generatingCertificatesEnabled={module.certification_enabled}
@@ -181,8 +191,8 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
                       <>
                         <div>
                           {module.certification_enabled
-                            ? t("generating-new-certifications-enabled")
-                            : t("generating-new-certifications-disabled")}
+                            ? t("generating-new-certificates-enabled")
+                            : t("generating-new-certificates-disabled")}
                         </div>
                         {module.certification_enabled ? (
                           <Button

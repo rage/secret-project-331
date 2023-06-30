@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +12,7 @@ import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import FileField from "../../../../shared-module/components/InputFields/FileField"
 import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
+import { baseTheme } from "../../../../shared-module/styles"
 
 interface Props {
   generatingCertificatesEnabled: boolean
@@ -87,109 +89,14 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
     { value: "horizontal-a4", label: "Horizontal A4" },
   ]
   return (
-    <form onSubmit={onSubmitWrapper}>
-      <div>
-        <div>{t("certificate-owner-name")}</div>
-        <TextField
-          id={"ownerNamePosX"}
-          error={errors.ownerNamePosX}
-          label={"Position (X)"}
-          {...register("ownerNamePosX", { required: t("required-field") })}
-        />
-        <TextField
-          id={"ownerNamePosY"}
-          error={errors.ownerNamePosY}
-          label={"Position (Y)"}
-          {...register("ownerNamePosY", { required: t("required-field") })}
-        />
-        <TextField
-          id={"ownerNameFontSize"}
-          error={errors.ownerNameFontSize}
-          label={"Font size"}
-          {...register("ownerNameFontSize", { required: t("required-field") })}
-        />
-        <TextField
-          id={"ownerNameTextColor"}
-          error={errors.ownerNameTextColor}
-          label={"Text color"}
-          {...register("ownerNameTextColor", { required: t("required-field") })}
-        />
-        <SelectField
-          id={"ownerNameTextAnchor"}
-          options={anchorOptions}
-          label="Text anchor"
-          {...register("ownerNameTextAnchor")}
-        />
-      </div>
-      <hr />
-      <div>
-        <div>{t("certificate-validation-url")}</div>
-        <TextField
-          id={"validateUrlPosX"}
-          error={errors.validateUrlPosX}
-          label={"Position (X)"}
-          {...register("validateUrlPosX", { required: t("required-field") })}
-        />
-        <TextField
-          id={"validateUrlPosY"}
-          error={errors.validateUrlPosY}
-          label={"Position (Y)"}
-          {...register("validateUrlPosY", { required: t("required-field") })}
-        />
-        <TextField
-          id={"validateUrlFontSize"}
-          error={errors.validateUrlFontSize}
-          label={"Font size"}
-          {...register("validateUrlFontSize", { required: t("required-field") })}
-        />
-        <TextField
-          id={"validateUrlTextColor"}
-          error={errors.validateUrlTextColor}
-          label={"Text color"}
-          {...register("validateUrlTextColor", { required: t("required-field") })}
-        />
-        <SelectField
-          id={"validateUrlTextAnchor"}
-          options={anchorOptions}
-          label="Text anchor"
-          {...register("validateUrlTextAnchor")}
-        />
-      </div>
-      <hr />
-      <div>
-        <div>{t("date")}</div>
-        <TextField
-          id={"datePosX"}
-          error={errors.datePosX}
-          label={"Position (X)"}
-          {...register("datePosX", { required: t("required-field") })}
-        />
-        <TextField
-          id={"datePosY"}
-          error={errors.datePosY}
-          label={"Position (Y)"}
-          {...register("datePosY", { required: t("required-field") })}
-        />
-        <TextField
-          id={"dateFontSize"}
-          error={errors.dateFontSize}
-          label={"Font size"}
-          {...register("dateFontSize", { required: t("required-field") })}
-        />
-        <TextField
-          id={"dateTextColor"}
-          error={errors.dateTextColor}
-          label={"Text color"}
-          {...register("dateTextColor", { required: t("required-field") })}
-        />
-        <SelectField
-          id={"dateTextAnchor"}
-          options={anchorOptions}
-          label="Text anchor"
-          {...register("dateTextAnchor")}
-        />
-      </div>
-      <hr />
+    <form
+      onSubmit={onSubmitWrapper}
+      className={css`
+        hr {
+          color: ${baseTheme.colors.clear[300]};
+        }
+      `}
+    >
       <TextField
         id={"locale"}
         error={errors.locale}
@@ -239,6 +146,109 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
         // disabled if no current overlay SVG
         disabled={configuration?.overlay_svg_path === null}
       />
+      <hr />
+      <div>
+        <h3>{t("certificate-owner-name")}</h3>
+        <TextField
+          id={"ownerNamePosX"}
+          error={errors.ownerNamePosX}
+          label={"Position (X)"}
+          {...register("ownerNamePosX", { required: t("required-field") })}
+        />
+        <TextField
+          id={"ownerNamePosY"}
+          error={errors.ownerNamePosY}
+          label={"Position (Y)"}
+          {...register("ownerNamePosY", { required: t("required-field") })}
+        />
+        <TextField
+          id={"ownerNameFontSize"}
+          error={errors.ownerNameFontSize}
+          label={"Font size"}
+          {...register("ownerNameFontSize", { required: t("required-field") })}
+        />
+        <TextField
+          id={"ownerNameTextColor"}
+          error={errors.ownerNameTextColor}
+          label={"Text color"}
+          {...register("ownerNameTextColor", { required: t("required-field") })}
+        />
+        <SelectField
+          id={"ownerNameTextAnchor"}
+          options={anchorOptions}
+          label="Text anchor"
+          {...register("ownerNameTextAnchor")}
+        />
+      </div>
+      <hr />
+      <div>
+        <h3>{t("certificate-validation-url")}</h3>
+        <TextField
+          id={"validateUrlPosX"}
+          error={errors.validateUrlPosX}
+          label={"Position (X)"}
+          {...register("validateUrlPosX", { required: t("required-field") })}
+        />
+        <TextField
+          id={"validateUrlPosY"}
+          error={errors.validateUrlPosY}
+          label={"Position (Y)"}
+          {...register("validateUrlPosY", { required: t("required-field") })}
+        />
+        <TextField
+          id={"validateUrlFontSize"}
+          error={errors.validateUrlFontSize}
+          label={"Font size"}
+          {...register("validateUrlFontSize", { required: t("required-field") })}
+        />
+        <TextField
+          id={"validateUrlTextColor"}
+          error={errors.validateUrlTextColor}
+          label={"Text color"}
+          {...register("validateUrlTextColor", { required: t("required-field") })}
+        />
+        <SelectField
+          id={"validateUrlTextAnchor"}
+          options={anchorOptions}
+          label="Text anchor"
+          {...register("validateUrlTextAnchor")}
+        />
+      </div>
+      <hr />
+      <div>
+        <h3>{t("date")}</h3>
+        <TextField
+          id={"datePosX"}
+          error={errors.datePosX}
+          label={"Position (X)"}
+          {...register("datePosX", { required: t("required-field") })}
+        />
+        <TextField
+          id={"datePosY"}
+          error={errors.datePosY}
+          label={"Position (Y)"}
+          {...register("datePosY", { required: t("required-field") })}
+        />
+        <TextField
+          id={"dateFontSize"}
+          error={errors.dateFontSize}
+          label={"Font size"}
+          {...register("dateFontSize", { required: t("required-field") })}
+        />
+        <TextField
+          id={"dateTextColor"}
+          error={errors.dateTextColor}
+          label={"Text color"}
+          {...register("dateTextColor", { required: t("required-field") })}
+        />
+        <SelectField
+          id={"dateTextAnchor"}
+          options={anchorOptions}
+          label="Text anchor"
+          {...register("dateTextAnchor")}
+        />
+      </div>
+
       <Button variant="primary" size="medium" type="submit">
         {t("button-text-save")}
       </Button>

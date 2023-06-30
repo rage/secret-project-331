@@ -12,6 +12,8 @@ use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
 use models::organizations::DatabaseOrganization;
+use rand::distributions::Alphanumeric;
+use rand::distributions::DistString;
 use std::{collections::HashMap, path::Path};
 use std::{path::PathBuf, sync::Arc};
 
@@ -175,9 +177,10 @@ pub async fn upload_certificate_svg(
     uploader: AuthUser,
 ) -> Result<(Uuid, PathBuf), ControllerError> {
     let path = path(file_name, FileType::Image, StoreKind::Course(course_id));
+    let safe_path = make_filename_safe(&path);
     let id = upload_file_to_storage(
         conn,
-        &path,
+        &safe_path,
         file_name,
         "image/svg+xml",
         file,
@@ -185,7 +188,7 @@ pub async fn upload_certificate_svg(
         Some(uploader),
     )
     .await?;
-    Ok((id, path))
+    Ok((id, safe_path))
 }
 
 async fn upload_file_to_storage(
@@ -210,6 +213,23 @@ async fn upload_file_to_storage(
     file_store.upload_stream(path, file, mime_type).await?;
     tx.commit().await?;
     Ok(id)
+}
+
+fn make_filename_safe(path: &PathBuf) -> PathBuf {
+    let mut path_buf = path.to_owned();
+    let random_string = Alphanumeric.sample_string(&mut rand::thread_rng(), 25);
+    path_buf.set_file_name(random_string);
+    if let Some(ext) = path.extension() {
+        // For convenience, we'll keep the original extension in most cases. We'll just filter out any potentially problematic characters.
+        let ext = ext
+            .to_str()
+            .unwrap_or("")
+            .chars()
+            .filter(|c| c.is_alphanumeric())
+            .collect::<String>();
+        path_buf.set_extension(ext);
+    }
+    path_buf
 }
 
 pub async fn delete_file_from_storage(

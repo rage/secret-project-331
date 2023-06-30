@@ -26,6 +26,12 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
+impl CourseInstance {
+    pub fn is_open(&self) -> bool {
+        self.starts_at.map(|sa| sa < Utc::now()).unwrap_or_default()
+    }
+}
+
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceForm {
@@ -456,7 +462,8 @@ WHERE id = $1
 pub async fn is_open(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
     let res = sqlx::query!(
         "
-SELECT starts_at
+SELECT starts_at,
+  ends_at
 FROM course_instances
 WHERE id = $1
 ",
@@ -464,11 +471,15 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    let is_open = if let Some(starts_at) = res.starts_at {
-        starts_at <= Utc::now()
-    } else {
-        false
+    let has_started = match res.starts_at {
+        Some(starts_at) => starts_at <= Utc::now(),
+        None => true,
     };
+    let has_ended = match res.ends_at {
+        Some(ends_at) => ends_at <= Utc::now(),
+        None => false,
+    };
+    let is_open = has_started && !has_ended;
     Ok(is_open)
 }
 

@@ -11,12 +11,10 @@ use models::{
     exercise_task_submissions::PeerReviewsRecieved,
     exercises::CourseMaterialExercise,
     library::{
-        grading::{
-            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
-        },
+        grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
         peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
     },
-    user_exercise_states::{self, ExerciseWithUserState},
+    user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

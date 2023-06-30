@@ -3,13 +3,14 @@ use std::sync::Arc;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
-    paragraph, quizzes_exercise, submit_and_grade,
+    paragraph, quizzes_exercise, submit_and_grade, tmc_exercise,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
 use headless_lms_models::course_module_certificate_configurations::DatabaseCourseModuleCertificateConfiguration;
 use headless_lms_models::pages::PageUpdateArgs;
+use headless_lms_models::CourseOrExamId;
 use headless_lms_models::{
     chapters,
     chapters::NewChapter,
@@ -19,7 +20,7 @@ use headless_lms_models::{
     course_module_certificate_configurations,
     course_modules::{self, NewCourseModule},
     courses::NewCourse,
-    feedback,
+    exercise_repositories, feedback,
     feedback::{FeedbackBlock, NewFeedback},
     file_uploads, glossary, library,
     library::content_management::CreateNewCourseFixedIds,
@@ -33,7 +34,7 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections, PKeyPolicy,
+    repository_exercises, url_redirections, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
@@ -2681,7 +2682,121 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_8,
             ]),
         },
-        jwt_key,
+        jwt_key.clone(),
+    )
+    .await?;
+
+    // tmc exercises
+    let exercise_repository_id = Uuid::new_v5(&course.id, b"a4b01c0d-f801-4d87-a238-dc148516d730");
+    let exercise_repository_url = "http://example.com";
+    exercise_repositories::new(
+        &mut conn,
+        exercise_repository_id,
+        CourseOrExamId::Course(course.id),
+        exercise_repository_url,
+        None,
+    )
+    .await?;
+    let repository_exercise_1_id =
+        Uuid::new_v5(&course.id, b"6494ae57-628b-45d5-92bc-3db59e8d71c4");
+    let repository_exercise_part = "part01";
+    let repository_exercise_1_name = "ex01";
+    let repository_exercise_1_checksum = &[0, 1, 2, 3];
+    let repository_exercise_1_download_url = "http://project-331.local/api/v0/files/uploads/playground-views/repository-exercise-1.tar.zst";
+    repository_exercises::new(
+        &mut conn,
+        repository_exercise_1_id,
+        exercise_repository_id,
+        repository_exercise_part,
+        repository_exercise_1_name,
+        repository_exercise_1_checksum,
+        repository_exercise_1_download_url,
+    )
+    .await?;
+    let repository_exercise_2_id =
+        Uuid::new_v5(&course.id, b"a7bb7bd8-70fb-4764-9429-34849efc7276");
+    let repository_exercise_2_name = "ex02";
+    let repository_exercise_2_checksum = &[0, 1, 2, 3];
+    let repository_exercise_2_download_url = "http://project-331.local/api/v0/files/uploads/playground-views/repository-exercise-2.tar.zst";
+    repository_exercises::new(
+        &mut conn,
+        repository_exercise_2_id,
+        exercise_repository_id,
+        repository_exercise_part,
+        repository_exercise_2_name,
+        repository_exercise_2_checksum,
+        repository_exercise_2_download_url,
+    )
+    .await?;
+    let (tmc_exercise_block_1, tmc_exercise_1, tmc_exercise_slide_1, tmc_exercise_task_1) =
+        tmc_exercise(
+            "Best tmc browser exercise".to_string(),
+            Uuid::new_v5(&course.id, b"42b06d18-f872-4e26-9c31-415fe10e1567"),
+            Uuid::new_v5(&course.id, b"79a0bdb9-eb28-4a11-8bfc-29b37076a56e"),
+            Uuid::new_v5(&course.id, b"f48f33c2-f5e4-4c72-8aa9-1e7df558a94a"),
+            Uuid::new_v5(&course.id, b"d18ec32c-d134-4819-b668-d85e3e53a0f8"),
+            Uuid::new_v5(&course.id, b"06a8d2d9-9ff0-44ab-b5b1-c06cbc65eb06"),
+            false,
+            serde_json::json!({
+                "type": "browser",
+                "repositoryExercise": {
+                    "id": repository_exercise_1_id,
+                    "repository_id": exercise_repository_id,
+                    "part": repository_exercise_part,
+                    "name": repository_exercise_1_name,
+                    "repository_url": exercise_repository_url,
+                    "checksum": repository_exercise_1_checksum,
+                    "download_url": repository_exercise_1_download_url,
+                }
+            }),
+            Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        );
+    let (tmc_exercise_block_2, tmc_exercise_2, tmc_exercise_slide_2, tmc_exercise_task_2) =
+        tmc_exercise(
+            "Best tmc editor exercise".to_string(),
+            Uuid::new_v5(&course.id, b"d18feea1-33bd-435d-b7f1-a4c3fab45914"),
+            Uuid::new_v5(&course.id, b"8d43641e-a968-405d-894e-840508c623a5"),
+            Uuid::new_v5(&course.id, b"534aff8f-d1d7-4a30-9afb-20406506e7b8"),
+            Uuid::new_v5(&course.id, b"a07ca540-ee6d-4d03-a052-28732d82a074"),
+            Uuid::new_v5(&course.id, b"0d31654b-2b62-4327-b876-d6b56a756c22"),
+            false,
+            serde_json::json!({
+                "type": "editor",
+                "repositoryExercise": {
+                    "id": repository_exercise_2_id,
+                    "repository_id": exercise_repository_id,
+                    "part": repository_exercise_part,
+                    "name": repository_exercise_2_name,
+                    "repository_url": exercise_repository_url,
+                    "checksum": repository_exercise_2_checksum,
+                    "download_url": repository_exercise_2_download_url,
+                }
+
+            }),
+            Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        );
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_2.id),
+        CmsPageUpdate {
+            url_path: "/chapter-2/page-7".to_string(),
+            title: "Page 7".to_string(),
+            chapter_id: Some(chapter_2.id),
+            exercises: vec![tmc_exercise_1, tmc_exercise_2],
+            exercise_slides: vec![tmc_exercise_slide_1, tmc_exercise_slide_2],
+            exercise_tasks: vec![tmc_exercise_task_1, tmc_exercise_task_2],
+            content: serde_json::json!([
+                paragraph(
+                    "Second chapters seventh page",
+                    Uuid::new_v5(&course.id, b"cd63081d-09c1-4c50-a466-0e7fe4ac7be3")
+                ),
+                tmc_exercise_block_1,
+                tmc_exercise_block_2,
+            ]),
+        },
+        jwt_key.clone(),
     )
     .await?;
 

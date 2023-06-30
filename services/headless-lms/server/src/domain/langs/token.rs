@@ -51,7 +51,7 @@ impl FromRequest for AuthToken {
             .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string));
         async move {
             let Some(token) = auth_header else {
-                return Err(ControllerError::new(ControllerErrorType::BadRequest, "Missing bearer token".to_string(), None));
+                return Err(ControllerError::new(ControllerErrorType::Unauthorized, "Missing bearer token".to_string(), None));
             };
             let mut conn = pool.acquire().await?;
 

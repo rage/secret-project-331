@@ -3,13 +3,15 @@
 use headless_lms_models::{
     course_instances::CourseInstanceWithCourseInfo,
     exercise_tasks::CourseMaterialExerciseTask,
-    exercises::Exercise,
     library::grading::{
         StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
         StudentExerciseTaskSubmission,
     },
 };
+use headless_lms_utils::prelude::BackendError;
 use mooc_langs_api as api;
+
+use crate::domain::error::{ControllerError, ControllerErrorType};
 
 pub trait Convert<T> {
     fn convert(self) -> T;
@@ -38,23 +40,6 @@ impl Convert<api::CourseInstance> for CourseInstanceWithCourseInfo {
     }
 }
 
-impl Convert<api::Exercise> for Exercise {
-    fn convert(self) -> api::Exercise {
-        api::Exercise {
-            id: self.id,
-            name: self.name,
-            deadline: self.deadline,
-            order_number: self.order_number,
-        }
-    }
-}
-
-impl Convert<api::ExerciseTask> for CourseMaterialExerciseTask {
-    fn convert(self) -> api::ExerciseTask {
-        api::ExerciseTask { id: self.id }
-    }
-}
-
 impl Convert<StudentExerciseSlideSubmission> for api::ExerciseSlideSubmission {
     fn convert(self) -> StudentExerciseSlideSubmission {
         StudentExerciseSlideSubmission {
@@ -80,5 +65,50 @@ impl Convert<StudentExerciseTaskSubmission> for api::ExerciseTaskSubmission {
 impl Convert<api::ExerciseSlideSubmissionResult> for StudentExerciseSlideSubmissionResult {
     fn convert(self) -> api::ExerciseSlideSubmissionResult {
         api::ExerciseSlideSubmissionResult {}
+    }
+}
+
+pub trait TryConvert<T> {
+    fn try_convert(self) -> Result<T, ControllerError>;
+}
+
+impl TryConvert<Option<api::ExerciseTask>> for CourseMaterialExerciseTask {
+    fn try_convert(self) -> Result<Option<api::ExerciseTask>, ControllerError> {
+        use api::exercise_services::tmc;
+
+        let task_info = match self.exercise_service_slug.as_str() {
+            "tmc" => api::ExerciseTaskInfo::Tmc(tmc::ExerciseTaskInfo {
+                assignment: self.assignment,
+                public_spec: self
+                    .public_spec
+                    .map(serde_json::from_value)
+                    .transpose()
+                    .map_err(|e| {
+                        ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "Mismatch between tmc public spec and expected schema".to_string(),
+                            Some(e.into()),
+                        )
+                    })?,
+                model_solution_spec: self
+                    .model_solution_spec
+                    .map(serde_json::from_value)
+                    .transpose()
+                    .map_err(|e| {
+                        ControllerError::new(
+                            ControllerErrorType::InternalServerError,
+                            "Mismatch between tmc public spec and expected schema".to_string(),
+                            Some(e.into()),
+                        )
+                    })?,
+            }),
+            _ => return Ok(None),
+        };
+        let task = api::ExerciseTask {
+            task_id: self.id,
+            order_number: self.order_number,
+            task_info,
+        };
+        Ok(Some(task))
     }
 }

@@ -43,9 +43,26 @@ export const fetchCertificatesForCourseInstance = async (
 export const fetchCertificateImage = async (
   certificateVerificationId: string,
   debug: boolean,
+  testCourseModuleId: string | undefined,
+  testCourseInstanceId: string | undefined,
 ): Promise<Blob> => {
+  let params:
+    | { debug?: boolean; test_course_module_id?: string; test_course_instance_id?: string }
+    | undefined = {}
+  if (debug) {
+    params.debug = true
+  }
+  if (testCourseModuleId) {
+    params.test_course_module_id = testCourseModuleId
+  }
+  if (testCourseInstanceId) {
+    params.test_course_instance_id = testCourseInstanceId
+  }
+  if (Object.keys(params).length === 0) {
+    params = undefined
+  }
   const res = await mainFrontendClient.get(`/certificates/${certificateVerificationId}`, {
-    params: debug ? { debug: true } : undefined,
+    params,
     responseType: "blob",
   })
   return res.data

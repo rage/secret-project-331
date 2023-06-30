@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +12,8 @@ import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import FileField from "../../../../shared-module/components/InputFields/FileField"
 import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
+import MaskOverThisInSystemTests from "../../../../shared-module/components/system-tests/MaskOverThisInSystemTests"
+import { baseTheme } from "../../../../shared-module/styles"
 
 interface Props {
   generatingCertificatesEnabled: boolean
@@ -87,9 +90,68 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
     { value: "horizontal-a4", label: "Horizontal A4" },
   ]
   return (
-    <form onSubmit={onSubmitWrapper}>
+    <form
+      onSubmit={onSubmitWrapper}
+      className={css`
+        hr {
+          color: ${baseTheme.colors.clear[300]};
+        }
+      `}
+    >
+      <TextField
+        id={"locale"}
+        error={errors.locale}
+        label={"Locale"}
+        {...register("locale", { required: t("required-field") })}
+      />
+      <SelectField
+        id={"paperSize"}
+        options={paperSizeOptions}
+        label="Paper size"
+        {...register("paperSize")}
+      />
+      <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
+        <FileField
+          id={"backgroundSvg"}
+          error={errors.backgroundSvg}
+          label={
+            configuration
+              ? `Background SVG (currently ${configuration.background_svg_path})`
+              : `Background SVG`
+          }
+          {...register(
+            "backgroundSvg",
+            // required if configuration does not exist yet
+            configuration ? undefined : { required: t("required-field") },
+          )}
+          // required for new configurations
+          required={configuration === null}
+          accept={".svg"}
+        />
+        <FileField
+          id={"overlaySvg"}
+          error={errors.overlaySvg}
+          label={
+            configuration
+              ? configuration.overlay_svg_path
+                ? `Overlay SVG (currently ${configuration.overlay_svg_path})`
+                : "Overlay SVG (optional, currently not set)"
+              : "Overlay SVG"
+          }
+          {...register("overlaySvg")}
+          accept={".svg"}
+        />
+      </MaskOverThisInSystemTests>
+      <CheckBox
+        id={"clearCurrentOverlaySvg"}
+        label={"Delete current overlay SVG"}
+        {...register("clearCurrentOverlaySvg")}
+        // disabled if no current overlay SVG
+        disabled={configuration?.overlay_svg_path === null}
+      />
+      <hr />
       <div>
-        <div>{t("certificate-owner-name")}</div>
+        <h3>{t("certificate-owner-name")}</h3>
         <TextField
           id={"ownerNamePosX"}
           error={errors.ownerNamePosX}
@@ -123,7 +185,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
       </div>
       <hr />
       <div>
-        <div>{t("certificate-validation-url")}</div>
+        <h3>{t("certificate-validation-url")}</h3>
         <TextField
           id={"validateUrlPosX"}
           error={errors.validateUrlPosX}
@@ -157,7 +219,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
       </div>
       <hr />
       <div>
-        <div>{t("date")}</div>
+        <h3>{t("date")}</h3>
         <TextField
           id={"datePosX"}
           error={errors.datePosX}
@@ -189,56 +251,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
           {...register("dateTextAnchor")}
         />
       </div>
-      <hr />
-      <TextField
-        id={"locale"}
-        error={errors.locale}
-        label={"Locale"}
-        {...register("locale", { required: t("required-field") })}
-      />
-      <SelectField
-        id={"paperSize"}
-        options={paperSizeOptions}
-        label="Paper size"
-        {...register("paperSize")}
-      />
-      <FileField
-        id={"backgroundSvg"}
-        error={errors.backgroundSvg}
-        label={
-          configuration
-            ? `Background SVG (currently ${configuration.background_svg_path})`
-            : `Background SVG`
-        }
-        {...register(
-          "backgroundSvg",
-          // required if configuration does not exist yet
-          configuration ? undefined : { required: t("required-field") },
-        )}
-        // required for new configurations
-        required={configuration === null}
-        accept={".svg"}
-      />
-      <FileField
-        id={"overlaySvg"}
-        error={errors.overlaySvg}
-        label={
-          configuration
-            ? configuration.overlay_svg_path
-              ? `Overlay SVG (currently ${configuration.overlay_svg_path})`
-              : "Overlay SVG (optional, currently not set)"
-            : "Overlay SVG"
-        }
-        {...register("overlaySvg")}
-        accept={".svg"}
-      />
-      <CheckBox
-        id={"clearCurrentOverlaySvg"}
-        label={"Delete current overlay SVG"}
-        {...register("clearCurrentOverlaySvg")}
-        // disabled if no current overlay SVG
-        disabled={configuration?.overlay_svg_path === null}
-      />
+
       <Button variant="primary" size="medium" type="submit">
         {t("button-text-save")}
       </Button>

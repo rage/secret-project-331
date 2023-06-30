@@ -19,10 +19,16 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   const { t } = useTranslation()
   const certificateVerificationId = query.certificateVerificationId
   const debug = query.debug
+  const testCourseModuleId = query.test_course_module_id
+  const testCourseInstanceId = query.test_course_instance_id
 
-  const certificate = useQuery(
-    ["course-module-verification", certificateVerificationId, debug],
-    async () => fetchCertificateImage(certificateVerificationId, debug === "true"),
+  const certificate = useQuery(["certificate-image", certificateVerificationId, debug], async () =>
+    fetchCertificateImage(
+      certificateVerificationId,
+      !!debug,
+      testCourseModuleId,
+      testCourseInstanceId,
+    ),
   )
   return (
     <>

@@ -1,5 +1,6 @@
 use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
+use chrono::Utc;
 use futures_util::TryStreamExt;
 use headless_lms_certificates as certificates;
 use headless_lms_utils::{file_store::GenericPayload, icu4x::Icu4xBlob};
@@ -146,6 +147,7 @@ async fn update_certificate_configuration_inner(
             metadata.overlay_svg_file_name.as_ref(),
         ) {
             (Some(background_svg_file_name), _) if background_svg_file_name == &file_name => {
+                info!("Saving new background svg file");
                 // upload new background svg
                 let (id, path) = file_uploading::upload_certificate_svg(
                     conn,
@@ -161,6 +163,7 @@ async fn update_certificate_configuration_inner(
                     Some((id, path.to_str().context("Invalid path")?.to_string()));
             }
             (_, Some(overlay_svg_file_name)) if overlay_svg_file_name == &file_name => {
+                info!("Saving new overlay svg file");
                 // upload new overlay svg
                 let (id, path) = file_uploading::upload_certificate_svg(
                     conn,
@@ -385,6 +388,12 @@ pub async fn get_course_module_completion_certificate(
 pub struct CertificateQuery {
     #[serde(default)]
     debug: bool,
+    #[serde(default)]
+    /// If true, the certificate will be generated using the course module id instead of the certificate verification id.
+    /// In this case the certificate is just a test certificate that is not stored in the database.
+    /// This is intended for testing the certificate rendering works correctly.
+    test_course_module_id: Option<Uuid>,
+    test_course_instance_id: Option<Uuid>,
 }
 
 /**
@@ -406,12 +415,29 @@ pub async fn get_cerficate_by_verification_id(
 
     // everyone needs to be able to view the certificate in order to verify its validity
     let token = skip_authorize();
-    let certificate =
+
+    let certificate = if let (Some(test_course_module_id), Some(test_course_instance_id)) =
+        (query.test_course_module_id, query.test_course_instance_id)
+    {
+        // For testing the certificate
+        CourseModuleCompletionCertificate {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            user_id: Uuid::new_v4(),
+            course_module_id: test_course_module_id,
+            course_instance_id: test_course_instance_id,
+            name_on_certificate: "Example user".to_string(),
+            verification_id: "test".to_string(),
+        }
+    } else {
         models::course_module_completion_certificates::get_certificate_by_verification_id(
             &mut conn,
             &certificate_verification_id,
         )
-        .await?;
+        .await?
+    };
 
     let data = certificates::generate_certificate(
         &mut conn,

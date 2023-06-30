@@ -52,6 +52,9 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
+  const sortInstances = () => {
+    getCourseInstances.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
+  }
 
   const getCourseInstances = useQuery(
     ["course-instances"],
@@ -60,9 +63,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
     },
   )
+  sortInstances()
 
   useEffect(() => {
     getCourseInstances.refetch()
+    sortInstances()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 

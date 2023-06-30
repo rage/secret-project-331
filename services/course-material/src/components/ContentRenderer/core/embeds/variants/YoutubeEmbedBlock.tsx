@@ -11,12 +11,17 @@ export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
   const { t } = useTranslation()
   const { url } = props
   let video = url?.split("v=")[1]
+
   if (url) {
     try {
       const parsedUrl = new URL(url)
       const vValue = parsedUrl.searchParams.get("v")
+      console.log(parsedUrl, "--", vValue, "--", video)
       if (vValue) {
         video = vValue
+      }
+      if (!vValue) {
+        video = parsedUrl.pathname
       }
     } catch (e) {
       // eslint-disable-next-line i18next/no-literal-string

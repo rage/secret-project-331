@@ -110,7 +110,7 @@ const CertificateForm: React.FC<Props> = ({ configuration, onClickSave, onClickC
         label="Paper size"
         {...register("paperSize")}
       />
-      <MaskOverThisInSystemTests>
+      <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
         <FileField
           id={"backgroundSvg"}
           error={errors.backgroundSvg}

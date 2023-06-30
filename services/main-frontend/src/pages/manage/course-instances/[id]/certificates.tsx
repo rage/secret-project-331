@@ -145,7 +145,11 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
       {getCertificateConfigurations.isLoading && <Spinner variant="medium" />}
       {getCourse.isSuccess && getCertificateConfigurations.isSuccess && (
         <>
-          <ul>
+          <ul
+            className={css`
+              padding-left: 0;
+            `}
+          >
             {getCourse.data.modules
               .sort((l, r) => l.order_number - r.order_number)
               .map((m) => {

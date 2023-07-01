@@ -737,7 +737,7 @@ async fn student_country(
 }
 
 /**
-GET `/api/v0/{course_id}/student-countries - Returns countries of student registered in a course.
+GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
 #[generated_doc]
 #[instrument(skip(pool))]

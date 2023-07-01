@@ -150,6 +150,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     {
       onSuccess: () => {
         getCountries.refetch()
+        getCountry.refetch()
       },
     },
   )
@@ -241,6 +242,10 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   let activeStudentCountry = ""
   let countryTableData
 
+  if (getCountry.isLoading) {
+    return <Spinner variant={"small"} />
+  }
+
   if (getCountry.isSuccess && getCountry.data) {
     studentCountryAdded = getCountry.data.user_id === userId
     activeStudentCountry = getCountry.data.country_code
@@ -274,16 +279,15 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   return (
     <Fragment>
       <Wrapper>
-        {getCountry.isError && <ErrorBanner variant={"readOnly"} error={getCountry.error} />}
-        {getCountry.isLoading && <Spinner variant={"medium"} />}
-        {getCountry.isSuccess && studentCountryAdded ? (
+        {getCountry.isSuccess && studentCountryAdded && (
           <>
             <Fragment>
               <h3>{t("student-in-this-region")}</h3>
               <StyledMap codes={formattedCountryCodes} className="world-map" />
             </Fragment>
           </>
-        ) : (
+        )}
+        {!studentCountryAdded && (
           <>
             <CotentWrapper>
               <h3>{t("add-country-to-map")}</h3>

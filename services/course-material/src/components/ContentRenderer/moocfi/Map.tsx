@@ -69,19 +69,9 @@ interface CountryCountPair {
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
-  let countryCodeCount: CountryCountPair[] = useMemo(
-    () => [
-      { code: ".ng", count: 30 },
-      { code: ".nl", count: 43 },
-      { code: ".ad", count: 43 },
-      { code: ".zw", count: 3 },
-      { code: ".zm", count: 20 },
-      { code: ".fi", count: 20 },
-      { code: ".sa", count: 20 },
-      { code: ".nz", count: 120 },
-    ],
-    [],
-  )
+  let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
+
+  const [map, setMap] = useState<SVGLineElement | null>(null)
   const { t } = useTranslation()
 
   const pageState = useContext(PageContext)
@@ -157,8 +147,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const isPath = (child: RouteElement): child is SVGLineElement => {
     return child.tagName === "g" || child.tagName === "path"
   }
-
-  const [map, setMap] = useState<SVGLineElement | null>(null)
 
   useEffect(() => {
     const getMap = async () => {

@@ -10,7 +10,6 @@ import {
   fetchStudentCountry,
   postStudentCountry,
 } from "../../../services/backend"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
 import Spinner from "../../../shared-module/components/Spinner"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"

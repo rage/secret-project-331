@@ -201,7 +201,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     if (map) {
       const children = Array.from(map.children)
       children?.forEach((child: RouteElement) => {
-        // HOVER SHOULD ONLY WORK FOR HIGHLIGHTED COUNTRIES....
+        // HOVER STATE SHOULD ONLY WORK FOR HIGHLIGHTED COUNTRIES....
         if (isPath(child)) {
           child.addEventListener("mouseover", eventHandler)
           child.addEventListener("mouseout", eventHandler)
@@ -244,13 +244,16 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
       count: value,
     }))
 
-    countryCodeCount = [...countryCodeCount, ...new Set(storedCountryCodes)]
+    countryCodeCount = [...storedCountryCodes]
 
     const codes = countryCodeCount.map((item) => item.code)
     formattedCountryCodes = codes.join(",")
 
+    //Logic for generating Popular Countries table
+    // Sort table based on countries count (ascending)
     countryTableData = [...countryCodeCount].sort((a, b) => b.count - a.count).slice(0, 6)
 
+    // Check if active user country is in the sorted TableData and if not add it.
     const userCountryCodeCount = countryCodeCount.find(
       (item) => item.code === `.${activeStudentCountry}`,
     )

@@ -76,9 +76,9 @@ AND deleted_at IS NULL;
     Ok(student_countries)
 }
 
-pub async fn get_country_by_id(
+pub async fn get_selected_country_by_user_id(
     conn: &mut PgConnection,
-    id: Uuid,
+    user_id: Uuid,
     course_instance_id: Uuid,
 ) -> ModelResult<StudentCountry> {
     let country = sqlx::query_as!(
@@ -90,7 +90,7 @@ WHERE user_id = $1
 AND course_instance_id = $2
 AND deleted_at IS NULL;
 ",
-        id,
+        user_id,
         course_instance_id,
     )
     .fetch_one(conn)

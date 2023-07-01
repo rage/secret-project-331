@@ -777,8 +777,12 @@ async fn get_student_country(
 ) -> ControllerResult<web::Json<StudentCountry>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let res = models::student_countries::get_country_by_id(&mut conn, user.id, *course_instance_id)
-        .await?;
+    let res = models::student_countries::get_selected_country_by_user_id(
+        &mut conn,
+        user.id,
+        *course_instance_id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }

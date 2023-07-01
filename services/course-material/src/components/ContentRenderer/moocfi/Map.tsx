@@ -10,7 +10,9 @@ import {
   fetchStudentCountry,
   postStudentCountry,
 } from "../../../services/backend"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import SelectField from "../../../shared-module/components/InputFields/SelectField"
+import Spinner from "../../../shared-module/components/Spinner"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import useUserInfo from "../../../shared-module/hooks/useUserInfo"
 import { baseTheme } from "../../../shared-module/styles"
@@ -70,13 +72,14 @@ export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(
     () => [
-      // { code: ".ng", count: 30 },
-      // { code: ".nl", count: 43 },
-      // { code: ".ad", count: 43 },
-      // { code: ".zw", count: 3 },
-      // { code: ".zm", count: 20 },
-      // { code: ".fi", count: 20 },
-      // { code: ".sa", count: 20 },
+      { code: ".ng", count: 30 },
+      { code: ".nl", count: 43 },
+      { code: ".ad", count: 43 },
+      { code: ".zw", count: 3 },
+      { code: ".zm", count: 20 },
+      { code: ".fi", count: 20 },
+      { code: ".sa", count: 20 },
+      { code: ".nz", count: 120 },
     ],
     [],
   )
@@ -271,7 +274,16 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   return (
     <Fragment>
       <Wrapper>
-        {!studentCountryAdded ? (
+        {getCountry.isError && <ErrorBanner variant={"readOnly"} error={getCountry.error} />}
+        {getCountry.isLoading && <Spinner variant={"medium"} />}
+        {getCountry.isSuccess && studentCountryAdded ? (
+          <>
+            <Fragment>
+              <h3>{t("student-in-this-region")}</h3>
+              <StyledMap codes={formattedCountryCodes} className="world-map" />
+            </Fragment>
+          </>
+        ) : (
           <>
             <CotentWrapper>
               <h3>{t("add-country-to-map")}</h3>
@@ -329,13 +341,6 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
                 {t("use-of-info")}
               </span>
             </CotentWrapper>
-          </>
-        ) : (
-          <>
-            <Fragment>
-              <h3>{t("student-in-this-region")}</h3>
-              <StyledMap codes={formattedCountryCodes} className="world-map" />
-            </Fragment>
           </>
         )}
       </Wrapper>

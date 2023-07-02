@@ -184,7 +184,7 @@ export const countryList: {
   { label: "Reunion", value: "RE" },
   { label: "Romania", value: "RO" },
   { label: "Russian Federation", value: "RU" },
-  { label: "RWANDA", value: "RW" },
+  { label: "Rwanda", value: "RW" },
   { label: "Saint Helena", value: "SH" },
   { label: "Saint Kitts and Nevis", value: "KN" },
   { label: "Saint Lucia", value: "LC" },

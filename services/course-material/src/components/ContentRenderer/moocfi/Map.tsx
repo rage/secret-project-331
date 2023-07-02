@@ -249,7 +249,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
     const codes = countryCodeCount.map((item) => item.code)
     formattedCountryCodes = codes.join(",")
 
-    //Logic for generating Popular Countries table
+    // Logic for generating Popular Countries table
     // Sort table based on countries count (ascending)
     countryTableData = [...countryCodeCount].sort((a, b) => b.count - a.count).slice(0, 6)
 

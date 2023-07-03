@@ -612,7 +612,7 @@ export interface ExerciseSlideSubmission {
 }
 
 export interface ExerciseSlideSubmissionCount {
-  date: Date | null
+  date: string | null
   count: number | null
 }
 
@@ -1604,6 +1604,62 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email_domain: string | null
+}
+
+export interface PageVisitDatumSummaryByCourse {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string | null
+  exam_id: string | null
+  referrer: string | null
+  utm_source: string | null
+  utm_medium: string | null
+  utm_campaign: string | null
+  utm_term: string | null
+  utm_content: string | null
+  num_visitors: number
+  visit_date: string
+}
+
+export interface PageVisitDatumSummaryByCourseDeviceTypes {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  browser: string | null
+  browser_version: string | null
+  operating_system: string | null
+  device_type: string | null
+  course_id: string | null
+  exam_id: string | null
+  num_visitors: number
+  visit_date: string
+}
+
+export interface PageVisitDatumSummaryByPages {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exam_id: string | null
+  course_id: string | null
+  page_id: string
+  num_visitors: number
+  visit_date: string
+}
+
+export interface PageVisitDatumSummaryByCoursesCountries {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  country: string | null
+  course_id: string | null
+  exam_id: string | null
+  num_visitors: number
+  visit_date: string
 }
 
 export interface UploadResult {

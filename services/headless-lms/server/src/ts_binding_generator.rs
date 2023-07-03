@@ -232,6 +232,11 @@ fn models(target: &mut File) {
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
+
+        page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+        page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
+        page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
+        page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     };
 }
 

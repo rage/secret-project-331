@@ -4052,7 +4052,7 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 [[package]]
 name = "ts-rs"
 version = "6.2.0"
-source = "git+https://github.com/Heliozoa/ts-rs?rev=54263034d33818c292b9470cd61e2a2c8dff6097#54263034d33818c292b9470cd61e2a2c8dff6097"
+source = "git+https://github.com/Heliozoa/ts-rs?rev=07712bf04007472aeeb065091261b3b64c019381#07712bf04007472aeeb065091261b3b64c019381"
 dependencies = [
  "bytes",
  "chrono",
@@ -4065,12 +4065,12 @@ dependencies = [
 [[package]]
 name = "ts-rs-macros"
 version = "6.2.0"
-source = "git+https://github.com/Heliozoa/ts-rs?rev=54263034d33818c292b9470cd61e2a2c8dff6097#54263034d33818c292b9470cd61e2a2c8dff6097"
+source = "git+https://github.com/Heliozoa/ts-rs?rev=07712bf04007472aeeb065091261b3b64c019381#07712bf04007472aeeb065091261b3b64c019381"
 dependencies = [
  "Inflector",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.18",
  "termcolor",
 ]
 

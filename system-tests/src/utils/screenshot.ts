@@ -89,6 +89,15 @@ export default async function expectScreenshotsToMatchSnapshots({
     } else {
       page = screenshotTarget.page()
     }
+    if (!screenshotOptions) {
+      screenshotOptions = {}
+    }
+    if (!screenshotOptions.mask) {
+      screenshotOptions.mask = []
+    }
+    // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
+    screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
+
     await page.waitForLoadState()
 
     const originalViewPort = page.viewportSize()

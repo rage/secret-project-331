@@ -129,8 +129,12 @@ const prepareEditorModelSolution = async (
   const form = new FormData()
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
   form.append(archiveName, fs.createReadStream(solutionArchive))
+  const headers: Record<string, string> = {}
+  if (uploadClaim) {
+    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
+  }
   const res = await axios.post(uploadUrl, form, {
-    headers: uploadClaim ? { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: uploadClaim } : {},
+    headers,
   })
   if (isObjectMap<string>(res.data)) {
     const solutionDownloadUrl = res.data[archiveName]

@@ -3,7 +3,6 @@ pub mod exercise_services;
 
 use chrono::{DateTime, Utc};
 pub use error::ErrorResponse;
-use exercise_services::tmc;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use uuid::Uuid;
@@ -19,7 +18,6 @@ pub struct CourseInstance {
     pub course_description: Option<String>,
     pub instance_name: Option<String>,
     pub instance_description: Option<String>,
-    pub default_instance: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,12 +34,10 @@ pub struct ExerciseSlide {
 pub struct ExerciseTask {
     pub task_id: Uuid,
     pub order_number: i32,
-    pub task_info: ExerciseTaskInfo,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum ExerciseTaskInfo {
-    Tmc(tmc::ExerciseTaskInfo),
+    pub assignment: serde_json::Value,
+    pub public_spec: Option<serde_json::Value>,
+    pub model_solution_spec: Option<serde_json::Value>,
+    pub exercise_service_slug: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

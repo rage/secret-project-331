@@ -1,7 +1,4 @@
-use crate::domain::langs::{
-    convert::{Convert, TryConvert},
-    token::AuthToken,
-};
+use crate::domain::langs::{convert::Convert, token::AuthToken};
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use bytes::Bytes;
@@ -72,28 +69,34 @@ async fn course_instance_exercises(
                     .map(|ci| open_chapter_ids.contains(&ci))
                     .unwrap_or_default()
             });
-    for exercise in open_chapter_exercises {
+    for open_exercise in open_chapter_exercises {
         let (slide, _) = models::exercises::get_or_select_exercise_slide(
             &mut conn,
             Some(user.id),
-            &exercise,
+            &open_exercise,
             models_requests::fetch_service_info,
         )
         .await?;
-        let tasks = slide
+        let tasks: Vec<api::ExerciseTask> = slide
             .exercise_tasks
             .into_iter()
-            .map(TryConvert::try_convert)
-            .filter_map(Result::transpose)
-            .collect::<Result<Vec<_>, _>>()?;
+            // filter out all non-tmc tasks
+            .filter(|et| et.exercise_service_slug == "tmc")
+            // TODO: hide model solutions for unsolved tasks
+            .map(|mut et| {
+                et.model_solution_spec = None;
+                et
+            })
+            .map(Convert::convert)
+            .collect();
+        // do not include slides with no tmc tasks
         if !tasks.is_empty() {
-            // do not return slides which have no compatible tasks
             slides.push(api::ExerciseSlide {
                 slide_id: slide.id,
-                exercise_id: exercise.id,
-                exercise_name: exercise.name,
-                exercise_order_number: exercise.order_number,
-                deadline: exercise.deadline,
+                exercise_id: open_exercise.id,
+                exercise_name: open_exercise.name,
+                exercise_order_number: open_exercise.order_number,
+                deadline: open_exercise.deadline,
                 tasks,
             });
         }
@@ -152,9 +155,8 @@ async fn exercise(
         tasks: exercise_slide
             .exercise_tasks
             .into_iter()
-            .map(TryConvert::try_convert)
-            .filter_map(Result::transpose)
-            .collect::<Result<Vec<_>, _>>()?,
+            .map(Convert::convert)
+            .collect(),
     }))
 }
 
@@ -163,11 +165,11 @@ async fn exercise(
  *
  * Downloads an exercise.
  */
-#[instrument(skip(pool))]
+#[instrument(skip(_pool))]
 async fn download_exercise(
-    pool: web::Data<PgPool>,
-    user: AuthToken,
-    exercise_id: web::Path<Uuid>,
+    _pool: web::Data<PgPool>,
+    _user: AuthToken,
+    _exercise_id: web::Path<Uuid>,
 ) -> ControllerResult<Bytes> {
     todo!()
 }

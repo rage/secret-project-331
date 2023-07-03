@@ -19,7 +19,7 @@ import { HeroSectionAttributes } from "."
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
 > = ({ clientId, attributes, setAttributes }) => {
-  const { title, subtitle, alignCenter, useDefaultTextForLabel, label, partiallyTransparent } =
+  const { title, subtitle, alignCenter, useDefaultTextForLabel, label } =
     attributes
   const direction = alignCenter || alignCenter == undefined ? "center" : "left"
   const defaultLabel = useDefaultTextForLabel == undefined || useDefaultTextForLabel

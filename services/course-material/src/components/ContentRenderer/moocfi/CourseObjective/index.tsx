@@ -6,6 +6,8 @@ import React from "react"
 import { baseTheme } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
+import { Block } from "../../../../services/backend"
+import { HeadingAttributes, ListAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 interface StyledObjectiveProps {
   index: number
@@ -111,13 +113,14 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
       <h2>{title}</h2>
       <TextBox>
         {data &&
-          data.map((item: { innerBlocks: any; clientId: string | null }, index: number) => {
+          data.map((item: { innerBlocks: Block<unknown>[]; clientId: string | null }, index: number) => {
             const innerBlocks = item.innerBlocks
-            const isList = innerBlocks[0].name === "core/list"
             let list
 
-            if (isList && innerBlocks[0]) {
-              const values = innerBlocks[0].attributes.values
+            const firstInnerBlock = innerBlocks[0]
+            const isList = firstInnerBlock && isBlockList(firstInnerBlock)
+            if (isList) {
+              const values = firstInnerBlock.attributes.values
               const parser = new DOMParser()
               // eslint-disable-next-line i18next/no-literal-string
               const listItem = parser.parseFromString(values, "text/html")
@@ -134,7 +137,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
               </Objective>
             ) : (
               <Objective key={item.clientId} index={index}>
-                {innerBlocks && innerBlocks[0].name === "core/heading" && (
+                {innerBlocks && isBlockHeading(firstInnerBlock) && (
                   <h3
                     className={css`
                       font-size: 18px !important;
@@ -146,14 +149,14 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                       text-align: left;
                     `}
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeCourseMaterialHtml(innerBlocks[0].attributes.content),
+                      __html: sanitizeCourseMaterialHtml(firstInnerBlock.attributes.content),
                     }}
                   ></h3>
                 )}
                 <span className="paragraph">
                   {innerBlocks && innerBlocks.length > 1
                     ? innerBlocks[1].attributes.content
-                    : innerBlocks[0].attributes.content}
+                    : firstInnerBlock.attributes.content}
                 </span>
               </Objective>
             )
@@ -161,6 +164,14 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
       </TextBox>
     </Wrapper>
   )
+}
+
+function isBlockHeading(block: Block<unknown>): block is Block<HeadingAttributes> {
+  return block.name === "core/heading"
+}
+
+function isBlockList(block: Block<unknown>): block is Block<ListAttributes> {
+  return block.name === "core/list"
 }
 
 export default CourseObjective

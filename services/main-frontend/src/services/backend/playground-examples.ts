@@ -1,5 +1,3 @@
-import axios from "axios"
-
 import { PlaygroundExample, PlaygroundExampleData } from "../../shared-module/bindings"
 import { isPlaygroundExample } from "../../shared-module/bindings.guard"
 import {

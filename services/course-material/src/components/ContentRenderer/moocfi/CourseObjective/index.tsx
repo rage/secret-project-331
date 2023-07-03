@@ -3,11 +3,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { HeadingAttributes, ListAttributes } from "../../../../../types/GutenbergBlockAttributes"
+import { Block } from "../../../../services/backend"
 import { baseTheme } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
-import { Block } from "../../../../services/backend"
-import { HeadingAttributes, ListAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
 interface StyledObjectiveProps {
   index: number
@@ -113,54 +113,58 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
       <h2>{title}</h2>
       <TextBox>
         {data &&
-          data.map((item: { innerBlocks: Block<unknown>[]; clientId: string | null }, index: number) => {
-            const innerBlocks = item.innerBlocks
-            let list
+          data.map(
+            (item: { innerBlocks: Block<unknown>[]; clientId: string | null }, index: number) => {
+              const innerBlocks = item.innerBlocks
+              let list
 
-            const firstInnerBlock = innerBlocks[0]
-            const isList = firstInnerBlock && isBlockList(firstInnerBlock)
-            if (isList) {
-              const values = firstInnerBlock.attributes.values
-              const parser = new DOMParser()
-              // eslint-disable-next-line i18next/no-literal-string
-              const listItem = parser.parseFromString(values, "text/html")
-              list = [].slice.call(listItem.body.childNodes).map(({ innerHTML }) => innerHTML)
-            }
+              const firstInnerBlock = innerBlocks[0]
+              const isList = firstInnerBlock && isBlockList(firstInnerBlock)
+              if (isList) {
+                const values = firstInnerBlock.attributes.values
+                const parser = new DOMParser()
+                // eslint-disable-next-line i18next/no-literal-string
+                const listItem = parser.parseFromString(values, "text/html")
+                list = [].slice.call(listItem.body.childNodes).map(({ innerHTML }) => innerHTML)
+              }
 
-            return isList ? (
-              <Objective key={item.clientId} index={index}>
-                {list?.map((childHtml) => (
-                  <span className="list" key={childHtml}>
-                    {childHtml}
+              return isList ? (
+                <Objective key={item.clientId} index={index}>
+                  {list?.map((childHtml) => (
+                    <span className="list" key={childHtml}>
+                      {childHtml}
+                    </span>
+                  ))}
+                </Objective>
+              ) : (
+                <Objective key={item.clientId} index={index}>
+                  {innerBlocks && isBlockHeading(firstInnerBlock) && (
+                    <h3
+                      className={css`
+                        font-size: 18px !important;
+                        z-index: 20;
+                        line-height: 120%;
+                        margin-bottom: 0.8rem;
+                        font-style: normal;
+                        font-weight: 600;
+                        text-align: left;
+                      `}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeCourseMaterialHtml(firstInnerBlock.attributes.content),
+                      }}
+                    ></h3>
+                  )}
+                  <span className="paragraph">
+                    {innerBlocks && innerBlocks.length > 1
+                      ? // @ts-expect-error: the second inner block should always have content
+                        innerBlocks[1].attributes.content
+                      : // @ts-expect-error: the first inner block should always have content
+                        firstInnerBlock.attributes.content}
                   </span>
-                ))}
-              </Objective>
-            ) : (
-              <Objective key={item.clientId} index={index}>
-                {innerBlocks && isBlockHeading(firstInnerBlock) && (
-                  <h3
-                    className={css`
-                      font-size: 18px !important;
-                      z-index: 20;
-                      line-height: 120%;
-                      margin-bottom: 0.8rem;
-                      font-style: normal;
-                      font-weight: 600;
-                      text-align: left;
-                    `}
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeCourseMaterialHtml(firstInnerBlock.attributes.content),
-                    }}
-                  ></h3>
-                )}
-                <span className="paragraph">
-                  {innerBlocks && innerBlocks.length > 1
-                    ? innerBlocks[1].attributes.content
-                    : firstInnerBlock.attributes.content}
-                </span>
-              </Objective>
-            )
-          })}
+                </Objective>
+              )
+            },
+          )}
       </TextBox>
     </Wrapper>
   )

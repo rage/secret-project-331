@@ -17,6 +17,7 @@ i18n.use(initReactI18next).init({
     escapeValue: false, // not needed for react!!
   },
 
+  fallbackNS: "shared-module",
   resources: { en: { translationsNS: {} } },
 })
 

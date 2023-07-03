@@ -185,52 +185,6 @@
     },
     "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec;\n        "
   },
-  "01ad29bc78828b79df240e058f98ac99ef013335bbdfa412aa173d20821c0472": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 2,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_instance_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "country_code",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 6,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [false, false, false, false, false, false, true],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT *\nFROM student_countries\nWHERE course_id = $1\nAND deleted_at IS NULL;\n"
-  },
   "01bb87c105475e3b694772edf92dee4bad62dabb109aceebb1124e1684b5ab04": {
     "describe": {
       "columns": [
@@ -10144,6 +10098,52 @@
     },
     "query": "\nINSERT INTO page_visit_datum_summary_by_pages (\n    course_id,\n    exam_id,\n    page_id,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  page_id,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  page_id\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    page_id,\n    visit_date,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
   },
+  "74ce5f6da9f0821f29c75d03f4a8f532fa1d7afd1fb3cdf2955f808206efa118": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country_code",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM student_countries\nWHERE course_id = $1\nAND course_instance_id = $2\nAND deleted_at IS NULL;\n"
+  },
   "74d82f3b6234558038f0d4cebd6f4b05aaef172cb0b75276f9ae429f7c3c10ec": {
     "describe": {
       "columns": [
@@ -19880,6 +19880,52 @@
       }
     },
     "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  p.exam_id as exam_id,\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n"
+  },
+  "dba9ba5276e8397e269fb497bf01304f7450ff6f87cd5e94c30b818490d16b6e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country_code",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM student_countries\nWHERE user_id = $1\nAND course_instance_id = $2\nAND deleted_at IS NULL;\n"
   },
   "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {
     "describe": {

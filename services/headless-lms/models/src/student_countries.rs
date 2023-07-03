@@ -57,6 +57,7 @@ WHERE id = $1
 pub async fn get_countries(
     conn: &mut PgConnection,
     course_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Vec<StudentCountry>> {
     let student_countries = sqlx::query_as!(
         StudentCountry,
@@ -64,11 +65,35 @@ pub async fn get_countries(
 SELECT *
 FROM student_countries
 WHERE course_id = $1
+AND course_instance_id = $2
 AND deleted_at IS NULL;
 ",
-        course_id
+        course_id,
+        course_instance_id,
     )
     .fetch_all(conn)
     .await?;
     Ok(student_countries)
+}
+
+pub async fn get_selected_country_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<StudentCountry> {
+    let country = sqlx::query_as!(
+        StudentCountry,
+        "
+SELECT *
+FROM student_countries
+WHERE user_id = $1
+AND course_instance_id = $2
+AND deleted_at IS NULL;
+",
+        user_id,
+        course_instance_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(country)
 }

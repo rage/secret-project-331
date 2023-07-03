@@ -737,18 +737,52 @@ async fn student_country(
 }
 
 /**
-GET `/api/v0/{course_id}/student-countries - Returns countries of student registered in a course.
+GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_student_countries(
-    course_id: web::Path<Uuid>,
+    query: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<StudentCountry>>> {
+) -> ControllerResult<web::Json<HashMap<String, u32>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let res = models::student_countries::get_countries(&mut conn, *course_id).await?;
+    let (course_id, course_instance_id) = query.into_inner();
+
+    let country_codes: Vec<String> =
+        models::student_countries::get_countries(&mut conn, course_id, course_instance_id)
+            .await?
+            .into_iter()
+            .map(|c| (c.country_code))
+            .collect();
+
+    let mut frequency: HashMap<String, u32> = HashMap::new();
+    for code in country_codes {
+        *frequency.entry(code).or_insert(0) += 1
+    }
+
+    token.authorized_ok(web::Json(frequency))
+}
+
+/**
+GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_student_country(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<StudentCountry>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let res = models::student_countries::get_selected_country_by_user_id(
+        &mut conn,
+        user.id,
+        *course_instance_id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -812,7 +846,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(student_country),
         )
         .route(
-            "/{course_id}/student-countries",
+            "/{course_instance_id}/student-country",
+            web::get().to(get_student_country),
+        )
+        .route(
+            "/{course_id}/course-instances/{course_instance_id}/student-countries",
             web::get().to(get_student_countries),
         );
 }

@@ -13,15 +13,19 @@ pub mod cms;
 pub mod course_material;
 pub mod exercise_services;
 pub mod files;
+pub mod healthz;
 pub mod helpers;
 pub mod main_frontend;
 pub mod other_domain_redirects;
 pub mod study_registry;
 
-use actix_web::web::{self, ServiceConfig};
-
+use crate::domain::error::{ControllerError, ControllerErrorType};
+use actix_web::{
+    web::{self, ServiceConfig},
+    HttpRequest, HttpResponse, ResponseError,
+};
+use headless_lms_utils::prelude::*;
 use serde::{Deserialize, Serialize};
-
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 
@@ -43,5 +47,16 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(
             web::scope("/other-domain-redirects").configure(other_domain_redirects::_add_routes),
-        );
+        )
+        .service(web::scope("/healthz").configure(healthz::_add_routes))
+        .default_service(web::to(not_found));
+}
+
+async fn not_found(req: HttpRequest) -> HttpResponse {
+    ControllerError::new(
+        ControllerErrorType::NotFound,
+        format!("No handler found for route '{}'", req.path()),
+        None,
+    )
+    .error_response()
 }

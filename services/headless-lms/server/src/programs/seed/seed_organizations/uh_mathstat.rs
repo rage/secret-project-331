@@ -36,6 +36,7 @@ pub async fn seed_organization_uh_mathstat(
         course_or_exam_creator_user_id: _,
         student_user_id,
         example_normal_user_ids,
+        teaching_and_learning_services_user_id: _,
     } = seed_users_result;
 
     let mut conn = db_pool.acquire().await?;
@@ -58,6 +59,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     let (
         statistics_course,
@@ -102,6 +104,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -142,8 +145,10 @@ pub async fn seed_organization_uh_mathstat(
             description: "Just a draft.".to_string(),
             is_draft: false,
             is_test_mode: false,
+            copy_user_permissions: false,
         },
         true,
+        admin_user_id,
     )
     .await?;
 

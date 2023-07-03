@@ -3,6 +3,7 @@
 use std::{collections::HashMap, net::IpAddr, path::Path};
 
 use actix_http::header;
+use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
@@ -23,6 +24,7 @@ use models::{
     },
     pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},
+    student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
 
@@ -45,7 +47,7 @@ async fn get_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(course))
 }
 
@@ -108,7 +110,11 @@ async fn get_course_page_by_path(
     let RequestInformation {
         ip,
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         user_agent,
         has_bot_user_agent,
@@ -147,7 +153,11 @@ async fn get_course_page_by_path(
             device_type,
             referrer,
             is_bot: has_bot_user_agent || browser_admits_its_a_bot,
-            utm_tags,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_term,
+            utm_content,
             anonymous_identifier,
             exam_id: page_with_user_data.page.exam_id,
         },
@@ -161,7 +171,11 @@ struct RequestInformation {
     ip: Option<IpAddr>,
     user_agent: String,
     referrer: Option<String>,
-    utm_tags: Option<serde_json::Value>,
+    utm_source: Option<String>,
+    utm_medium: Option<String>,
+    utm_campaign: Option<String>,
+    utm_term: Option<String>,
+    utm_content: Option<String>,
     country: Option<String>,
     has_bot_user_agent: bool,
     browser_admits_its_a_bot: bool,
@@ -177,8 +191,9 @@ async fn derive_information_from_requester(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<RequestInformation> {
-    let headers = req.headers();
-    let user_agent = headers.get(header::USER_AGENT);
+    let mut headers = req.headers().clone();
+    let headers_clone = headers.clone();
+    let user_agent = headers_clone.get(header::USER_AGENT);
     let bots = Bots::default();
     let has_bot_user_agent = user_agent
         .and_then(|ua| ua.to_str().ok())
@@ -212,9 +227,36 @@ async fn derive_information_from_requester(
         .map(|c| c.to_string());
 
     let utm_tags = headers
-        .get("utm-tags")
-        .and_then(|utms| utms.to_str().ok())
-        .and_then(|utms| serde_json::to_value(utms).ok());
+        .remove("utm-tags")
+        .next()
+        .and_then(|utms| String::from_utf8(utms.as_bytes().to_vec()).ok())
+        .and_then(|utms| serde_json::from_str::<serde_json::Value>(&utms).ok())
+        .and_then(|o| o.as_object().cloned());
+
+    let utm_source = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_source"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_medium = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_medium"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_campaign = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_campaign"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_term = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_term"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_content = utm_tags
+        .and_then(|mut tags| tags.remove("utm_content"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
     let referrer = headers
         .get("Orignal-Referrer")
         .and_then(|r| r.to_str().ok())
@@ -227,7 +269,7 @@ async fn derive_information_from_requester(
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(RequestInformation {
         ip,
         user_agent: user_agent
@@ -235,7 +277,11 @@ async fn derive_information_from_requester(
             .unwrap_or_default()
             .to_string(),
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         has_bot_user_agent,
         browser_admits_its_a_bot,
@@ -263,7 +309,7 @@ async fn get_current_course_instance(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         token.authorized_ok(web::Json(instance))
     } else {
         Err(ControllerError::new(
@@ -285,7 +331,7 @@ async fn get_course_instances(
     let mut conn = pool.acquire().await?;
     let instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(instances))
 }
 
@@ -307,7 +353,7 @@ async fn get_public_course_pages(
         PageVisibility::Public,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(pages))
 }
 
@@ -346,7 +392,7 @@ async fn get_chapters(
     }))
     .await
     .is_some();
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let chapters = models::chapters::course_chapters(&mut conn, *course_id)
         .await?
@@ -403,7 +449,7 @@ fn collect_course_modules(
             .chapters
             .push(chapter);
     }
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(course_modules.into_values().collect())
 }
 
@@ -423,7 +469,7 @@ async fn get_user_course_settings(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         token.authorized_ok(web::Json(settings))
     } else {
         Err(ControllerError::new(
@@ -462,7 +508,7 @@ async fn search_pages_with_phrase(
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -494,7 +540,7 @@ async fn search_pages_with_words(
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_words(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -546,7 +592,7 @@ pub async fn feedback(
         ids.push(id);
     }
     tx.commit().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(ids))
 }
 
@@ -570,7 +616,7 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(id))
 }
 
@@ -582,7 +628,7 @@ async fn glossary(
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(glossary))
 }
 
@@ -617,7 +663,7 @@ async fn get_public_top_level_pages(
         PageVisibility::Public,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 
@@ -631,7 +677,7 @@ async fn get_all_course_language_versions(
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course)
@@ -660,8 +706,51 @@ async fn get_page_by_course_id_and_language_group(
         page_language_group_id,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
+}
+
+/**
+POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn student_country(
+    query: web::Path<(Uuid, Uuid, String)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let (course_id, course_instance_id, country_code) = query.into_inner();
+
+    models::student_countries::insert(
+        &mut conn,
+        user.id,
+        course_id,
+        course_instance_id,
+        &country_code,
+    )
+    .await?;
+    let token = skip_authorize();
+
+    token.authorized_ok(Json(true))
+}
+
+/**
+GET `/api/v0/{course_id}/student-countries - Returns countries of student registered in a course.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_student_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<StudentCountry>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let res = models::student_countries::get_countries(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -717,5 +806,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
             web::get().to(get_page_by_course_id_and_language_group),
         )
-        .route("/{course_id}/pages", web::get().to(get_public_course_pages));
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
+        .route(
+            "/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}",
+            web::post().to(student_country),
+        )
+        .route(
+            "/{course_id}/student-countries",
+            web::get().to(get_student_countries),
+        );
 }

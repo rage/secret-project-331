@@ -48,6 +48,8 @@
   "limit-number-of-tries": "Limit number of tries",
   "loading": "Loading...",
   "loading-repository-exercises": "Loading repository exercises",
+  "map-block-placeholder": "Map block placeholder",
+  "map-block-placeholder-explanation": "This is a placeholder for a map that shows countries of student enrolled in a course.",
   "menti-height-help-text": "Height in pixels. Adjust the height of the embedded window so that the scrollbar disappears. Also make sure that the scrollbar is not visible in the course material.",
   "menti-height-label": "Height",
   "menti-panel-instructions": "Please paste the URL to embed and submit. After that you can define the title and height.",

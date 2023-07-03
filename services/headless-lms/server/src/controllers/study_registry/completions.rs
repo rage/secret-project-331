@@ -57,7 +57,7 @@ GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]
+#[generated_doc(Vec<StudyRegistryCompletion>)]
 #[instrument(skip(req, pool))]
 async fn get_completions(
     req: HttpRequest,
@@ -98,7 +98,7 @@ async fn get_completions(
             &course_modules,
         );
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
-            let token = skip_authorize().expect("Always succeeds");
+            let token = skip_authorize();
             let message = match message {
                 Ok(message) => message,
                 Err(err) => {
@@ -160,7 +160,7 @@ Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]
+#[generated_doc(Vec<StudyRegistryCompletion>)]
 #[instrument(skip(req, pool))]
 async fn get_module_completions(
     req: HttpRequest,
@@ -196,7 +196,7 @@ async fn get_module_completions(
             &modules,
         );
         let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
-            let token = skip_authorize().expect("Always succeeds");
+            let token = skip_authorize();
             let message = match message {
                 Ok(message) => message,
                 Err(err) => {

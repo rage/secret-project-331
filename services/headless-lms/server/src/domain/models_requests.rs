@@ -18,6 +18,7 @@ use headless_lms_models::{
 use headless_lms_utils::error::backend_error::BackendError;
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
+use models::SpecFetcher;
 use sha2::Sha256;
 use std::{borrow::Cow, fmt::Debug, sync::Arc};
 use url::Url;
@@ -231,11 +232,7 @@ pub struct SpecRequest<'a> {
 /// Fetches a public/model spec based on the private spec from the given url.
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
-pub fn make_spec_fetcher(
-    request_id: Uuid,
-    jwt_key: Arc<JwtKey>,
-) -> impl Fn(Url, &str, Option<&serde_json::Value>) -> BoxFuture<'static, ModelResult<serde_json::Value>>
-{
+pub fn make_spec_fetcher(request_id: Uuid, jwt_key: Arc<JwtKey>) -> impl SpecFetcher {
     move |url, exercise_service_slug, private_spec| {
         let client = reqwest::Client::new();
         let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
@@ -244,7 +241,7 @@ pub fn make_spec_fetcher(
             "http://project-331.local/api/v0/files/{exercise_service_slug}"
         ));
         let req = client
-            .post(url)
+            .post(url.clone())
             .header(
                 EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER,
                 upload_claim.sign(&jwt_key),
@@ -258,11 +255,21 @@ pub fn make_spec_fetcher(
             .send();
         async move {
             let res = req.await.map_err(reqwest_err)?;
-            if !res.status().is_success() {
-                let error = res.text().await.unwrap_or_default();
+            let status_code = res.status();
+            if !status_code.is_success() {
+                let error_text = res.text().await;
+                let error = error_text.as_deref().unwrap_or("(No text in response)");
+                error!(
+                    ?url,
+                    ?exercise_service_slug,
+                    ?private_spec,
+                    ?status_code,
+                    "Exercise service returned an error while generating a spec: {}",
+                    error
+                );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
-                    format!("Failed to generate spec for exercise: {}.", error,),
+                    format!("Failed to generate spec for exercise for {exercise_service_slug}: {error}."),
                     None,
                 ));
             }

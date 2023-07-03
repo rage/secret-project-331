@@ -61,7 +61,12 @@ fn models(target: &mut File) {
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
+        course_module_completion_certificates::CourseModuleCompletionCertificate,
+        course_module_certificate_configurations::CourseModuleCertificateConfiguration,
+        course_module_certificate_configurations::CertificateTextAnchor,
+        course_module_certificate_configurations::PaperSize,
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+        course_module_completions::CourseModuleCompletion,
         course_modules::AutomaticCompletionRequirements,
         course_modules::CompletionPolicy,
         course_modules::CourseModule,
@@ -190,6 +195,8 @@ fn models(target: &mut File) {
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
         proposed_block_edits::BlockProposal,
+        proposed_block_edits::EditedBlockStillExistsData,
+        proposed_block_edits::EditedBlockNoLongerExistsData,
         proposed_block_edits::BlockProposalAction,
         proposed_block_edits::BlockProposalInfo,
         proposed_block_edits::NewProposedBlockEdit,
@@ -210,6 +217,8 @@ fn models(target: &mut File) {
         roles::RoleUser,
         roles::UserRole,
 
+        student_countries::StudentCountry,
+
         teacher_grading_decisions::NewTeacherGradingDecision,
         teacher_grading_decisions::TeacherDecisionType,
         teacher_grading_decisions::TeacherGradingDecision,
@@ -223,6 +232,11 @@ fn models(target: &mut File) {
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
+
+        page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+        page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
+        page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
+        page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     };
 }
 
@@ -269,6 +283,7 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
+            certificates::CourseModuleCertificateConfigurationUpdate,
             courses::GetFeedbackQuery,
             exams::ExamCourseInfo,
             exercise_repositories::NewExerciseRepository,

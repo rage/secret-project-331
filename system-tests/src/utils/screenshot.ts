@@ -89,6 +89,16 @@ export default async function expectScreenshotsToMatchSnapshots({
     } else {
       page = screenshotTarget.page()
     }
+    if (!screenshotOptions) {
+      screenshotOptions = {}
+    }
+    if (!screenshotOptions.mask) {
+      screenshotOptions.mask = []
+    }
+    // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
+    screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
+
+    await page.waitForLoadState()
 
     const originalViewPort = page.viewportSize()
     try {
@@ -104,8 +114,10 @@ export default async function expectScreenshotsToMatchSnapshots({
 
       if (clearNotifications) {
         await page.evaluate(() => {
-          for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
-            notif.remove()
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+          )) {
+            notif.style.display = "none"
           }
         })
         await hideToasts(page)
@@ -143,9 +155,21 @@ export default async function expectScreenshotsToMatchSnapshots({
         screenshotTarget: screenshotTarget as any,
       })
     } finally {
+      if (clearNotifications) {
+        await page.evaluate(() => {
+          for (const notif of Array.from(
+            document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+          )) {
+            notif.style.display = "block"
+          }
+        })
+      }
       if (originalViewPort) {
         // always restore the original viewport
         await page.setViewportSize(originalViewPort)
+        if (replaceSomePartsWithPlaceholders) {
+          await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+        }
       }
     }
   })
@@ -187,23 +211,12 @@ async function snapshotWithViewPort({
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
   }
-
-  if (beforeScreenshot) {
-    await page.waitForTimeout(100)
-    await beforeScreenshot()
-    if (replaceSomePartsWithPlaceholders) {
-      // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
-      await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
-    }
-
-    await page.waitForTimeout(100)
-    if (waitForTheseToBeVisibleAndStable) {
-      await waitToBeStable(waitForTheseToBeVisibleAndStable)
-    }
+  // Has to be dispatched again in case the hidden content appeared while we waited for `waitForTheseToBeVisibleAndStable`
+  if (replaceSomePartsWithPlaceholders) {
+    await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   }
 
-  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
-  if (scrollToYCoordinate) {
+  if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
       await page.evaluate(async (coord) => {
         window.scrollTo(0, coord)
@@ -217,6 +230,13 @@ async function snapshotWithViewPort({
       // 100ms was not enough at the time of writing this
       await page.waitForTimeout(200)
     }
+  }
+
+  // leave beforeScreenshot for last before the actual screenshot so the adjustments it makes are final
+  if (beforeScreenshot) {
+    await page.waitForTimeout(100)
+    await beforeScreenshot()
+    await page.waitForTimeout(100)
   }
 
   const screenshotName = `${snapshotName.replace(
@@ -242,10 +262,6 @@ async function snapshotWithViewPort({
   // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
   // for accessibility
   await accessibilityCheck(page, screenshotName, axeSkip)
-
-  if (replaceSomePartsWithPlaceholders) {
-    await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
-  }
 }
 
 interface WaitToBeVisibleProps {
@@ -267,13 +283,22 @@ export async function takeScreenshotAndComparetoSnapshot(
     newScreenshot = true
   }
 
+  const originalUpdateSnapshotsSetting = testInfo.config.updateSnapshots
+
   try {
+    if (testInfo.config.updateSnapshots === "all") {
+      // Special handling for the case when we're updating all screenshots.
+      // If the screenshot y coordinate is not stable, we'll have to restore the scroll position before updating the screenshot so that the screenshot does not change on every run.
+      testInfo.config.updateSnapshots = "missing"
+    }
+
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   } catch (e: unknown) {
+    testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     // sometimes snapshots have wild race conditions, lets try again in a moment
     console.warn(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
@@ -293,6 +318,8 @@ export async function takeScreenshotAndComparetoSnapshot(
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
+  } finally {
+    testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
   }
   if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
     // When updating snapshots, optimize the new image so that it does not take extra space in version control.

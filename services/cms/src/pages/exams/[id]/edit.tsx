@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import Layout from "../../../components/Layout"
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
 import { ExamInstructions, ExamInstructionsUpdate } from "../../../shared-module/bindings"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
@@ -55,14 +54,12 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   }
 
   return (
-    <Layout>
-      <ExamsInstructionsGutenbergEditor
-        data={getExamsInstructions.data}
-        handleSave={handleSave}
-        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-      />
-    </Layout>
+    <ExamsInstructionsGutenbergEditor
+      data={getExamsInstructions.data}
+      handleSave={handleSave}
+      needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+      setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+    />
   )
 }
 

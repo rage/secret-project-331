@@ -1,14 +1,15 @@
 [package]
 name = "doc-macro"
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
-license = "Apache-2.0"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [lib]
 proc-macro = true
 
 [dependencies]
-syn = { version = "2.0.15", features = ["printing", "parsing", "extra-traits"] }
-proc-macro2 = "1.0.56"
-quote = "1.0.26"
+syn = { version = "2.0.18", features = ["printing", "parsing", "extra-traits"] }
+proc-macro2 = "1.0.60"
+quote = "1.0.28"

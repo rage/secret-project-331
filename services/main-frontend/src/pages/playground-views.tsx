@@ -11,7 +11,6 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "../components/page-specific/playground-views/PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "../components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
@@ -364,14 +363,14 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout>
+    <>
       <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
       <br />
 
       <BreakFromCentered sidebar={false}>
         <GridContainer>
           <ServiceInfoUrlGridArea>
-            <TextField label={t("service-info-url")} register={register("url")} />
+            <TextField label={t("service-info-url")} {...register("url")} />
             {serviceInfoQuery.isError && t("error-fetching-service-info")}
             {!serviceInfoQuery.isLoading && (
               <div
@@ -418,16 +417,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             <TextField
               placeholder={t("label-width")}
               label={t("label-width")}
-              register={register("width")}
+              {...register("width")}
             />
-            <CheckBox label={t("show-iframe-borders")} register={register("showIframeBorders")} />
-            <CheckBox label={t("disable-sandbox")} register={register("disableSandbox")} />
+            <CheckBox label={t("show-iframe-borders")} {...register("showIframeBorders")} />
+            <CheckBox label={t("disable-sandbox")} {...register("disableSandbox")} />
             <TextField
               placeholder={t("label-pseudonymous-user-id")}
               label={t("label-pseudonymous-user-id")}
-              register={register("pseudonymousUserId")}
+              {...register("pseudonymousUserId")}
             />
-            <CheckBox label={t("button-text-signed-in")} register={register("signedIn")} />
+            <CheckBox label={t("button-text-signed-in")} {...register("signedIn")} />
           </MiscSettingsGridArea>
 
           <PrivateSpecGridArea>
@@ -436,7 +435,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               rows={20}
               spellCheck={false}
               label={t("private-spec")}
-              register={register("private_spec", {
+              {...register("private_spec", {
                 validate: (value) => {
                   try {
                     JSON.parse(value)
@@ -911,7 +910,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
           </div>
         </div>
       </HideChildrenInSystemTests>
-    </Layout>
+    </>
   )
 }
 

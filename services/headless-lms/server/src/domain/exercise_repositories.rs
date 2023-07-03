@@ -378,7 +378,7 @@ fn contains_tmcignore(entry: &DirEntry) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::str::FromStr;
+    use std::{fs::Permissions, os::unix::prelude::PermissionsExt, str::FromStr};
 
     #[tokio::test]
     async fn finds_exercise_dirs() {
@@ -392,6 +392,25 @@ mod test {
 
         std::fs::create_dir_all(repo.path().join("part02/01_exercise")).unwrap();
         std::fs::write(repo.path().join("part02/01_exercise/file"), "1234").unwrap();
+
+        // Make sure permissions are the same on all systems. Some systems have different default permissions in the temp folder.
+        let file_paths = vec![
+            repo.path().join("part01/01_exercise/file"),
+            repo.path().join("part01/02_exercise/file"),
+            repo.path().join("part02/01_exercise/file"),
+        ];
+        let folder_paths = vec![
+            repo.path().join("part01/01_exercise"),
+            repo.path().join("part01/02_exercise"),
+            repo.path().join("part02/01_exercise"),
+            repo.path().to_path_buf(),
+        ];
+        for path in file_paths {
+            std::fs::set_permissions(path, Permissions::from_mode(0o644)).unwrap();
+        }
+        for path in folder_paths {
+            std::fs::set_permissions(path, Permissions::from_mode(0o755)).unwrap();
+        }
 
         let mut paths = find_exercise_directories(repo.path()).await.unwrap();
         paths.sort_by(|a, b| a.path.cmp(&b.path));

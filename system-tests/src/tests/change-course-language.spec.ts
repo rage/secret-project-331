@@ -31,13 +31,14 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Oletus").first().click()
   await page.getByRole("button", { name: "Jatka" }).click()
+  await page.getByRole("heading", { name: "Kurssin asetukset" }).waitFor({ state: "hidden" })
 
   await page.getByRole("heading", { name: "Kurssin yhteenveto" }).waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin",
   )
 
-  await page.getByRole("button", { name: "Avaa valikko" }).click()
+  // await page.getByRole("button", { name: "Avaa valikko" }).click()
   await page.getByRole("button", { name: "Asetukset" }).click()
 
   await expectScreenshotsToMatchSnapshots({
@@ -45,7 +46,10 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Valitse kieli")],
+    waitForTheseToBeVisibleAndStable: [
+      page.locator("text=Valitse kieli"),
+      page.locator("id=language-flag"),
+    ],
   })
 
   const value1 = page.locator("#changeLanguage")
@@ -58,5 +62,19 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations",
+  )
+  // Make sure the language menu changes the course language version
+  await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  await page.getByRole("link", { name: "2 Page 2" }).click()
+  await page.getByText("First chapters second page.").click()
+  await page.getByRole("button", { name: "Language" }).click()
+  await page.getByRole("button", { name: "Suomi" }).click()
+  await page
+    .getByRole("link", {
+      name: "Olet tekemässä kurssia jo toisella kielellä. Ennen kuin vastaat mihinkään tehtävään, palaa kieliversioon Introduction to citations (English) tai vaihda käytössä oleva kieli kurssin asetuksista.",
+    })
+    .waitFor()
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin/chapter-1/page-2",
   )
 })

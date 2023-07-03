@@ -8,6 +8,6 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command docker pull node:18-bullseye-slim
+run_command docker pull node:18-bookworm-slim
 
 run_command docker build . --file Dockerfile.node.base.dockerfile -t eu.gcr.io/moocfi-public/project-331-node-base

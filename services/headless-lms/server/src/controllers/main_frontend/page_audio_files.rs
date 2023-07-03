@@ -56,7 +56,7 @@ async fn set_page_audio(
         let mime_type = field
             .content_type()
             .map(|ct| ct.to_string())
-            .unwrap_or("".to_string());
+            .unwrap_or_else(|| "".to_string());
         /*
         if !matches!(mime_type.as_str(), "audio/mpeg" | "audio/ogg") {
             return Err(...)

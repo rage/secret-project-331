@@ -24,7 +24,7 @@ use crate::{
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    CourseOrExamId,
+    CourseOrExamId, SpecFetcher,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -1042,11 +1042,7 @@ pub struct PageUpdateArgs {
 pub async fn update_page(
     conn: &mut PgConnection,
     page_update: PageUpdateArgs,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
     let cms_page_update = page_update.cms_page_update;
@@ -1472,11 +1468,7 @@ async fn upsert_exercise_tasks(
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
     // For generating public specs for exercises.
@@ -1883,11 +1875,7 @@ async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
     urls_by_exercise_type: &HashMap<&String, Url>,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
 ) -> Result<Option<serde_json::Value>, ModelError> {
@@ -1926,11 +1914,7 @@ pub async fn insert_new_content_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
@@ -1970,11 +1954,7 @@ pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut page_language_group_id = None;
@@ -2024,7 +2004,7 @@ INSERT INTO pages(
     content_search_language,
     page_language_group_id
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id,
   created_at,
   updated_at,
@@ -2710,6 +2690,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -2794,6 +2775,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -2836,11 +2818,7 @@ pub async fn restore(
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
     // fetch old content

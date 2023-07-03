@@ -4,7 +4,7 @@
 # We use the development image as a source
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as source
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 RUN useradd -ms /usr/sbin/nologin user
 
@@ -14,3 +14,4 @@ RUN apt-get update \
 
 COPY --from=source /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx
 COPY --from=source /ips-to-country /ips-to-country
+COPY --from=source /icu4x.postcard /icu4x.postcard

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useCallback, useContext, useEffect, useId, useState } from "react"
+import { useRouter } from "next/router"
+import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
@@ -10,6 +11,7 @@ import Dialog from "../../shared-module/components/Dialog"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "../../shared-module/styles"
 import { LANGUAGE_COOKIE_KEY } from "../../shared-module/utils/constants"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -28,26 +30,31 @@ export interface CourseTranslationsListProps {
   setSelectLanguage(setLanguage: string): void
 }
 
-export interface CourseInstanceSelectModalProps {
+export interface CourseSettingsModalProps {
   onClose: () => void
   manualOpen?: boolean
 }
 
-const CourseInstanceSelectModal: React.FC<
-  React.PropsWithChildren<CourseInstanceSelectModalProps>
-> = ({ onClose, manualOpen = false }) => {
+const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalProps>> = ({
+  onClose,
+  manualOpen = false,
+}) => {
   const { i18n, t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
   const dialogTitleId = useId()
+  const router = useRouter()
 
   const [selectedLangCourseId, setSelectLanguage] = React.useState(
-    pageState.pageData?.course_id ?? "",
+    pageState.settings?.current_course_id ?? pageState.pageData?.course_id ?? "",
   )
   const [languageChanged, setIsLanguageChanged] = React.useState(false)
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
+  const sortInstances = () => {
+    getCourseInstances.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
+  }
 
   const getCourseInstances = useQuery(
     ["course-instances"],
@@ -56,13 +63,18 @@ const CourseInstanceSelectModal: React.FC<
       enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
     },
   )
+  sortInstances()
 
   useEffect(() => {
     getCourseInstances.refetch()
+    sortInstances()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLangCourseId])
 
-  const newUrl = useFigureOutNewUrl(selectedLangCourseId)
+  const newUrl = useFigureOutNewUrl(
+    selectedLangCourseId,
+    pageState.pageData?.page_language_group_id ?? null,
+  )
   const newLangcode = useFigureOutNewLangCode(selectedLangCourseId)
 
   useEffect(() => {
@@ -72,8 +84,12 @@ const CourseInstanceSelectModal: React.FC<
     setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
   }, [loginState, pageState, manualOpen])
 
-  const handleSubmitAndClose = useCallback(
-    async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
+  const handleSubmitAndCloseMutation = useToastMutation<
+    unknown,
+    unknown,
+    { instanceId: string; backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[] }
+  >(
+    async (variables) => {
       const newLanguage = newLangcode ?? ""
       const selectedLanguage = newLanguage.split("-")
       i18n.changeLanguage(newLanguage)
@@ -81,30 +97,32 @@ const CourseInstanceSelectModal: React.FC<
       document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
 
       try {
-        await postSaveCourseSettings(instanceId, {
-          background_question_answers: backgroundQuestionAnswers,
+        await postSaveCourseSettings(variables.instanceId, {
+          background_question_answers: variables.backgroundQuestionAnswers,
         })
-        if (languageChanged) {
-          window.location.assign(newUrl ?? "")
-          return
+        if (languageChanged && newUrl) {
+          await router.push(newUrl)
         }
-        setOpen(false)
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
           console.info("Refetching page because the course instance has changed")
-          pageState.refetchPage()
+          await pageState.refetchPage()
         } else {
           console.warn(
             // eslint-disable-next-line i18next/no-literal-string
             "No refetching the page because there's no refetchPage function in the page context.",
           )
         }
+
+        setOpen(false)
+
         onClose()
       } catch (e) {
         setSubmitError(e)
       }
+      return null
     },
-    [onClose, pageState, languageChanged, newUrl, newLangcode, i18n],
+    { notify: false },
   )
 
   if (pageState.pageData?.course_id === null) {
@@ -136,8 +154,9 @@ const CourseInstanceSelectModal: React.FC<
           {t("title-course-settings")}
         </h1>
         <SelectCourseLanguage
-          courseId={pageState.pageData?.course_id ?? ""}
+          selectedCourseId={selectedLangCourseId}
           setSelectLanguage={setSelectLanguage}
+          savedCourseId={pageState.settings?.current_course_id}
           setIsLanguageChanged={setIsLanguageChanged}
         />
         {getCourseInstances.isError && (
@@ -147,8 +166,10 @@ const CourseInstanceSelectModal: React.FC<
         {getCourseInstances.isSuccess && (
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
-            onSubmitForm={handleSubmitAndClose}
-            initialSelectedInstanceId={pageState.instance?.id}
+            submitMutation={handleSubmitAndCloseMutation}
+            initialSelectedInstanceId={
+              pageState.settings?.current_course_instance_id ?? pageState.instance?.id
+            }
             languageChanged={languageChanged}
           />
         )}
@@ -185,4 +206,4 @@ const CourseInstanceSelectModal: React.FC<
   )
 }
 
-export default withErrorBoundary(CourseInstanceSelectModal)
+export default withErrorBoundary(CourseSettingsModal)

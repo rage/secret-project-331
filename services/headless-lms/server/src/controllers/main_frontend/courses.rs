@@ -18,6 +18,10 @@ use models::{
     glossary::{Term, TermUpdate},
     library,
     material_references::{MaterialReference, NewMaterialReference},
+    page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+    page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
+    page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
+    page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     pages::Page,
     peer_review_configs::PeerReviewConfig,
     peer_review_questions::PeerReviewQuestion,
@@ -48,7 +52,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
 }
@@ -244,7 +248,7 @@ async fn get_course_structure(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewInternalCourseStructure,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -399,7 +403,15 @@ pub async fn post_new_course_language_version(
     .await?;
 
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true, user.id)
+            .await?;
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(copied_course))
 }
@@ -422,6 +434,7 @@ Content-Type: application/json
 }
 ```
 */
+
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_duplicate(
@@ -439,8 +452,16 @@ pub async fn post_new_course_duplicate(
     )
     .await?;
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false, user.id)
+            .await?;
 
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
     token.authorized_ok(web::Json(copied_course))
 }
 
@@ -1042,6 +1063,86 @@ pub async fn course_instances_export(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
+*/
+#[generated_doc]
+pub async fn get_page_visit_datum_summary(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCourse>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res = models::page_visit_datum_summary_by_courses::get_all_for_course(&mut conn, course_id)
+        .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
+*/
+#[generated_doc]
+pub async fn get_page_visit_datum_summary_by_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByPages>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res =
+        models::page_visit_datum_summary_by_pages::get_all_for_course(&mut conn, course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
+*/
+#[generated_doc]
+pub async fn get_page_visit_datum_summary_by_device_types(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCourseDeviceTypes>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res = models::page_visit_datum_summary_by_courses_device_types::get_all_for_course(
+        &mut conn, course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
+*/
+#[generated_doc]
+pub async fn get_page_visit_datum_summary_by_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCoursesCountries>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res = models::page_visit_datum_summary_by_courses_countries::get_all_for_course(
+        &mut conn, course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1165,5 +1266,21 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/export-course-instances",
             web::get().to(course_instances_export),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary",
+            web::get().to(get_page_visit_datum_summary),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-pages",
+            web::get().to(get_page_visit_datum_summary_by_pages),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-device-types",
+            web::get().to(get_page_visit_datum_summary_by_device_types),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-countries",
+            web::get().to(get_page_visit_datum_summary_by_countries),
         );
 }

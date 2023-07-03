@@ -4,7 +4,6 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../components/Layout"
 import SearchUsersResults from "../../components/page-specific/manage/search-users/SearchUsersResults"
 import {
   searchForUserDetailsByEmail,
@@ -60,61 +59,59 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout navVariant="simple">
-      <OnlyRenderIfPermissions
-        action={{ type: "teach" }}
-        resource={{ type: "global_permissions" }}
-        elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
-      >
-        <h1>{t("title-user-search")}</h1>
+    <OnlyRenderIfPermissions
+      action={{ type: "view_user_progress_or_details" }}
+      resource={{ type: "global_permissions" }}
+      elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
+    >
+      <h1>{t("title-user-search")}</h1>
 
-        <div>
+      <div>
+        <div
+          className={css`
+            display: flex;
+          `}
+        >
+          <TextField
+            label={t("text-field-label-search")}
+            className={css`
+              flex-grow: 1;
+            `}
+            value={typedSearchQuery}
+            onChange={(e) => setTypedSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearch()
+              }
+            }}
+          />
           <div
             className={css`
               display: flex;
+              align-items: center;
+              margin-left: 1rem;
             `}
           >
-            <TextField
-              label={t("text-field-label-search")}
-              className={css`
-                flex-grow: 1;
-              `}
-              value={typedSearchQuery}
-              onChange={(value) => setTypedSearchQuery(value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  onSearch()
-                }
-              }}
-            />
-            <div
-              className={css`
-                display: flex;
-                align-items: center;
-                margin-left: 1rem;
-              `}
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={onSearch}
+              disabled={searchByEmailQuery.isFetching}
             >
-              <Button
-                variant="primary"
-                size="medium"
-                onClick={onSearch}
-                disabled={searchByEmailQuery.isFetching}
-              >
-                {t("button-text-search")}
-              </Button>
-            </div>
+              {t("button-text-search")}
+            </Button>
           </div>
         </div>
+      </div>
 
-        {trimmedSearchQuery !== "" && (
-          <SearchUsersResults
-            searchByEmailQuery={searchByEmailQuery}
-            searchByOtherDetailsQuery={searchByOtherDetailsQuery}
-            searchFuzzyMatchQuery={searchFuzzyMatchQuery}
-          />
-        )}
-      </OnlyRenderIfPermissions>
-    </Layout>
+      {trimmedSearchQuery !== "" && (
+        <SearchUsersResults
+          searchByEmailQuery={searchByEmailQuery}
+          searchByOtherDetailsQuery={searchByOtherDetailsQuery}
+          searchFuzzyMatchQuery={searchFuzzyMatchQuery}
+        />
+      )}
+    </OnlyRenderIfPermissions>
   )
 }
 

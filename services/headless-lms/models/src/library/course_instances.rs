@@ -1,9 +1,9 @@
 //! General functionality related to course instances
 
-use crate::prelude::*;
-use models::{
+use crate::{
     course_background_question_answers::NewCourseBackgroundQuestionAnswer,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+    prelude::*,
 };
 
 /// Enrolls the user to the given course instance.
@@ -16,8 +16,8 @@ pub async fn enroll(
     let mut tx = conn.begin().await?;
 
     let instance =
-        models::course_instances::get_course_instance(&mut tx, course_instance_id).await?;
-    let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
+        crate::course_instances::get_course_instance(&mut tx, course_instance_id).await?;
+    let enrollment = crate::course_instance_enrollments::insert_enrollment_and_set_as_current(
         &mut tx,
         NewCourseInstanceEnrollment {
             user_id,
@@ -28,7 +28,7 @@ pub async fn enroll(
     .await?;
 
     if !background_question_answers.is_empty() {
-        models::course_background_question_answers::upsert_backround_question_answers(
+        crate::course_background_question_answers::upsert_backround_question_answers(
             &mut tx,
             user_id,
             background_question_answers,

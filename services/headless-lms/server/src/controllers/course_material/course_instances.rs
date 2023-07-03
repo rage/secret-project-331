@@ -141,7 +141,7 @@ async fn save_course_settings(
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
 
-    let enrollment = domain::course_instances::enroll(
+    let enrollment = models::library::course_instances::enroll(
         &mut conn,
         user.id,
         *course_instance_id,

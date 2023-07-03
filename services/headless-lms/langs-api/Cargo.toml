@@ -1,14 +1,21 @@
 [package]
 name = "mooc-langs-api"
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.56.0" # minimum required Rust version, update if you use a new API
-license = "Apache-2.0"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
+# Date and time library
 chrono = { version = "0.4.26", features = ["serde"] }
+# An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4.4.1"
+# A generic serialization/deserialization framework
 serde = { version = "1.0.163", features = ["derive"] }
+# A JSON serialization file format
 serde_json = "1.0.97"
+# derive(Error)
 thiserror = "1.0.40"
+# A library to generate and parse UUIDs.
 uuid = { version = "1.3.3", features = ["serde"] }

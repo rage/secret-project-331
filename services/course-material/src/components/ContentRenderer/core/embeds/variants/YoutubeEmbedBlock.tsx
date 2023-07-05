@@ -10,18 +10,14 @@ import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseM
 export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const { t } = useTranslation()
   const { url } = props
-  let video = url?.split("v=")[1]
-
+  let video = ""
   if (url) {
     try {
       const parsedUrl = new URL(url)
-      const vValue = parsedUrl.searchParams.get("v")
-      console.log(parsedUrl, "--", vValue, "--", video)
-      if (vValue) {
-        video = vValue
-      }
-      if (!vValue) {
-        video = parsedUrl.pathname
+      if (parsedUrl?.host == "www.youtube.com") {
+        video = url?.split("v=")[1]
+      } else if (parsedUrl?.host == "youtu.be") {
+        video = url?.split(".be/")[1]
       }
     } catch (e) {
       // eslint-disable-next-line i18next/no-literal-string

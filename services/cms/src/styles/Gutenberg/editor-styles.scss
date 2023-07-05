@@ -47,6 +47,8 @@
 
   // This height is same as the headless-lms oembed proxy maxheight=440.
   iframe[title="Embedded content from youtube.com"],
+  //For youtube shortlink
+  iframe[title="Embedded content from youtu"],
   iframe[title="Embedded content from vimeo"] {
     height: 440px;
   }

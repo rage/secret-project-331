@@ -6,6 +6,7 @@ import { stat } from "fs/promises"
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
   SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
+  SPINNER_CLASS,
 } from "../shared-module/utils/constants"
 
 import accessibilityCheck from "./accessibilityCheck"
@@ -43,6 +44,7 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   snapshotName: string
   waitForTheseToBeVisibleAndStable?: Locator[]
   clearNotifications?: boolean
+  dontWaitForSpinnersToDisappear?: boolean
   beforeScreenshot?: () => Promise<void>
   axeSkip?: string[]
   skipMobile?: boolean
@@ -75,6 +77,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   waitForTheseToBeVisibleAndStable,
   beforeScreenshot,
   clearNotifications = false,
+  dontWaitForSpinnersToDisappear = false,
   axeSkip = undefined,
   skipMobile = false,
   scrollToYCoordinate,
@@ -99,6 +102,16 @@ export default async function expectScreenshotsToMatchSnapshots({
     screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
 
     await page.waitForLoadState()
+    if (!dontWaitForSpinnersToDisappear) {
+      try {
+        await page.locator(`.${SPINNER_CLASS}`).waitFor({ state: "detached" })
+      } catch (e) {
+        console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
+        throw new Error(
+          `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
+        )
+      }
+    }
 
     const originalViewPort = page.viewportSize()
     try {

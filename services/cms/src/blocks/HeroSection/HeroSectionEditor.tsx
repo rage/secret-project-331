@@ -27,11 +27,6 @@ const HeroSectionEditor: React.FC<
   const path = useContext(PageContext)?.page?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
 
-  function htmlDecode(input: string) {
-    const doc = new DOMParser().parseFromString(input, "text/html")
-    return doc.documentElement.textContent?.toString()
-  }
-
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -82,7 +77,7 @@ const HeroSectionEditor: React.FC<
             tagName="h2"
             value={title}
             onChange={(value) => {
-              setAttributes({ title: htmlDecode(value) })
+              setAttributes({ title: value })
             }}
             placeholder={"Hero section title..."}
           />
@@ -93,7 +88,7 @@ const HeroSectionEditor: React.FC<
             `}
             tagName="h3"
             value={subtitle}
-            onChange={(value: string) => setAttributes({ subtitle: htmlDecode(value) })}
+            onChange={(value: string) => setAttributes({ subtitle: value })}
             placeholder={"Hero section subtitle"}
           />
         </div>

@@ -22,12 +22,17 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
       ? formattedPath
       : props.data.attributes.label
 
+  function parseInput(input: string) {
+    const doc = new DOMParser().parseFromString(input, "text/html")
+    return doc.documentElement.textContent?.toString() ?? ""
+  }
+
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection
         label={chapterNumber}
-        title={props.data.attributes.title}
-        subtitle={props.data.attributes.subtitle}
+        title={parseInput(props.data.attributes.title)}
+        subtitle={parseInput(props.data.attributes.subtitle)}
         backgroundImage={props.data.attributes.backgroundImage}
         partiallyTransparent={partiallyTransparent}
         fontColor={props.data.attributes.fontColor}

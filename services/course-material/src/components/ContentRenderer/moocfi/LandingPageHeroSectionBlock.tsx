@@ -11,10 +11,14 @@ import DefaultBlock from "../DefaultBlock"
 const LandingPageHeroSectionBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<LandingPageHeroSectionProps>>
 > = (props) => {
+  function parseInput(input: string) {
+    const doc = new DOMParser().parseFromString(input, "text/html")
+    return doc.documentElement.textContent?.toString() ?? ""
+  }
   return (
     <BreakFromCentered sidebar={false}>
       <LandingPageHeroSection
-        title={props.data.attributes.title}
+        title={parseInput(props.data.attributes.title)}
         backgroundImage={props.data.attributes.backgroundImage}
         backgroundColor={props.data.attributes.backgroundColor}
         fontColor={props.data.attributes.fontColor}

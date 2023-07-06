@@ -3,9 +3,8 @@ import React, { useContext } from "react"
 import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import HeroSection, { HeroSectionProps } from "../../../shared-module/components/HeroSection"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-
+import HeroSection, { HeroSectionProps } from "../../HeroSection"
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {
@@ -22,17 +21,12 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
       ? formattedPath
       : props.data.attributes.label
 
-  function parseInput(input: string) {
-    const doc = new DOMParser().parseFromString(input, "text/html")
-    return doc.documentElement.textContent?.toString() ?? ""
-  }
-
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection
         label={chapterNumber}
-        title={parseInput(props.data.attributes.title)}
-        subtitle={parseInput(props.data.attributes.subtitle)}
+        title={props.data.attributes.title}
+        subtitle={props.data.attributes.subtitle}
         backgroundImage={props.data.attributes.backgroundImage}
         partiallyTransparent={partiallyTransparent}
         fontColor={props.data.attributes.fontColor}

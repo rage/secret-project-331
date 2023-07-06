@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../system-tests"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+run_command npm run test "$@"

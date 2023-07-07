@@ -20,7 +20,6 @@ const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlock
         border-top: 0.4rem solid ${props.data.attributes.separatorColor};
         border-bottom: 0.4rem solid ${props.data.attributes.separatorColor};
         background: ${props.data.attributes.backgroundColor};
-        margin: 3rem 0;
 
         h1,
         h2,

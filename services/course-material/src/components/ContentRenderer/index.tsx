@@ -11,7 +11,10 @@ import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { baseTheme } from "../../shared-module/styles"
 import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import { courseMaterialBlockClass } from "../../utils/constants"
+import {
+  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
+  courseMaterialBlockClass,
+} from "../../utils/constants"
 
 import DefaultBlock from "./DefaultBlock"
 import AudioBlock from "./core/common/Audio/AudioBlock"
@@ -150,6 +153,12 @@ const highlightedBlockStyles = css`
   outline-offset: 10px;
 `
 
+// Adds a default margin between all blocks. If you would like to undo this margin in some cases, add a negative margin to the block implementation
+// or add dontUseDefaultBlockMargin to the block implementation. See the Heading block for an example.
+const defaultBlockMargin = css`
+  margin: ${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem 0;
+`
+
 const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
   const highlightBlocks = useQueryParameter("highlight-blocks")
     .split(",")
@@ -206,9 +215,11 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
+        const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
         const wrapperClassName = cx(
           courseMaterialBlockClass,
           (isHighlighted && highlightedBlockStyles) ?? undefined,
+          dontUseDefaultBlockMargin ? undefined : defaultBlockMargin,
         )
 
         // In some cases we cannot use the wrapper div to get the correct HTML.

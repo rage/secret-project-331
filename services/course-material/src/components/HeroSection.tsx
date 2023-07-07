@@ -6,6 +6,7 @@ import { GlossaryContext } from "../contexts/GlossaryContext"
 import { respondToOrLarger } from "../shared-module//styles/respond"
 import { baseTheme, headingFont } from "../shared-module/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../shared-module/utils/constants"
+import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -105,6 +106,8 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
         margin-bottom: 3rem;
+        /** There should not be empty space before the hero section, so we'll undo the default block margin **/
+        margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
         position: relative;
 

@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import DefaultSVG from "../img/hero-default-bg-image.svg"
-import { baseTheme } from "../styles"
-import { respondToOrLarger } from "../styles/respond"
+import { GlossaryContext } from "../contexts/GlossaryContext"
+import Button from "../shared-module/components/Button"
+import DefaultSVG from "../shared-module/img/hero-default-bg-image.svg"
+import { baseTheme } from "../shared-module/styles"
+import { respondToOrLarger } from "../shared-module/styles/respond"
 
-import Button from "./Button"
+import { parseText } from "./ContentRenderer/util/textParsing"
 
 export const CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING =
   "chapter-grid-scrolling-destination"
@@ -87,6 +89,7 @@ const LandingPageHeroSection: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<CardProps>>
 > = ({ title, children, backgroundImage, backgroundColor, backgroundRepeatX, fontColor }) => {
   const { t } = useTranslation()
+  const { terms } = useContext(GlossaryContext)
   return (
     <div
       className={css`
@@ -107,7 +110,7 @@ const LandingPageHeroSection: React.FC<
     >
       {backgroundImage === undefined && <StyledSVG />}
       <TextBox color={fontColor}>
-        <h1>{title}</h1>
+        <h1 dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }} />
         <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"

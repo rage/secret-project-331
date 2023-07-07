@@ -1,10 +1,13 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useContext } from "react"
 
-import { baseTheme, headingFont } from "../styles"
-import { respondToOrLarger } from "../styles/respond"
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/constants"
+import { GlossaryContext } from "../contexts/GlossaryContext"
+import { respondToOrLarger } from "../shared-module//styles/respond"
+import { baseTheme, headingFont } from "../shared-module/styles"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../shared-module/utils/constants"
+
+import { parseText } from "./ContentRenderer/util/textParsing"
 
 interface TextBoxProps {
   fontColor?: string
@@ -92,6 +95,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
+  const { terms } = useContext(GlossaryContext)
   return (
     <div
       id="hero-section"
@@ -133,8 +137,11 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
     >
       <TextBox color={fontColor} direction={direction}>
         <span className="chapter">{label}</span>
-        <h1 className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}>{title}</h1>
-        <span>{subtitle}</span>
+        <h1
+          className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}
+          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+        />
+        <span dangerouslySetInnerHTML={{ __html: parseText(subtitle, terms).parsedText }} />
       </TextBox>
     </div>
   )

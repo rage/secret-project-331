@@ -16,6 +16,7 @@ import TextField from "../../shared-module/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -115,4 +116,4 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(SearchUsersPage))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(SearchUsersPage)))

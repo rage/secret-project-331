@@ -152,9 +152,9 @@ const SelectCourseInstanceForm: React.FC<
                       <CheckBox
                         label={additionalQuestion.question_text}
                         checked={answer?.answer_value === "t"}
-                        onChange={(value) => {
+                        onChange={(event) => {
                           // eslint-disable-next-line i18next/no-literal-string
-                          const valueAsString = value ? "t" : "f"
+                          const valueAsString = event.target.value ? "t" : "f"
                           setAdditionalQuestionAnswers((prev) => {
                             const newArray = prev.filter(
                               (a) => a.course_background_question_id !== additionalQuestion.id,

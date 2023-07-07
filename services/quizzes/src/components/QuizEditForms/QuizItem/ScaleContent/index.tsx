@@ -121,7 +121,7 @@ const ScaleContent: React.FC<React.PropsWithChildren<ScaleContentProps>> = ({ it
           label={t("minimum")}
           value={variables.scaleMin?.toString() ?? ""}
           type="number"
-          onChange={(value) => handleMinValueChange(Number(value))}
+          onChange={(event) => handleMinValueChange(Number(event.target.value))}
         />
         {!minValid && t("invalid-minimum-value")}
         <MaxField
@@ -129,7 +129,7 @@ const ScaleContent: React.FC<React.PropsWithChildren<ScaleContentProps>> = ({ it
           label={t("maximum")}
           value={variables.scaleMax?.toString() ?? ""}
           type="number"
-          onChange={(value) => handleMaxValueChange(Number(value))}
+          onChange={(event) => handleMaxValueChange(Number(event.target.value))}
         />
         {!maxValid && t("invalid-maximum-value")}
       </MinMaxContainer>

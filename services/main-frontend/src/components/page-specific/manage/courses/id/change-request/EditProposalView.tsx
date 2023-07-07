@@ -13,10 +13,7 @@ import {
   BlockProposalInfo,
   PageProposal,
 } from "../../../../../../shared-module/bindings"
-import {
-  isEditedBlockNoLongerExistsData,
-  isEditedBlockStillExistsData,
-} from "../../../../../../shared-module/bindings.guard"
+import { isEditedBlockStillExistsData } from "../../../../../../shared-module/bindings.guard"
 import Button from "../../../../../../shared-module/components/Button"
 import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
 import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"

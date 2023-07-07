@@ -53,13 +53,13 @@ export const EssayModalContent: React.FC<React.PropsWithChildren<ModalContentPro
           label={t("max-words")}
           value={String(item.maxWords) ?? ""}
           type="number"
-          onChange={(value) => dispatch(editedItemMaxWords(item.id, Number(value)))}
+          onChange={(event) => dispatch(editedItemMaxWords(item.id, Number(event.target.value)))}
         />
         <MinWords
           label={t("min-words")}
           value={String(item.minWords) ?? ""}
           type="number"
-          onChange={(value) => dispatch(editedItemMinWords(item.id, Number(value)))}
+          onChange={(event) => dispatch(editedItemMinWords(item.id, Number(event.target.value)))}
         />
       </ModalContent>
     </>

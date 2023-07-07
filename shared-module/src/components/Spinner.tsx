@@ -3,6 +3,7 @@ import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 
 import { baseTheme } from "../styles"
+import { SPINNER_CLASS } from "../utils/constants"
 
 export interface SpinnerProps {
   variant: "large" | "medium" | "small"
@@ -56,7 +57,7 @@ const StyledSpinner = styled.div<SpinnerProps>`
 `
 
 const Spinner = (props: SpinnerProps) => {
-  return <StyledSpinner {...props}></StyledSpinner>
+  return <StyledSpinner className={SPINNER_CLASS} {...props}></StyledSpinner>
 }
 
 export default Spinner

@@ -1,5 +1,4 @@
 import {
-  expect,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,

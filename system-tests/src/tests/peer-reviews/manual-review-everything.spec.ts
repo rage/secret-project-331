@@ -157,7 +157,6 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     // Teacher checks answers requiring attention
     await teacherPage.goto("http://project-331.local/")
-    await teacherPage.waitForTimeout(1000)
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -342,7 +341,6 @@ test.describe("test ManualReviewEverything behavior", () => {
 
     // teacher checks the answers
     await teacherPage.goto("http://project-331.local/")
-    await teacherPage.waitForTimeout(1000)
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()

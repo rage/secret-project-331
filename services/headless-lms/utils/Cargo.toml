@@ -11,7 +11,7 @@ license.workspace = true
 # and the comment from there.
 [dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.28.2", features = ["fs", "io-util"] }
+tokio = { version = "1.29.1", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.
 tokio-util = { version = "0.7.8", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.
@@ -19,19 +19,19 @@ tokio-stream = "0.1.14"
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.28"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.3.3", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.4.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.164", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.26", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.96"
+serde_json = "1.0.99"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods
-async-trait = "0.1.68"
+async-trait = "0.1.69"
 # Types and traits for working with bytes
 bytes = "1.4.0"
 # Random number generators and other randomness functionality.
@@ -47,7 +47,7 @@ tracing = "0.1.37"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.67"
+backtrace = "0.3.68"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "07712bf04007472aeeb065091261b3b64c019381", features = [
   "chrono-impl",
@@ -66,7 +66,7 @@ thiserror = "1.0.40"
 # Percent encoding and decoding
 percent-encoding = "2.3.0"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
-ipnet = "2.7.2"
+ipnet = "2.8.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.71"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.

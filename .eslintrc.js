@@ -256,6 +256,8 @@ module.exports = {
         "playwright/no-focused-test": "off",
         "playwright/prefer-strict-equal": "error",
         "playwright/prefer-to-be": "error",
+        "playwright/valid-expect": "off",
+        "playwright/expect-expect": "off",
       },
     },
   ],

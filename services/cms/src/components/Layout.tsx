@@ -26,6 +26,7 @@ export const SIDEBAR_WIDTH_PX = 350
 
 type LayoutProps = {
   children: ReactNode
+  hideBreadcrumbs?: boolean
 }
 
 const DynamicToaster = dynamic(
@@ -33,7 +34,10 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
+  children,
+  hideBreadcrumbs = false,
+}) => {
   const router = useRouter()
   const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
   return (
@@ -75,12 +79,14 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
           id="maincontent"
         >
           <Centered variant="narrow">
-            <PageMarginOffset
-              marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-              marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
-            >
-              <EditorBreadcrumbs />
-            </PageMarginOffset>
+            {!hideBreadcrumbs && (
+              <PageMarginOffset
+                marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+                marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
+              >
+                <EditorBreadcrumbs />
+              </PageMarginOffset>
+            )}
             {children}
           </Centered>
         </main>

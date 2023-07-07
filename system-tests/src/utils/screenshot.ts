@@ -6,6 +6,7 @@ import { stat } from "fs/promises"
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
   SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
+  SPINNER_CLASS,
 } from "../shared-module/utils/constants"
 
 import accessibilityCheck from "./accessibilityCheck"
@@ -43,6 +44,7 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   snapshotName: string
   waitForTheseToBeVisibleAndStable?: Locator[]
   clearNotifications?: boolean
+  dontWaitForSpinnersToDisappear?: boolean
   beforeScreenshot?: () => Promise<void>
   axeSkip?: string[]
   skipMobile?: boolean
@@ -75,6 +77,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   waitForTheseToBeVisibleAndStable,
   beforeScreenshot,
   clearNotifications = false,
+  dontWaitForSpinnersToDisappear = false,
   axeSkip = undefined,
   skipMobile = false,
   scrollToYCoordinate,
@@ -98,7 +101,26 @@ export default async function expectScreenshotsToMatchSnapshots({
     // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
     screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
 
+    // If the page has not fully loaded yet, no reason to continue
     await page.waitForLoadState()
+
+    if (!dontWaitForSpinnersToDisappear) {
+      // Make sure there are no accidental loading spinners still visible on the page
+      try {
+        await page.waitForTimeout(100)
+        for (let i = 0; i < 2; i++) {
+          const spinnerLocators = await page.locator(`.${SPINNER_CLASS}`).all()
+          await Promise.all(
+            spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })),
+          )
+        }
+      } catch (e) {
+        console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
+        throw new Error(
+          `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
+        )
+      }
+    }
 
     const originalViewPort = page.viewportSize()
     try {

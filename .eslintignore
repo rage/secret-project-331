@@ -5,4 +5,5 @@ out
 playwright-report
 storybook-static
 services/**/shared-module
+system-tests/shared-module
 services/main-frontend/public/monaco-editor

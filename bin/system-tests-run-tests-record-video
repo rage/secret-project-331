@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../system-tests"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH" || exit
+
+run_command npm run test-video "$@"
+
+echo ""
+echo -e "${GREEN}✅ All tests passed and you should now have recorded videos of the test run.${RESET_EVERYTHING}"
+echo ""
+
+echo -e "${BLUE}ℹ️  You can view the video files using the following commands:${RESET_EVERYTHING}"
+
+# Find all .webm files in the test-results folder and print commands to view them with mpv using full paths to the files. Format mpv /full/path/to/file.webm
+find test-results -name '*.webm' -print0 | xargs -0 -I {} echo mpv "$(realpath {})"
+
+echo ""
+echo -e "${BLUE}You'll need to have mpv installed. See keybindings here: https://mpv.io/manual/stable/#interactive-control"
+echo -e "$RESET_EVERYTHING"

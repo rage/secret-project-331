@@ -79,6 +79,7 @@ test.describe("Model solutions", () => {
     await page.locator("text=Page One").first().click()
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1/page-1")
     // Wait for the frame to be visible
+    // eslint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
 
     const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)

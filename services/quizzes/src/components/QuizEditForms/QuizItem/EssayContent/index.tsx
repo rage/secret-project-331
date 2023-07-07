@@ -86,7 +86,9 @@ const EssayContent: React.FC<React.PropsWithChildren<EssayContentProps>> = ({ it
             label={t("min-words")}
             value={storeItem.minWords?.toString() ?? ""}
             type="number"
-            onChange={(value) => dispatch(editedItemMinWords(storeItem.id, Number(value)))}
+            onChange={(event) =>
+              dispatch(editedItemMinWords(storeItem.id, Number(event.target.value)))
+            }
           />
         </InlineFieldWrapper>
         <InlineFieldWrapper>
@@ -94,7 +96,9 @@ const EssayContent: React.FC<React.PropsWithChildren<EssayContentProps>> = ({ it
             label={t("max-words")}
             value={storeItem.maxWords?.toString() ?? ""}
             type="number"
-            onChange={(value) => dispatch(editedItemMaxWords(storeItem.id, Number(value)))}
+            onChange={(event) =>
+              dispatch(editedItemMaxWords(storeItem.id, Number(event.target.value)))
+            }
           />
         </InlineFieldWrapper>
       </OneLineInfoContainer>

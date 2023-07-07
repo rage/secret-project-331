@@ -103,4 +103,9 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   )
 }
 
-export default dontRenderUntilQueryParametersReady(PeerReviewManager)
+const exported = dontRenderUntilQueryParametersReady(PeerReviewManager)
+
+// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
+exported.hideBreadcrumbs = true
+
+export default exported

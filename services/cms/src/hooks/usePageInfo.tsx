@@ -1,17 +1,21 @@
 import { useQuery } from "@tanstack/react-query"
+import { validate } from "uuid"
 
 import { fetchPageInfo } from "../services/backend/pages"
 
 const usePageInfo = (pageId: string, prefix: string) => {
-  const data = useQuery([`page-info-id-${pageId}`], () => {
-    if (prefix !== "pages") {
-      return null
-    }
-    if (!pageId) {
-      return null
-    }
-    return fetchPageInfo(pageId)
-  })
+  // To prevent this to be called with '[id]' because the next.js router is not ready yet
+  const isValid = validate(pageId)
+
+  const data = useQuery(
+    [`page-info-id-${pageId}`],
+    () => {
+      return fetchPageInfo(pageId)
+    },
+    {
+      enabled: !!pageId && isValid && prefix === "pages",
+    },
+  )
   return data
 }
 

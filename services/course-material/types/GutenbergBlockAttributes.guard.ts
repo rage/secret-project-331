@@ -323,12 +323,6 @@ export function isImageAttributes(obj: unknown): obj is ImageAttributes {
     (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
     typeof typedObj["linkDestination"] === "string" &&
     (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
-    (typeof typedObj["behaviors"] === "undefined" ||
-      (((typedObj["behaviors"] !== null && typeof typedObj["behaviors"] === "object") ||
-        typeof typedObj["behaviors"] === "function") &&
-        Object.entries<any>(typedObj["behaviors"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&

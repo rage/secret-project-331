@@ -9,3 +9,4 @@ export const SHOW_TOAS_INIFINITELY_IN_SYSTEM_TESTS_EVENT = "show-toast-infinitel
 export const SHOW_TOAST_DURATION_IN_SYSTEM_TESTS_EVENT = "show-toas-duration-in-system-tests"
 export const EXERCISE_SERVICE_CONTENT_ID = "exercise-service-content-id"
 export const LANGUAGE_COOKIE_KEY = "selected-language"
+export const SPINNER_CLASS = "loading-spinner-component"

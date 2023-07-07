@@ -59,7 +59,8 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
           <GlobalStyles />
           <LocalStyles />
           <LoginStateContextProvider>
-            <Layout>
+            {/* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */}
+            <Layout hideBreadcrumbs={Component.hideBreadcrumbs}>
               <Component {...pageProps} />
             </Layout>
           </LoginStateContextProvider>

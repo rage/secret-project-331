@@ -60,6 +60,7 @@ const CardContentWrapper = styled.div`
     line-height: 2.5em;
   }
 `
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const StyledSVG = (Image: any) => {
   return (
     <Image

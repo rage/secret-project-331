@@ -28,6 +28,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.click('a:has-text("The Basics")')
 
   await page.locator("text=1Page One").click()
+  // eslint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
@@ -209,6 +210,7 @@ screenshotTarget: page,
 
   await page.locator("text=1Page One").click()
 
+  // eslint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

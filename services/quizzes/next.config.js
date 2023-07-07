@@ -5,7 +5,7 @@ const externallyEmbeddableIFrameResponseHeaders =
 const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 
 const config = {
-  swcMinify: false,
+  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

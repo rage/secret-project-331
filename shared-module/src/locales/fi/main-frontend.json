@@ -458,7 +458,7 @@
   "required-field": "Tämä on pakollinen kenttä",
   "requires-a-finnish-social-security-number": "(Edellyttää suomalaista henkilötunnusta)",
   "research-consent-data-from-learning-process-is-used": "Luovuttamaasi ja työskentelystäsi kertyvää tietoa käytetään tutkimuksessa. Kerätty tieto sisältää tietoa oppimateriaalien käytöstä, kurssitehtävien tekemisestä sekä kokeissa pärjäämisestä. Julkaistuista tutkimustuloksista ei pystytä tunnistamaan yksittäisiä opiskelijoita. Osallistuminen on vapaaehtoista, ja jos et osallistu tutkimukseen, siitä ei tule minkäänlaisia seuraamuksia.",
-  "research-consent-director-info": "Tutkimuksesta vastaa Helsingin yliopiston MOOC-keskuksen johtaja Petri Ihantola. Voit pyytää milloin tahansa sinusta kerätyn datan poistamista lähettämällä sähköpostin osoitteeseen mooc@cs.helsinki.fi",
+  "research-consent-director-info": "Tutkimuksesta vastaa Helsingin yliopiston MOOC-keskuksen johtaja {{director-name}}. Voit pyytää milloin tahansa sinusta kerätyn datan poistamista lähettämällä sähköpostin osoitteeseen ",
   "research-consent-educational-research-is-conducted-on-the-courses": "Kursseilla tehdään oppimiseen liittyvää tutkimusta. Tällä tutkimuksella on useampia tavoitteita:",
   "research-consent-goals-advance-knowledge": "edistää digitaalisissa ympäristöissä tapahtuvaan oppimiseen liittyvää ymmärrystä ja tietoa, sekä",
   "research-consent-goals-develop-learning": "kehittää kurssien oppimateriaaleja niin, että ne ottaisivat yksilölliset erot huomioon ja reagoisivat tarvittaessa tarjoten kohdennetumpaa oppisisältöä",

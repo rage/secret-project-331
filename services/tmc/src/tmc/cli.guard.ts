@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
 /*
  * Generated type guards for "cli.d.ts".
  * WARNING: Do not manually change this file.
@@ -856,6 +853,10 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
             typeof typedObj["data"]["output-data"] === "object") ||
             typeof typedObj["data"]["output-data"] === "function") &&
           typeof typedObj["data"]["output-data"]["projects_dir"] === "string") ||
+        (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
+          typeof typedObj["data"] === "function") &&
+          typedObj["data"]["output-data-kind"] === "compressed-project-hash" &&
+          typeof typedObj["data"]["output-data"] === "string") ||
         (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
           typeof typedObj["data"] === "function") &&
           typedObj["data"]["output-data-kind"] === "submission-sandbox" &&

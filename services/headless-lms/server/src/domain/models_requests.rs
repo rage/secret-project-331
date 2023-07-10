@@ -25,7 +25,8 @@ use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
 
-const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update";
+// keep in sync with the shared-module constants
+const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 
 #[derive(Clone, Debug)]
@@ -320,7 +321,7 @@ pub fn make_grading_request_sender(
         let client = reqwest::Client::new();
         // TODO: use real url
         let grading_update_url = format!(
-            "http://project-331.local/api/v0/exercise-services/grading/update-grading/{}",
+            "http://project-331.local/api/v0/exercise-services/grading/grading-update/{}",
             submission.id
         );
         let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);

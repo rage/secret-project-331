@@ -3,7 +3,7 @@ use models::exercise_task_gradings::ExerciseTaskGradingResult;
 use crate::{domain::models_requests::GradingUpdateClaim, prelude::*};
 
 /**
-POST `/api/v0/exercise-services/grading/grading-update`
+POST `/api/v0/exercise-services/grading/grading-update/:submission_id`
 
 Receives a grading update from an exercise service.
 */
@@ -52,7 +52,7 @@ We add the routes by calling the route method instead of using the route annotat
 #[doc(hidden)]
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "grading-update/:submission-id",
+        "grading-update/{submission_id}",
         web::post().to(grading_update),
     );
 }

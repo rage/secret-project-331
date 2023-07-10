@@ -27,6 +27,7 @@ impl Convert<api::CourseInstance> for CourseInstanceWithCourseInfo {
     fn convert(self) -> api::CourseInstance {
         api::CourseInstance {
             course_id: self.course_id,
+            course_slug: self.course_slug,
             course_name: self.course_name,
             course_description: self.course_description,
             id: self.course_instance_id,

@@ -14,6 +14,7 @@ pub type Token =
 pub struct CourseInstance {
     pub id: Uuid,
     pub course_id: Uuid,
+    pub course_slug: String,
     pub course_name: String,
     pub course_description: Option<String>,
     pub instance_name: Option<String>,
@@ -54,3 +55,14 @@ pub struct ExerciseTaskSubmission {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExerciseSlideSubmissionResult {}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UploadMetadata {
+    pub slide_id: Uuid,
+    pub task_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UploadResult {
+    pub download_url: String,
+}

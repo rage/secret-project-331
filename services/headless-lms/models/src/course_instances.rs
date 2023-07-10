@@ -503,6 +503,7 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
 
 pub struct CourseInstanceWithCourseInfo {
     pub course_id: Uuid,
+    pub course_slug: String,
     pub course_name: String,
     pub course_description: Option<String>,
     pub course_instance_id: Uuid,
@@ -519,6 +520,7 @@ pub async fn get_enrolled_course_instances_for_user(
         r#"
 SELECT
     c.id AS course_id,
+    c.slug AS course_slug,
     c.name AS course_name,
     c.description AS course_description,
     ci.id AS course_instance_id,

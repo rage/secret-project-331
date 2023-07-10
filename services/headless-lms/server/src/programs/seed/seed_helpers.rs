@@ -293,6 +293,7 @@ pub fn quizzes_exercise(
     };
     (block, exercise, exercise_slide, exercise_task)
 }
+
 #[allow(clippy::too_many_arguments)]
 pub fn tmc_exercise(
     name: String,

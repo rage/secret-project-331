@@ -87,6 +87,7 @@ export type DataKind =
   | { "output-data-kind": "submission-finished"; "output-data": SubmissionFinished }
   | { "output-data-kind": "config-value"; "output-data": ConfigValue }
   | { "output-data-kind": "tmc-config"; "output-data": TmcConfig }
+  | { "output-data-kind": "compressed-project-hash"; "output-data": string }
   | { "output-data-kind": "submission-sandbox"; "output-data": string }
 
 export interface NewSubmission {

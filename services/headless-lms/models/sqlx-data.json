@@ -6335,47 +6335,6 @@
     },
     "query": "\nSELECT *\nFROM course_module_completion_certificates\nWHERE verification_id = $1\n  AND deleted_at IS NULL\n"
   },
-  "5352e8211436aec0aa78684f881f2a10d3cda20578fdfbfe6a64b3bb1852a5a4": {
-    "describe": {
-      "columns": [
-        {
-          "name": "course_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "course_description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "course_instance_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_instance_name",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "course_instance_description",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false, false, true, false, true, true],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT\n    c.id AS course_id,\n    c.name AS course_name,\n    c.description AS course_description,\n    ci.id AS course_instance_id,\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description\nFROM course_instances AS ci\n  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id\n  LEFT JOIN courses AS c ON ci.course_id = c.id\nWHERE cie.user_id = $1\n  AND ci.deleted_at IS NULL\n  AND cie.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n"
-  },
   "53bfa80a5ca2c543393bbe2266c1129ea103eb4699aaf0fd1445b8daeb408cd0": {
     "describe": {
       "columns": [
@@ -17338,6 +17297,52 @@
       }
     },
     "query": "\nSELECT COUNT(*) filter (\n  where proposed_page_edits.pending = true\n) AS pending,\nCOUNT(*) filter (\n  where proposed_page_edits.pending = false\n) AS handled\nFROM proposed_page_edits\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\n"
+  },
+  "c05303789bb275fbdb7f8205a7933805eacc79488a5f0ec7acf9d1254098068a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "course_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_slug",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_instance_description",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT\n    c.id AS course_id,\n    c.slug AS course_slug,\n    c.name AS course_name,\n    c.description AS course_description,\n    ci.id AS course_instance_id,\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description\nFROM course_instances AS ci\n  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id\n  LEFT JOIN courses AS c ON ci.course_id = c.id\nWHERE cie.user_id = $1\n  AND ci.deleted_at IS NULL\n  AND cie.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n"
   },
   "c0b9a180c35f5891305a61ef57a65bceba00f6e0190612ad7348ad7185ca89f2": {
     "describe": {

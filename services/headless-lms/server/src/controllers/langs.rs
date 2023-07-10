@@ -1,7 +1,11 @@
+use crate::controllers::helpers::file_uploading;
 use crate::domain::langs::{convert::Convert, token::AuthToken};
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
-use bytes::Bytes;
+use actix_multipart::form::json::Json as MultipartJson;
+use actix_multipart::form::tempfile::TempFile;
+use actix_multipart::form::MultipartForm;
+use headless_lms_utils::file_store::file_utils;
 use models::chapters::DatabaseChapter;
 use models::user_exercise_states::CourseInstanceOrExamId;
 use mooc_langs_api as api;
@@ -13,7 +17,7 @@ use std::collections::HashSet;
  * Returns the course instances that the user is currently enrolled on.
  */
 #[instrument(skip(pool))]
-async fn course_instances(
+async fn get_course_instances(
     pool: web::Data<PgPool>,
     user: AuthToken,
 ) -> ControllerResult<web::Json<Vec<api::CourseInstance>>> {
@@ -38,7 +42,7 @@ async fn course_instances(
  * Only returns slides which have tasks that are compatible with langs.
  */
 #[instrument(skip(pool))]
-async fn course_instance_exercises(
+async fn get_course_instance_exercises(
     pool: web::Data<PgPool>,
     user: AuthToken,
     course_instance: web::Path<Uuid>,
@@ -113,7 +117,7 @@ async fn course_instance_exercises(
  * Only returns slides
  */
 #[instrument(skip(pool))]
-async fn exercise(
+async fn get_exercise(
     pool: web::Data<PgPool>,
     user: AuthToken,
     exercise_id: web::Path<Uuid>,
@@ -160,21 +164,62 @@ async fn exercise(
     }))
 }
 
-/**
- * GET /api/v0/langs/exercises/:id/download
- *
- * Downloads an exercise.
- */
-#[instrument(skip(_pool))]
-async fn download_exercise(
-    _pool: web::Data<PgPool>,
-    _user: AuthToken,
-    _exercise_id: web::Path<Uuid>,
-) -> ControllerResult<Bytes> {
-    todo!()
+#[derive(MultipartForm)]
+struct UploadForm {
+    metadata: MultipartJson<api::UploadMetadata>,
+    file: TempFile,
 }
 
-async fn submit(
+async fn upload_exercise(
+    pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    exercise_id: web::Path<Uuid>,
+    upload: MultipartForm<UploadForm>,
+    user: AuthToken,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<api::UploadResult>> {
+    let mut conn = pool.acquire().await?;
+    // if the user can view an exercise, they should be able to upload their attempt
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let course_id = exercise
+        .course_id
+        .ok_or_else(|| anyhow::anyhow!("Cannot upload non-course exercises"))?;
+    let exercise_slide =
+        models::exercise_slides::get_exercise_slide(&mut conn, upload.metadata.slide_id).await?;
+    let exercise_task =
+        models::exercise_tasks::get_exercise_task_by_id(&mut conn, upload.metadata.task_id).await?;
+
+    let upload = upload.into_inner();
+    let (file, _temp_path) = upload.file.file.into_parts();
+    let contents = file_utils::file_to_payload(file);
+    let (_upload_id, upload_path) = file_uploading::upload_exercise_archive(
+        &mut conn,
+        contents,
+        file_store.as_ref(),
+        file_uploading::ExerciseTaskInfo {
+            course_id,
+            exercise: &exercise,
+            exercise_slide: &exercise_slide,
+            exercise_task: &exercise_task,
+        },
+        user.id,
+    )
+    .await?;
+
+    let download_url = file_store.get_download_url(&upload_path, &app_conf);
+    let upload_result = api::UploadResult { download_url };
+    token.authorized_ok(web::Json(upload_result))
+}
+
+async fn submit_exercise(
     pool: web::Data<PgPool>,
     jwt_key: web::Data<JwtKey>,
     exercise_id: web::Path<Uuid>,
@@ -203,12 +248,12 @@ async fn submit(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/course-instances", web::get().to(course_instances))
+    cfg.route("/course-instances", web::get().to(get_course_instances))
         .route(
             "/course-instances/{id}/exercises",
-            web::get().to(course_instance_exercises),
+            web::get().to(get_course_instance_exercises),
         )
-        .route("/exercises/{id}", web::get().to(exercise))
-        .route("/exercises/{id}/download", web::get().to(download_exercise))
-        .route("/exercises/{id}", web::post().to(submit));
+        .route("/exercises/{id}", web::get().to(get_exercise))
+        .route("/exercises/{id}/upload", web::post().to(upload_exercise))
+        .route("/exercises/{id}/submit", web::post().to(submit_exercise));
 }

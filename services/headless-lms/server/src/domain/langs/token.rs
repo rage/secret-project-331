@@ -58,7 +58,9 @@ impl FromRequest for AuthToken {
 
         let user = if app_conf.test_mode {
             warn!("Using test credentials. Normal accounts won't work.");
-            authorization::authenticate_test_token(&mut conn, &token, &app_conf).await?
+            authorization::authenticate_test_token(&mut conn, &token, &app_conf)
+                .await.map_err(|err|
+                    ControllerError::new(ControllerErrorType::Unauthorized, "Could not find user".to_string(), Some(err)))?
         } else {
             match load_user(&cache, &token).await {
                 Some(user) => user,

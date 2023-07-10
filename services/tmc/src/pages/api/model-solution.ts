@@ -87,6 +87,7 @@ const processModelSolution = async (
     }
     return ok(res, modelSolutionSpec)
   } catch (err) {
+    error(requestId, "Error while processing the model solution spec", err)
     return internalServerError(
       requestId,
       res,
@@ -160,7 +161,7 @@ const badRequest = (
   requestId: string,
   res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
-  ...err: unknown[]
+  err?: unknown,
 ): void => {
   errorResponse(requestId, res, 400, contextMessage, err)
 }
@@ -169,7 +170,7 @@ const internalServerError = (
   requestId: string,
   res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
-  ...err: unknown[]
+  err?: unknown,
 ): void => {
   errorResponse(requestId, res, 500, contextMessage, err)
 }

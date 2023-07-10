@@ -3200,6 +3200,47 @@
     },
     "query": "\nUPDATE course_modules\nSET name = COALESCE($2, name),\n  order_number = $3,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8,\n  automatic_completion_requires_exam = $9,\n  completion_registration_link_override = $10,\n  enable_registering_completion_to_uh_open_university = $11\nWHERE id = $1\n        "
   },
+  "2ff803033f9f7a9eca35e97ebeada5b85cc247236b7a693fd496d448ca36efec": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO user_research_consents (\n    id,\n    user_id,\n    research_consent\n)\nVALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at) \nDO UPDATE SET research_consent = $3\nRETURNING *;\n    "
+  },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
     "describe": {
       "columns": [

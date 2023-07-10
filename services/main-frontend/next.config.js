@@ -9,7 +9,7 @@ const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
 
 const config = {
-  swcMinify: false,
+  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

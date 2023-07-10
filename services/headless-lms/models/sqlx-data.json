@@ -185,52 +185,6 @@
     },
     "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec;\n        "
   },
-  "01ad29bc78828b79df240e058f98ac99ef013335bbdfa412aa173d20821c0472": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 2,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_instance_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "country_code",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 6,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [false, false, false, false, false, false, true],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT *\nFROM student_countries\nWHERE course_id = $1\nAND deleted_at IS NULL;\n"
-  },
   "01bb87c105475e3b694772edf92dee4bad62dabb109aceebb1124e1684b5ab04": {
     "describe": {
       "columns": [
@@ -3080,6 +3034,16 @@
     },
     "query": "\nUPDATE course_module_certificate_configurations\nSET deleted_at = now()\nWHERE id = $1\n"
   },
+  "2b91fe4ad3ba719ad78134124b895d7254751dc9867bc122d821b0c443de0432": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Uuid", "Uuid", "Uuid", "Varchar", "Jsonb"]
+      }
+    },
+    "query": "\nINSERT INTO user_course_instance_exercise_service_variables (\n    exercise_service_slug,\n    user_id,\n    course_instance_id,\n    exam_id,\n    variable_key,\n    variable_value\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (\n    variable_key,\n    user_id,\n    course_instance_id,\n    exercise_service_slug,\n    exam_id,\n    deleted_at\n  ) DO\nUPDATE\nSET variable_value = $6;\n    "
+  },
   "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422": {
     "describe": {
       "columns": [],
@@ -3098,16 +3062,6 @@
       }
     },
     "query": "\nUPDATE course_instances\nSET name = $1,\n  description = $2,\n  teacher_in_charge_name = $3,\n  teacher_in_charge_email = $4,\n  support_email = $5,\n  starts_at = $6,\n  ends_at = $7\nWHERE id = $8\n"
-  },
-  "2c88f286895fad5be75564ffcf69e917f70f322c04af5f0ee31fb5fcba8482d5": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar"]
-      }
-    },
-    "query": "\nINSERT INTO course_background_question_answers (\n    course_background_question_id,\n    user_id,\n    answer_value\n  )\nVALUES ($1, $2, $3) ON CONFLICT (course_background_question_id, user_id)\nWHERE deleted_at IS NULL DO\nUPDATE\nSET answer_value = $3\n        "
   },
   "2cc22c82137a885d0d284ea35c6472243117a30bb98a41c8f371414d01e39f81": {
     "describe": {
@@ -10165,6 +10119,52 @@
     },
     "query": "\nINSERT INTO page_visit_datum_summary_by_pages (\n    course_id,\n    exam_id,\n    page_id,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  page_id,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  page_id\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    page_id,\n    visit_date,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n"
   },
+  "74ce5f6da9f0821f29c75d03f4a8f532fa1d7afd1fb3cdf2955f808206efa118": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country_code",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM student_countries\nWHERE course_id = $1\nAND course_instance_id = $2\nAND deleted_at IS NULL;\n"
+  },
   "74d82f3b6234558038f0d4cebd6f4b05aaef172cb0b75276f9ae429f7c3c10ec": {
     "describe": {
       "columns": [
@@ -14810,16 +14810,6 @@
       }
     },
     "query": "\nUPDATE repository_exercises\nSET checksum = $1\nWHERE id = $2\n"
-  },
-  "a801b37c2eb91f887111f1253b34b13ad0099b69753a29b1b3e2563c100039f2": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Varchar", "Uuid", "Uuid", "Varchar", "Jsonb"]
-      }
-    },
-    "query": "\n    INSERT INTO user_course_instance_exercise_service_variables (\n        exercise_service_slug,\n        user_id,\n        exam_id,\n        variable_key,\n        variable_value\n      )\n    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (\n        variable_key,\n        user_id,\n        exam_id,\n        exercise_service_slug\n      ) WHERE deleted_at IS NULL AND exam_id IS NOT NULL DO\n    UPDATE\n    SET variable_value = $5;\n    "
   },
   "a80adc88f16d5ce7df3ab0724d59ba485ee56323fef9d6e89cde588994a2ee63": {
     "describe": {
@@ -19948,6 +19938,52 @@
     },
     "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  p.exam_id as exam_id,\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n"
   },
+  "dba9ba5276e8397e269fb497bf01304f7450ff6f87cd5e94c30b818490d16b6e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "country_code",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM student_countries\nWHERE user_id = $1\nAND course_instance_id = $2\nAND deleted_at IS NULL;\n"
+  },
   "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {
     "describe": {
       "columns": [
@@ -21514,6 +21550,16 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  hidden,\n  page_language_group_id\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        "
   },
+  "f0241e8220e65f569e39bfa0d5eae12df3c61ac4a3de25aebffd27358f807d67": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO course_background_question_answers (\n    course_background_question_id,\n    user_id,\n    answer_value\n  )\nVALUES ($1, $2, $3) ON CONFLICT (\n    course_background_question_id,\n    user_id,\n    deleted_at\n  ) DO\nUPDATE\nSET answer_value = $3\n        "
+  },
   "f06d370d7ad238c78d62897c81c0cc4f93223933438f6483ad927d078fc198c2": {
     "describe": {
       "columns": [
@@ -23001,16 +23047,6 @@
       }
     },
     "query": "\nSELECT *\nFROM study_registry_registrars\nWHERE secret_key = $1\n  AND deleted_at IS NULL\n    "
-  },
-  "fe60f0cc357f9b63d3edf4b7a095f39ff3cfd5fde546872f7378663fdb4af6e4": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Varchar", "Uuid", "Uuid", "Varchar", "Jsonb"]
-      }
-    },
-    "query": "\n    INSERT INTO user_course_instance_exercise_service_variables (\n        exercise_service_slug,\n        user_id,\n        course_instance_id,\n        variable_key,\n        variable_value\n      )\n    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (\n        variable_key,\n        user_id,\n        course_instance_id,\n        exercise_service_slug\n      ) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL DO\n    UPDATE\n    SET variable_value = $5;\n    "
   },
   "fec39a3e64b3e84a8362eb22e8f0d6de965ec924ab15a8078505c54b59dfa3ad": {
     "describe": {

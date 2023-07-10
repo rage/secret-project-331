@@ -1,18 +1,15 @@
 import {
   CmsPageUpdate,
   ContentManagementPage,
-  PageAudioFile,
   PageInfo,
   PageNavigationInformation,
 } from "../../shared-module/bindings"
 import {
   isContentManagementPage,
-  isPageAudioFile,
   isPageInfo,
   isPageNavigationInformation,
 } from "../../shared-module/bindings.guard"
 import { isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
-import { validateFile } from "../../shared-module/utils/files"
 
 import { cmsClient } from "./cmsClient"
 

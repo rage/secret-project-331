@@ -42,7 +42,7 @@ const getText = (
   reviewingStage: ReviewingStage,
   gradingProgress: GradingProgress,
   peerReviewConfig: CourseMaterialPeerReviewConfig | null,
-  t: TFunction<Namespace<"course-material">, undefined, Namespace<"course-material">>,
+  t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ) => {
   if (peerReviewConfig && reviewingStage === "NotStarted") {
     return t("help-text-exercise-involves-peer-review", {

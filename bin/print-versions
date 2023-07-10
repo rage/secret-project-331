@@ -89,3 +89,4 @@ print_is_installed "sponge" sponge
 print_version "rsync" rsync --version
 print_version "actionlint" actionlint --version
 print_version "Oxipng" oxipng --version
+print_version "mpv" mpv --version

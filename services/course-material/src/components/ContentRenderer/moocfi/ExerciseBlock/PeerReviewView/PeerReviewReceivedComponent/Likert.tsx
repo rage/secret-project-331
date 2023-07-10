@@ -63,7 +63,7 @@ const Icon = styled.div<StyledProps>`
 
 const Likert: React.FC<LinkertProps> = ({ question, content, index }) => {
   const { t } = useTranslation()
-  const arr = [
+  const arr: { text: string }[] = [
     {
       text: t("likert-scale-strongly-disagree"),
     },

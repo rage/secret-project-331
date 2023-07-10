@@ -3,11 +3,10 @@ import "i18next"
 import ownTranslations from "../src/shared-module/locales/en/cms.json"
 import sharedModule from "../src/shared-module/locales/en/shared-module.json"
 
-const allAvailableTranslations = { ...sharedModule, ...ownTranslations }
-
 declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: typeof allAvailableTranslations
+    defaultNS: "cms"
+    fallbackNS: "shared-module"
     resources: {
       cms: typeof ownTranslations
       "shared-module": typeof sharedModule

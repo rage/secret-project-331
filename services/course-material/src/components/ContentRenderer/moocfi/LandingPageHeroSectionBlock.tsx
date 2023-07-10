@@ -2,10 +2,8 @@ import React from "react"
 
 import { BlockRendererProps, blockToRendererMap } from ".."
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import LandingPageHeroSection, {
-  LandingPageHeroSectionProps,
-} from "../../../shared-module/components/LandingPageHeroSection"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import LandingPageHeroSection, { LandingPageHeroSectionProps } from "../../LandingPageHeroSection"
 import DefaultBlock from "../DefaultBlock"
 
 const LandingPageHeroSectionBlock: React.FC<

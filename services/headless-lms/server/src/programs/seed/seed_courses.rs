@@ -54,9 +54,11 @@ pub async fn seed_sample_course(
     admin: Uuid,
     student: Uuid,
     users: &[Uuid],
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -390,6 +392,7 @@ pub async fn seed_sample_course(
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -480,6 +483,7 @@ pub async fn seed_sample_course(
                 exercise_block_4,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -957,6 +961,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_1,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -981,6 +986,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_2
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1005,6 +1011,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_3
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1029,6 +1036,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_4
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1053,6 +1061,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_5,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1077,6 +1086,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_7
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1101,6 +1111,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_6
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1125,6 +1136,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_8
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1229,6 +1241,7 @@ pub async fn seed_sample_course(
                 multi_exercise_block_1
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1268,6 +1281,7 @@ pub async fn seed_sample_course(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1535,6 +1549,7 @@ pub async fn seed_sample_course(
                 multi_exercise_block_2
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1559,6 +1574,7 @@ pub async fn seed_sample_course(
                 inner_blocks: vec![]
             }]),
         },
+        base_url.clone(),
         jwt_key,
     )
     .await?;
@@ -1853,6 +1869,7 @@ pub async fn create_glossary_course(
     org_id: Uuid,
     admin: Uuid,
     course_id: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
@@ -1883,7 +1900,11 @@ pub async fn create_glossary_course(
             }),
             new_course,
             admin,
-            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(
+                base_url.clone(),
+                Uuid::new_v4(),
+                Arc::clone(&jwt_key),
+            ),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -1927,7 +1948,7 @@ pub async fn create_glossary_course(
         )),
         &new_chapter,
         admin,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -1951,6 +1972,7 @@ pub async fn create_glossary_course(
                 Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2")
             ),]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1968,10 +1990,12 @@ pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
     org: Uuid,
     admin: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
@@ -2414,6 +2438,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_1.id),
         design_content,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2461,6 +2486,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_1.id),
         content_b,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2563,6 +2589,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_2.id),
         page_content,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2583,6 +2610,7 @@ pub async fn seed_cs_course_material(
             title: "Content rendering".to_string(),
             chapter_id: Some(chapter_2.id),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2609,6 +2637,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_5,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2633,6 +2662,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_6,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2658,6 +2688,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_7,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2682,6 +2713,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_8,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2702,7 +2734,8 @@ pub async fn seed_cs_course_material(
     let repository_exercise_part = "part01";
     let repository_exercise_1_name = "ex01";
     let repository_exercise_1_checksum = &[0, 1, 2, 3];
-    let repository_exercise_1_download_url = "http://project-331.local/api/v0/files/uploads/playground-views/repository-exercise-1.tar.zst";
+    let repository_exercise_1_download_url =
+        format!("{base_url}/api/v0/files/uploads/playground-views/repository-exercise-1.tar.zst");
     repository_exercises::new(
         &mut conn,
         repository_exercise_1_id,
@@ -2710,14 +2743,15 @@ pub async fn seed_cs_course_material(
         repository_exercise_part,
         repository_exercise_1_name,
         repository_exercise_1_checksum,
-        repository_exercise_1_download_url,
+        &repository_exercise_1_download_url,
     )
     .await?;
     let repository_exercise_2_id =
         Uuid::new_v5(&course.id, b"a7bb7bd8-70fb-4764-9429-34849efc7276");
     let repository_exercise_2_name = "ex02";
     let repository_exercise_2_checksum = &[0, 1, 2, 3];
-    let repository_exercise_2_download_url = "http://project-331.local/api/v0/files/uploads/playground-views/repository-exercise-2.tar.zst";
+    let repository_exercise_2_download_url =
+        format!("{base_url}/api/v0/files/uploads/playground-views/repository-exercise-2.tar.zst");
     repository_exercises::new(
         &mut conn,
         repository_exercise_2_id,
@@ -2725,7 +2759,7 @@ pub async fn seed_cs_course_material(
         repository_exercise_part,
         repository_exercise_2_name,
         repository_exercise_2_checksum,
-        repository_exercise_2_download_url,
+        &repository_exercise_2_download_url,
     )
     .await?;
     let (tmc_exercise_block_1, tmc_exercise_1, tmc_exercise_slide_1, tmc_exercise_task_1) =
@@ -2796,6 +2830,7 @@ pub async fn seed_cs_course_material(
                 tmc_exercise_block_2,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2811,9 +2846,11 @@ pub async fn seed_course_without_submissions(
     course_slug: &str,
     admin: Uuid,
     student: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -3140,7 +3177,9 @@ pub async fn seed_course_without_submissions(
                 paragraph("Like this.", block_id_5),
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
-        },Arc::clone(&jwt_key),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -3239,6 +3278,7 @@ pub async fn seed_course_without_submissions(
                 exercise_block_4,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3717,6 +3757,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_1,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3741,6 +3782,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_2
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3765,6 +3807,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_3
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3789,6 +3832,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_4
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3813,6 +3857,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_5,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3837,6 +3882,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_7
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3861,6 +3907,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_6
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3965,6 +4012,7 @@ pub async fn seed_course_without_submissions(
                 multi_exercise_block_1
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4004,6 +4052,7 @@ pub async fn seed_course_without_submissions(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4027,6 +4076,7 @@ pub async fn seed_course_without_submissions(
                 inner_blocks: vec![]
             }]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4179,9 +4229,11 @@ pub async fn seed_peer_review_course_without_submissions(
     course_name: &str,
     course_slug: &str,
     admin: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -4316,6 +4368,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_1,]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4368,6 +4421,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_2]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4420,6 +4474,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_3,]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4472,6 +4527,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_1,]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;

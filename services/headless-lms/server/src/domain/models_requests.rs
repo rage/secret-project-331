@@ -233,14 +233,15 @@ pub struct SpecRequest<'a> {
 /// Fetches a public/model spec based on the private spec from the given url.
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
-pub fn make_spec_fetcher(request_id: Uuid, jwt_key: Arc<JwtKey>) -> impl SpecFetcher {
+pub fn make_spec_fetcher(
+    base_url: String,
+    request_id: Uuid,
+    jwt_key: Arc<JwtKey>,
+) -> impl SpecFetcher {
     move |url, exercise_service_slug, private_spec| {
         let client = reqwest::Client::new();
         let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
-        // TODO: use real url
-        let upload_url = Some(format!(
-            "http://project-331.local/api/v0/files/{exercise_service_slug}"
-        ));
+        let upload_url = Some(format!("{base_url}/api/v0/files/{exercise_service_slug}"));
         let req = client
             .post(url.clone())
             .header(

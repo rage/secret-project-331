@@ -41,6 +41,7 @@ pub struct SeedOrganizationUhCsResult {
 pub async fn seed_organization_uh_cs(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
@@ -81,6 +82,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            base_url.clone(),
             Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_2(
@@ -89,6 +91,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            base_url.clone(),
             Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_3(
@@ -97,6 +100,7 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            base_url.clone(),
             Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_4(
@@ -105,12 +109,14 @@ pub async fn seed_organization_uh_cs(
             admin_user_id,
             student_user_id,
             example_normal_user_ids.clone(),
+            base_url.clone(),
             Arc::clone(&jwt_key),
         )),
         run_parallelly(courses_group_5(
             db_pool.clone(),
             uh_cs_organization_id,
             admin_user_id,
+            base_url.clone(),
             Arc::clone(&jwt_key),
         ))
     )?;
@@ -222,6 +228,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -236,6 +243,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -250,6 +258,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -264,6 +273,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("65f5c3f3-b5fd-478d-8858-a45cdcb16b86")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -278,6 +288,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -292,6 +303,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("b2168b2f-f721-4771-a35d-ca75ca0937b1")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -307,6 +319,7 @@ pub async fn seed_organization_uh_cs(
         &db_pool,
         uh_cs_organization_id,
         admin_user_id,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -333,7 +346,11 @@ pub async fn seed_organization_uh_cs(
             }),
             new_course,
             admin_user_id,
-            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(
+                base_url.clone(),
+                Uuid::new_v4(),
+                Arc::clone(&jwt_key),
+            ),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -364,6 +381,7 @@ async fn courses_group_1(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<(Uuid, Uuid, Uuid)> {
     let cs_intro = seed_sample_course(
@@ -375,6 +393,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -387,6 +406,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -399,6 +419,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -411,6 +432,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -423,6 +445,7 @@ async fn courses_group_1(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -439,6 +462,7 @@ async fn courses_group_2(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<(Uuid, Uuid)> {
     seed_sample_course(
@@ -450,6 +474,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -462,6 +487,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -474,6 +500,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -486,6 +513,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -498,6 +526,7 @@ async fn courses_group_2(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -510,6 +539,7 @@ async fn courses_group_3(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<(Uuid,)> {
     seed_sample_course(
@@ -521,6 +551,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -533,6 +564,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -545,6 +577,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -557,6 +590,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -569,6 +603,7 @@ async fn courses_group_3(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -581,6 +616,7 @@ async fn courses_group_4(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<()> {
     seed_sample_course(
@@ -592,6 +628,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -604,6 +641,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -616,6 +654,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -628,6 +667,7 @@ async fn courses_group_4(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -636,6 +676,7 @@ async fn courses_group_4(
         uh_cs_organization_id,
         admin_user_id,
         Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -647,6 +688,7 @@ async fn courses_group_5(
     db_pool: Pool<Postgres>,
     uh_cs_organization_id: Uuid,
     admin_user_id: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<()> {
     seed_peer_review_course_without_submissions(
@@ -656,6 +698,7 @@ async fn courses_group_5(
         "Peer review Course",
         "peer-review-course",
         admin_user_id,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;

@@ -24,6 +24,7 @@ use super::super::seed_users::SeedUsersResult;
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
@@ -74,7 +75,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         new_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -114,7 +115,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         draft_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -128,6 +129,7 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -161,6 +163,7 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;

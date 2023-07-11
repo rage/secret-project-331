@@ -7,7 +7,8 @@ pub async fn run_parallelly<T>(
 where
     T: std::marker::Send + 'static,
 {
-    let handle = tokio::spawn(future);
+    // boxing our futures helps avoid stack overflow
+    let handle = tokio::spawn(Box::pin(future));
     match handle.await {
         Ok(Ok(result)) => Ok(result),
         Ok(Err(err)) => Err(err),

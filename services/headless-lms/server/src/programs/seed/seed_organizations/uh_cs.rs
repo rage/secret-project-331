@@ -24,7 +24,7 @@ use crate::{
     programs::seed::{
         seed_courses::{
             create_glossary_course, seed_cs_course_material,
-            seed_peer_review_course_without_submissions, seed_sample_course,
+            seed_peer_review_course_without_submissions, seed_sample_course, CommonCourseData,
         },
         seed_helpers::create_exam,
     },
@@ -69,49 +69,148 @@ pub async fn seed_organization_uh_cs(
     info!("inserting uh-cs courses");
 
     // Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
+    let cs_data = CommonCourseData {
+        db_pool: db_pool.clone(),
+        organization_id: uh_cs_organization_id,
+        admin_user_id,
+        student_user_id,
+        example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
+        jwt_key: Arc::clone(&jwt_key),
+    };
     let (
-        (cs_intro, automatic_completions_id, introduction_to_localizing),
-        (manual_completions_id, automatic_course_with_exam_id),
-        (certificates_id,),
+        cs_intro,
+        automatic_completions_id,
+        introduction_to_localizing,
+        manual_completions_id,
+        automatic_course_with_exam_id,
+        certificates_id,
         ..,
     ) = try_join!(
-        run_parallelly(courses_group_1(
-            db_pool.clone(),
-            uh_cs_organization_id,
-            admin_user_id,
-            student_user_id,
-            example_normal_user_ids.clone(),
-            Arc::clone(&jwt_key),
+        // using these ids
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
+            "Introduction to everything",
+            "introduction-to-everything",
+            cs_data.clone(),
         )),
-        run_parallelly(courses_group_2(
-            db_pool.clone(),
-            uh_cs_organization_id,
-            admin_user_id,
-            student_user_id,
-            example_normal_user_ids.clone(),
-            Arc::clone(&jwt_key),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
+            "Automatic Completions",
+            "automatic-completions",
+            cs_data.clone(),
         )),
-        run_parallelly(courses_group_3(
-            db_pool.clone(),
-            uh_cs_organization_id,
-            admin_user_id,
-            student_user_id,
-            example_normal_user_ids.clone(),
-            Arc::clone(&jwt_key),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
+            "Introduction to localizing",
+            "introduction-to-localizing",
+            cs_data.clone(),
         )),
-        run_parallelly(courses_group_4(
-            db_pool.clone(),
-            uh_cs_organization_id,
-            admin_user_id,
-            student_user_id,
-            example_normal_user_ids.clone(),
-            Arc::clone(&jwt_key),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
+            "Manual Completions",
+            "manual-completions",
+            cs_data.clone(),
         )),
-        run_parallelly(courses_group_5(
-            db_pool.clone(),
-            uh_cs_organization_id,
-            admin_user_id,
-            Arc::clone(&jwt_key),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("260b2157-94ad-4791-91c7-f236f203c338")?,
+            "Automatic Course with Exam",
+            "automatic-course-with-exam",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("51ce5ea4-2587-407e-bea9-421309f77f69")?,
+            "Certificates",
+            "certificates",
+            cs_data.clone(),
+        )),
+        // not using these ids
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("4dde368a-5e5d-4001-b8aa-13079390f818")?,
+            "Model solutions",
+            "model-solutions",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("edaa1c52-15cd-458d-8ce2-1e4010641244")?,
+            "Course Modules",
+            "course-modules",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
+            "Introduction to feedback",
+            "introduction-to-feedback",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
+            "Introduction to history",
+            "introduction-to-history",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
+            "Introduction to edit proposals",
+            "introduction-to-edit-proposals",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
+            "Point view for teachers",
+            "point-view-for-teachers",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
+            "Advanced course instance management",
+            "advanced-course-instance-management",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
+            "Advanced exercise states",
+            "advanced-exercise-states",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
+            "Glossary course",
+            "glossary-course",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
+            "Permission management",
+            "permission-management",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
+            "Redirections",
+            "redirections",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
+            "Limited tries",
+            "limited-tries",
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_sample_course(
+            Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
+            "Course Structure",
+            "course-structure",
+            cs_data.clone(),
+        )),
+        run_parallelly(create_glossary_course(
+            Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
+            cs_data.clone(),
+        )),
+        run_parallelly(seed_peer_review_course_without_submissions(
+            Uuid::parse_str("c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0")?,
+            "Peer review Course",
+            "peer-review-course",
+            cs_data.clone(),
         ))
     )?;
 
@@ -356,309 +455,4 @@ pub async fn seed_organization_uh_cs(
         uh_cs_organization_id,
         cs_intro_course_id: cs_intro,
     })
-}
-
-async fn courses_group_1(
-    db_pool: Pool<Postgres>,
-    uh_cs_organization_id: Uuid,
-    admin_user_id: Uuid,
-    student_user_id: Uuid,
-    example_normal_user_ids: Vec<Uuid>,
-    jwt_key: Arc<JwtKey>,
-) -> anyhow::Result<(Uuid, Uuid, Uuid)> {
-    let cs_intro = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
-        "Introduction to everything",
-        "introduction-to-everything",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    let _model_course = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("4dde368a-5e5d-4001-b8aa-13079390f818")?,
-        "Model solutions",
-        "model-solutions",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    let automatic_completions_id = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
-        "Automatic Completions",
-        "automatic-completions",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    let introduction_to_localizing = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
-        "Introduction to localizing",
-        "introduction-to-localizing",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("edaa1c52-15cd-458d-8ce2-1e4010641244")?,
-        "Course Modules",
-        "course-modules",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    Ok((
-        cs_intro,
-        automatic_completions_id,
-        introduction_to_localizing,
-    ))
-}
-
-async fn courses_group_2(
-    db_pool: Pool<Postgres>,
-    uh_cs_organization_id: Uuid,
-    admin_user_id: Uuid,
-    student_user_id: Uuid,
-    example_normal_user_ids: Vec<Uuid>,
-    jwt_key: Arc<JwtKey>,
-) -> anyhow::Result<(Uuid, Uuid)> {
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
-        "Introduction to feedback",
-        "introduction-to-feedback",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
-        "Introduction to history",
-        "introduction-to-history",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
-        "Introduction to edit proposals",
-        "introduction-to-edit-proposals",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    let manual_completions = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
-        "Manual Completions",
-        "manual-completions",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    let automatic_exam_course_completions = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("260b2157-94ad-4791-91c7-f236f203c338")?,
-        "Automatic Course with Exam",
-        "automatic-course-with-exam",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    Ok((manual_completions, automatic_exam_course_completions))
-}
-
-async fn courses_group_3(
-    db_pool: Pool<Postgres>,
-    uh_cs_organization_id: Uuid,
-    admin_user_id: Uuid,
-    student_user_id: Uuid,
-    example_normal_user_ids: Vec<Uuid>,
-    jwt_key: Arc<JwtKey>,
-) -> anyhow::Result<(Uuid,)> {
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
-        "Point view for teachers",
-        "point-view-for-teachers",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
-        "Advanced course instance management",
-        "advanced-course-instance-management",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
-        "Advanced exercise states",
-        "advanced-exercise-states",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
-        "Glossary course",
-        "glossary-course",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    let certificates_id = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("51ce5ea4-2587-407e-bea9-421309f77f69")?,
-        "Certificates",
-        "certificates",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    Ok((certificates_id,))
-}
-
-async fn courses_group_4(
-    db_pool: Pool<Postgres>,
-    uh_cs_organization_id: Uuid,
-    admin_user_id: Uuid,
-    student_user_id: Uuid,
-    example_normal_user_ids: Vec<Uuid>,
-    jwt_key: Arc<JwtKey>,
-) -> anyhow::Result<()> {
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
-        "Permission management",
-        "permission-management",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
-        "Redirections",
-        "redirections",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
-        "Limited tries",
-        "limited-tries",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
-        "Course Structure",
-        "course-structure",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-    create_glossary_course(
-        &db_pool,
-        uh_cs_organization_id,
-        admin_user_id,
-        Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-
-    Ok(())
-}
-
-async fn courses_group_5(
-    db_pool: Pool<Postgres>,
-    uh_cs_organization_id: Uuid,
-    admin_user_id: Uuid,
-    jwt_key: Arc<JwtKey>,
-) -> anyhow::Result<()> {
-    seed_peer_review_course_without_submissions(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0")?,
-        "Peer review Course",
-        "peer-review-course",
-        admin_user_id,
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-
-    Ok(())
 }

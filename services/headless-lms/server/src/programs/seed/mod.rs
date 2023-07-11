@@ -1,5 +1,3 @@
-#![allow(clippy::too_many_arguments)]
-
 pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
@@ -28,26 +26,28 @@ pub async fn main() -> anyhow::Result<()> {
     let (_, seed_users_result, _) = try_join!(
         run_parallelly(seed_exercise_services::seed_exercise_services(
             db_pool.clone()
-        ),),
+        )),
         run_parallelly(seed_users::seed_users(db_pool.clone())),
         run_parallelly(seed_playground_examples::seed_playground_examples(
             db_pool.clone()
-        ),),
+        )),
     )?;
 
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
-        run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
-            db_pool.clone(),
-            seed_users_result.clone(),
-            Arc::clone(&jwt_key),
+        Box::pin(run_parallelly(
+            seed_organizations::uh_cs::seed_organization_uh_cs(
+                db_pool.clone(),
+                seed_users_result.clone(),
+                Arc::clone(&jwt_key),
+            )
         )),
-        run_parallelly(
+        Box::pin(run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
                 seed_users_result.clone(),
                 Arc::clone(&jwt_key),
             )
-        )
+        ))
     )?;
 
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;

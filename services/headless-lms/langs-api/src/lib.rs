@@ -44,17 +44,14 @@ pub struct ExerciseTask {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
-    pub exercise_task_submissions: Vec<ExerciseTaskSubmission>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
     pub data_json: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ExerciseSlideSubmissionResult {}
+pub struct ExerciseTaskSubmissionResult {
+    pub submission_id: Uuid,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UploadMetadata {
@@ -65,4 +62,31 @@ pub struct UploadMetadata {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UploadResult {
     pub download_url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ExerciseTaskSubmissionStatus {
+    NoGradingYet,
+    Grading {
+        grading_progress: GradingProgress,
+        score_given: Option<f32>,
+        grading_started_at: Option<DateTime<Utc>>,
+        grading_completed_at: Option<DateTime<Utc>>,
+        feedback_json: Option<serde_json::Value>,
+        feedback_text: Option<String>,
+    },
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum GradingProgress {
+    /// The grading could not complete.
+    Failed,
+    /// There is no grading process occurring; for example, the student has not yet made any submission.
+    NotReady,
+    /// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.
+    PendingManual,
+    /// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.
+    Pending,
+    /// The grading process is completed; the score value, if any, represents the current Final Grade;
+    FullyGraded,
 }

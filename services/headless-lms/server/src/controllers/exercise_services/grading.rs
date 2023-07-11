@@ -18,6 +18,7 @@ async fn grading_update(
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
     let token = skip_authorize();
+    let grading_result = grading_result.into_inner();
 
     // Ensure that the claim is valid for this specific submission
     if *submission_id != grading_update_claim.submission_id() {
@@ -36,8 +37,21 @@ async fn grading_update(
     let slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;
+    let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
+        &mut conn,
+        *submission_id,
+    )
+    .await?
+    .ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "No existing grading for the submission found".to_string(),
+            None,
+        )
+    })?;
     let exercise = models::exercises::get_by_id(&mut conn, slide.exercise_id).await?;
-    models::exercise_task_gradings::new_grading(&mut conn, &exercise, &submission).await?;
+    models::exercise_task_gradings::update_grading(&mut conn, &grading, &grading_result, &exercise)
+        .await?;
 
     token.authorized_ok(web::Json(()))
 }

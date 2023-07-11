@@ -1,12 +1,8 @@
 //! Contains the Convert trait for converting between langs API types and headless-lms types.
 
 use headless_lms_models::{
-    course_instances::CourseInstanceWithCourseInfo,
-    exercise_tasks::CourseMaterialExerciseTask,
-    library::grading::{
-        StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
-        StudentExerciseTaskSubmission,
-    },
+    course_instances::CourseInstanceWithCourseInfo, exercise_tasks::CourseMaterialExerciseTask,
+    exercises::GradingProgress,
 };
 use mooc_langs_api as api;
 
@@ -37,34 +33,6 @@ impl Convert<api::CourseInstance> for CourseInstanceWithCourseInfo {
     }
 }
 
-impl Convert<StudentExerciseSlideSubmission> for api::ExerciseSlideSubmission {
-    fn convert(self) -> StudentExerciseSlideSubmission {
-        StudentExerciseSlideSubmission {
-            exercise_slide_id: self.exercise_slide_id,
-            exercise_task_submissions: self
-                .exercise_task_submissions
-                .into_iter()
-                .map(Convert::convert)
-                .collect(),
-        }
-    }
-}
-
-impl Convert<StudentExerciseTaskSubmission> for api::ExerciseTaskSubmission {
-    fn convert(self) -> StudentExerciseTaskSubmission {
-        StudentExerciseTaskSubmission {
-            exercise_task_id: self.exercise_task_id,
-            data_json: self.data_json,
-        }
-    }
-}
-
-impl Convert<api::ExerciseSlideSubmissionResult> for StudentExerciseSlideSubmissionResult {
-    fn convert(self) -> api::ExerciseSlideSubmissionResult {
-        api::ExerciseSlideSubmissionResult {}
-    }
-}
-
 impl Convert<api::ExerciseTask> for CourseMaterialExerciseTask {
     fn convert(self) -> api::ExerciseTask {
         api::ExerciseTask {
@@ -74,6 +42,18 @@ impl Convert<api::ExerciseTask> for CourseMaterialExerciseTask {
             public_spec: self.public_spec,
             model_solution_spec: self.model_solution_spec,
             exercise_service_slug: self.exercise_service_slug,
+        }
+    }
+}
+
+impl Convert<api::GradingProgress> for GradingProgress {
+    fn convert(self) -> api::GradingProgress {
+        match self {
+            Self::Failed => api::GradingProgress::Failed,
+            Self::NotReady => api::GradingProgress::NotReady,
+            Self::PendingManual => api::GradingProgress::PendingManual,
+            Self::Pending => api::GradingProgress::Pending,
+            Self::FullyGraded => api::GradingProgress::FullyGraded,
         }
     }
 }

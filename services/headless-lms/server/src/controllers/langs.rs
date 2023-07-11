@@ -7,6 +7,7 @@ use actix_multipart::form::tempfile::TempFile;
 use actix_multipart::form::MultipartForm;
 use headless_lms_utils::file_store::file_utils;
 use models::chapters::DatabaseChapter;
+use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use models::user_exercise_states::CourseInstanceOrExamId;
 use mooc_langs_api as api;
 use std::collections::HashSet;
@@ -225,7 +226,7 @@ async fn submit_exercise(
     exercise_id: web::Path<Uuid>,
     submission: web::Json<api::ExerciseSlideSubmission>,
     user: AuthToken,
-) -> ControllerResult<web::Json<api::ExerciseSlideSubmissionResult>> {
+) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -235,16 +236,72 @@ async fn submit_exercise(
     )
     .await?;
 
+    let submission = submission.into_inner();
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let result = domain::exercises::process_submission(
         &mut conn,
         user.id,
         exercise,
-        submission.into_inner().convert(),
+        StudentExerciseSlideSubmission {
+            exercise_slide_id: submission.exercise_slide_id,
+            exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                exercise_task_id: submission.exercise_task_id,
+                data_json: submission.data_json,
+            }],
+        },
         jwt_key.into_inner(),
     )
     .await?;
-    token.authorized_ok(web::Json(result.convert()))
+
+    // the input only contains one task submission, so the task results should only contain one result as well
+    let submission = result
+        .exercise_task_submission_results
+        .into_iter()
+        .next()
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to find exercise task submission id".to_string(),
+                None,
+            )
+        })?;
+    let result = api::ExerciseTaskSubmissionResult {
+        submission_id: submission.submission.id,
+    };
+    token.authorized_ok(web::Json(result))
+}
+
+async fn get_submission_grading(
+    pool: web::Data<PgPool>,
+    submission_id: web::Path<Uuid>,
+    user: AuthToken,
+) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionStatus>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::ExerciseTaskSubmission(*submission_id),
+    )
+    .await?;
+
+    let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
+        &mut conn,
+        *submission_id,
+    )
+    .await?;
+    let status = match grading {
+        Some(grading) => api::ExerciseTaskSubmissionStatus::Grading {
+            grading_progress: grading.grading_progress.convert(),
+            score_given: grading.score_given,
+            grading_started_at: grading.grading_started_at,
+            grading_completed_at: grading.grading_completed_at,
+            feedback_json: grading.feedback_json,
+            feedback_text: grading.feedback_text,
+        },
+        None => api::ExerciseTaskSubmissionStatus::NoGradingYet,
+    };
+    token.authorized_ok(web::Json(status))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -255,5 +312,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/exercises/{id}", web::get().to(get_exercise))
         .route("/exercises/{id}/upload", web::post().to(upload_exercise))
-        .route("/exercises/{id}/submit", web::post().to(submit_exercise));
+        .route("/exercises/{id}/submit", web::post().to(submit_exercise))
+        .route(
+            "/submissions/{id}/grading",
+            web::get().to(get_submission_grading),
+        );
 }

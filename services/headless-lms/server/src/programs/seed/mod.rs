@@ -35,6 +35,8 @@ pub async fn main() -> anyhow::Result<()> {
         ),),
     )?;
 
+    seed_file_storage::seed_file_storage().await?;
+
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
@@ -51,8 +53,6 @@ pub async fn main() -> anyhow::Result<()> {
     )?;
 
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
-
-    seed_file_storage::seed_file_storage().await?;
 
     seed_certificate_fonts::seed_certificate_fonts(&db_pool).await?;
 

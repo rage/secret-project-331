@@ -1,5 +1,6 @@
 use std::future::Future;
 
+use futures_util::FutureExt;
 use headless_lms_server::programs;
 
 /// The entrypoint to all the binaries provided by the project.
@@ -8,23 +9,32 @@ fn main() -> anyhow::Result<()> {
     let program_name = std::env::args()
         .nth(1)
         .expect("No program name provided as the first argument.");
-    match program_name.as_str() {
-        "doc-file-generator" => tokio_run(programs::doc_file_generator::main())?,
-        "email-deliver" => tokio_run(programs::email_deliver::main())?,
-        "ended-exams-processor" => tokio_run(programs::ended_exams_processor::main())?,
+    let future = match program_name.as_str() {
+        "doc-file-generator" => programs::doc_file_generator::main().boxed_local(),
+        "email-deliver" => programs::email_deliver::main().boxed_local(),
+        "ended-exams-processor" => programs::ended_exams_processor::main().boxed_local(),
         "open-university-registration-link-fetcher" => {
-            tokio_run(programs::open_university_registration_link_fetcher::main())?
+            programs::open_university_registration_link_fetcher::main().boxed_local()
         }
-        "regrader" => tokio_run(programs::regrader::main())?,
-        "seed" => tokio_run(programs::seed::main())?,
-        "service-info-fetcher" => tokio_run(programs::service_info_fetcher::main())?,
-        "peer-review-updater" => tokio_run(programs::peer_review_updater::main())?,
-        "start-server" => actix_run(programs::start_server::main())?,
-        "sorter" => programs::sorter::sort()?,
-        "sync-tmc-users" => tokio_run(programs::sync_tmc_users::main())?,
-        "calculate-page-visit-stats" => tokio_run(programs::calculate_page_visit_stats::main())?,
+        "regrader" => programs::regrader::main().boxed_local(),
+        "seed" => programs::seed::main().boxed_local(),
+        "service-info-fetcher" => programs::service_info_fetcher::main().boxed_local(),
+        "peer-review-updater" => programs::peer_review_updater::main().boxed_local(),
+        "start-server" => {
+            // we'll run the server on the actix runtime without boxing it
+            actix_run(programs::start_server::main())?;
+            return Ok(());
+        }
+        "sorter" => {
+            // not async so no need to involve a runtime
+            programs::sorter::sort()?;
+            return Ok(());
+        }
+        "sync-tmc-users" => programs::sync_tmc_users::main().boxed_local(),
+        "calculate-page-visit-stats" => programs::calculate_page_visit_stats::main().boxed_local(),
         _ => panic!("Unknown program name: {}", program_name),
     };
+    tokio_run(future)?;
 
     Ok(())
 }

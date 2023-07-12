@@ -1479,6 +1479,7 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "anyhow",
+ "futures-util",
  "headless-lms-server",
  "tokio",
 ]

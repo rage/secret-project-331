@@ -34,20 +34,18 @@ pub async fn main() -> anyhow::Result<()> {
     )?;
 
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
-        Box::pin(run_parallelly(
-            seed_organizations::uh_cs::seed_organization_uh_cs(
-                db_pool.clone(),
-                seed_users_result.clone(),
-                Arc::clone(&jwt_key),
-            )
+        run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
+            db_pool.clone(),
+            seed_users_result.clone(),
+            Arc::clone(&jwt_key),
         )),
-        Box::pin(run_parallelly(
+        run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
                 seed_users_result.clone(),
                 Arc::clone(&jwt_key),
             )
-        ))
+        )
     )?;
 
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;

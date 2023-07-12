@@ -8,7 +8,7 @@ pub mod seed_playground_examples;
 pub mod seed_roles;
 pub mod seed_users;
 
-use std::{env, process::Command, sync::Arc};
+use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{domain::models_requests::JwtKey, setup_tracing};
 
@@ -69,6 +69,8 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     let db_pool = PgPoolOptions::new()
         .max_connections(10)
         .min_connections(5)
+        // the seed process can take a while, default is 30
+        .acquire_timeout(Duration::from_secs(90))
         .connect(&db_url)
         .await?;
 

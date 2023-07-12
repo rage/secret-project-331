@@ -20,7 +20,8 @@ mod integration_test;
 
 #[actix_web::test]
 async fn gets_and_registers_completions() {
-    let base_url = std::env::var("BASE_URL").expect("BASE_URL must be defined");
+    let base_url =
+        std::env::var("BASE_URL").unwrap_or_else(|_| "http://project-331.local".to_string());
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
     let jwt_key = Arc::new(integration_test::make_jwt_key());

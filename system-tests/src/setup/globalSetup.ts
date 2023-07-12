@@ -44,9 +44,13 @@ async function setupSystemTestDb() {
     // spawnSync is the easiest way to wait for the script to finish while inheriting stdio.
     // Using a sync method hare shoud not be a problem since this is a setup script
     const res = spawnSync(setupSystemTestDbScriptPath, { stdio: "inherit" })
-    if (res.error) {
+    if (res.status != 0) {
       console.error("Error: Could not setup system test db.")
-      throw res.error
+      if (res.error) {
+        throw res.error
+      } else {
+        throw new Error(`System test db setup script returned non-zero status code ${res.status}`)
+      }
     }
     console.log("System test db setup complete.")
   } finally {

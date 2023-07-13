@@ -29,10 +29,13 @@ test("get course instances", async ({ page, request }) => {
   })
   expect(await response.json()).toStrictEqual([
     {
-      id: "48399008-6523-43c5-8fd6-59ecc731a426",
+      course_description: "An example course.",
       course_id: "06a7ccbd-8958-4834-918f-ad7b24e583fd",
-      name: null,
-      description: null,
+      id: "48399008-6523-43c5-8fd6-59ecc731a426",
+      course_name: "Introduction to Computer Science",
+      course_slug: "introduction-to-computer-science",
+      instance_description: null,
+      instance_name: null,
     },
   ])
 })

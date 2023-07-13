@@ -25,13 +25,31 @@ INSERT INTO user_research_consents (
     user_id,
     research_consent
 )
-VALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at) 
+VALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at)
 DO UPDATE SET research_consent = $3
 RETURNING *;
     ",
         pkey_policy.into_uuid(),
         user_id,
         research_consent,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_research_consent_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<UserResearchConsent> {
+    let res = sqlx::query_as!(
+        UserResearchConsent,
+        "
+SELECT *
+FROM user_research_consents
+WHERE user_id = $1
+    ",
+        user_id,
     )
     .fetch_one(conn)
     .await?;

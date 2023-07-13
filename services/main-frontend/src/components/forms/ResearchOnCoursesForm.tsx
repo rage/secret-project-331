@@ -1,44 +1,49 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { postUserResearchConsent } from "../../services/backend/users"
 import Button from "../../shared-module/components/Button"
 import Dialog from "../../shared-module/components/Dialog"
 import RadioButton from "../../shared-module/components/InputFields/RadioButton"
 import ClipboardIcon from "../../shared-module/img/clipboard-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "../../shared-module/styles"
 
-interface ResearchOnCoursesFields {
-  consent: boolean
-  user_id: string
-}
-
 interface ResearchOnCoursesFormProps {
-  user_id?: string
+  afterSubmit?: () => void
+  userId: string
 }
 
 const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesFormProps>> = ({
-  user_id,
+  afterSubmit,
+  userId,
 }) => {
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ResearchOnCoursesFields>()
   const { t } = useTranslation()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
-  const [consent, setConsent] = useState(false)
+  const [consent, setConsent] = useState<boolean>(false)
 
-  const handleOnSubmit = handleSubmit(() => {
-    setResearchConsentFormOpen(false)
-    console.log("Closed: ", consent, user_id, errors)
-    setConsent(false)
+  const consentQuery = useQuery({
+    queryKey: [`users-${userId}-user-research-consents`],
+    queryFn: () => postUserResearchConsent(userId, consent),
+    enabled: false,
   })
+
+  const handleOnSubmit = () => {
+    setResearchConsentFormOpen(false)
+    consentQuery.refetch()
+    if (afterSubmit != undefined) {
+      afterSubmit()
+    }
+    setConsent(false)
+  }
 
   const handleOnCancel = () => {
     setResearchConsentFormOpen(false)
-    setConsent(false)
+    if (afterSubmit != undefined) {
+      afterSubmit()
+    }
   }
 
   const handleConsentSelection = (value: boolean) => {
@@ -47,7 +52,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
 
   return (
     <div>
-      <Dialog open={researchConsentFormOpen} onClose={handleOnSubmit} noPadding={true}>
+      <Dialog open={researchConsentFormOpen} noPadding={true}>
         <div
           className={css`
             display: flex;

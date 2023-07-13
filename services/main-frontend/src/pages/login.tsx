@@ -1,15 +1,18 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useContext, useState } from "react"
+import { useCallback, useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
+import { getResearchConsentByUserId } from "../services/backend/users"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { login } from "../shared-module/services/backend/auth"
+import { login, userInfo } from "../shared-module/services/backend/auth"
 import { baseTheme } from "../shared-module/styles"
 import {
   useCurrentPagePathForReturnTo,
@@ -25,8 +28,10 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [notification, setNotification] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [userId, setUserId] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(router.asPath)
+  const [showForm, setShowForm] = useState<boolean>(false)
 
   const loginMutation = useToastMutation(
     async () => {
@@ -34,6 +39,33 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
     { notify: false },
   )
+
+  const redirect = useCallback(() => {
+    const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+    router.push(returnTo)
+  }, [router, uncheckedReturnTo])
+
+  const getUser = useQuery({
+    queryKey: ["user-info"],
+    queryFn: () => userInfo(),
+    enabled: loginStateContext.signedIn == true,
+  })
+
+  const { status } = useQuery({
+    queryKey: [`users-${userId}-get-user-research-consent`, userId],
+    queryFn: () => getResearchConsentByUserId(userId),
+    enabled: !!userId,
+  })
+
+  if (status == "error" && !showForm) {
+    setShowForm(true)
+  } else if (status == "success") {
+    redirect()
+  }
+
+  if (getUser.data && userId == "") {
+    setUserId(getUser.data?.user_id)
+  }
 
   return (
     <div
@@ -71,8 +103,6 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           }
 
           await loginStateContext.refresh()
-          const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-          router.push(returnTo)
         }}
         className={css`
           display: flex;
@@ -151,6 +181,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           </a>
         </div>
       </form>
+      {showForm && <ResearchOnCoursesForm afterSubmit={redirect} userId={userId} />}
     </div>
   )
 }

@@ -2,18 +2,20 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faEnvelope as emailIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { createUser } from "../shared-module/services/backend/auth"
+import { createUser, userInfo } from "../shared-module/services/backend/auth"
 import { baseTheme, headingFont } from "../shared-module/styles"
 import {
   useCurrentPagePathForReturnTo,
@@ -157,6 +159,20 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   )
 
+  const [userId, setUserId] = useState("")
+  const [showForm, setShowForm] = useState<boolean>(false)
+
+  const getUser = useQuery({
+    queryKey: ["user-info"],
+    queryFn: () => userInfo(),
+    enabled: loginStateContext.signedIn == true,
+  })
+
+  if (getUser.data && userId == "") {
+    setUserId(getUser.data?.user_id)
+    setShowForm(true)
+  }
+
   useEffect(() => {
     if (loginStateContext.signedIn && !confirmEmailPageVisible) {
       router.push("/")
@@ -211,6 +227,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         >
           {t("button-text-done")}
         </Button>
+        {showForm && <ResearchOnCoursesForm userId={userId} />}
       </Wrapper>
     )
   }

@@ -13,12 +13,21 @@ export async function getCourseInstanceEnrollmentsInfo(
   return validateResponse(response, isCourseInstanceEnrollmentsInfo)
 }
 
-export async function postUserReseachConsent(
+export const postUserResearchConsent = async (
   userId: string,
   consent: boolean,
-): Promise<UserResearchConsent> {
-  const res = await mainFrontendClient.post(`/users/${userId}/user-research-consents`, consent, {
-    responseType: "json",
-  })
+): Promise<UserResearchConsent> => {
+  const res = await mainFrontendClient.post(
+    `/users/${userId}/user-research-consents`,
+    { consent },
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isUserResearchConsent)
+}
+
+export const getResearchConsentByUserId = async (userId: string): Promise<UserResearchConsent> => {
+  const res = await mainFrontendClient.get(`/users/${userId}/get-user-research-consent`)
   return validateResponse(res, isUserResearchConsent)
 }

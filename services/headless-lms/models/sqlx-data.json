@@ -3200,47 +3200,6 @@
     },
     "query": "\nUPDATE course_modules\nSET name = COALESCE($2, name),\n  order_number = $3,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8,\n  automatic_completion_requires_exam = $9,\n  completion_registration_link_override = $10,\n  enable_registering_completion_to_uh_open_university = $11\nWHERE id = $1\n        "
   },
-  "2ff803033f9f7a9eca35e97ebeada5b85cc247236b7a693fd496d448ca36efec": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "research_consent",
-          "ordinal": 2,
-          "type_info": "Bool"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [false, false, false, false, false, true],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Bool"]
-      }
-    },
-    "query": "\nINSERT INTO user_research_consents (\n    id,\n    user_id,\n    research_consent\n)\nVALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at) \nDO UPDATE SET research_consent = $3\nRETURNING *;\n    "
-  },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
     "describe": {
       "columns": [
@@ -15052,6 +15011,47 @@
     },
     "query": "\nSELECT id,\ncreated_at,\nupdated_at,\nexercise_task_submission_id,\ncourse_id,\nexam_id,\nexercise_id,\nexercise_task_id,\ngrading_priority,\nscore_given,\ngrading_progress as \"grading_progress: _\",\nunscaled_score_given,\nunscaled_score_maximum,\ngrading_started_at,\ngrading_completed_at,\nfeedback_json,\nfeedback_text,\ndeleted_at\nFROM exercise_task_gradings\nWHERE deleted_at IS NULL\n  AND exercise_task_submission_id IN (\n    SELECT id\n    FROM exercise_task_submissions\n    WHERE exercise_slide_submission_id = $1\n  )\n"
   },
+  "a8ea36034543bcc580413790b2bf159402da39f943469c0fe24efc63597b07e1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO user_research_consents (\n    id,\n    user_id,\n    research_consent\n)\nVALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at)\nDO UPDATE SET research_consent = $3\nRETURNING *;\n    "
+  },
   "a963c734bc1f9c48be192fa5c8537d461c9ded7412268b17b64085e4f44b174a": {
     "describe": {
       "columns": [
@@ -19030,6 +19030,47 @@
       }
     },
     "query": "\nSELECT users.id,\n  user_details.first_name,\n  user_details.last_name,\n  user_details.email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\n  JOIN user_details ON users.id = user_details.user_id\nWHERE roles.organization_id = $1\nAND roles.deleted_at IS NULL\n"
+  },
+  "d43f160bfad3d375a88a2fe2226a163ecf5e6b4b809434ec06d5d3554461af2c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_research_consents\nWHERE user_id = $1\n    "
   },
   "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456": {
     "describe": {

@@ -8,6 +8,7 @@ pub mod seed_helpers;
 pub mod seed_organizations;
 pub mod seed_playground_examples;
 pub mod seed_roles;
+mod seed_user_research_consents;
 pub mod seed_users;
 
 use std::{env, process::Command, sync::Arc};
@@ -51,6 +52,7 @@ pub async fn main() -> anyhow::Result<()> {
     )?;
 
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
+    seed_user_research_consents::seed_user_research_consents(&db_pool).await?;
 
     seed_file_storage::seed_file_storage().await?;
 

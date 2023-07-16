@@ -23,6 +23,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   const { t } = useTranslation()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
   const [consent, setConsent] = useState<boolean>(false)
+  const [optionSelected, setOptionSelected] = useState<boolean>(false)
 
   const consentQuery = useQuery({
     queryKey: [`users-${userId}-user-research-consents`],
@@ -39,15 +40,9 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     setConsent(false)
   }
 
-  const handleOnCancel = () => {
-    setResearchConsentFormOpen(false)
-    if (afterSubmit != undefined) {
-      afterSubmit()
-    }
-  }
-
   const handleConsentSelection = (value: boolean) => {
     setConsent(value)
+    setOptionSelected(true)
   }
 
   return (
@@ -154,21 +149,9 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             transform="capitalize"
             onClick={handleOnSubmit}
             value={t("button-text-save")}
+            disabled={!optionSelected}
           >
             {t("button-text-save")}
-          </Button>
-          <Button
-            className={css`
-              border: #ffffff;
-              font-size: 14px;
-            `}
-            variant="white"
-            size="medium"
-            transform="capitalize"
-            onClick={handleOnCancel}
-            value={t("button-text-cancel")}
-          >
-            {t("button-text-cancel")}
           </Button>
         </div>
       </Dialog>

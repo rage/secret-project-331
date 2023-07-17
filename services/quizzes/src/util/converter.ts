@@ -30,7 +30,6 @@ import { PublicTimelineItem } from "../../types/types"
 export const convertPublicSpecFromPrivateSpec = (quiz: PrivateSpecQuiz) => {
   const publicQuiz: PublicSpecQuiz = {
     version: "2",
-    id: quiz.id,
     body: quiz.body,
     items: [],
     title: quiz.title,

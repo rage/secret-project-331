@@ -10,14 +10,16 @@ export interface QuizItemOption {
   additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
+type QuizItemDisplayDirection = "horizontal" | "vertical"
+
 export interface PrivateSpecQuiz {
   version: "2"
-  id: string
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
   items: PrivateSpecQuizItem[]
   title: string
   body: string
+  quizItemDisplayDirection: QuizItemDisplayDirection
   submitMessage: string | null
 }
 

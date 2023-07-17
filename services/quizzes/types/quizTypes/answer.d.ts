@@ -1,5 +1,4 @@
 export interface UserAnswer {
-  id: string
   itemAnswers: UserItemAnswer[]
 }
 

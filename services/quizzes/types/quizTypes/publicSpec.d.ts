@@ -1,6 +1,5 @@
 export interface PublicSpecQuiz {
   version: "2"
-  id: string
   items: PublicSpecQuizItem[]
   title: string
   body: string

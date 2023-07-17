@@ -103,7 +103,6 @@ const migrateQuizAnswer = (
     return null
   }
   const userAnswer: UserAnswer = {
-    id: quizAnswer.id,
     itemAnswers: [],
   }
 

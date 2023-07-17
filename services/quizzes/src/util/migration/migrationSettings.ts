@@ -28,9 +28,10 @@ const isOldQuiz = (
     | ModelSolutionQuiz
     | QuizItemAnswer
     | QuizAnswer
-    | null,
+    | null
+    | undefined,
 ): boolean => {
-  if (quiz === null) {
+  if (!quiz) {
     return false
   }
   // eslint-disable-next-line i18next/no-literal-string

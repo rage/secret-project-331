@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
 import { UserAnswer } from "../../types/quizTypes/answer"
 import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
@@ -25,7 +24,6 @@ import {
 import { isSetLanguageMessage } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
-import { COLUMN } from "../util/constants"
 import { migrateQuiz } from "../util/migrate"
 import { isOldQuiz } from "../util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "../util/migration/modelSolutionSpecQuiz"
@@ -91,22 +89,44 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           })
         } else if (messageData.view_type === "exercise-editor") {
           console.log("Message data:", messageData)
-          if (messageData.data.private_spec === null) {
+          const privateSpec = messageData.data.private_spec
+          if (privateSpec === null) {
             setState({
               viewType: messageData.view_type,
-              privateSpec: migratePrivateSpecQuiz(emptyQuiz),
+              privateSpec: {
+                version: "2",
+                title: "",
+                body: "",
+                awardPointsEvenIfWrong: false,
+                grantPointsPolicy: "grant_whenever_possible",
+                quizItemDisplayDirection: "vertical",
+                submitMessage: null,
+                items: [],
+              } satisfies PrivateSpecQuiz,
               userInformation: messageData.user_information,
             })
             return
           } else {
-            let converted = messageData.data.private_spec
-            if (!converted) {
-              return
-            }
+            let converted: unknown = privateSpec
 
-            if (isOldQuiz(converted as Quiz)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (isOldQuiz(converted as any)) {
               converted = migrateQuiz(converted)
               converted = migratePrivateSpecQuiz(converted as Quiz)
+            }
+
+            if (converted === null || converted === undefined) {
+              // The quiz was just created, intialize it with empty values
+              converted = {
+                version: "2",
+                title: "",
+                body: "",
+                awardPointsEvenIfWrong: false,
+                grantPointsPolicy: "grant_whenever_possible",
+                submitMessage: null,
+                quizItemDisplayDirection: "vertical",
+                items: [],
+              } satisfies PrivateSpecQuiz
             }
 
             setState({
@@ -169,33 +189,6 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
       </div>
     </HeightTrackingContainer>
   )
-}
-
-const DEFAULT_GRANT_POINTS_POLICY = "grant_whenever_possible"
-
-// Empty quiz for newly created quiz exercises
-const emptyQuiz: Quiz = {
-  id: v4(),
-  autoConfirm: true,
-  autoReject: false,
-  awardPointsEvenIfWrong: false,
-  body: "",
-  courseId: v4(),
-  createdAt: new Date(),
-  deadline: new Date(),
-  direction: COLUMN,
-  excludedFromScore: true,
-  grantPointsPolicy: DEFAULT_GRANT_POINTS_POLICY,
-  items: [],
-  part: 0,
-  points: 0,
-  section: 0,
-  submitMessage: "",
-  title: "",
-  tries: 1,
-  triesLimited: true,
-  updatedAt: new Date(),
-  open: new Date(),
 }
 
 export default withErrorBoundary(IFrame)

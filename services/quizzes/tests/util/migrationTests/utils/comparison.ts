@@ -30,7 +30,6 @@ const expectPrivateSpecMetadataToMatch = (
   privateSpecQuiz: PrivateSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(privateSpecQuiz.id).toEqual(oldQuiz.id)
   expect(privateSpecQuiz.title).toEqual(oldQuiz.title)
   expect(privateSpecQuiz.body).toEqual(oldQuiz.body)
   expect(privateSpecQuiz.submitMessage).toEqual(oldQuiz.submitMessage)
@@ -50,7 +49,6 @@ const expectPublicSpecMetadataToMatch = (
   publicSpecQuiz: PublicSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(publicSpecQuiz.id).toEqual(oldQuiz.id)
   expect(publicSpecQuiz.title).toEqual(oldQuiz.title)
   expect(publicSpecQuiz.version).toEqual(version)
   expect(publicSpecQuiz.body).toEqual(oldQuiz.body)
@@ -67,7 +65,6 @@ const expectModelSolutionSpecMetadataToMatch = (
   modelSolutionSpecQuiz: ModelSolutionQuiz,
   version = QUIZ_VERSION,
 ) => {
-  expect(modelSolutionSpecQuiz.id).toEqual(oldQuiz.id)
   expect(modelSolutionSpecQuiz.title).toEqual(oldQuiz.title)
   expect(modelSolutionSpecQuiz.body).toEqual(oldQuiz.body)
   expect(modelSolutionSpecQuiz.submitMessage).toEqual(oldQuiz.submitMessage)

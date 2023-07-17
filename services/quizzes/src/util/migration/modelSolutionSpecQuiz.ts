@@ -138,7 +138,6 @@ const migrateModelSolutionSpecQuiz = (
   }
   const modelSolutionQuiz: ModelSolutionQuiz = {
     version: "2",
-    id: oldModelSolutionQuiz.id,
     awardPointsEvenIfWrong: oldModelSolutionQuiz.awardPointsEvenIfWrong,
     body: oldModelSolutionQuiz.body,
     grantPointsPolicy: oldModelSolutionQuiz.grantPointsPolicy,

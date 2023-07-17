@@ -12,7 +12,6 @@ export interface QuizItemOption {
 
 export interface ModelSolutionQuiz {
   version: "2"
-  id: string
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
   items: ModelSolutionQuizItem[]

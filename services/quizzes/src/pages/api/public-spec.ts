@@ -20,9 +20,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const specRequest = req.body as SpecRequest
   const quiz = specRequest.private_spec as Quiz | PrivateSpecQuiz | null
   if (quiz === null) {
-    return res.status(502).json({
-      message: "private spec cannot be null",
-    })
+    throw "Quiz cannot be null"
   }
   let converted: PrivateSpecQuiz | null = null
   if (isOldQuiz(quiz)) {

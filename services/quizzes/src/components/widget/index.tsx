@@ -77,7 +77,6 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   const widget_state: WidgetReducerState = {
     quiz: publicSpec,
     quiz_answer: previousSubmission || {
-      id: v4(),
       itemAnswers: [],
     },
     // TODO: validate previous submission in the future

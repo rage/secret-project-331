@@ -177,12 +177,12 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
 export const migratePrivateSpecQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",
-    id: oldQuiz.id,
     title: oldQuiz.title,
     body: oldQuiz.body,
     awardPointsEvenIfWrong: oldQuiz.awardPointsEvenIfWrong,
     grantPointsPolicy: oldQuiz.grantPointsPolicy,
     submitMessage: oldQuiz.submitMessage,
+    quizItemDisplayDirection: oldQuiz.direction == "column" ? "vertical" : "horizontal",
     items: [],
   }
 

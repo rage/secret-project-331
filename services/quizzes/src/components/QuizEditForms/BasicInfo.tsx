@@ -78,12 +78,12 @@ const BasicInformation: React.FC<React.PropsWithChildren<unknown>> = () => {
               <RadioButton
                 checked={direction === ROW}
                 onClick={() => dispatch(editedQuizzesDirection(ROW, quizId))}
-                label={t("row")}
+                label={t("row")} // horizontal
               />
               <RadioButton
                 checked={direction === COLUMN}
                 onClick={() => dispatch(editedQuizzesDirection(COLUMN, quizId))}
-                label={t("column")}
+                label={t("column")} // vertical
               />
             </MultipleChoiceLayoutChoiceContainer>
           </AdvancedOptionsContainer>

@@ -112,7 +112,6 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
 const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz): PublicSpecQuiz => {
   const PublicSpecQuiz: PublicSpecQuiz = {
     version: "2",
-    id: oldPublicSpecQuiz.id,
     body: oldPublicSpecQuiz.body,
     items: [],
     title: oldPublicSpecQuiz.title,

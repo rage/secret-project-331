@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../contexts/QuizzesExerciseServiceContext"
 
-// import BasicInformation from "./QuizEditForms/BasicInfo"
+import QuizCommonInfo from "./QuizV2/QuizCommonInfo"
 import QuizItemsV2 from "./QuizV2/QuizCreation"
 
 export interface EditorProps {
@@ -22,7 +22,7 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
       }}
     >
       <QuizItemsV2 />
-      {/* TODO: port to use the new hook instead of redux <BasicInformation /> */}
+      <QuizCommonInfo />
     </QuizzesExerciseServiceContext.Provider>
   )
 }

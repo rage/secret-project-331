@@ -1,15 +1,20 @@
-import { Draft, produce } from "immer"
+import { produce } from "immer"
 import { useContext } from "react"
 
 import { ExerciseServiceContextType } from "../../contexts/ExerciseServiceContext"
 import { CurrentStateMessage } from "../../exercise-service-protocol-types"
 
-type UpdateFunction<R> = (draftState: Draft<R | null>) => void
+type UpdateFunction<R> = (draftState: R | null) => void
+
+interface UseExerciseServiceOutputStateReturn<SelectorReturnType> {
+  selected: SelectorReturnType | null
+  updateState: (func: UpdateFunction<SelectorReturnType>) => void
+}
 
 const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
   context: ExerciseServiceContextType<OutputType>,
-  selector: (arg: OutputType | null) => Draft<SelectorReturnType> | null,
-) => {
+  selector: (arg: OutputType | null) => SelectorReturnType | null,
+): UseExerciseServiceOutputStateReturn<SelectorReturnType> => {
   const { outputState, port, _rawSetOutputState } = useContext(context)
 
   const updateState = (func: UpdateFunction<SelectorReturnType>) => {
@@ -19,6 +24,7 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
 
     const nextState = produce(outputState, (draft) => {
       const selected = selector(draft as OutputType)
+      // Selected is a draft too because it is a subset of the draft variable
       func(selected)
     })
 

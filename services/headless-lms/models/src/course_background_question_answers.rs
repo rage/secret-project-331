@@ -61,8 +61,11 @@ INSERT INTO course_background_question_answers (
     user_id,
     answer_value
   )
-VALUES ($1, $2, $3) ON CONFLICT (course_background_question_id, user_id)
-WHERE deleted_at IS NULL DO
+VALUES ($1, $2, $3) ON CONFLICT (
+    course_background_question_id,
+    user_id,
+    deleted_at
+  ) DO
 UPDATE
 SET answer_value = $3
         "#,

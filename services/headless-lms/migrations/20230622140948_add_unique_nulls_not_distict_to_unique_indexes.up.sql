@@ -47,15 +47,6 @@ ADD CONSTRAINT peer_review_submissions_course_instance_submission_uniqueness UNI
 DROP INDEX course_modules_order_number_uniqueness;
 ALTER TABLE course_modules
 ADD CONSTRAINT course_modules_order_number_uniqueness UNIQUE NULLS NOT DISTINCT (course_id, order_number, deleted_at);
-DROP INDEX course_module_automatic_completion_uniqueness;
-ALTER TABLE course_module_completions
-ADD CONSTRAINT course_module_automatic_completion_uniqueness UNIQUE NULLS NOT DISTINCT (
-    course_module_id,
-    course_instance_id,
-    user_id,
-    completion_granter_user_id,
-    deleted_at
-  );
 DROP INDEX no_duplicate_keys_exam;
 DROP INDEX no_duplicate_keys_instance;
 ALTER TABLE user_course_instance_exercise_service_variables

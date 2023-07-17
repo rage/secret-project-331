@@ -38,7 +38,7 @@ test("Can convert blocks", async ({ page }) => {
   await page.getByText("Test paragraph 1").click()
   await page.getByRole("button", { name: "Paragraph" }).click()
   await page.getByRole("menuitem", { name: "Heading" }).click()
-  await page.getByRole("button", { name: "Change heading level" }).click()
+  await page.getByRole("button", { name: "Change level" }).click()
   await page.getByRole("menuitemradio", { name: "Heading 3" }).click()
   // There once was a regression where the page crashed here if we waited for a moment
   // eslint-disable-next-line playwright/no-wait-for-timeout

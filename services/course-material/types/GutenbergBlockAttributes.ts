@@ -174,9 +174,6 @@ export interface ImageAttributes {
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
-  behaviors?: {
-    [k: string]: unknown
-  }
   lock?: {
     [k: string]: unknown
   }

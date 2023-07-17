@@ -7,7 +7,7 @@ const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 const normalResponseHeaders = generateNormalResponseHeaders()
 
 const config = {
-  swcMinify: false,
+  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

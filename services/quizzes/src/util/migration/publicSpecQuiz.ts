@@ -43,7 +43,6 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         shuffleOptions: quizItem.shuffleOptions,
         title: quizItem.title,
       } satisfies PublicSpecQuizItemMultiplechoice
-      break
     case "scale":
       return {
         id: quizItem.id,
@@ -110,10 +109,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
   }
 }
 
-const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz | null): PublicSpecQuiz | null => {
-  if (oldPublicSpecQuiz === null) {
-    return null
-  }
+const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz): PublicSpecQuiz => {
   const PublicSpecQuiz: PublicSpecQuiz = {
     version: "2",
     id: oldPublicSpecQuiz.id,

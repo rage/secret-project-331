@@ -142,6 +142,11 @@ export interface PrivateSpecQuizItemTimelineItem {
   correctEventId: string
 }
 
+export interface PrivateTimelineEvent {
+  id: string
+  name: string
+}
+
 export interface PrivateSpecQuizItemTimeline {
   type: "timeline"
   id: string
@@ -149,6 +154,7 @@ export interface PrivateSpecQuizItemTimeline {
   successMessage: string | null
   failureMessage: string | null
   timelineItems: PrivateSpecQuizItemTimelineItem[] | null
+  events: PrivateTimelineEvent[] | null
 }
 
 export interface PrivateSpecQuizItemChooseN {

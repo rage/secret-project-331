@@ -7,6 +7,7 @@ import { v4 } from "uuid"
 
 import { UserAnswer } from "../../types/quizTypes/answer"
 import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 import {
   ModelSolutionQuiz as oldModelSolutionQuiz,
@@ -28,6 +29,7 @@ import { COLUMN } from "../util/constants"
 import { migrateQuiz } from "../util/migrate"
 import { isOldQuiz } from "../util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "../util/migration/modelSolutionSpecQuiz"
+import { migratePrivateSpecQuiz } from "../util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "../util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "../util/migration/userAnswerSpec"
 
@@ -54,7 +56,7 @@ export type State =
       gradingFeedbackJson: ItemAnswerFeedback[] | null
       userInformation: UserInformation
     }
-  | { viewType: "exercise-editor"; privateSpec: Quiz; userInformation: UserInformation }
+  | { viewType: "exercise-editor"; privateSpec: PrivateSpecQuiz; userInformation: UserInformation }
 
 const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { i18n } = useTranslation()
@@ -88,16 +90,28 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             previousSubmission: quiz_answer as UserAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
+          console.log("Message data:", messageData)
           if (messageData.data.private_spec === null) {
             setState({
               viewType: messageData.view_type,
-              privateSpec: emptyQuiz,
+              privateSpec: migratePrivateSpecQuiz(emptyQuiz),
               userInformation: messageData.user_information,
             })
+            return
           } else {
+            let converted = messageData.data.private_spec
+            if (!converted) {
+              return
+            }
+
+            if (isOldQuiz(converted as Quiz)) {
+              converted = migrateQuiz(converted)
+              converted = migratePrivateSpecQuiz(converted as Quiz)
+            }
+
             setState({
               viewType: messageData.view_type,
-              privateSpec: migrateQuiz(messageData.data.private_spec),
+              privateSpec: converted as PrivateSpecQuiz,
               userInformation: messageData.user_information,
             })
           }

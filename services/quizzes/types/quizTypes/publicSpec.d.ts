@@ -84,11 +84,16 @@ export interface PublicSpecQuizItemMatrix {
   order: number
 }
 
-// export interface PublicSpecQuizItemTimelineItem {
-//   id: string
-//   /** The year the student is supposed to match to an event. */
-//   year: string
-// }
+export interface PublicSpecQuizItemTimelineItem {
+  id: string
+  /** The year the student is supposed to match to an event. */
+  year: string
+}
+
+export interface PublicTimelineEvent {
+  id: string
+  name: string
+}
 
 export interface PublicSpecQuizItemTimeline {
   type: "timeline"

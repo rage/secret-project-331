@@ -1,8 +1,12 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz } from "../../../types/types"
+import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
+import { Quiz } from "../../../types/types"
 import { SpecRequest } from "../../shared-module/bindings"
+import { convertPublicSpecFromPrivateSpec } from "../../util/converter"
+import { isOldQuiz } from "../../util/migration/migrationSettings"
+import { migratePrivateSpecQuiz } from "../../util/migration/privateSpecQuiz"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {
@@ -14,65 +18,18 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 
 function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const specRequest = req.body as SpecRequest
-  const quiz = specRequest.private_spec as Quiz | null
+  const quiz = specRequest.private_spec as Quiz | PrivateSpecQuiz | null
   if (quiz === null) {
-    throw "Private spec cannot be null"
+    return res.status(502).json({
+      message: "private spec cannot be null",
+    })
   }
-
-  const publicSpecQuiz: PublicQuiz = {
-    id: quiz.id,
-    courseId: quiz.courseId,
-    body: quiz.body,
-    deadline: quiz.deadline,
-    direction: quiz.direction,
-    open: quiz.open,
-    part: quiz.part,
-    section: quiz.section,
-    title: quiz.title,
-    tries: quiz.tries,
-    triesLimited: quiz.triesLimited,
-    items: quiz.items.map((i) => {
-      const pi: PublicQuizItem = {
-        id: i.id,
-        body: i.body,
-        direction: i.direction,
-        formatRegex: i.formatRegex,
-        maxLabel: i.maxLabel,
-        maxValue: i.maxValue,
-        maxWords: i.maxWords,
-        minLabel: i.minLabel,
-        minValue: i.minValue,
-        minWords: i.minWords,
-        multi: i.multi,
-        order: i.order,
-        quizId: i.quizId,
-        title: i.title,
-        type: i.type,
-        options: i.options.map((o) => {
-          const po: PublicQuizItemOption = {
-            id: o.id,
-            body: o.body,
-            order: o.order,
-            title: o.title,
-            quizItemId: o.quizItemId,
-          }
-          return po
-        }),
-        timelineItems:
-          i.timelineItems?.map((t) => {
-            return { year: t.year, id: t.id }
-          }) || [],
-        timelineItemEvents: (
-          i.timelineItems?.map((t) => {
-            return { id: t.correctEventId, name: t.correctEventName }
-          }) || []
-        ).sort((a, b) => a.name.localeCompare(b.name)),
-        shuffleOptions: i.shuffleOptions ?? false,
-        multipleChoiceMultipleOptionsGradingPolicy: "default",
-      }
-      return pi
-    }),
+  let converted: PrivateSpecQuiz | null = null
+  if (isOldQuiz(quiz)) {
+    converted = migratePrivateSpecQuiz(quiz as Quiz)
+  } else {
+    converted = quiz as PrivateSpecQuiz
   }
-
+  const publicSpecQuiz = convertPublicSpecFromPrivateSpec(converted)
   return res.status(200).json(publicSpecQuiz)
 }

@@ -4,11 +4,10 @@ import { useDispatch } from "react-redux"
 import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../../contexts/QuizzesExerciseServiceContext"
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
-import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
 import { isOldQuiz } from "../../util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../util/migration/privateSpecQuiz"
-import { denormalizeData, normalizeData } from "../../util/normalizerFunctions"
+import { denormalizeData } from "../../util/normalizerFunctions"
 import BasicInformation from "../QuizEditForms/BasicInfo"
 import QuizItemsV2 from "../QuizV2/QuizCreation"
 
@@ -20,7 +19,7 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
 
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(initializedEditor(normalizeData(privateSpec), privateSpec))
+    // dispatch(initializedEditor(normalizeData(privateSpec), privateSpec))
     setRender(true)
   }, [dispatch, privateSpec])
   const state = useTypedSelector((state) => state)

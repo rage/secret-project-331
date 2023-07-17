@@ -163,6 +163,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
       } as PrivateSpecQuizItemScale
     case "timeline":
       return {
+        events: [],
         type,
         id: v4(),
         failureMessage: "",

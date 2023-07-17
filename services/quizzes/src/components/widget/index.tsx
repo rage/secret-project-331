@@ -1,4 +1,3 @@
-import { useReducer } from "react"
 import { v4 } from "uuid"
 
 import {
@@ -27,10 +26,12 @@ import {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
+import useQuizzesUserAnswerOutputState from "../../hooks/useQuizzesUserAnswerServiceOutputState"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
 import { COLUMN } from "../../util/constants"
+import { isOldQuiz } from "../../util/migration/migrationSettings"
 import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
@@ -59,11 +60,6 @@ export interface WidgetReducerState {
 
 type QuizItemAnswerWithoutId<T extends UserItemAnswer> = Omit<T, "quiz_item_id">
 
-type Action = {
-  quiz_item_answer: UserItemAnswer
-  type: "set-answer-state"
-}
-
 export interface QuizItemComponentProps<T extends PublicSpecQuizItem, K extends UserItemAnswer> {
   quizDirection: FlexDirection
   quizItem: T
@@ -72,66 +68,96 @@ export interface QuizItemComponentProps<T extends PublicSpecQuizItem, K extends 
   setQuizItemAnswerState: (newQuizItemAnswer: K) => void
 }
 
-function reducer(state: WidgetReducerState, action: Action): WidgetReducerState {
-  switch (action.type) {
-    case "set-answer-state": {
-      const itemAnswers = state.quiz_answer.itemAnswers.map((qia) => {
-        if (qia.quizItemId !== action.quiz_item_answer.quizItemId) {
-          return qia
-        }
-        return action.quiz_item_answer
-      })
-      return {
-        ...state,
-        quiz_answer: {
-          ...state.quiz_answer,
-          itemAnswers,
-        },
-        quiz_answer_is_valid: itemAnswers.every((x) => x.valid),
-      }
-    }
-    default:
-      return state
-  }
-}
-
 const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   port,
   publicSpec,
   previousSubmission,
   user_information,
 }) => {
-  const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
     quiz: publicSpec,
     quiz_answer: previousSubmission || {
-      id: quiz_answer_id,
+      id: v4(),
       itemAnswers: [],
     },
     // TODO: validate previous submission in the future
     quiz_answer_is_valid: !!previousSubmission,
   }
-  const [state, dispatch] = useReducer(reducer, widget_state)
 
-  useSendQuizAnswerOnChange(port, state)
+  useSendQuizAnswerOnChange(port, widget_state)
 
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items
   let direction: FlexDirection = COLUMN
-  state.quiz.items.every((item) => {
-    if (item.type == "multiple-choice") {
-      direction = sanitizeFlexDirection(item.direction, COLUMN)
-      return
+  if (publicSpec != null) {
+    console.log(publicSpec)
+    publicSpec.items.every((item) => {
+      console.log("Item:", item)
+      if (item.type == "multiple-choice") {
+        direction = sanitizeFlexDirection(item.direction, COLUMN)
+        return
+      }
+    })
+  }
+
+  const { selected, updateState } = useQuizzesUserAnswerOutputState<UserAnswer>((uAnswer) => {
+    if (!uAnswer) {
+      return null
     }
+    return uAnswer
   })
+
+  if (previousSubmission) {
+    updateState((draft) => {
+      if (!draft) {
+        return
+      }
+      draft = previousSubmission
+    })
+  }
+
+  const updateUserItemAnswer = (newQuizItemAnswer: UserItemAnswer): void => {
+    updateState((userAnswer) => {
+      if (!userAnswer) {
+        return
+      }
+      const item = userAnswer.itemAnswers.filter((item) => item.id == newQuizItemAnswer.id)
+      if (!item) {
+        userAnswer.itemAnswers = [...userAnswer.itemAnswers, newQuizItemAnswer]
+      } else {
+        userAnswer.itemAnswers = [
+          ...userAnswer.itemAnswers.filter((item) => item.id != newQuizItemAnswer.id),
+          newQuizItemAnswer,
+        ]
+      }
+    })
+  }
+
+  console.group("Widget.js")
+  console.log("Old quiz:", isOldQuiz(publicSpec))
+  console.log("public spec:", publicSpec)
+  console.log("state: ", widget_state)
+  console.log("previous submission:", previousSubmission)
+  console.log("Selected:", selected)
+  console.groupEnd()
 
   return (
     <FlexWrapper wideScreenDirection={direction}>
-      {state.quiz.items
+      {publicSpec.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((quizItem, idx) => {
-          let quizItemAnswerState =
-            state.quiz_answer.itemAnswers.find((qia) => qia.quizItemId === quizItem.id) ?? null
+          // Quiz item answer state'
+          let quizItemAnswerState: UserItemAnswer = {
+            id: v4(),
+            quizItemId: quizItem.id,
+          } as UserItemAnswer
+          if (selected) {
+            const found = selected.itemAnswers.find((qia) => qia.quizItemId === quizItem.id)
+            if (found) {
+              quizItemAnswerState = found
+            }
+          }
+
           switch (quizItem.type) {
             case "checkbox":
               quizItem = quizItem as PublicSpecQuizItemCheckbox
@@ -146,13 +172,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerCheckbox>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -169,13 +189,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerChooseN>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -192,13 +206,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerClosedEndedQuestion>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -215,13 +223,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerEssay>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -238,13 +240,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMatrix>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -261,13 +257,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoice>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -284,13 +274,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoiceDropdown>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -307,13 +291,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerScale>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )
@@ -330,13 +308,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
                   setQuizItemAnswerState={(
                     newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerTimeline>,
                   ) => {
-                    dispatch({
-                      type: "set-answer-state",
-                      quiz_item_answer: {
-                        ...newQuizItemAnswer,
-                        quizItemId: quizItem.id,
-                      },
-                    })
+                    updateUserItemAnswer(newQuizItemAnswer)
                   }}
                 />
               )

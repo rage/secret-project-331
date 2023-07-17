@@ -16,3 +16,7 @@ headless-lms-server = { path = "../server" }
 actix-web = "4.3.1"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.71"
+# Combinators and utilities for working with Futures, Streams, Sinks, and the AsyncRead and AsyncWrite traits.
+futures-util = "0.3.28"
+# A runtime for writing reliable network applications without compromising speed.
+tokio = "1.29.1"

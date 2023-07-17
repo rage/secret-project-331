@@ -41,20 +41,32 @@ use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-use super::seed_helpers::heading;
+use super::seed_helpers::{heading, CommonExerciseData};
 
-#[allow(clippy::too_many_arguments)]
+#[derive(Clone)]
+pub struct CommonCourseData {
+    pub db_pool: Pool<Postgres>,
+    pub organization_id: Uuid,
+    pub admin_user_id: Uuid,
+    pub student_user_id: Uuid,
+    pub example_normal_user_ids: Arc<Vec<Uuid>>,
+    pub jwt_key: Arc<JwtKey>,
+}
+
 pub async fn seed_sample_course(
-    db_pool: &Pool<Postgres>,
-    org: Uuid,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
-    admin: Uuid,
-    student: Uuid,
-    users: &[Uuid],
-    jwt_key: Arc<JwtKey>,
+    common_course_data: CommonCourseData,
 ) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        admin_user_id: admin,
+        student_user_id: student,
+        example_normal_user_ids: users,
+        jwt_key,
+    } = common_course_data;
     let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
@@ -359,15 +371,17 @@ pub async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_1_id,
-        exercise_1_slide_1_id,
-        exercise_1_slide_1_task_1_id,
-        block_id_2,
         block_id_3,
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_1_id,
+            exercise_slide_id: exercise_1_slide_1_id,
+            exercise_task_id: exercise_1_slide_1_task_1_id,
+            block_id: block_id_2,
+        },
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -424,37 +438,43 @@ pub async fn seed_sample_course(
     let exercise_4_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
     let (exercise_block_2, exercise_2, slide_2, task_2) = create_best_exercise(
-        exercise_2_id,
-        exercise_2_slide_1_id,
-        exercise_2_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_2_id,
+            exercise_slide_id: exercise_2_slide_1_id,
+            exercise_task_id: exercise_2_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
+        },
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
-        exercise_3_id,
-        exercise_3_slide_1_id,
-        exercise_3_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_3_id,
+            exercise_slide_id: exercise_3_slide_1_id,
+            exercise_task_id: exercise_3_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
+        },
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
-        exercise_4_id,
-        exercise_4_slide_1_id,
-        exercise_4_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
         Uuid::new_v5(&course_id, b"389e80bd-5f91-40c7-94ff-7dda1eeb96fb"),
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_4_id,
+            exercise_slide_id: exercise_4_slide_1_id,
+            exercise_task_id: exercise_4_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
+        },
     );
 
     let page2_id = create_page(
@@ -499,10 +519,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_1,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
-        Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
-        Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
-        Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
         Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
         true,
         serde_json::json!({
@@ -551,6 +567,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
+            block_id: Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
+        },
     );
 
     let (
@@ -560,10 +582,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_2,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
-        Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
-        Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
-        Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
         Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
         false,
         serde_json::json!({
@@ -613,6 +631,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
+            block_id: Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
+        },
     );
 
     let (
@@ -622,10 +646,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_3,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
-        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
-        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
-        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
         Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
         false,
         serde_json::json!({
@@ -694,6 +714,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+            block_id: Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        },
     );
 
     let (
@@ -703,10 +729,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_4,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
-        Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
-        Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
-        Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
         false,
         serde_json::json!({
@@ -796,6 +818,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
+            block_id: Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
+        },
     );
 
     let (
@@ -805,10 +833,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
-        Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
-        Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
-        Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
         Uuid::new_v5(&course.id, b"b2f7d8d5-f3c0-4cac-8eb7-89a7b88c2236"),
         false,
         serde_json::json!({
@@ -881,6 +905,12 @@ pub async fn seed_sample_course(
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
+            block_id: Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
+        },
     );
 
     let (
@@ -890,16 +920,18 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
         "Multiple choice with feedback".to_string(),
-        Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
-        Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
-        Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
-        Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
         Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
         false,
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
+            block_id: Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
+        },
     );
 
     let (
@@ -909,14 +941,16 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
         "Scale".to_string(),
-        Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
-        Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
-        Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
-        Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
         serde_json::from_str(include_str!("../../assets/scale.json"))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
+            block_id: Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
+        },
     );
 
     let (
@@ -926,14 +960,16 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_8,
     ) = quizzes_exercise(
         "Vector exercise".to_string(),
-        Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
-        Uuid::new_v5(&course.id, b"08f0da90-9080-4cdd-adc7-66173cd5b833"),
-        Uuid::new_v5(&course.id, b"ea24c875-1a3c-403e-8272-b1249a475c89"),
-        Uuid::new_v5(&course.id, b"38ed716f-5d4f-4ddd-9f5a-700ef124b934"),
         Uuid::new_v5(&course.id, b"0c271345-6934-4489-8164-2cc4dc8974bb"),
         false,
         serde_json::from_str(include_str!("../../assets/vector-exercise.json"))?,
         None,
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"08f0da90-9080-4cdd-adc7-66173cd5b833"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"ea24c875-1a3c-403e-8272-b1249a475c89"),
+            block_id: Uuid::new_v5(&course.id, b"38ed716f-5d4f-4ddd-9f5a-700ef124b934"),
+        },
     );
 
     let page_3 = create_page(
@@ -1243,15 +1279,17 @@ pub async fn seed_sample_course(
     let exercise_5_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
     let (exercise_block_5, exercise_5, exercise_slide_5, exercise_task_5) = create_best_exercise(
-        exercise_5_id,
-        exercise_5_slide_1_id,
-        exercise_5_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
         Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836"),
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_5_id,
+            exercise_slide_id: exercise_5_slide_1_id,
+            exercise_task_id: exercise_5_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
+        },
     );
     create_page(
         &mut conn,
@@ -1564,7 +1602,7 @@ pub async fn seed_sample_course(
 
     // enrollments, user exercise states, submissions, grades
     info!("sample enrollments, user exercise states, submissions, grades");
-    for &user_id in users {
+    for user_id in users.iter().copied() {
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             &mut conn,
             NewCourseInstanceEnrollment {
@@ -1848,12 +1886,17 @@ pub async fn seed_sample_course(
 }
 
 pub async fn create_glossary_course(
-    db_pool: &Pool<Postgres>,
-    org_id: Uuid,
-    admin: Uuid,
     course_id: Uuid,
-    jwt_key: Arc<JwtKey>,
+    common_course_data: CommonCourseData,
 ) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org_id,
+        admin_user_id: admin,
+        student_user_id: _,
+        example_normal_user_ids: _,
+        jwt_key,
+    } = common_course_data;
     let mut conn = db_pool.acquire().await?;
 
     // Create new course
@@ -2008,10 +2051,6 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"cd3aa815-620e-43b3-b291-0fb10beca030"),
-        Uuid::new_v5(&course.id, b"0b1bbfb0-df56-4e40-92f1-df0a33f1fc70"),
-        Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
-        Uuid::new_v5(&course.id, b"b9446b94-0edf-465c-9a9a-57708b7ef180"),
         Uuid::new_v5(&course.id, b"58e71279-81e1-4679-83e6-8f5f23ec055a"),
         false,
         serde_json::json!({
@@ -2077,6 +2116,12 @@ pub async fn seed_cs_course_material(
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"cd3aa815-620e-43b3-b291-0fb10beca030"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"0b1bbfb0-df56-4e40-92f1-df0a33f1fc70"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
+            block_id: Uuid::new_v5(&course.id, b"b9446b94-0edf-465c-9a9a-57708b7ef180"),
+        },
     );
 
     let (
@@ -2086,16 +2131,18 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
-        Uuid::new_v5(&course.id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
-        Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
-        Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
         Uuid::new_v5(&course.id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
         false,
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
+            block_id: Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
+        },
     );
 
     let (
@@ -2105,10 +2152,6 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
-        Uuid::new_v5(&course.id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
-        Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
-        Uuid::new_v5(&course.id, b"604dae7c-aa9d-11ec-8df1-575042832340"),
         Uuid::new_v5(&course.id, b"6365746e-aa9d-11ec-8718-0b5628cbe29f"),
         false,
         serde_json::json!({
@@ -2174,6 +2217,12 @@ pub async fn seed_cs_course_material(
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
+            block_id: Uuid::new_v5(&course.id, b"604dae7c-aa9d-11ec-8df1-575042832340"),
+        },
     );
 
     let (
@@ -2183,10 +2232,6 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_8,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
-        Uuid::new_v5(&course.id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
-        Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
-        Uuid::new_v5(&course.id, b"6799021d-ff0c-4e4d-b5db-c2c19fba7fb9"),
         Uuid::new_v5(&course.id, b"01b69776-3e82-4694-98a9-5ce53f2a4ab5"),
         false,
         serde_json::json!({
@@ -2252,6 +2297,12 @@ pub async fn seed_cs_course_material(
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
+            block_id: Uuid::new_v5(&course.id, b"6799021d-ff0c-4e4d-b5db-c2c19fba7fb9"),
+        },
     );
 
     pages::update_page(
@@ -2688,6 +2739,7 @@ pub async fn seed_cs_course_material(
     Ok(course.id)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn seed_course_without_submissions(
     db_pool: &Pool<Postgres>,
     org: Uuid,
@@ -2996,15 +3048,17 @@ pub async fn seed_course_without_submissions(
         Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_1_id,
-        exercise_1_slide_1_id,
-        exercise_1_slide_1_task_1_id,
-        block_id_2,
         block_id_3,
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_1_id,
+            exercise_slide_id: exercise_1_slide_1_id,
+            exercise_task_id: exercise_1_slide_1_task_1_id,
+            block_id: block_id_2,
+        },
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -3069,37 +3123,43 @@ pub async fn seed_course_without_submissions(
     let exercise_4_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
     let (exercise_block_2, exercise_2, slide_2, task_2) = create_best_exercise(
-        exercise_2_id,
-        exercise_2_slide_1_id,
-        exercise_2_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_2_id,
+            exercise_slide_id: exercise_2_slide_1_id,
+            exercise_task_id: exercise_2_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
+        },
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
-        exercise_3_id,
-        exercise_3_slide_1_id,
-        exercise_3_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_3_id,
+            exercise_slide_id: exercise_3_slide_1_id,
+            exercise_task_id: exercise_3_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
+        },
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
-        exercise_4_id,
-        exercise_4_slide_1_id,
-        exercise_4_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
         Uuid::new_v5(&course_id, b"389e80bd-5f91-40c7-94ff-7dda1eeb96fb"),
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_4_id,
+            exercise_slide_id: exercise_4_slide_1_id,
+            exercise_task_id: exercise_4_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
+        },
     );
 
     let page2_id = create_page(
@@ -3162,10 +3222,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_1,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
-        Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
-        Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
-        Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
         Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
         true,
         serde_json::json!({
@@ -3214,6 +3270,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
+            block_id: Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
+        },
     );
 
     let (
@@ -3223,10 +3285,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_2,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
-        Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
-        Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
-        Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
         Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
         false,
         serde_json::json!({
@@ -3276,6 +3334,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
+            block_id: Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
+        },
     );
 
     let (
@@ -3285,10 +3349,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_3,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
-        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
-        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
-        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
         Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
         false,
         serde_json::json!({
@@ -3357,6 +3417,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+            block_id: Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        },
     );
 
     let (
@@ -3366,10 +3432,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_4,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
-        Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
-        Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
-        Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
         false,
         serde_json::json!({
@@ -3459,6 +3521,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
+            block_id: Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
+        },
     );
 
     let (
@@ -3468,10 +3536,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
-        Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
-        Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
-        Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
         Uuid::new_v5(&course.id, b"b2f7d8d5-f3c0-4cac-8eb7-89a7b88c2236"),
         false,
         serde_json::json!({
@@ -3544,6 +3608,12 @@ pub async fn seed_course_without_submissions(
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
+            block_id: Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
+        },
     );
 
     let (
@@ -3553,16 +3623,18 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
         "Multiple choice with feedback".to_string(),
-        Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
-        Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
-        Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
-        Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
         Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
         false,
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
+            block_id: Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
+        },
     );
 
     let (
@@ -3572,14 +3644,16 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
         "Scale".to_string(),
-        Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
-        Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
-        Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
-        Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
         serde_json::from_str(include_str!("../../assets/scale.json"))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
+            block_id: Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
+        },
     );
 
     let page_3 = create_page(
@@ -3865,15 +3939,17 @@ pub async fn seed_course_without_submissions(
     let exercise_5_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
     let (exercise_block_5, exercise_5, exercise_slide_5, exercise_task_5) = create_best_exercise(
-        exercise_5_id,
-        exercise_5_slide_1_id,
-        exercise_5_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
         Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836"),
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_5_id,
+            exercise_slide_id: exercise_5_slide_1_id,
+            exercise_task_id: exercise_5_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
+        },
     );
     create_page(
         &mut conn,
@@ -4058,14 +4134,19 @@ pub async fn seed_course_without_submissions(
 }
 
 pub async fn seed_peer_review_course_without_submissions(
-    db_pool: &Pool<Postgres>,
-    org: Uuid,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
-    admin: Uuid,
-    jwt_key: Arc<JwtKey>,
+    common_course_data: CommonCourseData,
 ) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        admin_user_id: admin,
+        student_user_id: _,
+        example_normal_user_ids: _,
+        jwt_key,
+    } = common_course_data;
     let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
@@ -4176,15 +4257,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"b354830c-38c7-4b83-8370-0e7222272c56");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_1_id,
-        exercise_1_slide_1_id,
-        exercise_1_slide_1_task_1_id,
-        block_id_1,
         block_id_2,
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
         Some("ManualReviewEverything".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_1_id,
+            exercise_slide_id: exercise_1_slide_1_id,
+            exercise_task_id: exercise_1_slide_1_task_1_id,
+            block_id: block_id_1,
+        },
     );
 
     create_page(
@@ -4228,15 +4311,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"9f6e4ad4-b9f5-40cf-b071-642da7058fec");
 
     let (exercise_block_2, exercise_2, slide_1, task_1) = create_best_exercise(
-        exercise_2_id,
-        exercise_2_slide_1_id,
-        exercise_2_slide_1_task_1_id,
-        block_id_3,
         block_id_4,
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
         Some("AutomaticallyAcceptOrManualReviewByAverage".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_2_id,
+            exercise_slide_id: exercise_2_slide_1_id,
+            exercise_task_id: exercise_2_slide_1_task_1_id,
+            block_id: block_id_3,
+        },
     );
 
     create_page(
@@ -4280,15 +4365,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"31443721-fc55-4ea6-9b2a-2da8a6a991df");
 
     let (exercise_block_3, exercise_3, slide_1, task_1) = create_best_exercise(
-        exercise_3_id,
-        exercise_3_slide_1_id,
-        exercise_3_slide_1_task_1_id,
-        block_id_5,
         block_id_6,
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
         Some("AutomaticallyAcceptOrRejectByAverage".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_3_id,
+            exercise_slide_id: exercise_3_slide_1_id,
+            exercise_task_id: exercise_3_slide_1_task_1_id,
+            block_id: block_id_5,
+        },
     );
 
     create_page(
@@ -4332,15 +4419,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"c17f23ca-7daa-40dd-b390-1ac8531dd17d");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_4_id,
-        exercise_4_slide_1_id,
-        exercise_4_slide_1_task_1_id,
-        block_id_7,
         block_id_8,
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
         Some("ManualReviewEverything2".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_4_id,
+            exercise_slide_id: exercise_4_slide_1_id,
+            exercise_task_id: exercise_4_slide_1_task_1_id,
+            block_id: block_id_7,
+        },
     );
 
     create_page(

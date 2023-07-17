@@ -159,20 +159,6 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   )
 
-  const [userId, setUserId] = useState("")
-  const [showForm, setShowForm] = useState<boolean>(false)
-
-  const getUser = useQuery({
-    queryKey: ["user-info"],
-    queryFn: () => userInfo(),
-    enabled: loginStateContext.signedIn == true,
-  })
-
-  if (getUser.data && userId == "") {
-    setUserId(getUser.data?.user_id)
-    setShowForm(true)
-  }
-
   useEffect(() => {
     if (loginStateContext.signedIn && !confirmEmailPageVisible) {
       router.push("/")
@@ -227,7 +213,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         >
           {t("button-text-done")}
         </Button>
-        {showForm && <ResearchOnCoursesForm userId={userId} />}
+        {loginStateContext.signedIn && <ResearchOnCoursesForm />}
       </Wrapper>
     )
   }

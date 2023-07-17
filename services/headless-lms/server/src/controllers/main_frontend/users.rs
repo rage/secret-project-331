@@ -57,22 +57,22 @@ pub struct ConsentData {
 }
 
 /**
-POST `/api/v0/main-frontend/users/:id/user-research-consents` - Adds a research consent for a student.
+POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_user_consents(
-    user_id: web::Path<Uuid>,
+    auth_user: AuthUser,
     payload: web::Json<ConsentData>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserResearchConsent>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let res = models::user_research_consents::insert(
+    let res = models::user_research_consents::upsert(
         &mut conn,
         PKeyPolicy::Generate,
-        *user_id,
+        auth_user.id,
         payload.consent,
     )
     .await?;
@@ -80,19 +80,20 @@ pub async fn post_user_consents(
 }
 
 /**
-GET `/api/v0/main-frontend/users/:id/get-user-research-consent` - Gets users research consent.
+GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_research_consent_by_user_id(
-    user_id: web::Path<Uuid>,
+    auth_user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserResearchConsent>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let res = models::user_research_consents::get_research_consent_by_user_id(&mut conn, *user_id)
-        .await?;
+    let res =
+        models::user_research_consents::get_research_consent_by_user_id(&mut conn, auth_user.id)
+            .await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -103,11 +104,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_course_instance_enrollments_for_user),
         )
         .route(
-            "/{user_id}/user-research-consents",
+            "/user-research-consents",
             web::post().to(post_user_consents),
         )
         .route(
-            "/{user_id}/get-user-research-consent",
+            "/get-user-research-consent",
             web::get().to(get_research_consent_by_user_id),
         );
 }

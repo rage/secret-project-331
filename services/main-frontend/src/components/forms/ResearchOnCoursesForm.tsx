@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
@@ -13,12 +12,10 @@ import { baseTheme, fontWeights, headingFont } from "../../shared-module/styles"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
-  userId: string
 }
 
 const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesFormProps>> = ({
   afterSubmit,
-  userId,
 }) => {
   const { t } = useTranslation()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
@@ -26,8 +23,8 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   const [optionSelected, setOptionSelected] = useState<boolean>(false)
 
   const consentQuery = useQuery({
-    queryKey: [`users-${userId}-user-research-consents`],
-    queryFn: () => postUserResearchConsent(userId, consent),
+    queryKey: [`users-user-research-consents`],
+    queryFn: () => postUserResearchConsent(consent),
     enabled: false,
   })
 
@@ -111,20 +108,21 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             {t("research-consent-director-info", {
               "director-name": "Petri Ihantola",
             })}
+            {/* eslint-disable-next-line i18next/no-literal-string */}
             <a href="mooc@cs.helsinki.fi">mooc@cs.helsinki.fi</a>,
           </p>
 
           <div>
             <RadioButton
-              id="consent"
+              id="researchConsent"
               label={t("research-consent-i-want-to-participate-in-educational-research")}
-              name="consent"
+              name="acceptResearchConsent"
               onChange={(_event) => handleConsentSelection(true)}
             />
             <RadioButton
-              id="consent"
+              id="noResearchConsent"
               label={t("research-consent-i-do-not-want-participate-in-educational-research")}
-              name="consent"
+              name="refuseResearchConsent"
               onChange={(_event) => handleConsentSelection(false)}
             />
           </div>

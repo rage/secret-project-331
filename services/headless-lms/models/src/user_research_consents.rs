@@ -11,7 +11,7 @@ pub struct UserResearchConsent {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-pub async fn insert(
+pub async fn upsert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
     user_id: Uuid,
@@ -48,6 +48,7 @@ pub async fn get_research_consent_by_user_id(
 SELECT *
 FROM user_research_consents
 WHERE user_id = $1
+AND deleted_at IS NULL
     ",
         user_id,
     )

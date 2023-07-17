@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test"
 
-test("Research consent form is visible on login, if not yet answered", async ({ page }) => {
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+
+test("Research consent form is visible on login, if not yet answered", async ({
+  page,
+  headless,
+}, testInfo) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Log in" }).click()
@@ -17,6 +22,14 @@ test("Research consent form is visible on login, if not yet answered", async ({ 
       "I want to participate in the educational research. By choosing this, you help both current and future students.",
     )
     .check()
+
+  await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
+    headless,
+    testInfo,
+    snapshotName: "research-consent-form",
+    waitForTheseToBeVisibleAndStable: [page.locator("text=Regarding research done on courses")],
+  })
   await page.getByRole("button", { name: "Save" }).click()
 })
 

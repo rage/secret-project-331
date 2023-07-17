@@ -16,7 +16,7 @@ use sqlx::{Pool, Postgres};
 
 use crate::{
     domain::models_requests::{self, JwtKey},
-    programs::seed::seed_courses::seed_sample_course,
+    programs::seed::seed_courses::{seed_sample_course, CommonCourseData},
 };
 
 use super::super::seed_users::SeedUsersResult;
@@ -119,16 +119,19 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let uh_data = CommonCourseData {
+        db_pool: db_pool.clone(),
+        organization_id: uh_mathstat_id,
+        admin_user_id,
+        student_user_id,
+        example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
+        jwt_key: Arc::clone(&jwt_key),
+    };
     let introduction_to_citations = seed_sample_course(
-        &db_pool,
-        uh_mathstat_id,
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
         "Introduction to citations",
         "introduction-to-citations",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
+        uh_data.clone(),
     )
     .await?;
 
@@ -153,15 +156,10 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let preview_unopened_chapters = seed_sample_course(
-        &db_pool,
-        uh_mathstat_id,
         Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
         "Preview unopened chapters",
         "preview-unopened-chapters",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
+        uh_data.clone(),
     )
     .await?;
 

@@ -66,21 +66,29 @@ const Essay: React.FunctionComponent<
       >
         <TextArea
           onChangeByValue={(newValue) => {
-            if (quizItemAnswerState) {
-              let valid = true
-              if (quizItem.minWords && quizItem.minWords > wordCount(newValue)) {
-                valid = false
-              }
-              if (quizItem.maxWords && quizItem.maxWords < wordCount(newValue)) {
-                valid = false
-              }
-              const newQuizItemAnswerState: UserItemAnswerEssay = {
-                ...quizItemAnswerState,
-                textData: newValue,
-                valid: valid,
-              }
-              setQuizItemAnswerState(newQuizItemAnswerState)
+            let valid = true
+            if (quizItem.minWords && quizItem.minWords > wordCount(newValue)) {
+              valid = false
             }
+            if (quizItem.maxWords && quizItem.maxWords < wordCount(newValue)) {
+              valid = false
+            }
+            if (!quizItemAnswerState) {
+              setQuizItemAnswerState({
+                textData: newValue,
+                valid,
+                quizItemId: quizItem.id,
+                type: "essay",
+              })
+              return
+            }
+
+            const newQuizItemAnswerState: UserItemAnswerEssay = {
+              ...quizItemAnswerState,
+              textData: newValue,
+              valid: valid,
+            }
+            setQuizItemAnswerState(newQuizItemAnswerState)
           }}
           placeholder={t("answer")}
           aria-label={t("answer")}

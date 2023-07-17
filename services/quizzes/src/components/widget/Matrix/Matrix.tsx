@@ -38,7 +38,7 @@ export interface LeftBorderedDivProps {
 
 const Matrix: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
-> = ({ quizItemAnswerState, setQuizItemAnswerState }) => {
+> = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
   const matrixVariable = useMemo(() => {
     const res = quizItemAnswerState?.matrix
@@ -106,6 +106,15 @@ const Matrix: React.FunctionComponent<
     }
     if (isValid === null) {
       isValid = true
+    }
+    if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        type: "matrix",
+        matrix: newOptionCells,
+        valid: isValid,
+      })
+      return
     }
     const newItemAnswer: UserItemAnswerMatrix = {
       ...quizItemAnswerState,

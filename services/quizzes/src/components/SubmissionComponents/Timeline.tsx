@@ -143,23 +143,23 @@ const Timeline: React.FunctionComponent<
         .sort((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = user_quiz_item_answer?.timelineChoices?.find(
-            (tc) => tc.timelineItemId === timelineItem.id,
+            (tc) => tc.timelineItemId === timelineItem.itemId,
           )
 
           const selectedTimelineEventDetails = public_quiz_item.events.find(
-            (te) => te.id === selectedTimelineItem?.chosenEventId,
+            (te) => te.eventId === selectedTimelineItem?.chosenEventId,
           )
 
           const timelinemItemFeedback = quiz_item_feedback?.timeline_item_feedbacks?.find(
-            (tif) => tif.timeline_item_id === timelineItem.id,
+            (tif) => tif.timeline_item_id === timelineItem.itemId,
           )
 
           const whatWasChosenWasCorrect = timelinemItemFeedback?.what_was_chosen_was_correct
           const modelSolutionCorrectEventId = modelSolution?.timelineItems?.find(
-            (ti) => ti.id === timelineItem.id,
+            (ti) => ti.id === timelineItem.itemId,
           )?.correctEventId
           const modelSolutionCorrectEventName = public_quiz_item.events.find(
-            (te) => te.id === modelSolutionCorrectEventId,
+            (te) => te.eventId === modelSolutionCorrectEventId,
           )?.name
 
           const align = n % 2 === 0 ? right : left
@@ -181,7 +181,7 @@ const Timeline: React.FunctionComponent<
                   z-index: 1;
                 }
               `}`}
-              key={timelineItem.id}
+              key={timelineItem.itemId}
             >
               <div className="date">{timelineItem.year}</div>
               <div className="content">
@@ -199,7 +199,7 @@ const Timeline: React.FunctionComponent<
                         display: flex;
                         align-items: center;
                       `}
-                      id={timelineItem.id}
+                      id={timelineItem.itemId}
                     >
                       <p
                         className={css`

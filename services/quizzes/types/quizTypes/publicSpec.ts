@@ -1,8 +1,11 @@
+import { DisplayDirection, multipleChoiceMultipleOptionsGradingPolicy } from "./privateSpec"
+
 export interface PublicSpecQuiz {
   version: "2"
   items: PublicSpecQuizItem[]
   title: string
   body: string
+  quizItemDisplayDirection: DisplayDirection
 }
 
 export type PublicSpecQuizItem =
@@ -16,13 +19,12 @@ export type PublicSpecQuizItem =
   | PublicSpecQuizItemChooseN
   | PublicSpecQuizItemMultiplechoiceDropdown
 
-// export interface PublicQuizItemOption {
-//   id: string
-//   order: number
-//   correct: boolean
-//   title: string
-//   body: string | null
-// }
+export interface PublicQuizItemOption {
+  id: string
+  order: number
+  title: string
+  body: string | null
+}
 
 export interface PublicSpecQuizItemMultiplechoice {
   type: "multiple-choice"
@@ -33,7 +35,7 @@ export interface PublicSpecQuizItemMultiplechoice {
   options: PublicQuizItemOption[]
   title: string
   body: string
-  direction: "row" | "column"
+  optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
 
@@ -84,13 +86,13 @@ export interface PublicSpecQuizItemMatrix {
 }
 
 export interface PublicSpecQuizItemTimelineItem {
-  id: string
+  itemId: string
   /** The year the student is supposed to match to an event. */
   year: string
 }
 
 export interface PublicTimelineEvent {
-  id: string
+  eventId: string
   name: string
 }
 

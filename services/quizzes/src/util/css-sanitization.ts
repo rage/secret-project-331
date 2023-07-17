@@ -1,15 +1,16 @@
+import { DisplayDirection } from "../../types/quizTypes/privateSpec"
+
 export type FlexDirection = "column" | "column-reverse" | "row" | "row-reverse"
 
 export function sanitizeFlexDirection(
-  input: string | null,
+  input: DisplayDirection | null,
   defaultValue: FlexDirection,
 ): FlexDirection {
   switch (input) {
-    case "column":
-    case "column-reverse":
-    case "row":
-    case "row-reverse":
-      return input
+    case "vertical":
+      return "column"
+    case "horizontal":
+      return "row"
     default:
       return defaultValue
   }

@@ -1,4 +1,6 @@
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import {
+  PublicQuizItemOption,
   PublicSpecQuiz,
   PublicSpecQuizItem,
   PublicSpecQuizItemCheckbox,
@@ -35,10 +37,18 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         type: "multiple-choice",
         allowSelectingMultipleOptions: quizItem.multi,
         body: quizItem.body,
-        direction: quizItem.direction,
+        optionDisplayDirection: quizItem.direction == "column" ? "horizontal" : "vertical",
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
-        options: quizItem.options,
+        options: quizItem.options.map(
+          (option) =>
+            ({
+              body: option.body,
+              id: option.id,
+              order: option.order,
+              title: option.title ?? "",
+            } satisfies PublicQuizItemOption),
+        ),
         order: quizItem.order,
         shuffleOptions: quizItem.shuffleOptions,
         title: quizItem.title,
@@ -83,9 +93,15 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
       return {
         id: quizItem.id,
         type: "timeline",
-        events: quizItem.timelineItemEvents,
+        events: quizItem.timelineItemEvents.map((event) => ({
+          eventId: event.id,
+          name: event.name,
+        })),
         order: quizItem.order,
-        timelineItems: quizItem.timelineItems,
+        timelineItems: quizItem.timelineItems.map((item) => ({
+          itemId: item.id,
+          year: item.year,
+        })),
       } satisfies PublicSpecQuizItemTimeline
     case "clickable-multiple-choice":
       return {
@@ -94,7 +110,12 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         order: quizItem.order,
         body: quizItem.body,
         title: quizItem.title,
-        options: quizItem.options,
+        options: quizItem.options.map((option) => ({
+          body: option.body,
+          id: option.id,
+          order: option.order,
+          title: option.title ?? "",
+        })),
         n: CHOOSE_N_DEFAULT_VALUE,
       } satisfies PublicSpecQuizItemChooseN
     case "multiple-choice-dropdown":
@@ -104,7 +125,12 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         order: quizItem.order,
         body: quizItem.body,
         title: quizItem.title,
-        options: quizItem.options,
+        options: quizItem.options.map((option) => ({
+          body: option.body,
+          id: option.id,
+          order: option.order,
+          title: option.title ?? "",
+        })),
       } satisfies PublicSpecQuizItemMultiplechoiceDropdown
   }
 }
@@ -115,6 +141,7 @@ const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz): PublicSpecQuiz =>
     body: oldPublicSpecQuiz.body,
     items: [],
     title: oldPublicSpecQuiz.title,
+    quizItemDisplayDirection: oldPublicSpecQuiz.direction == "row" ? "horizontal" : "vertical",
   }
   oldPublicSpecQuiz.items.forEach((quizItem) => {
     PublicSpecQuiz.items.push(migratePublicSpecQuizItem(quizItem))

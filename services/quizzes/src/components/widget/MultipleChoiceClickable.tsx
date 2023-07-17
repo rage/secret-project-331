@@ -14,10 +14,17 @@ const MultipleChoiceClickable: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        type: "choose-n",
+        selectedOptionIds: [selectedOptionId],
+        valid: true,
+      })
       return
     }
-    const selectedOptionId = event.currentTarget.value
+
     const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
     const validAnswer = selectedIds.length > 0
 

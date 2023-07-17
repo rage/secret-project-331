@@ -14,9 +14,6 @@ import ParsedText from "../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
-const DIRECTION_COLUMN = "column"
-const DIRECTION_ROW = "row"
-
 const gradingOption = css`
   align-items: center;
   background: ${quizTheme.quizItemBackground};
@@ -64,7 +61,7 @@ const MultipleChoiceSubmission: React.FC<
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width. Sanitized since the value is used in CSS.
   const direction: "row" | "column" =
-    public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
+    public_quiz_item.optionDisplayDirection === "vertical" ? "row" : "column"
 
   let quiz_options = public_quiz_item.options
   if (public_quiz_item.shuffleOptions) {
@@ -145,7 +142,7 @@ const MultipleChoiceSubmission: React.FC<
                     <div
                       className={css`
                         display: flex;
-                        flex-direction: ${public_quiz_item.direction === "column"
+                        flex-direction: ${public_quiz_item.optionDisplayDirection === "vertical"
                           ? "row"
                           : "column"};
                       `}

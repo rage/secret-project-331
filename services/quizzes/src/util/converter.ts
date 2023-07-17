@@ -23,9 +23,9 @@ import {
   PublicSpecQuizItemMultiplechoiceDropdown,
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
+  PublicSpecQuizItemTimelineItem,
   PublicTimelineEvent,
 } from "../../types/quizTypes/publicSpec"
-import { PublicTimelineItem } from "../../types/types"
 
 export const convertPublicSpecFromPrivateSpec = (quiz: PrivateSpecQuiz) => {
   const publicQuiz: PublicSpecQuiz = {
@@ -33,6 +33,7 @@ export const convertPublicSpecFromPrivateSpec = (quiz: PrivateSpecQuiz) => {
     body: quiz.body,
     items: [],
     title: quiz.title,
+    quizItemDisplayDirection: quiz.quizItemDisplayDirection,
   }
 
   quiz.items.forEach((quizItem) => {
@@ -107,7 +108,7 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
       type: "multiple-choice",
       allowSelectingMultipleOptions: multipleChoiceItem.allowSelectingMultipleOptions,
       body: multipleChoiceItem.body,
-      direction: multipleChoiceItem.direction,
+      optionDisplayDirection: multipleChoiceItem.optionDisplayDirection,
       multipleChoiceMultipleOptionsGradingPolicy:
         multipleChoiceItem.multipleChoiceMultipleOptionsGradingPolicy,
       options: multipleChoiceItem.options,
@@ -145,22 +146,26 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
       id: timeLineItem.id,
       type: "timeline",
       events:
-        timeLineItem.events?.map(
-          (item) =>
-            ({
-              id: item.id,
-              name: item.name,
-            } as PublicTimelineEvent),
-        ) ?? [],
+        timeLineItem.timelineItems
+          ?.map(
+            (item) =>
+              ({
+                eventId: item.correctEventId,
+                name: item.correctEventName,
+              } as PublicTimelineEvent),
+          )
+          .sort((i1, i2) => i1.name.localeCompare(i2.name)) ?? [],
       order: timeLineItem.order,
       timelineItems:
-        timeLineItem.timelineItems?.map(
-          (item) =>
-            ({
-              id: item.id,
-              year: item.year,
-            } as PublicTimelineItem),
-        ) ?? [],
+        timeLineItem.timelineItems
+          ?.map(
+            (item) =>
+              ({
+                itemId: item.id,
+                year: item.year,
+              } as PublicSpecQuizItemTimelineItem),
+          )
+          .sort((i1, i2) => i1.year.localeCompare(i2.year)) ?? [],
     } satisfies PublicSpecQuizItemTimeline
   }
   return null

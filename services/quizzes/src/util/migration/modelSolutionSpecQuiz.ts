@@ -10,6 +10,7 @@ import {
   ModelSolutionQuizItemMultiplechoiceDropdown,
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
+  OldQuizItemType,
 } from "../../../types/quizTypes/modelSolutionSpec"
 import {
   ModelSolutionQuiz as OldModelSolutionQuiz,

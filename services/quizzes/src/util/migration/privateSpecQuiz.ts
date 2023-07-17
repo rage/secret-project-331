@@ -82,7 +82,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        direction: quizItem.direction,
+        optionDisplayDirection: quizItem.direction == "row" ? "horizontal" : "vertical",
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
@@ -123,7 +123,6 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
-        events: [],
       } satisfies PrivateSpecQuizItemTimeline
     case "clickable-multiple-choice":
       return {

@@ -14,7 +14,6 @@ export type UserItemAnswer =
   | UserItemAnswerMultiplechoiceDropdown
 
 export interface UserItemAnswerMultiplechoice {
-  id: string
   type: "multiple-choice"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -23,7 +22,6 @@ export interface UserItemAnswerMultiplechoice {
 }
 
 export interface UserItemAnswerEssay {
-  id: string
   type: "essay"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -32,17 +30,15 @@ export interface UserItemAnswerEssay {
 }
 
 export interface UserItemAnswerScale {
-  id: string
   type: "scale"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
   quizItemId: string
+  /** The number that was selected */
   intData: number
-  optionAnswers: string[] | null
 }
 
 export interface UserItemAnswerCheckbox {
-  id: string
   type: "checkbox"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -51,7 +47,6 @@ export interface UserItemAnswerCheckbox {
 }
 
 export interface UserItemAnswerClosedEndedQuestion {
-  id: string
   type: "closed-ended-question"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -60,7 +55,6 @@ export interface UserItemAnswerClosedEndedQuestion {
 }
 
 export interface UserItemAnswerMatrix {
-  id: string
   type: "matrix"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -76,7 +70,6 @@ export interface TimelineChoice {
 }
 
 export interface UserItemAnswerTimeline {
-  id: string
   type: "timeline"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -85,7 +78,6 @@ export interface UserItemAnswerTimeline {
 }
 
 export interface UserItemAnswerChooseN {
-  id: string
   type: "choose-n"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean
@@ -94,7 +86,6 @@ export interface UserItemAnswerChooseN {
 }
 
 export interface UserItemAnswerMultiplechoiceDropdown {
-  id: string
   type: "multiple-choice-dropdown"
   /** Whether or not the provided answer can be submitted. */
   valid: boolean

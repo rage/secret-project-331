@@ -3,7 +3,7 @@ import { ModelSolutionQuizItem } from "../../../types/quizTypes/modelSolutionSpe
 import { PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
-import { FlexDirection } from "../../shared-module/utils/css-sanitization"
+import { FlexDirection } from "../../util/css-sanitization"
 
 export interface QuizItemSubmissionComponentProps<
   T extends PublicSpecQuizItem,

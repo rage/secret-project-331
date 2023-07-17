@@ -1,5 +1,3 @@
-import { v4 } from "uuid"
-
 import {
   UserAnswer,
   UserItemAnswer,
@@ -27,20 +25,19 @@ import {
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
 import useQuizzesUserAnswerOutputState from "../../hooks/useQuizzesUserAnswerServiceOutputState"
-import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
-import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
 import { COLUMN } from "../../util/constants"
+import { FlexDirection, sanitizeFlexDirection } from "../../util/css-sanitization"
 import { isOldQuiz } from "../../util/migration/migrationSettings"
 import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
+import ClosedEndedQuestion from "./ClosedEndedQuestion"
 import Essay from "./Essay"
 import Matrix from "./Matrix/Matrix"
 import MultipleChoice from "./MultipleChoice"
 import MultipleChoiceClickable from "./MultipleChoiceClickable"
 import MultipleChoiceDropdown from "./MultipleChoiceDropdown"
-import Open from "./Open"
 import Scale from "./Scale"
 import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
@@ -69,7 +66,6 @@ export interface QuizItemComponentProps<T extends PublicSpecQuizItem, K extends 
 }
 
 const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
-  port,
   publicSpec,
   previousSubmission,
   user_information,
@@ -83,49 +79,39 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
     quiz_answer_is_valid: !!previousSubmission,
   }
 
-  useSendQuizAnswerOnChange(port, widget_state)
-
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items
   let direction: FlexDirection = COLUMN
   if (publicSpec != null) {
-    console.log(publicSpec)
     publicSpec.items.every((item) => {
-      console.log("Item:", item)
       if (item.type == "multiple-choice") {
-        direction = sanitizeFlexDirection(item.direction, COLUMN)
+        direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
         return
       }
     })
   }
 
   const { selected, updateState } = useQuizzesUserAnswerOutputState<UserAnswer>((uAnswer) => {
-    if (!uAnswer) {
-      return null
-    }
     return uAnswer
   })
-
-  if (previousSubmission) {
-    updateState((draft) => {
-      if (!draft) {
-        return
-      }
-      draft = previousSubmission
-    })
-  }
 
   const updateUserItemAnswer = (newQuizItemAnswer: UserItemAnswer): void => {
     updateState((userAnswer) => {
       if (!userAnswer) {
+        console.error("User answer is null, cannot update it")
         return
       }
-      const item = userAnswer.itemAnswers.filter((item) => item.id == newQuizItemAnswer.id)
+      // Update existing answer
+      const item = userAnswer.itemAnswers.filter(
+        (item) => item.quizItemId == newQuizItemAnswer.quizItemId,
+      )
       if (!item) {
         userAnswer.itemAnswers = [...userAnswer.itemAnswers, newQuizItemAnswer]
       } else {
         userAnswer.itemAnswers = [
-          ...userAnswer.itemAnswers.filter((item) => item.id != newQuizItemAnswer.id),
+          ...userAnswer.itemAnswers.filter(
+            (item) => item.quizItemId != newQuizItemAnswer.quizItemId,
+          ),
           newQuizItemAnswer,
         ]
       }
@@ -146,10 +132,8 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
         .sort((i1, i2) => i1.order - i2.order)
         .map((quizItem, idx) => {
           // Quiz item answer state'
-          let quizItemAnswerState: UserItemAnswer = {
-            id: v4(),
-            quizItemId: quizItem.id,
-          } as UserItemAnswer
+          let quizItemAnswerState: UserItemAnswer | null = null
+
           if (selected) {
             const found = selected.itemAnswers.find((qia) => qia.quizItemId === quizItem.id)
             if (found) {
@@ -161,6 +145,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
             case "checkbox":
               quizItem = quizItem as PublicSpecQuizItemCheckbox
               quizItemAnswerState = quizItemAnswerState as UserItemAnswerCheckbox
+
               return (
                 <Checkbox
                   key={quizItem.id}
@@ -196,7 +181,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
               quizItem = quizItem as PublicSpecQuizItemClosedEndedQuestion
               quizItemAnswerState = quizItemAnswerState as UserItemAnswerClosedEndedQuestion
               return (
-                <Open
+                <ClosedEndedQuestion
                   key={quizItem.id}
                   quizDirection={COLUMN}
                   quizItem={quizItem}
@@ -249,7 +234,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
               return (
                 <MultipleChoice
                   key={quizItem.id}
-                  quizDirection={sanitizeFlexDirection(quizItem.direction, COLUMN)}
+                  quizDirection={sanitizeFlexDirection(quizItem.optionDisplayDirection, COLUMN)}
                   quizItem={quizItem}
                   quizItemAnswerState={quizItemAnswerState}
                   user_information={user_information}

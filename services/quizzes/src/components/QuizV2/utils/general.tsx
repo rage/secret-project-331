@@ -118,7 +118,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         allowSelectingMultipleOptions: true,
         body: "",
         // eslint-disable-next-line i18next/no-literal-string
-        direction: "row",
+        optionDisplayDirection: "vertical",
         failureMessage: "",
         // eslint-disable-next-line i18next/no-literal-string
         multipleChoiceMultipleOptionsGradingPolicy: "default",

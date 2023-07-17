@@ -20,12 +20,18 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
   const radioIdentifier = useId()
   const radioLabelId = useId()
 
-  const handleOptionSelect = (option: string) => {
+  const handleOptionSelect = (selectedOption: string) => {
     if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        intData: Number(selectedOption),
+        valid: true,
+        type: "scale",
+      })
       return
     }
 
-    setQuizItemAnswerState({ ...quizItemAnswerState, optionAnswers: [option], valid: true })
+    setQuizItemAnswerState({ ...quizItemAnswerState, intData: Number(selectedOption), valid: true })
   }
 
   return (
@@ -91,7 +97,9 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
                   type="radio"
                   key={value}
                   value={value}
-                  checked={quizItemAnswerState?.optionAnswers?.includes(value)}
+                  checked={
+                    quizItemAnswerState !== null && quizItemAnswerState.intData === Number(value)
+                  }
                   onClick={(e) => handleOptionSelect(e.currentTarget.value)}
                 />
               </label>

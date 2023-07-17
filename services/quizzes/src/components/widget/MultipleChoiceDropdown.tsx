@@ -20,11 +20,16 @@ const MultipleChoiceDropdown: React.FunctionComponent<
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const handleOptionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        selectedOptionIds: [selectedOptionId],
+        type: "multiple-choice-dropdown",
+        valid: true,
+      })
       return
     }
-
-    const selectedOptionId = event.currentTarget.value
 
     const newItemAnswer: UserItemAnswerMultiplechoiceDropdown = {
       ...quizItemAnswerState,

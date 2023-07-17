@@ -1,4 +1,4 @@
-type OldQuizItemType =
+export type OldQuizItemType =
   | "essay"
   | "multiple-choice"
   | "scale"

@@ -11,7 +11,7 @@ import CloseEndedQuestionWrapper from "../Shared/CloseEndedQuestionWrapper"
 
 import { QuizItemComponentProps } from "."
 
-const Open: React.FC<
+const ClosedEndedQuestion: React.FC<
   QuizItemComponentProps<PublicSpecQuizItemClosedEndedQuestion, UserItemAnswerClosedEndedQuestion>
 > = ({ quizDirection, quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
@@ -20,6 +20,12 @@ const Open: React.FC<
 
   const handleChange = (newValue: string) => {
     if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        type: "closed-ended-question",
+        textData: newValue,
+        valid: true,
+      })
       return
     }
 
@@ -68,4 +74,4 @@ const answerFormatIsValidAgainstRegex = (answer: string, validatorRegex: string)
   return validator.test(cleanedInput)
 }
 
-export default withErrorBoundary(Open)
+export default withErrorBoundary(ClosedEndedQuestion)

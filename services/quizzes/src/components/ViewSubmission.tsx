@@ -31,8 +31,8 @@ import {
 import { ItemAnswerFeedback } from "../pages/api/grade"
 import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../shared-module/styles"
-import { FlexDirection, sanitizeFlexDirection } from "../shared-module/utils/css-sanitization"
 import { COLUMN } from "../util/constants"
+import { FlexDirection, sanitizeFlexDirection } from "../util/css-sanitization"
 
 import FlexWrapper from "./FlexWrapper"
 import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
@@ -144,7 +144,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   let direction: FlexDirection = COLUMN
   publicAlternatives.items.every((item) => {
     if (item.type == "multiple-choice") {
-      direction = sanitizeFlexDirection(item.direction, COLUMN)
+      direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
       return
     }
   })
@@ -295,7 +295,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                     <MultipleChoiceSubmission
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemMultiplechoice}
-                      quiz_direction={sanitizeFlexDirection(item.direction, COLUMN)}
+                      quiz_direction={sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)}
                       quiz_item_feedback={itemFeedback}
                       quiz_item_model_solution={itemModelSolution}
                       user_quiz_item_answer={quizItemAnswer as UserItemAnswerMultiplechoice}

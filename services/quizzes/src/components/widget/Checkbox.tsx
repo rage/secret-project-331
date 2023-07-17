@@ -13,8 +13,16 @@ const Checkbox: React.FC<
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const handleOptionToggle = (enabled: boolean) => {
     if (!quizItemAnswerState) {
+      // Not answered before, create a new answer
+      setQuizItemAnswerState({
+        checked: enabled,
+        valid: true,
+        type: "checkbox",
+        quizItemId: quizItem.id,
+      })
       return
     }
+    // Answered before, update the answer
     setQuizItemAnswerState({ ...quizItemAnswerState, checked: enabled, valid: true })
   }
 

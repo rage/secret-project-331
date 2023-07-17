@@ -1,3 +1,4 @@
+/** @deprecated */
 export interface Quiz {
   id: string
   courseId: string
@@ -22,6 +23,7 @@ export interface Quiz {
   submitMessage: string | null
 }
 
+/** @deprecated */
 export interface NormalizedQuiz {
   id: string
   courseId: string
@@ -47,6 +49,7 @@ export interface NormalizedQuiz {
   submitMessage: string | null
 }
 
+/** @deprecated */
 export interface QuizVariables {
   initialState: Quiz
   addingNewItem: boolean
@@ -58,6 +61,7 @@ export interface QuizVariables {
   newQuiz: boolean
 }
 
+/** @deprecated */
 export interface PublicQuiz {
   id: string
   courseId: string
@@ -73,6 +77,7 @@ export interface PublicQuiz {
   body: string
 }
 
+/** @deprecated */
 export interface ModelSolutionQuiz {
   id: string
   courseId: string
@@ -96,10 +101,12 @@ export interface ModelSolutionQuiz {
   submitMessage: string | null
 }
 
+/** @deprecated */
 type multipleChoiceMultipleOptionsGradingPolicy =
   | "default"
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
+/** @deprecated */
 export interface QuizItem {
   shuffleOptions: boolean
   id: string
@@ -131,6 +138,7 @@ export interface QuizItem {
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
 
+/** @deprecated */
 export interface QuizItemModelSolution {
   quizItemId: string
   options?: OptionsFeedback[]
@@ -138,6 +146,7 @@ export interface QuizItemModelSolution {
   failureMessage?: string
 }
 
+/** @deprecated */
 export interface OptionsFeedback {
   optionId: string
   successMessage?: string
@@ -149,6 +158,7 @@ export interface OptionsFeedback {
  *
  * See this for an introduction to normalization in Redux: https://redux.js.org/tutorials/essentials/part-6-performance-normalization#normalizing-data
  */
+/** @deprecated */
 export interface NormalizedQuizItem {
   shuffleOptions: boolean
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
@@ -179,6 +189,7 @@ export interface NormalizedQuizItem {
   timelineItems: string[]
 }
 
+/** @deprecated */
 export interface QuizItemVariables {
   scaleMin: number
   scaleMax: number
@@ -196,6 +207,7 @@ export interface QuizItemVariables {
   newOptions: string[]
 }
 
+/** @deprecated */
 export interface PublicQuizItem {
   id: string
   quizId: string
@@ -221,6 +233,7 @@ export interface PublicQuizItem {
 }
 
 /**
+ * @deprecated
  * Only used in the timeline exercise type
  *
  * The correctEvent is omitted from here because it's the correct answer and we don't want to show that to the students before they have solved the exercise. All available options can be found in `PublicQuizItem.timelineItemEvents`.
@@ -231,13 +244,16 @@ export interface PublicTimelineItem {
   year: string
 }
 
+/** @deprecated */
 export interface PublicTimelineEvent {
   id: string
   name: string
 }
 
+/** @deprecated */
 export type ModelSolutionQuizItem = Omit<QuizItem, "validityRegex">
 
+/** @deprecated */
 export interface QuizItemOption {
   id: string
   quizItemId?: string
@@ -251,6 +267,7 @@ export interface QuizItemOption {
   additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
+/** @deprecated */
 export interface NormalizedQuizItemOption {
   id: string
   quizItemId: string
@@ -276,7 +293,8 @@ export interface NormalizedQuizItemOption {
   additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
-/** Only defined for the timeline exercise type */
+/** @deprecated
+ *  Only defined for the timeline exercise type */
 export interface NormalizedQuizItemTimelineItem {
   id: string
   /** The year the student is supposed to match to an event. */
@@ -287,12 +305,15 @@ export interface NormalizedQuizItemTimelineItem {
   correctEventId: string
 }
 
+/** @deprecated */
 export type QuizItemTimelineItem = NormalizedQuizItemTimelineItem
 
+/** @deprecated */
 export interface QuizItemOptionVariables {
   optionEditing: boolean
 }
 
+/** @deprecated */
 export interface PublicQuizItemOption {
   id: string
   quizItemId?: string
@@ -301,6 +322,7 @@ export interface PublicQuizItemOption {
   body: string | null
 }
 
+/** @deprecated */
 export interface QuizAnswer {
   id: string
   createdAt: string
@@ -310,6 +332,7 @@ export interface QuizAnswer {
   itemAnswers: QuizItemAnswer[]
 }
 
+/** @deprecated */
 export interface QuizItemAnswer {
   id: string
   quizAnswerId: string
@@ -328,6 +351,7 @@ export interface QuizItemAnswer {
   timelineChoices: TimelineChoice[] | null
 }
 
+/** @deprecated */
 export interface TimelineChoice {
   /** We use timelineItem id to match for answers so that this is resilient to typo fixes in the year */
   timelineItemId: string
@@ -335,6 +359,7 @@ export interface TimelineChoice {
   chosenEventId: string
 }
 
+/** @deprecated */
 export interface UserQuizState {
   userId: number
   quizId: string
@@ -348,6 +373,7 @@ export interface UserQuizState {
   updatedAt: string
 }
 
+/** @deprecated */
 export interface Entities {
   quizzes: { [quizId: string]: NormalizedQuiz }
   items: { [itemId: string]: NormalizedQuizItem }
@@ -356,6 +382,7 @@ export interface Entities {
   result: string
 }
 
+/** @deprecated */
 export interface action {
   type: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

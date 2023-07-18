@@ -108,21 +108,29 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             {t("research-consent-director-info", {
               "director-name": "Petri Ihantola",
             })}
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            <a href="mooc@cs.helsinki.fi">mooc@cs.helsinki.fi</a>,
+            <a
+              className={css`
+                color: ${baseTheme.colors.blue[700]}!important;
+              `}
+              href="mooc@cs.helsinki.fi"
+              // eslint-disable-next-line i18next/no-literal-string
+            >
+              mooc@cs.helsinki.fi
+            </a>
+            ,
           </p>
 
           <div>
             <RadioButton
               id="researchConsent"
               label={t("research-consent-i-want-to-participate-in-educational-research")}
-              name="acceptResearchConsent"
+              name="researchConsent"
               onChange={(_event) => handleConsentSelection(true)}
             />
             <RadioButton
               id="noResearchConsent"
               label={t("research-consent-i-do-not-want-participate-in-educational-research")}
-              name="refuseResearchConsent"
+              name="researchConsent"
               onChange={(_event) => handleConsentSelection(false)}
             />
           </div>

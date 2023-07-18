@@ -12,8 +12,9 @@ import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { login } from "../shared-module/services/backend/auth"
+import { login, userInfo } from "../shared-module/services/backend/auth"
 import { baseTheme } from "../shared-module/styles"
+import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
@@ -28,6 +29,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [notification, setNotification] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [userId, setUserId] = useState<string | null>(null)
   const uncheckedReturnTo = useQueryParameter("return_to")
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(router.asPath)
   const [showForm, setShowForm] = useState<boolean>(false)
@@ -44,16 +46,28 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
     router.push(returnTo)
   }, [router, uncheckedReturnTo])
 
-  const { status } = useQuery({
-    queryKey: [`users-get-user-research-consent`],
-    queryFn: () => getResearchConsentByUserId(),
+  const getUser = useQuery({
+    queryKey: ["user-info"],
+    queryFn: () => userInfo(),
     enabled: loginStateContext.signedIn == true,
   })
 
-  if (status == "error" && !showForm) {
+  const getUserConsent = useQuery({
+    queryKey: [`users-get-user-research-consent`],
+    queryFn: () => getResearchConsentByUserId(),
+    enabled: !!userId,
+  })
+
+  if (getUserConsent.status == "error" && !showForm) {
     setShowForm(true)
-  } else if (status == "success") {
+  } else if (getUserConsent.status == "success") {
     redirect()
+  }
+
+  console.log(userId)
+  if (getUser.data && userId == null) {
+    setUserId(getUser.data?.user_id)
+    getUserConsent.refetch()
   }
 
   return (
@@ -170,7 +184,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           </a>
         </div>
       </form>
-      {showForm && <ResearchOnCoursesForm afterSubmit={redirect} />}
+      {showForm && userId && <ResearchOnCoursesForm afterSubmit={redirect} />}
     </div>
   )
 }

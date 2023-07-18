@@ -62,8 +62,8 @@ POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research cons
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_user_consents(
-    auth_user: AuthUser,
     payload: web::Json<ConsentData>,
+    user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserResearchConsent>> {
     let mut conn = pool.acquire().await?;
@@ -72,7 +72,7 @@ pub async fn post_user_consents(
     let res = models::user_research_consents::upsert(
         &mut conn,
         PKeyPolicy::Generate,
-        auth_user.id,
+        user.id,
         payload.consent,
     )
     .await?;
@@ -85,15 +85,15 @@ GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users researc
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_research_consent_by_user_id(
-    auth_user: AuthUser,
+    user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserResearchConsent>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
     let res =
-        models::user_research_consents::get_research_consent_by_user_id(&mut conn, auth_user.id)
-            .await?;
+        models::user_research_consents::get_research_consent_by_user_id(&mut conn, user.id).await?;
+
     token.authorized_ok(web::Json(res))
 }
 

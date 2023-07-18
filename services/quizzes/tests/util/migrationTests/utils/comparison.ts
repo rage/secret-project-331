@@ -97,7 +97,13 @@ const compareFields = <T extends object, S extends object>(
         `field '${fields[key]}' does not exist in old quiz item: ${JSON.stringify(oldQuizItem)}`,
       )
     }
-    expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
+    if (key === "optionDisplayDirection") {
+      // direction is changed to optionDisplayDirection with different values.
+      const direction = oldQuizItem[fields[key] as keyof S] == "row" ? "horizontal" : "vertical"
+      expect(direction).toEqual(newQuizItem[key as keyof T])
+    } else {
+      expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])
+    }
   })
 }
 
@@ -177,7 +183,7 @@ const comparePrivateSpecQuizItem = (
         successMessage: "successMessage",
         failureMessage: "failureMessage",
         sharedOptionFeedbackMessage: "sharedOptionFeedbackMessage",
-        direction: "direction",
+        optionDisplayDirection: "direction",
         multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
       }
       break
@@ -273,7 +279,7 @@ const comparePublicSpecQuizItem = (
         allowSelectingMultipleOptions: "multi",
         title: "title",
         body: "body",
-        direction: "direction",
+        optionDisplayDirection: "direction",
         multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
       }
       break
@@ -375,7 +381,7 @@ const compareModelSolutionSpecQuizItem = (
         successMessage: "successMessage",
         failureMessage: "failureMessage",
         sharedOptionFeedbackMessage: "sharedOptionFeedbackMessage",
-        direction: "direction",
+        optionDisplayDirection: "direction",
         multipleChoiceMultipleOptionsGradingPolicy: "multipleChoiceMultipleOptionsGradingPolicy",
       }
       break

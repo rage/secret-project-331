@@ -45,7 +45,7 @@ const migrateModelSolutionSpecQuizItem = (
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        direction: quizItem.direction,
+        optionDisplayDirection: quizItem.direction == "row" ? "horizontal" : "vertical",
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,

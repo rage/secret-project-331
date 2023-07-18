@@ -37,7 +37,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         type: "multiple-choice",
         allowSelectingMultipleOptions: quizItem.multi,
         body: quizItem.body,
-        optionDisplayDirection: quizItem.direction == "column" ? "horizontal" : "vertical",
+        optionDisplayDirection: quizItem.direction == "row" ? "horizontal" : "vertical",
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         options: quizItem.options.map(

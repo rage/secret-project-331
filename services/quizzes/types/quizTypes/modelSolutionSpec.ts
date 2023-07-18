@@ -1,3 +1,5 @@
+import { DisplayDirection } from "./privateSpec"
+
 type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
 export interface QuizItemOption {
@@ -70,7 +72,7 @@ export interface ModelSolutionQuizItemMultiplechoice {
   successMessage: string | null
   failureMessage: string | null
   sharedOptionFeedbackMessage: string | null
-  direction: "row" | "column"
+  optionDisplayDirection: DisplayDirection
   multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
 

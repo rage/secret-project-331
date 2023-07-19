@@ -59,6 +59,7 @@ describe("private spec", () => {
     const newQuizItem: PrivateSpecQuizItemMultiplechoice = newQuiz
       .items[0] as PrivateSpecQuizItemMultiplechoice
     comparePrivateSpecQuizItem(newQuizItem, oldQuizItem)
+    expect(newQuizItem.options).toMatchObject(oldQuizItem.options)
   })
 
   test("migrates checkbox exercise", () => {

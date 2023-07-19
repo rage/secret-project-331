@@ -97,7 +97,10 @@ const compareFields = <T extends object, S extends object>(
         `field '${fields[key]}' does not exist in old quiz item: ${JSON.stringify(oldQuizItem)}`,
       )
     }
-    if (key === "optionDisplayDirection") {
+    if (key === "options") {
+      // Fields has been changed in the options of multiple-choice exercises
+      return
+    } else if (key === "optionDisplayDirection") {
       // direction is changed to optionDisplayDirection with different values.
       const direction = oldQuizItem[fields[key] as keyof S] == "row" ? "horizontal" : "vertical"
       expect(direction).toEqual(newQuizItem[key as keyof T])

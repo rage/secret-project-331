@@ -31,11 +31,10 @@ test("Research consent form is visible on login, if not yet answered", async ({
     waitForTheseToBeVisibleAndStable: [page.locator("text=Regarding research done on courses")],
   })
   await page.getByRole("button", { name: "Save" }).click()
-})
 
-test("Research consent form is not visible on login, if already anwered", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  //Login again and check research consent form doesn't show again when already answered.
   await page.getByRole("button", { name: "Open menu" }).click()
+  await page.getByRole("button", { name: "Log out" }).click()
   await page.getByRole("button", { name: "Log in" }).click()
 
   await page.click(`label:has-text("Email")`)

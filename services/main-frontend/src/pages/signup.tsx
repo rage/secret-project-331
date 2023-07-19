@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faEnvelope as emailIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -15,7 +14,7 @@ import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { createUser, userInfo } from "../shared-module/services/backend/auth"
+import { createUser } from "../shared-module/services/backend/auth"
 import { baseTheme, headingFont } from "../shared-module/styles"
 import {
   useCurrentPagePathForReturnTo,
@@ -159,18 +158,6 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   )
 
-  const [userId, setUserId] = useState<string | null>(null)
-
-  const getUser = useQuery({
-    queryKey: ["user-info"],
-    queryFn: () => userInfo(),
-    enabled: loginStateContext.signedIn == true,
-  })
-
-  if (getUser.data && userId == null) {
-    setUserId(getUser.data?.user_id)
-  }
-
   useEffect(() => {
     if (loginStateContext.signedIn && !confirmEmailPageVisible) {
       router.push("/")
@@ -225,7 +212,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         >
           {t("button-text-done")}
         </Button>
-        {userId && <ResearchOnCoursesForm />}
+        {<ResearchOnCoursesForm />}
       </Wrapper>
     )
   }

@@ -9,24 +9,35 @@ import Dialog from "../../shared-module/components/Dialog"
 import RadioButton from "../../shared-module/components/InputFields/RadioButton"
 import ClipboardIcon from "../../shared-module/img/clipboard-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "../../shared-module/styles"
+import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
+  initialConsentValue?: boolean
 }
 
 const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesFormProps>> = ({
   afterSubmit,
+  initialConsentValue,
 }) => {
   const { t } = useTranslation()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
-  const [consent, setConsent] = useState<boolean>(false)
-  const [optionSelected, setOptionSelected] = useState<boolean>(false)
+  const [consent, setConsent] = useState<boolean | undefined>(initialConsentValue)
+  const [optionSelected, setOptionSelected] = useState<boolean>(true)
 
+  if (consent === undefined && optionSelected) {
+    setOptionSelected(false)
+  }
   const consentQuery = useQuery({
-    queryKey: [`users-user-research-consents`],
-    queryFn: () => postUserResearchConsent(consent),
+    queryKey: [`users-user-research-consents`, consent],
+    queryFn: () => postUserResearchConsent(assertNotNullOrUndefined(consent)),
     enabled: false,
   })
+
+  const handleConsentSelection = (value: boolean) => {
+    setConsent(value)
+    setOptionSelected(true)
+  }
 
   const handleOnSubmit = () => {
     setResearchConsentFormOpen(false)
@@ -34,12 +45,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     if (afterSubmit != undefined) {
       afterSubmit()
     }
-    setConsent(false)
-  }
-
-  const handleConsentSelection = (value: boolean) => {
-    setConsent(value)
-    setOptionSelected(true)
   }
 
   return (
@@ -70,6 +75,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
           className={css`
             display: flex;
             flex-direction: column;
+            font-size: 16px;
             padding: 24px;
             border: ${baseTheme.colors.clear[700]};
             border-style: solid;
@@ -125,13 +131,15 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
               id="researchConsent"
               label={t("research-consent-i-want-to-participate-in-educational-research")}
               name="researchConsent"
-              onChange={(_event) => handleConsentSelection(true)}
+              onClick={() => handleConsentSelection(true)}
+              checked={consent}
             />
             <RadioButton
               id="noResearchConsent"
               label={t("research-consent-i-do-not-want-participate-in-educational-research")}
               name="researchConsent"
-              onChange={(_event) => handleConsentSelection(false)}
+              onClick={() => handleConsentSelection(false)}
+              checked={!consent}
             />
           </div>
         </div>

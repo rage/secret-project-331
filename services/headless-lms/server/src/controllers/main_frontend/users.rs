@@ -98,17 +98,17 @@ pub async fn get_research_consent_by_user_id(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{user_id}", web::get().to(get_user))
-        .route(
-            "/{user_id}/course-instance-enrollments",
-            web::get().to(get_course_instance_enrollments_for_user),
-        )
-        .route(
-            "/user-research-consents",
-            web::post().to(post_user_consents),
-        )
-        .route(
-            "/get-user-research-consent",
-            web::get().to(get_research_consent_by_user_id),
-        );
+    cfg.route(
+        "/get-user-research-consent",
+        web::get().to(get_research_consent_by_user_id),
+    )
+    .route("/{user_id}", web::get().to(get_user))
+    .route(
+        "/{user_id}/course-instance-enrollments",
+        web::get().to(get_course_instance_enrollments_for_user),
+    )
+    .route(
+        "/user-research-consents",
+        web::post().to(post_user_consents),
+    );
 }

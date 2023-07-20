@@ -5,7 +5,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
-import { deleteCourse } from "../../../../../../services/backend/courses"
+import {
+  deleteCourse,
+  teacherResetCourseForThemselves,
+} from "../../../../../../services/backend/courses"
 import { Course } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
@@ -42,6 +45,17 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       onSuccess: async () => {
         await refetch()
       },
+    },
+  )
+
+  const teacherResetCourseForThemselvesMutation = useToastMutation(
+    async () => {
+      await teacherResetCourseForThemselves(course.id)
+    },
+    {
+      notify: true,
+      // eslint-disable-next-line i18next/no-literal-string
+      method: "DELETE",
     },
   )
 
@@ -147,7 +161,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       >
         <p>{t("placeholder-text-reserved-for-course-overview")}</p>
       </div>
-      <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+
       <OnlyRenderIfPermissions
         action={{
           type: "teach",
@@ -157,45 +171,62 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           id: course.id,
         }}
       >
-        <ul
-          className={css`
-            list-style-type: none;
-            padding-left: 0;
-          `}
-        >
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
-              aria-label={t("link-export-submissions")}
-            >
-              {t("link-export-submissions")}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
-              aria-label={t("link-export-user-details")}
-            >
-              {t("link-export-user-details")}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
-              aria-label={t("link-export-exercise-tasks")}
-            >
-              {t("link-export-exercise-tasks")}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
-              aria-label={t("link-export-course-instances")}
-            >
-              {t("link-export-course-instances")}
-            </a>
-          </li>
-        </ul>
+        <>
+          <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+          <Button
+            variant="secondary"
+            size="medium"
+            onClick={() => {
+              const sure = confirm(
+                t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
+              )
+              if (sure) {
+                teacherResetCourseForThemselvesMutation.mutate()
+              }
+            }}
+          >
+            {t("reset-my-own-progress-on-the-course")}
+          </Button>
+          <ul
+            className={css`
+              list-style-type: none;
+              padding-left: 0;
+            `}
+          >
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
+                aria-label={t("link-export-submissions")}
+              >
+                {t("link-export-submissions")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
+                aria-label={t("link-export-user-details")}
+              >
+                {t("link-export-user-details")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
+                aria-label={t("link-export-exercise-tasks")}
+              >
+                {t("link-export-exercise-tasks")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
+                aria-label={t("link-export-course-instances")}
+              >
+                {t("link-export-course-instances")}
+              </a>
+            </li>
+          </ul>
+        </>
       </OnlyRenderIfPermissions>
     </>
   )

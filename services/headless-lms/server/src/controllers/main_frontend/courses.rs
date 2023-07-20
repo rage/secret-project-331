@@ -1145,6 +1145,37 @@ pub async fn get_page_visit_datum_summary_by_countries(
 }
 
 /**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-for-themselves` - Allows a teacher to reset a course for themselves. Cannot be used to reset the course for others.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+#[generated_doc]
+pub async fn teacher_reset_course_for_themselves(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let mut tx = conn.begin().await?;
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+    for course_instance in course_instances {
+        models::course_instances::reset_course_instance_for_user(
+            &mut tx,
+            user.id,
+            course_instance.id,
+        )
+        .await?;
+    }
+
+    tx.commit().await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1284,5 +1315,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/page-visit-datum-summary-by-countries",
             web::get().to(get_page_visit_datum_summary_by_countries),
+        )
+        .route(
+            "/{course_id}/teacher-reset-course-for-themselves",
+            web::delete().to(teacher_reset_course_for_themselves),
         );
 }

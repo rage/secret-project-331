@@ -490,6 +490,207 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     Ok(course_instances)
 }
 
+/// Deletes submissions, peer reviews, points and etc. for a course and user. Main purpose is for teachers who are testing their course with their own accounts.
+pub async fn reset_course_instance_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        "
+UPDATE exercise_slide_submissions
+SET deleted_at = now()
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+  ",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE exercise_task_submissions
+SET deleted_at = now()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE user_id = $1
+      AND course_instance_id = $2
+  )
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE peer_review_queue_entries
+SET deleted_at = now()
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE peer_review_submissions
+SET deleted_at = now()
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE peer_review_question_submissions
+SET deleted_at = now()
+WHERE peer_review_submission_id IN (
+    SELECT id
+    FROM peer_review_submissions
+    WHERE user_id = $1
+      AND course_instance_id = $2
+  )
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE exercise_task_gradings
+SET deleted_at = now()
+WHERE exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id IN (
+        SELECT id
+        FROM exercise_slide_submissions
+        WHERE user_id = $1
+          AND course_instance_id = $2
+      )
+  )
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        "
+UPDATE user_exercise_states
+SET deleted_at = now()
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE user_exercise_task_states
+SET deleted_at = now()
+WHERE user_exercise_slide_state_id IN (
+    SELECT id
+    FROM user_exercise_slide_states
+    WHERE user_exercise_state_id IN (
+        SELECT id
+        FROM user_exercise_states
+        WHERE user_id = $1
+          AND course_instance_id = $2
+      )
+  )
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE user_exercise_slide_states
+SET deleted_at = now()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND course_instance_id = $2
+  )
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE teacher_grading_decisions
+SET deleted_at = now()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND course_instance_id = $2
+  )
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE course_module_completions
+SET deleted_at = now()
+WHERE user_id = $1
+AND course_instance_id = $2
+AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE course_module_completion_certificates
+SET deleted_at = now()
+WHERE user_id = $1
+AND course_instance_id = $2
+AND deleted_at IS NULL
+",
+        user_id,
+        course_instance_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

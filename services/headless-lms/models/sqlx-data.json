@@ -816,22 +816,6 @@
     },
     "query": "\nUPDATE glossary\nSET term = $1,\n  definition = $2\nWHERE id = $3\n"
   },
-  "0a62a23137c3746e1f2cdacdc618be4a61b36d81be748fbfd80edf621723c6b9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Text", "Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        "
-  },
   "0c395da11ae62743051ec6f45ac48e2a1a450c36bd37fbecf8ccb71a9fefdd7b": {
     "describe": {
       "columns": [
@@ -23341,6 +23325,22 @@
       }
     },
     "query": "\nUPDATE playground_examples\nSET updated_at = now(),\n  name = $1,\n  url = $2,\n  width = $3,\n  data = $4\nWHERE id = $5\nRETURNING *;\n    "
+  },
+  "ffd75e8c01536d9225e7447cb078d9365a5e4edf2dd53d9fefe8975d44c90930": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Text", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (old_url_path, course_id, deleted_at) DO UPDATE SET\n    destination_page_id = $2\nRETURNING id\n        "
   },
   "ffdcee66fc7df1125bb7f1fe5e05367efcef5525207938af4b7d69fc784f2396": {
     "describe": {

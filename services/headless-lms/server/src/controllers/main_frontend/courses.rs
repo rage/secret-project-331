@@ -749,7 +749,9 @@ pub async fn get_course_users_counts_by_exercise(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.#
+POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.
+
+Note that the page objects posted here might have the content omitted because it is not needed here and the content makes the request body to be very large.
 
 Creates redirects if url_path changes.
 */

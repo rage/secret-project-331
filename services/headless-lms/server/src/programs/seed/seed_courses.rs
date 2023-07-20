@@ -503,7 +503,7 @@ pub async fn seed_sample_course(
     )
     .await?;
 
-    url_redirections::insert(
+    url_redirections::upsert(
         &mut conn,
         PKeyPolicy::Generate,
         page2_id,
@@ -3206,7 +3206,7 @@ pub async fn seed_course_without_submissions(
     )
     .await?;
 
-    url_redirections::insert(
+    url_redirections::upsert(
         &mut conn,
         PKeyPolicy::Generate,
         page2_id,

@@ -15,6 +15,7 @@ import {
   QuizAnswer,
 } from "../../types/types"
 import Renderer from "../components/Renderer"
+import { ItemAnswerFeedback } from "../grading/feedback"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import {
@@ -30,8 +31,6 @@ import migrateModelSolutionSpecQuiz from "../util/migration/modelSolutionSpecQui
 import { migratePrivateSpecQuiz } from "../util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "../util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "../util/migration/userAnswerSpec"
-
-import { ItemAnswerFeedback } from "./api/grade"
 
 export interface SubmissionData {
   submission_result: StudentExerciseTaskSubmissionResult

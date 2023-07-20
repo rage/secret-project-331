@@ -28,7 +28,7 @@ import {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../types/quizTypes/publicSpec"
-import { ItemAnswerFeedback } from "../pages/api/grade"
+import { ItemAnswerFeedback } from "../grading/feedback"
 import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../shared-module/styles"
 import { COLUMN } from "../util/constants"

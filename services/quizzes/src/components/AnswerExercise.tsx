@@ -26,6 +26,7 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
     }
     return {
       itemAnswers: [],
+      version: "2",
     } satisfies UserAnswer
   }, [previousSubmission])
   const [userAnswer, setUserAnswer] = useState<UserAnswer | null>(intialAnswer)

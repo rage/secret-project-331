@@ -74,6 +74,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
     quiz: publicSpec,
     quiz_answer: previousSubmission || {
       itemAnswers: [],
+      version: "2",
     },
     // TODO: validate previous submission in the future
     quiz_answer_is_valid: !!previousSubmission,

@@ -104,6 +104,7 @@ const migrateQuizAnswer = (
   }
   const userAnswer: UserAnswer = {
     itemAnswers: [],
+    version: "2",
   }
 
   const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem | PublicSpecQuizItem } = {}

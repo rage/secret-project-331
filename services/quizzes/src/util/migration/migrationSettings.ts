@@ -1,5 +1,6 @@
 // Default value for choose-n exercise
 
+import { UserAnswer } from "../../../types/quizTypes/answer"
 import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
@@ -38,4 +39,12 @@ const isOldQuiz = (
   return !Object.prototype.hasOwnProperty.call(quiz, "version")
 }
 
-export { DEFAULT_N, isOldQuiz }
+const isOldUserAnswer = (userAnswer: UserAnswer | QuizAnswer): boolean => {
+  if (!userAnswer) {
+    return false
+  }
+  // eslint-disable-next-line i18next/no-literal-string
+  return !Object.prototype.hasOwnProperty.call(userAnswer, "version")
+}
+
+export { DEFAULT_N, isOldQuiz, isOldUserAnswer }

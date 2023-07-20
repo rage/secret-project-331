@@ -1,23 +1,16 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
-import { getResearchConsentByUserId } from "../services/backend/users"
+import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import Button from "../shared-module/components/Button"
-import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 
 const UserSettings: React.FC<React.PropsWithChildren> = () => {
   const { t } = useTranslation()
-  const loginStateContext = useContext(LoginStateContext)
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
 
-  const getUserConsent = useQuery({
-    queryKey: [`users-get-user-research-consent`],
-    queryFn: () => getResearchConsentByUserId(),
-    enabled: loginStateContext.signedIn === true,
-  })
+  const getUserConsent = useUserResearchConsentQuery()
 
   const handleResearchConsentButton = async () => {
     await getUserConsent.refetch()
@@ -30,7 +23,6 @@ const UserSettings: React.FC<React.PropsWithChildren> = () => {
 
   return (
     <div>
-      {/* eslint-disable-next-line i18next/no-literal-string */}
       <h1>{t("user-settings")}</h1>
 
       <div
@@ -45,12 +37,7 @@ const UserSettings: React.FC<React.PropsWithChildren> = () => {
         `}
       >
         <div>{t("research-consent-title")}:</div>
-        <Button
-          id={"changeReseachConstent"}
-          size="medium"
-          variant="primary"
-          onClick={handleResearchConsentButton}
-        >
+        <Button size="medium" variant="primary" onClick={handleResearchConsentButton}>
           {t("edit")}
         </Button>
         {openResearchForm && (

@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +6,7 @@ import { postUserResearchConsent } from "../../services/backend/users"
 import Button from "../../shared-module/components/Button"
 import Dialog from "../../shared-module/components/Dialog"
 import RadioButton from "../../shared-module/components/InputFields/RadioButton"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import ClipboardIcon from "../../shared-module/img/clipboard-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "../../shared-module/styles"
 import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
@@ -28,11 +28,14 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   if (consent === undefined && optionSelected) {
     setOptionSelected(false)
   }
-  const consentQuery = useQuery({
-    queryKey: [`users-user-research-consents`, consent],
-    queryFn: () => postUserResearchConsent(assertNotNullOrUndefined(consent)),
-    enabled: false,
-  })
+
+  const consentQuery = useToastMutation(
+    () => postUserResearchConsent(assertNotNullOrUndefined(consent)),
+    {
+      notify: true,
+      method: "POST",
+    },
+  )
 
   const handleConsentSelection = (value: boolean) => {
     setConsent(value)
@@ -41,7 +44,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
 
   const handleOnSubmit = () => {
     setResearchConsentFormOpen(false)
-    consentQuery.refetch()
+    consentQuery.mutate()
     if (afterSubmit != undefined) {
       afterSubmit()
     }
@@ -49,7 +52,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
 
   return (
     <div>
-      <Dialog open={researchConsentFormOpen} noPadding={true}>
+      <Dialog open={researchConsentFormOpen} noPadding={true} closeable={false}>
         <div
           className={css`
             display: flex;
@@ -123,7 +126,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             >
               mooc@cs.helsinki.fi
             </a>
-            ,
+            .
           </p>
 
           <div>

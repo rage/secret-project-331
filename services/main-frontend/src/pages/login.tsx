@@ -1,18 +1,17 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
-import { getResearchConsentByUserId } from "../services/backend/users"
+import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { login, userInfo } from "../shared-module/services/backend/auth"
+import { login } from "../shared-module/services/backend/auth"
 import { baseTheme } from "../shared-module/styles"
 import {
   useCurrentPagePathForReturnTo,
@@ -44,11 +43,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
     router.push(returnTo)
   }, [router, uncheckedReturnTo])
 
-  const getUserConsent = useQuery({
-    queryKey: [`users-get-user-research-consent`],
-    queryFn: () => getResearchConsentByUserId(),
-    enabled: loginStateContext.signedIn == true,
-  })
+  const getUserConsent = useUserResearchConsentQuery()
 
   if (getUserConsent.status == "error" && !showForm) {
     setShowForm(true)

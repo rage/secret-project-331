@@ -491,7 +491,7 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
 }
 
 /// Deletes submissions, peer reviews, points and etc. for a course and user. Main purpose is for teachers who are testing their course with their own accounts.
-pub async fn reset_course_instance_for_user(
+pub async fn reset_progress_on_course_instance_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_instance_id: Uuid,

@@ -270,8 +270,10 @@ export const postNewPageOrdering = async (courseId: string, pages: Page[]): Prom
 }
 
 /** Teacher can use this to delete their own submissions, points, etc but they cannot use it to delete those things for other users */
-export const teacherResetCourseForThemselves = async (courseId: string): Promise<void> => {
-  await mainFrontendClient.delete(`/courses/${courseId}/teacher-reset-course-for-themselves`)
+export const teacherResetCourseProgressForThemselves = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.delete(
+    `/courses/${courseId}/teacher-reset-course-progress-for-themselves`,
+  )
 }
 
 export const postNewChapterOrdering = async (

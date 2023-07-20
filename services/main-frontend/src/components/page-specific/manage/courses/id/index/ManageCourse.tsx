@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
 import {
   deleteCourse,
-  teacherResetCourseForThemselves,
+  teacherResetCourseProgressForThemselves,
 } from "../../../../../../services/backend/courses"
 import { Course } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
@@ -48,9 +48,9 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     },
   )
 
-  const teacherResetCourseForThemselvesMutation = useToastMutation(
+  const teacherResetCourseProgressForThemselvesMutation = useToastMutation(
     async () => {
-      await teacherResetCourseForThemselves(course.id)
+      await teacherResetCourseProgressForThemselves(course.id)
     },
     {
       notify: true,
@@ -181,7 +181,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
               )
               if (sure) {
-                teacherResetCourseForThemselvesMutation.mutate()
+                teacherResetCourseProgressForThemselvesMutation.mutate()
               }
             }}
           >

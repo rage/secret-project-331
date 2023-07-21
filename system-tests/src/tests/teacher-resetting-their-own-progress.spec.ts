@@ -11,7 +11,7 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
-  await page.getByRole("link", { name: "Navigate to course 'Preview unopened chapters'" }).click()
+  await page.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
   await page.getByRole("link", { name: "2 Page 2" }).click()
@@ -31,7 +31,7 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.getByRole("button", { name: "Reset my own progress on the course" }).click()
   await page.getByText("Successfully deleted").click()
   await page.goto(
-    "http://project-331.local/org/uh-mathstat/courses/preview-unopened-chapters/chapter-1/page-2",
+    "http://project-331.local/org/uh-mathstat/courses/reset-progress/chapter-1/page-2",
   )
   await page.getByText("Points:0/1").first().waitFor()
   await page.getByText("Points:1/1").waitFor({ state: "hidden" })

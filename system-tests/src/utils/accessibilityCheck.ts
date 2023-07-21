@@ -12,6 +12,7 @@ export default async function accessibilityCheck(
   // collect console.logs with all the console.group groupings
   const outputStream = new StoringStream()
   const customConsole = new Console(outputStream)
+  // @ts-expect-error: Conflcting page types from playwright and axe-core
   const results = await new AxeBuilder({ page }).analyze()
   let resultsFiltered = []
   if (Array.isArray(axeSkip)) {

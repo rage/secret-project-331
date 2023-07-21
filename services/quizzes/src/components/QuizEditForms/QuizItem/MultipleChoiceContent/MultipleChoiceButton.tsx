@@ -106,7 +106,6 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
 }) => {
   const { t } = useTranslation()
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
-  const storeItem = useTypedSelector((state) => state.editor.items[option.quizItemId])
   const variables = useTypedSelector((state) => state.editor.optionVariables[option.id])
   const dispatch = useDispatch()
   const [heightOffset, setHeightOffset] = useState<number | undefined>(undefined)
@@ -147,35 +146,29 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
           </StyledBox>
         </Fade>
       </StyledModal>
-      {storeItem.allAnswersCorrect ? (
-        <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-          {storeOption.title}
-        </CorrectButton>
-      ) : (
-        <>
-          {storeOption.correct ? (
-            <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-              <ParsedText
-                text={storeOption.title}
-                errorText={t("quiz-title-invalid-format")}
-                inline
-                parseLatex
-                parseMarkdown
-              />
-            </CorrectButton>
-          ) : (
-            <IncorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-              <ParsedText
-                text={storeOption.title}
-                errorText={t("quiz-title-invalid-format")}
-                inline
-                parseLatex
-                parseMarkdown
-              />
-            </IncorrectButton>
-          )}
-        </>
-      )}
+      <>
+        {storeOption.correct ? (
+          <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
+            <ParsedText
+              text={storeOption.title}
+              errorText={t("quiz-title-invalid-format")}
+              inline
+              parseLatex
+              parseMarkdown
+            />
+          </CorrectButton>
+        ) : (
+          <IncorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
+            <ParsedText
+              text={storeOption.title}
+              errorText={t("quiz-title-invalid-format")}
+              inline
+              parseLatex
+              parseMarkdown
+            />
+          </IncorrectButton>
+        )}
+      </>
     </>
   )
 }

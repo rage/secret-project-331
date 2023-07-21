@@ -171,5 +171,21 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let reset_progress = seed_sample_course(
+        Uuid::parse_str("841ea3f5-0269-4146-a4c6-4fd2f51e4150")?,
+        "Reset progress",
+        "reset-progress",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(reset_progress),
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

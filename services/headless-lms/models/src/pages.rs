@@ -3141,14 +3141,14 @@ pub async fn reorder_chapters(
                     .execute(&mut tx)
                     .await?;
 
-                    sqlx::query!(
-                            "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
-                            page.id,
-                            old_path,
-                            course_id
-                        )
-                        .execute(&mut tx)
-                        .await?;
+                    crate::url_redirections::upsert(
+                        &mut tx,
+                        PKeyPolicy::Generate,
+                        page.id,
+                        &old_path,
+                        course_id,
+                    )
+                    .await?;
                 }
             } else {
                 return Err(ModelError::new(

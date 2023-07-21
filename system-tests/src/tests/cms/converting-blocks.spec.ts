@@ -11,10 +11,7 @@ test("Can convert blocks", async ({ page }) => {
     .click()
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
-  await page
-    .locator(".css-1oaaogx > .css-noo2yn > .css-nyz7p3 > .css-1fytp2i-PrimaryButton")
-    .first()
-    .click()
+  await page.getByRole("button", { name: "New page" }).nth(2).click()
   await page.getByLabel("Title  *").fill("Test page")
   await page.getByRole("button", { name: "Create" }).click()
   await page

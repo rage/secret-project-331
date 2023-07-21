@@ -816,21 +816,15 @@
     },
     "query": "\nUPDATE glossary\nSET term = $1,\n  definition = $2\nWHERE id = $3\n"
   },
-  "0a62a23137c3746e1f2cdacdc618be4a61b36d81be748fbfd80edf621723c6b9": {
+  "0ac267b387248d9f526d16e005cd7581da0646944aa7a97c0f861afe899f3c41": {
     "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
+      "columns": [],
+      "nullable": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Text", "Uuid"]
+        "Left": ["Uuid", "Uuid"]
       }
     },
-    "query": "\nINSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        "
+    "query": "\nUPDATE user_exercise_states\nSET deleted_at = now()\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n"
   },
   "0c395da11ae62743051ec6f45ac48e2a1a450c36bd37fbecf8ccb71a9fefdd7b": {
     "describe": {
@@ -4844,6 +4838,16 @@
     },
     "query": "\nUPDATE student_countries\nSET deleted_at = now()\nWHERE id = $1\n      "
   },
+  "42b4cf229a5eee6de30da086f487c971d1a8989926a0f35256bd298b9c79b6d4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercise_slide_submissions\nSET deleted_at = now()\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n  "
+  },
   "436363568885b8b7f969a542eea4f9796871c9f2a319023c5a0f12e7613a88d1": {
     "describe": {
       "columns": [],
@@ -5336,6 +5340,16 @@
       }
     },
     "query": "\nSELECT id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n"
+  },
+  "46baab67e600d6ee84312a6c53a493d7520957e27a76e9bf8188b0ae0844b1a0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE peer_review_question_submissions\nSET deleted_at = now()\nWHERE peer_review_submission_id IN (\n    SELECT id\n    FROM peer_review_submissions\n    WHERE user_id = $1\n      AND course_instance_id = $2\n  )\n  AND deleted_at IS NULL\n"
   },
   "4713ef1238437d6952f073fce7db826fac893b938edacba02855eeef03ae1133": {
     "describe": {
@@ -8048,6 +8062,16 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  hidden,\n  page_language_group_id\nFROM pages\nWHERE course_id = $1\n  AND hidden IS DISTINCT FROM $2\n  AND deleted_at IS NULL\n    "
   },
+  "67434094ef52c37f9526ff5cf3ff6ae8bdb13a10d23476976f36c17b0a4030a6": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE teacher_grading_decisions\nSET deleted_at = now()\nWHERE user_exercise_state_id IN (\n    SELECT id\n    FROM user_exercise_states\n    WHERE user_id = $1\n      AND course_instance_id = $2\n  )\n  AND deleted_at IS NULL\n"
+  },
   "677aa28a43686947893f1a17b1ede4bc06c3d1d980b246fe2b41918f4ae838aa": {
     "describe": {
       "columns": [
@@ -8078,6 +8102,16 @@
       }
     },
     "query": "\nINSERT INTO page_history (\n    id,\n    page_id,\n    title,\n    content,\n    history_change_reason,\n    author_user_id,\n    restored_from_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n        "
+  },
+  "6780ef0878bec62e6542834a3184f3c1a5c6a934147fa3cedf9ea770d4fbb093": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE user_exercise_slide_states\nSET deleted_at = now()\nWHERE user_exercise_state_id IN (\n    SELECT id\n    FROM user_exercise_states\n    WHERE user_id = $1\n      AND course_instance_id = $2\n  )\n  AND deleted_at IS NULL\n"
   },
   "67d2d1da97dc5c1a26f920551b36f7f8c7d92be95bf05920aa12d09d2e3920ba": {
     "describe": {
@@ -11048,6 +11082,16 @@
       }
     },
     "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n        "
+  },
+  "7bddd472988845dad2057a8bb70d570d37b68efc29a61be4c01e7c589a398091": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_module_completion_certificates\nSET deleted_at = now()\nWHERE user_id = $1\nAND course_instance_id = $2\nAND deleted_at IS NULL\n"
   },
   "7c2cc58d398cf1584bac88ff9c7786d687b3909482e8d3245ea263cb54ede227": {
     "describe": {
@@ -15325,6 +15369,16 @@
     },
     "query": "\nSELECT *\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    "
   },
+  "acc90e3b064af111f148c11c47b6a5cace02d177c95e0945139398530efe4299": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE peer_review_submissions\nSET deleted_at = now()\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n"
+  },
   "ad05712486467ad76850b5d365d57b87a302263d16b4bdc830f02e8a1092e6cc": {
     "describe": {
       "columns": [
@@ -15666,6 +15720,16 @@
       }
     },
     "query": "\nUPDATE course_modules\nSET name = $1\nWHERE id = $2\n"
+  },
+  "b1aa0a717b12afa5026916399b755848174729d079696ac307a5066e62eee49f": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercise_task_gradings\nSET deleted_at = now()\nWHERE exercise_task_submission_id IN (\n    SELECT id\n    FROM exercise_task_submissions\n    WHERE exercise_slide_submission_id IN (\n        SELECT id\n        FROM exercise_slide_submissions\n        WHERE user_id = $1\n          AND course_instance_id = $2\n      )\n  )\n  AND deleted_at IS NULL\n"
   },
   "b27922e66ed8dd5b05c89d85f50c8b9fb2620fac9a78fe0f99d7372a60c6ccd3": {
     "describe": {
@@ -17873,6 +17937,16 @@
     },
     "query": "\n        INSERT INTO exercises (\n            id,\n            exam_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          uuid_generate_v5($1, chapter_id::text),\n          id\n        FROM exercises\n        WHERE exam_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            "
   },
+  "c96653a4dda74a1d04b4df016cbb8a3eea3f0e72f75a8fd9d623b616c530e2af": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE user_exercise_task_states\nSET deleted_at = now()\nWHERE user_exercise_slide_state_id IN (\n    SELECT id\n    FROM user_exercise_slide_states\n    WHERE user_exercise_state_id IN (\n        SELECT id\n        FROM user_exercise_states\n        WHERE user_id = $1\n          AND course_instance_id = $2\n      )\n  )\n  AND deleted_at IS NULL\n"
+  },
   "c9c3c8d57edc037d1bf1dc13a8eb51d0d179798dc25f1f7714850b345053b5d2": {
     "describe": {
       "columns": [
@@ -18938,6 +19012,16 @@
       }
     },
     "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    "
+  },
+  "d314527e01532add56aaf9ef089b046085e6cf22a326f162c6a7fe9a016974ad": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_module_completions\nSET deleted_at = now()\nWHERE user_id = $1\nAND course_instance_id = $2\nAND deleted_at IS NULL\n"
   },
   "d3aa44e79d429e3d8d35e1ada843ce14252e92cc1cdbf0ce055c152d15cfd68d": {
     "describe": {
@@ -22436,6 +22520,16 @@
     },
     "query": "\nINSERT INTO email_templates (name, course_instance_id, subject)\nVALUES ($1, $2, $3)\nRETURNING *\n"
   },
+  "f7bd3e9aed01244058285d71054a3237431444ba8862222da6c37ff9e0c1ebc9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercise_task_submissions\nSET deleted_at = now()\nWHERE exercise_slide_submission_id IN (\n    SELECT id\n    FROM exercise_slide_submissions\n    WHERE user_id = $1\n      AND course_instance_id = $2\n  )\n  AND deleted_at IS NULL\n"
+  },
   "f7c5b5edadc826e53946fe776f9f37de13b4499f24595e605bc54f24996d9f4c": {
     "describe": {
       "columns": [],
@@ -22577,6 +22671,16 @@
       }
     },
     "query": "\nSELECT *\nFROM exercise_services\nWHERE id = $1\n  "
+  },
+  "f97217b757172032e9368d1091ae4b62783452c4e5924c56d37c3c3ede4c1dc4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE peer_review_queue_entries\nSET deleted_at = now()\nWHERE user_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n"
   },
   "f9f28081a3acd033a648a9e80a8db64a0810eb2f93e59842b32d44ed8e2767dc": {
     "describe": {
@@ -23341,6 +23445,22 @@
       }
     },
     "query": "\nUPDATE playground_examples\nSET updated_at = now(),\n  name = $1,\n  url = $2,\n  width = $3,\n  data = $4\nWHERE id = $5\nRETURNING *;\n    "
+  },
+  "ffd75e8c01536d9225e7447cb078d9365a5e4edf2dd53d9fefe8975d44c90930": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Text", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (old_url_path, course_id, deleted_at) DO UPDATE SET\n    destination_page_id = $2\nRETURNING id\n        "
   },
   "ffdcee66fc7df1125bb7f1fe5e05367efcef5525207938af4b7d69fc784f2396": {
     "describe": {

@@ -384,7 +384,7 @@ pub async fn seed_organization_uh_cs(
         &mut conn,
         "Automatic course exam".to_string(),
         Some(Utc::now()),
-        Some(Utc::now() + Duration::minutes(10)),
+        Some(Utc::now() + Duration::minutes(120)),
         1,
         uh_cs_organization_id,
         cs_intro,

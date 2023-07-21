@@ -223,7 +223,7 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
                   onChange={() => dispatch(toggledAllAnswersCorrect(storeItem.id))}
                 />
               }
-              label={t("all-answers-correct")}
+              label={t("give-full-points-even-if-answer-incorrect")}
             />
           </FormGroup>
         </AllAnswersCorrectField>

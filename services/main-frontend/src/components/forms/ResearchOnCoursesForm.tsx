@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,7 +8,6 @@ import Button from "../../shared-module/components/Button"
 import Dialog from "../../shared-module/components/Dialog"
 import RadioButton from "../../shared-module/components/InputFields/RadioButton"
 import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import ClipboardIcon from "../../shared-module/img/clipboard-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "../../shared-module/styles"
 import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 
@@ -63,7 +63,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             color: ${baseTheme.colors.gray[700]};
           `}
         >
-          <ClipboardIcon />
+          <LinesClipboard size={21} />
           <h2
             className={css`
               font-family: ${headingFont};

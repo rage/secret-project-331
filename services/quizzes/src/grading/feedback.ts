@@ -64,6 +64,17 @@ const submissionFeedback = (
         ? multipleChoiceQuizItem.successMessage
         : multipleChoiceQuizItem.failureMessage
 
+      if (!multipleChoiceUserAnswer.selectedOptionIds) {
+        return {
+          quiz_item_id: null,
+          quiz_item_feedback: null,
+          quiz_item_option_feedbacks: null,
+          quiz_item_correct: null,
+          timeline_item_feedbacks: null,
+          score: 1,
+        }
+      }
+
       return {
         timeline_item_feedbacks: null,
         quiz_item_id: multipleChoiceQuizItem.id,
@@ -72,7 +83,8 @@ const submissionFeedback = (
         score: itemGrading.correctnessCoefficient,
         quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
           (optionId): OptionAnswerFeedback => {
-            const option = multipleChoiceQuizItem.options.find((option) => option.id === optionId)
+            const option =
+              multipleChoiceQuizItem.options.find((option) => option.id === optionId) || null
 
             if (!option) {
               return {

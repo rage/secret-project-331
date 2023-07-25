@@ -18,6 +18,12 @@ import { assessMultipleChoiceDropdown } from "./multiple-choice-dropdown"
 import { assessTimeline } from "./timeline"
 
 const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemAnswerGrading[] => {
+  if (!quizAnswer) {
+    throw new Error("Quiz answer was not provided")
+  }
+  if (!quiz) {
+    throw new Error("Quiz was not provided")
+  }
   return quizAnswer.itemAnswers.map((itemAnswer) => {
     const quizItem = quiz.items.find((quizItem) => quizItem.id === itemAnswer.quizItemId)
     if (!quizItem) {

@@ -48,7 +48,13 @@ test("Research consent form is visible on login, if not yet answered", async ({
 })
 
 test("Can change research consent", async ({ page }) => {
-  await page.goto("http://project-331.local/org/uh-cs/courses/advanced-course-instance-management")
+  await page.goto("http://project-331.local/")
+  await page
+    .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
+    .click()
+  await page.getByRole("link", { name: "Navigate to course 'Introduction to citations'" }).click()
+  await selectCourseInstanceIfPrompted(page)
+
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "Log in" }).click()
   await page.click(`label:has-text("Email")`)

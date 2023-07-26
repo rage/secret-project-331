@@ -75,6 +75,7 @@ pub mod user_details;
 pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
+pub mod user_research_consents;
 pub mod users;
 
 pub mod error;

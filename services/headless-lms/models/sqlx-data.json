@@ -5444,6 +5444,47 @@
     },
     "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT ud.email,\n      u.id AS user_id,\n      c.chapter_number,\n      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN user_details ud ON ud.user_id = u.id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_instance_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY ud.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n"
   },
+  "49dafb59d714ea09cb8693d014aadcb7c60ce112d3a883dc739b551e7b7ea96e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM user_research_consents\nWHERE user_id = $1\nAND deleted_at IS NULL\n    "
+  },
   "49fb36de200703e85a0cc8687d51bbfaa8d3c0303b9c09d0e5011b20926f9f24": {
     "describe": {
       "columns": [
@@ -15054,6 +15095,47 @@
       }
     },
     "query": "\nSELECT id,\ncreated_at,\nupdated_at,\nexercise_task_submission_id,\ncourse_id,\nexam_id,\nexercise_id,\nexercise_task_id,\ngrading_priority,\nscore_given,\ngrading_progress as \"grading_progress: _\",\nunscaled_score_given,\nunscaled_score_maximum,\ngrading_started_at,\ngrading_completed_at,\nfeedback_json,\nfeedback_text,\ndeleted_at\nFROM exercise_task_gradings\nWHERE deleted_at IS NULL\n  AND exercise_task_submission_id IN (\n    SELECT id\n    FROM exercise_task_submissions\n    WHERE exercise_slide_submission_id = $1\n  )\n"
+  },
+  "a8ea36034543bcc580413790b2bf159402da39f943469c0fe24efc63597b07e1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO user_research_consents (\n    id,\n    user_id,\n    research_consent\n)\nVALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at)\nDO UPDATE SET research_consent = $3\nRETURNING *;\n    "
   },
   "a963c734bc1f9c48be192fa5c8537d461c9ded7412268b17b64085e4f44b174a": {
     "describe": {

@@ -21,7 +21,6 @@ const CourseLanguageVersionsList: React.FC<
   const getCourseLanguageVersions = useQuery([formatLanguageVersionsQueryKey(courseId)], () =>
     fetchCourseLanguageVersions(courseId),
   )
-
   return (
     <>
       {getCourseLanguageVersions.isError && (

@@ -184,6 +184,10 @@ pub async fn authenticate_test_user(
         && password == "teaching-and-learning-services"
     {
         crate::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
+    } else if email == "student-without-research-consent@example.com"
+        && password == "student-without-research-consent"
+    {
+        crate::users::get_by_email(conn, "student-without-research-consent@example.com").await?
     } else {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,

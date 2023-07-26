@@ -1597,6 +1597,15 @@ export interface UserExerciseState {
   selected_exercise_slide_id: string | null
 }
 
+export interface UserResearchConsent {
+  id: string
+  user_id: string
+  research_consent: boolean
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
 export interface User {
   id: string
   created_at: Date

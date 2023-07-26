@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
+import { Link as LinkIcon } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseSlideSubmission } from "../../../../../../shared-module/bindings"
-import LinkIcon from "../../../../../../shared-module/img/link.svg"
 import {
   baseTheme,
   fontWeights,
@@ -114,6 +114,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
                   }}
                 >
                   <LinkIcon
+                    size={20}
                     className={css`
                       color: #868b93;
                     `}

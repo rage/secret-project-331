@@ -16,7 +16,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await selectCourseInstanceIfPrompted(page)
 
   await page.getByRole("button", { name: "Open menu" }).click()
-  await page.getByRole("button", { name: "Settings" }).click()
+  await page.getByRole("button", { name: "Settings", exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -39,7 +39,7 @@ test("test", async ({ page, headless }, testInfo) => {
   )
 
   // await page.getByRole("button", { name: "Avaa valikko" }).click()
-  await page.getByRole("button", { name: "Asetukset" }).click()
+  await page.getByRole("button", { name: "Asetukset", exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

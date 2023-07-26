@@ -213,6 +213,7 @@ import {
   UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
+  UserResearchConsent,
   UserRole,
   UserWithModuleCompletions,
 } from "./bindings"
@@ -2834,6 +2835,19 @@ export function isUserExerciseState(obj: unknown): obj is UserExerciseState {
     (isReviewingStage(typedObj["reviewing_stage"]) as boolean) &&
     (typedObj["selected_exercise_slide_id"] === null ||
       typeof typedObj["selected_exercise_slide_id"] === "string")
+  )
+}
+
+export function isUserResearchConsent(obj: unknown): obj is UserResearchConsent {
+  const typedObj = obj as UserResearchConsent
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["research_consent"] === "boolean" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 

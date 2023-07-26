@@ -231,6 +231,7 @@ fn models(target: &mut File) {
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
+        user_research_consents::UserResearchConsent,
         users::User,
 
         page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,

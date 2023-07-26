@@ -102,6 +102,21 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
               {t("settings")}
             </Button>
           </li>
+
+          <li>
+            <a href={"/user-settings"}>
+              <Button
+                className={css`
+                  color: ${baseTheme.colors.green[600]}!important;
+                `}
+                size="medium"
+                variant="primary"
+              >
+                {t("user-settings")}
+              </Button>
+            </a>
+          </li>
+
           <li className={cx(styles)}>
             <Button
               className={css`

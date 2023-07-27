@@ -8,6 +8,7 @@ import { PublicSpecQuizItemMultiplechoice } from "../../../types/quizTypes/publi
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
+import { FlexDirection, sanitizeFlexDirection } from "../../util/css-sanitization"
 import { orderArrayWithId } from "../../util/randomizer"
 import MarkdownText from "../MarkdownText"
 import ParsedText from "../ParsedText"
@@ -60,8 +61,10 @@ const MultipleChoiceSubmission: React.FC<
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoice
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width. Sanitized since the value is used in CSS.
-  const direction: "row" | "column" =
-    public_quiz_item.optionDisplayDirection === "vertical" ? "row" : "column"
+  const direction: FlexDirection = sanitizeFlexDirection(
+    public_quiz_item.optionDisplayDirection,
+    "row",
+  )
 
   let quiz_options = public_quiz_item.options
   if (public_quiz_item.shuffleOptions) {
@@ -142,9 +145,10 @@ const MultipleChoiceSubmission: React.FC<
                     <div
                       className={css`
                         display: flex;
-                        flex-direction: ${public_quiz_item.optionDisplayDirection === "vertical"
-                          ? "row"
-                          : "column"};
+                        flex-direction: ${sanitizeFlexDirection(
+                          public_quiz_item.optionDisplayDirection,
+                          "row",
+                        )};
                       `}
                     >
                       <div>{correctAnswer == true && t("correct-option")}</div>

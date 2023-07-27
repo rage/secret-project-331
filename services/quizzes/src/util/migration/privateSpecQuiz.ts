@@ -14,6 +14,7 @@ import {
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
 import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../../types/types"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 
@@ -82,7 +83,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        optionDisplayDirection: quizItem.direction == "row" ? "horizontal" : "vertical",
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
@@ -181,7 +182,7 @@ export const migratePrivateSpecQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
     awardPointsEvenIfWrong: oldQuiz.awardPointsEvenIfWrong,
     grantPointsPolicy: oldQuiz.grantPointsPolicy,
     submitMessage: oldQuiz.submitMessage,
-    quizItemDisplayDirection: oldQuiz.direction == "column" ? "vertical" : "horizontal",
+    quizItemDisplayDirection: sanitizeQuizDirection(oldQuiz.direction),
     items: [],
   }
 

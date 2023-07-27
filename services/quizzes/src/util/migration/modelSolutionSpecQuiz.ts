@@ -16,6 +16,7 @@ import {
   ModelSolutionQuiz as OldModelSolutionQuiz,
   ModelSolutionQuizItem as OldModelSolutionQuizItem,
 } from "../../../types/types"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
@@ -45,7 +46,7 @@ const migrateModelSolutionSpecQuizItem = (
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        optionDisplayDirection: quizItem.direction == "row" ? "horizontal" : "vertical",
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,

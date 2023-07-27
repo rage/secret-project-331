@@ -14,6 +14,7 @@ import {
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
 import { PublicQuiz, PublicQuizItem } from "../../../types/types"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 
@@ -37,7 +38,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
         type: "multiple-choice",
         allowSelectingMultipleOptions: quizItem.multi,
         body: quizItem.body,
-        optionDisplayDirection: quizItem.direction == "row" ? "horizontal" : "vertical",
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         options: quizItem.options.map(
@@ -141,7 +142,7 @@ const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz): PublicSpecQuiz =>
     body: oldPublicSpecQuiz.body,
     items: [],
     title: oldPublicSpecQuiz.title,
-    quizItemDisplayDirection: oldPublicSpecQuiz.direction == "row" ? "horizontal" : "vertical",
+    quizItemDisplayDirection: sanitizeQuizDirection(oldPublicSpecQuiz.direction),
   }
   oldPublicSpecQuiz.items.forEach((quizItem) => {
     PublicSpecQuiz.items.push(migratePublicSpecQuizItem(quizItem))

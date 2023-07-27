@@ -1449,6 +1449,20 @@ export interface RepositoryExercise {
   download_url: string
 }
 
+export interface NewResearchForm {
+  course_id: string
+  content: unknown
+}
+
+export interface ResearchForm {
+  id: string
+  course_id: string
+  content: unknown
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
 export type RoleDomain =
   | { tag: "Global" }
   | { tag: "Organization"; id: string }

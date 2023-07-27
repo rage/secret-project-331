@@ -1368,6 +1368,47 @@
     },
     "query": "\nSELECT date_part('isodow', created_at)::integer isodow,\n  date_part('hour', created_at)::integer \"hour\",\n  count(*)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nAND deleted_at IS NULL\nGROUP BY isodow,\n  \"hour\"\nORDER BY isodow,\n  hour;\n          "
   },
+  "16b7e287146a30307ebf3939836f94aacc5228beaff65827424acf5a8ebd26f7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "content",
+          "ordinal": 2,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Jsonb"]
+      }
+    },
+    "query": "\nINSERT INTO course_specific_research_consent_forms (\n    id,\n    course_id,\n    content\n  )\nVALUES ($1, $2, $3) ON CONFLICT (course_id, deleted_at)\nDO UPDATE SET content = $3\nRETURNING *\n"
+  },
   "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e": {
     "describe": {
       "columns": [
@@ -21212,6 +21253,47 @@
       }
     },
     "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  "
+  },
+  "eaf01c818777d085e86dbea4dc82a2064c17ea6e9d811b1de91810dd0a2ff6e3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "content",
+          "ordinal": 2,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT * FROM course_specific_research_consent_forms\nWHERE course_id = $1\nAND deleted_at IS NULL\n"
   },
   "eb5c16a276498ed4260c1b31fcd67d79dfcb0e517003bc8d8b5b5732646d44e3": {
     "describe": {

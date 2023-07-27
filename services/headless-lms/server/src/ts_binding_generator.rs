@@ -212,11 +212,12 @@ fn models(target: &mut File) {
         regradings::RegradingInfo,
         regradings::RegradingSubmissionInfo,
         repository_exercises::RepositoryExercise,
+        research_forms::NewResearchForm,
+        research_forms::ResearchForm,
         roles::RoleDomain,
         roles::RoleInfo,
         roles::RoleUser,
         roles::UserRole,
-
         student_countries::StudentCountry,
 
         teacher_grading_decisions::NewTeacherGradingDecision,

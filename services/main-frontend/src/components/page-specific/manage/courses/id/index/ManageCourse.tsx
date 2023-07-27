@@ -225,6 +225,11 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 {t("link-export-course-instances")}
               </a>
             </li>
+            <li>
+              <a href={`/cms/courses/${course.id}/`} aria-label={"Edit research form"}>
+                {"Edit research form"}
+              </a>
+            </li>
           </ul>
         </>
       </OnlyRenderIfPermissions>

@@ -136,6 +136,7 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   NewRegrading,
+  NewResearchForm,
   NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
@@ -179,6 +180,7 @@ import {
   RegradingInfo,
   RegradingSubmissionInfo,
   RepositoryExercise,
+  ResearchForm,
   Resource,
   ReviewingStage,
   RoleDomain,
@@ -2606,6 +2608,26 @@ export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {
     Array.isArray(typedObj["checksum"]) &&
     typedObj["checksum"].every((e: any) => typeof e === "number") &&
     typeof typedObj["download_url"] === "string"
+  )
+}
+
+export function isNewResearchForm(obj: unknown): obj is NewResearchForm {
+  const typedObj = obj as NewResearchForm
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isResearchForm(obj: unknown): obj is ResearchForm {
+  const typedObj = obj as ResearchForm
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 

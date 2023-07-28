@@ -12,6 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@bytedance/tar-wasm": "^0.1.7",
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",

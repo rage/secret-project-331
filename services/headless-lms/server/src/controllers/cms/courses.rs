@@ -1,6 +1,9 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
+use models::{
+    pages::{Page, PageVisibility},
+    peer_review_configs::{self, CmsPeerReviewConfiguration},
+};
 
 use crate::prelude::*;
 
@@ -94,6 +97,29 @@ async fn put_course_default_peer_review_configuration(
 }
 
 /**
+GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    let res = models::pages::get_all_by_course_id_and_visibility(
+        &mut conn,
+        *course_id,
+        PageVisibility::Any,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -109,5 +135,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/default-peer-review",
             web::put().to(put_course_default_peer_review_configuration),
-        );
+        )
+        .route("/{course_id}/pages", web::get().to(get_all_pages));
 }

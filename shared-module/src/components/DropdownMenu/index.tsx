@@ -61,7 +61,7 @@ const DropdownMenu: React.FC<
       }
       setExpanded(false)
     },
-    [expanded, popperElement],
+    [expanded, referenceElement],
   )
 
   useEffect(() => {
@@ -80,7 +80,6 @@ const DropdownMenu: React.FC<
     >
       <button
         aria-expanded={expanded}
-        // @ts-expect-error: popper is supposed to be used this way, see the documentation
         ref={setReferenceElement}
         onClick={() => {
           setExpanded(!expanded)
@@ -109,7 +108,6 @@ const DropdownMenu: React.FC<
           className={css`
             z-index: 200;
           `}
-          // @ts-expect-error: popper is supposed to be used this way, see the documentation
           ref={setPopperElement}
         >
           <ul

@@ -25,10 +25,13 @@ const execute = async (
   })
 
   return new Promise<OutputData>((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      kill(cprocess.pid as number)
-      reject("Process didn't seem to finish or was taking a really long time.")
-    }, 20 * 60 * 1000)
+    const timeout = setTimeout(
+      () => {
+        kill(cprocess.pid as number)
+        reject("Process didn't seem to finish or was taking a really long time.")
+      },
+      20 * 60 * 1000,
+    )
 
     // process events
     cprocess.on("error", (error) => {

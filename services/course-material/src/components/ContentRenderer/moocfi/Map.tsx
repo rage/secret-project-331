@@ -182,13 +182,11 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
       if (svgElement && findCountry) {
         const formattedSelectedCountryCode = selectedCountryCode?.toUpperCase()
-        const text = countryList.find(
-          (country) => country.value === formattedSelectedCountryCode,
-        )?.label
+        const text = countryList.find((country) => country.value === formattedSelectedCountryCode)
+          ?.label
 
-        const count = countryCodeCount.find(
-          (country) => country.code === `.${selectedCountryCode}`,
-        )?.count
+        const count = countryCodeCount.find((country) => country.code === `.${selectedCountryCode}`)
+          ?.count
 
         if (evt.type === "mouseover") {
           svgElement.innerHTML = `<title style=''>${text} - ${count} student</title>`

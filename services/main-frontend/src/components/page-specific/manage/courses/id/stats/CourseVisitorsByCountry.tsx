@@ -40,10 +40,13 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     if (totalCountsByCountry.length > 15) {
       totalCountsByCountry = totalCountsByCountry.filter((d) => d.num_visitors >= 10)
     }
-    const totalCountsByCountryObject = totalCountsByCountry.reduce((acc, d) => {
-      acc[d.country ?? "null"] = d.num_visitors
-      return acc
-    }, {} as Record<string, number>)
+    const totalCountsByCountryObject = totalCountsByCountry.reduce(
+      (acc, d) => {
+        acc[d.country ?? "null"] = d.num_visitors
+        return acc
+      },
+      {} as Record<string, number>,
+    )
     return totalCountsByCountryObject
   }, [query.data])
 

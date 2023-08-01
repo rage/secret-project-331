@@ -117,7 +117,9 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
       >
         <div
           className={css`
-            font-family: Josefin Sans, sans-serif;
+            font-family:
+              Josefin Sans,
+              sans-serif;
             font-style: normal;
             font-weight: 600;
             font-size: 22px;
@@ -157,7 +159,9 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                   >
                     <span
                       className={css`
-                        font-family: Space Mono, sans-serif;
+                        font-family:
+                          Space Mono,
+                          sans-serif;
                         font-style: normal;
                         font-weight: normal;
                         font-size: 16px;

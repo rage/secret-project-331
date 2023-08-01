@@ -105,7 +105,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       >
         <div
           className={css`
-            font-family: Josefin Sans, sans-serif;
+            font-family:
+              Josefin Sans,
+              sans-serif;
             font-size: 30px;
             font-style: normal;
             font-weight: 600;

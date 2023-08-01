@@ -73,7 +73,9 @@ const CourseInstancePointsList: React.FC<
         flex-direction: column;
         color: #707070;
         font-weight: 600;
-        font-family: Josefin Sans, sans-serif;
+        font-family:
+          Josefin Sans,
+          sans-serif;
 
         margin-top: 40px;
         ${respondToOrLarger.sm} {

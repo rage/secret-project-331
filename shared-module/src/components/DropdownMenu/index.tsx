@@ -37,6 +37,9 @@ const DropdownMenu: React.FC<
       {
         name: "preventOverflow",
         enabled: true,
+        options: {
+          padding: 8,
+        },
       },
       {
         name: "flip",

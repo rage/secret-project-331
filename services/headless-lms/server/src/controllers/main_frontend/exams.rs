@@ -150,10 +150,10 @@ async fn duplicate_exam(
     .await?;
 
     let mut tx = conn.begin().await?;
-    let new_exam = models::library::copying::copy_exam(&mut *tx, &exam_id, &new_exam).await?;
+    let new_exam = models::library::copying::copy_exam(&mut tx, &exam_id, &new_exam).await?;
 
     models::roles::insert(
-        &mut *tx,
+        &mut tx,
         user.id,
         models::roles::UserRole::Teacher,
         models::roles::RoleDomain::Exam(new_exam.id),

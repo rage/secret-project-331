@@ -306,16 +306,16 @@ async fn create_exam(
 
     let new_exam = payload.0;
     let token = authorize(
-        &mut *tx,
+        &mut tx,
         Act::CreateCoursesOrExams,
         Some(user.id),
         Res::Organization(new_exam.organization_id),
     )
     .await?;
 
-    let new_exam_id = models::exams::insert(&mut *tx, PKeyPolicy::Generate, &new_exam).await?;
+    let new_exam_id = models::exams::insert(&mut tx, PKeyPolicy::Generate, &new_exam).await?;
     pages::insert_exam_page(
-        &mut *tx,
+        &mut tx,
         new_exam_id,
         NewPage {
             chapter_id: None,
@@ -335,7 +335,7 @@ async fn create_exam(
     .await?;
 
     models::roles::insert(
-        &mut *tx,
+        &mut tx,
         user.id,
         models::roles::UserRole::Teacher,
         models::roles::RoleDomain::Exam(new_exam_id),

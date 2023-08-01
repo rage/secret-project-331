@@ -57,12 +57,12 @@ async fn process_ended_exam(
         if already_processed_courses.contains(&course_id) {
             continue;
         } else {
-            models::library::progressing::process_all_course_completions(&mut *tx, course_id)
+            models::library::progressing::process_all_course_completions(&mut tx, course_id)
                 .await?;
             already_processed_courses.insert(course_id);
         }
     }
-    models::ended_processed_exams::upsert(&mut *tx, exam_id).await?;
+    models::ended_processed_exams::upsert(&mut tx, exam_id).await?;
     tx.commit().await?;
     Ok(())
 }

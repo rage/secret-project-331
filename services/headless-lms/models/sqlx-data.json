@@ -18019,6 +18019,22 @@
     },
     "query": "\n        INSERT INTO exercises (\n            id,\n            exam_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          uuid_generate_v5($1, chapter_id::text),\n          id\n        FROM exercises\n        WHERE exam_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            "
   },
+  "c7cbaed0bbd9671ac5ff0b1c8446c34a9fbba23cafe47ef8469234d4cdc66cb2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT COUNT(DISTINCT user_id) as count\nFROM course_module_completion_registered_to_study_registries\nWHERE course_id = $1\n  AND deleted_at IS NULL\n"
+  },
   "c96653a4dda74a1d04b4df016cbb8a3eea3f0e72f75a8fd9d623b616c530e2af": {
     "describe": {
       "columns": [],
@@ -18250,6 +18266,22 @@
       }
     },
     "query": "\n    INSERT INTO pages (\n        id,\n        exam_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (exam_id = $2)\n    AND deleted_at IS NULL\n    RETURNING id,\n      content;\n        "
+  },
+  "ccbedf277d43e488d084aca7c96f0a403bccc6e19493b95b9ae1449a7c0cec68": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT COUNT(DISTINCT user_id) as count\nFROM course_module_completions\nWHERE course_id = $1\n  AND deleted_at IS NULL\n"
   },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
     "describe": {

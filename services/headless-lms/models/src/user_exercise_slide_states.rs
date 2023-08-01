@@ -232,7 +232,7 @@ mod tests {
         async fn initial_values() {
             insert_data!(:tx);
             let (user_exercise_state_id, slide_1, slide_2, slide_3) =
-                create_test_data(&mut tx).await.unwrap();
+                create_test_data(&mut *tx).await.unwrap();
             insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -272,7 +272,7 @@ mod tests {
         async fn single_task() {
             insert_data!(:tx);
             let (user_exercise_state_id, slide_1, slide_2, slide_3) =
-                create_test_data(&mut tx).await.unwrap();
+                create_test_data(&mut *tx).await.unwrap();
             insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -315,7 +315,7 @@ mod tests {
         async fn all_tasks() {
             insert_data!(:tx);
             let (user_exercise_state_id, slide_1, slide_2, slide_3) =
-                create_test_data(&mut tx).await.unwrap();
+                create_test_data(&mut *tx).await.unwrap();
             let id_1 = insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -360,7 +360,7 @@ mod tests {
             assert_eq!(grading_progress, GradingProgress::FullyGraded);
         }
 
-        async fn create_test_data(tx: &mut Tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
+        async fn create_test_data(tx: &mut tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),

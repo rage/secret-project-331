@@ -36,7 +36,7 @@ pub async fn process_exercise_service_upload(
         let random_filename = generate_random_string(32);
         let path = format!("{exercise_service_slug}/{random_filename}");
 
-        upload_field_to_storage(&mut tx, Path::new(&path), field, file_store, uploader).await?;
+        upload_field_to_storage(&mut *tx, Path::new(&path), field, file_store, uploader).await?;
         let url = format!("{base_url}/api/v0/files/{path}");
         paths.insert(field_name, url);
     }
@@ -203,7 +203,7 @@ async fn upload_file_to_storage(
     let mut tx = conn.begin().await?;
     let path_string = path.to_str().context("invalid path")?.to_string();
     let id = models::file_uploads::insert(
-        &mut tx,
+        &mut *tx,
         file_name,
         &path_string,
         mime_type,

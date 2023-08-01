@@ -188,7 +188,8 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     if let Some(entry) = receiver_peer_review_queue_entry {
-        update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry).await?;
+        update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry)
+            .await?;
     }
     // Make it possible for the user to receive a new submission to review
     crate::offered_answers_to_peer_review_temporary::delete_saved_submissions_for_user(

@@ -289,7 +289,7 @@ mod tests {
         async fn initial_values() {
             insert_data!(:tx);
             let (user_exercise_slide_state_id, task_1, task_2, task_3) =
-                create_test_data(&mut tx).await.unwrap();
+                create_test_data(&mut *tx).await.unwrap();
             insert(
                 tx.as_mut(),
                 task_1,
@@ -330,7 +330,7 @@ mod tests {
         async fn single_task() {
             insert_data!(:tx);
             let (user_exercise_slide_state_id, task_1, task_2, task_3) =
-                create_test_data(&mut tx).await.unwrap();
+                create_test_data(&mut *tx).await.unwrap();
             upsert_with_grading_status(
                 tx.as_mut(),
                 task_1,
@@ -374,7 +374,7 @@ mod tests {
         async fn all_tasks() {
             insert_data!(:tx);
             let (user_exercise_slide_state_id, task_1, task_2, task_3) =
-                create_test_data(&mut tx).await.unwrap();
+                create_test_data(&mut *tx).await.unwrap();
             upsert_with_grading_status(
                 tx.as_mut(),
                 task_1,
@@ -414,7 +414,7 @@ mod tests {
             assert_eq!(grading_progress, GradingProgress::FullyGraded);
         }
 
-        async fn create_test_data(tx: &mut Tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
+        async fn create_test_data(tx: &mut tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),

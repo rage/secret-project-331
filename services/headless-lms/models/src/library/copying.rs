@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
 use serde_json::Value;
-use sqlx::Postgres;
-use sqlx::Transaction;
 
 use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
@@ -76,7 +74,7 @@ RETURNING id,
         new_course.is_draft,
         parent_course.base_module_completion_requires_n_submodule_completions,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     copy_course_modules(&mut tx, copied_course.id, course_id).await?;
@@ -127,7 +125,7 @@ WHERE id = $2;
                 Value::Array(blocks),
                 page_id,
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
     }
@@ -177,7 +175,7 @@ WHERE id = $1
         ",
         parent_exam.id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     // create new exam
@@ -205,7 +203,7 @@ RETURNING *
         new_exam.time_minutes,
         parent_exam_fields.minimum_points_treshold,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let contents_iter =
@@ -245,7 +243,7 @@ WHERE id = $2;
                 Value::Array(blocks),
                 page_id,
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
     }
@@ -277,7 +275,7 @@ WHERE id = $2;
 }
 
 async fn copy_course_pages_and_return_contents(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_course_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, Value>> {
@@ -325,7 +323,7 @@ async fn copy_course_pages_and_return_contents(
 }
 
 async fn copy_exam_pages_and_return_contents(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_exam_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, Value>> {
@@ -369,10 +367,7 @@ async fn copy_exam_pages_and_return_contents(
     Ok(contents)
 }
 
-async fn set_chapter_front_pages(
-    tx: &mut Transaction<'_, Postgres>,
-    namespace_id: Uuid,
-) -> ModelResult<()> {
+async fn set_chapter_front_pages(tx: &mut PgConnection, namespace_id: Uuid) -> ModelResult<()> {
     // Update front_page_id of chapters now that new pages exist.
     sqlx::query!(
         "
@@ -383,14 +378,14 @@ async fn set_chapter_front_pages(
             ",
         namespace_id,
     )
-    .execute(tx)
+    .execute(&mut *tx)
     .await?;
 
     Ok(())
 }
 
 async fn copy_course_modules(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     new_course_id: Uuid,
     old_course_id: Uuid,
 ) -> ModelResult<()> {
@@ -415,14 +410,14 @@ WHERE course_id = $2
         new_course_id,
         old_course_id,
     )
-    .execute(tx)
+    .execute(&mut *tx)
     .await?;
     Ok(())
 }
 
 /// After this one `set_chapter_front_pages` needs to be called to get these to point to the correct front pages.
 async fn copy_course_chapters(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_course_id: Uuid,
 ) -> ModelResult<()> {
@@ -455,14 +450,14 @@ AND deleted_at IS NULL;
         namespace_id,
         parent_course_id
     )
-    .execute(tx)
+    .execute(&mut *tx)
     .await?;
 
     Ok(())
 }
 
 async fn map_old_exr_ids_to_new_exr_ids_for_courses(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_course_id: Uuid,
 ) -> ModelResult<HashMap<String, String>> {
@@ -523,7 +518,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
 }
 
 async fn map_old_exr_ids_to_new_exr_ids_for_exams(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_exam_id: Uuid,
 ) -> ModelResult<HashMap<String, String>> {
@@ -582,7 +577,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
 }
 
 async fn copy_exercise_slides(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
@@ -602,14 +597,14 @@ async fn copy_exercise_slides(
         namespace_id,
         parent_id
     )
-    .execute(tx)
+    .execute(&mut *tx)
     .await?;
 
     Ok(())
 }
 
 async fn copy_exercise_tasks(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
@@ -650,7 +645,7 @@ AND deleted_at IS NULL;
         namespace_id,
         parent_id,
     )
-    .execute(tx)
+    .execute(&mut *tx)
     .await?;
     Ok(())
 }
@@ -690,7 +685,7 @@ AND deleted_at IS NULL;
 }
 
 async fn copy_peer_review_configs(
-    tx: &mut Transaction<'_, Postgres>,
+    tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
@@ -720,7 +715,7 @@ AND deleted_at IS NULL;
         namespace_id,
         parent_id,
     )
-    .execute(tx)
+    .execute(&mut *tx)
     .await?;
     Ok(())
 }

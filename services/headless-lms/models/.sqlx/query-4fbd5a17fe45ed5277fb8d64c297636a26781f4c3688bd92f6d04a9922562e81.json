@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM page_visit_datum_summary_by_courses_device_types\nWHERE course_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "browser",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "browser_version",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "operating_system",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "device_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "num_visitors",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "visit_date",
+        "type_info": "Date"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, true, true, true, true, true, true, false, false]
+  },
+  "hash": "4fbd5a17fe45ed5277fb8d64c297636a26781f4c3688bd92f6d04a9922562e81"
+}

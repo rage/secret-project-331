@@ -1,0 +1,78 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\ncreated_at,\nupdated_at,\ndeleted_at,\nexercise_slide_id,\ncourse_id,\ncourse_instance_id,\nexam_id,\nexercise_id,\nuser_id,\nuser_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "user_points_update_strategy: _",
+        "type_info": {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+  },
+  "hash": "20fc12ac7e010520d3a0fc268c01c6fd85802b41adc867ed79edb32b74bcbc17"
+}

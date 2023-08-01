@@ -63,13 +63,13 @@ pub async fn update_certificate_configuration(
 
     let payload = payload.into_inner();
 
-    let course_id = models::course_modules::get_by_id(&mut tx, payload.metadata.course_module_id)
+    let course_id = models::course_modules::get_by_id(&mut *tx, payload.metadata.course_module_id)
         .await?
         .course_id;
-    let token = authorize(&mut tx, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(&mut *tx, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
     let mut uploaded_files = vec![];
     let result = update_certificate_configuration_inner(
-        &mut tx,
+        &mut *tx,
         &mut uploaded_files,
         course_id,
         payload,

@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM course_module_completion_registered_to_study_registries\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "study_registry_registrar_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "real_student_number",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false, false]
+  },
+  "hash": "62574df67f4064d592cf971f718072cba0cc4497013af8878fc33bbe7edf58b3"
+}

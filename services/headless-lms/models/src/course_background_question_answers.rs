@@ -73,7 +73,7 @@ SET answer_value = $3
             user_id,
             answer.answer_value
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     }
 

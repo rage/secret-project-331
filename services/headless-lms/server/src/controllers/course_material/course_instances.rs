@@ -143,9 +143,9 @@ async fn save_course_settings(
     let mut tx = conn.begin().await?;
 
     let instance =
-        models::course_instances::get_course_instance(&mut tx, *course_instance_id).await?;
+        models::course_instances::get_course_instance(&mut *tx, *course_instance_id).await?;
     let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
-        &mut tx,
+        &mut *tx,
         NewCourseInstanceEnrollment {
             course_id: instance.course_id,
             course_instance_id: instance.id,
@@ -157,7 +157,7 @@ async fn save_course_settings(
     let background_question_answers = &payload.background_question_answers;
     if !background_question_answers.is_empty() {
         models::course_background_question_answers::upsert_backround_question_answers(
-            &mut tx,
+            &mut *tx,
             user.id,
             background_question_answers,
         )

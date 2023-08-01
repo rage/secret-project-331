@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE file_uploads\nSET deleted_at = now()\nWHERE id = $1\nRETURNING path\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "path",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "82b9f016917f5bf78f6228b0ccf88dc14850a4d18fbb80a334d8ca7d55b6e125"
+}

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercises (\n    id,\n    course_id,\n    name,\n    page_id,\n    chapter_id,\n    order_number,\n    exercise_language_group_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Varchar", "Uuid", "Uuid", "Int4", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "e81d160c322b0c903d8105d39f22a1f26f37ffe46fa0d15f4c038b4ba2adc89c"
+}

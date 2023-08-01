@@ -443,30 +443,30 @@ RETURNING *;
 "#,
         chapter_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     // We'll also delete all the pages and exercises so that they don't conflict with future chapters
     sqlx::query!(
         "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;",
         chapter_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     sqlx::query!(
         "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
         chapter_id
     )
-    .execute(&mut tx).await?;
+    .execute(&mut *tx).await?;
     sqlx::query!(
         "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
         chapter_id
     )
-    .execute(&mut tx).await?;
+    .execute(&mut *tx).await?;
     sqlx::query!(
         "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
         chapter_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(deleted)

@@ -98,7 +98,7 @@ async fn process_inner(
     for ex in &new_exercises {
         let new_exercise_id = Uuid::new_v4();
         let path = create_and_upload_exercise(
-            &mut tx,
+            &mut *tx,
             repository_id,
             new_exercise_id,
             ex,
@@ -167,7 +167,7 @@ async fn update_inner(
     Repository::clone(url, &temp)?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;
-    let current_exercises = repository_exercises::get_for_repository(&mut tx, repository).await?;
+    let current_exercises = repository_exercises::get_for_repository(&mut *tx, repository).await?;
 
     let mut by_name = HashMap::new();
     let mut by_checksum = HashMap::new();
@@ -181,23 +181,25 @@ async fn update_inner(
             if current.checksum != ex.checksum.as_bytes() {
                 // checksum changed, update files and checksum
                 create_and_upload_exercise(
-                    &mut tx, repository, current.id, &ex, file_store, app_conf,
+                    &mut *tx, repository, current.id, &ex, file_store, app_conf,
                 )
                 .await?;
-                repository_exercises::update_checksum(&mut tx, current.id, ex.checksum.as_bytes())
+                repository_exercises::update_checksum(&mut *tx, current.id, ex.checksum.as_bytes())
                     .await?;
             }
         } else if let Some(&current) = by_checksum.get(&ex.checksum.as_bytes().to_vec()) {
             // found known exercise by checksum
             if current.part != ex.part || current.name != ex.name {
                 // part and/or name changed
-                repository_exercises::update_part_and_name(&mut tx, current.id, &ex.part, &ex.name)
-                    .await?;
+                repository_exercises::update_part_and_name(
+                    &mut *tx, current.id, &ex.part, &ex.name,
+                )
+                .await?;
             }
         } else {
             // unknown part/name and checksum, assume new exercise
             let path = create_and_upload_exercise(
-                &mut tx,
+                &mut *tx,
                 repository,
                 Uuid::new_v4(),
                 &ex,
@@ -223,8 +225,8 @@ pub async fn delete(
     let mut tx = conn.begin().await?;
 
     let mut latest_error = None;
-    let exercises = repository_exercises::delete_for_repository(&mut tx, repository_id).await?;
-    exercise_repositories::delete(&mut tx, repository_id).await?;
+    let exercises = repository_exercises::delete_for_repository(&mut *tx, repository_id).await?;
+    exercise_repositories::delete(&mut *tx, repository_id).await?;
     for exercise in exercises {
         let path = file_store::repository_exercise_path(repository_id, exercise);
         if let Err(err) = file_store.delete(&path).await {

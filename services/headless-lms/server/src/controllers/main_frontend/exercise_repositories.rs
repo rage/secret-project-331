@@ -142,8 +142,8 @@ async fn delete(
     .await?;
 
     let mut tx = conn.begin().await?;
-    models::repository_exercises::delete_from_repository(&mut tx, *id).await?;
-    models::exercise_repositories::delete(&mut tx, *id).await?;
+    models::repository_exercises::delete_from_repository(&mut *tx, *id).await?;
+    models::exercise_repositories::delete(&mut *tx, *id).await?;
     tx.commit().await?;
 
     token.authorized_ok(web::Json(true))

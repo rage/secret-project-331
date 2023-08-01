@@ -117,7 +117,7 @@ async fn post_new_course(
 
     let mut tx = conn.begin().await?;
     let (course, ..) = library::content_management::create_new_course(
-        &mut tx,
+        &mut *tx,
         PKeyPolicy::Generate,
         new_course,
         user.id,
@@ -126,7 +126,7 @@ async fn post_new_course(
     )
     .await?;
     models::roles::insert(
-        &mut tx,
+        &mut *tx,
         user.id,
         models::roles::UserRole::Teacher,
         models::roles::RoleDomain::Course(course.id),
@@ -1161,10 +1161,10 @@ pub async fn teacher_reset_course_progress_for_themselves(
 
     let mut tx = conn.begin().await?;
     let course_instances =
-        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+        models::course_instances::get_course_instances_for_course(&mut *tx, course_id).await?;
     for course_instance in course_instances {
         models::course_instances::reset_progress_on_course_instance_for_user(
-            &mut tx,
+            &mut *tx,
             user.id,
             course_instance.id,
         )

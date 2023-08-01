@@ -588,7 +588,7 @@ pub async fn feedback(
     let mut tx = conn.begin().await?;
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
+        let id = feedback::insert(&mut *tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
         ids.push(id);
     }
     tx.commit().await?;

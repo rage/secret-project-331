@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM page_visit_datum_daily_visit_hashing_keys WHERE valid_for_date < $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Date"]
+    },
+    "nullable": []
+  },
+  "hash": "cb67a9dfb5be8ec9ba7cf67b4dd511093fc64f0556f4ffdae15c3286ba70d83d"
+}

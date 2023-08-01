@@ -1224,13 +1224,20 @@ pub async fn teacher_reset_course_progress_for_everyone(
     let mut tx = conn.begin().await?;
     let course_instances =
         models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+
+    // Looping though the data since this is only for draft courses and the amount of data is not expected to be large.
     for course_instance in course_instances {
-        models::course_instances::reset_progress_on_course_instance_for_user(
-            &mut tx,
-            user.id,
-            course_instance.id,
-        )
-        .await?;
+        let users_in_course_instance =
+            models::users::get_users_by_course_instance_enrollment(&mut tx, course_instance.id)
+                .await?;
+        for user_in_course_instance in users_in_course_instance {
+            models::course_instances::reset_progress_on_course_instance_for_user(
+                &mut tx,
+                user_in_course_instance.id,
+                course_instance.id,
+            )
+            .await?;
+        }
     }
 
     tx.commit().await?;

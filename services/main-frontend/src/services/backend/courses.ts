@@ -276,6 +276,11 @@ export const teacherResetCourseProgressForThemselves = async (courseId: string):
   )
 }
 
+/** Teacher can use this to delete submissions, points, etc for everyone. Can only be used for draft courses. */
+export const teacherResetCourseProgressForEveryone = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/courses/${courseId}/teacher-reset-course-progress-for-everyone`)
+}
+
 export const postNewChapterOrdering = async (
   courseId: string,
   chapters: Chapter[],

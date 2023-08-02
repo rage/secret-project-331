@@ -28,7 +28,6 @@ import useQuizzesUserAnswerOutputState from "../../hooks/useQuizzesUserAnswerSer
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 import { COLUMN } from "../../util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "../../util/css-sanitization"
-import { isOldQuiz } from "../../util/migration/migrationSettings"
 import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
@@ -67,19 +66,8 @@ export interface QuizItemComponentProps<T extends PublicSpecQuizItem, K extends 
 
 const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   publicSpec,
-  previousSubmission,
   user_information,
 }) => {
-  const widget_state: WidgetReducerState = {
-    quiz: publicSpec,
-    quiz_answer: previousSubmission || {
-      itemAnswers: [],
-      version: "2",
-    },
-    // TODO: validate previous submission in the future
-    quiz_answer_is_valid: !!previousSubmission,
-  }
-
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items
   let direction: FlexDirection = COLUMN
@@ -118,14 +106,6 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
       }
     })
   }
-
-  console.group("Widget.js")
-  console.log("Old quiz:", isOldQuiz(publicSpec))
-  console.log("public spec:", publicSpec)
-  console.log("state: ", widget_state)
-  console.log("previous submission:", previousSubmission)
-  console.log("Selected:", selected)
-  console.groupEnd()
 
   return (
     <FlexWrapper wideScreenDirection={direction}>

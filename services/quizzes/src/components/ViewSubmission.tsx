@@ -16,6 +16,7 @@ import {
   UserItemAnswerTimeline,
 } from "../../types/quizTypes/answer"
 import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import { QuizItemType } from "../../types/quizTypes/privateSpec"
 import {
   PublicSpecQuiz,
   PublicSpecQuizItemCheckbox,
@@ -54,16 +55,6 @@ interface SubmissionProps {
   user_information: UserInformation
 }
 
-type QuizItemType =
-  | "essay"
-  | "multiple-choice"
-  | "scale"
-  | "checkbox"
-  | "open"
-  | "custom-frontend-accept-data"
-  | "matrix"
-  | "timeline"
-
 interface QuizItemSubmissionComponentDescriptor {
   component:
     | typeof EssayFeedback
@@ -93,7 +84,10 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     component: ScaleSubmissionViewComponent,
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
-  open: { component: OpenFeedback, shouldDisplayCorrectnessMessageAfterAnswer: true },
+  "closed-ended-question": {
+    component: OpenFeedback,
+    shouldDisplayCorrectnessMessageAfterAnswer: true,
+  },
   "custom-frontend-accept-data": {
     component: OpenFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: false,

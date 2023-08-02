@@ -4,6 +4,7 @@ import {
   PrivateSpecQuizItemChooseN,
   PrivateSpecQuizItemClosedEndedQuestion,
   PrivateSpecQuizItemEssay,
+  PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemTimeline,
@@ -13,6 +14,7 @@ import { QuizItemAnswerGrading } from "../types"
 import { assessChooseN } from "./choose-n"
 import { assessClosedEndedQuestion } from "./closed-ended-question"
 import { assessEssay } from "./essay"
+import { assessMatrixQuiz } from "./matrix"
 import { assessMultipleChoice } from "./multiple-choice"
 import { assessMultipleChoiceDropdown } from "./multiple-choice-dropdown"
 import { assessTimeline } from "./timeline"
@@ -48,7 +50,10 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
         return assessTimeline(itemAnswer, quizItem as PrivateSpecQuizItemTimeline)
       case "essay":
         return assessEssay(itemAnswer, quizItem as PrivateSpecQuizItemEssay)
-      default:
+      case "matrix":
+        return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+      case "checkbox":
+      case "scale":
         return {
           quizItemId: itemAnswer.quizItemId,
           correct: true,

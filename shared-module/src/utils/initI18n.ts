@@ -59,7 +59,7 @@ const initI18n = (defaultNS: string): typeof i18n => {
         escapeValue: false, // react does the escaping
       },
       react: {
-        useSuspense: false,
+        useSuspense: true,
       },
     })
   return i18n

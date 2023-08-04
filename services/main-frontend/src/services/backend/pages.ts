@@ -5,6 +5,7 @@ import {
   NewPage,
   Page,
   PageAudioFile,
+  PageDetailsUpdate,
   PageHistory,
   PageInfo,
 } from "../../shared-module/bindings"
@@ -77,4 +78,9 @@ export const removePageAudioFile = async (fileId: string): Promise<void> => {
 export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
   const response = await mainFrontendClient.get(`/page_audio/${pageId}/files`)
   return validateResponse(response, isArray(isPageAudioFile))
+}
+
+export const updatePageDetails = async (pageId: string, data: PageDetailsUpdate): Promise<void> => {
+  const response = await mainFrontendClient.put(`/pages/${pageId}/page-details`, data)
+  validateResponse(response, isBoolean)
 }

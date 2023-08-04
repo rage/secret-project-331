@@ -1191,6 +1191,11 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
+export interface PageDetailsUpdate {
+  title: string
+  url_path: string
+}
+
 export interface CmsPeerReviewConfig {
   id: string
   course_id: string

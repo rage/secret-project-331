@@ -10,7 +10,7 @@ import Button from "../../../../../../../shared-module/components/Button"
 import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, typography } from "../../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
-import NewPageForm from "../NewPageForm"
+import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageListItem, {
   MOVING_ALLOWED,
@@ -37,7 +37,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   pageOrderDispatch,
 }) => {
   const { t } = useTranslation()
-  const [showNewPageForm, setShowNewPageForm] = useState(false)
+  const [showNewOrEditPageForm, setShowNewOrEditPageForm] = useState(false)
   const deletePageMutation = useToastMutation(
     (pageId: string) => {
       return deletePage(pageId)
@@ -46,7 +46,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
     { onSuccess: () => refetch() },
   )
   const handleCreateTopLevelPage = () => {
-    setShowNewPageForm(!showNewPageForm)
+    setShowNewOrEditPageForm(!showNewOrEditPageForm)
     refetch()
   }
 
@@ -100,20 +100,29 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
           return (
             <PageListItem
               page={page}
+              chapter={chapter}
               key={page.id}
               pageOrderDispatch={pageOrderDispatch}
               onDeletePage={() => handleDeletePage(page.id, page.title)}
               // eslint-disable-next-line i18next/no-literal-string
               moving={moving}
+              reload={() => refetch()}
             />
           )
         })}
       </TableWrapper>
-      <Button size="medium" variant="primary" onClick={() => setShowNewPageForm(!showNewPageForm)}>
+      <Button
+        size="medium"
+        variant="primary"
+        onClick={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
+      >
         {t("button-text-new-page")}
       </Button>
 
-      <Dialog open={showNewPageForm} onClose={() => setShowNewPageForm(!showNewPageForm)}>
+      <Dialog
+        open={showNewOrEditPageForm}
+        onClose={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
+      >
         <div
           className={css`
             margin: 1rem;
@@ -122,16 +131,17 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
           <Button
             size="medium"
             variant="secondary"
-            onClick={() => setShowNewPageForm(!showNewPageForm)}
+            onClick={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
           >
             {t("button-text-close")}
           </Button>
-          <NewPageForm
+          <NewOrEditPageForm
             chapterId={chapter?.id}
             courseId={courseId}
             onSubmitForm={handleCreateTopLevelPage}
             // eslint-disable-next-line i18next/no-literal-string
             prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+            isUpdate={false}
           />
         </div>
       </Dialog>

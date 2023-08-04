@@ -37,6 +37,13 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
         outputState: userAnswer,
         port: port,
         _rawSetOutputState: setUserAnswer,
+        validate: (previousState) => {
+          if (!previousState) {
+            return false
+          }
+          const validities = previousState.itemAnswers.map((item) => item.valid)
+          return validities.every(Boolean)
+        },
       }}
     >
       <Widget

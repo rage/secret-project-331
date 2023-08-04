@@ -19,6 +19,7 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
         outputState,
         port: port,
         _rawSetOutputState: setOutputState,
+        validate: () => true,
       }}
     >
       <QuizItemsV2 />

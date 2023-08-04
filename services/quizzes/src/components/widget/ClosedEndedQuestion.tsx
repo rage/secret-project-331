@@ -24,13 +24,13 @@ const ClosedEndedQuestion: React.FC<
         quizItemId: quizItem.id,
         type: "closed-ended-question",
         textData: newValue,
-        valid: true,
+        valid: newValue.length > 0,
       })
       return
     }
 
     if (!quizItem.formatRegex) {
-      return setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue, valid: true })
+      return setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue, valid: false })
     }
 
     const newValueIsValid = newValue

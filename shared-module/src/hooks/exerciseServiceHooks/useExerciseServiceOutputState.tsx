@@ -15,10 +15,14 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
   context: ExerciseServiceContextType<OutputType>,
   selector: (arg: OutputType | null) => SelectorReturnType | null,
 ): UseExerciseServiceOutputStateReturn<SelectorReturnType> => {
-  const { outputState, port, _rawSetOutputState } = useContext(context)
+  const { outputState, port, _rawSetOutputState, validate } = useContext(context)
 
   const updateState = (func: UpdateFunction<SelectorReturnType>) => {
     if (!port) {
+      return
+    }
+
+    if (!validate) {
       return
     }
 
@@ -32,7 +36,7 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
       data: nextState,
       // eslint-disable-next-line i18next/no-literal-string
       message: "current-state",
-      valid: true,
+      valid: validate(nextState),
     }
     port.postMessage(message)
     _rawSetOutputState(nextState)

@@ -76,9 +76,6 @@ const Matrix: React.FunctionComponent<
     handleSizeChange(matrixVariable)
   }, [handleSizeChange, matrixVariable])
 
-  if (!quizItemAnswerState) {
-    return <div></div>
-  }
   const handleOptionSelect = (text: string, column: number, row: number) => {
     const newMatrix = matrixVariable.map((rowArray, rowIndex) => {
       return rowArray.map((cell, columnIndex) => {
@@ -148,9 +145,7 @@ const Matrix: React.FunctionComponent<
                           cellText={cellText}
                           handleOptionSelect={handleOptionSelect}
                           matrixSize={matrixActiveSize}
-                        >
-                          {" "}
-                        </MatrixCell>
+                        ></MatrixCell>
                       )
                     }
                   })}

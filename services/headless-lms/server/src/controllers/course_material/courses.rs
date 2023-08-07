@@ -24,6 +24,10 @@ use models::{
     },
     pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},
+    research_forms::{
+        NewResearchFormQuestionAnswer, ResearchForm, ResearchFormQuestion,
+        ResearchFormQuestionAnswer,
+    },
     student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
@@ -787,6 +791,75 @@ async fn get_student_country(
     token.authorized_ok(web::Json(res))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_research_form_with_course_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<ResearchForm>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let res =
+        models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_research_form_questions_with_course_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestion>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let res =
+        models::research_forms::get_research_form_questions_with_course_id(&mut conn, *course_id)
+            .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+#[generated_doc]
+#[instrument(skip(pool, payload))]
+async fn upsert_course_specific_research_form_answer(
+    payload: web::Json<NewResearchFormQuestionAnswer>,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
+    let answer = payload;
+    let res =
+        models::research_forms::insert_research_form_anwser(&mut conn, *course_id, &answer).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_research_form_answers_with_user_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestionAnswer>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let res = models::research_forms::get_research_form_answers_with_user_id(
+        &mut conn, *course_id, user.id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -852,5 +925,21 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/course-instances/{course_instance_id}/student-countries",
             web::get().to(get_student_countries),
+        )
+        .route(
+            "/{course_id}/research-consent-form-questions-answer",
+            web::post().to(upsert_course_specific_research_form_answer),
+        )
+        .route(
+            "/{courseId}/research-consent-form-questions-answer",
+            web::get().to(get_research_form_answers_with_user_id),
+        )
+        .route(
+            "/{course_id}/research-consent-form",
+            web::get().to(get_research_form_with_course_id),
+        )
+        .route(
+            "/{course_id}/research-consent-form-questions",
+            web::get().to(get_research_form_questions_with_course_id),
         );
 }

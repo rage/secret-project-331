@@ -18,6 +18,48 @@ pub struct NewResearchForm {
     pub content: serde_json::Value,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ResearchFormQuestion {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub research_consent_form_id: Uuid,
+    pub question: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewResearchFormQuestion {
+    pub question_id: Uuid,
+    pub course_id: Uuid,
+    pub research_consent_form_id: Uuid,
+    pub question: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewResearchFormQuestionAnswer {
+    pub user_id: Uuid,
+    pub research_form_question_id: Uuid,
+    pub research_consent: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ResearchFormQuestionAnswer {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub course_id: Uuid,
+    pub research_form_question_id: Uuid,
+    pub research_consent: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
 impl NewResearchForm {
     /// Creates `NewResearchForm` with provided values that is public by default.
     pub fn new(course_id: Uuid) -> Self {
@@ -60,38 +102,10 @@ RETURNING *
     Ok(form_res)
 }
 
-/*
-pub async fn insert_research_form_questions(
-    conn: &mut PgConnection,
-    new_research_form: &NewResearchForm,
-) -> ModelResult<Uuid> {
-    let mut questions =  serde_json::to_value(new_research_form.content.clone())?.map() ??
-    let mut tx = conn.begin().await?;
-    let form_res = sqlx::query!(
-        "
-INSERT INTO course_specific_research_consent_form_questions (
-    course_id,
-    research_consent_form_id,
-    question
-  )
-VALUES ($1, $2, $3)
-RETURNING id
-",
-        new_research_form.course_id,
-        question,
-        new_research_form.id
-    )
-    .fetch_one(&mut tx)
-    .await?;
-    Ok(form_res.id)
-}
-*/
-
 pub async fn get_research_form_with_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<ResearchForm> {
-    let mut tx = conn.begin().await?;
     let form_res = sqlx::query_as!(
         ResearchForm,
         "
@@ -101,7 +115,98 @@ AND deleted_at IS NULL
 ",
         course_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(conn)
+    .await?;
+    Ok(form_res)
+}
+
+pub async fn insert_research_form_questions(
+    conn: &mut PgConnection,
+    question: &NewResearchFormQuestion,
+) -> ModelResult<ResearchFormQuestion> {
+    let form_res = sqlx::query_as!(
+        ResearchFormQuestion,
+        "
+INSERT INTO course_specific_consent_form_questions (
+    id,
+    course_id,
+    research_consent_form_id,
+    question
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (id)
+DO UPDATE SET question = $4
+RETURNING *
+",
+        question.question_id,
+        question.course_id,
+        question.research_consent_form_id,
+        question.question
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(form_res)
+}
+
+pub async fn get_research_form_questions_with_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ResearchFormQuestion>> {
+    let form_res = sqlx::query_as!(
+        ResearchFormQuestion,
+        "
+SELECT * FROM course_specific_consent_form_questions
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(form_res)
+}
+
+pub async fn insert_research_form_anwser(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    answer: &NewResearchFormQuestionAnswer,
+) -> ModelResult<Uuid> {
+    let form_res = sqlx::query!(
+        "
+INSERT INTO course_specific_consent_form_answers (
+    user_id,
+    course_id,
+    research_form_question_id,
+    research_consent
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, research_form_question_id)
+DO UPDATE SET research_consent = $4
+RETURNING *
+",
+        answer.user_id,
+        course_id,
+        answer.research_form_question_id,
+        answer.research_consent
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(form_res.id)
+}
+pub async fn get_research_form_answers_with_user_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<ResearchFormQuestionAnswer>> {
+    let form_res = sqlx::query_as!(
+        ResearchFormQuestionAnswer,
+        "
+SELECT * FROM course_specific_consent_form_answers
+WHERE course_id = $1 AND user_id = $2
+AND deleted_at IS NULL
+",
+        course_id,
+        user_id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(form_res)
 }

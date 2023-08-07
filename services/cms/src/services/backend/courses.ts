@@ -1,9 +1,15 @@
 import {
   CmsPeerReviewConfiguration,
   NewResearchForm,
+  NewResearchFormQuestion,
   ResearchForm,
+  ResearchFormQuestion,
 } from "../../shared-module/bindings"
-import { isCmsPeerReviewConfiguration, isResearchForm } from "../../shared-module/bindings.guard"
+import {
+  isCmsPeerReviewConfiguration,
+  isResearchForm,
+  isResearchFormQuestion,
+} from "../../shared-module/bindings.guard"
 import { validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
@@ -38,4 +44,18 @@ export const upsertResearchForm = async (
     responseType: "json",
   })
   return validateResponse(response, isResearchForm)
+}
+
+export const upsertResearchFormQuestion = async (
+  courseId: string,
+  data: NewResearchFormQuestion,
+): Promise<ResearchFormQuestion> => {
+  const response = await cmsClient.put(
+    `/courses/${courseId}/research-consent-form-question`,
+    data,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isResearchFormQuestion)
 }

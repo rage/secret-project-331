@@ -17,6 +17,7 @@ import {
   NewFeedback,
   NewMaterialReference,
   NewProposedPageEdits,
+  NewResearchFormQuestionAnswer,
   OEmbedResponse,
   Page,
   PageAudioFile,
@@ -25,6 +26,9 @@ import {
   PageSearchResult,
   PageWithExercises,
   PeerReviewsRecieved,
+  ResearchForm,
+  ResearchFormQuestion,
+  ResearchFormQuestionAnswer,
   SaveCourseSettingsPayload,
   SearchRequest,
   StudentCountry,
@@ -57,6 +61,9 @@ import {
   isPageSearchResult,
   isPageWithExercises,
   isPeerReviewsRecieved,
+  isResearchForm,
+  isResearchFormQuestion,
+  isResearchFormQuestionAnswer,
   isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
@@ -500,4 +507,53 @@ export const fetchPageByCourseIdAndLanguageGroupId = async (
     },
   )
   return validateResponse(response, isPage)
+}
+
+export const fetchResearchFormWithCourseId = async (courseId: string): Promise<ResearchForm> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/research-consent-form`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isResearchForm)
+}
+
+export const fetchResearchFormQuestionsWithCourseId = async (
+  course_id: string,
+): Promise<Array<ResearchFormQuestion>> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/research-consent-form-questions`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isResearchFormQuestion))
+}
+
+export const fetchResearchFormAnswersWithUserId = async (
+  course_id: string,
+): Promise<Array<ResearchFormQuestionAnswer>> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/research-consent-form-questions-answer`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isResearchFormQuestionAnswer))
+}
+
+export const postResearchFormUserAnswer = async (
+  courseId: string,
+  user_id: string,
+  research_form_question_id: string,
+  research_consent: boolean,
+): Promise<string> => {
+  const answer: NewResearchFormQuestionAnswer = {
+    user_id,
+    research_form_question_id,
+    research_consent,
+  }
+  const response = await courseMaterialClient.post(
+    `/courses/${courseId}/research-consent-form-questions-answer`,
+    answer,
+  )
+  return validateResponse(response, isString)
 }

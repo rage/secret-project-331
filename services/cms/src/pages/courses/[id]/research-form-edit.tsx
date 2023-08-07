@@ -1,15 +1,21 @@
 import { useQuery } from "@tanstack/react-query"
+import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useContext, useState } from "react"
+import React, { useState } from "react"
 
+import { CheckBoxAttributes } from "../../../blocks/Checkbox"
 import CourseContext from "../../../contexts/CourseContext"
 import {
   fetchResearchFormWithCourseId,
   upsertResearchForm,
+  upsertResearchFormQuestion,
 } from "../../../services/backend/courses"
-import { NewResearchForm, ResearchForm } from "../../../shared-module/bindings"
+import {
+  NewResearchForm,
+  NewResearchFormQuestion,
+  ResearchForm,
+} from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
@@ -22,6 +28,11 @@ interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
 }
 
+interface ResearchContent {
+  name: string
+  clientId: string
+  attributes: { content: string }
+}
 const EditorLoading = <Spinner variant="medium" />
 
 const ResearchFormEditor = dynamic(
@@ -32,18 +43,18 @@ const ResearchFormEditor = dynamic(
   },
 )
 
-const ResearchForms = ({ query }: ResearchFormProps) => {
-  const { id } = query
+const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ query }) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
-  const courseId = useContext(CourseContext)?.courseId
+  const courseId = query.id
+
   const getResearchForm = useQuery(
-    [`courses-${id}-research-consent-form`],
-    () => fetchResearchFormWithCourseId(id),
+    [`courses-${courseId}-research-consent-form`],
+    () => fetchResearchFormWithCourseId(courseId),
     {
       select: (data) => {
         const form: ResearchForm = {
           ...data,
-          content: data.content,
+          content: data.content as ResearchContent,
         }
         return form
       },
@@ -52,30 +63,43 @@ const ResearchForms = ({ query }: ResearchFormProps) => {
       },
     },
   )
-  console.log("aaa")
 
-  const handleSave = async (form: NewResearchForm): Promise<ResearchForm> => {
-    const res = await upsertResearchForm(assertNotNullOrUndefined(id), {
-      ...form,
-    })
-    await getResearchForm.refetch()
-    return res
-  }
-  console.log(courseId, id)
   const handleCreateNewForm = async () => {
-    const res = await upsertResearchForm(assertNotNullOrUndefined(id), {
-      course_id: assertNotNullOrUndefined(id),
+    await upsertResearchForm(assertNotNullOrUndefined(courseId), {
+      course_id: assertNotNullOrUndefined(courseId),
       content: [],
     })
     await getResearchForm.refetch()
-    console.log(res)
+  }
+
+  const handleSave = async (form: NewResearchForm): Promise<ResearchForm> => {
+    const researchForm = await upsertResearchForm(assertNotNullOrUndefined(courseId), {
+      ...form,
+    })
+
+    if (!isBlockInstanceArray(form.content)) {
+      throw new Error("content is not block instance")
+    }
+    form.content.forEach((block) => {
+      if (isMoocfiCheckbox(block)) {
+        const newResearchQuestion: NewResearchFormQuestion = {
+          question_id: block.clientId,
+          course_id: researchForm.course_id,
+          research_consent_form_id: researchForm.id,
+          question: block.attributes.content,
+        }
+        upsertResearchFormQuestion(researchForm.id, newResearchQuestion)
+      }
+    })
+    await getResearchForm.refetch()
+    return researchForm
   }
 
   return (
     <>
       {getResearchForm.isLoading && <Spinner variant={"medium"} />}
       {getResearchForm.isSuccess && (
-        <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(id) }}>
+        <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
           <ResearchFormEditor
             data={getResearchForm.data}
             handleSave={handleSave}
@@ -94,4 +118,19 @@ const ResearchForms = ({ query }: ResearchFormProps) => {
   )
 }
 
+function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
+  if (!Array.isArray(obj)) {
+    return false
+  }
+  for (const o of obj) {
+    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
+      return false
+    }
+  }
+  return true
+}
+
+function isMoocfiCheckbox(obj: BlockInstance): obj is BlockInstance<CheckBoxAttributes> {
+  return obj.name === "moocfi/checkbox"
+}
 export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))

@@ -42,7 +42,8 @@ CREATE TABLE course_specific_consent_form_answers (
   research_consent BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  CONSTRAINT course_specific_consent_form_answer_user_uniqueness UNIQUE NULLS NOT DISTINCT(user_id, research_form_question_id)
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_specific_consent_form_answers FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

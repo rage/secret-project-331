@@ -11369,6 +11369,52 @@
     },
     "query": "\nSELECT users.id,\n  user_details.first_name,\n  user_details.last_name,\n  user_details.email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\n  JOIN user_details ON users.id = user_details.user_id\nWHERE roles.exam_id = $1\nAND roles.deleted_at IS NULL\n"
   },
+  "7f0db66e0632c16cf13fa9f5596374c60a150cb186968575fc86c49bbbb9b7c8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent_form_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "question",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO course_specific_consent_form_questions (\n    id,\n    course_id,\n    research_consent_form_id,\n    question\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (id)\nDO UPDATE SET question = $4\nRETURNING *\n"
+  },
   "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
     "describe": {
       "columns": [],
@@ -15843,6 +15889,57 @@
       }
     },
     "query": "\nUPDATE course_modules\nSET name = $1\nWHERE id = $2\n"
+  },
+  "b0af6fe4652dbdebf3d37d2a35616e2294b199f4ef9adee959315d1e23204fd8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_form_question_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT * FROM course_specific_consent_form_answers\nWHERE course_id = $1 AND user_id = $2\nAND deleted_at IS NULL\n"
   },
   "b1aa0a717b12afa5026916399b755848174729d079696ac307a5066e62eee49f": {
     "describe": {
@@ -22405,6 +22502,57 @@
     },
     "query": "\nINSERT INTO roles (user_id, role, organization_id)\nVALUES ($1, $2, $3)\nRETURNING id\n"
   },
+  "f483e33aa6a1a9670cbbfb3f60ceb18d64da1ebd79e2d2b868bbdf306c6cdc8d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_form_question_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO course_specific_consent_form_answers (\n    user_id,\n    course_id,\n    research_form_question_id,\n    research_consent\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (user_id, research_form_question_id)\nDO UPDATE SET research_consent = $4\nRETURNING *\n"
+  },
   "f4975555bb0c4f1063c0f8f89e371c9b94a48a69c5e1ec92473db99adfce7601": {
     "describe": {
       "columns": [
@@ -23264,6 +23412,52 @@
       }
     },
     "query": "\nSELECT *\nFROM study_registry_registrars\nWHERE secret_key = $1\n  AND deleted_at IS NULL\n    "
+  },
+  "fd2dc0fa1808737caab346e31ed3fb67a2608166ba86a2378f23b9788ac55453": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent_form_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "question",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT * FROM course_specific_consent_form_questions\nWHERE course_id = $1\nAND deleted_at IS NULL\n"
   },
   "fec39a3e64b3e84a8362eb22e8f0d6de965ec924ab15a8078505c54b59dfa3ad": {
     "describe": {

@@ -226,7 +226,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
               </a>
             </li>
             <li>
-              <a href={`/cms/courses/${course.id}/`} aria-label={"Edit research form"}>
+              <a
+                href={`/cms/courses/${course.id}/research-form-edit`}
+                aria-label={"Edit research form"}
+              >
                 {"Edit research form"}
               </a>
             </li>

@@ -1,26 +1,27 @@
-import SaveIcon from "@mui/icons-material/Save"
-import LoadingButton from "@mui/lab/LoadingButton"
+import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { allowerdResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import { blockTypeMapForResearchConsentForm } from "../../blocks"
+import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { NewResearchForm, ResearchForm } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Spinner from "../../shared-module/components/Spinner"
 import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import SerializeGutenbergModal from "../SerializeGutenbergModal"
 
 interface ResearchFormEditorProps {
   data: ResearchForm
   handleSave: (updatedTemplate: NewResearchForm) => Promise<ResearchForm>
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
-
-  courseId?: string
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -39,13 +40,27 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const { t } = useTranslation()
 
   const [content, setContent] = useState<BlockInstance[]>(
-    modifyBlocks(
-      (data.content ?? []) as BlockInstance[],
-      allowerdResearchFormCoreBlocks,
-    ) as BlockInstance[],
+    modifyBlocks((data.content ?? []) as BlockInstance[], [
+      ...allowedResearchFormCoreBlocks,
+      "moocfi/checkbox",
+    ]) as BlockInstance[],
   )
   const courseId = useContext(CourseContext)?.courseId
   const [saving, setSaving] = useState(false)
+  const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
+    modifyBlocks((data.content ?? []) as BlockInstance[], [
+      ...allowedResearchFormCoreBlocks,
+      "moocfi/checkbox",
+    ]) as BlockInstance[],
+  )
+
+  if (!currentContent) {
+    if (!isBlockInstanceArray(data.content)) {
+      throw new Error("content is not block instance")
+    } else {
+      setCurrentContent(data.content)
+    }
+  }
   const [error, setError] = useState<string | null>(null)
 
   const handleOnSave = async () => {
@@ -64,48 +79,99 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
       setError(e.toString())
     } finally {
       setSaving(false)
+      setCurrentContent(content)
     }
   }
-  console.log(
-    "aaa",
-    t,
-    content,
-    data,
-    handleSave,
-    needToRunMigrationsAndValidations,
-    setNeedToRunMigrationsAndValidations,
-    saving,
-    error,
-    handleOnSave,
-  )
+
   return (
     <>
+      <BreakFromCentered sidebar={false}>
+        <div>
+          <div
+            className={css`
+              display: flex;
+              justify-content: center;
+              background: #f5f6f7;
+              padding: 1rem;
+            `}
+          >
+            <Button
+              variant="primary"
+              size="medium"
+              className={css`
+                margin-right: 1rem;
+                border: 1px black solid;
+                pointer-events: auto;
+              `}
+              onClick={handleOnSave}
+              disabled={saving}
+            >
+              {t("save")}
+            </Button>
+            <Button
+              variant="secondary"
+              size="medium"
+              className={css`
+                margin-left: 1rem;
+                border: 1px black solid;
+                pointer-events: auto;
+              `}
+              onClick={() => {
+                const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
+                if (res) {
+                  setContent(currentContent)
+                }
+              }}
+              disabled={saving}
+            >
+              {t("reset")}
+            </Button>
+          </div>
+        </div>
+      </BreakFromCentered>
       <div className="editor__component">
         <div>
-          {error && <pre>{error}</pre>}
-          <LoadingButton
-            // eslint-disable-next-line i18next/no-literal-string
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            loading={saving}
-            onClick={handleOnSave}
-          >
-            {t("save")}
-          </LoadingButton>
+          {courseId && (
+            <ResearchFormGutenbergEditor
+              content={content}
+              onContentChange={setContent}
+              allowedBlocks={allowedResearchFormCoreBlocks}
+              customBlocks={blockTypeMapForResearchConsentForm}
+              mediaUpload={mediaUploadBuilder({ courseId: courseId })}
+              needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+              setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+            />
+          )}
         </div>
       </div>
-      {courseId && (
-        <ResearchFormGutenbergEditor
-          content={content}
-          onContentChange={setContent}
-          allowedBlocks={allowerdResearchFormCoreBlocks}
-          mediaUpload={mediaUploadBuilder({ courseId: courseId })}
-          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-        />
-      )}
+      <div className="editor__component">
+        <div
+          className={css`
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+          `}
+        >
+          <div
+            className={css`
+              margin-bottom: 0.5rem;
+            `}
+          >
+            <SerializeGutenbergModal content={content} />
+          </div>
+        </div>
+      </div>
     </>
   )
 }
-
+function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
+  if (!Array.isArray(obj)) {
+    return false
+  }
+  for (const o of obj) {
+    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
+      return false
+    }
+  }
+  return true
+}
 export default ResearchFormEditor

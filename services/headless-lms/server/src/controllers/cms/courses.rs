@@ -2,7 +2,9 @@
 
 use crate::prelude::*;
 use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
-use models::research_forms::{NewResearchForm, ResearchForm};
+use models::research_forms::{
+    NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
+};
 
 /**
 POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
@@ -131,6 +133,23 @@ async fn get_research_form_with_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+#[generated_doc]
+#[instrument(skip(pool, payload))]
+async fn upsert_course_specific_research_form_question(
+    payload: web::Json<NewResearchFormQuestion>,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ResearchFormQuestion>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
+    let question = payload;
+    let res = models::research_forms::insert_research_form_questions(&mut conn, &question).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -147,6 +166,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/default-peer-review",
             web::put().to(put_course_default_peer_review_configuration),
+        )
+        .route(
+            "/{courseId}/research-consent-form-question",
+            web::put().to(upsert_course_specific_research_form_question),
         )
         .route(
             "/{course_id}/research-consent-form",

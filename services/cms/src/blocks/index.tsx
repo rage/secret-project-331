@@ -3,6 +3,7 @@ import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
 import ChapterProgress from "./ChapterProgress"
+import CheckBox from "./Checkbox"
 import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
@@ -53,6 +54,7 @@ export const blockTypeMapForPages = [
   ["moocfi/tablebox", TableBox],
   ["moocfi/iframe", Iframe],
   ["moocfi/map", Map],
+  ["moocfi/checkbox", CheckBox],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -78,3 +80,8 @@ export const blockTypeMapForTopLevelPages = [
   ["moocfi/hero-section", HeroSection],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
+
+export const blockTypeMapForResearchConsentForm = [["moocfi/checkbox", CheckBox]] as Array<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [string, BlockConfiguration<Record<string, any>>]
+>

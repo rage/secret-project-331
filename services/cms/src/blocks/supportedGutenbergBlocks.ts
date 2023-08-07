@@ -62,11 +62,9 @@ export const allowedExamInstructionsCoreBlocks: string[] = [
   "core/table",
 ]
 
-export const allowerdResearchFormCoreBlocks: string[] = [
+export const allowedResearchFormCoreBlocks: string[] = [
   "core/paragraph",
-  "core/image",
   "core/heading",
   "core/list",
   "core/list-item",
-  "core/table",
 ]

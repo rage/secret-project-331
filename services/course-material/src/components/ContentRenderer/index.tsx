@@ -37,6 +37,7 @@ import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
 import AudioPlayer from "./moocfi/AudioPlayer/index"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import CheckBoxBlock from "./moocfi/CheckBox"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
@@ -143,6 +144,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/iframe": IframeBlock,
   "moocfi/audio-upload": AudioPlayer,
   "moocfi/map": Map,
+  "moocfi/checkbox": CheckBoxBlock,
 }
 
 const highlightedBlockStyles = css`

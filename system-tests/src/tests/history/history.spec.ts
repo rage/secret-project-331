@@ -74,9 +74,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
   await page.click(`button:text-is("Save") >> visible=true`)
-  // TODO: wait for page saved notification
-  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
-  await page.waitForTimeout(100)
+  await page.getByText("Operation successful!").waitFor()
 
   await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
 

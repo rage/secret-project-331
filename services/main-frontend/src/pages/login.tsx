@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useContext, useState } from "react"
+import { useCallback, useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
+import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
@@ -27,6 +29,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(router.asPath)
+  const [showForm, setShowForm] = useState<boolean>(false)
 
   const loginMutation = useToastMutation(
     async () => {
@@ -34,6 +37,19 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
     { notify: false },
   )
+
+  const redirect = useCallback(() => {
+    const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+    router.push(returnTo)
+  }, [router, uncheckedReturnTo])
+
+  const getUserConsent = useUserResearchConsentQuery()
+
+  if (getUserConsent.status == "error" && !showForm) {
+    setShowForm(true)
+  } else if (getUserConsent.status == "success") {
+    redirect()
+  }
 
   return (
     <div
@@ -71,8 +87,6 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           }
 
           await loginStateContext.refresh()
-          const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-          router.push(returnTo)
         }}
         className={css`
           display: flex;
@@ -151,6 +165,7 @@ const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
           </a>
         </div>
       </form>
+      {showForm && <ResearchOnCoursesForm afterSubmit={redirect} />}
     </div>
   )
 }

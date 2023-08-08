@@ -24,8 +24,6 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
-// fix this
-#[allow(clippy::too_many_arguments)]
 pub async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -106,23 +104,33 @@ pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     }
 }
 
-#[allow(clippy::too_many_arguments)]
+#[derive(Clone, Copy)]
+pub struct CommonExerciseData {
+    pub exercise_id: Uuid,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub block_id: Uuid,
+}
+
 pub fn create_best_exercise(
-    exercise_id: Uuid,
-    exercise_slide_id: Uuid,
-    exercise_task_id: Uuid,
-    block_id: Uuid,
     paragraph_id: Uuid,
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
     exercise_name: Option<String>,
+    exercise_data: CommonExerciseData,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
     CmsPageExerciseSlide,
     CmsPageExerciseTask,
 ) {
+    let CommonExerciseData {
+        exercise_id,
+        exercise_slide_id,
+        exercise_task_id,
+        block_id,
+    } = exercise_data;
     let (exercise_block, exercise, mut slides, mut tasks) = example_exercise_flexible(
         exercise_id,
         exercise_name.unwrap_or_else(|| "Best exercise".to_string()),
@@ -238,23 +246,25 @@ pub fn example_exercise_flexible(
     (block, exercise, slides, tasks)
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn quizzes_exercise(
     name: String,
-    exercise_id: Uuid,
-    exercise_slide_id: Uuid,
-    exercise_task_id: Uuid,
-    block_id: Uuid,
     paragraph_id: Uuid,
     needs_peer_review: bool,
     private_spec: serde_json::Value,
     deadline: Option<DateTime<Utc>>,
+    exercise_data: CommonExerciseData,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
     CmsPageExerciseSlide,
     CmsPageExerciseTask,
 ) {
+    let CommonExerciseData {
+        exercise_id,
+        exercise_slide_id,
+        exercise_task_id,
+        block_id,
+    } = exercise_data;
     let block = GutenbergBlock {
         client_id: block_id,
         name: "moocfi/exercise".to_string(),
@@ -366,7 +376,7 @@ pub async fn submit_and_grade(
     out_of_100: f32,
 ) -> Result<()> {
     // combine the id with the user id to ensure it's unique
-    let id = [id, &user_id.as_bytes()[..]].concat();
+    let id: Vec<u8> = [id, &user_id.as_bytes()[..]].concat();
     let slide_submission = exercise_slide_submissions::insert_exercise_slide_submission_with_id(
         conn,
         Uuid::new_v4(),
@@ -445,6 +455,7 @@ pub async fn submit_and_grade(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn create_exam(
     conn: &mut PgConnection,
     name: String,
@@ -476,28 +487,38 @@ pub async fn create_exam(
     let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
         quizzes_exercise(
             "Multiple choice with feedback".to_string(),
-            Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
-            Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
-            Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
-            Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
             Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
             false,
             serde_json::from_str(include_str!(
                 "../../assets/quizzes-multiple-choice-feedback.json"
             ))?,
             None,
+            CommonExerciseData {
+                exercise_id: Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
+                exercise_slide_id: Uuid::new_v5(
+                    &course_id,
+                    b"ea461a21-e0b4-4e09-a811-231f583b3dcb",
+                ),
+                exercise_task_id: Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
+                block_id: Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
+            },
         );
     let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
         create_best_exercise(
-            Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
-            Uuid::new_v5(&course_id, b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52"),
-            Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),
-            Uuid::new_v5(&course_id, b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"),
             Uuid::new_v5(&course_id, b"fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a"),
             Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
             Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
             Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
             Some("Best exercise".to_string()),
+            CommonExerciseData {
+                exercise_id: Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
+                exercise_slide_id: Uuid::new_v5(
+                    &course_id,
+                    b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52",
+                ),
+                exercise_task_id: Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),
+                block_id: Uuid::new_v5(&course_id, b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"),
+            },
         );
     pages::insert_page(
         conn,

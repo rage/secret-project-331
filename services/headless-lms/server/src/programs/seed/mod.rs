@@ -1,5 +1,3 @@
-#![allow(clippy::too_many_arguments)]
-
 pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
@@ -8,9 +6,10 @@ pub mod seed_helpers;
 pub mod seed_organizations;
 pub mod seed_playground_examples;
 pub mod seed_roles;
+mod seed_user_research_consents;
 pub mod seed_users;
 
-use std::{env, process::Command, sync::Arc};
+use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{domain::models_requests::JwtKey, setup_tracing};
 
@@ -30,11 +29,11 @@ pub async fn main() -> anyhow::Result<()> {
     let (_, seed_users_result, _) = try_join!(
         run_parallelly(seed_exercise_services::seed_exercise_services(
             db_pool.clone()
-        ),),
+        )),
         run_parallelly(seed_users::seed_users(db_pool.clone())),
         run_parallelly(seed_playground_examples::seed_playground_examples(
             db_pool.clone()
-        ),),
+        )),
     )?;
 
     seed_file_storage::seed_file_storage().await?;
@@ -57,6 +56,7 @@ pub async fn main() -> anyhow::Result<()> {
     )?;
 
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
+    seed_user_research_consents::seed_user_research_consents(&db_pool).await?;
 
     seed_certificate_fonts::seed_certificate_fonts(&db_pool).await?;
 
@@ -75,6 +75,8 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     let db_pool = PgPoolOptions::new()
         .max_connections(10)
         .min_connections(5)
+        // the seed process can take a while, default is 30
+        .acquire_timeout(Duration::from_secs(90))
         .connect(&db_url)
         .await?;
 

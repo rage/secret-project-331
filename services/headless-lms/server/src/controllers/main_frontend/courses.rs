@@ -754,7 +754,9 @@ pub async fn get_course_users_counts_by_exercise(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.#
+POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.
+
+Note that the page objects posted here might have the content omitted because it is not needed here and the content makes the request body to be very large.
 
 Creates redirects if url_path changes.
 */
@@ -1148,6 +1150,37 @@ pub async fn get_page_visit_datum_summary_by_countries(
 }
 
 /**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-themselves` - Allows a teacher to reset the course progress for themselves. Cannot be used to reset the course for others.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+#[generated_doc]
+pub async fn teacher_reset_course_progress_for_themselves(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let mut tx = conn.begin().await?;
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+    for course_instance in course_instances {
+        models::course_instances::reset_progress_on_course_instance_for_user(
+            &mut tx,
+            user.id,
+            course_instance.id,
+        )
+        .await?;
+    }
+
+    tx.commit().await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1287,5 +1320,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/page-visit-datum-summary-by-countries",
             web::get().to(get_page_visit_datum_summary_by_countries),
+        )
+        .route(
+            "/{course_id}/teacher-reset-course-progress-for-themselves",
+            web::delete().to(teacher_reset_course_progress_for_themselves),
         );
 }

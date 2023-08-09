@@ -1,8 +1,11 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { ModelSolutionQuiz, Quiz } from "../../../types/types"
+import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
+import { Quiz } from "../../../types/types"
 import { SpecRequest } from "../../shared-module/bindings"
+import { isOldQuiz } from "../../util/migration/migrationSettings"
+import migrateModelSolutionSpecQuiz from "../../util/migration/modelSolutionSpecQuiz"
 
 export default (req: NextApiRequest, res: NextApiResponse<ModelSolutionQuiz>): void => {
   const specRequest = req.body as SpecRequest
@@ -12,18 +15,16 @@ export default (req: NextApiRequest, res: NextApiResponse<ModelSolutionQuiz>): v
   }
 
   const modelSolution = createModelSolution(quiz)
-
   return res.status(200).json(modelSolution)
 }
 
-function createModelSolution(quiz: Quiz): ModelSolutionQuiz {
-  const modelSolution: ModelSolutionQuiz = quiz
+function createModelSolution(quiz: Quiz | ModelSolutionQuiz): ModelSolutionQuiz {
+  let modelSolution: ModelSolutionQuiz | null = null
+  if (isOldQuiz(quiz)) {
+    modelSolution = migrateModelSolutionSpecQuiz(quiz as Quiz)
+  } else {
+    modelSolution = quiz as ModelSolutionQuiz
+  }
 
-  // Let's never leak validity regex to students because it makes it too easy to figure out how to "trick" the check.
-  modelSolution.items.forEach((item) => {
-    // @ts-ignore: the field is there because of the cast above
-    delete item.validityRegex
-  })
-
-  return modelSolution
+  return modelSolution as ModelSolutionQuiz
 }

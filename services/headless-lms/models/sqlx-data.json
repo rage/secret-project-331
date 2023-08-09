@@ -6925,6 +6925,27 @@
     },
     "query": "\nSELECT course_id, exam_id\nFROM pages\nWHERE id = $1\n  AND deleted_at IS NULL;\n        "
   },
+  "5bffd3713a72d39d37bb7bb50aafe5a7f418332d65126b3ff6d9601024359be4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "starts_at",
+          "ordinal": 0,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [true, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT starts_at,\n  ends_at\nFROM course_instances\nWHERE id = $1\n"
+  },
   "5c2d00b7d8e7f5656b0c77ba75fdb90aaac7dcdafbd40bf0c6ac411ee1debeac": {
     "describe": {
       "columns": [],
@@ -17413,6 +17434,52 @@
     },
     "query": "\nSELECT COUNT(*) filter (\n  where proposed_page_edits.pending = true\n) AS pending,\nCOUNT(*) filter (\n  where proposed_page_edits.pending = false\n) AS handled\nFROM proposed_page_edits\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\n"
   },
+  "c05303789bb275fbdb7f8205a7933805eacc79488a5f0ec7acf9d1254098068a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "course_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_slug",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_description",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_instance_description",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT\n    c.id AS course_id,\n    c.slug AS course_slug,\n    c.name AS course_name,\n    c.description AS course_description,\n    ci.id AS course_instance_id,\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description\nFROM course_instances AS ci\n  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id\n  LEFT JOIN courses AS c ON ci.course_id = c.id\nWHERE cie.user_id = $1\n  AND ci.deleted_at IS NULL\n  AND cie.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n"
+  },
   "c0b9a180c35f5891305a61ef57a65bceba00f6e0190612ad7348ad7185ca89f2": {
     "describe": {
       "columns": [],
@@ -22322,22 +22389,6 @@
       }
     },
     "query": "\nINSERT INTO roles (user_id, role, organization_id)\nVALUES ($1, $2, $3)\nRETURNING id\n"
-  },
-  "f4975555bb0c4f1063c0f8f89e371c9b94a48a69c5e1ec92473db99adfce7601": {
-    "describe": {
-      "columns": [
-        {
-          "name": "starts_at",
-          "ordinal": 0,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [true],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT starts_at\nFROM course_instances\nWHERE id = $1\n"
   },
   "f4a5e376a7cec68e07e871efd0817d60abfea336e24c5fa060c5dc1c981aaf76": {
     "describe": {

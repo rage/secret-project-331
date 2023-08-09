@@ -21,7 +21,7 @@ pub struct Pagination {
 }
 
 impl Pagination {
-    /// Panics on non-positive page or limit values.
+    /// Errors on non-positive page or limit values.
     pub fn new(page: u32, limit: u32) -> anyhow::Result<Self> {
         if page == 0 {
             bail!("Page must be a positive value.");
@@ -66,6 +66,10 @@ impl Pagination {
         let start = limit * (self.page as usize - 1);
         v.truncate(start + limit);
         v.drain(..start);
+    }
+
+    pub fn next_page(&mut self) {
+        self.page += 1;
     }
 }
 

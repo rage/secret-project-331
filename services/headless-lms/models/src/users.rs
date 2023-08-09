@@ -1,5 +1,3 @@
-use headless_lms_utils::ApplicationConfiguration;
-
 use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -150,51 +148,6 @@ pub async fn find_by_upstream_id(
     )
     .fetch_optional(conn)
     .await?;
-    Ok(user)
-}
-
-// Only used for testing, not to use in production.
-pub async fn authenticate_test_user(
-    conn: &mut PgConnection,
-    email: &str,
-    password: &str,
-    application_configuration: &ApplicationConfiguration,
-) -> ModelResult<User> {
-    // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
-    assert!(application_configuration.test_mode);
-    let user = if email == "admin@example.com" && password == "admin" {
-        crate::users::get_by_email(conn, "admin@example.com").await?
-    } else if email == "teacher@example.com" && password == "teacher" {
-        crate::users::get_by_email(conn, "teacher@example.com").await?
-    } else if email == "language.teacher@example.com" && password == "language.teacher" {
-        crate::users::get_by_email(conn, "language.teacher@example.com").await?
-    } else if email == "user@example.com" && password == "user" {
-        crate::users::get_by_email(conn, "user@example.com").await?
-    } else if email == "assistant@example.com" && password == "assistant" {
-        crate::users::get_by_email(conn, "assistant@example.com").await?
-    } else if email == "creator@example.com" && password == "creator" {
-        crate::users::get_by_email(conn, "creator@example.com").await?
-    } else if email == "student1@example.com" && password == "student.1" {
-        crate::users::get_by_email(conn, "student1@example.com").await?
-    } else if email == "student2@example.com" && password == "student.2" {
-        crate::users::get_by_email(conn, "student2@example.com").await?
-    } else if email == "student3@example.com" && password == "student.3" {
-        crate::users::get_by_email(conn, "student3@example.com").await?
-    } else if email == "teaching-and-learning-services@example.com"
-        && password == "teaching-and-learning-services"
-    {
-        crate::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
-    } else if email == "student-without-research-consent@example.com"
-        && password == "student-without-research-consent"
-    {
-        crate::users::get_by_email(conn, "student-without-research-consent@example.com").await?
-    } else {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Invalid email or password".to_string(),
-            None,
-        ));
-    };
     Ok(user)
 }
 

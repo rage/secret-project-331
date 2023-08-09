@@ -50,6 +50,7 @@ export interface EditorExercisePublicSpec {
   type: "editor"
   archiveName: string
   archiveDownloadUrl: string
+  checksum: string
 }
 
 export type MessageToParent =

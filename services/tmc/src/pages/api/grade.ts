@@ -78,7 +78,7 @@ const processGrading = async (
       await compressProject(submissionDir, submissionArchivePath, "zstd", true, log)
       extractSubmissionNaively = true
     } else {
-      return badRequest(res, "unexpected submission type", exercise_spec, submission_data)
+      return badRequest(res, `unexpected submission type '${exercise_spec.type}'`)
     }
 
     debug("downloading exercise template")
@@ -103,24 +103,49 @@ const processGrading = async (
     log("grading in pod")
     const pendingSubmission = gradeInPod(preparedSubmissionArchivePath, sandboxImage, points)
 
-    // let the server know the grading request has been received
-    ok(res, {
-      grading_progress: "Pending",
-      score_given: 0,
-      score_maximum: 0,
-      feedback_text: null,
-      feedback_json: null,
-    })
+    // inner try, we should send a grading update in any case
+    try {
+      // let the server know the grading request has been received
+      ok(res, {
+        grading_progress: "Pending",
+        score_given: 0,
+        score_maximum: 0,
+        feedback_text: null,
+        feedback_json: null,
+      })
 
-    // wait for the grading to finish and send the finished grading
-    log("waiting for the grading")
-    const gradingResult = await pendingSubmission
-    log(`sending grading to ${grading_update_url}`)
-    await axios.post(grading_update_url, gradingResult, {
-      headers: gradingUpdateClaim
-        ? { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: gradingUpdateClaim }
-        : {},
-    })
+      // wait for the grading to finish and send the finished grading
+      log("waiting for the grading")
+      const gradingResult = await pendingSubmission
+      log(`sending grading to ${grading_update_url}`)
+      const headers: Record<string, string> = {}
+      if (gradingUpdateClaim) {
+        headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
+      }
+      await axios.post(grading_update_url, gradingResult, {
+        headers,
+      })
+    } catch (err) {
+      try {
+        error("Error while grading, sending failed grading update")
+        const errorGradingResult: ExerciseTaskGradingResult = {
+          grading_progress: "Failed",
+          score_given: 0,
+          score_maximum: 0,
+          feedback_text: `Error while grading: ${err}`,
+          feedback_json: null,
+        }
+        const headers: Record<string, string> = {}
+        if (gradingUpdateClaim) {
+          headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
+        }
+        await axios.post(grading_update_url, errorGradingResult, {
+          headers,
+        })
+      } catch (err) {
+        error("Failed to send failed grading update")
+      }
+    }
   } catch (err) {
     return internalServerError(res, "Error while processing grading", err)
   }
@@ -373,15 +398,15 @@ const ok = (
 const badRequest = (
   res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
-  ...err: unknown[]
+  error?: unknown,
 ): void => {
-  errorResponse(res, 400, contextMessage, err)
+  errorResponse(res, 400, contextMessage, error)
 }
 
 const internalServerError = (
   res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
-  ...err: unknown[]
+  err?: unknown,
 ): void => {
   errorResponse(res, 500, contextMessage, err)
 }
@@ -390,7 +415,7 @@ const errorResponse = (
   res: NextApiResponse<ClientErrorResponse>,
   statusCode: number,
   contextMessage: string,
-  ...err: unknown[]
+  err?: unknown,
 ) => {
   let message
   let stack = undefined

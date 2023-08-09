@@ -15,6 +15,7 @@ pub mod exercise_services;
 pub mod files;
 pub mod healthz;
 pub mod helpers;
+pub mod langs;
 pub mod main_frontend;
 pub mod other_domain_redirects;
 pub mod study_registry;
@@ -49,6 +50,7 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
             web::scope("/other-domain-redirects").configure(other_domain_redirects::_add_routes),
         )
         .service(web::scope("/healthz").configure(healthz::_add_routes))
+        .service(web::scope("/langs").configure(langs::_add_routes))
         .default_service(web::to(not_found));
 }
 

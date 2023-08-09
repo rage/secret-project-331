@@ -120,14 +120,18 @@ const prepareEditorExercise = async (
   log(requestId, "editor exercise, uploading archive to server and saving the URL to public spec")
   const stubArchive = temporaryFile()
   debug(requestId, "compressing stub to", stubArchive)
-  await compressProject(stubDir, stubArchive, "zstd", true, makeLog(requestId))
+  const checksum = await compressProject(stubDir, stubArchive, "zstd", true, makeLog(requestId))
 
   debug(requestId, "uploading stub to", uploadUrl)
   const form = new FormData()
   const archiveName = exercise.part + "/" + exercise.name + ".tar.zst"
   form.append(archiveName, fs.createReadStream(stubArchive))
+  const headers: Record<string, string> = {}
+  if (uploadClaim) {
+    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
+  }
   const res = await axios.post(uploadUrl, form, {
-    headers: uploadClaim ? { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: uploadClaim } : {},
+    headers,
   })
   if (isObjectMap<string>(res.data)) {
     const archiveDownloadPath = res.data[archiveName]
@@ -135,6 +139,7 @@ const prepareEditorExercise = async (
       type: "editor",
       archiveName,
       archiveDownloadUrl: archiveDownloadPath,
+      checksum,
     }
   } else {
     throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)

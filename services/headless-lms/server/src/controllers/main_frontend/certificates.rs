@@ -1,9 +1,8 @@
 use crate::{controllers::helpers::file_uploading, prelude::*};
 use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use chrono::Utc;
-use futures_util::TryStreamExt;
 use headless_lms_certificates as certificates;
-use headless_lms_utils::{file_store::GenericPayload, icu4x::Icu4xBlob};
+use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
 use models::{
     course_module_certificate_configurations::{
         CertificateTextAnchor, DatabaseCourseModuleCertificateConfiguration, PaperSize,
@@ -139,9 +138,7 @@ async fn update_certificate_configuration_inner(
             ));
         };
         let (file, _temp_path) = file.file.into_parts();
-        let file = tokio::fs::File::from_std(file);
-        let stream = tokio_util::io::ReaderStream::new(file).map_err(anyhow::Error::from);
-        let content = Box::pin(stream) as GenericPayload;
+        let content = file_utils::file_to_payload(file);
         match (
             metadata.background_svg_file_name.as_ref(),
             metadata.overlay_svg_file_name.as_ref(),

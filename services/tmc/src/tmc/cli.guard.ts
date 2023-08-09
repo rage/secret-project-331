@@ -858,6 +858,10 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
           typeof typedObj["data"]["output-data"]["projects_dir"] === "string") ||
         (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
           typeof typedObj["data"] === "function") &&
+          typedObj["data"]["output-data-kind"] === "compressed-project-hash" &&
+          typeof typedObj["data"]["output-data"] === "string") ||
+        (((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
+          typeof typedObj["data"] === "function") &&
           typedObj["data"]["output-data-kind"] === "submission-sandbox" &&
           typeof typedObj["data"]["output-data"] === "string"))) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&

@@ -745,8 +745,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<ExerciseStatusSummaryForUser>> {
-    let course_instance_or_exam_id =
-        CourseInstanceOrExamId::from_instance_and_exam_ids(Some(course_instance_id), None)?;
+    let course_instance_or_exam_id = CourseInstanceOrExamId::Instance(course_instance_id);
     // Load all the data for this user from all the exercises to memory, and group most of them to HashMaps by exercise id
     let exercises =
         crate::exercises::get_exercises_by_course_instance_id(&mut *conn, course_instance_id)

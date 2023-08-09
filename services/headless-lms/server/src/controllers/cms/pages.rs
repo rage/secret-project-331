@@ -77,13 +77,14 @@ Content-Type: application/json
 ```
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn update_page(
     request_id: RequestId,
     payload: web::Json<CmsPageUpdate>,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     jwt_key: web::Data<JwtKey>,
+    app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
@@ -102,7 +103,11 @@ async fn update_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page,
         },
-        models_requests::make_spec_fetcher(request_id.0, jwt_key.into_inner()),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            jwt_key.into_inner(),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;

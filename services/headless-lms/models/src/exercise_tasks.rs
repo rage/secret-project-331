@@ -210,7 +210,7 @@ pub async fn get_course_material_exercise_tasks(
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
-            exercise_task_gradings::get_by_exercise_task_submission_id(conn, &submission.id).await?
+            exercise_task_gradings::get_by_exercise_task_submission_id(conn, submission.id).await?
         } else {
             None
         };

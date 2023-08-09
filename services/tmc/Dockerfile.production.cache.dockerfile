@@ -12,6 +12,7 @@ COPY --chown=node package-lock.json /app/
 
 RUN npm ci
 
+COPY --chown=node ./tmc-langs-cli-* /app/tmc-langs-cli
 COPY --chown=node . /app
 
 ENV NEXT_PUBLIC_BASE_PATH="/tmc"

@@ -30,6 +30,15 @@ pub struct DatabaseChapter {
     pub course_module_id: Uuid,
 }
 
+impl DatabaseChapter {
+    /// True if the chapter is currently open or was open and is now closed.
+    pub fn has_opened(&self) -> bool {
+        self.opens_at
+            .map(|opens_at| opens_at < Utc::now())
+            .unwrap_or(true)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Chapter {

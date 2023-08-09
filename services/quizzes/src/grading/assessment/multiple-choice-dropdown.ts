@@ -11,12 +11,31 @@ const assessMultipleChoiceDropdown = (
     )
   }
 
-  const correct = quizItemAnswer.selectedOptionIds.length == 1
+  // No option was selected
+  if (quizItemAnswer.selectedOptionIds.length == 0) {
+    return {
+      quizItemId: quizItem.id,
+      correct: false,
+      correctnessCoefficient: 0,
+    }
+  }
+
+  const selectedOption = quizItemAnswer.selectedOptionIds[0]
+  const answer = quizItem.options.find((item) => item.id == selectedOption)
+
+  // Answer does not exist in quiz item
+  if (!answer) {
+    return {
+      quizItemId: quizItem.id,
+      correct: false,
+      correctnessCoefficient: 0,
+    }
+  }
 
   return {
     quizItemId: quizItem.id,
-    correct,
-    correctnessCoefficient: correct ? 1 : 0,
+    correct: answer.correct,
+    correctnessCoefficient: answer.correct ? 1 : 0,
   }
 }
 

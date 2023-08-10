@@ -38,7 +38,7 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
         port: port,
         _rawSetOutputState: setUserAnswer,
         validate: (previousState) => {
-          if (!previousState) {
+          if (!previousState || previousState.itemAnswers.length == 0) {
             return false
           }
           const validities = previousState.itemAnswers.map((item) => item.valid)

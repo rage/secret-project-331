@@ -52,7 +52,6 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
       }}
     >
       <Widget
-        port={port}
         publicSpec={publicSpec}
         previousSubmission={previousSubmission}
         user_information={user_information}

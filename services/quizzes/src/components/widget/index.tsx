@@ -42,7 +42,6 @@ import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
 
 interface WidgetProps {
-  port: MessagePort
   publicSpec: PublicSpecQuiz
   user_information: UserInformation
   previousSubmission: UserAnswer | null

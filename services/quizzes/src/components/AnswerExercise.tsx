@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 
 import { UserAnswer } from "../../types/quizTypes/answer"
 import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
@@ -16,7 +16,7 @@ export interface ExerciseProps {
 
 const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
   port,
-  publicSpec: quiz,
+  publicSpec,
   previousSubmission,
   user_information,
 }) => {
@@ -31,24 +31,29 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
   }, [previousSubmission])
   const [userAnswer, setUserAnswer] = useState<UserAnswer | null>(intialAnswer)
 
+  const validate: (newState: UserAnswer | null) => boolean = useCallback(
+    (newState) => {
+      if (!newState || newState.itemAnswers.length < publicSpec.items.length) {
+        return false
+      }
+      const validities = newState.itemAnswers.map((item) => item.valid)
+      return validities.every(Boolean)
+    },
+    [publicSpec.items.length],
+  )
+
   return (
     <QuizzesUserItemAnswerContext.Provider
       value={{
         outputState: userAnswer,
         port: port,
         _rawSetOutputState: setUserAnswer,
-        validate: (previousState) => {
-          if (!previousState || previousState.itemAnswers.length == 0) {
-            return false
-          }
-          const validities = previousState.itemAnswers.map((item) => item.valid)
-          return validities.every(Boolean)
-        },
+        validate,
       }}
     >
       <Widget
         port={port}
-        publicSpec={quiz}
+        publicSpec={publicSpec}
         previousSubmission={previousSubmission}
         user_information={user_information}
       />

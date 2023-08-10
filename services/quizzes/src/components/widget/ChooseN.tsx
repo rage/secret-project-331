@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import _ from "lodash"
-import React from "react"
+import React, { useState } from "react"
 
 import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../types/quizTypes/publicSpec"
@@ -10,9 +10,11 @@ import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-const MultipleChoiceClickable: React.FunctionComponent<
+const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
+  const [optionsFull, setOptionsFull] = useState(false)
+
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
@@ -20,14 +22,25 @@ const MultipleChoiceClickable: React.FunctionComponent<
         quizItemId: quizItem.id,
         type: "choose-n",
         selectedOptionIds: [selectedOptionId],
-        valid: true,
+        valid: 1 == quizItem.n,
       })
       return
     }
 
+    if (
+      !quizItemAnswerState.selectedOptionIds.includes(selectedOptionId) &&
+      quizItemAnswerState.selectedOptionIds.length == quizItem.n
+    ) {
+      return
+    }
     const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
-    const validAnswer = selectedIds.length > 0
+    const validAnswer = selectedIds.length == quizItem.n
 
+    if (selectedIds.length == quizItem.n) {
+      setOptionsFull(true)
+    } else {
+      setOptionsFull(false)
+    }
     const newItemAnswer: UserItemAnswerChooseN = {
       ...quizItemAnswerState,
       selectedOptionIds: selectedIds,
@@ -77,6 +90,7 @@ const MultipleChoiceClickable: React.FunctionComponent<
               ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
               `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
             `}
+            disabled={optionsFull && !quizItemAnswerState?.selectedOptionIds?.includes(o.id)}
           >
             {o.title || o.body}
           </button>
@@ -86,4 +100,4 @@ const MultipleChoiceClickable: React.FunctionComponent<
   )
 }
 
-export default withErrorBoundary(MultipleChoiceClickable)
+export default withErrorBoundary(ChooseN)

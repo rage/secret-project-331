@@ -37,12 +37,12 @@ import { FlexDirection, sanitizeFlexDirection } from "../util/css-sanitization"
 
 import FlexWrapper from "./FlexWrapper"
 import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
+import ClosedEndedQuestionFeedback from "./SubmissionComponents/Closed-ended-question"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
-import OpenFeedback from "./SubmissionComponents/Open"
 import ScaleSubmissionViewComponent from "./SubmissionComponents/Scale"
 import Timeline from "./SubmissionComponents/Timeline"
 import Unsupported from "./SubmissionComponents/Unsupported"
@@ -61,7 +61,7 @@ interface QuizItemSubmissionComponentDescriptor {
     | typeof MultipleChoiceSubmission
     | typeof CheckBoxFeedback
     | typeof ScaleSubmissionViewComponent
-    | typeof OpenFeedback
+    | typeof ClosedEndedQuestionFeedback
     | typeof Unsupported
     | typeof MultipleChoiceDropdownFeedback
     | typeof MultipleChoiceClickableFeedback
@@ -85,18 +85,18 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   "closed-ended-question": {
-    component: OpenFeedback,
+    component: ClosedEndedQuestionFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
   "custom-frontend-accept-data": {
-    component: OpenFeedback,
+    component: ClosedEndedQuestionFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   "multiple-choice-dropdown": {
     component: MultipleChoiceDropdownFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
-  "clickable-multiple-choice": {
+  "choose-n": {
     component: MultipleChoiceClickableFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
@@ -232,7 +232,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
               return (
                 quizItemAnswer && (
                   <FlexItem key={item.id}>
-                    <OpenFeedback
+                    <ClosedEndedQuestionFeedback
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemClosedEndedQuestion}
                       quiz_direction={direction}

@@ -36,7 +36,7 @@ const incorrectAnswer = css`
   border-radius: 5px;
 `
 
-const OpenFeedback: React.FC<
+const ClosedEndedQuestionFeedback: React.FC<
   QuizItemSubmissionComponentProps<
     PublicSpecQuizItemClosedEndedQuestion,
     UserItemAnswerClosedEndedQuestion
@@ -75,4 +75,4 @@ const OpenFeedback: React.FC<
   )
 }
 
-export default withErrorBoundary(OpenFeedback)
+export default withErrorBoundary(ClosedEndedQuestionFeedback)

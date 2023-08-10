@@ -30,12 +30,17 @@ const ClosedEndedQuestion: React.FC<
     }
 
     if (!quizItem.formatRegex) {
-      return setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue, valid: false })
+      setQuizItemAnswerState({
+        ...quizItemAnswerState,
+        textData: newValue,
+        valid: newValue.length > 0,
+      })
+      return
     }
 
     const newValueIsValid = newValue
       ? answerFormatIsValidAgainstRegex(newValue, quizItem.formatRegex)
-      : true
+      : newValue.length > 0
     setQuizItemAnswerState({ ...quizItemAnswerState, textData: newValue, valid: newValueIsValid })
   }
 

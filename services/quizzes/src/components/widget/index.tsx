@@ -31,11 +31,11 @@ import { FlexDirection, sanitizeFlexDirection } from "../../util/css-sanitizatio
 import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
+import ChooseN from "./ChooseN"
 import ClosedEndedQuestion from "./ClosedEndedQuestion"
 import Essay from "./Essay"
 import Matrix from "./Matrix/Matrix"
 import MultipleChoice from "./MultipleChoice"
-import MultipleChoiceClickable from "./MultipleChoiceClickable"
 import MultipleChoiceDropdown from "./MultipleChoiceDropdown"
 import Scale from "./Scale"
 import Timeline from "./Timeline"
@@ -145,7 +145,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
               quizItem = quizItem as PublicSpecQuizItemChooseN
               quizItemAnswerState = quizItemAnswerState as UserItemAnswerChooseN
               return (
-                <MultipleChoiceClickable
+                <ChooseN
                   key={quizItem.id}
                   quizDirection={COLUMN}
                   quizItem={quizItem}

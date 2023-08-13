@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
@@ -35,19 +35,21 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
   }
 
   // Get course ids of the forms student has answered
-  if (getAllResearchFormAnswers.isSuccess && allCourseIds.length == 0) {
+  useEffect(() => {
     const uniqueCourseIds = getAllResearchFormAnswers.data
       ?.map((obj) => obj.course_id)
       .filter((course_id: string, index, currentVal) => currentVal.indexOf(course_id) === index)
-    setAllCourseIds(uniqueCourseIds)
-  }
+    setAllCourseIds(uniqueCourseIds ?? [])
+  }, [getAllResearchFormAnswers.data])
 
-  const breadcrumbQueries = allCourseIds.map((courseId) => {
-    return {
-      queryKey: [`course-${courseId}-breadcrumb-info`, courseId],
-      queryFn: () => getCourseBreadCrumbInfo(courseId),
-    }
-  })
+  const breadcrumbQueries =
+    allCourseIds &&
+    allCourseIds.map((courseId) => {
+      return {
+        queryKey: [`course-${courseId}-breadcrumb-info`, courseId],
+        queryFn: () => getCourseBreadCrumbInfo(courseId),
+      }
+    })
   const courseBreadcrumbInfos = useQueries({ queries: breadcrumbQueries })
 
   return (
@@ -69,7 +71,13 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
             gap: 60px;
           `}
         >
-          <div>{t("research-consent-title")}:</div>
+          <div
+            className={css`
+              width: 400px;
+            `}
+          >
+            {t("research-consent-title")}:
+          </div>
           <Button size="medium" variant="primary" onClick={handleGeneralResearchFormButton}>
             {t("edit")}
           </Button>
@@ -96,14 +104,22 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
                   `}
                   key={course.data?.course_id}
                 >
-                  {course.data?.course_name}:
-                  <a
-                    href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
+                  <div
+                    className={css`
+                      width: 400px;
+                    `}
                   >
-                    <Button size="medium" variant="primary">
-                      {t("edit")}
-                    </Button>
-                  </a>
+                    {course.data?.course_name}:
+                  </div>
+                  <div>
+                    <a
+                      href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
+                    >
+                      <Button size="medium" variant="primary">
+                        {t("edit")}
+                      </Button>
+                    </a>
+                  </div>
                 </div>
               )
             })}

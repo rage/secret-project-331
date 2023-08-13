@@ -567,6 +567,57 @@
     },
     "query": "\nUPDATE peer_review_queue_entries\nSET peer_review_priority = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *\n    "
   },
+  "0530228ad5d31055c390c9f696ee82c66baf7ca15328503bb4b25afbf8cc92df": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_form_question_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "research_consent",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT * FROM course_specific_consent_form_answers\nWHERE user_id = $1\nAND deleted_at IS NULL\n"
+  },
   "0531a63ce132ab34d24576c0fa59db7e59b205fc28c5008f034b12a4e8546e4b": {
     "describe": {
       "columns": [],
@@ -11063,6 +11114,42 @@
     },
     "query": "\nUPDATE exercise_slides\nSET deleted_at = now()\nWHERE exercise_id = ANY($1)\nRETURNING id;\n        "
   },
+  "7a7a56fe873db6427ef31e355cd69c6cd2353e6e8644bba0fa9ff3264e78f1af": {
+    "describe": {
+      "columns": [
+        {
+          "name": "course_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_slug",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_slug",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "organization_name",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT courses.id as course_id,\n  courses.name as course_name,\n  courses.slug as course_slug,\n  organizations.slug as organization_slug,\n  organizations.name as organization_name\nFROM courses\n  JOIN organizations ON (courses.organization_id = organizations.id)\nWHERE courses.id = $1;\n    "
+  },
   "7ac092aa73f25fe5f40a136af9ce3f9ff9b370f2b118be04b49c3f4a5fa8dafd": {
     "describe": {
       "columns": [
@@ -13124,37 +13211,6 @@
       }
     },
     "query": "\nINSERT INTO users (id, email_domain)\nVALUES ($1, $2)\nRETURNING id\n"
-  },
-  "951b669adeb15ca65df3eda9c4972c83daeaac52f8d9bc6a7fdf805449faa387": {
-    "describe": {
-      "columns": [
-        {
-          "name": "course_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "organization_slug",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "organization_name",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false, false, false, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT courses.id as course_id,\n  courses.name as course_name,\n  organizations.slug as organization_slug,\n  organizations.name as organization_name\nFROM courses\n  JOIN organizations ON (courses.organization_id = organizations.id)\nWHERE courses.id = $1;\n    "
   },
   "95507d06c93371645624282c196546afb39b428df76d978d7d87a8595f4bed05": {
     "describe": {

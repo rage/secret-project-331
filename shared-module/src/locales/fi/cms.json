@@ -12,6 +12,7 @@
   "block-list": "Nykyiset lohkot",
   "block-menu": "Lisää lohko / Kaikki saatavilla olevat lohkot ",
   "block-props": "Lohkon ominaisuudet",
+  "button-text-create": "Luo",
   "button-text-select-media": "Valitse media (ei käytössä)",
   "chapter-progress-placeholder": "Luvun edistyminen lohko",
   "chapter-progress-placeholder-explanation": "Tätä lohkoa käytetään luvun edistymisen näyttämiseen. Jos haluat näyttää koko kurssin edistymisen, sinun tulee käyttää Course Progress -lohkoa.",

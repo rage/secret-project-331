@@ -16,13 +16,13 @@ const CheckBoxBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CheckBo
 ) => {
   const { terms } = useContext(GlossaryContext)
 
-  const { answers, setAnswers } = useContext(CheckboxContext)
+  const { questionIdsAndAnswers, setQuestionIdsAndAnswers } = useContext(CheckboxContext)
 
   const handleChange = (value: boolean) => {
-    setAnswers({ ...answers, [props.data.clientId]: value })
+    setQuestionIdsAndAnswers({ ...questionIdsAndAnswers, [props.data.clientId]: value })
   }
 
-  if (!answers) {
+  if (!questionIdsAndAnswers) {
     return
   }
 
@@ -30,8 +30,8 @@ const CheckBoxBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CheckBo
     <>
       <CheckBox
         label={parseText(props.data.attributes.content, terms).parsedText}
-        checked={answers[props.data.clientId]}
-        onChange={() => handleChange(!answers[props.data.clientId])}
+        checked={questionIdsAndAnswers[props.data.clientId]}
+        onChange={() => handleChange(!questionIdsAndAnswers[props.data.clientId])}
       />
     </>
   )

@@ -7,7 +7,6 @@ import { CheckboxContext } from "../../contexts/CheckboxContext"
 import PageContext from "../../contexts/PageContext"
 import {
   Block,
-  fetchResearchFormAnswersWithUserId,
   fetchResearchFormQuestionsWithCourseId,
   fetchResearchFormWithCourseId,
   postResearchFormUserAnswer,
@@ -21,7 +20,9 @@ import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import ContentRenderer from "../ContentRenderer"
 
 interface ResearchConsentFormProps {
-  onClose?: () => void
+  onClose: () => void
+  editForm: boolean
+  shouldAnswerResearchForm: boolean
 }
 
 type UserAnswer = {
@@ -29,38 +30,27 @@ type UserAnswer = {
   answer: boolean
 }
 
-const SelectResearchConsentForm: React.FC<
-  React.PropsWithChildren<ResearchConsentFormProps>
-> = () => {
+const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsentFormProps>> = ({
+  editForm,
+  onClose,
+  shouldAnswerResearchForm,
+}) => {
   const { t } = useTranslation()
   const userId = useUserInfo().data?.user_id
   const courseId = useContext(PageContext).pageData?.course_id
 
-  const [shouldAnswerForm, setShouldAnswerForm] = useState<boolean>(false)
-  const [answers, setAnswers] = useState<{ [key: string]: boolean }>()
+  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
 
   const getResearchConsentForm = useQuery([`courses-${courseId}-research-consent-form`], () =>
     fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
   )
-
-  const getResearchFormAnswers = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form-question-answer`],
-    queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
-    enabled: getResearchConsentForm.isSuccess,
-  })
-
-  useEffect(() => {
-    if (getResearchFormAnswers.data?.length == 0) {
-      setShouldAnswerForm(true)
-    }
-  }, [getResearchFormAnswers.data?.length])
 
   const getResearchFormQuestions = useQuery(
     [`courses-${courseId}-research-consent-form-questions`],
     () => fetchResearchFormQuestionsWithCourseId(assertNotNullOrUndefined(courseId)),
   )
 
-  // Adds all checkbox ids and false as deault answer to answers
+  // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
   useEffect(() => {
     const questions = getResearchFormQuestions.data?.reduce(
       (acc, obj) => ({
@@ -69,8 +59,8 @@ const SelectResearchConsentForm: React.FC<
       }),
       {},
     )
-    setAnswers(questions)
-  }, [getResearchFormQuestions.data, setAnswers])
+    setQuestionIdsAndAnswers(questions)
+  }, [getResearchFormQuestions.data, setQuestionIdsAndAnswers])
 
   const mutation = useToastMutation(
     (answer: UserAnswer) =>
@@ -86,23 +76,24 @@ const SelectResearchConsentForm: React.FC<
     },
   )
 
-  const handleOnSubmit = () => {
-    setShouldAnswerForm(false)
-    if (answers) {
-      Object.entries(answers).forEach(([id, bol]) => {
+  const handleOnSubmit = async () => {
+    if (questionIdsAndAnswers) {
+      Object.entries(questionIdsAndAnswers).forEach(([id, bol]) => {
         const newAnswer: UserAnswer = { questionId: id, answer: bol }
         mutation.mutate(newAnswer)
       })
     }
-    getResearchFormAnswers.refetch()
+    onClose()
   }
-  if (!shouldAnswerForm) {
+
+  if (getResearchConsentForm.isError) {
     return null
   }
+
   return (
     <div>
-      <Dialog open={shouldAnswerForm} closeable={false}>
-        <CheckboxContext.Provider value={{ answers, setAnswers }}>
+      <Dialog open={shouldAnswerResearchForm || editForm} closeable={false}>
+        <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
           {getResearchConsentForm.isSuccess && (
             <ContentRenderer
               data={(getResearchConsentForm.data?.content as Array<Block<unknown>>) ?? []}
@@ -135,7 +126,7 @@ const SelectResearchConsentForm: React.FC<
             >
               {t("save")}
             </Button>
-          </div>{" "}
+          </div>
         </CheckboxContext.Provider>
       </Dialog>
     </div>

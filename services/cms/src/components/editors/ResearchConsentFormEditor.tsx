@@ -26,7 +26,7 @@ interface ResearchFormEditorProps {
 
 const EditorLoading = <Spinner variant="medium" />
 
-const ResearchFormGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
+const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   ssr: false,
   loading: () => EditorLoading,
 })
@@ -61,7 +61,6 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
       setCurrentContent(data.content)
     }
   }
-  const [error, setError] = useState<string | null>(null)
 
   const handleOnSave = async () => {
     setSaving(true)
@@ -71,78 +70,79 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
         course_id: assertNotNullOrUndefined(courseId),
       })
       setContent(res.content as BlockInstance[])
-      setError(null)
     } catch (e: unknown) {
       if (!(e instanceof Error)) {
         throw e
       }
-      setError(e.toString())
     } finally {
       setSaving(false)
       setCurrentContent(content)
     }
   }
-
+  const saveAndReset = (
+    <div>
+      <div
+        className={css`
+          display: flex;
+          justify-content: center;
+          background: #f5f6f7;
+          padding: 1rem;
+        `}
+      >
+        <Button
+          variant="primary"
+          size="medium"
+          className={css`
+            margin-right: 1rem;
+            border: 1px black solid;
+            pointer-events: auto;
+          `}
+          onClick={handleOnSave}
+          disabled={saving}
+        >
+          {t("save")}
+        </Button>
+        <Button
+          variant="secondary"
+          size="medium"
+          className={css`
+            margin-left: 1rem;
+            border: 1px black solid;
+            pointer-events: auto;
+          `}
+          onClick={() => {
+            const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
+            if (res) {
+              setContent(currentContent)
+            }
+          }}
+          disabled={saving}
+        >
+          {t("reset")}
+        </Button>
+      </div>
+    </div>
+  )
   return (
     <>
-      <BreakFromCentered sidebar={false}>
-        <div>
-          <div
-            className={css`
-              display: flex;
-              justify-content: center;
-              background: #f5f6f7;
-              padding: 1rem;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="medium"
-              className={css`
-                margin-right: 1rem;
-                border: 1px black solid;
-                pointer-events: auto;
-              `}
-              onClick={handleOnSave}
-              disabled={saving}
-            >
-              {t("save")}
-            </Button>
-            <Button
-              variant="secondary"
-              size="medium"
-              className={css`
-                margin-left: 1rem;
-                border: 1px black solid;
-                pointer-events: auto;
-              `}
-              onClick={() => {
-                const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
-                if (res) {
-                  setContent(currentContent)
-                }
-              }}
-              disabled={saving}
-            >
-              {t("reset")}
-            </Button>
-          </div>
-        </div>
-      </BreakFromCentered>
-      <div className="editor__component">
-        <div>
-          {courseId && (
-            <ResearchFormGutenbergEditor
-              content={content}
-              onContentChange={setContent}
-              allowedBlocks={allowedResearchFormCoreBlocks}
-              customBlocks={blockTypeMapForResearchConsentForm}
-              mediaUpload={mediaUploadBuilder({ courseId: courseId })}
-              needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-              setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-            />
-          )}
-        </div>
+      <div>
+        <BreakFromCentered sidebar={false}>
+          <div>{saveAndReset}</div>
+        </BreakFromCentered>
+      </div>
+
+      <div>
+        {courseId && (
+          <GutenbergEditor
+            content={content}
+            onContentChange={setContent}
+            allowedBlocks={allowedResearchFormCoreBlocks}
+            customBlocks={blockTypeMapForResearchConsentForm}
+            mediaUpload={mediaUploadBuilder({ courseId: courseId })}
+            needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+            setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+          />
+        )}
       </div>
       <div className="editor__component">
         <div

@@ -834,6 +834,7 @@ fn models() {
     doc!(CourseBreadcrumbInfo {
         course_id,
         course_name: "Introduction to everything".to_string(),
+        course_slug: "introduction-to-everything".to_string(),
         organization_slug: "uh-cs".to_string(),
         organization_name: "University of Helsinkin, Deparment of Computer Science".to_string()
     });

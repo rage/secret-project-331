@@ -944,6 +944,7 @@ export function isCourseBreadcrumbInfo(obj: unknown): obj is CourseBreadcrumbInf
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["course_slug"] === "string" &&
     typeof typedObj["organization_slug"] === "string" &&
     typeof typedObj["organization_name"] === "string"
   )

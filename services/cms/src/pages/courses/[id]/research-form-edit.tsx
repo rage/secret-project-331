@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CheckBoxAttributes } from "../../../blocks/Checkbox"
 import CourseContext from "../../../contexts/CourseContext"
@@ -46,6 +47,7 @@ const ResearchFormEditor = dynamic(
 const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ query }) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const courseId = query.id
+  const { t } = useTranslation()
 
   const getResearchForm = useQuery(
     [`courses-${courseId}-research-consent-form`],
@@ -97,7 +99,6 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
 
   return (
     <>
-      {getResearchForm.isLoading && <Spinner variant={"medium"} />}
       {getResearchForm.isSuccess && (
         <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
           <ResearchFormEditor
@@ -109,9 +110,8 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
         </CourseContext.Provider>
       )}
       {getResearchForm.isError && (
-        // eslint-disable-next-line i18next/no-literal-string
         <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
-          create
+          {t("button-text-create")}
         </Button>
       )}
     </>

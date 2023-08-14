@@ -13,6 +13,7 @@ import {
   fetchGlossary,
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
+  fetchResearchFormWithCourseId,
 } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
@@ -89,13 +90,14 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     }
   }, [router, researchFormQueryParam])
 
-  const getPageAudioFiles = useQuery([`page-${pageId}-audio-files`], () =>
-    courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : [],
-  )
-
   const getUserAnswers = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form-question-answer`],
+    queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
     queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
+    enabled: !!courseId,
+  })
+  const getResearchConsentForm = useQuery({
+    queryKey: [`courses-${courseId}-research-consent-form`],
+    queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
     enabled: !!courseId,
   })
 
@@ -104,6 +106,10 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
       setShouldAnswerResearchForm(true)
     }
   }, [getUserAnswers.data?.length, hasAnsweredForm, shouldAnswerResearchForm])
+
+  const getPageAudioFiles = useQuery([`page-${pageId}-audio-files`], () =>
+    courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : [],
+  )
 
   // Fetch glossary for each page seperately
   const glossary = useQuery([`glossary-${courseId}`], () =>
@@ -142,11 +148,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             />
           )}
         {courseId && <CourseSettingsModal onClose={onRefresh} />}
-        {(showAndEditForm || shouldAnswerResearchForm) && (
+        {getResearchConsentForm.isSuccess && (showAndEditForm || shouldAnswerResearchForm) && (
           <SelectResearchConsentForm
             editForm={showAndEditForm}
             shouldAnswerResearchForm={shouldAnswerResearchForm}
             usersInitialAnswers={getUserAnswers.data}
+            researchForm={getResearchConsentForm.data}
             onClose={() => {
               setshowAndEditForm(false)
               setShouldAnswerResearchForm(false)

@@ -42,7 +42,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      "moocfi/checkbox",
+      "moocfi/research-consent-checkbox",
     ]) as BlockInstance[],
   )
   const courseId = useContext(CourseContext)?.courseId
@@ -50,7 +50,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      "moocfi/checkbox",
+      "moocfi/research-consent-checkbox",
     ]) as BlockInstance[],
   )
 
@@ -125,11 +125,9 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   )
   return (
     <>
-      <div>
-        <BreakFromCentered sidebar={false}>
-          <div>{saveAndReset}</div>
-        </BreakFromCentered>
-      </div>
+      <BreakFromCentered sidebar={false}>
+        <div>{saveAndReset}</div>
+      </BreakFromCentered>
 
       <div>
         {courseId && (

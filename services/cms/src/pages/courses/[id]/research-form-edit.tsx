@@ -4,7 +4,7 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CheckBoxAttributes } from "../../../blocks/Checkbox"
+import { CheckBoxAttributes } from "../../../blocks/ResearchConsentCheckbox"
 import CourseContext from "../../../contexts/CourseContext"
 import {
   fetchResearchFormWithCourseId,
@@ -131,6 +131,12 @@ function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
 }
 
 function isMoocfiCheckbox(obj: BlockInstance): obj is BlockInstance<CheckBoxAttributes> {
-  return obj.name === "moocfi/checkbox"
+  return obj.name === "moocfi/research-consent-checkbox"
 }
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))
+
+const exported = withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))
+
+// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
+exported.hideBreadcrumbs = true
+
+export default exported

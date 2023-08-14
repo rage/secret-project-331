@@ -225,16 +225,15 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 {t("link-export-course-instances")}
               </a>
             </li>
-            <li>
-              <a
-                href={`/cms/courses/${course.id}/research-form-edit`}
-                aria-label={"Edit research form"}
-              >
-                {"Edit research form"}
-              </a>
-            </li>
           </ul>
         </>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <a href={`/cms/courses/${course.id}/research-form-edit`} aria-label={"Edit research form"}>
+          <Button variant="secondary" size="medium">
+            {"Create or edit research form"}
+          </Button>
+        </a>
       </OnlyRenderIfPermissions>
     </>
   )

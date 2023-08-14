@@ -532,7 +532,7 @@ export const fetchResearchFormAnswersWithUserId = async (
   course_id: string,
 ): Promise<Array<ResearchFormQuestionAnswer>> => {
   const response = await courseMaterialClient.get(
-    `/courses/${course_id}/research-consent-form-questions-answer`,
+    `/courses/${course_id}/research-consent-form-user-answers`,
     {
       responseType: "json",
     },

@@ -96,7 +96,7 @@ async fn put_course_default_peer_review_configuration(
 }
 
 /**
-PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts courses research form from Gutenberg research form edit.
+PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
 */
 #[generated_doc]
 #[instrument(skip(pool, payload))]
@@ -108,7 +108,7 @@ async fn upsert_course_research_form(
 ) -> ControllerResult<web::Json<ResearchForm>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
     let new_research_form = payload;
     let res = models::research_forms::upsert_research_form(
         &mut conn,
@@ -132,7 +132,7 @@ async fn get_research_form_with_course_id(
 ) -> ControllerResult<web::Json<ResearchForm>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
     let res =
         models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
 
@@ -153,7 +153,7 @@ async fn upsert_course_research_form_question(
 ) -> ControllerResult<web::Json<ResearchFormQuestion>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
     let question = payload;
     let res = models::research_forms::upsert_research_form_questions(&mut conn, &question).await?;
 

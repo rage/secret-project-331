@@ -131,7 +131,7 @@ WHERE id = $1
 
 pub async fn get_by_exercise_task_submission_id(
     conn: &mut PgConnection,
-    exercise_task_submission_id: &Uuid,
+    exercise_task_submission_id: Uuid,
 ) -> ModelResult<Option<ExerciseTaskGrading>> {
     let res = sqlx::query_as!(
         ExerciseTaskGrading,

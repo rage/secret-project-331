@@ -195,7 +195,7 @@ AND deleted_at IS NULL
 pub async fn get_active_courses_for_organization(
     conn: &mut PgConnection,
     organization_id: Uuid,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Course>> {
     let course_instances = sqlx::query_as!(
         Course,

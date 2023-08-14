@@ -26,6 +26,12 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
+impl CourseInstance {
+    pub fn is_open(&self) -> bool {
+        self.starts_at.map(|sa| sa < Utc::now()).unwrap_or_default()
+    }
+}
+
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceForm {
@@ -456,7 +462,8 @@ WHERE id = $1
 pub async fn is_open(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
     let res = sqlx::query!(
         "
-SELECT starts_at
+SELECT starts_at,
+  ends_at
 FROM course_instances
 WHERE id = $1
 ",
@@ -464,11 +471,15 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    let is_open = if let Some(starts_at) = res.starts_at {
-        starts_at <= Utc::now()
-    } else {
-        false
+    let has_started = match res.starts_at {
+        Some(starts_at) => starts_at <= Utc::now(),
+        None => true,
     };
+    let has_ended = match res.ends_at {
+        Some(ends_at) => ends_at <= Utc::now(),
+        None => false,
+    };
+    let is_open = has_started && !has_ended;
     Ok(is_open)
 }
 
@@ -484,6 +495,46 @@ FROM course_instances
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
     "#,
         course_instance_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
+pub struct CourseInstanceWithCourseInfo {
+    pub course_id: Uuid,
+    pub course_slug: String,
+    pub course_name: String,
+    pub course_description: Option<String>,
+    pub course_instance_id: Uuid,
+    pub course_instance_name: Option<String>,
+    pub course_instance_description: Option<String>,
+}
+
+pub async fn get_enrolled_course_instances_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseInstanceWithCourseInfo>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstanceWithCourseInfo,
+        r#"
+SELECT
+    c.id AS course_id,
+    c.slug AS course_slug,
+    c.name AS course_name,
+    c.description AS course_description,
+    ci.id AS course_instance_id,
+    ci.name AS course_instance_name,
+    ci.description AS course_instance_description
+FROM course_instances AS ci
+  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
+  LEFT JOIN courses AS c ON ci.course_id = c.id
+WHERE cie.user_id = $1
+  AND ci.deleted_at IS NULL
+  AND cie.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+"#,
+        user_id
     )
     .fetch_all(conn)
     .await?;

@@ -9,6 +9,7 @@ ensure_program_in_path "minikube"
 ensure_program_in_path "kustomize"
 check_minikube_version
 ensure_common_programs_in_path
+ensure_tmc_langs_cli_downloaded
 
 run_command npm run postinstall
 echo ""

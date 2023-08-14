@@ -41,6 +41,7 @@ pub struct SeedOrganizationUhCsResult {
 pub async fn seed_organization_uh_cs(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
@@ -77,6 +78,7 @@ pub async fn seed_organization_uh_cs(
         student_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
+        base_url: base_url.clone(),
     };
     let (
         cs_intro,
@@ -322,6 +324,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -336,6 +339,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -350,6 +354,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -364,6 +369,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("65f5c3f3-b5fd-478d-8858-a45cdcb16b86")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -378,6 +384,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -392,6 +399,7 @@ pub async fn seed_organization_uh_cs(
         Uuid::parse_str("b2168b2f-f721-4771-a35d-ca75ca0937b1")?,
         teacher_user_id,
         0,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -407,6 +415,7 @@ pub async fn seed_organization_uh_cs(
         &db_pool,
         uh_cs_organization_id,
         admin_user_id,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -433,7 +442,11 @@ pub async fn seed_organization_uh_cs(
             }),
             new_course,
             admin_user_id,
-            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(
+                base_url.clone(),
+                Uuid::new_v4(),
+                Arc::clone(&jwt_key),
+            ),
             models_requests::fetch_service_info,
         )
         .await?;

@@ -30,6 +30,7 @@ pub async fn create_page(
     author: Uuid,
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_page = NewPage {
@@ -49,7 +50,7 @@ pub async fn create_page(
         conn,
         new_page,
         author,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -71,7 +72,7 @@ pub async fn create_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false,
         },
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -305,6 +306,63 @@ pub fn quizzes_exercise(
 }
 
 #[allow(clippy::too_many_arguments)]
+pub fn tmc_exercise(
+    name: String,
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    exercise_task_id: Uuid,
+    block_id: Uuid,
+    paragraph_id: Uuid,
+    needs_peer_review: bool,
+    private_spec: serde_json::Value,
+    deadline: Option<DateTime<Utc>>,
+) -> (
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
+) {
+    let block = GutenbergBlock {
+        client_id: block_id,
+        name: "moocfi/exercise".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "id": exercise_id,
+            "name": name,
+            "dropCap": false,
+        },
+        inner_blocks: vec![],
+    };
+    let exercise = CmsPageExercise {
+        id: exercise_id,
+        name,
+        order_number: 1,
+        score_maximum: 1,
+        max_tries_per_slide: None,
+        limit_number_of_tries: false,
+        deadline,
+        needs_peer_review,
+        use_course_default_peer_review_config: true,
+        peer_review_config: None,
+        peer_review_questions: None,
+    };
+    let exercise_slide = CmsPageExerciseSlide {
+        id: exercise_slide_id,
+        exercise_id,
+        order_number: 1,
+    };
+    let exercise_task = CmsPageExerciseTask {
+        id: exercise_task_id,
+        exercise_slide_id,
+        assignment: serde_json::json!([paragraph("Write an `add` function.", paragraph_id)]),
+        exercise_type: "tmc".to_string(),
+        private_spec: Some(serde_json::json!(private_spec)),
+        order_number: 0,
+    };
+    (block, exercise, exercise_slide, exercise_task)
+}
+
+#[allow(clippy::too_many_arguments)]
 pub async fn submit_and_grade(
     conn: &mut PgConnection,
     id: &[u8],
@@ -409,6 +467,7 @@ pub async fn create_exam(
     exam_id: Uuid,
     teacher: Uuid,
     minimum_points_treshold: i32,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_exam_id = exams::insert(
@@ -489,7 +548,7 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), jwt_key),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), jwt_key),
         models_requests::fetch_service_info,
     )
     .await?;

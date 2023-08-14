@@ -95,9 +95,12 @@ async fn put_course_default_peer_review_configuration(
     token.authorized_ok(web::Json(cms_peer_review_configuration))
 }
 
+/**
+PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts courses research form from Gutenberg research form edit.
+*/
 #[generated_doc]
 #[instrument(skip(pool, payload))]
-async fn upsert_course_specific_research_form(
+async fn upsert_course_research_form(
     payload: web::Json<NewResearchForm>,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -107,7 +110,7 @@ async fn upsert_course_specific_research_form(
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
     let new_research_form = payload;
-    let res = models::research_forms::insert_research_form(
+    let res = models::research_forms::upsert_research_form(
         &mut conn,
         PKeyPolicy::Generate,
         &new_research_form,
@@ -117,6 +120,9 @@ async fn upsert_course_specific_research_form(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
@@ -133,9 +139,13 @@ async fn get_research_form_with_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts questions for the courses research form from Gutenberg research form edit.
+*/
+
 #[generated_doc]
 #[instrument(skip(pool, payload))]
-async fn upsert_course_specific_research_form_question(
+async fn upsert_course_research_form_question(
     payload: web::Json<NewResearchFormQuestion>,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -145,7 +155,7 @@ async fn upsert_course_specific_research_form_question(
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
     let question = payload;
-    let res = models::research_forms::insert_research_form_questions(&mut conn, &question).await?;
+    let res = models::research_forms::upsert_research_form_questions(&mut conn, &question).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -169,7 +179,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{courseId}/research-consent-form-question",
-            web::put().to(upsert_course_specific_research_form_question),
+            web::put().to(upsert_course_research_form_question),
         )
         .route(
             "/{course_id}/research-consent-form",
@@ -177,6 +187,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/research-consent-form",
-            web::put().to(upsert_course_specific_research_form),
+            web::put().to(upsert_course_research_form),
         );
 }

@@ -11,6 +11,7 @@ import {
   fetchResearchFormWithCourseId,
   postResearchFormUserAnswer,
 } from "../../services/backend"
+import { ResearchFormQuestionAnswer } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import Dialog from "../../shared-module/components/Dialog"
 import useToastMutation from "../../shared-module/hooks/useToastMutation"
@@ -23,6 +24,7 @@ interface ResearchConsentFormProps {
   onClose: () => void
   editForm: boolean
   shouldAnswerResearchForm: boolean
+  usersInitialAnswers?: ResearchFormQuestionAnswer[]
 }
 
 type UserAnswer = {
@@ -60,7 +62,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
       {},
     )
     setQuestionIdsAndAnswers(questions)
-  }, [getResearchFormQuestions.data, setQuestionIdsAndAnswers])
+  }, [getResearchFormQuestions.data, questionIdsAndAnswers, setQuestionIdsAndAnswers])
 
   const mutation = useToastMutation(
     (answer: UserAnswer) =>

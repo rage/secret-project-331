@@ -791,6 +791,9 @@ async fn get_student_country(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
@@ -807,6 +810,9 @@ async fn get_research_form_with_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_questions_with_course_id(
@@ -824,9 +830,12 @@ async fn get_research_form_questions_with_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
+*/
 #[generated_doc]
 #[instrument(skip(pool, payload))]
-async fn upsert_course_specific_research_form_answer(
+async fn upsert_course_research_form_answer(
     payload: web::Json<NewResearchFormQuestionAnswer>,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -837,11 +846,14 @@ async fn upsert_course_specific_research_form_answer(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*course_id)).await?;
     let answer = payload;
     let res =
-        models::research_forms::insert_research_form_anwser(&mut conn, *course_id, &answer).await?;
+        models::research_forms::upsert_research_form_anwser(&mut conn, *course_id, &answer).await?;
 
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/course/courses/:course_id/research-consent-form-questions-answer` - Fetches users answers for courses research form.
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_research_form_answers_with_user_id(
@@ -851,7 +863,7 @@ async fn get_research_form_answers_with_user_id(
 ) -> ControllerResult<web::Json<Vec<ResearchFormQuestionAnswer>>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = skip_authorize();
     let res = models::research_forms::get_research_form_answers_with_user_id(
         &mut conn, *course_id, user.id,
     )
@@ -928,7 +940,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/research-consent-form-questions-answer",
-            web::post().to(upsert_course_specific_research_form_answer),
+            web::post().to(upsert_course_research_form_answer),
         )
         .route(
             "/{courseId}/research-consent-form-questions-answer",

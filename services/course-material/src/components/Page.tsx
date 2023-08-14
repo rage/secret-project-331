@@ -146,6 +146,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <SelectResearchConsentForm
             editForm={showAndEditForm}
             shouldAnswerResearchForm={shouldAnswerResearchForm}
+            usersInitialAnswers={getUserAnswers.data}
             onClose={() => {
               setshowAndEditForm(false)
               setShouldAnswerResearchForm(false)

@@ -76,7 +76,7 @@ impl NewResearchForm {
     }
 }
 
-pub async fn insert_research_form(
+pub async fn upsert_research_form(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
     new_research_form: &NewResearchForm,
@@ -120,7 +120,7 @@ AND deleted_at IS NULL
     Ok(form_res)
 }
 
-pub async fn insert_research_form_questions(
+pub async fn upsert_research_form_questions(
     conn: &mut PgConnection,
     question: &NewResearchFormQuestion,
 ) -> ModelResult<ResearchFormQuestion> {
@@ -165,7 +165,7 @@ AND deleted_at IS NULL
     Ok(form_res)
 }
 
-pub async fn insert_research_form_anwser(
+pub async fn upsert_research_form_anwser(
     conn: &mut PgConnection,
     course_id: Uuid,
     answer: &NewResearchFormQuestionAnswer,

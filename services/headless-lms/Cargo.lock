@@ -1583,6 +1583,7 @@ dependencies = [
  "listenfd",
  "mime",
  "mockito",
+ "mooc-langs-api",
  "oauth2",
  "once_cell",
  "pretty_assertions",
@@ -2582,6 +2583,18 @@ dependencies = [
  "serde_urlencoded",
  "similar",
  "tokio",
+]
+
+[[package]]
+name = "mooc-langs-api"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "oauth2",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]

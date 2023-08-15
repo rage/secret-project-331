@@ -87,7 +87,7 @@ async fn get_organization_active_courses(
     let courses = models::courses::get_active_courses_for_organization(
         &mut conn,
         *request_organization_id,
-        &pagination,
+        *pagination,
     )
     .await?;
 

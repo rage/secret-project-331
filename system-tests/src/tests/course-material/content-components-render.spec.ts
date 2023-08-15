@@ -32,6 +32,7 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "content-components-renderer-view",
     waitForTheseToBeVisibleAndStable: undefined,
-    screenshotOptions: { fullPage: true },
+    // taking the large screenshot sometimes times out even with 5000ms
+    screenshotOptions: { fullPage: true, timeout: 10_000 },
   })
 })

@@ -13,6 +13,7 @@ license.workspace = true
 headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
+mooc-langs-api = { path = "../langs-api" }
 doc-macro = { path = "../doc-macro" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust

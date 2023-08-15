@@ -117,8 +117,8 @@ export const compressProject = async (
   compression: Compression = "zstd",
   naive = false,
   log: (message: string, ...optionalParams: unknown[]) => void,
-) => {
-  await execute(
+): Promise<string> => {
+  const output = await execute(
     "compress-project",
     [
       "--exercise-path",
@@ -131,6 +131,10 @@ export const compressProject = async (
     ],
     log,
   )
+  if (output.data !== null && output.data["output-data-kind"] == "compressed-project-hash") {
+    return output.data["output-data"]
+  }
+  throw new Error("Unexpected output data")
 }
 
 export const prepareSolution = async (

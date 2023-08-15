@@ -20,11 +20,13 @@ mod integration_test;
 
 #[actix_web::test]
 async fn gets_and_registers_completions() {
+    let base_url =
+        std::env::var("BASE_URL").unwrap_or_else(|_| "http://project-331.local".to_string());
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
     let jwt_key = Arc::new(integration_test::make_jwt_key());
     let (_user, _org, course, module, _completion, _completion_2) =
-        insert_data(&mut conn, jwt_key).await;
+        insert_data(&mut conn, base_url, jwt_key).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);
 
     // Without header nor database entry
@@ -110,6 +112,7 @@ async fn gets_and_registers_completions() {
 
 async fn insert_data(
     conn: &mut PgConnection,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
     let user_1 = headless_lms_models::users::insert(
@@ -160,7 +163,11 @@ async fn insert_data(
                 copy_user_permissions: false,
             },
             user_1,
-            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(
+                base_url.clone(),
+                Uuid::new_v4(),
+                Arc::clone(&jwt_key),
+            ),
             models_requests::fetch_service_info,
         )
         .await

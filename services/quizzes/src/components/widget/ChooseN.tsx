@@ -13,7 +13,12 @@ import { QuizItemComponentProps } from "."
 const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
-  const [optionsFull, setOptionsFull] = useState(false)
+  const [optionsFull, setOptionsFull] = useState(
+    quizItemAnswerState
+      ? 0 < quizItemAnswerState.selectedOptionIds.length &&
+          quizItemAnswerState.selectedOptionIds.length <= quizItem.n
+      : false,
+  )
 
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     const selectedOptionId = event.currentTarget.value
@@ -36,11 +41,7 @@ const ChooseN: React.FunctionComponent<
     const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
     const validAnswer = selectedIds.length == quizItem.n
 
-    if (selectedIds.length == quizItem.n) {
-      setOptionsFull(true)
-    } else {
-      setOptionsFull(false)
-    }
+    setOptionsFull(validAnswer)
     const newItemAnswer: UserItemAnswerChooseN = {
       ...quizItemAnswerState,
       selectedOptionIds: selectedIds,

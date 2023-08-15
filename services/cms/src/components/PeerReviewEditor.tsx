@@ -200,25 +200,28 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const handlePeerReviewQuestionValueChange = (
     id: string,
-    value: unknown,
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>,
     field: keyof CmsPeerReviewQuestion,
   ) => {
-    const peerReviewQuestions = parsedPeerReviewQuestionConfig.map((prq) => {
-      if (prq.id === id) {
-        switch (field) {
-          case "question":
-            return { ...prq, question: value }
-          case "question_type":
-            return { ...prq, question_type: value }
-          case "answer_required":
-            return { ...prq, answer_required: value }
-          default:
-            break
+    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig.map(
+      (prq) => {
+        if (prq.id === id) {
+          switch (field) {
+            case "question":
+              return { ...prq, question: event.target.value }
+            case "question_type":
+              return { ...prq, question_type: event.target.value as PeerReviewQuestionType }
+            case "answer_required":
+              // @ts-expect-error: in this case the event is from a checkbox
+              return { ...prq, answer_required: Boolean(event.target.checked) }
+            default:
+              return prq
+          }
+        } else {
+          return prq
         }
-      } else {
-        return prq
-      }
-    })
+      },
+    )
     setExerciseAttributes({
       ...exerciseAttributes,
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
@@ -420,8 +423,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         <StyledQuestionType>
                           <TextAreaField
                             label={t("peer-review-question")}
-                            onChangeByValue={(value) => {
-                              handlePeerReviewQuestionValueChange(id, value, "question")
+                            onChange={(event) => {
+                              handlePeerReviewQuestionValueChange(id, event, "question")
                             }}
                             defaultValue={question}
                             autoResize={true}

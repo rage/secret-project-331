@@ -39,9 +39,9 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
   const courseAndModule = useQuery({
     queryKey: ["course-module", moduleId],
     queryFn: async () => {
-      const module = await fetchCourseModule(moduleId)
-      const course = await getCourse(module.course_id)
-      return { module, course }
+      const courseModule = await fetchCourseModule(moduleId)
+      const course = await getCourse(courseModule.course_id)
+      return { module: courseModule, course }
     },
   })
 

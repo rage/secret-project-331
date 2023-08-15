@@ -42,6 +42,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     queryFn: () => {
       return fetchPeerReviewDataByExerciseId(exerciseId)
     },
+    // 23 hours in ms. Need to refetch at this time because the given peer review candidate expires in 24 hours, and someone might leave the peer review view open for longer than that
     refetchInterval: 82800000,
   })
 

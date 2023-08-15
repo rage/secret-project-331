@@ -29,6 +29,7 @@
     "@typescript-eslint/parser": "^6.2.1",
     "concurrently": "^8.2.0",
     "eslint": "^8.46.0",
+    "eslint-config-next": "^13.4.16",
     "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-eslint-custom-rules": "file:eslint-custom-rules",
     "eslint-plugin-i18next": "^6.0.3",

@@ -11,6 +11,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:@next/next/recommended",
     "plugin:@tanstack/eslint-plugin-query/recommended",
     "plugin:i18next/recommended",
     "plugin:jsx-a11y/recommended",
@@ -38,6 +39,8 @@ module.exports = {
     },
   },
   rules: {
+    // Should be investigated later
+    "@next/next/no-img-element": "off",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "no-unused-vars": "off",

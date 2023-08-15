@@ -11,7 +11,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
   try {
     return handleModelSolutionGeneration(req, res)
   } catch (e) {
-    console.error("Grading request failed:", e)
+    console.error("Model solution request failed:", e)
     if (e instanceof Error) {
       return res.status(500).json({
         error_name: e.name,

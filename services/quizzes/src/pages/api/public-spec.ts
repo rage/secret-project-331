@@ -16,7 +16,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
   try {
     return handlePost(req, res)
   } catch (e) {
-    console.error("Grading request failed:", e)
+    console.error("Public spec request failed:", e)
     if (e instanceof Error) {
       return res.status(500).json({
         error_name: e.name,

@@ -7,7 +7,7 @@ import { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
 import { PublicQuiz, Quiz, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 
 // Not set in the previous version
-const DEFAULT_N = 2
+const DEFAULT_N = 10
 
 /**
  * Check if the quiz version is old.

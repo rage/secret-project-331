@@ -2,6 +2,8 @@
 
 const DETECT_CSS_REGEX = /\S+:\s+[^\n]+;/
 const DETECT_PX_REGEX = /^\d+px$/
+const DETECT_REM_REGEX = /^\d+rem$/
+const DETECT_EM_REGEX = /^\d+em$/
 module.exports = {
   env: {
     browser: true,
@@ -9,6 +11,7 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:@tanstack/eslint-plugin-query/recommended",
     "plugin:i18next/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
@@ -28,7 +31,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "import", "eslint-custom-rules"],
+  plugins: ["react", "@typescript-eslint", "@tanstack/query", "import", "eslint-custom-rules"],
   settings: {
     react: {
       version: "detect",
@@ -216,7 +219,7 @@ module.exports = {
           "labelStyle",
           "data-testid",
         ],
-        ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
+        ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX, DETECT_REM_REGEX, DETECT_EM_REGEX],
         ignoreCallee: [
           "div",
           "useQuery",

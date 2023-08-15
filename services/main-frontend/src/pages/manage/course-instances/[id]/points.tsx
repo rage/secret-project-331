@@ -58,9 +58,10 @@ const CourseInstancePointsList: React.FC<
     }
   }
 
-  const getPointsList = useQuery([`point-list-${courseInstanceId}`], () =>
-    getPoints(courseInstanceId),
-  )
+  const getPointsList = useQuery({
+    queryKey: [`point-list-${courseInstanceId}`],
+    queryFn: () => getPoints(courseInstanceId),
+  })
 
   const instanceTotalPoints = getPointsList.isSuccess
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)

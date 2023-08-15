@@ -27,23 +27,21 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   const now = useTime()
   const [nextPageChapterOpen, setnextPageChapterOpen] = React.useState(false)
 
-  const getPageRoutingData = useQuery(
-    [`pages-${chapterId}-page-routing-data`],
-    () => fetchPageNavigationData(currentPageId),
-    {
-      onSuccess: (data) => {
-        if (!data.next_page) {
-          return
-        }
-        if (data.next_page.chapter_opens_at === null) {
-          setnextPageChapterOpen(true)
-          return
-        }
-        const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
-        setnextPageChapterOpen(diffSeconds <= 0)
-      },
+  const getPageRoutingData = useQuery({
+    queryKey: [`pages-${chapterId}-page-routing-data`, currentPageId],
+    queryFn: () => fetchPageNavigationData(currentPageId),
+    onSuccess: (data) => {
+      if (!data.next_page) {
+        return
+      }
+      if (data.next_page.chapter_opens_at === null) {
+        setnextPageChapterOpen(true)
+        return
+      }
+      const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
+      setnextPageChapterOpen(diffSeconds <= 0)
     },
-  )
+  })
 
   if (getPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />

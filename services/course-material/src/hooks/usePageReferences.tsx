@@ -22,9 +22,10 @@ const useReferences = (courseId: string) => {
   const page = useContext(PageContext)
   const [pageRefs, setPageRefs] = useState<ReadonlyArray<Citations>>()
 
-  const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
-    fetchCourseReferences(courseId),
-  )
+  const getCourseReferences = useQuery({
+    queryKey: [`course-${courseId}-references`],
+    queryFn: () => fetchCourseReferences(courseId),
+  })
 
   useEffect(() => {
     if (!page.pageData) {

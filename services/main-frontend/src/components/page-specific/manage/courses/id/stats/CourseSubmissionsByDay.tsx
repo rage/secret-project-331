@@ -22,21 +22,19 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
   courseId,
 }) => {
   const { t } = useTranslation()
-  const getCourseDailySubmissionCounts = useQuery(
-    [`course-daily-submission-counts-${courseId}`],
-    () => fetchCourseDailySubmissionCounts(courseId),
-    {
-      select: (data) => {
-        const eChartsData = groupBy(data, (o) => {
-          const dateString = o.date as string | null
-          const year = dateString?.substring(0, dateString.indexOf("-"))
-          return year
-        })
-        const maxValue = max(data.map((o) => o.count)) || 10000
-        return { apiData: data, eChartsData, maxValue }
-      },
+  const getCourseDailySubmissionCounts = useQuery({
+    queryKey: [`course-daily-submission-counts-${courseId}`],
+    queryFn: () => fetchCourseDailySubmissionCounts(courseId),
+    select: (data) => {
+      const eChartsData = groupBy(data, (o) => {
+        const dateString = o.date as string | null
+        const year = dateString?.substring(0, dateString.indexOf("-"))
+        return year
+      })
+      const maxValue = max(data.map((o) => o.count)) || 10000
+      return { apiData: data, eChartsData, maxValue }
     },
-  )
+  })
 
   if (getCourseDailySubmissionCounts.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />

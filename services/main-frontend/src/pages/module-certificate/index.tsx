@@ -36,10 +36,13 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
       }
     })
   }, [courseInstanceId, moduleId, router])
-  const courseAndModule = useQuery(["course-module", moduleId], async () => {
-    const module = await fetchCourseModule(moduleId)
-    const course = await getCourse(module.course_id)
-    return { module, course }
+  const courseAndModule = useQuery({
+    queryKey: ["course-module", moduleId],
+    queryFn: async () => {
+      const module = await fetchCourseModule(moduleId)
+      const course = await getCourse(module.course_id)
+      return { module, course }
+    },
   })
 
   useEffect(() => {

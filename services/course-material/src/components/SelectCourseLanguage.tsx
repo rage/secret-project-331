@@ -35,10 +35,10 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
   const pageState = useContext(PageContext)
   const currentCourseId = pageState.pageData?.course_id
   const { i18n } = useTranslation()
-  const useCourseLanguageVersionsList = useQuery(
-    [formatLanguageVersionsQueryKey(currentCourseId ?? "")],
-    () => fetchCourseLanguageVersions(currentCourseId ?? ""),
-  )
+  const useCourseLanguageVersionsList = useQuery({
+    queryKey: [formatLanguageVersionsQueryKey(currentCourseId ?? ""), currentCourseId],
+    queryFn: () => fetchCourseLanguageVersions(currentCourseId ?? ""),
+  })
   const courseVersionsList = useCourseLanguageVersionsList.data?.filter(
     (course) => !course.is_draft,
   )

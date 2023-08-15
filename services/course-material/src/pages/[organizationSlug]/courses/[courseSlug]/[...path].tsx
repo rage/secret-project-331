@@ -30,9 +30,10 @@ const PagePage: React.FC = () => {
   const pathQueryParameter = useQueryParameter("path")
   const organizationSlug = useQueryParameter("organizationSlug")
   const path = useMemo(() => `/${pathQueryParameter}`, [pathQueryParameter])
-  const getCoursePageByPath = useQuery([`course-page-${courseSlug}-${path}`], () =>
-    fetchCoursePageByPath(courseSlug, path),
-  )
+  const getCoursePageByPath = useQuery({
+    queryKey: [`course-page-${courseSlug}-${path}`],
+    queryFn: () => fetchCoursePageByPath(courseSlug, path),
+  })
 
   const pageStateReducerIntializer = useMemo(
     () =>

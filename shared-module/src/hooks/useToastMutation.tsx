@@ -64,7 +64,8 @@ export default function useToastMutation<
     )
   }
 
-  const mutation = useMutation(mutationFn, {
+  const mutation = useMutation({
+    mutationFn,
     ...mutationOptions,
     onMutate: (variables: TVariables) => {
       if (notificationOptions.notify) {

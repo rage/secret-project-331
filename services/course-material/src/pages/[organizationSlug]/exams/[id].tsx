@@ -41,7 +41,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
   const now = useTime(5000)
 
-  const exam = useQuery([`exam-page-${examId}`], () => fetchExam(examId))
+  const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
 
   useEffect(() => {
     if (exam.isError) {

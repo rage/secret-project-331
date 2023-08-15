@@ -49,20 +49,18 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
   // All of the elements a1..aN are non null if this check is true.
   const enabled = (options?.enabled ?? true) && compositeKey.every((x) => !!x)
   const [, a1, a2, a3, a4] = compositeKey
-  const getQueryState = useQuery<T, Error, T>(
-    compositeKey,
-    () =>
+  const getQueryState = useQuery<T, Error, T>({
+    queryKey: [a1, a2, a3, a4],
+    queryFn: () =>
       query(
         a1 as NonNullable<typeof a1>,
         a2 as NonNullable<typeof a2>,
         a3 as NonNullable<typeof a3>,
         a4 as NonNullable<typeof a4>,
       ),
-    {
-      ...options,
-      enabled,
-    },
-  )
+    ...options,
+    enabled,
+  })
   const [queryState, setQueryState] = useState<QueryState<T>>({
     state: "disabled",
     data: null,

@@ -216,13 +216,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     console.warn("Private spec was invalid JSON", e)
   }
 
-  const serviceInfoQuery = useQuery(
-    [`iframe-view-playground-service-info-${url}`],
-    async (): Promise<ExerciseServiceInfoApi> => {
+  const serviceInfoQuery = useQuery({
+    queryKey: [`iframe-view-playground-service-info-${url}`],
+    queryFn: async (): Promise<ExerciseServiceInfoApi> => {
       const res = await axios.get(url)
       return res.data
     },
-  )
+  })
 
   const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
 
@@ -233,9 +233,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
   }, [isValidServiceInfo, url])
 
-  const publicSpecQuery = useQuery(
-    [`iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
-    async (): Promise<unknown> => {
+  const publicSpecQuery = useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: [
+      `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
+      isValidServiceInfo,
+      privateSpecValidJson,
+      privateSpecParsed,
+      exerciseServiceHost,
+    ],
+    queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
       }
@@ -250,15 +257,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       )
       return res.data
     },
-    {
-      enabled:
-        serviceInfoQuery.isSuccess &&
-        Boolean(serviceInfoQuery.data) &&
-        isValidServiceInfo &&
-        privateSpecValidJson,
-      retry: false,
-    },
-  )
+    enabled:
+      serviceInfoQuery.isSuccess &&
+      Boolean(serviceInfoQuery.data) &&
+      isValidServiceInfo &&
+      privateSpecValidJson,
+    retry: false,
+  })
 
   const [userAnswer, setUserAnswer] = useState<unknown>(null)
   type submitAnswerMutationParam =
@@ -329,9 +334,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
   }, [websocket, submitAnswerMutation])
 
-  const modelSolutionSpecQuery = useQuery(
-    [`iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
-    async (): Promise<unknown> => {
+  const modelSolutionSpecQuery = useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: [
+      `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
+      isValidServiceInfo,
+      privateSpecValidJson,
+      privateSpecParsed,
+      exerciseServiceHost,
+    ],
+    queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
       }
@@ -347,15 +359,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       )
       return res.data
     },
-    {
-      enabled:
-        serviceInfoQuery.isSuccess &&
-        Boolean(serviceInfoQuery.data) &&
-        isValidServiceInfo &&
-        privateSpecValidJson,
-      retry: false,
-    },
-  )
+    enabled:
+      serviceInfoQuery.isSuccess &&
+      Boolean(serviceInfoQuery.data) &&
+      isValidServiceInfo &&
+      privateSpecValidJson,
+    retry: false,
+  })
 
   const userInformation: UserInformation = {
     pseudonymous_id: pseudonymousUserId,

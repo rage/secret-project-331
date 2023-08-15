@@ -25,10 +25,10 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getExerciseSubmissions = useQuery(
-    [`exercise-submissions`, query.id, paginationInfo.page, paginationInfo.limit],
-    () => fetchExerciseSubmissions(query.id, paginationInfo.page, paginationInfo.limit),
-  )
+  const getExerciseSubmissions = useQuery({
+    queryKey: [`exercise-submissions`, query.id, paginationInfo.page, paginationInfo.limit],
+    queryFn: () => fetchExerciseSubmissions(query.id, paginationInfo.page, paginationInfo.limit),
+  })
 
   return (
     <div>

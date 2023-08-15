@@ -81,23 +81,23 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id
 
-  const getCountries = useQuery(
-    [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
-    () => {
+  const getCountries = useQuery({
+    queryKey: [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
+    queryFn: () => {
       return fetchStudentCountries(
         assertNotNullOrUndefined(courseId),
         assertNotNullOrUndefined(courseInstanceId),
       )
     },
-  )
+  })
 
-  const getCountry = useQuery(
-    [`course-${courseInstanceId}-country`],
-    () => {
+  const getCountry = useQuery({
+    queryKey: [`course-${courseInstanceId}-country`],
+    queryFn: () => {
       return fetchStudentCountry(assertNotNullOrUndefined(courseInstanceId))
     },
-    { enabled: !!courseInstanceId },
-  )
+    enabled: !!courseInstanceId,
+  })
 
   const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
     new Promise((resolve) => {

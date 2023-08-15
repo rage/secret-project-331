@@ -179,77 +179,75 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
 
   // queries and mutations
-  const courseStructureQuery = useQuery(
-    ["course-structure", courseId],
-    () => fetchCourseStructure(courseId),
-    {
-      onSuccess: (courseStructure) => {
-        const chapterNumbers = courseStructure.chapters
-          .sort((l, r) => l.chapter_number - r.chapter_number)
-          .map((c) => c.chapter_number)
-        setChapterNumbers(chapterNumbers)
+  const courseStructureQuery = useQuery({
+    queryKey: ["course-structure", courseId],
+    queryFn: () => fetchCourseStructure(courseId),
+    onSuccess: (courseStructure) => {
+      const chapterNumbers = courseStructure.chapters
+        .sort((l, r) => l.chapter_number - r.chapter_number)
+        .map((c) => c.chapter_number)
+      setChapterNumbers(chapterNumbers)
 
-        const makeModuleList = () => {
-          const chapters = courseStructure.chapters
-            .sort((l, r) => l.chapter_number - r.chapter_number)
-            .map((c) => {
-              return {
-                id: c.id,
-                name: c.name,
-                module: c.course_module_id,
-                chapter_number: c.chapter_number,
-              }
-            })
-          const modules = courseStructure.modules.map<ModuleView>((m) => {
-            const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-            if (m.completion_policy.policy === "automatic") {
-              return {
-                id: m.id,
-                name: m.name,
-                order_number: m.order_number,
-                firstChapter,
-                lastChapter,
-                isNew: false,
-                uh_course_code: m.uh_course_code,
-                ects_credits: m.ects_credits,
-                automatic_completion: true,
-                automatic_completion_number_of_points_treshold:
-                  m.completion_policy.number_of_points_treshold,
-                automatic_completion_number_of_exercises_attempted_treshold:
-                  m.completion_policy.number_of_exercises_attempted_treshold,
-                automatic_completion_requires_exam: m.completion_policy.requires_exam,
-                completion_registration_link_override: m.completion_registration_link_override,
-                enable_registering_completion_to_uh_open_university:
-                  m.enable_registering_completion_to_uh_open_university,
-              }
-            } else {
-              return {
-                id: m.id,
-                name: m.name,
-                order_number: m.order_number,
-                firstChapter,
-                lastChapter,
-                isNew: false,
-                uh_course_code: m.uh_course_code,
-                ects_credits: m.ects_credits,
-                automatic_completion: false,
-                automatic_completion_number_of_points_treshold: null,
-                automatic_completion_number_of_exercises_attempted_treshold: null,
-                automatic_completion_requires_exam: false,
-                completion_registration_link_override: m.completion_registration_link_override,
-                enable_registering_completion_to_uh_open_university:
-                  m.enable_registering_completion_to_uh_open_university,
-              }
+      const makeModuleList = () => {
+        const chapters = courseStructure.chapters
+          .sort((l, r) => l.chapter_number - r.chapter_number)
+          .map((c) => {
+            return {
+              id: c.id,
+              name: c.name,
+              module: c.course_module_id,
+              chapter_number: c.chapter_number,
             }
           })
-          const error = validateModuleList(modules, chapters)
-          return { modules, chapters, error }
-        }
-        setInitialModuleList(makeModuleList())
-        setModuleList(makeModuleList())
-      },
+        const modules = courseStructure.modules.map<ModuleView>((m) => {
+          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+          if (m.completion_policy.policy === "automatic") {
+            return {
+              id: m.id,
+              name: m.name,
+              order_number: m.order_number,
+              firstChapter,
+              lastChapter,
+              isNew: false,
+              uh_course_code: m.uh_course_code,
+              ects_credits: m.ects_credits,
+              automatic_completion: true,
+              automatic_completion_number_of_points_treshold:
+                m.completion_policy.number_of_points_treshold,
+              automatic_completion_number_of_exercises_attempted_treshold:
+                m.completion_policy.number_of_exercises_attempted_treshold,
+              automatic_completion_requires_exam: m.completion_policy.requires_exam,
+              completion_registration_link_override: m.completion_registration_link_override,
+              enable_registering_completion_to_uh_open_university:
+                m.enable_registering_completion_to_uh_open_university,
+            }
+          } else {
+            return {
+              id: m.id,
+              name: m.name,
+              order_number: m.order_number,
+              firstChapter,
+              lastChapter,
+              isNew: false,
+              uh_course_code: m.uh_course_code,
+              ects_credits: m.ects_credits,
+              automatic_completion: false,
+              automatic_completion_number_of_points_treshold: null,
+              automatic_completion_number_of_exercises_attempted_treshold: null,
+              automatic_completion_requires_exam: false,
+              completion_registration_link_override: m.completion_registration_link_override,
+              enable_registering_completion_to_uh_open_university:
+                m.enable_registering_completion_to_uh_open_university,
+            }
+          }
+        })
+        const error = validateModuleList(modules, chapters)
+        return { modules, chapters, error }
+      }
+      setInitialModuleList(makeModuleList())
+      setModuleList(makeModuleList())
     },
-  )
+  })
   const moduleUpdatesMutation = useToastMutation(
     () => {
       console.log(modules)

@@ -23,17 +23,15 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
 
   const [addingRepo, setAddingRepo] = useState(false)
   const [editingRepo, setEditingRepo] = useState<string | null>(null)
-  const exerciseRepositories = useQuery(
-    ["manage-exercise-repositories", courseId, examId],
-    async () => {
+  const exerciseRepositories = useQuery({
+    queryKey: ["manage-exercise-repositories", courseId, examId],
+    queryFn: async () => {
       return await getExerciseRepositories(courseId, examId)
     },
-    {
-      onSuccess: () => {
-        setAddingRepo(false)
-      },
+    onSuccess: () => {
+      setAddingRepo(false)
     },
-  )
+  })
   const deleteMutation = useToastMutation(
     deleteExerciseRepository,
     {

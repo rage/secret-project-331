@@ -128,10 +128,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }
   })
 
-  const defaultCmsPeerReviewConfig = useQuery(
-    [`course-default-peer-review-config-${courseId}`],
-    () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
-  )
+  const defaultCmsPeerReviewConfig = useQuery({
+    queryKey: [`course-default-peer-review-config-${courseId}`],
+    queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
+  })
 
   let parsedPeerReviewConfig: CmsPeerReviewConfig | null = JSON.parse(
     exerciseAttributes.peer_review_config ?? "{}",

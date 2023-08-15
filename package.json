@@ -23,6 +23,7 @@
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "devDependencies": {
     "@stylelint/postcss-css-in-js": "^0.38.0",
+    "@tanstack/eslint-plugin-query": "^4.32.5",
     "@types/node": "^20.4.5",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",

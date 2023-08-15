@@ -413,7 +413,7 @@ impl PageVisibility {
     /// Hacky way to implement a nullable boolean filter. Based on the idea that
     /// `null IS DISTINCT FROM anything` in PostgreSQL.
     ///
-    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    /// More information at: <https://www.postgresql.org/docs/current/functions-comparison.html>
     ///
     /// # Examples
     ///

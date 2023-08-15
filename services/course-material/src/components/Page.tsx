@@ -76,6 +76,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = useQueryParameter("show_research_form")
+  const [courseInstanceFormIsClosed, setCourseInstanceFormIsClosed] = useState<boolean>(false)
 
   useEffect(() => {
     if (researchFormQueryParam) {
@@ -93,12 +94,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const getUserAnswers = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
     queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
+    enabled: !!courseInstanceFormIsClosed,
   })
   const getResearchConsentForm = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form`],
     queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
+    enabled: !!courseInstanceFormIsClosed,
   })
 
   useEffect(() => {
@@ -147,7 +148,14 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               organizationSlug={organizationSlug}
             />
           )}
-        {courseId && <CourseSettingsModal onClose={onRefresh} />}
+        {courseId && (
+          <CourseSettingsModal
+            onClose={() => {
+              onRefresh
+              setCourseInstanceFormIsClosed(true)
+            }}
+          />
+        )}
         {getResearchConsentForm.isSuccess && (showAndEditForm || shouldAnswerResearchForm) && (
           <SelectResearchConsentForm
             editForm={showAndEditForm}

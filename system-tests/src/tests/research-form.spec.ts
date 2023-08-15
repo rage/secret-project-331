@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { text } from "stream/consumers"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -8,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("Can create a new research form for a course", async ({ page, headless }, testInfo) => {
+test("Can create a new research form for a course", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
@@ -38,6 +37,7 @@ test("Can create a new research form for a course", async ({ page, headless }, t
     .getByRole("textbox", { name: "Add question here" })
     .fill("I want to take part in research")
   await page.getByRole("button", { name: "Save" }).click()
+  await page.getByText("Operation successful!").waitFor()
 })
 
 test("Research form is shown on a coursepage if not answered", async ({
@@ -45,6 +45,8 @@ test("Research form is shown on a coursepage if not answered", async ({
   headless,
 }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/advanced-course-instance-management")
+  await selectCourseInstanceIfPrompted(page)
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -54,12 +56,12 @@ test("Research form is shown on a coursepage if not answered", async ({
   })
   await page.getByText("I want to take part in research").click()
   await page.getByRole("button", { name: "Save" }).click()
-  await page.locator(`div:text-is("Success")`).waitFor()
+  await page.getByText("Operation successful!").waitFor()
 })
 
 test("User can change answer of the research form", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/advanced-course-instance-management")
-  await selectCourseInstanceIfPrompted(page)
+
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "User settings" }).click()
   await expectScreenshotsToMatchSnapshots({
@@ -74,4 +76,5 @@ test("User can change answer of the research form", async ({ page, headless }, t
 
   await page.getByText("I want to take part in research").click()
   await page.getByRole("button", { name: "Save" }).click()
+  await page.getByText("User settings").waitFor()
 })

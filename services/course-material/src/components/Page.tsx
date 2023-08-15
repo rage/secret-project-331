@@ -76,11 +76,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = useQueryParameter("show_research_form")
-  const [courseInstanceFormIsClosed, setCourseInstanceFormIsClosed] = useState<boolean>(false)
+  const [shouldFetchResearchFormData, setShouldFetchResearchFormData] = useState<boolean>(false)
 
   useEffect(() => {
     if (researchFormQueryParam) {
       setshowAndEditForm(true)
+      setShouldFetchResearchFormData(true)
       const newPathObject = {
         ...router,
       }
@@ -94,12 +95,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const getUserAnswers = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
     queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseInstanceFormIsClosed,
+    enabled: !!shouldFetchResearchFormData,
   })
   const getResearchConsentForm = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form`],
     queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseInstanceFormIsClosed,
+    enabled: !!shouldFetchResearchFormData,
   })
 
   useEffect(() => {
@@ -152,7 +153,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <CourseSettingsModal
             onClose={() => {
               onRefresh
-              setCourseInstanceFormIsClosed(true)
+              setShouldFetchResearchFormData(true)
             }}
           />
         )}

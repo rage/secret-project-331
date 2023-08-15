@@ -126,7 +126,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   return (
     <>
       <BreakFromCentered sidebar={false}>
-        <div>{saveAndReset}</div>
+        <div className="editor__top-button-wrapper">{saveAndReset}</div>
       </BreakFromCentered>
 
       <div>
@@ -139,6 +139,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
             mediaUpload={mediaUploadBuilder({ courseId: courseId })}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
             setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+            inspectorButtons={saveAndReset}
           />
         )}
       </div>

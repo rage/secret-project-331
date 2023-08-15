@@ -19,6 +19,7 @@ import {
 import Button from "../../../shared-module/components/Button"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -73,11 +74,19 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
     })
     await getResearchForm.refetch()
   }
-
+  const mutate = useToastMutation(
+    (form: NewResearchForm) => {
+      return upsertResearchForm(assertNotNullOrUndefined(courseId), form)
+    },
+    {
+      notify: true,
+      dismissable: true,
+      method: "PUT",
+      toastOptions: { duration: 5000 },
+    },
+  )
   const handleSave = async (form: NewResearchForm): Promise<ResearchForm> => {
-    const researchForm = await upsertResearchForm(assertNotNullOrUndefined(courseId), {
-      ...form,
-    })
+    const researchForm = await mutate.mutateAsync(form)
 
     if (!isBlockInstanceArray(form.content)) {
       throw new Error("content is not block instance")
@@ -93,6 +102,7 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
         upsertResearchFormQuestion(researchForm.id, newResearchQuestion)
       }
     })
+
     await getResearchForm.refetch()
     return researchForm
   }

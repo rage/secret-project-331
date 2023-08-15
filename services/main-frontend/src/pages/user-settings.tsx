@@ -76,7 +76,7 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
               width: 400px;
             `}
           >
-            {t("research-consent-title")}:
+            {t("title-general-research-consent")}:
           </div>
           <Button size="medium" variant="primary" onClick={handleGeneralResearchFormButton}>
             {t("edit")}
@@ -89,41 +89,50 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
           )}
         </div>
 
-        {courseBreadcrumbInfos && (
-          <div>
-            {courseBreadcrumbInfos.map((course) => {
-              return (
-                <div
-                  className={css`
-                    display: flex;
-                    flex-direction: row;
-                    padding-top: 30px;
-                    font-size: 22px;
-                    line-height: 22px;
-                    gap: 60px;
-                  `}
-                  key={course.data?.course_id}
-                >
+        {courseBreadcrumbInfos.length !== 0 && (
+          <>
+            <h2
+              className={css`
+                padding-top: 20px;
+              `}
+            >
+              {t("title-course-specific-research-consents")}
+            </h2>
+            <div>
+              {courseBreadcrumbInfos.map((course) => {
+                return (
                   <div
                     className={css`
-                      width: 400px;
+                      display: flex;
+                      flex-direction: row;
+                      padding-top: 30px;
+                      font-size: 22px;
+                      line-height: 22px;
+                      gap: 60px;
                     `}
+                    key={course.data?.course_id}
                   >
-                    {course.data?.course_name}:
-                  </div>
-                  <div>
-                    <a
-                      href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
+                    <div
+                      className={css`
+                        width: 400px;
+                      `}
                     >
-                      <Button size="medium" variant="primary">
-                        {t("edit")}
-                      </Button>
-                    </a>
+                      {course.data?.course_name}:
+                    </div>
+                    <div>
+                      <a
+                        href={`org/${course.data?.organization_slug}/courses/${course.data?.course_slug}/?show_research_form=1`}
+                      >
+                        <Button size="medium" variant="primary">
+                          {t("edit")}
+                        </Button>
+                      </a>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          </>
         )}
       </div>
     </>

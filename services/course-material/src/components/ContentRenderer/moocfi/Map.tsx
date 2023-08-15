@@ -330,7 +330,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
                   padding-left: 2px;
                 `}
               >
-                {t("use-of-info")}
+                {t("map-disclaimer")}
               </span>
             </CotentWrapper>
           </>

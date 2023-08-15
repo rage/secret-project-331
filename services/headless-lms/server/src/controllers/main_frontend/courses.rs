@@ -52,13 +52,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Teach,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
 }

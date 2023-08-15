@@ -9,6 +9,7 @@ import {
 } from "../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../contexts/GlossaryContext"
 import { baseTheme } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { stringToNumberOrPlaceholder } from "../../../../shared-module/utils/numbers"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
@@ -48,7 +49,17 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
   }
 
   return (
-    <div>
+    <div
+      className={css`
+        max-width: 95vw;
+        overflow-x: scroll;
+        overflow-y: clip;
+        ${respondToOrLarger.sm} {
+          overflow-x: unset;
+          overflow-y: unset;
+        }
+      `}
+    >
       <table
         className={css`
           ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}

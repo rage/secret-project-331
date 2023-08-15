@@ -22,7 +22,12 @@ import {
   forgivingIsSetStateMessage,
   UserInformation,
 } from "../shared-module/exercise-service-protocol-types"
-import { isSetLanguageMessage } from "../shared-module/exercise-service-protocol-types.guard"
+import {
+  isAnswerExerciseIframeState,
+  isExerciseEditorIframeState,
+  isSetLanguageMessage,
+  isViewSubmissionIframeState,
+} from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { migrateQuiz } from "../util/migrate"
@@ -69,6 +74,11 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
     if (forgivingIsSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
+          if (!isAnswerExerciseIframeState(messageData.data)) {
+            throw new Error(
+              "Set-state message data is invalid for the specified answer-exercise view type",
+            )
+          }
           let public_spec = messageData.data.public_spec
           let quiz_answer = messageData.data.previous_submission
           if (isOldQuiz(messageData.data.previous_submission as QuizAnswer)) {
@@ -87,6 +97,11 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             previousSubmission: quiz_answer as UserAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
+          if (!isExerciseEditorIframeState(messageData.data)) {
+            throw new Error(
+              "Set-state message data is invalid for the specified exercise-editor view type",
+            )
+          }
           console.log("Message data:", messageData)
           const privateSpec = messageData.data.private_spec
           if (privateSpec === null) {
@@ -135,6 +150,11 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             })
           }
         } else if (messageData.view_type === "view-submission") {
+          if (!isViewSubmissionIframeState(messageData.data)) {
+            throw new Error(
+              "Set-state message data is invalid for the specified view-submission view type",
+            )
+          }
           let public_spec = messageData.data.public_spec
           let model_solution_spec = messageData.data.model_solution_spec
           let quiz_answer = messageData.data.user_answer

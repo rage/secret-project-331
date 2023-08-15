@@ -8,6 +8,7 @@ import { gradeAnswers } from "../../grading/grading"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../grading/utils"
 import { ExerciseTaskGradingResult } from "../../shared-module/bindings"
 import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "../../shared-module/exercise-service-protocol-types.guard"
 import { nullIfEmptyString } from "../../shared-module/utils/strings"
 
 type QuizzesGradingRequest = GradingRequest<PrivateSpecQuiz, UserAnswer>
@@ -16,7 +17,11 @@ const handleGradingRequest = (
   req: NextApiRequest,
   res: NextApiResponse<ExerciseTaskGradingResult>,
 ): void => {
-  const { exercise_spec, submission_data }: QuizzesGradingRequest = req.body
+  // Validate grading request
+  if (!isNonGenericGradingRequest(req.body)) {
+    throw new Error("Invalid grading request")
+  }
+  const { exercise_spec, submission_data } = req.body as QuizzesGradingRequest
 
   // Migrate to newer version
   const privateSpecQuiz = handlePrivateSpecMigration(exercise_spec)

@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -146,9 +146,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  const parsedPeerReviewQuestionConfig: CmsPeerReviewQuestion[] = JSON.parse(
-    exerciseAttributes.peer_review_questions_config ?? "[]",
-  )
+  const parsedPeerReviewQuestionConfig: CmsPeerReviewQuestion[] = useMemo(() => {
+    const res = JSON.parse(exerciseAttributes.peer_review_questions_config ?? "[]")
+    if (res === null || res === undefined) {
+      return []
+    }
+    return res
+  }, [exerciseAttributes.peer_review_questions_config])
 
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
     { label: t("essay"), value: "Essay" },

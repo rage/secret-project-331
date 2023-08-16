@@ -44,10 +44,10 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const courseId = useContext(PageContext).pageData?.course_id
 
   const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
-  const getResearchFormQuestions = useQuery(
-    [`courses-${courseId}-research-consent-form-questions`],
-    () => fetchResearchFormQuestionsWithCourseId(assertNotNullOrUndefined(courseId)),
-  )
+  const getResearchFormQuestions = useQuery({
+    queryKey: [`courses-${courseId}-research-consent-form-questions`],
+    queryFn: () => fetchResearchFormQuestionsWithCourseId(assertNotNullOrUndefined(courseId)),
+  })
 
   // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
   useEffect(() => {

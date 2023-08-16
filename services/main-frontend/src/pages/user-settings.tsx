@@ -22,9 +22,10 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
   const [allCourseIds, setAllCourseIds] = useState<string[]>([])
   const getUserConsent = useUserResearchConsentQuery()
 
-  const getAllResearchFormAnswers = useQuery([`users-user-research-form-question-answers`], () =>
-    getAllResearchConsentAnswersByUserId(),
-  )
+  const getAllResearchFormAnswers = useQuery({
+    queryKey: [`users-user-research-form-question-answers`],
+    queryFn: () => getAllResearchConsentAnswersByUserId(),
+  })
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
     setOpenResearchForm(true)

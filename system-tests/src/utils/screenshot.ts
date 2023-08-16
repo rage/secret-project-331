@@ -43,6 +43,7 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   headless: boolean | undefined
   snapshotName: string
   waitForTheseToBeVisibleAndStable?: Locator[]
+  waitForTheseToBeGone?: Locator[]
   clearNotifications?: boolean
   dontWaitForSpinnersToDisappear?: boolean
   beforeScreenshot?: () => Promise<void>
@@ -208,6 +209,7 @@ async function snapshotWithViewPort({
   screenshotOptions,
   viewPortName,
   waitForTheseToBeVisibleAndStable,
+  waitForTheseToBeGone,
   beforeScreenshot,
   headless,
   testInfo,
@@ -232,6 +234,9 @@ async function snapshotWithViewPort({
   await page.setViewportSize(viewPorts[viewPortName])
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
+  }
+  if (waitForTheseToBeGone) {
+    await waitToBeGone(waitForTheseToBeGone)
   }
   // Has to be dispatched again in case the hidden content appeared while we waited for `waitForTheseToBeVisibleAndStable`
   if (replaceSomePartsWithPlaceholders) {
@@ -367,6 +372,12 @@ async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<void> {
     await scrollLocatorsParentIframeToViewIfNeeded(locator)
     const elementHandle = await locator.elementHandle()
     await elementHandle?.waitForElementState("stable")
+  }
+}
+
+async function waitToBeGone(waitToBeGone: Locator[]): Promise<void> {
+  for (const locator of waitToBeGone) {
+    await expect(locator).toHaveCount(0)
   }
 }
 

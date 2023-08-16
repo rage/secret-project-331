@@ -16,8 +16,6 @@ const initI18n = (defaultNS: string): typeof i18n => {
         callback: (errorValue: unknown, translations: unknown) => void,
       ) {
         try {
-          // wait for 1ms to prevent hydration mismatches
-          await new Promise((resolve) => setTimeout(resolve, 1))
           // this does webpack code splitting, so that we only load the language and the namespace we need
           const resources = await import(`../locales/${language}/${namespace}.json`)
           callback(null, resources)

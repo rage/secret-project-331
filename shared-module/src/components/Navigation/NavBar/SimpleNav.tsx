@@ -59,7 +59,7 @@ const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<Navig
 
   return (
     <nav role="navigation" className={cx(Navbar)} aria-label={t("navigation-menu")}>
-      {<SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>}
+      <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
       <div className={cx(NavbarLogo)}>
         <a
           href={makeTopLeftButtonToTemporarilyGoToMoocfi ? moocfiUrl : "/"}

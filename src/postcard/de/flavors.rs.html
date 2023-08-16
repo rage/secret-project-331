@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.4/src/de/flavors.rs`."><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../postcard/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/postcard-1.0.6/src/de/flavors.rs`."><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="postcard" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../postcard/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -280,6 +280,26 @@
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
 <a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Deserialization Flavors
 //!
 //! &quot;Flavors&quot; in `postcard` are used as modifiers to the serialization or deserialization
@@ -445,121 +465,141 @@
     }
 }
 
-<span class="comment">// This is a terrible checksum implementation to make sure that we can effectively
-// use the deserialization flavor. This is kept as a test (and not published)
-// because an 8-bit checksum is not ACTUALLY useful for almost anything.
-//
-// You could certainly do something similar with a CRC32, cryptographic sig,
-// or something else
-</span><span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="comment">////////////////////////////////////////
+// CRC
+////////////////////////////////////////
 
-    <span class="kw">struct </span>Checksum&lt;<span class="lifetime">&#39;de</span>, F&gt;
+</span><span class="doccomment">/// This Cyclic Redundancy Check flavor applies [the CRC crate&#39;s `Algorithm`](https://docs.rs/crc/latest/crc/struct.Algorithm.html) struct on
+/// the serialized data. The flavor will check the CRC assuming that it has been appended to the bytes.
+///
+/// CRCs are used for error detection when reading data back.
+///
+/// The `crc` feature requires enabling to use this module.
+///
+/// More on CRCs: &lt;https://en.wikipedia.org/wiki/Cyclic_redundancy_check&gt;.
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;use-crc&quot;</span>)]
+#[cfg_attr(doc_cfg, doc(cfg(feature = <span class="string">&quot;use-crc&quot;</span>)))]
+</span><span class="kw">pub mod </span>crc {
+    <span class="kw">use </span>core::convert::TryInto;
+
+    <span class="kw">use </span>crc::Digest;
+    <span class="kw">use </span>crc::Width;
+    <span class="kw">use </span>serde::Deserialize;
+
+    <span class="kw">use </span><span class="kw">super</span>::Flavor;
+    <span class="kw">use </span><span class="kw">super</span>::Slice;
+
+    <span class="kw">use </span><span class="kw">crate</span>::Deserializer;
+    <span class="kw">use </span><span class="kw">crate</span>::Error;
+    <span class="kw">use </span><span class="kw">crate</span>::Result;
+    <span class="kw">use </span>paste::paste;
+
+    <span class="doccomment">/// Manages CRC modifications as a flavor.
+    </span><span class="kw">pub struct </span>CrcModifier&lt;<span class="lifetime">&#39;de</span>, B, W&gt;
     <span class="kw">where
-        </span>F: Flavor&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;de</span>,
+        </span>B: Flavor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        W: Width,
     {
-        flav: F,
-        checksum: u8,
-        _plt: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>()&gt;,
+        flav: B,
+        digest: Digest&lt;<span class="lifetime">&#39;de</span>, W&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, F&gt; Checksum&lt;<span class="lifetime">&#39;de</span>, F&gt;
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, B, W&gt; CrcModifier&lt;<span class="lifetime">&#39;de</span>, B, W&gt;
     <span class="kw">where
-        </span>F: Flavor&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;de</span>,
+        </span>B: Flavor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        W: Width,
     {
-        <span class="kw">pub fn </span>from_flav(flav: F) -&gt; <span class="self">Self </span>{
-            <span class="self">Self </span>{
-                flav,
-                checksum: <span class="number">0</span>,
-                _plt: PhantomData,
-            }
+        <span class="doccomment">/// Create a new Crc modifier Flavor.
+        </span><span class="kw">pub fn </span>new(bee: B, digest: Digest&lt;<span class="lifetime">&#39;de</span>, W&gt;) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{ flav: bee, digest }
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, F&gt; Flavor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Checksum&lt;<span class="lifetime">&#39;de</span>, F&gt;
-    <span class="kw">where
-        </span>F: Flavor&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;de</span>,
-    {
-        <span class="kw">type </span>Remainder = (&lt;F <span class="kw">as </span>Flavor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;::Remainder, u8);
-        <span class="kw">type </span>Source = F;
+    <span class="macro">macro_rules! </span>impl_flavor {
+        ($( <span class="macro-nonterminal">$int</span>:ty ),<span class="kw-2">*</span>) =&gt; {
+            $(
+                <span class="macro">paste! </span>{
+                    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, B&gt; Flavor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>CrcModifier&lt;<span class="lifetime">&#39;de</span>, B, <span class="macro-nonterminal">$int</span>&gt;
+                    <span class="kw">where
+                        </span>B: Flavor&lt;<span class="lifetime">&#39;de</span>&gt;,
+                    {
+                        <span class="kw">type </span>Remainder = B::Remainder;
 
-        <span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
-            <span class="kw">match </span><span class="self">self</span>.flav.pop() {
-                <span class="prelude-val">Ok</span>(u) =&gt; {
-                    <span class="self">self</span>.checksum = <span class="self">self</span>.checksum.wrapping_add(u);
-                    <span class="prelude-val">Ok</span>(u)
+                        <span class="kw">type </span>Source = B::Source;
+
+                        <span class="attr">#[inline]
+                        </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
+                            <span class="kw">match </span><span class="self">self</span>.flav.pop() {
+                                <span class="prelude-val">Ok</span>(byte) =&gt; {
+                                    <span class="self">self</span>.digest.update(<span class="kw-2">&amp;</span>[byte]);
+                                    <span class="prelude-val">Ok</span>(byte)
+                                }
+                                e @ <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; e,
+                            }
+                        }
+
+                        <span class="attr">#[inline]
+                        </span><span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
+                            <span class="kw">match </span><span class="self">self</span>.flav.try_take_n(ct) {
+                                <span class="prelude-val">Ok</span>(bytes) =&gt; {
+                                    <span class="self">self</span>.digest.update(bytes);
+                                    <span class="prelude-val">Ok</span>(bytes)
+                                }
+                                e @ <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; e,
+                            }
+                        }
+
+                        <span class="kw">fn </span>finalize(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Remainder&gt; {
+                            <span class="kw">match </span><span class="self">self</span>.flav.try_take_n(core::mem::size_of::&lt;<span class="macro-nonterminal">$int</span>&gt;()) {
+                                <span class="prelude-val">Ok</span>(prev_crc_bytes) =&gt; <span class="kw">match </span><span class="self">self</span>.flav.finalize() {
+                                    <span class="prelude-val">Ok</span>(remainder) =&gt; {
+                                        <span class="kw">let </span>crc = <span class="self">self</span>.digest.finalize();
+                                        <span class="kw">let </span>le_bytes = prev_crc_bytes
+                                            .try_into()
+                                            .map_err(|<span class="kw">_</span>| Error::DeserializeBadEncoding)<span class="question-mark">?</span>;
+                                        <span class="kw">let </span>prev_crc = &lt;<span class="macro-nonterminal">$int</span>&gt;::from_le_bytes(le_bytes);
+                                        <span class="kw">if </span>crc == prev_crc {
+                                            <span class="prelude-val">Ok</span>(remainder)
+                                        } <span class="kw">else </span>{
+                                            <span class="prelude-val">Err</span>(Error::DeserializeBadEncoding)
+                                        }
+                                    }
+                                    e @ <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; e,
+                                },
+                                <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
+                            }
+                        }
+                    }
+
+                    <span class="doccomment">/// Deserialize a message of type `T` from a byte slice with a Crc. The unused portion (if any)
+                    /// of the byte slice is not returned.
+                    </span><span class="kw">pub fn </span>[&lt;from_bytes_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, T&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+                    <span class="kw">where
+                        </span>T: Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
+                    {
+                        <span class="kw">let </span>flav = CrcModifier::new(Slice::new(s), digest);
+                        <span class="kw">let </span><span class="kw-2">mut </span>deserializer = Deserializer::from_flavor(flav);
+                        <span class="kw">let </span>r = T::deserialize(<span class="kw-2">&amp;mut </span>deserializer)<span class="question-mark">?</span>;
+                        <span class="kw">let _ </span>= deserializer.finalize()<span class="question-mark">?</span>;
+                        <span class="prelude-val">Ok</span>(r)
+                    }
+
+                    <span class="doccomment">/// Deserialize a message of type `T` from a byte slice with a Crc. The unused portion (if any)
+                    /// of the byte slice is returned for further usage
+                    </span><span class="kw">pub fn </span>[&lt;take_from_bytes_ <span class="macro-nonterminal">$int</span>&gt;]&lt;<span class="lifetime">&#39;a</span>, T&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], digest: Digest&lt;<span class="lifetime">&#39;a</span>, <span class="macro-nonterminal">$int</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])&gt;
+                    <span class="kw">where
+                        </span>T: Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
+                    {
+                        <span class="kw">let </span>flav = CrcModifier::new(Slice::new(s), digest);
+                        <span class="kw">let </span><span class="kw-2">mut </span>deserializer = Deserializer::from_flavor(flav);
+                        <span class="kw">let </span>t = T::deserialize(<span class="kw-2">&amp;mut </span>deserializer)<span class="question-mark">?</span>;
+                        <span class="prelude-val">Ok</span>((t, deserializer.finalize()<span class="question-mark">?</span>))
+                    }
                 }
-                <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
-            }
-        }
-        <span class="kw">fn </span>try_take_n(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ct: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8]&gt; {
-            <span class="kw">match </span><span class="self">self</span>.flav.try_take_n(ct) {
-                <span class="prelude-val">Ok</span>(u) =&gt; {
-                    u.iter().for_each(|u| {
-                        <span class="self">self</span>.checksum = <span class="self">self</span>.checksum.wrapping_add(<span class="kw-2">*</span>u);
-                    });
-                    <span class="prelude-val">Ok</span>(u)
-                }
-                <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
-            }
-        }
-        <span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Remainder&gt; {
-            <span class="prelude-val">Ok</span>((<span class="self">self</span>.flav.finalize()<span class="question-mark">?</span>, <span class="self">self</span>.checksum))
-        }
-    }
-
-    <span class="attr">#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-    </span><span class="kw">pub struct </span>SomeData&lt;<span class="lifetime">&#39;a</span>&gt; {
-        <span class="attr">#[serde(borrow)]
-        </span>sli: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
-        sts: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-        foo: u64,
-        bar: u128,
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>smoke() {
-        <span class="kw">const </span>EXPECTED: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[
-            <span class="number">4</span>, <span class="number">255</span>, <span class="number">1</span>, <span class="number">34</span>, <span class="number">51</span>, <span class="number">19</span>, <span class="number">116</span>, <span class="number">104</span>, <span class="number">105</span>, <span class="number">115</span>, <span class="number">32</span>, <span class="number">105</span>, <span class="number">115</span>, <span class="number">32</span>, <span class="number">97</span>, <span class="number">32</span>, <span class="number">103</span>, <span class="number">111</span>, <span class="number">111</span>,
-            <span class="number">100</span>, <span class="number">32</span>, <span class="number">116</span>, <span class="number">101</span>, <span class="number">115</span>, <span class="number">116</span>, <span class="number">170</span>, <span class="number">213</span>, <span class="number">170</span>, <span class="number">213</span>, <span class="number">170</span>, <span class="number">213</span>, <span class="number">170</span>, <span class="number">213</span>, <span class="number">170</span>, <span class="number">1</span>, <span class="number">255</span>, <span class="number">255</span>,
-            <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">127</span>,
-        ];
-
-        <span class="comment">// Calculate simple 8-bit checksum
-        </span><span class="kw">let </span><span class="kw-2">mut </span>check: u8 = <span class="number">0</span>;
-        EXPECTED.iter().for_each(|u| check = check.wrapping_add(<span class="kw-2">*</span>u));
-
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0u8</span>; <span class="number">256</span>];
-        <span class="kw">let </span>data = SomeData {
-            sli: <span class="kw-2">&amp;</span>[<span class="number">0xFF</span>, <span class="number">0x01</span>, <span class="number">0x22</span>, <span class="number">0x33</span>],
-            sts: <span class="string">&quot;this is a good test&quot;</span>,
-            foo: (u64::MAX / <span class="number">3</span>) * <span class="number">2</span>,
-            bar: u128::MAX / <span class="number">4</span>,
+            )*
         };
-        <span class="kw">let </span>used = <span class="kw">crate</span>::to_slice(<span class="kw-2">&amp;</span>data, <span class="kw-2">&amp;mut </span>buf).unwrap();
-        <span class="macro">assert_eq!</span>(used, EXPECTED);
-        <span class="kw">let </span>used = used.len();
-
-        <span class="comment">// Put the checksum at the end
-        </span>buf[used] = check;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>deser = <span class="kw">crate</span>::de::Deserializer::from_flavor(Checksum::from_flav(Slice::new(<span class="kw-2">&amp;</span>buf)));
-
-        <span class="kw">let </span>t = SomeData::&lt;<span class="lifetime">&#39;_</span>&gt;::deserialize(<span class="kw-2">&amp;mut </span>deser).unwrap();
-        <span class="macro">assert_eq!</span>(t, data);
-
-        <span class="comment">// Normally, you&#39;d probably expect the check
-        </span><span class="kw">let </span>(rem, cksm) = deser.finalize().unwrap();
-
-        <span class="comment">// The pre-calculated checksum we stuffed at the end is the
-        // first &quot;unused&quot; byte
-        </span><span class="macro">assert_eq!</span>(rem[<span class="number">0</span>], check);
-
-        <span class="comment">// the one we calculated during serialization matches the
-        // pre-calculated one
-        </span><span class="macro">assert_eq!</span>(cksm, check);
     }
+
+    <span class="macro">impl_flavor!</span>[u8, u16, u32, u64, u128];
 }
 </code></pre></div></section></main></body></html>

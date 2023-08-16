@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_chapters_exercises","get_chapters_pages_without_main_frontpage","get_public_chapter_pages"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_chapters_exercises","get_chapters_pages_without_main_frontpage","get_public_chapter_pages"]};

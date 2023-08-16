@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_email_template"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_email_template"]};

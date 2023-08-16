@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["CloseEvent","Pool","PoolConnection","PoolConnectionMetadata","PoolOptions"]};
+window.SIDEBAR_ITEMS = {"mod":["maybe"],"struct":["CloseEvent","Pool","PoolConnection","PoolConnectionMetadata","PoolOptions"]};

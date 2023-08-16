@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["ConnectOptions","Connection"]};
+window.SIDEBAR_ITEMS = {"struct":["LogSettings"],"trait":["ConnectOptions","Connection"]};

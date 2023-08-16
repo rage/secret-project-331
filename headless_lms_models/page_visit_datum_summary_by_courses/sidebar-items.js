@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["calculate_and_update_for_date","get_all_for_course","get_latest_date"],"struct":["PageVisitDatumSummaryByCourse","Record"]};
+window.SIDEBAR_ITEMS = {"fn":["calculate_and_update_for_date","get_all_for_course","get_latest_date"],"struct":["PageVisitDatumSummaryByCourse"]};

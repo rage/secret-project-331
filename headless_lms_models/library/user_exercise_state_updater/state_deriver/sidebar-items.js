@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["calculate_average_received_peer_review_score","derive_new_activity_progress","derive_new_reviewing_stage","derive_new_score_given","derive_new_user_exercise_state","get_peer_review_opinion"],"static":["CALLSITE","META"],"struct":["PeerReviewOpinion"]};
+window.SIDEBAR_ITEMS = {"fn":["calculate_average_received_peer_review_score","derive_new_activity_progress","derive_new_reviewing_stage","derive_new_score_given","derive_new_user_exercise_state","get_peer_review_opinion"],"struct":["PeerReviewOpinion"]};

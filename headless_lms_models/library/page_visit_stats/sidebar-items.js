@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["calculate_latest"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["calculate_latest"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ControllerErrorType","ErrorData"],"static":["CALLSITE","META"],"struct":["ControllerError","ErrorResponse"],"type":["ControllerResult"]};
+window.SIDEBAR_ITEMS = {"enum":["ControllerErrorType","ErrorData"],"struct":["ControllerError","ErrorResponse"],"type":["ControllerResult"]};

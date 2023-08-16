@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["delete_page_audio","get_page_audio_files","get_page_audio_files_by_id","insert_page_audio"],"struct":["PageAudioFile","Record"]};
+window.SIDEBAR_ITEMS = {"fn":["delete_page_audio","get_page_audio_files","get_page_audio_files_by_id","insert_page_audio"],"struct":["PageAudioFile"]};

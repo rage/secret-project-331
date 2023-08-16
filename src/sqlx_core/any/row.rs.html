@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.6.3/src/any/row.rs`."><title>row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.1/src/any/row.rs`."><title>row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -113,48 +113,59 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::any::error::mismatched_types;
-<span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyColumn, AnyColumnIndex};
-<span class="kw">use </span><span class="kw">crate</span>::column::ColumnIndex;
-<span class="kw">use </span><span class="kw">crate</span>::database::HasValueRef;
+<span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyColumn, AnyTypeInfo, AnyTypeInfoKind, AnyValue, AnyValueKind};
+<span class="kw">use </span><span class="kw">crate</span>::column::{Column, ColumnIndex};
+<span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasValueRef};
 <span class="kw">use </span><span class="kw">crate</span>::decode::Decode;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::ext::ustr::UStr;
 <span class="kw">use </span><span class="kw">crate</span>::row::Row;
 <span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
 <span class="kw">use </span><span class="kw">crate</span>::types::Type;
-<span class="kw">use </span><span class="kw">crate</span>::value::ValueRef;
+<span class="kw">use </span><span class="kw">crate</span>::value::{Value, ValueRef};
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::postgres::PgRow;
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::mysql::MySqlRow;
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::sqlite::SqliteRow;
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::mssql::MssqlRow;
-
-<span class="kw">pub struct </span>AnyRow {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) kind: AnyRowKind,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) columns: Vec&lt;AnyColumn&gt;,
-}
-
-<span class="kw">impl </span><span class="kw">crate</span>::row::private_row::Sealed <span class="kw">for </span>AnyRow {}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>AnyRowKind {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-    </span>Postgres(PgRow),
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-    </span>MySql(MySqlRow),
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-    </span>Sqlite(SqliteRow),
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-    </span>Mssql(MssqlRow),
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>AnyRow {
+    <span class="attr">#[doc(hidden)]
+    </span><span class="kw">pub </span>column_names: Arc&lt;<span class="kw">crate</span>::HashMap&lt;UStr, usize&gt;&gt;,
+    <span class="attr">#[doc(hidden)]
+    </span><span class="kw">pub </span>columns: Vec&lt;AnyColumn&gt;,
+    <span class="attr">#[doc(hidden)]
+    </span><span class="kw">pub </span>values: Vec&lt;AnyValue&gt;,
 }
 
 <span class="kw">impl </span>Row <span class="kw">for </span>AnyRow {
@@ -172,20 +183,14 @@
         </span>I: ColumnIndex&lt;<span class="self">Self</span>&gt;,
     {
         <span class="kw">let </span>index = index.index(<span class="self">self</span>)<span class="question-mark">?</span>;
-
-        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.kind {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyRowKind::Postgres(row) =&gt; row.try_get_raw(index).map(Into::into),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyRowKind::MySql(row) =&gt; row.try_get_raw(index).map(Into::into),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyRowKind::Sqlite(row) =&gt; row.try_get_raw(index).map(Into::into),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyRowKind::Mssql(row) =&gt; row.try_get_raw(index).map(Into::into),
-        }
+        <span class="prelude-val">Ok</span>(<span class="self">self
+            </span>.values
+            .get(index)
+            .ok_or_else(|| Error::ColumnIndexOutOfBounds {
+                index,
+                len: <span class="self">self</span>.columns.len(),
+            })<span class="question-mark">?
+            </span>.as_ref())
     }
 
     <span class="kw">fn </span>try_get&lt;<span class="lifetime">&#39;r</span>, T, I&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>, index: I) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
@@ -208,24 +213,83 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;i</span>&gt; ColumnIndex&lt;AnyRow&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>str
-<span class="kw">where
-    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>str: AnyColumnIndex,
-{
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;i</span>&gt; ColumnIndex&lt;AnyRow&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>str {
     <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, row: <span class="kw-2">&amp;</span>AnyRow) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
-        <span class="kw">match </span><span class="kw-2">&amp;</span>row.kind {
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyRowKind::Postgres(row) =&gt; <span class="self">self</span>.index(row),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyRowKind::MySql(row) =&gt; <span class="self">self</span>.index(row),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyRowKind::Sqlite(row) =&gt; <span class="self">self</span>.index(row),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyRowKind::Mssql(row) =&gt; <span class="self">self</span>.index(row),
-        }
+        row.column_names
+            .get(<span class="kw-2">*</span><span class="self">self</span>)
+            .copied()
+            .ok_or_else(|| Error::ColumnNotFound(<span class="self">self</span>.to_string()))
     }
+}
+
+<span class="kw">impl </span>AnyRow {
+    <span class="comment">// This is not a `TryFrom` impl because trait impls are easy for users to accidentally
+    // become reliant upon, even if hidden, but we want to be able to change the bounds
+    // on this function as the `Any` driver gains support for more types.
+    //
+    // Also `column_names` needs to be passed by the driver to avoid making deep copies.
+    </span><span class="attr">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>map_from&lt;<span class="lifetime">&#39;a</span>, R: Row&gt;(
+        row: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>R,
+        column_names: Arc&lt;<span class="kw">crate</span>::HashMap&lt;UStr, usize&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;
+    <span class="kw">where
+        </span>usize: ColumnIndex&lt;R&gt;,
+        AnyTypeInfo: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;R::Database <span class="kw">as </span>Database&gt;::TypeInfo, Error = Error&gt;,
+        AnyColumn: <span class="kw">for</span>&lt;<span class="lifetime">&#39;b</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>&lt;R::Database <span class="kw">as </span>Database&gt;::Column, Error = Error&gt;,
+        bool: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        i16: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        i32: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        i64: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        f32: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        f64: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        String: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+        Vec&lt;u8&gt;: Type&lt;R::Database&gt; + Decode&lt;<span class="lifetime">&#39;a</span>, R::Database&gt;,
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>row_out = AnyRow {
+            column_names,
+            columns: Vec::with_capacity(row.columns().len()),
+            values: Vec::with_capacity(row.columns().len()),
+        };
+
+        <span class="kw">for </span>col <span class="kw">in </span>row.columns() {
+            <span class="kw">let </span>i = col.ordinal();
+
+            <span class="kw">let </span>any_col = AnyColumn::try_from(col)<span class="question-mark">?</span>;
+
+            <span class="kw">let </span>value = row.try_get_raw(i)<span class="question-mark">?</span>;
+
+            <span class="comment">// Map based on the _value_ type info, not the column type info.
+            </span><span class="kw">let </span>type_info =
+                AnyTypeInfo::try_from(<span class="kw-2">&amp;</span>value.type_info()).map_err(|e| Error::ColumnDecode {
+                    index: col.ordinal().to_string(),
+                    source: e.into(),
+                })<span class="question-mark">?</span>;
+
+            <span class="kw">let </span>value_kind = <span class="kw">match </span>type_info.kind {
+                <span class="kw">_ if </span>value.is_null() =&gt; AnyValueKind::Null,
+                AnyTypeInfoKind::Null =&gt; AnyValueKind::Null,
+                AnyTypeInfoKind::Bool =&gt; AnyValueKind::Bool(decode(value)<span class="question-mark">?</span>),
+                AnyTypeInfoKind::SmallInt =&gt; AnyValueKind::SmallInt(decode(value)<span class="question-mark">?</span>),
+                AnyTypeInfoKind::Integer =&gt; AnyValueKind::Integer(decode(value)<span class="question-mark">?</span>),
+                AnyTypeInfoKind::BigInt =&gt; AnyValueKind::BigInt(decode(value)<span class="question-mark">?</span>),
+                AnyTypeInfoKind::Real =&gt; AnyValueKind::Real(decode(value)<span class="question-mark">?</span>),
+                AnyTypeInfoKind::Double =&gt; AnyValueKind::Double(decode(value)<span class="question-mark">?</span>),
+                AnyTypeInfoKind::Blob =&gt; AnyValueKind::Blob(decode::&lt;<span class="kw">_</span>, Vec&lt;u8&gt;&gt;(value)<span class="question-mark">?</span>.into()),
+                AnyTypeInfoKind::Text =&gt; AnyValueKind::Text(decode::&lt;<span class="kw">_</span>, String&gt;(value)<span class="question-mark">?</span>.into()),
+            };
+
+            row_out.columns.push(any_col);
+            row_out.values.push(AnyValue { kind: value_kind });
+        }
+
+        <span class="prelude-val">Ok</span>(row_out)
+    }
+}
+
+<span class="kw">fn </span>decode&lt;<span class="lifetime">&#39;r</span>, DB: Database, T: Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt;&gt;(
+    valueref: &lt;DB <span class="kw">as </span>HasValueRef&lt;<span class="lifetime">&#39;r</span>&gt;&gt;::ValueRef,
+) -&gt; <span class="kw">crate</span>::Result&lt;T&gt; {
+    Decode::decode(valueref).map_err(Error::decode)
 }
 </code></pre></div></section></main></body></html>

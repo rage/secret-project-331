@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Mark an `async fn` as a test with SQLx support."><title>test in sqlx - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../static.files/storage-62ce34ea385b278a.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../sqlx/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../sqlx/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><div class="sidebar-elems"><h2><a href="index.html">In sqlx</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">sqlx</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/sqlx_macros/lib.rs.html#104">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[test]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Mark an <code>async fn</code> as a test with SQLx support.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Mark an `async fn` as a test with SQLx support."><title>test in sqlx - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../static.files/storage-62ce34ea385b278a.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../sqlx/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../sqlx/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><div class="sidebar-elems"><h2><a href="index.html">In sqlx</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">sqlx</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/sqlx_macros/lib.rs.html#81">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[test]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Mark an <code>async fn</code> as a test with SQLx support.</p>
 <p>The test will automatically be executed in the async runtime according to the chosen 
-<code>runtime-{async-std, tokio}-{native-tls, rustls}</code> feature.</p>
+<code>runtime-{async-std, tokio}</code> feature. If more than one runtime feature is enabled, <code>runtime-tokio</code> is preferred.</p>
 <p>By default, this behaves identically to <code>#[tokio::test]</code><sup>1</sup> or <code>#[async_std::test]</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[sqlx::test]
@@ -51,17 +51,17 @@ even for <code>#[should_panic]</code> tests.</p>
 <p>To limit disk space usage, any previously created test databases will be deleted the next time a test binary using 
 <code>#[sqlx::test]</code> is run.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::PgPool;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::{PgPool, Row};
 
 <span class="attr">#[sqlx::test]
 </span><span class="kw">async fn </span>basic_test(pool: PgPool) -&gt; sqlx::Result&lt;()&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
+    <span class="kw">let </span>foo = sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
         .fetch_one(<span class="kw-2">&amp;mut </span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        
-    <span class="macro">assert_eq!</span>(foo.get::&lt;String&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
+
+    <span class="macro">assert_eq!</span>(foo.get::&lt;String, <span class="kw">_</span>&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
     
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -74,17 +74,17 @@ converted to a filesystem path (<code>::</code> replaced with <code>/</code>).</
 <p>You can override the resolved path relative to <code>CARGO_MANIFEST_DIR</code> in the attribute (global overrides are not currently
 supported):</p>
 
-<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::PgPool;
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::{PgPool, Row};
 
 <span class="attr">#[sqlx::test(migrations = <span class="string">&quot;foo_migrations&quot;</span>)]
 </span><span class="kw">async fn </span>basic_test(pool: PgPool) -&gt; sqlx::Result&lt;()&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
+    <span class="kw">let </span>foo = sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
         .fetch_one(<span class="kw-2">&amp;mut </span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        
-    <span class="macro">assert_eq!</span>(foo.get::&lt;String&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
+
+    <span class="macro">assert_eq!</span>(foo.get::&lt;String, <span class="kw">_</span>&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
     
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
@@ -94,7 +94,7 @@ supported):</p>
 <div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">pub static </span>MIGRATOR: sqlx::migrate::Migrator = <span class="macro">sqlx::migrate!</span>(<span class="string">&quot;foo_migrations&quot;</span>);</code></pre></div>
 <p><code>foo_crate/tests/foo_test.rs</code></p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::PgPool;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::{PgPool, Row};
 
 
 <span class="comment">// You could also do `use foo_crate::MIGRATOR` and just refer to it as `MIGRATOR` here.
@@ -102,17 +102,17 @@ supported):</p>
 </span><span class="kw">async fn </span>basic_test(pool: PgPool) -&gt; sqlx::Result&lt;()&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
+    <span class="kw">let </span>foo = sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
         .fetch_one(<span class="kw-2">&amp;mut </span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        
-    <span class="macro">assert_eq!</span>(foo.get::&lt;String&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
+
+    <span class="macro">assert_eq!</span>(foo.get::&lt;String, <span class="kw">_</span>&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
     
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
 <p>Or disable migrations processing entirely:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::PgPool;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::{PgPool, Row};
 
 <span class="attr">#[sqlx::test(migrations = <span class="bool-val">false</span>)]
 </span><span class="kw">async fn </span>basic_test(pool: PgPool) -&gt; sqlx::Result&lt;()&gt; {
@@ -120,11 +120,11 @@ supported):</p>
     
     conn.execute(<span class="string">&quot;CREATE TABLE foo(bar text)&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
+    <span class="kw">let </span>foo = sqlx::query(<span class="string">&quot;SELECT * FROM foo&quot;</span>)
         .fetch_one(<span class="kw-2">&amp;mut </span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        
-    <span class="macro">assert_eq!</span>(foo.get::&lt;String&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
+
+    <span class="macro">assert_eq!</span>(foo.get::&lt;String, <span class="kw">_</span>&gt;(<span class="string">&quot;bar&quot;</span>), <span class="string">&quot;foobar!&quot;</span>);
     
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>

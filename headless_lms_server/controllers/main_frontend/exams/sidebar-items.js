@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","duplicate_exam","export_points","export_submissions","get_exam","set_course","unset_course"],"static":["CALLSITE","META"],"struct":["ExamCourseInfo"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","duplicate_exam","export_points","export_submissions","get_exam","set_course","unset_course"],"struct":["ExamCourseInfo"]};

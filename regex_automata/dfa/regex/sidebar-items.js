@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["FindEarliestMatches","FindLeftmostMatches","FindOverlappingMatches","Regex","TryFindEarliestMatches","TryFindLeftmostMatches","TryFindOverlappingMatches"]};

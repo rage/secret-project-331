@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["main"]};

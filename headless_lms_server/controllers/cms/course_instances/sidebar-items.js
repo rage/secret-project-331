@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_organization_id"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_organization_id"]};

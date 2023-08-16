@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["HistoryChangeReason"],"fn":["get_history_data","history","history_count","insert"],"struct":["PageHistory","PageHistoryContent","PageHistoryData","Record"]};
+window.SIDEBAR_ITEMS = {"enum":["HistoryChangeReason"],"fn":["get_history_data","history","history_count","insert"],"struct":["PageHistory","PageHistoryContent","PageHistoryData"]};

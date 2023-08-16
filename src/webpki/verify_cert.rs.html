@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-0.22.0/src/verify_cert.rs`."><title>verify_cert.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.101.2/src/verify_cert.rs`."><title>verify_cert.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,6 +350,168 @@
 <a href="#350" id="350">350</a>
 <a href="#351" id="351">351</a>
 <a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -365,28 +527,32 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 </span><span class="kw">use crate</span>::{
-    cert::{<span class="self">self</span>, Cert, EndEntityOrCa},
-    der, name, signed_data, time, Error, SignatureAlgorithm, TrustAnchor,
+    cert::{Cert, EndEntityOrCa},
+    der, signed_data, subject_name, time, CertRevocationList, Error, SignatureAlgorithm,
+    TrustAnchor,
 };
 
-<span class="kw">pub fn </span>build_chain(
-    required_eku_if_present: KeyPurposeId,
-    supported_sig_algs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>SignatureAlgorithm],
-    trust_anchors: <span class="kw-2">&amp;</span>[TrustAnchor],
-    intermediate_certs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8]],
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChainOptions&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) eku: KeyUsage,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) supported_sig_algs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SignatureAlgorithm],
+    <span class="kw">pub</span>(<span class="kw">crate</span>) trust_anchors: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[TrustAnchor&lt;<span class="lifetime">&#39;a</span>&gt;],
+    <span class="kw">pub</span>(<span class="kw">crate</span>) intermediate_certs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]],
+    <span class="kw">pub</span>(<span class="kw">crate</span>) crls: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>CertRevocationList],
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>build_chain(opts: <span class="kw-2">&amp;</span>ChainOptions, cert: <span class="kw-2">&amp;</span>Cert, time: time::Time) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    build_chain_inner(opts, cert, time, <span class="number">0</span>)
+}
+
+<span class="kw">fn </span>build_chain_inner(
+    opts: <span class="kw-2">&amp;</span>ChainOptions,
     cert: <span class="kw-2">&amp;</span>Cert,
     time: time::Time,
     sub_ca_count: usize,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="kw">let </span>used_as_ca = used_as_ca(<span class="kw-2">&amp;</span>cert.ee_or_ca);
 
-    check_issuer_independent_properties(
-        cert,
-        time,
-        used_as_ca,
-        sub_ca_count,
-        required_eku_if_present,
-    )<span class="question-mark">?</span>;
+    check_issuer_independent_properties(cert, time, used_as_ca, sub_ca_count, opts.eku.inner)<span class="question-mark">?</span>;
 
     <span class="comment">// TODO: HPKP checks.
 
@@ -395,7 +561,8 @@
             <span class="kw">const </span>MAX_SUB_CA_COUNT: usize = <span class="number">6</span>;
 
             <span class="kw">if </span>sub_ca_count &gt;= MAX_SUB_CA_COUNT {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
+                <span class="comment">// TODO(XXX): Candidate for a more specific error - Error::PathTooDeep?
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
             }
         }
         UsedAsCa::No =&gt; {
@@ -403,39 +570,51 @@
         }
     }
 
-    <span class="comment">// TODO: revocation.
+    <span class="comment">// for the purpose of name constraints checking, only end-entity server certificates
+    // could plausibly have a DNS name as a subject commonName that could contribute to
+    // path validity
+    </span><span class="kw">let </span>subject_common_name_contents = <span class="kw">if </span>opts
+        .eku
+        .inner
+        .key_purpose_id_equals(EKU_SERVER_AUTH.oid_value)
+        &amp;&amp; used_as_ca == UsedAsCa::No
+    {
+        subject_name::SubjectCommonNameContents::DnsName
+    } <span class="kw">else </span>{
+        subject_name::SubjectCommonNameContents::Ignore
+    };
 
-    </span><span class="kw">match </span>loop_while_non_fatal_error(trust_anchors, |trust_anchor: <span class="kw-2">&amp;</span>TrustAnchor| {
-        <span class="kw">let </span>trust_anchor_subject = untrusted::Input::from(trust_anchor.subject);
-        <span class="kw">if </span>cert.issuer != trust_anchor_subject {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
-        }
+    <span class="kw">let </span>result = loop_while_non_fatal_error(
+        Error::UnknownIssuer,
+        opts.trust_anchors,
+        |trust_anchor: <span class="kw-2">&amp;</span>TrustAnchor| {
+            <span class="kw">let </span>trust_anchor_subject = untrusted::Input::from(trust_anchor.subject);
+            <span class="kw">if </span>cert.issuer != trust_anchor_subject {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
+            }
 
-        <span class="kw">let </span>name_constraints = trust_anchor.name_constraints.map(untrusted::Input::from);
+            <span class="kw">let </span>name_constraints = trust_anchor.name_constraints.map(untrusted::Input::from);
 
-        untrusted::read_all_optional(name_constraints, Error::BadDer, |value| {
-            name::check_name_constraints(value, <span class="kw-2">&amp;</span>cert)
-        })<span class="question-mark">?</span>;
+            untrusted::read_all_optional(name_constraints, Error::BadDer, |value| {
+                subject_name::check_name_constraints(value, cert, subject_common_name_contents)
+            })<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>trust_anchor_spki = untrusted::Input::from(trust_anchor.spki);
+            <span class="comment">// TODO: check_distrust(trust_anchor_subject, trust_anchor_spki)?;
 
-        <span class="comment">// TODO: check_distrust(trust_anchor_subject, trust_anchor_spki)?;
+            </span>check_signatures(opts.supported_sig_algs, cert, trust_anchor, opts.crls)<span class="question-mark">?</span>;
 
-        </span>check_signatures(supported_sig_algs, cert, trust_anchor_spki)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(())
+        },
+    );
 
-        <span class="prelude-val">Ok</span>(())
-    }) {
-        <span class="prelude-val">Ok</span>(()) =&gt; {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-        }
-        <span class="prelude-val">Err</span>(..) =&gt; {
-            <span class="comment">// If the error is not fatal, then keep going.
-        </span>}
-    }
+    <span class="kw">let </span>err = <span class="kw">match </span>result {
+        <span class="prelude-val">Ok</span>(()) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+        <span class="prelude-val">Err</span>(err) =&gt; err,
+    };
 
-    loop_while_non_fatal_error(intermediate_certs, |cert_der| {
+    loop_while_non_fatal_error(err, opts.intermediate_certs, |cert_der| {
         <span class="kw">let </span>potential_issuer =
-            cert::parse_cert(untrusted::Input::from(<span class="kw-2">*</span>cert_der), EndEntityOrCa::Ca(<span class="kw-2">&amp;</span>cert))<span class="question-mark">?</span>;
+            Cert::from_der(untrusted::Input::from(cert_der), EndEntityOrCa::Ca(cert))<span class="question-mark">?</span>;
 
         <span class="kw">if </span>potential_issuer.subject != cert.issuer {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIssuer);
@@ -460,7 +639,7 @@
         }
 
         untrusted::read_all_optional(potential_issuer.name_constraints, Error::BadDer, |value| {
-            name::check_name_constraints(value, <span class="kw-2">&amp;</span>cert)
+            subject_name::check_name_constraints(value, cert, subject_common_name_contents)
         })<span class="question-mark">?</span>;
 
         <span class="kw">let </span>next_sub_ca_count = <span class="kw">match </span>used_as_ca {
@@ -468,33 +647,39 @@
             UsedAsCa::Yes =&gt; sub_ca_count + <span class="number">1</span>,
         };
 
-        build_chain(
-            required_eku_if_present,
-            supported_sig_algs,
-            trust_anchors,
-            intermediate_certs,
-            <span class="kw-2">&amp;</span>potential_issuer,
-            time,
-            next_sub_ca_count,
-        )
+        build_chain_inner(opts, <span class="kw-2">&amp;</span>potential_issuer, time, next_sub_ca_count)
     })
 }
 
 <span class="kw">fn </span>check_signatures(
     supported_sig_algs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>SignatureAlgorithm],
     cert_chain: <span class="kw-2">&amp;</span>Cert,
-    trust_anchor_key: untrusted::Input,
+    trust_anchor: <span class="kw-2">&amp;</span>TrustAnchor,
+    crls: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>CertRevocationList],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>spki_value = trust_anchor_key;
-    <span class="kw">let </span><span class="kw-2">mut </span>cert = cert_chain;
+    <span class="kw">let </span><span class="kw-2">mut </span>spki_value = untrusted::Input::from(trust_anchor.spki);
+    <span class="kw">let </span><span class="kw-2">mut </span>issuer_subject = untrusted::Input::from(trust_anchor.subject);
+    <span class="kw">let </span><span class="kw-2">mut </span>issuer_key_usage = <span class="prelude-val">None</span>; <span class="comment">// TODO(XXX): Consider whether to track TrustAnchor KU.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>cert = cert_chain;
     <span class="kw">loop </span>{
         signed_data::verify_signed_data(supported_sig_algs, spki_value, <span class="kw-2">&amp;</span>cert.signed_data)<span class="question-mark">?</span>;
 
-        <span class="comment">// TODO: check revocation
+        <span class="kw">if </span>!crls.is_empty() {
+            check_crls(
+                supported_sig_algs,
+                cert,
+                issuer_subject,
+                spki_value,
+                issuer_key_usage,
+                crls,
+            )<span class="question-mark">?</span>;
+        }
 
-        </span><span class="kw">match </span><span class="kw-2">&amp;</span>cert.ee_or_ca {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>cert.ee_or_ca {
             EndEntityOrCa::Ca(child_cert) =&gt; {
                 spki_value = cert.spki.value();
+                issuer_subject = cert.subject;
+                issuer_key_usage = cert.key_usage;
                 cert = child_cert;
             }
             EndEntityOrCa::EndEntity =&gt; {
@@ -506,29 +691,91 @@
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="comment">// Zero-sized marker type representing positive assertion that revocation status was checked
+// for a certificate and the result was that the certificate is not revoked.
+</span><span class="kw">struct </span>CertNotRevoked(());
+
+<span class="kw">impl </span>CertNotRevoked {
+    <span class="comment">// Construct a CertNotRevoked marker.
+    </span><span class="kw">fn </span>assertion() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(())
+    }
+}
+
+<span class="kw">fn </span>check_crls(
+    supported_sig_algs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>SignatureAlgorithm],
+    cert: <span class="kw-2">&amp;</span>Cert,
+    issuer_subject: untrusted::Input,
+    issuer_spki: untrusted::Input,
+    issuer_ku: <span class="prelude-ty">Option</span>&lt;untrusted::Input&gt;,
+    crls: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>CertRevocationList],
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CertNotRevoked&gt;, Error&gt; {
+    <span class="macro">assert_eq!</span>(cert.issuer, issuer_subject);
+
+    <span class="kw">let </span>crl = <span class="kw">match </span>crls
+        .iter()
+        .find(|candidate_crl| candidate_crl.issuer() == cert.issuer())
+    {
+        <span class="prelude-val">Some</span>(crl) =&gt; crl,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+    };
+
+    <span class="comment">// Verify the CRL signature with the issuer SPKI.
+    // TODO(XXX): consider whether we can refactor so this happens once up-front, instead
+    //            of per-lookup.
+    //            https://github.com/rustls/webpki/issues/81
+    </span>crl.verify_signature(supported_sig_algs, issuer_spki.as_slice_less_safe())
+        .map_err(crl_signature_err)<span class="question-mark">?</span>;
+
+    <span class="comment">// Verify that if the issuer has a KeyUsage bitstring it asserts cRLSign.
+    </span>KeyUsageMode::CrlSign.check(issuer_ku)<span class="question-mark">?</span>;
+
+    <span class="comment">// Try to find the cert serial in the verified CRL contents.
+    </span><span class="kw">let </span>cert_serial = cert.serial.as_slice_less_safe();
+    <span class="kw">match </span>crl.find_serial(cert_serial)<span class="question-mark">? </span>{
+        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(CertNotRevoked::assertion())),
+        <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::CertRevoked),
+    }
+}
+
+<span class="comment">// When verifying CRL signed data we want to disambiguate the context of possible errors by mapping
+// them to CRL specific variants that a consumer can use to tell the issue was with the CRL&#39;s
+// signature, not a certificate.
+</span><span class="kw">fn </span>crl_signature_err(err: Error) -&gt; Error {
+    <span class="kw">match </span>err {
+        Error::UnsupportedSignatureAlgorithm =&gt; Error::UnsupportedCrlSignatureAlgorithm,
+        Error::UnsupportedSignatureAlgorithmForPublicKey =&gt; {
+            Error::UnsupportedCrlSignatureAlgorithmForPublicKey
+        }
+        Error::InvalidSignatureForPublicKey =&gt; Error::InvalidCrlSignatureForPublicKey,
+        <span class="kw">_ </span>=&gt; err,
+    }
+}
+
 <span class="kw">fn </span>check_issuer_independent_properties(
     cert: <span class="kw-2">&amp;</span>Cert,
     time: time::Time,
     used_as_ca: UsedAsCa,
     sub_ca_count: usize,
-    required_eku_if_present: KeyPurposeId,
+    eku: ExtendedKeyUsage,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
     <span class="comment">// TODO: check_distrust(trust_anchor_subject, trust_anchor_spki)?;
     // TODO: Check signature algorithm like mozilla::pkix.
     // TODO: Check SPKI like mozilla::pkix.
     // TODO: check for active distrust like mozilla::pkix.
 
-    // See the comment in `remember_extension` for why we don&#39;t check the
-    // KeyUsage extension.
+    // For cert validation, we ignore the KeyUsage extension. For CA
+    // certificates, BasicConstraints.cA makes KeyUsage redundant. Firefox
+    // and other common browsers do not check KeyUsage for end-entities,
+    // though it would be kind of nice to ensure that a KeyUsage without
+    // the keyEncipherment bit could not be used for RSA key exchange.
 
     </span>cert.validity
         .read_all(Error::BadDer, |value| check_validity(value, time))<span class="question-mark">?</span>;
     untrusted::read_all_optional(cert.basic_constraints, Error::BadDer, |value| {
         check_basic_constraints(value, used_as_ca, sub_ca_count)
     })<span class="question-mark">?</span>;
-    untrusted::read_all_optional(cert.eku, Error::BadDer, |value| {
-        check_eku(value, required_eku_if_present)
-    })<span class="question-mark">?</span>;
+    untrusted::read_all_optional(cert.eku, Error::BadDer, |value| eku.check(value))<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
@@ -555,7 +802,7 @@
     </span><span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[derive(Clone, Copy)]
+<span class="attr">#[derive(Clone, Copy, PartialEq)]
 </span><span class="kw">enum </span>UsedAsCa {
     Yes,
     No,
@@ -604,9 +851,105 @@
     }
 }
 
-<span class="attr">#[derive(Clone, Copy)]
-</span><span class="kw">pub struct </span>KeyPurposeId {
+<span class="doccomment">/// The expected key usage of a certificate.
+///
+/// This type represents the expected key usage of an end entity certificate. Although for most
+/// kinds of certificates the extended key usage extension is optional (and so certificates
+/// not carrying a particular value in the EKU extension are acceptable). If the extension
+/// is present, the certificate MUST only be used for one of the purposes indicated.
+///
+/// &lt;https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.12&gt;
+</span><span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">pub struct </span>KeyUsage {
+    inner: ExtendedKeyUsage,
+}
+
+<span class="kw">impl </span>KeyUsage {
+    <span class="doccomment">/// Construct a new [`KeyUsage`] as appropriate for server certificate authentication.
+    ///
+    /// As specified in &lt;https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.12&gt;, this does not require the certificate to specify the eKU extension.
+    </span><span class="kw">pub const fn </span>server_auth() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: ExtendedKeyUsage::RequiredIfPresent(EKU_SERVER_AUTH),
+        }
+    }
+
+    <span class="doccomment">/// Construct a new [`KeyUsage`] as appropriate for client certificate authentication.
+    ///
+    /// As specified in &lt;&gt;, this does not require the certificate to specify the eKU extension.
+    </span><span class="kw">pub const fn </span>client_auth() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: ExtendedKeyUsage::RequiredIfPresent(EKU_CLIENT_AUTH),
+        }
+    }
+
+    <span class="doccomment">/// Construct a new [`KeyUsage`] requiring a certificate to support the specified OID.
+    </span><span class="kw">pub const fn </span>required(oid: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: ExtendedKeyUsage::Required(KeyPurposeId::new(oid)),
+        }
+    }
+}
+
+<span class="doccomment">/// Extended Key Usage (EKU) of a certificate.
+</span><span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">enum </span>ExtendedKeyUsage {
+    <span class="doccomment">/// The certificate must contain the specified [`KeyPurposeId`] as EKU.
+    </span>Required(KeyPurposeId),
+
+    <span class="doccomment">/// If the certificate has EKUs, then the specified [`KeyPurposeId`] must be included.
+    </span>RequiredIfPresent(KeyPurposeId),
+}
+
+<span class="kw">impl </span>ExtendedKeyUsage {
+    <span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.2.1.12
+    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>untrusted::Reader&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span>input = <span class="kw">match </span>(input, <span class="self">self</span>) {
+            (<span class="prelude-val">Some</span>(input), <span class="kw">_</span>) =&gt; input,
+            (<span class="prelude-val">None</span>, <span class="self">Self</span>::RequiredIfPresent(<span class="kw">_</span>)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+            (<span class="prelude-val">None</span>, <span class="self">Self</span>::Required(<span class="kw">_</span>)) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::RequiredEkuNotFound),
+        };
+
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>value = der::expect_tag_and_get_value(input, der::Tag::OID)<span class="question-mark">?</span>;
+            <span class="kw">if </span><span class="self">self</span>.key_purpose_id_equals(value) {
+                input.skip_to_end();
+                <span class="kw">break</span>;
+            }
+
+            <span class="kw">if </span>input.at_end() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::RequiredEkuNotFound);
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>key_purpose_id_equals(<span class="kw-2">&amp;</span><span class="self">self</span>, value: untrusted::Input&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            ExtendedKeyUsage::Required(eku) =&gt; <span class="kw-2">*</span>eku,
+            ExtendedKeyUsage::RequiredIfPresent(eku) =&gt; <span class="kw-2">*</span>eku,
+        }
+        .oid_value
+            == value
+    }
+}
+
+<span class="doccomment">/// An OID value indicating an Extended Key Usage (EKU) key purpose.
+</span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">struct </span>KeyPurposeId {
     oid_value: untrusted::Input&lt;<span class="lifetime">&#39;static</span>&gt;,
+}
+
+<span class="kw">impl </span>KeyPurposeId {
+    <span class="doccomment">/// Construct a new [`KeyPurposeId`].
+    ///
+    /// `oid` is the OBJECT IDENTIFIER in bytes.
+    </span><span class="kw">const fn </span>new(oid: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            oid_value: untrusted::Input::from(oid),
+        }
+    }
 }
 
 <span class="comment">// id-pkix            OBJECT IDENTIFIER ::= { 1 3 6 1 5 5 7 }
@@ -614,92 +957,73 @@
 
 // id-kp-serverAuth   OBJECT IDENTIFIER ::= { id-kp 1 }
 </span><span class="attr">#[allow(clippy::identity_op)] </span><span class="comment">// TODO: Make this clearer
-</span><span class="kw">pub static </span>EKU_SERVER_AUTH: KeyPurposeId = KeyPurposeId {
-    oid_value: untrusted::Input::from(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">1</span>]),
-};
+</span><span class="kw">const </span>EKU_SERVER_AUTH: KeyPurposeId = KeyPurposeId::new(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">1</span>]);
 
 <span class="comment">// id-kp-clientAuth   OBJECT IDENTIFIER ::= { id-kp 2 }
 </span><span class="attr">#[allow(clippy::identity_op)] </span><span class="comment">// TODO: Make this clearer
-</span><span class="kw">pub static </span>EKU_CLIENT_AUTH: KeyPurposeId = KeyPurposeId {
-    oid_value: untrusted::Input::from(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">2</span>]),
-};
+</span><span class="kw">const </span>EKU_CLIENT_AUTH: KeyPurposeId = KeyPurposeId::new(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">2</span>]);
 
-<span class="comment">// id-kp-OCSPSigning  OBJECT IDENTIFIER ::= { id-kp 9 }
-</span><span class="attr">#[allow(clippy::identity_op)] </span><span class="comment">// TODO: Make this clearer
-</span><span class="kw">pub static </span>EKU_OCSP_SIGNING: KeyPurposeId = KeyPurposeId {
-    oid_value: untrusted::Input::from(<span class="kw-2">&amp;</span>[(<span class="number">40 </span>* <span class="number">1</span>) + <span class="number">3</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">9</span>]),
-};
+<span class="comment">// https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.3
+</span><span class="attr">#[repr(u8)]
+#[derive(Clone, Copy)]
+</span><span class="kw">enum </span>KeyUsageMode {
+    <span class="comment">// DigitalSignature = 0,
+    // ContentCommitment = 1,
+    // KeyEncipherment = 2,
+    // DataEncipherment = 3,
+    // KeyAgreement = 4,
+    // CertSign = 5,
+    </span>CrlSign = <span class="number">6</span>,
+    <span class="comment">// EncipherOnly = 7,
+    // DecipherOnly = 8,
+</span>}
 
-<span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.2.1.12
-//
-// Notable Differences from RFC 5280:
-//
-// * We follow the convention established by Microsoft&#39;s implementation and
-//   mozilla::pkix of treating the EKU extension in a CA certificate as a
-//   restriction on the allowable EKUs for certificates issued by that CA. RFC
-//   5280 doesn&#39;t prescribe any meaning to the EKU extension when a certificate
-//   is being used as a CA certificate.
-//
-// * We do not recognize anyExtendedKeyUsage. NSS and mozilla::pkix do not
-//   recognize it either.
-//
-// * We treat id-Netscape-stepUp as being equivalent to id-kp-serverAuth in CA
-//   certificates (only). Comodo has issued certificates that require this
-//   behavior that don&#39;t expire until June 2020. See https://bugzilla.mozilla.org/show_bug.cgi?id=982292.
-</span><span class="kw">fn </span>check_eku(
-    input: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>untrusted::Reader&gt;,
-    required_eku_if_present: KeyPurposeId,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">match </span>input {
-        <span class="prelude-val">Some</span>(input) =&gt; {
-            <span class="kw">loop </span>{
-                <span class="kw">let </span>value = der::expect_tag_and_get_value(input, der::Tag::OID)<span class="question-mark">?</span>;
-                <span class="kw">if </span>value == required_eku_if_present.oid_value {
-                    input.skip_to_end();
-                    <span class="kw">break</span>;
-                }
-                <span class="kw">if </span>input.at_end() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::RequiredEkuNotFound);
-                }
-            }
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">None </span>=&gt; {
-            <span class="comment">// http://tools.ietf.org/html/rfc6960#section-4.2.2.2:
-            // &quot;OCSP signing delegation SHALL be designated by the inclusion of
-            // id-kp-OCSPSigning in an extended key usage certificate extension
-            // included in the OCSP response signer&#39;s certificate.&quot;
-            //
-            // A missing EKU extension generally means &quot;any EKU&quot;, but it is
-            // important that id-kp-OCSPSigning is explicit so that a normal
-            // end-entity certificate isn&#39;t able to sign trusted OCSP responses
-            // for itself or for other certificates issued by its issuing CA.
-            </span><span class="kw">if </span>required_eku_if_present.oid_value == EKU_OCSP_SIGNING.oid_value {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::RequiredEkuNotFound);
-            }
+<span class="kw">impl </span>KeyUsageMode {
+    <span class="comment">// https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.3
+    </span><span class="kw">fn </span>check(<span class="self">self</span>, input: <span class="prelude-ty">Option</span>&lt;untrusted::Input&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span>bit_string = <span class="kw">match </span>input {
+            <span class="prelude-val">Some</span>(input) =&gt; input,
+            <span class="comment">// While RFC 5280 requires KeyUsage be present, historically the absence of a KeyUsage
+            // has been treated as &quot;Any Usage&quot;. We follow that convention here and assume the absence
+            // of KeyUsage implies the required_ku_bit_if_present we&#39;re checking for.
+            </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+        };
 
-            <span class="prelude-val">Ok</span>(())
+        <span class="kw">let </span>flags = der::bit_string_flags(<span class="kw-2">&amp;mut </span>untrusted::Reader::new(bit_string))<span class="question-mark">?</span>;
+        <span class="attr">#[allow(clippy::as_conversions)] </span><span class="comment">// u8 always fits in usize.
+        </span><span class="kw">match </span>flags.bit_set(<span class="self">self </span><span class="kw">as </span>usize) {
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(Error::IssuerNotCrlSigner),
         }
     }
 }
 
 <span class="kw">fn </span>loop_while_non_fatal_error&lt;V&gt;(
+    default_error: Error,
     values: V,
     f: <span class="kw">impl </span>Fn(V::Item) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
 <span class="kw">where
     </span>V: IntoIterator,
 {
+    <span class="kw">let </span><span class="kw-2">mut </span>error = default_error;
     <span class="kw">for </span>v <span class="kw">in </span>values {
         <span class="kw">match </span>f(v) {
-            <span class="prelude-val">Ok</span>(()) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-            }
-            <span class="prelude-val">Err</span>(..) =&gt; {
-                <span class="comment">// If the error is not fatal, then keep going.
-            </span>}
+            <span class="prelude-val">Ok</span>(()) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(new_error) =&gt; error = error.most_specific(new_error),
         }
     }
-    <span class="prelude-val">Err</span>(Error::UnknownIssuer)
+    <span class="prelude-val">Err</span>(error)
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>eku_key_purpose_id() {
+        <span class="macro">assert!</span>(ExtendedKeyUsage::RequiredIfPresent(EKU_SERVER_AUTH)
+            .key_purpose_id_equals(EKU_SERVER_AUTH.oid_value))
+    }
 }
 </code></pre></div></section></main></body></html>

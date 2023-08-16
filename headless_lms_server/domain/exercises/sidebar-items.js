@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["enforce_deadline","process_submission","resolve_course_instance_or_exam_id_and_verify_that_user_can_submit"]};

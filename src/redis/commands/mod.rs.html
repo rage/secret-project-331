@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.23.0/src/commands/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../redis/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.23.1/src/commands/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../redis/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2064,12 +2064,80 @@
 <a href="#2064" id="2064">2064</a>
 <a href="#2065" id="2065">2065</a>
 <a href="#2066" id="2066">2066</a>
+<a href="#2067" id="2067">2067</a>
+<a href="#2068" id="2068">2068</a>
+<a href="#2069" id="2069">2069</a>
+<a href="#2070" id="2070">2070</a>
+<a href="#2071" id="2071">2071</a>
+<a href="#2072" id="2072">2072</a>
+<a href="#2073" id="2073">2073</a>
+<a href="#2074" id="2074">2074</a>
+<a href="#2075" id="2075">2075</a>
+<a href="#2076" id="2076">2076</a>
+<a href="#2077" id="2077">2077</a>
+<a href="#2078" id="2078">2078</a>
+<a href="#2079" id="2079">2079</a>
+<a href="#2080" id="2080">2080</a>
+<a href="#2081" id="2081">2081</a>
+<a href="#2082" id="2082">2082</a>
+<a href="#2083" id="2083">2083</a>
+<a href="#2084" id="2084">2084</a>
+<a href="#2085" id="2085">2085</a>
+<a href="#2086" id="2086">2086</a>
+<a href="#2087" id="2087">2087</a>
+<a href="#2088" id="2088">2088</a>
+<a href="#2089" id="2089">2089</a>
+<a href="#2090" id="2090">2090</a>
+<a href="#2091" id="2091">2091</a>
+<a href="#2092" id="2092">2092</a>
+<a href="#2093" id="2093">2093</a>
+<a href="#2094" id="2094">2094</a>
+<a href="#2095" id="2095">2095</a>
+<a href="#2096" id="2096">2096</a>
+<a href="#2097" id="2097">2097</a>
+<a href="#2098" id="2098">2098</a>
+<a href="#2099" id="2099">2099</a>
+<a href="#2100" id="2100">2100</a>
+<a href="#2101" id="2101">2101</a>
+<a href="#2102" id="2102">2102</a>
+<a href="#2103" id="2103">2103</a>
+<a href="#2104" id="2104">2104</a>
+<a href="#2105" id="2105">2105</a>
+<a href="#2106" id="2106">2106</a>
+<a href="#2107" id="2107">2107</a>
+<a href="#2108" id="2108">2108</a>
+<a href="#2109" id="2109">2109</a>
+<a href="#2110" id="2110">2110</a>
+<a href="#2111" id="2111">2111</a>
+<a href="#2112" id="2112">2112</a>
+<a href="#2113" id="2113">2113</a>
+<a href="#2114" id="2114">2114</a>
+<a href="#2115" id="2115">2115</a>
+<a href="#2116" id="2116">2116</a>
+<a href="#2117" id="2117">2117</a>
+<a href="#2118" id="2118">2118</a>
+<a href="#2119" id="2119">2119</a>
+<a href="#2120" id="2120">2120</a>
+<a href="#2121" id="2121">2121</a>
+<a href="#2122" id="2122">2122</a>
+<a href="#2123" id="2123">2123</a>
+<a href="#2124" id="2124">2124</a>
+<a href="#2125" id="2125">2125</a>
+<a href="#2126" id="2126">2126</a>
+<a href="#2127" id="2127">2127</a>
+<a href="#2128" id="2128">2128</a>
+<a href="#2129" id="2129">2129</a>
+<a href="#2130" id="2130">2130</a>
+<a href="#2131" id="2131">2131</a>
+<a href="#2132" id="2132">2132</a>
+<a href="#2133" id="2133">2133</a>
+<a href="#2134" id="2134">2134</a>
 </pre></div><pre class="rust"><code><span class="comment">// can&#39;t use rustfmt here because it screws up the file.
 </span><span class="attr">#![cfg_attr(rustfmt, rustfmt_skip)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd, Iter};
 <span class="kw">use </span><span class="kw">crate</span>::connection::{Connection, ConnectionLike, Msg};
 <span class="kw">use </span><span class="kw">crate</span>::pipeline::Pipeline;
-<span class="kw">use </span><span class="kw">crate</span>::types::{FromRedisValue, NumericBehavior, RedisResult, ToRedisArgs, RedisWrite, Expiry};
+<span class="kw">use </span><span class="kw">crate</span>::types::{FromRedisValue, NumericBehavior, RedisResult, ToRedisArgs, RedisWrite, Expiry, SetExpiry, ExistenceCheck};
 
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>macros;
@@ -2100,32 +2168,7 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_readonly_cmd(cmd: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
     <span class="macro">matches!</span>(
         cmd,
-        <span class="comment">// @admin
-        </span><span class="string">b&quot;LASTSAVE&quot; </span>|
-        <span class="comment">// @bitmap
-        </span><span class="string">b&quot;BITCOUNT&quot; </span>| <span class="string">b&quot;BITFIELD_RO&quot; </span>| <span class="string">b&quot;BITPOS&quot; </span>| <span class="string">b&quot;GETBIT&quot; </span>|
-        <span class="comment">// @connection
-        </span><span class="string">b&quot;CLIENT&quot; </span>| <span class="string">b&quot;ECHO&quot; </span>|
-        <span class="comment">// @geo
-        </span><span class="string">b&quot;GEODIST&quot; </span>| <span class="string">b&quot;GEOHASH&quot; </span>| <span class="string">b&quot;GEOPOS&quot; </span>| <span class="string">b&quot;GEORADIUSBYMEMBER_RO&quot; </span>| <span class="string">b&quot;GEORADIUS_RO&quot; </span>| <span class="string">b&quot;GEOSEARCH&quot; </span>|
-        <span class="comment">// @hash
-        </span><span class="string">b&quot;HEXISTS&quot; </span>| <span class="string">b&quot;HGET&quot; </span>| <span class="string">b&quot;HGETALL&quot; </span>| <span class="string">b&quot;HKEYS&quot; </span>| <span class="string">b&quot;HLEN&quot; </span>| <span class="string">b&quot;HMGET&quot; </span>| <span class="string">b&quot;HRANDFIELD&quot; </span>| <span class="string">b&quot;HSCAN&quot; </span>| <span class="string">b&quot;HSTRLEN&quot; </span>| <span class="string">b&quot;HVALS&quot; </span>|
-        <span class="comment">// @hyperloglog
-        </span><span class="string">b&quot;PFCOUNT&quot; </span>|
-        <span class="comment">// @keyspace
-        </span><span class="string">b&quot;DBSIZE&quot; </span>| <span class="string">b&quot;DUMP&quot; </span>| <span class="string">b&quot;EXISTS&quot; </span>| <span class="string">b&quot;EXPIRETIME&quot; </span>| <span class="string">b&quot;KEYS&quot; </span>| <span class="string">b&quot;OBJECT&quot; </span>| <span class="string">b&quot;PEXPIRETIME&quot; </span>| <span class="string">b&quot;PTTL&quot; </span>| <span class="string">b&quot;RANDOMKEY&quot; </span>| <span class="string">b&quot;SCAN&quot; </span>| <span class="string">b&quot;TOUCH&quot; </span>| <span class="string">b&quot;TTL&quot; </span>| <span class="string">b&quot;TYPE&quot; </span>|
-        <span class="comment">// @list
-        </span><span class="string">b&quot;LINDEX&quot; </span>| <span class="string">b&quot;LLEN&quot; </span>| <span class="string">b&quot;LPOS&quot; </span>| <span class="string">b&quot;LRANGE&quot; </span>| <span class="string">b&quot;SORT_RO&quot; </span>|
-        <span class="comment">// @scripting
-        </span><span class="string">b&quot;EVALSHA_RO&quot; </span>| <span class="string">b&quot;EVAL_RO&quot; </span>| <span class="string">b&quot;FCALL_RO&quot; </span>|
-        <span class="comment">// @set
-        </span><span class="string">b&quot;SCARD&quot; </span>| <span class="string">b&quot;SDIFF&quot; </span>| <span class="string">b&quot;SINTER&quot; </span>| <span class="string">b&quot;SINTERCARD&quot; </span>| <span class="string">b&quot;SISMEMBER&quot; </span>| <span class="string">b&quot;SMEMBERS&quot; </span>| <span class="string">b&quot;SMISMEMBER&quot; </span>| <span class="string">b&quot;SRANDMEMBER&quot; </span>| <span class="string">b&quot;SSCAN&quot; </span>| <span class="string">b&quot;SUNION&quot; </span>|
-        <span class="comment">// @sortedset
-        </span><span class="string">b&quot;ZCARD&quot; </span>| <span class="string">b&quot;ZCOUNT&quot; </span>| <span class="string">b&quot;ZDIFF&quot; </span>| <span class="string">b&quot;ZINTER&quot; </span>| <span class="string">b&quot;ZINTERCARD&quot; </span>| <span class="string">b&quot;ZLEXCOUNT&quot; </span>| <span class="string">b&quot;ZMSCORE&quot; </span>| <span class="string">b&quot;ZRANDMEMBER&quot; </span>| <span class="string">b&quot;ZRANGE&quot; </span>| <span class="string">b&quot;ZRANGEBYLEX&quot; </span>| <span class="string">b&quot;ZRANGEBYSCORE&quot; </span>| <span class="string">b&quot;ZRANK&quot; </span>| <span class="string">b&quot;ZREVRANGE&quot; </span>| <span class="string">b&quot;ZREVRANGEBYLEX&quot; </span>| <span class="string">b&quot;ZREVRANGEBYSCORE&quot; </span>| <span class="string">b&quot;ZREVRANK&quot; </span>| <span class="string">b&quot;ZSCAN&quot; </span>| <span class="string">b&quot;ZSCORE&quot; </span>| <span class="string">b&quot;ZUNION&quot; </span>|
-        <span class="comment">// @stream
-        </span><span class="string">b&quot;XINFO&quot; </span>| <span class="string">b&quot;XLEN&quot; </span>| <span class="string">b&quot;XPENDING&quot; </span>| <span class="string">b&quot;XRANGE&quot; </span>| <span class="string">b&quot;XREAD&quot; </span>| <span class="string">b&quot;XREVRANGE&quot; </span>|
-        <span class="comment">// @string
-        </span><span class="string">b&quot;GET&quot; </span>| <span class="string">b&quot;GETRANGE&quot; </span>| <span class="string">b&quot;LCS&quot; </span>| <span class="string">b&quot;MGET&quot; </span>| <span class="string">b&quot;STRALGO&quot; </span>| <span class="string">b&quot;STRLEN&quot; </span>| <span class="string">b&quot;SUBSTR&quot;
+        <span class="string">b&quot;BITCOUNT&quot; </span>| <span class="string">b&quot;BITFIELD_RO&quot; </span>| <span class="string">b&quot;BITPOS&quot; </span>| <span class="string">b&quot;DBSIZE&quot; </span>| <span class="string">b&quot;DUMP&quot; </span>| <span class="string">b&quot;EVALSHA_RO&quot; </span>| <span class="string">b&quot;EVAL_RO&quot; </span>| <span class="string">b&quot;EXISTS&quot; </span>| <span class="string">b&quot;EXPIRETIME&quot; </span>| <span class="string">b&quot;FCALL_RO&quot; </span>| <span class="string">b&quot;GEODIST&quot; </span>| <span class="string">b&quot;GEOHASH&quot; </span>| <span class="string">b&quot;GEOPOS&quot; </span>| <span class="string">b&quot;GEORADIUSBYMEMBER_RO&quot; </span>| <span class="string">b&quot;GEORADIUS_RO&quot; </span>| <span class="string">b&quot;GEOSEARCH&quot; </span>| <span class="string">b&quot;GET&quot; </span>| <span class="string">b&quot;GETBIT&quot; </span>| <span class="string">b&quot;GETRANGE&quot; </span>| <span class="string">b&quot;HEXISTS&quot; </span>| <span class="string">b&quot;HGET&quot; </span>| <span class="string">b&quot;HGETALL&quot; </span>| <span class="string">b&quot;HKEYS&quot; </span>| <span class="string">b&quot;HLEN&quot; </span>| <span class="string">b&quot;HMGET&quot; </span>| <span class="string">b&quot;HRANDFIELD&quot; </span>| <span class="string">b&quot;HSCAN&quot; </span>| <span class="string">b&quot;HSTRLEN&quot; </span>| <span class="string">b&quot;HVALS&quot; </span>| <span class="string">b&quot;KEYS&quot; </span>| <span class="string">b&quot;LCS&quot; </span>| <span class="string">b&quot;LINDEX&quot; </span>| <span class="string">b&quot;LLEN&quot; </span>| <span class="string">b&quot;LOLWUT&quot; </span>| <span class="string">b&quot;LPOS&quot; </span>| <span class="string">b&quot;LRANGE&quot; </span>| <span class="string">b&quot;MEMORY USAGE&quot; </span>| <span class="string">b&quot;MGET&quot; </span>| <span class="string">b&quot;OBJECT ENCODING&quot; </span>| <span class="string">b&quot;OBJECT FREQ&quot; </span>| <span class="string">b&quot;OBJECT IDLETIME&quot; </span>| <span class="string">b&quot;OBJECT REFCOUNT&quot; </span>| <span class="string">b&quot;PEXPIRETIME&quot; </span>| <span class="string">b&quot;PFCOUNT&quot; </span>| <span class="string">b&quot;PTTL&quot; </span>| <span class="string">b&quot;RANDOMKEY&quot; </span>| <span class="string">b&quot;SCAN&quot; </span>| <span class="string">b&quot;SCARD&quot; </span>| <span class="string">b&quot;SDIFF&quot; </span>| <span class="string">b&quot;SINTER&quot; </span>| <span class="string">b&quot;SINTERCARD&quot; </span>| <span class="string">b&quot;SISMEMBER&quot; </span>| <span class="string">b&quot;SMEMBERS&quot; </span>| <span class="string">b&quot;SMISMEMBER&quot; </span>| <span class="string">b&quot;SORT_RO&quot; </span>| <span class="string">b&quot;SRANDMEMBER&quot; </span>| <span class="string">b&quot;SSCAN&quot; </span>| <span class="string">b&quot;STRLEN&quot; </span>| <span class="string">b&quot;SUBSTR&quot; </span>| <span class="string">b&quot;SUNION&quot; </span>| <span class="string">b&quot;TOUCH&quot; </span>| <span class="string">b&quot;TTL&quot; </span>| <span class="string">b&quot;TYPE&quot; </span>| <span class="string">b&quot;XINFO CONSUMERS&quot; </span>| <span class="string">b&quot;XINFO GROUPS&quot; </span>| <span class="string">b&quot;XINFO STREAM&quot; </span>| <span class="string">b&quot;XLEN&quot; </span>| <span class="string">b&quot;XPENDING&quot; </span>| <span class="string">b&quot;XRANGE&quot; </span>| <span class="string">b&quot;XREAD&quot; </span>| <span class="string">b&quot;XREVRANGE&quot; </span>| <span class="string">b&quot;ZCARD&quot; </span>| <span class="string">b&quot;ZCOUNT&quot; </span>| <span class="string">b&quot;ZDIFF&quot; </span>| <span class="string">b&quot;ZINTER&quot; </span>| <span class="string">b&quot;ZINTERCARD&quot; </span>| <span class="string">b&quot;ZLEXCOUNT&quot; </span>| <span class="string">b&quot;ZMSCORE&quot; </span>| <span class="string">b&quot;ZRANDMEMBER&quot; </span>| <span class="string">b&quot;ZRANGE&quot; </span>| <span class="string">b&quot;ZRANGEBYLEX&quot; </span>| <span class="string">b&quot;ZRANGEBYSCORE&quot; </span>| <span class="string">b&quot;ZRANK&quot; </span>| <span class="string">b&quot;ZREVRANGE&quot; </span>| <span class="string">b&quot;ZREVRANGEBYLEX&quot; </span>| <span class="string">b&quot;ZREVRANGEBYSCORE&quot; </span>| <span class="string">b&quot;ZREVRANK&quot; </span>| <span class="string">b&quot;ZSCAN&quot; </span>| <span class="string">b&quot;ZSCORE&quot; </span>| <span class="string">b&quot;ZUNION&quot;
     </span>)
 }
 
@@ -2151,6 +2194,11 @@
     <span class="doccomment">/// Set the string value of a key.
     </span><span class="kw">fn </span>set&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V) {
         cmd(<span class="string">&quot;SET&quot;</span>).arg(key).arg(value)
+    }
+
+    <span class="doccomment">/// Set the string value of a key with options.
+    </span><span class="kw">fn </span>set_options&lt;K: ToRedisArgs, V: ToRedisArgs&gt;(key: K, value: V, options: SetOptions) {
+        cmd(<span class="string">&quot;SET&quot;</span>).arg(key).arg(value).arg(options)
     }
 
     <span class="doccomment">/// Sets multiple keys to their values.
@@ -4128,6 +4176,94 @@
             Direction::Right =&gt; <span class="string">b&quot;RIGHT&quot;</span>,
         };
         out.write_arg(s);
+    }
+}
+
+<span class="doccomment">/// Options for the [SET](https://redis.io/commands/set) command
+///
+/// # Example
+/// ```rust,no_run
+/// use redis::{Commands, RedisResult, SetOptions, SetExpiry, ExistenceCheck};
+/// fn set_key_value(
+///     con: &amp;mut redis::Connection,
+///     key: &amp;str,
+///     value: &amp;str,
+/// ) -&gt; RedisResult&lt;Vec&lt;usize&gt;&gt; {
+///     let opts = SetOptions::default()
+///         .conditional_set(ExistenceCheck::NX)
+///         .get(true)
+///         .with_expiration(SetExpiry::EX(60));
+///     con.set_options(key, value, opts)
+/// }
+/// ```
+</span><span class="attr">#[derive(Default)]
+</span><span class="kw">pub struct </span>SetOptions {
+    conditional_set: <span class="prelude-ty">Option</span>&lt;ExistenceCheck&gt;,
+    get: bool,
+    expiration: <span class="prelude-ty">Option</span>&lt;SetExpiry&gt;,
+}
+
+<span class="kw">impl </span>SetOptions {
+    <span class="doccomment">/// Set the existence check for the SET command
+    </span><span class="kw">pub fn </span>conditional_set(<span class="kw-2">mut </span><span class="self">self</span>, existence_check: ExistenceCheck) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.conditional_set = <span class="prelude-val">Some</span>(existence_check);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set the GET option for the SET command
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">mut </span><span class="self">self</span>, get: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.get = get;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set the expiration for the SET command
+    </span><span class="kw">pub fn </span>with_expiration(<span class="kw-2">mut </span><span class="self">self</span>, expiration: SetExpiry) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.expiration = <span class="prelude-val">Some</span>(expiration);
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>ToRedisArgs <span class="kw">for </span>SetOptions {
+    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
+    <span class="kw">where
+        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
+    {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>conditional_set) = <span class="self">self</span>.conditional_set {
+            <span class="kw">match </span>conditional_set {
+                ExistenceCheck::NX =&gt; {
+                    out.write_arg(<span class="string">b&quot;NX&quot;</span>);
+                }
+                ExistenceCheck::XX =&gt; {
+                    out.write_arg(<span class="string">b&quot;XX&quot;</span>);
+                }
+            }
+        }
+        <span class="kw">if </span><span class="self">self</span>.get {
+            out.write_arg(<span class="string">b&quot;GET&quot;</span>);
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>expiration) = <span class="self">self</span>.expiration {
+            <span class="kw">match </span>expiration {
+                SetExpiry::EX(secs) =&gt; {
+                    out.write_arg(<span class="string">b&quot;EX&quot;</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, secs).as_bytes());
+                }
+                SetExpiry::PX(millis) =&gt; {
+                    out.write_arg(<span class="string">b&quot;PX&quot;</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, millis).as_bytes());
+                }
+                SetExpiry::EXAT(unix_time) =&gt; {
+                    out.write_arg(<span class="string">b&quot;EXAT&quot;</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, unix_time).as_bytes());
+                }
+                SetExpiry::PXAT(unix_time) =&gt; {
+                    out.write_arg(<span class="string">b&quot;PXAT&quot;</span>);
+                    out.write_arg(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, unix_time).as_bytes());
+                }
+                SetExpiry::KEEPTTL =&gt; {
+                    out.write_arg(<span class="string">b&quot;KEEPTTL&quot;</span>);
+                }
+            }
+        }
     }
 }
 </code></pre></div></section></main></body></html>

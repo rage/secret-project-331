@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_user_details","search_users_by_email","search_users_by_other_details","search_users_fuzzy_match"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_user_details","search_users_by_email","search_users_by_other_details","search_users_fuzzy_match"]};

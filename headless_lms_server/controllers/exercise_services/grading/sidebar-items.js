@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["grading_update"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["grading_update"]};

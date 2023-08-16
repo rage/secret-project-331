@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["generated_doc","generated_doc_inner"],"macro":["example"],"mod":["example","generated_doc"],"static":["_DECLS"]};
+window.SIDEBAR_ITEMS = {"attr":["generated_doc","generated_doc_inner"],"macro":["example"],"mod":["example","generated_doc"]};

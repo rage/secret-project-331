@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.6.3/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.1/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -268,6 +268,61 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Types for working with errors produced by SQLx.
 
 </span><span class="kw">use </span>std::any::type_name;
@@ -275,14 +330,14 @@
 <span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 <span class="kw">use </span>std::fmt::Display;
 <span class="kw">use </span>std::io;
-<span class="kw">use </span>std::result::Result <span class="kw">as </span>StdResult;
 
 <span class="kw">use </span><span class="kw">crate</span>::database::Database;
+
 <span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
 <span class="kw">use </span><span class="kw">crate</span>::types::Type;
 
 <span class="doccomment">/// A specialized `Result` type for SQLx.
-</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = StdResult&lt;T, Error&gt;;
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T, E = Error&gt; = ::std::result::Result&lt;T, E&gt;;
 
 <span class="comment">// Convenience type alias for usage within SQLx.
 // Do not make this type public.
@@ -352,6 +407,10 @@
     </span><span class="attr">#[error(<span class="string">&quot;error occurred while decoding: {0}&quot;</span>)]
     </span>Decode(<span class="attr">#[source] </span>BoxDynError),
 
+    <span class="doccomment">/// Error occurred within the `Any` driver mapping to/from the native driver.
+    </span><span class="attr">#[error(<span class="string">&quot;error in Any driver mapping: {0}&quot;</span>)]
+    </span>AnyDriverError(<span class="attr">#[source] </span>BoxDynError),
+
     <span class="doccomment">/// A [`Pool::acquire`] timed out due to connections not becoming available or
     /// because another task encountered too many errors while trying to open a new connection.
     ///
@@ -392,20 +451,30 @@
         }
     }
 
-    <span class="attr">#[allow(dead_code)]
+    <span class="attr">#[doc(hidden)]
     #[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>protocol(err: <span class="kw">impl </span>Display) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>protocol(err: <span class="kw">impl </span>Display) -&gt; <span class="self">Self </span>{
         Error::Protocol(err.to_string())
     }
 
-    <span class="attr">#[allow(dead_code)]
+    <span class="attr">#[doc(hidden)]
     #[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>config(err: <span class="kw">impl </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>config(err: <span class="kw">impl </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self </span>{
         Error::Configuration(err.into())
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tls(err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+        Error::Tls(err.into())
+    }
+
+    <span class="attr">#[doc(hidden)]
+    #[inline]
+    </span><span class="kw">pub fn </span>decode(err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+        Error::Decode(err.into())
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mismatched_types&lt;DB: Database, T: Type&lt;DB&gt;&gt;(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; BoxDynError {
+<span class="kw">pub fn </span>mismatched_types&lt;DB: Database, T: Type&lt;DB&gt;&gt;(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; BoxDynError {
     <span class="comment">// TODO: `#name` only produces `TINYINT` but perhaps we want to show `TINYINT(1)`
     </span><span class="macro">format!</span>(
         <span class="string">&quot;mismatched types; Rust type `{}` (as SQL type `{}`) is not compatible with SQL type `{}`&quot;</span>,
@@ -414,6 +483,25 @@
         ty.name()
     )
     .into()
+}
+
+<span class="doccomment">/// The error kind.
+///
+/// This enum is to be used to identify frequent errors that can be handled by the program.
+/// Although it currently only supports constraint violations, the type may grow in the future.
+</span><span class="attr">#[derive(Debug, PartialEq, Eq)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>ErrorKind {
+    <span class="doccomment">/// Unique/primary key constraint violation.
+    </span>UniqueViolation,
+    <span class="doccomment">/// Foreign key constraint violation.
+    </span>ForeignKeyViolation,
+    <span class="doccomment">/// Not-null constraint violation.
+    </span>NotNullViolation,
+    <span class="doccomment">/// Check constraint violation.
+    </span>CheckViolation,
+    <span class="doccomment">/// An unmapped error.
+    </span>Other,
 }
 
 <span class="doccomment">/// An error that was returned from the database.
@@ -448,6 +536,35 @@
     </span><span class="kw">fn </span>constraint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
         <span class="prelude-val">None
     </span>}
+
+    <span class="doccomment">/// Returns the name of the table that was affected by the error, if applicable.
+    ///
+    /// ### Note
+    /// Currently only populated by the Postgres driver.
+    </span><span class="kw">fn </span>table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="doccomment">/// Returns the kind of the error, if supported.
+    ///
+    /// ### Note
+    /// Not all back-ends behave the same when reporting the error code.
+    </span><span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ErrorKind;
+
+    <span class="doccomment">/// Returns whether the error kind is a violation of a unique/primary key constraint.
+    </span><span class="kw">fn </span>is_unique_violation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.kind(), ErrorKind::UniqueViolation)
+    }
+
+    <span class="doccomment">/// Returns whether the error kind is a violation of a foreign key.
+    </span><span class="kw">fn </span>is_foreign_key_violation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.kind(), ErrorKind::ForeignKeyViolation)
+    }
+
+    <span class="doccomment">/// Returns whether the error kind is a violation of a check.
+    </span><span class="kw">fn </span>is_check_violation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.kind(), ErrorKind::CheckViolation)
+    }
 }
 
 <span class="kw">impl dyn </span>DatabaseError {
@@ -493,7 +610,7 @@
 
     <span class="doccomment">/// Downcast this generic database error to a specific database error type.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>try_downcast&lt;E: DatabaseError&gt;(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; StdResult&lt;Box&lt;E&gt;, Box&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">pub fn </span>try_downcast&lt;E: DatabaseError&gt;(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;E&gt;, Box&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.as_error().is::&lt;E&gt;() {
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.into_error().downcast().unwrap())
         } <span class="kw">else </span>{
@@ -520,15 +637,8 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;_tls-native-tls&quot;</span>)]
-</span><span class="kw">impl </span>From&lt;sqlx_rt::native_tls::Error&gt; <span class="kw">for </span>Error {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(error: sqlx_rt::native_tls::Error) -&gt; <span class="self">Self </span>{
-        Error::Tls(Box::new(error))
-    }
-}
-
-<span class="comment">// Format an error message as a `Protocol` error
+<span class="doccomment">/// Format an error message as a `Protocol` error
+</span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>err_protocol {
     (<span class="macro-nonterminal">$expr</span>:expr) =&gt; {
         <span class="macro-nonterminal">$crate::error::Error::Protocol</span>(<span class="macro-nonterminal">$expr</span>.into())

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["home_dir","is_absolute_path","user_dir","user_dirs"]};

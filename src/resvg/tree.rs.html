@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.34.1/src/tree.rs`."><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../resvg/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.35.0/src/tree.rs`."><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../resvg/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -283,44 +283,6 @@
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -330,7 +292,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::clip::ClipPath;
 <span class="kw">use </span><span class="kw">crate</span>::image::Image;
 <span class="kw">use </span><span class="kw">crate</span>::mask::Mask;
-<span class="kw">use </span><span class="kw">crate</span>::paint_server::Paint;
 <span class="kw">use </span><span class="kw">crate</span>::path::{FillPath, StrokePath};
 
 <span class="kw">pub struct </span>Group {
@@ -339,11 +300,8 @@
     <span class="kw">pub </span>blend_mode: tiny_skia::BlendMode,
     <span class="kw">pub </span>clip_path: <span class="prelude-ty">Option</span>&lt;ClipPath&gt;,
     <span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;Mask&gt;,
-    <span class="kw">pub </span>isolate: bool,
-
     <span class="kw">pub </span>filters: Vec&lt;<span class="kw">crate</span>::filter::Filter&gt;,
-    <span class="kw">pub </span>filter_fill: <span class="prelude-ty">Option</span>&lt;Paint&gt;,
-    <span class="kw">pub </span>filter_stroke: <span class="prelude-ty">Option</span>&lt;Paint&gt;,
+    <span class="kw">pub </span>isolate: bool,
     <span class="doccomment">/// Group&#39;s layer bounding box in canvas coordinates.
     </span><span class="kw">pub </span>bbox: tiny_skia::Rect,
 
@@ -506,24 +464,6 @@
         bboxes.layer = usvg::BBox::from(filter_bbox);
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>filter_fill = <span class="prelude-val">None</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>paint) = ugroup.filter_fill_paint() {
-        filter_fill = <span class="kw">crate</span>::paint_server::convert(
-            paint,
-            usvg::Opacity::ONE,
-            bboxes.layer.to_non_zero_rect(),
-        );
-    }
-
-    <span class="kw">let </span><span class="kw-2">mut </span>filter_stroke = <span class="prelude-val">None</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>paint) = ugroup.filter_stroke_paint() {
-        filter_stroke = <span class="kw">crate</span>::paint_server::convert(
-            paint,
-            usvg::Opacity::ONE,
-            bboxes.layer.to_non_zero_rect(),
-        );
-    }
-
     <span class="kw">let </span>group = Group {
         transform: ugroup.transform,
         opacity: ugroup.opacity,
@@ -532,8 +472,6 @@
         mask: <span class="kw">crate</span>::mask::convert(ugroup.mask.clone(), bboxes.object.to_rect()<span class="question-mark">?</span>),
         isolate: ugroup.isolate,
         filters,
-        filter_fill,
-        filter_stroke,
         bbox: bboxes.layer.to_rect()<span class="question-mark">?</span>,
         children: group_children,
     };
@@ -554,18 +492,6 @@
     <span class="kw">let </span>(filters, layer_bbox) = <span class="kw">crate</span>::filter::convert(<span class="kw-2">&amp;</span>ugroup.filters, <span class="prelude-val">None</span>);
     <span class="kw">let </span>layer_bbox = layer_bbox<span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>filter_fill = <span class="prelude-val">None</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>paint) = ugroup.filter_fill_paint() {
-        filter_fill =
-            <span class="kw">crate</span>::paint_server::convert(paint, usvg::Opacity::ONE, layer_bbox.to_non_zero_rect());
-    }
-
-    <span class="kw">let </span><span class="kw-2">mut </span>filter_stroke = <span class="prelude-val">None</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>paint) = ugroup.filter_stroke_paint() {
-        filter_stroke =
-            <span class="kw">crate</span>::paint_server::convert(paint, usvg::Opacity::ONE, layer_bbox.to_non_zero_rect());
-    }
-
     <span class="kw">let </span>group = Group {
         transform: ugroup.transform,
         opacity: ugroup.opacity,
@@ -574,8 +500,6 @@
         mask: <span class="prelude-val">None</span>,
         isolate: ugroup.isolate,
         filters,
-        filter_fill,
-        filter_stroke,
         bbox: layer_bbox,
         children: Vec::new(),
     };

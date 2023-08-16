@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["contains_tmcignore","create_and_upload_exercise","delete","find_exercise_directories","is_hidden_dir","is_in_git_dir","process","process_inner","update","update_inner"],"static":["CALLSITE","META"],"struct":["NewExercise","RepositoryExercise"]};
+window.SIDEBAR_ITEMS = {"fn":["contains_tmcignore","create_and_upload_exercise","delete","find_exercise_directories","is_hidden_dir","is_in_git_dir","process","process_inner","update","update_inner"],"struct":["NewExercise","RepositoryExercise"]};

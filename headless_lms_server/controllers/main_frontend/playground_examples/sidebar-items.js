@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_playground_example","get_playground_examples","insert_playground_example","update_playground_example"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_playground_example","get_playground_examples","insert_playground_example","update_playground_example"]};

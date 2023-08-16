@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.21.2/src/msgs/handshake.rs`."><title>handshake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.21.5/src/msgs/handshake.rs`."><title>handshake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../rustls/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2297,12 +2297,9 @@
 <a href="#2297" id="2297">2297</a>
 <a href="#2298" id="2298">2298</a>
 <a href="#2299" id="2299">2299</a>
-<a href="#2300" id="2300">2300</a>
-<a href="#2301" id="2301">2301</a>
-<a href="#2302" id="2302">2302</a>
-<a href="#2303" id="2303">2303</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(non_camel_case_types)]
-</span><span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, HandshakeType, ProtocolVersion, SignatureScheme};
+</span><span class="kw">use </span><span class="kw">crate</span>::dns_name::{DnsName, DnsNameRef};
+<span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, HandshakeType, ProtocolVersion, SignatureScheme};
 <span class="kw">use </span><span class="kw">crate</span>::error::InvalidMessage;
 <span class="kw">use </span><span class="kw">crate</span>::key;
 <span class="attr">#[cfg(feature = <span class="string">&quot;logging&quot;</span>)]
@@ -2512,41 +2509,36 @@
 
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub enum </span>ServerNamePayload {
-    <span class="comment">// Stored twice, bytes so we can round-trip, and DnsName for use
-    </span>HostName((PayloadU16, webpki::DnsName)),
+    HostName(DnsName),
     Unknown(Payload),
 }
 
 <span class="kw">impl </span>ServerNamePayload {
-    <span class="kw">pub fn </span>new_hostname(hostname: webpki::DnsName) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>raw = {
-            <span class="kw">let </span>s: <span class="kw-2">&amp;</span>str = hostname.as_ref().into();
-            PayloadU16::new(s.as_bytes().into())
-        };
-        <span class="self">Self</span>::HostName((raw, hostname))
+    <span class="kw">pub fn </span>new_hostname(hostname: DnsName) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::HostName(hostname)
     }
 
     <span class="kw">fn </span>read_hostname(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">let </span>raw = PayloadU16::read(r)<span class="question-mark">?</span>;
-        <span class="kw">let </span>dns_name = {
-            <span class="kw">match </span>webpki::DnsNameRef::try_from_ascii(<span class="kw-2">&amp;</span>raw.<span class="number">0</span>) {
-                <span class="prelude-val">Ok</span>(dns_name) =&gt; dns_name.into(),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="macro">warn!</span>(
-                        <span class="string">&quot;Illegal SNI hostname received {:?}&quot;</span>,
-                        String::from_utf8_lossy(<span class="kw-2">&amp;</span>raw.<span class="number">0</span>)
-                    );
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidMessage::InvalidServerName);
-                }
-            }
-        };
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::HostName((raw, dns_name)))
+        <span class="kw">match </span>DnsName::try_from_ascii(<span class="kw-2">&amp;</span>raw.<span class="number">0</span>) {
+            <span class="prelude-val">Ok</span>(dns_name) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::HostName(dns_name)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="macro">warn!</span>(
+                    <span class="string">&quot;Illegal SNI hostname received {:?}&quot;</span>,
+                    String::from_utf8_lossy(<span class="kw-2">&amp;</span>raw.<span class="number">0</span>)
+                );
+                <span class="prelude-val">Err</span>(InvalidMessage::InvalidServerName)
+            }
+        }
     }
 
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            <span class="self">Self</span>::HostName((<span class="kw-2">ref </span>r, <span class="kw">_</span>)) =&gt; r.encode(bytes),
+            <span class="self">Self</span>::HostName(<span class="kw-2">ref </span>name) =&gt; {
+                (name.as_ref().len() <span class="kw">as </span>u16).encode(bytes);
+                bytes.extend_from_slice(name.as_ref().as_bytes());
+            }
             <span class="self">Self</span>::Unknown(<span class="kw-2">ref </span>r) =&gt; r.encode(bytes),
         }
     }
@@ -2582,7 +2574,7 @@
 
 <span class="kw">pub trait </span>ConvertServerNameList {
     <span class="kw">fn </span>has_duplicate_names_for_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-    <span class="kw">fn </span>get_single_hostname(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;webpki::DnsNameRef&gt;;
+    <span class="kw">fn </span>get_single_hostname(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DnsNameRef&gt;;
 }
 
 <span class="kw">impl </span>ConvertServerNameList <span class="kw">for </span>[ServerName] {
@@ -2599,10 +2591,10 @@
         <span class="bool-val">false
     </span>}
 
-    <span class="kw">fn </span>get_single_hostname(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;webpki::DnsNameRef&gt; {
-        <span class="kw">fn </span>only_dns_hostnames(name: <span class="kw-2">&amp;</span>ServerName) -&gt; <span class="prelude-ty">Option</span>&lt;webpki::DnsNameRef&gt; {
-            <span class="kw">if let </span>ServerNamePayload::HostName((<span class="kw">_</span>, <span class="kw-2">ref </span>dns)) = name.payload {
-                <span class="prelude-val">Some</span>(dns.as_ref())
+    <span class="kw">fn </span>get_single_hostname(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DnsNameRef&gt; {
+        <span class="kw">fn </span>only_dns_hostnames(name: <span class="kw-2">&amp;</span>ServerName) -&gt; <span class="prelude-ty">Option</span>&lt;DnsNameRef&gt; {
+            <span class="kw">if let </span>ServerNamePayload::HostName(<span class="kw-2">ref </span>dns) = name.payload {
+                <span class="prelude-val">Some</span>(dns.borrow())
             } <span class="kw">else </span>{
                 <span class="prelude-val">None
             </span>}
@@ -2970,14 +2962,14 @@
     }
 }
 
-<span class="kw">fn </span>trim_hostname_trailing_dot_for_sni(dns_name: webpki::DnsNameRef) -&gt; webpki::DnsName {
-    <span class="kw">let </span>dns_name_str: <span class="kw-2">&amp;</span>str = dns_name.into();
+<span class="kw">fn </span>trim_hostname_trailing_dot_for_sni(dns_name: DnsNameRef) -&gt; DnsName {
+    <span class="kw">let </span>dns_name_str: <span class="kw-2">&amp;</span>str = dns_name.as_ref();
 
     <span class="comment">// RFC6066: &quot;The hostname is represented as a byte string using
     // ASCII encoding without a trailing dot&quot;
     </span><span class="kw">if </span>dns_name_str.ends_with(<span class="string">&#39;.&#39;</span>) {
         <span class="kw">let </span>trimmed = <span class="kw-2">&amp;</span>dns_name_str[<span class="number">0</span>..dns_name_str.len() - <span class="number">1</span>];
-        webpki::DnsNameRef::try_from_ascii_str(trimmed)
+        DnsNameRef::try_from(trimmed)
             .unwrap()
             .to_owned()
     } <span class="kw">else </span>{
@@ -2987,7 +2979,7 @@
 
 <span class="kw">impl </span>ClientExtension {
     <span class="doccomment">/// Make a basic SNI ServerNameRequest quoting `hostname`.
-    </span><span class="kw">pub fn </span>make_sni(dns_name: webpki::DnsNameRef) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>make_sni(dns_name: DnsNameRef) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>name = ServerName {
             typ: ServerNameType::HostName,
             payload: ServerNamePayload::new_hostname(trim_hostname_trailing_dot_for_sni(dns_name)),

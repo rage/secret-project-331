@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_chapter","post_new_chapter","remove_chapter_image","set_chapter_image","update_chapter"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_chapter","post_new_chapter","remove_chapter_image","set_chapter_image","update_chapter"]};

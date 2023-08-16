@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["seed_exercise_services"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["seed_exercise_services"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_mentimeter_oembed_data","get_oembed_data_from_provider","get_theme_settings","get_thinglink_oembed_data"],"static":["APP_USER_AGENT","CALLSITE","META"],"struct":["ThemeResponse","ThemeSupports"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_mentimeter_oembed_data","get_oembed_data_from_provider","get_theme_settings","get_thinglink_oembed_data"],"static":["APP_USER_AGENT"],"struct":["ThemeResponse","ThemeSupports"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_all","insert"],"struct":["PendingRole","Record"]};
+window.SIDEBAR_ITEMS = {"fn":["get_all","insert"],"struct":["PendingRole"]};

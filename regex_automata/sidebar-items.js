@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["MatchError","MatchKind"],"mod":["dfa"],"struct":["DeserializeError","HalfMatch","Match","MultiMatch","PatternID","SerializeError"]};
+window.SIDEBAR_ITEMS = {"enum":["Anchored","MatchErrorKind","MatchKind"],"mod":["dfa","hybrid","meta","nfa","util"],"struct":["HalfMatch","Input","Match","MatchError","PatternID","PatternSet","PatternSetInsertError","PatternSetIter","Span"]};

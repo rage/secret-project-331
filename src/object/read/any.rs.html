@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.30.4/src/read/any.rs`."><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../object/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.31.1/src/read/any.rs`."><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../object/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1321,24 +1321,6 @@
 <a href="#1321" id="1321">1321</a>
 <a href="#1322" id="1322">1322</a>
 <a href="#1323" id="1323">1323</a>
-<a href="#1324" id="1324">1324</a>
-<a href="#1325" id="1325">1325</a>
-<a href="#1326" id="1326">1326</a>
-<a href="#1327" id="1327">1327</a>
-<a href="#1328" id="1328">1328</a>
-<a href="#1329" id="1329">1329</a>
-<a href="#1330" id="1330">1330</a>
-<a href="#1331" id="1331">1331</a>
-<a href="#1332" id="1332">1332</a>
-<a href="#1333" id="1333">1333</a>
-<a href="#1334" id="1334">1334</a>
-<a href="#1335" id="1335">1335</a>
-<a href="#1336" id="1336">1336</a>
-<a href="#1337" id="1337">1337</a>
-<a href="#1338" id="1338">1338</a>
-<a href="#1339" id="1339">1339</a>
-<a href="#1340" id="1340">1340</a>
-<a href="#1341" id="1341">1341</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::fmt;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::marker::PhantomData;
@@ -1373,6 +1355,8 @@
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span><span class="macro-nonterminal">$</span><span class="kw">enum</span><span class="macro-nonterminal">::Coff</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>,
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="macro-nonterminal">$</span><span class="kw">enum</span><span class="macro-nonterminal">::CoffBig</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>,
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span><span class="macro-nonterminal">$</span><span class="kw">enum</span><span class="macro-nonterminal">::Elf32</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>,
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1400,6 +1384,8 @@
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span><span class="macro-nonterminal">$</span><span class="kw">enum</span><span class="macro-nonterminal">::Coff</span>(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>,
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="macro-nonterminal">$</span><span class="kw">enum</span><span class="macro-nonterminal">::CoffBig</span>(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>,
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span><span class="macro-nonterminal">$</span><span class="kw">enum</span><span class="macro-nonterminal">::Elf32</span>(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>,
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1428,6 +1414,8 @@
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Coff</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$to::Coff</span>(<span class="macro-nonterminal">$body</span>),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="macro-nonterminal">$from::CoffBig</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$to::CoffBig</span>(<span class="macro-nonterminal">$body</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Elf32</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$to::Elf32</span>(<span class="macro-nonterminal">$body</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1456,6 +1444,8 @@
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Coff</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>.map(<span class="macro-nonterminal">$to::Coff</span>),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="macro-nonterminal">$from::CoffBig</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>.map(<span class="macro-nonterminal">$to::CoffBig</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Elf32</span>(<span class="kw-2">ref </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>.map(<span class="macro-nonterminal">$to::Elf32</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1483,6 +1473,8 @@
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Coff</span>(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>.map(<span class="macro-nonterminal">$to::Coff</span>),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="macro-nonterminal">$from::CoffBig</span>(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>.map(<span class="macro-nonterminal">$to::CoffBig</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Elf32</span>(<span class="kw-2">ref mut </span><span class="macro-nonterminal">$var</span>) =&gt; <span class="macro-nonterminal">$body</span>.map(<span class="macro-nonterminal">$to::Elf32</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1511,6 +1503,8 @@
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Coff</span>(<span class="kw-2">ref mut </span>iter) =&gt; iter.next().map(<span class="macro-nonterminal">$to::Coff</span>),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span><span class="macro-nonterminal">$from::CoffBig</span>(<span class="kw-2">ref mut </span>iter) =&gt; iter.next().map(<span class="macro-nonterminal">$to::CoffBig</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span><span class="macro-nonterminal">$from::Elf32</span>(<span class="kw-2">ref mut </span>iter) =&gt; iter.next().map(<span class="macro-nonterminal">$to::Elf32</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1545,6 +1539,8 @@
 </span><span class="kw">enum </span>FileInternal&lt;<span class="lifetime">&#39;data</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffFile&lt;<span class="lifetime">&#39;data</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigFile&lt;<span class="lifetime">&#39;data</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfFile32&lt;<span class="lifetime">&#39;data</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1585,6 +1581,8 @@
             </span>FileKind::Pe64 =&gt; FileInternal::Pe64(pe::PeFile64::parse(data)<span class="question-mark">?</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
             </span>FileKind::Coff =&gt; FileInternal::Coff(coff::CoffFile::parse(data)<span class="question-mark">?</span>),
+            <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+            </span>FileKind::CoffBig =&gt; FileInternal::CoffBig(coff::CoffBigFile::parse(data)<span class="question-mark">?</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
             </span>FileKind::Xcoff32 =&gt; FileInternal::Xcoff32(xcoff::XcoffFile32::parse(data)<span class="question-mark">?</span>),
             <span class="attr">#[cfg(feature = <span class="string">&quot;xcoff&quot;</span>)]
@@ -1616,7 +1614,7 @@
     </span><span class="kw">pub fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BinaryFormat {
         <span class="kw">match </span><span class="self">self</span>.inner {
             <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
-            </span>FileInternal::Coff(<span class="kw">_</span>) =&gt; BinaryFormat::Coff,
+            </span>FileInternal::Coff(<span class="kw">_</span>) | FileInternal::CoffBig(<span class="kw">_</span>) =&gt; BinaryFormat::Coff,
             <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
             </span>FileInternal::Elf32(<span class="kw">_</span>) | FileInternal::Elf64(<span class="kw">_</span>) =&gt; BinaryFormat::Elf,
             <span class="attr">#[cfg(feature = <span class="string">&quot;macho&quot;</span>)]
@@ -1798,7 +1796,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>pdb_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CodeView&gt;&gt; {
+    </span><span class="kw">fn </span>pdb_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CodeView&lt;<span class="lifetime">&#39;_</span>&gt;&gt;&gt; {
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, FileInternal, |x| x.pdb_info())
     }
 
@@ -1817,20 +1815,16 @@
 
 <span class="doccomment">/// An iterator over the segments of a `File`.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>SegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>SegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: SegmentIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>SegmentIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">enum </span>SegmentIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigSegmentIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfSegmentIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1861,20 +1855,16 @@
 }
 
 <span class="doccomment">/// A segment of a `File`.
-</span><span class="kw">pub struct </span>Segment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>Segment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: SegmentInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>SegmentInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">enum </span>SegmentInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigSegment&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfSegment32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -1956,21 +1946,17 @@
 
 <span class="doccomment">/// An iterator of the sections of a `File`.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>SectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>SectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: SectionIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="comment">// we wrap our enums in a struct so that they are kept private.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>SectionIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">enum </span>SectionIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfSectionIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -2001,19 +1987,15 @@
 }
 
 <span class="doccomment">/// A Section of a File
-</span><span class="kw">pub struct </span>Section&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>Section&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: SectionInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
-<span class="kw">enum </span>SectionInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+<span class="kw">enum </span>SectionInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigSection&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfSection32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -2136,20 +2118,16 @@
 
 <span class="doccomment">/// An iterator of the COMDAT section groups of a `File`.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>ComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>ComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: ComdatIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>ComdatIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">enum </span>ComdatIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigComdatIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfComdatIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -2180,19 +2158,15 @@
 }
 
 <span class="doccomment">/// A COMDAT section group of a `File`.
-</span><span class="kw">pub struct </span>Comdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>Comdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: ComdatInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
-<span class="kw">enum </span>ComdatInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+<span class="kw">enum </span>ComdatInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigComdat&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfComdat32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -2258,20 +2232,16 @@
 
 <span class="doccomment">/// An iterator over COMDAT section entries.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>ComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>ComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: ComdatSectionIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>ComdatSectionIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">enum </span>ComdatSectionIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigComdatSectionIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfComdatSectionIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
@@ -2304,8 +2274,7 @@
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>SymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     inner: SymbolTableInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
@@ -2313,11 +2282,12 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>SymbolTableInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff((coff::CoffSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;, PhantomData&lt;R&gt;)),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig((coff::CoffBigSymbolTable&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;, PhantomData&lt;R&gt;)),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(
         (
@@ -2388,8 +2358,7 @@
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>SymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     inner: SymbolIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
@@ -2397,11 +2366,12 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>SymbolIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff((coff::CoffSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;, PhantomData&lt;R&gt;)),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig((coff::CoffBigSymbolIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;, PhantomData&lt;R&gt;)),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(
         (
@@ -2466,19 +2436,19 @@
 <span class="doccomment">/// A symbol table entry.
 </span><span class="kw">pub struct </span>Symbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     inner: SymbolInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="kw">enum </span>SymbolInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff((coff::CoffSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;, PhantomData&lt;R&gt;)),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig((coff::CoffBigSymbol&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;, PhantomData&lt;R&gt;)),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(
         (
@@ -2593,7 +2563,7 @@
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, SymbolInternal, |x| x.<span class="number">0</span>.is_local())
     }
 
-    <span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolFlags&lt;SectionIndex&gt; {
+    <span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolFlags&lt;SectionIndex, SymbolIndex&gt; {
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, SymbolInternal, |x| x.<span class="number">0</span>.flags())
     }
 }
@@ -2602,8 +2572,7 @@
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>DynamicRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     inner: DynamicRelocationIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
@@ -2611,8 +2580,7 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>DynamicRelocationIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-    R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;,
 {
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfDynamicRelocationIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
@@ -2639,20 +2607,16 @@
 
 <span class="doccomment">/// An iterator over section relocation entries.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>SectionRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">pub struct </span>SectionRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt; = <span class="kw-2">&amp;</span><span class="lifetime">&#39;data </span>[u8]&gt; {
     inner: SectionRelocationIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;,
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>SectionRelocationIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt;
-<span class="kw">where
-    </span><span class="lifetime">&#39;data</span>: <span class="lifetime">&#39;file</span>,
-{
+</span><span class="kw">enum </span>SectionRelocationIteratorInternal&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R: ReadRef&lt;<span class="lifetime">&#39;data</span>&gt;&gt; {
     <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
     </span>Coff(coff::CoffRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
+    <span class="attr">#[cfg(feature = <span class="string">&quot;coff&quot;</span>)]
+    </span>CoffBig(coff::CoffBigRelocationIterator&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]
     </span>Elf32(elf::ElfSectionRelocationIterator32&lt;<span class="lifetime">&#39;data</span>, <span class="lifetime">&#39;file</span>, Endianness, R&gt;),
     <span class="attr">#[cfg(feature = <span class="string">&quot;elf&quot;</span>)]

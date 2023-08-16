@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["PageLanguageGroup","Record"]};
+window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["PageLanguageGroup"]};

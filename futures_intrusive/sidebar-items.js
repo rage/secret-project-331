@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["buffer","channel","sync","timer"],"struct":["NoopLock"]};
+window.SIDEBAR_ITEMS = {"mod":["buffer","channel","sync","timer"]};

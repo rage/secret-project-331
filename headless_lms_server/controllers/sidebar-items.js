@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["configure_controllers","not_found"],"mod":["auth","cms","course_material","exercise_services","files","healthz","helpers","main_frontend","other_domain_redirects","study_registry"],"struct":["UploadResult"]};
+window.SIDEBAR_ITEMS = {"fn":["configure_controllers","not_found"],"mod":["auth","cms","course_material","exercise_services","files","healthz","helpers","langs","main_frontend","other_domain_redirects","study_registry"],"struct":["UploadResult"]};

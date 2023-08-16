@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_media","get_course_default_peer_review_configuration","put_course_default_peer_review_configuration"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_media","get_course_default_peer_review_configuration","put_course_default_peer_review_configuration"]};

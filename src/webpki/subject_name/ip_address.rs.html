@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.100.1/src/subject_name/ip_address.rs`."><title>ip_address.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../webpki/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.101.2/src/subject_name/ip_address.rs`."><title>ip_address.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../webpki/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1535,24 +1535,6 @@
 <a href="#1535" id="1535">1535</a>
 <a href="#1536" id="1536">1536</a>
 <a href="#1537" id="1537">1537</a>
-<a href="#1538" id="1538">1538</a>
-<a href="#1539" id="1539">1539</a>
-<a href="#1540" id="1540">1540</a>
-<a href="#1541" id="1541">1541</a>
-<a href="#1542" id="1542">1542</a>
-<a href="#1543" id="1543">1543</a>
-<a href="#1544" id="1544">1544</a>
-<a href="#1545" id="1545">1545</a>
-<a href="#1546" id="1546">1546</a>
-<a href="#1547" id="1547">1547</a>
-<a href="#1548" id="1548">1548</a>
-<a href="#1549" id="1549">1549</a>
-<a href="#1550" id="1550">1550</a>
-<a href="#1551" id="1551">1551</a>
-<a href="#1552" id="1552">1552</a>
-<a href="#1553" id="1553">1553</a>
-<a href="#1554" id="1554">1554</a>
-<a href="#1555" id="1555">1555</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2020 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -1567,8 +1549,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-</span><span class="kw">use </span>core::convert::TryInto;
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
 </span><span class="kw">use </span>core::fmt::Write;
 
 <span class="kw">use </span><span class="kw">crate</span>::Error;
@@ -1580,6 +1561,7 @@
 
 <span class="doccomment">/// Either a IPv4 or IPv6 address, plus its owned string representation
 </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 </span><span class="kw">pub enum </span>IpAddr {
     <span class="doccomment">/// An IPv4 address and its owned string representation
@@ -1589,6 +1571,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
 </span><span class="kw">impl </span>AsRef&lt;str&gt; <span class="kw">for </span>IpAddr {
     <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
@@ -1607,6 +1590,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;IpAddrRef&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>IpAddr {
     <span class="kw">fn </span>from(ip_address: IpAddrRef&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; IpAddr {
         <span class="kw">match </span>ip_address {
@@ -1623,6 +1607,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IpAddr&gt; <span class="kw">for </span>IpAddrRef&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>from(ip_address: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IpAddr) -&gt; IpAddrRef&lt;<span class="lifetime">&#39;a</span>&gt; {
         <span class="kw">match </span>ip_address {
@@ -1647,8 +1632,8 @@
     }
 }
 
-<span class="doccomment">/// Requires the `std` feature.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
 </span><span class="kw">impl </span>::std::error::Error <span class="kw">for </span>AddrParseError {}
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IpAddrRef&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -1671,9 +1656,8 @@
     }
 
     <span class="doccomment">/// Constructs an `IpAddr` from this `IpAddrRef`
-    ///
-    /// Requires the `alloc` feature.
     </span><span class="attr">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;alloc&quot;</span>)))]
     </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IpAddr {
         <span class="kw">match </span><span class="self">self </span>{
             IpAddrRef::V4(ip_address, ip_address_octets) =&gt; IpAddr::V4(
@@ -1708,6 +1692,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
 </span><span class="kw">impl </span>From&lt;std::net::IpAddr&gt; <span class="kw">for </span>IpAddr {
     <span class="kw">fn </span>from(ip_address: std::net::IpAddr) -&gt; IpAddr {
         <span class="kw">match </span>ip_address {
@@ -1758,12 +1743,12 @@
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>presented_id_matches_reference_id(
     presented_id: untrusted::Input,
     reference_id: untrusted::Input,
-) -&gt; <span class="prelude-ty">Result</span>&lt;bool, Error&gt; {
+) -&gt; bool {
     <span class="kw">match </span>(presented_id.len(), reference_id.len()) {
         (<span class="number">4</span>, <span class="number">4</span>) =&gt; (),
         (<span class="number">16</span>, <span class="number">16</span>) =&gt; (),
         <span class="kw">_ </span>=&gt; {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
     };
 
@@ -1773,12 +1758,12 @@
         <span class="kw">let </span>presented_ip_address_byte = presented_ip_address.read_byte().unwrap();
         <span class="kw">let </span>reference_ip_address_byte = reference_ip_address.read_byte().unwrap();
         <span class="kw">if </span>presented_ip_address_byte != reference_ip_address_byte {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
     }
 
-    <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-}
+    <span class="bool-val">true
+</span>}
 
 <span class="comment">// https://tools.ietf.org/html/rfc5280#section-4.2.1.10 says:
 //
@@ -2693,61 +2678,40 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_presented_id_matches_reference_id() {
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-        );
+        <span class="macro">assert!</span>(!presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[]),
+        ));
 
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">0x01</span>]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-        );
+        <span class="macro">assert!</span>(!presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">0x01</span>]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[])
+        ));
 
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">0x01</span>])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-        );
+        <span class="macro">assert!</span>(!presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">0x01</span>])
+        ));
 
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
-        );
+        <span class="macro">assert!</span>(presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+        ));
 
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-        );
+        <span class="macro">assert!</span>(!presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+        ));
 
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-        );
+        <span class="macro">assert!</span>(!presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>])
+        ));
 
-        <span class="macro">assert_eq!</span>(
-            presented_id_matches_reference_id(
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>]),
-                untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>])
-            ),
-            <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
-        );
+        <span class="macro">assert!</span>(presented_id_matches_reference_id(
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>]),
+            untrusted::Input::from(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>])
+        ));
     }
 
     <span class="attr">#[test]

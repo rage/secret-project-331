@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_edit_proposal_count","get_edit_proposals","process_edit_proposal"],"static":["CALLSITE","META"],"struct":["GetEditProposalsQuery"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_edit_proposal_count","get_edit_proposals","process_edit_proposal"],"struct":["GetEditProposalsQuery"]};

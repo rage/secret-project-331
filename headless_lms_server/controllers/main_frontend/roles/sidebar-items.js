@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize_role_management","fetch","fetch_pending","set","unset"],"static":["CALLSITE","META"],"struct":["RoleQuery"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize_role_management","fetch","fetch_pending","set","unset"],"struct":["RoleQuery"]};

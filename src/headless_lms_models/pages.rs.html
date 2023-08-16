@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/pages.rs`."><title>pages.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/pages.rs`."><title>pages.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless_lms_models" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3709,7 +3709,7 @@ RETURNING id
         new_course_page.hidden,
         page_language_group_id,
     )
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>history_id = <span class="kw">crate</span>::page_history::insert(
         <span class="kw-2">&amp;mut </span>tx,
@@ -3758,7 +3758,7 @@ RETURNING id
         page.title,
         <span class="number">0
     </span>)
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>history_id = <span class="kw">crate</span>::page_history::insert(
@@ -3826,7 +3826,7 @@ WHERE id = $1
     <span class="doccomment">/// Hacky way to implement a nullable boolean filter. Based on the idea that
     /// `null IS DISTINCT FROM anything` in PostgreSQL.
     ///
-    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    /// More information at: &lt;https://www.postgresql.org/docs/current/functions-comparison.html&gt;
     ///
     /// # Examples
     ///
@@ -4504,7 +4504,7 @@ RETURNING id,
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
     )
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Exercises
@@ -4595,7 +4595,7 @@ RETURNING id,
         &quot;</span>,
         <span class="kw-2">&amp;</span>existing_exercise_slide_ids,
     )
-    .fetch_all(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>final_tasks = upsert_exercise_tasks(
         <span class="kw-2">&amp;mut </span>tx,
@@ -4641,7 +4641,7 @@ RETURNING id,
         new_content,
         page.id
     )
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>x = remapped_exercises.into_values().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -5443,7 +5443,7 @@ RETURNING id,
         content_search_language <span class="kw">as _</span>,
         page_language_group_id,
     )
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>cms_page = update_page(
@@ -5482,7 +5482,7 @@ RETURNING *;
             front_page_of_chapter_id
         )
         <span class="comment">// this should fail if no rows returned
-        </span>.fetch_one(<span class="kw-2">&amp;mut </span>tx)
+        </span>.fetch_one(<span class="kw-2">&amp;mut *</span>tx)
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
@@ -5533,7 +5533,7 @@ RETURNING id,
           &quot;#</span>,
         page_id,
     )
-    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
@@ -5545,7 +5545,7 @@ RETURNING id,
           &quot;#</span>,
         page_id,
     )
-    .execute(<span class="kw-2">&amp;mut </span>tx)
+    .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
@@ -5561,7 +5561,7 @@ WHERE exercise_id IN (
         &quot;</span>,
         page.id
     )
-    .execute(<span class="kw-2">&amp;mut </span>tx)
+    .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">sqlx::query!</span>(
@@ -5578,7 +5578,7 @@ WHERE exercise_slide_id IN (
             &quot;#</span>,
         page.id
     )
-    .execute(<span class="kw-2">&amp;mut </span>tx)
+    .execute(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -6370,14 +6370,14 @@ WHERE pages.order_number = $1
                     page.order_number,
                     page.chapter_id
                 )
-                .execute(<span class="kw-2">&amp;mut </span>tx)
+                .execute(<span class="kw-2">&amp;mut *</span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="macro">sqlx::query!</span>(
                     <span class="string">&quot;UPDATE pages SET order_number = $2 WHERE pages.id = $1&quot;</span>,
                     page.id,
                     page.order_number
                 )
-                .execute(<span class="kw-2">&amp;mut </span>tx)
+                .execute(<span class="kw-2">&amp;mut *</span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="comment">// Chapter changes
@@ -6402,7 +6402,7 @@ WHERE pages.order_number = $1
                                     new_chapter.id,
                                     page.order_number
                                 )
-                                .execute(<span class="kw-2">&amp;mut </span>tx)
+                                .execute(<span class="kw-2">&amp;mut *</span>tx)
                                 .<span class="kw">await</span><span class="question-mark">?</span>;
                                 <span class="macro">sqlx::query!</span>(
                                     <span class="string">&quot;INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)&quot;</span>,
@@ -6410,7 +6410,7 @@ WHERE pages.order_number = $1
                                     old_path,
                                     course_id
                                 )
-                                .execute(<span class="kw-2">&amp;mut </span>tx)
+                                .execute(<span class="kw-2">&amp;mut *</span>tx)
                                 .<span class="kw">await</span><span class="question-mark">?</span>;
                             } <span class="kw">else </span>{
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
@@ -6481,7 +6481,7 @@ WHERE pages.order_number = $1
                     matching_db_chapter.id,
                     course_id
                 )
-                .execute(<span class="kw-2">&amp;mut </span>tx)
+                .execute(<span class="kw-2">&amp;mut *</span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="comment">// get newly modified chapter
@@ -6505,7 +6505,7 @@ WHERE pages.order_number = $1
                         page.id,
                         new_path
                     )
-                    .execute(<span class="kw-2">&amp;mut </span>tx)
+                    .execute(<span class="kw-2">&amp;mut *</span>tx)
                     .<span class="kw">await</span><span class="question-mark">?</span>;
                 }
             }
@@ -6527,7 +6527,7 @@ WHERE pages.order_number = $1
                     chapter.id,
                     new_chapter_number
                 )
-                .execute(<span class="kw-2">&amp;mut </span>tx)
+                .execute(<span class="kw-2">&amp;mut *</span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="comment">// update all pages url in the modified chapter
@@ -6551,17 +6551,17 @@ WHERE pages.order_number = $1
                         page.id,
                         new_path
                     )
-                    .execute(<span class="kw-2">&amp;mut </span>tx)
+                    .execute(<span class="kw-2">&amp;mut *</span>tx)
                     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-                    <span class="macro">sqlx::query!</span>(
-                            <span class="string">&quot;INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)&quot;</span>,
-                            page.id,
-                            old_path,
-                            course_id
-                        )
-                        .execute(<span class="kw-2">&amp;mut </span>tx)
-                        .<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="kw">crate</span>::url_redirections::upsert(
+                        <span class="kw-2">&amp;mut </span>tx,
+                        PKeyPolicy::Generate,
+                        page.id,
+                        <span class="kw-2">&amp;</span>old_path,
+                        course_id,
+                    )
+                    .<span class="kw">await</span><span class="question-mark">?</span>;
                 }
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(

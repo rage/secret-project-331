@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.19.0/src/tables/cff/cff1.rs`."><title>cff1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../ttf_parser/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.19.1/src/tables/cff/cff1.rs`."><title>cff1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../ttf_parser/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1039,71 +1039,6 @@
 <a href="#1039" id="1039">1039</a>
 <a href="#1040" id="1040">1040</a>
 <a href="#1041" id="1041">1041</a>
-<a href="#1042" id="1042">1042</a>
-<a href="#1043" id="1043">1043</a>
-<a href="#1044" id="1044">1044</a>
-<a href="#1045" id="1045">1045</a>
-<a href="#1046" id="1046">1046</a>
-<a href="#1047" id="1047">1047</a>
-<a href="#1048" id="1048">1048</a>
-<a href="#1049" id="1049">1049</a>
-<a href="#1050" id="1050">1050</a>
-<a href="#1051" id="1051">1051</a>
-<a href="#1052" id="1052">1052</a>
-<a href="#1053" id="1053">1053</a>
-<a href="#1054" id="1054">1054</a>
-<a href="#1055" id="1055">1055</a>
-<a href="#1056" id="1056">1056</a>
-<a href="#1057" id="1057">1057</a>
-<a href="#1058" id="1058">1058</a>
-<a href="#1059" id="1059">1059</a>
-<a href="#1060" id="1060">1060</a>
-<a href="#1061" id="1061">1061</a>
-<a href="#1062" id="1062">1062</a>
-<a href="#1063" id="1063">1063</a>
-<a href="#1064" id="1064">1064</a>
-<a href="#1065" id="1065">1065</a>
-<a href="#1066" id="1066">1066</a>
-<a href="#1067" id="1067">1067</a>
-<a href="#1068" id="1068">1068</a>
-<a href="#1069" id="1069">1069</a>
-<a href="#1070" id="1070">1070</a>
-<a href="#1071" id="1071">1071</a>
-<a href="#1072" id="1072">1072</a>
-<a href="#1073" id="1073">1073</a>
-<a href="#1074" id="1074">1074</a>
-<a href="#1075" id="1075">1075</a>
-<a href="#1076" id="1076">1076</a>
-<a href="#1077" id="1077">1077</a>
-<a href="#1078" id="1078">1078</a>
-<a href="#1079" id="1079">1079</a>
-<a href="#1080" id="1080">1080</a>
-<a href="#1081" id="1081">1081</a>
-<a href="#1082" id="1082">1082</a>
-<a href="#1083" id="1083">1083</a>
-<a href="#1084" id="1084">1084</a>
-<a href="#1085" id="1085">1085</a>
-<a href="#1086" id="1086">1086</a>
-<a href="#1087" id="1087">1087</a>
-<a href="#1088" id="1088">1088</a>
-<a href="#1089" id="1089">1089</a>
-<a href="#1090" id="1090">1090</a>
-<a href="#1091" id="1091">1091</a>
-<a href="#1092" id="1092">1092</a>
-<a href="#1093" id="1093">1093</a>
-<a href="#1094" id="1094">1094</a>
-<a href="#1095" id="1095">1095</a>
-<a href="#1096" id="1096">1096</a>
-<a href="#1097" id="1097">1097</a>
-<a href="#1098" id="1098">1098</a>
-<a href="#1099" id="1099">1099</a>
-<a href="#1100" id="1100">1100</a>
-<a href="#1101" id="1101">1101</a>
-<a href="#1102" id="1102">1102</a>
-<a href="#1103" id="1103">1103</a>
-<a href="#1104" id="1104">1104</a>
-<a href="#1105" id="1105">1105</a>
-<a href="#1106" id="1106">1106</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A [Compact Font Format Table](
 //! https://docs.microsoft.com/en-us/typography/opentype/spec/cff) implementation.
 
@@ -1126,7 +1061,7 @@
 </span><span class="kw">use </span><span class="kw">super</span>::std_names::STANDARD_NAMES;
 <span class="kw">use super</span>::{calc_subroutine_bias, conv_subroutine_index, Builder, CFFError, IsEven, StringId};
 <span class="kw">use </span><span class="kw">crate</span>::parser::{LazyArray16, NumFrom, Stream, TryNumFrom};
-<span class="kw">use crate</span>::{BBox, Fixed, GlyphId, OutlineBuilder, Rect};
+<span class="kw">use crate</span>::{BBox, DummyOutline, GlyphId, OutlineBuilder, Rect};
 
 <span class="comment">// Limits according to the Adobe Technical Note #5176, chapter 4 DICT Data.
 </span><span class="kw">const </span>MAX_OPERANDS_LEN: usize = <span class="number">48</span>;
@@ -1450,7 +1385,7 @@
 
 <span class="kw">struct </span>CharStringParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
     metadata: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Table&lt;<span class="lifetime">&#39;a</span>&gt;,
-    width_parsed: bool,
+    width: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     stems_len: u32,
     has_endchar: bool,
     has_seac: bool,
@@ -1462,8 +1397,9 @@
     data: <span class="kw-2">&amp;</span>[u8],
     metadata: <span class="kw-2">&amp;</span>Table,
     glyph_id: GlyphId,
+    width_only: bool,
     builder: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>OutlineBuilder,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Rect, CFFError&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Rect, <span class="prelude-ty">Option</span>&lt;f32&gt;), CFFError&gt; {
     <span class="kw">let </span>local_subrs = <span class="kw">match </span>metadata.kind {
         FontKind::SID(<span class="kw-2">ref </span>sid) =&gt; <span class="prelude-val">Some</span>(sid.local_subrs),
         FontKind::CID(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>, <span class="comment">// Will be resolved on request.
@@ -1471,7 +1407,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>ctx = CharStringParserContext {
         metadata,
-        width_parsed: <span class="bool-val">false</span>,
+        width: <span class="prelude-val">None</span>,
         stems_len: <span class="number">0</span>,
         has_endchar: <span class="bool-val">false</span>,
         has_seac: <span class="bool-val">false</span>,
@@ -1496,8 +1432,13 @@
         y: <span class="number">0.0</span>,
         has_move_to: <span class="bool-val">false</span>,
         is_first_move_to: <span class="bool-val">true</span>,
+        width_only,
     };
     _parse_char_string(<span class="kw-2">&amp;mut </span>ctx, data, <span class="number">0</span>, <span class="kw-2">&amp;mut </span>parser)<span class="question-mark">?</span>;
+
+    <span class="kw">if </span>width_only {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>((Rect::zero(), ctx.width));
+    }
 
     <span class="kw">if </span>!ctx.has_endchar {
         <span class="kw">return </span><span class="prelude-val">Err</span>(CFFError::MissingEndChar);
@@ -1510,7 +1451,8 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(CFFError::ZeroBBox);
     }
 
-    bbox.to_rect().ok_or(CFFError::BboxOverflow)
+    <span class="kw">let </span>rect = bbox.to_rect().ok_or(CFFError::BboxOverflow)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((rect, ctx.width))
 }
 
 <span class="kw">fn </span>_parse_char_string(
@@ -1537,8 +1479,8 @@
                 // x dx {dxa dxb}* vstemhm
 
                 // If the stack length is uneven, than the first value is a `width`.
-                </span><span class="kw">let </span>len = <span class="kw">if </span>p.stack.len().is_odd() &amp;&amp; !ctx.width_parsed {
-                    ctx.width_parsed = <span class="bool-val">true</span>;
+                </span><span class="kw">let </span>len = <span class="kw">if </span>p.stack.len().is_odd() &amp;&amp; ctx.width.is_none() {
+                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
                     p.stack.len() - <span class="number">1
                 </span>} <span class="kw">else </span>{
                     p.stack.len()
@@ -1551,9 +1493,9 @@
             }
             operator::VERTICAL_MOVE_TO =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>&amp;&amp; !ctx.width_parsed {
+                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>&amp;&amp; ctx.width.is_none() {
                     i += <span class="number">1</span>;
-                    ctx.width_parsed = <span class="bool-val">true</span>;
+                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
                 }
 
                 p.parse_vertical_move_to(i)<span class="question-mark">?</span>;
@@ -1623,7 +1565,7 @@
                 }
             }
             operator::ENDCHAR =&gt; {
-                <span class="kw">if </span>p.stack.len() == <span class="number">4 </span>|| (!ctx.width_parsed &amp;&amp; p.stack.len() == <span class="number">5</span>) {
+                <span class="kw">if </span>p.stack.len() == <span class="number">4 </span>|| (ctx.width.is_none() &amp;&amp; p.stack.len() == <span class="number">5</span>) {
                     <span class="comment">// Process &#39;seac&#39;.
                     </span><span class="kw">let </span>accent_char = seac_code_to_glyph_id(<span class="kw-2">&amp;</span>ctx.metadata.charset, p.stack.pop())
                         .ok_or(CFFError::InvalidSeacCode)<span class="question-mark">?</span>;
@@ -1632,9 +1574,8 @@
                     <span class="kw">let </span>dy = p.stack.pop();
                     <span class="kw">let </span>dx = p.stack.pop();
 
-                    <span class="kw">if </span>!ctx.width_parsed &amp;&amp; !p.stack.is_empty() {
-                        p.stack.pop();
-                        ctx.width_parsed = <span class="bool-val">true</span>;
+                    <span class="kw">if </span>ctx.width.is_none() &amp;&amp; !p.stack.is_empty() {
+                        ctx.width = <span class="prelude-val">Some</span>(p.stack.pop())
                     }
 
                     ctx.has_seac = <span class="bool-val">true</span>;
@@ -1658,9 +1599,8 @@
                         .get(u32::from(accent_char.<span class="number">0</span>))
                         .ok_or(CFFError::InvalidSeacCode)<span class="question-mark">?</span>;
                     _parse_char_string(ctx, accent_char_string, depth + <span class="number">1</span>, p)<span class="question-mark">?</span>;
-                } <span class="kw">else if </span>p.stack.len() == <span class="number">1 </span>&amp;&amp; !ctx.width_parsed {
-                    p.stack.pop();
-                    ctx.width_parsed = <span class="bool-val">true</span>;
+                } <span class="kw">else if </span>p.stack.len() == <span class="number">1 </span>&amp;&amp; ctx.width.is_none() {
+                    ctx.width = <span class="prelude-val">Some</span>(p.stack.pop());
                 }
 
                 <span class="kw">if </span>!p.is_first_move_to {
@@ -1683,9 +1623,9 @@
                 </span>p.stack.clear();
 
                 <span class="comment">// If the stack length is uneven, than the first value is a `width`.
-                </span><span class="kw">if </span>len.is_odd() &amp;&amp; !ctx.width_parsed {
+                </span><span class="kw">if </span>len.is_odd() &amp;&amp; ctx.width.is_none() {
                     len -= <span class="number">1</span>;
-                    ctx.width_parsed = <span class="bool-val">true</span>;
+                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
                 }
 
                 ctx.stems_len += len <span class="kw">as </span>u32 &gt;&gt; <span class="number">1</span>;
@@ -1694,18 +1634,18 @@
             }
             operator::MOVE_TO =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                <span class="kw">if </span>p.stack.len() == <span class="number">3 </span>&amp;&amp; !ctx.width_parsed {
+                <span class="kw">if </span>p.stack.len() == <span class="number">3 </span>&amp;&amp; ctx.width.is_none() {
                     i += <span class="number">1</span>;
-                    ctx.width_parsed = <span class="bool-val">true</span>;
+                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
                 }
 
                 p.parse_move_to(i)<span class="question-mark">?</span>;
             }
             operator::HORIZONTAL_MOVE_TO =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>&amp;&amp; !ctx.width_parsed {
+                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>&amp;&amp; ctx.width.is_none() {
                     i += <span class="number">1</span>;
-                    ctx.width_parsed = <span class="bool-val">true</span>;
+                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
                 }
 
                 p.parse_horizontal_move_to(i)<span class="question-mark">?</span>;
@@ -1771,6 +1711,10 @@
                 p.parse_fixed(<span class="kw-2">&amp;mut </span>s)<span class="question-mark">?</span>;
             }
         }
+
+        <span class="kw">if </span>p.width_only &amp;&amp; ctx.width.is_some() {
+            <span class="kw">break</span>;
+        }
     }
 
     <span class="comment">// TODO: &#39;A charstring subroutine must end with either an endchar or a return operator.&#39;
@@ -1797,82 +1741,6 @@
         <span class="kw">_ </span>=&gt; charset.sid_to_gid(sid),
     }
 }
-
-<span class="comment">// The first number of the first char string operator (well, some of them) can be a width.
-// This width is different from glyph&#39;s bbox width and somewhat relates to
-// glyph&#39;s advance (`hmtx`).
-//
-// We ignore this width during glyph outlining, because we don&#39;t really care about it.
-// But when parsing standalone CFF tables/fonts it might be useful.
-</span><span class="kw">fn </span>parse_char_string_width(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>stack = ArgumentsStack {
-        data: <span class="kw-2">&amp;mut </span>[<span class="number">0.0</span>; MAX_ARGUMENTS_STACK_LEN], <span class="comment">// 192B
-        </span>len: <span class="number">0</span>,
-        max_len: MAX_ARGUMENTS_STACK_LEN,
-    };
-    _parse_char_string_width(data, <span class="kw-2">&amp;mut </span>stack)
-}
-
-<span class="comment">// Just like `_parse_char_string`, but parses only the first operator.
-</span><span class="kw">fn </span>_parse_char_string_width(char_string: <span class="kw-2">&amp;</span>[u8], stack: <span class="kw-2">&amp;mut </span>ArgumentsStack) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::new(char_string);
-    <span class="kw">while </span>!s.at_end() {
-        <span class="kw">let </span>op = s.read::&lt;u8&gt;()<span class="question-mark">?</span>;
-        <span class="kw">match </span>op {
-            operator::HORIZONTAL_STEM
-            | operator::VERTICAL_STEM
-            | operator::HORIZONTAL_STEM_HINT_MASK
-            | operator::VERTICAL_STEM_HINT_MASK
-            | operator::HINT_MASK
-            | operator::COUNTER_MASK
-            | operator::MOVE_TO
-            | operator::ENDCHAR =&gt; {
-                <span class="kw">return if </span>stack.len().is_odd() {
-                    <span class="prelude-val">Some</span>(stack.at(<span class="number">0</span>))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>};
-            }
-            operator::HORIZONTAL_MOVE_TO | operator::VERTICAL_MOVE_TO =&gt; {
-                <span class="kw">return if </span>stack.len() == <span class="number">2 </span>{
-                    <span class="prelude-val">Some</span>(stack.at(<span class="number">0</span>))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>};
-            }
-            operator::RETURN =&gt; {
-                <span class="kw">break</span>;
-            }
-            operator::SHORT_INT =&gt; {
-                <span class="kw">let </span>n = s.read::&lt;i16&gt;()<span class="question-mark">?</span>;
-                stack.push(f32::from(n)).ok()<span class="question-mark">?</span>;
-            }
-            <span class="number">32</span>..=<span class="number">246 </span>=&gt; {
-                <span class="kw">let </span>n = i16::from(op) - <span class="number">139</span>;
-                stack.push(f32::from(n)).ok()<span class="question-mark">?</span>;
-            }
-            <span class="number">247</span>..=<span class="number">250 </span>=&gt; {
-                <span class="kw">let </span>b1 = s.read::&lt;u8&gt;()<span class="question-mark">?</span>;
-                <span class="kw">let </span>n = (i16::from(op) - <span class="number">247</span>) * <span class="number">256 </span>+ i16::from(b1) + <span class="number">108</span>;
-                <span class="macro">debug_assert!</span>((<span class="number">108</span>..=<span class="number">1131</span>).contains(<span class="kw-2">&amp;</span>n));
-                stack.push(f32::from(n)).ok()<span class="question-mark">?</span>;
-            }
-            <span class="number">251</span>..=<span class="number">254 </span>=&gt; {
-                <span class="kw">let </span>b1 = s.read::&lt;u8&gt;()<span class="question-mark">?</span>;
-                <span class="kw">let </span>n = -(i16::from(op) - <span class="number">251</span>) * <span class="number">256 </span>- i16::from(b1) - <span class="number">108</span>;
-                <span class="macro">debug_assert!</span>((-<span class="number">1131</span>..=-<span class="number">108</span>).contains(<span class="kw-2">&amp;</span>n));
-                stack.push(f32::from(n)).ok()<span class="question-mark">?</span>;
-            }
-            operator::FIXED_16_16 =&gt; {
-                <span class="kw">let </span>n = s.read::&lt;Fixed&gt;()<span class="question-mark">?</span>;
-                stack.push(n.<span class="number">0</span>).ok()<span class="question-mark">?</span>;
-            }
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-        }
-    }
-
-    <span class="prelude-val">None
-</span>}
 
 <span class="attr">#[derive(Clone, Copy, Debug)]
 </span><span class="kw">enum </span>FDSelect&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -2122,7 +1990,7 @@
             </span>.char_strings
             .get(u32::from(glyph_id.<span class="number">0</span>))
             .ok_or(CFFError::NoGlyph)<span class="question-mark">?</span>;
-        parse_char_string(data, <span class="self">self</span>, glyph_id, builder)
+        parse_char_string(data, <span class="self">self</span>, glyph_id, <span class="bool-val">false</span>, builder).map(|v| v.<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Resolves a Glyph ID for a code point.
@@ -2154,7 +2022,9 @@
         <span class="kw">match </span><span class="self">self</span>.kind {
             FontKind::SID(<span class="kw-2">ref </span>sid) =&gt; {
                 <span class="kw">let </span>data = <span class="self">self</span>.char_strings.get(u32::from(glyph_id.<span class="number">0</span>))<span class="question-mark">?</span>;
-                <span class="kw">let </span>width = parse_char_string_width(data)
+                <span class="kw">let </span>(<span class="kw">_</span>, width) =
+                    parse_char_string(data, <span class="self">self</span>, glyph_id, <span class="bool-val">true</span>, <span class="kw-2">&amp;mut </span>DummyOutline).ok()<span class="question-mark">?</span>;
+                <span class="kw">let </span>width = width
                     .map(|w| sid.nominal_width + w)
                     .unwrap_or(sid.default_width);
                 u16::try_from(width <span class="kw">as </span>i32).ok()

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.6.3/src/any/connection/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.1/src/any/connection/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -112,149 +112,18 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures_core::future::BoxFuture;
 
-<span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyConnectOptions, AnyKind};
-<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyConnectOptions};
+<span class="kw">use </span><span class="kw">crate</span>::connection::{ConnectOptions, Connection};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::postgres;
+<span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">pub use </span>backend::AnyConnectionBackend;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::sqlite;
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::mssql;
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::mysql;
 <span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
 
-<span class="kw">mod </span>establish;
+<span class="kw">mod </span>backend;
 <span class="kw">mod </span>executor;
 
 <span class="doccomment">/// A connection to _any_ SQLx database.
@@ -267,89 +136,48 @@
 /// sqlite://a.sqlite
 /// ```
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>AnyConnection(<span class="kw">pub</span>(<span class="kw">super</span>) AnyConnectionKind);
-
-<span class="attr">#[derive(Debug)]
-</span><span class="comment">// Used internally in `sqlx-macros`
-</span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub enum </span>AnyConnectionKind {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-    </span>Postgres(postgres::PgConnection),
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-    </span>Mssql(mssql::MssqlConnection),
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-    </span>MySql(mysql::MySqlConnection),
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-    </span>Sqlite(sqlite::SqliteConnection),
-}
-
-<span class="kw">impl </span>AnyConnectionKind {
-    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyKind {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(<span class="kw">_</span>) =&gt; AnyKind::Postgres,
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(<span class="kw">_</span>) =&gt; AnyKind::MySql,
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(<span class="kw">_</span>) =&gt; AnyKind::Sqlite,
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(<span class="kw">_</span>) =&gt; AnyKind::Mssql,
-        }
-    }
+</span><span class="kw">pub struct </span>AnyConnection {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) backend: Box&lt;<span class="kw">dyn </span>AnyConnectionBackend&gt;,
 }
 
 <span class="kw">impl </span>AnyConnection {
-    <span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyKind {
-        <span class="self">self</span>.<span class="number">0</span>.kind()
+    <span class="doccomment">/// Returns the name of the database backend in use (e.g. PostgreSQL, MySQL, SQLite, etc.)
+    </span><span class="kw">pub fn </span>backend_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="self">self</span>.backend.name()
     }
 
-    <span class="comment">// Used internally in `sqlx-macros`
-    </span><span class="attr">#[doc(hidden)]
-    </span><span class="kw">pub fn </span>private_get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>AnyConnectionKind {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
-    </span>}
-}
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>connect(options: <span class="kw-2">&amp;</span>AnyConnectOptions) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt;&gt; {
+        Box::pin(<span class="kw">async </span>{
+            <span class="kw">let </span>driver = <span class="kw">crate</span>::any::driver::from_url(<span class="kw-2">&amp;</span>options.database_url)<span class="question-mark">?</span>;
+            (driver.connect)(options).<span class="kw">await
+        </span>})
+    }
 
-<span class="macro">macro_rules! </span>delegate_to {
-    (<span class="macro-nonterminal">$self</span>:ident.<span class="macro-nonterminal">$method</span>:ident($(<span class="macro-nonterminal">$arg</span>:ident),<span class="kw-2">*</span>)) =&gt; {
-        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="macro-nonterminal">$self</span>.<span class="number">0 </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>connect_with_db&lt;DB: Database&gt;(
+        options: <span class="kw-2">&amp;</span>AnyConnectOptions,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt;&gt;
+    <span class="kw">where
+        </span>DB::Connection: AnyConnectionBackend,
+        &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options:
+            <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyConnectOptions, Error = Error&gt;,
+    {
+        <span class="kw">let </span>res = TryFrom::try_from(options);
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
+        Box::pin(<span class="kw">async </span>{
+            <span class="kw">let </span>options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options = res<span class="question-mark">?</span>;
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
+            <span class="prelude-val">Ok</span>(AnyConnection {
+                backend: Box::new(options.connect().<span class="kw">await</span><span class="question-mark">?</span>),
+            })
+        })
+    }
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
-        }
-    };
-}
-
-<span class="macro">macro_rules! </span>delegate_to_mut {
-    (<span class="macro-nonterminal">$self</span>:ident.<span class="macro-nonterminal">$method</span>:ident($(<span class="macro-nonterminal">$arg</span>:ident),<span class="kw-2">*</span>)) =&gt; {
-        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="macro-nonterminal">$self</span>.<span class="number">0 </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(conn) =&gt; conn.<span class="macro-nonterminal">$method</span>($(<span class="macro-nonterminal">$arg</span>),<span class="kw-2">*</span>),
-        }
-    };
+    <span class="attr">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_migrate(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span><span class="kw">crate</span>::migrate::Migrate + Send + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="self">self</span>.backend.as_migrate()
+    }
 }
 
 <span class="kw">impl </span>Connection <span class="kw">for </span>AnyConnection {
@@ -358,39 +186,15 @@
     <span class="kw">type </span>Options = AnyConnectOptions;
 
     <span class="kw">fn </span>close(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.close(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(conn) =&gt; conn.close(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.close(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(conn) =&gt; conn.close(),
-        }
+        <span class="self">self</span>.backend.close()
     }
 
     <span class="kw">fn </span>close_hard(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.close_hard(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(conn) =&gt; conn.close_hard(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.close_hard(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(conn) =&gt; conn.close_hard(),
-        }
+        <span class="self">self</span>.backend.close()
     }
 
     <span class="kw">fn </span>ping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
-        <span class="macro">delegate_to_mut!</span>(<span class="self">self</span>.ping())
+        <span class="self">self</span>.backend.ping()
     }
 
     <span class="kw">fn </span>begin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt;
@@ -401,75 +205,25 @@
     }
 
     <span class="kw">fn </span>cached_statements_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.cached_statements_size(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(conn) =&gt; conn.cached_statements_size(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.cached_statements_size(),
-
-            <span class="comment">// no cache
-            </span><span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
-        }
+        <span class="self">self</span>.backend.cached_statements_size()
     }
 
-    <span class="kw">fn </span>clear_cached_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
-        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.clear_cached_statements(),
+    <span class="kw">fn </span>clear_cached_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="kw">crate</span>::Result&lt;()&gt;&gt; {
+        <span class="self">self</span>.backend.clear_cached_statements()
+    }
 
-            <span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-            </span>AnyConnectionKind::MySql(conn) =&gt; conn.clear_cached_statements(),
-
-            <span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.clear_cached_statements(),
-
-            <span class="comment">// no cache
-            </span><span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-            </span>AnyConnectionKind::Mssql(<span class="kw">_</span>) =&gt; Box::pin(futures_util::future::ok(())),
-        }
+    <span class="kw">fn </span>shrink_buffers(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.backend.shrink_buffers()
     }
 
     <span class="attr">#[doc(hidden)]
     </span><span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
-        <span class="macro">delegate_to_mut!</span>(<span class="self">self</span>.flush())
+        <span class="self">self</span>.backend.flush()
     }
 
     <span class="attr">#[doc(hidden)]
     </span><span class="kw">fn </span>should_flush(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">delegate_to!</span>(<span class="self">self</span>.should_flush())
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
-</span><span class="kw">impl </span>From&lt;postgres::PgConnection&gt; <span class="kw">for </span>AnyConnection {
-    <span class="kw">fn </span>from(conn: postgres::PgConnection) -&gt; <span class="self">Self </span>{
-        AnyConnection(AnyConnectionKind::Postgres(conn))
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
-</span><span class="kw">impl </span>From&lt;mssql::MssqlConnection&gt; <span class="kw">for </span>AnyConnection {
-    <span class="kw">fn </span>from(conn: mssql::MssqlConnection) -&gt; <span class="self">Self </span>{
-        AnyConnection(AnyConnectionKind::Mssql(conn))
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
-</span><span class="kw">impl </span>From&lt;mysql::MySqlConnection&gt; <span class="kw">for </span>AnyConnection {
-    <span class="kw">fn </span>from(conn: mysql::MySqlConnection) -&gt; <span class="self">Self </span>{
-        AnyConnection(AnyConnectionKind::MySql(conn))
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
-</span><span class="kw">impl </span>From&lt;sqlite::SqliteConnection&gt; <span class="kw">for </span>AnyConnection {
-    <span class="kw">fn </span>from(conn: sqlite::SqliteConnection) -&gt; <span class="self">Self </span>{
-        AnyConnection(AnyConnectionKind::Sqlite(conn))
+        <span class="self">self</span>.backend.should_flush()
     }
 }
 </code></pre></div></section></main></body></html>

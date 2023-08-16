@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["delete_expired_records","delete_saved_submissions_for_user","save_given_exercise_slide_submission","try_to_restore_previously_given_exercise_slide_submission"],"static":["CALLSITE","META"],"struct":["Record"]};
+window.SIDEBAR_ITEMS = {"fn":["delete_expired_records","delete_saved_submissions_for_user","save_given_exercise_slide_submission","try_to_restore_previously_given_exercise_slide_submission"]};

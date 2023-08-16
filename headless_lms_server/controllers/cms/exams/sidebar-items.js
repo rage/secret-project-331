@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_media","get_exam_instructions","update_exam_instructions"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_media","get_exam_instructions","update_exam_instructions"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["StrOrInt"],"struct":["Pagination","PaginationVisitor"]};
+window.SIDEBAR_ITEMS = {"enum":["StrOrInt"],"struct":["Pagination"]};

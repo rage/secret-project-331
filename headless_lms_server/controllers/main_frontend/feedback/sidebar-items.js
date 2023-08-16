@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","mark_as_read"],"static":["CALLSITE","META"],"struct":["MarkAsRead"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","mark_as_read"],"struct":["MarkAsRead"]};

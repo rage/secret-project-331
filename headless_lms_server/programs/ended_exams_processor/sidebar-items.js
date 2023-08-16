@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main","process_ended_exam","process_ended_exams"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["main","process_ended_exam","process_ended_exams"]};

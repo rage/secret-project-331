@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","redirect_to_storage_service","serve_upload","upload_from_exercise_service"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","redirect_to_storage_service","serve_upload","upload_from_exercise_service"]};

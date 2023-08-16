@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-roots-0.22.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki_roots" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki_roots/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-roots-0.24.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki_roots" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../webpki_roots/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -5502,6 +5502,82 @@
 <a href="#5502" id="5502">5502</a>
 <a href="#5503" id="5503">5503</a>
 <a href="#5504" id="5504">5504</a>
+<a href="#5505" id="5505">5505</a>
+<a href="#5506" id="5506">5506</a>
+<a href="#5507" id="5507">5507</a>
+<a href="#5508" id="5508">5508</a>
+<a href="#5509" id="5509">5509</a>
+<a href="#5510" id="5510">5510</a>
+<a href="#5511" id="5511">5511</a>
+<a href="#5512" id="5512">5512</a>
+<a href="#5513" id="5513">5513</a>
+<a href="#5514" id="5514">5514</a>
+<a href="#5515" id="5515">5515</a>
+<a href="#5516" id="5516">5516</a>
+<a href="#5517" id="5517">5517</a>
+<a href="#5518" id="5518">5518</a>
+<a href="#5519" id="5519">5519</a>
+<a href="#5520" id="5520">5520</a>
+<a href="#5521" id="5521">5521</a>
+<a href="#5522" id="5522">5522</a>
+<a href="#5523" id="5523">5523</a>
+<a href="#5524" id="5524">5524</a>
+<a href="#5525" id="5525">5525</a>
+<a href="#5526" id="5526">5526</a>
+<a href="#5527" id="5527">5527</a>
+<a href="#5528" id="5528">5528</a>
+<a href="#5529" id="5529">5529</a>
+<a href="#5530" id="5530">5530</a>
+<a href="#5531" id="5531">5531</a>
+<a href="#5532" id="5532">5532</a>
+<a href="#5533" id="5533">5533</a>
+<a href="#5534" id="5534">5534</a>
+<a href="#5535" id="5535">5535</a>
+<a href="#5536" id="5536">5536</a>
+<a href="#5537" id="5537">5537</a>
+<a href="#5538" id="5538">5538</a>
+<a href="#5539" id="5539">5539</a>
+<a href="#5540" id="5540">5540</a>
+<a href="#5541" id="5541">5541</a>
+<a href="#5542" id="5542">5542</a>
+<a href="#5543" id="5543">5543</a>
+<a href="#5544" id="5544">5544</a>
+<a href="#5545" id="5545">5545</a>
+<a href="#5546" id="5546">5546</a>
+<a href="#5547" id="5547">5547</a>
+<a href="#5548" id="5548">5548</a>
+<a href="#5549" id="5549">5549</a>
+<a href="#5550" id="5550">5550</a>
+<a href="#5551" id="5551">5551</a>
+<a href="#5552" id="5552">5552</a>
+<a href="#5553" id="5553">5553</a>
+<a href="#5554" id="5554">5554</a>
+<a href="#5555" id="5555">5555</a>
+<a href="#5556" id="5556">5556</a>
+<a href="#5557" id="5557">5557</a>
+<a href="#5558" id="5558">5558</a>
+<a href="#5559" id="5559">5559</a>
+<a href="#5560" id="5560">5560</a>
+<a href="#5561" id="5561">5561</a>
+<a href="#5562" id="5562">5562</a>
+<a href="#5563" id="5563">5563</a>
+<a href="#5564" id="5564">5564</a>
+<a href="#5565" id="5565">5565</a>
+<a href="#5566" id="5566">5566</a>
+<a href="#5567" id="5567">5567</a>
+<a href="#5568" id="5568">5568</a>
+<a href="#5569" id="5569">5569</a>
+<a href="#5570" id="5570">5570</a>
+<a href="#5571" id="5571">5571</a>
+<a href="#5572" id="5572">5572</a>
+<a href="#5573" id="5573">5573</a>
+<a href="#5574" id="5574">5574</a>
+<a href="#5575" id="5575">5575</a>
+<a href="#5576" id="5576">5576</a>
+<a href="#5577" id="5577">5577</a>
+<a href="#5578" id="5578">5578</a>
+<a href="#5579" id="5579">5579</a>
+<a href="#5580" id="5580">5580</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//!
 //! This library is automatically generated from the Mozilla certificate
 //! store via mkcert.org.  Don&#39;t edit it.
@@ -7459,6 +7535,35 @@
   </span>webpki::TrustAnchor {
     subject: <span class="string">b&quot;1\x0b0\t\x06\x03U\x04\x06\x13\x02US1\x100\x0e\x06\x03U\x04\x08\x13\x07Arizona1\x130\x11\x06\x03U\x04\x07\x13\nScottsdale1%0#\x06\x03U\x04\n\x13\x1cStarfield Technologies, Inc.1;09\x06\x03U\x04\x03\x132Starfield Services Root Certificate Authority - G2&quot;</span>,
     spki: <span class="string">b&quot;0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x01\x0f\x000\x82\x01\n\x02\x82\x01\x01\x00\xd5\x0c:\xc4*\xf9N\xe2\xf5\xbe\x19\x97_\x8e\x88S\xb1\x1f?\xcb\xcf\x9f \x13m):\xc8\x0f}&lt;\xf7kv8c\xd96`\xa8\x9b^\\\x00\x80\xb2/Y\x7f\xf6\x87\xf9%C\x86\xe7i\x1bR\x9a\x90\xe1q\xe3\xd8-\rNo\xf6\xc8I\xd9\xb6\xf3\x1aV\xae+\xb6t\x14\xeb\xcf\xfb&amp;\xe3\x1a\xba\x1d\x96.j;X\x94\x89GV\xff%\xa0\x93pS\x83\xda\x84t\x14\xc3g\x9e\x04h:\xdf\x8e@Z\x1dJN\xcfC\x91;\xe7V\xd6\x00p\xcbR\xee{}\xae:\xe7\xbc1\xf9E\xf6\xc2`\xcf\x13Y\x02+\x80\xcc4G\xdf\xb9\xde\x90em\x02\xcf,\x91\xa6\xa6\xe7\xde\x85\x18I|fN\xa3:m\xa9\xb5\xee4.\xba\r\x03\xb83\xdfG\xeb\xb1k\x8d%\xd9\x9b\xce\x81\xd1EF2\x96p\x87\xde\x02\x0eIC\x85\xb6ls\xbbd\xeaaA\xac\xc9\xd4T\xdf\x87/\xc7\&quot;\xb2&amp;\xcc\x9fYTh\x9f\xfc\xbe*/\xc4U\x1cu@`\x17\x85\x02U9\x8b\x7f\x05\x02\x03\x01\x00\x01&quot;</span>,
+    name_constraints: <span class="prelude-val">None
+  </span>},
+
+  <span class="comment">/*
+   * Issuer: CN=BJCA Global Root CA2 O=BEIJING CERTIFICATE AUTHORITY
+   * Subject: CN=BJCA Global Root CA2 O=BEIJING CERTIFICATE AUTHORITY
+   * Label: &quot;BJCA Global Root CA2&quot;
+   * Serial: 58605626836079930195615843123109055211
+   * MD5 Fingerprint: 5e:0a:f6:47:5f:a6:14:e8:11:01:95:3f:4d:01:eb:3c
+   * SHA1 Fingerprint: f4:27:86:eb:6e:b8:6d:88:31:67:02:fb:ba:66:a4:53:00:aa:7a:a6
+   * SHA256 Fingerprint: 57:4d:f6:93:1e:27:80:39:66:7b:72:0a:fd:c1:60:0f:c2:7e:b6:6d:d3:09:29:79:fb:73:85:64:87:21:28:82
+   * -----BEGIN CERTIFICATE-----
+   * MIICJTCCAaugAwIBAgIQLBcIfWQqwP6FGFkGz7RK6zAKBggqhkjOPQQDAzBUMQsw
+   * CQYDVQQGEwJDTjEmMCQGA1UECgwdQkVJSklORyBDRVJUSUZJQ0FURSBBVVRIT1JJ
+   * VFkxHTAbBgNVBAMMFEJKQ0EgR2xvYmFsIFJvb3QgQ0EyMB4XDTE5MTIxOTAzMTgy
+   * MVoXDTQ0MTIxMjAzMTgyMVowVDELMAkGA1UEBhMCQ04xJjAkBgNVBAoMHUJFSUpJ
+   * TkcgQ0VSVElGSUNBVEUgQVVUSE9SSVRZMR0wGwYDVQQDDBRCSkNBIEdsb2JhbCBS
+   * b290IENBMjB2MBAGByqGSM49AgEGBSuBBAAiA2IABJ3LgJGNU2e1uVCxA/jlSR9B
+   * IgmwUVJY1is0j8USRhTFiy8shP8sbqjV8QnjAyEUxEM9fMEsxEtqSs3ph+B99iK+
+   * +kpRuDCK/eHeGBIK9ke35xe/J4rUQUyWPGCWwf0VHKNCMEAwHQYDVR0OBBYEFNJK
+   * sVF/BvDRgh9Obl+rg/xI1LCRMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQD
+   * AgEGMAoGCCqGSM49BAMDA2gAMGUCMBq8W9f+qdJUDkpd0m2xQNz0Q9XSSpkZElaA
+   * 94M04TVOSG0ED1cxMDAtsaqdAzjbBgIxAMvMh1PLet8gUXOQwKhbYdDFUDn9hf7B
+   * 43j4ptZLvZuHjw/l1lOWqzzIQNph91Oj9w==
+   * -----END CERTIFICATE-----
+   */
+  </span>webpki::TrustAnchor {
+    subject: <span class="string">b&quot;1\x0b0\t\x06\x03U\x04\x06\x13\x02CN1&amp;0$\x06\x03U\x04\n\x0c\x1dBEIJING CERTIFICATE AUTHORITY1\x1d0\x1b\x06\x03U\x04\x03\x0c\x14BJCA Global Root CA2&quot;</span>,
+    spki: <span class="string">b&quot;0\x10\x06\x07*\x86H\xce=\x02\x01\x06\x05+\x81\x04\x00\&quot;\x03b\x00\x04\x9d\xcb\x80\x91\x8dSg\xb5\xb9P\xb1\x03\xf8\xe5I\x1fA\&quot;\t\xb0QRX\xd6+4\x8f\xc5\x12F\x14\xc5\x8b/,\x84\xff,n\xa8\xd5\xf1\t\xe3\x03!\x14\xc4C=|\xc1,\xc4KjJ\xcd\xe9\x87\xe0}\xf6\&quot;\xbe\xfaJQ\xb80\x8a\xfd\xe1\xde\x18\x12\n\xf6G\xb7\xe7\x17\xbf\&#39;\x8a\xd4AL\x96&lt;`\x96\xc1\xfd\x15\x1c&quot;</span>,
     name_constraints: <span class="prelude-val">None
   </span>},
 
@@ -10832,6 +10937,53 @@
   </span>webpki::TrustAnchor {
     subject: <span class="string">b&quot;1\x1e0\x1c\x06\x03U\x04\x03\x0c\x15Atos TrustedRoot 20111\r0\x0b\x06\x03U\x04\n\x0c\x04Atos1\x0b0\t\x06\x03U\x04\x06\x13\x02DE&quot;</span>,
     spki: <span class="string">b&quot;0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x01\x0f\x000\x82\x01\n\x02\x82\x01\x01\x00\x95\x85;\x97o*;.;\xcf\xa6\xf3)5\xbe\xcf\x18\xac&gt;\xaa\xd9\xf8M\xa0&gt;\x1aG\xb9\xbc\x9a\xdf\xf2\xfe\xcc&gt;G\xe8z\x96\xc2$\x8e5\xf4\xa9\x0c\xfc\x82\xfdm\xc1rb\&#39;\xbd\xeak\xeb\xe7\x8a\xccT&gt;\x90P\xcf\x80\xd4\x95\xfb\xe8\xb5\x82\xd4\x14\xc5\xb6\xa9U%W\xdb\xb1P\xf6\xb0`dYzi\xcf\x03\xb7o\r\xbe\xca&gt;otr\xea\xaa0*sb\xbeI\x91a\xc8\x11\xfe\x0e\x03*\xf7j \xdc\x02\x15\r^\x15j\xfc\xe3\x82\xc1\xb5\xc5\x9dd\tl\xa3Y\x98\x07\&#39;\xc7\x1b\x96+atqlC\xf1\xf75\x89\x10\xe0\x9e\xecU\xa17\&quot;\xa2\x87\x04\x05,G}\xb4\x1c\xb9b)f(\xca\xb7\xe1\x93\xf5\xa4\x94\x03\x99\xb9p\x85\xb5\xe6H\xea\x8dP\xfc\xd9\xde\xcco\x07\x0e\xdd\x0br\x9d\x800\x16\x07\x95?(\x0e\xfd\xc5uOS\xd6t\x9a\xb4$.\x8e\x02\x91\xcfv\xc5\x9b\x1eUt\x9cx!\xb1\xf0-\xf1\x0b\x9f\xc2\xd5\x96\x18\x1f\xf0T\&quot;z\x8c\x07\x02\x03\x01\x00\x01&quot;</span>,
+    name_constraints: <span class="prelude-val">None
+  </span>},
+
+  <span class="comment">/*
+   * Issuer: CN=BJCA Global Root CA1 O=BEIJING CERTIFICATE AUTHORITY
+   * Subject: CN=BJCA Global Root CA1 O=BEIJING CERTIFICATE AUTHORITY
+   * Label: &quot;BJCA Global Root CA1&quot;
+   * Serial: 113562791157148395269083148143378328608
+   * MD5 Fingerprint: 42:32:99:76:43:33:36:24:35:07:82:9b:28:f9:d0:90
+   * SHA1 Fingerprint: d5:ec:8d:7b:4c:ba:79:f4:e7:e8:cb:9d:6b:ae:77:83:10:03:21:6a
+   * SHA256 Fingerprint: f3:89:6f:88:fe:7c:0a:88:27:66:a7:fa:6a:d2:74:9f:b5:7a:7f:3e:98:fb:76:9c:1f:a7:b0:9c:2c:44:d5:ae
+   * -----BEGIN CERTIFICATE-----
+   * MIIFdDCCA1ygAwIBAgIQVW9l47TZkGobCdFsPsBsIDANBgkqhkiG9w0BAQsFADBU
+   * MQswCQYDVQQGEwJDTjEmMCQGA1UECgwdQkVJSklORyBDRVJUSUZJQ0FURSBBVVRI
+   * T1JJVFkxHTAbBgNVBAMMFEJKQ0EgR2xvYmFsIFJvb3QgQ0ExMB4XDTE5MTIxOTAz
+   * MTYxN1oXDTQ0MTIxMjAzMTYxN1owVDELMAkGA1UEBhMCQ04xJjAkBgNVBAoMHUJF
+   * SUpJTkcgQ0VSVElGSUNBVEUgQVVUSE9SSVRZMR0wGwYDVQQDDBRCSkNBIEdsb2Jh
+   * bCBSb290IENBMTCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAPFmCL3Z
+   * xRVhy4QEQaVpN3cdwbB7+sN3SJATcmTRuHyQNZ0YeYjjlwE8R4HyDqKYDZ4/N+AZ
+   * spDyRhySsTphzvq3Rp4Dhtczbu33RYx2N95ulpH3134rhxfVizXuhJFyV9xgw8O5
+   * 58dnJCNPYwpj9mZ9S1WnP3hkSWkSl+BMDdMJoDIwOvqfwPKcxRIqLhy1BDPapDgR
+   * at7GGPZHOiJBhyL8xIkoVNiMpTAK+BcWyqw3/XmnkRd4OJmtWO2y3syJfQOcs4ll
+   * 5+M7sSKGjwZteAf9kRJ/sGsciQ35uMt0WwfCyPQ10WRjeulumijWML3mG90Vr4Tq
+   * nMfK9Q7q8l0ph49pczm+LiRvRSGsxdRpJQaDrXpIhRMsDQa4bHlW/KNnMoH1V6XK
+   * V0Jp6VwkYe/iMBhORJhVb3rCk9gZtt58R4oRTklH2yiUAguUSiz5EtBP6DF+bHq/
+   * pj+bOT0CFqMYs2esWz8sgytnOYFcuX6U1WTdno9uruh8W7TXakdI136z1C2OVnZO
+   * z2nxbkRs1CTqjSShGL+9V/6pmTW12xB3uD1IutbB5/EjPtffhZ0nPNRAvQoMvfXn
+   * jSXWgXSHRtQpdaJCbPdzied9v3pKH9MiyRVVz99vfFXQpIsHETdfg6YmV6YBW37+
+   * WGgHqel62bno/1Afq8K0wM7o6v0PvY1NuLxxAgMBAAGjQjBAMB0GA1UdDgQWBBTF
+   * 7+3M2I0hxkjk49cULqcWk+WYATAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQE
+   * AwIBBjANBgkqhkiG9w0BAQsFAAOCAgEAUoKsITQfI/Ki2Pm4rzc2IInRNwPWaZ+4
+   * YRC6ojGYWUfo0Q0lHhVBDOAqVdVXUsv45Mdpox1NcQJeXyFFYEhcCY5JEMEE3Kli
+   * awLwQ8hOnThJdMkycFRtwUf8jrQ2ntScvd0g1lPJGKm1Vrl2i5VnZu69mP6u775u
+   * +2D2/VnGKhs/I0qUJDAnyIm860Qkmss9vk/Ves6OF8tiwdneHg56/0OGNFK8YT88
+   * X7vZdrRTvJez/opMEi4r89fO4aL/3Xtw+zuhTaRjAv04l5U/BXCga99igUOLtFkN
+   * SoxUnMW7gZ/NfaXvCyUeOiDbHPwfmGcCCtRzRBPbUYQaVQNW4AB+dAb/OMRyHdOo
+   * P2gxXdMJxy6MW2Pg6Nwe0uxhHvLe5e/2mXZgLR6UcnHGCyoyx5JO1UbXHfmpGQrI
+   * +pXObSOYqgs4rZpWDW+N8TEAiMEXnM0ZNjX+VVOg4DwzX5Ze4jLp3zO7Bkqp2IRz
+   * znfSxqxx4VyjHQy7Ct9f4qNx2No3WqB4K/TUfet27fJhcKVlmtOJNBir+3I+17Q9
+   * eVzYH6Eze9mCUAyTF6ps3MKCuwJXNq+YJyo5UOGwifUll35HaBC07HPKs5fRJNz2
+   * YqAo07WjuGS3iGJCz51TzZm+ZGiPTx4SSPfSKcOYKMryMguTjClPPGAyzQWWYezy
+   * r/6zcCwupvI=
+   * -----END CERTIFICATE-----
+   */
+  </span>webpki::TrustAnchor {
+    subject: <span class="string">b&quot;1\x0b0\t\x06\x03U\x04\x06\x13\x02CN1&amp;0$\x06\x03U\x04\n\x0c\x1dBEIJING CERTIFICATE AUTHORITY1\x1d0\x1b\x06\x03U\x04\x03\x0c\x14BJCA Global Root CA1&quot;</span>,
+    spki: <span class="string">b&quot;0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\xf1f\x08\xbd\xd9\xc5\x15a\xcb\x84\x04A\xa5i7w\x1d\xc1\xb0{\xfa\xc3wH\x90\x13rd\xd1\xb8|\x905\x9d\x18y\x88\xe3\x97\x01&lt;G\x81\xf2\x0e\xa2\x98\r\x9e?7\xe0\x19\xb2\x90\xf2F\x1c\x92\xb1:a\xce\xfa\xb7F\x9e\x03\x86\xd73n\xed\xf7E\x8cv7\xden\x96\x91\xf7\xd7~+\x87\x17\xd5\x8b5\xee\x84\x91rW\xdc`\xc3\xc3\xb9\xe7\xc7g$#Oc\nc\xf6f}KU\xa7?xdIi\x12\x97\xe0L\r\xd3\t\xa020:\xfa\x9f\xc0\xf2\x9c\xc5\x12*.\x1c\xb5\x043\xda\xa48\x11j\xde\xc6\x18\xf6G:\&quot;A\x87\&quot;\xfc\xc4\x89(T\xd8\x8c\xa50\n\xf8\x17\x16\xca\xac7\xfdy\xa7\x91\x17x8\x99\xadX\xed\xb2\xde\xcc\x89}\x03\x9c\xb3\x89e\xe7\xe3;\xb1\&quot;\x86\x8f\x06mx\x07\xfd\x91\x12\x7f\xb0k\x1c\x89\r\xf9\xb8\xcbt[\x07\xc2\xc8\xf45\xd1dcz\xe9n\x9a(\xd60\xbd\xe6\x1b\xdd\x15\xaf\x84\xea\x9c\xc7\xca\xf5\x0e\xea\xf2])\x87\x8fis9\xbe.$oE!\xac\xc5\xd4i%\x06\x83\xadzH\x85\x13,\r\x06\xb8lyV\xfc\xa3g2\x81\xf5W\xa5\xcaWBi\xe9\\$a\xef\xe20\x18ND\x98Uoz\xc2\x93\xd8\x19\xb6\xde|G\x8a\x11NIG\xdb(\x94\x02\x0b\x94J,\xf9\x12\xd0O\xe81~lz\xbf\xa6?\x9b9=\x02\x16\xa3\x18\xb3g\xac[?,\x83+g9\x81\\\xb9~\x94\xd5d\xdd\x9e\x8fn\xae\xe8|[\xb4\xd7jGH\xd7~\xb3\xd4-\x8eVvN\xcfi\xf1nDl\xd4$\xea\x8d$\xa1\x18\xbf\xbdW\xfe\xa9\x995\xb5\xdb\x10w\xb8=H\xba\xd6\xc1\xe7\xf1#&gt;\xd7\xdf\x85\x9d\&#39;&lt;\xd4@\xbd\n\x0c\xbd\xf5\xe7\x8d%\xd6\x81t\x87F\xd4)u\xa2Bl\xf7s\x89\xe7}\xbfzJ\x1f\xd3\&quot;\xc9\x15U\xcf\xdfo|U\xd0\xa4\x8b\x07\x117_\x83\xa6&amp;W\xa6\x01[~\xfeXh\x07\xa9\xe9z\xd9\xb9\xe8\xffP\x1f\xab\xc2\xb4\xc0\xce\xe8\xea\xfd\x0f\xbd\x8dM\xb8\xbcq\x02\x03\x01\x00\x01&quot;</span>,
     name_constraints: <span class="prelude-val">None
   </span>},
 

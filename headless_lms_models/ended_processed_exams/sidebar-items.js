@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_unprocessed_ended_exams_by_timestamp","upsert"],"struct":["Record"]};
+window.SIDEBAR_ITEMS = {"fn":["get_unprocessed_ended_exams_by_timestamp","upsert"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["post_completions"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["post_completions"]};

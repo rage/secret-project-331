@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["ExerciseLanguageGroup","Record"]};
+window.SIDEBAR_ITEMS = {"fn":["insert"],"struct":["ExerciseLanguageGroup"]};

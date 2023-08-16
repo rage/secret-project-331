@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["URL"],"fn":["delete_users","fetch_recently_changed_user_details","main"],"static":["CALLSITE","META"],"struct":["Change","TMCRecentChanges"]};
+window.SIDEBAR_ITEMS = {"constant":["URL"],"fn":["delete_users","fetch_recently_changed_user_details","main"],"struct":["Change","TMCRecentChanges"]};

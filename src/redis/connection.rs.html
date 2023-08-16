@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.23.0/src/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ba5701c5741a7b69.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.70.0 (90c541806 2023-05-31)" data-search-js="search-e077946657036a58.js" data-settings-js="settings-298e1ea74db45b39.js" data-settings-css="settings-7bfb4c59cc6bc502.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-905937fbbdc8e9ea.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f61008743c98d196.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../redis/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.23.1/src/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../redis/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1512,9 +1512,53 @@
 <a href="#1512" id="1512">1512</a>
 <a href="#1513" id="1513">1513</a>
 <a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
+<a href="#1548" id="1548">1548</a>
+<a href="#1549" id="1549">1549</a>
+<a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
-<span class="kw">use </span>std::net::{<span class="self">self</span>, TcpStream, ToSocketAddrs};
+<span class="kw">use </span>std::net::{<span class="self">self</span>, SocketAddr, TcpStream, ToSocketAddrs};
 <span class="kw">use </span>std::ops::DerefMut;
 <span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>std::str::{from_utf8, FromStr};
@@ -1550,6 +1594,42 @@
 
 <span class="kw">static </span>DEFAULT_PORT: u16 = <span class="number">6379</span>;
 
+<span class="attr">#[inline(always)]
+</span><span class="kw">fn </span>connect_tcp(addr: (<span class="kw-2">&amp;</span>str, u16)) -&gt; io::Result&lt;TcpStream&gt; {
+    <span class="kw">let </span>socket = TcpStream::connect(addr)<span class="question-mark">?</span>;
+    <span class="attr">#[cfg(feature = <span class="string">&quot;keep-alive&quot;</span>)]
+    </span>{
+        <span class="comment">//For now rely on system defaults
+        </span><span class="kw">const </span>KEEP_ALIVE: socket2::TcpKeepalive = socket2::TcpKeepalive::new();
+        <span class="comment">//these are useless error that not going to happen
+        </span><span class="kw">let </span>socket2: socket2::Socket = socket.into();
+        socket2.set_tcp_keepalive(<span class="kw-2">&amp;</span>KEEP_ALIVE)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(socket2.into())
+    }
+    <span class="attr">#[cfg(not(feature = <span class="string">&quot;keep-alive&quot;</span>))]
+    </span>{
+        <span class="prelude-val">Ok</span>(socket)
+    }
+}
+
+<span class="attr">#[inline(always)]
+</span><span class="kw">fn </span>connect_tcp_timeout(addr: <span class="kw-2">&amp;</span>SocketAddr, timeout: Duration) -&gt; io::Result&lt;TcpStream&gt; {
+    <span class="kw">let </span>socket = TcpStream::connect_timeout(addr, timeout)<span class="question-mark">?</span>;
+    <span class="attr">#[cfg(feature = <span class="string">&quot;keep-alive&quot;</span>)]
+    </span>{
+        <span class="comment">//For now rely on system defaults
+        </span><span class="kw">const </span>KEEP_ALIVE: socket2::TcpKeepalive = socket2::TcpKeepalive::new();
+        <span class="comment">//these are useless error that not going to happen
+        </span><span class="kw">let </span>socket2: socket2::Socket = socket.into();
+        socket2.set_tcp_keepalive(<span class="kw-2">&amp;</span>KEEP_ALIVE)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(socket2.into())
+    }
+    <span class="attr">#[cfg(not(feature = <span class="string">&quot;keep-alive&quot;</span>))]
+    </span>{
+        <span class="prelude-val">Ok</span>(socket)
+    }
+}
+
 <span class="doccomment">/// This function takes a redis URL string and parses it into a URL
 /// as used by rust-url.  This is necessary as the default parser does
 /// not understand how redis URLs function.
@@ -1561,6 +1641,16 @@
         },
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
     }
+}
+
+<span class="doccomment">/// TlsMode indicates use or do not use verification of certification.
+/// Check [ConnectionAddr](ConnectionAddr::TcpTls::insecure) for more.
+</span><span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">pub enum </span>TlsMode {
+    <span class="doccomment">/// Secure verify certification.
+    </span>Secure,
+    <span class="doccomment">/// Insecure do not verify certification.
+    </span>Insecure,
 }
 
 <span class="doccomment">/// Defines the connection address.
@@ -1908,12 +1998,12 @@
             ConnectionAddr::Tcp(<span class="kw-2">ref </span>host, <span class="kw-2">ref </span>port) =&gt; {
                 <span class="kw">let </span>addr = (host.as_str(), <span class="kw-2">*</span>port);
                 <span class="kw">let </span>tcp = <span class="kw">match </span>timeout {
-                    <span class="prelude-val">None </span>=&gt; TcpStream::connect(addr)<span class="question-mark">?</span>,
+                    <span class="prelude-val">None </span>=&gt; connect_tcp(addr)<span class="question-mark">?</span>,
                     <span class="prelude-val">Some</span>(timeout) =&gt; {
                         <span class="kw">let </span><span class="kw-2">mut </span>tcp = <span class="prelude-val">None</span>;
                         <span class="kw">let </span><span class="kw-2">mut </span>last_error = <span class="prelude-val">None</span>;
                         <span class="kw">for </span>addr <span class="kw">in </span>addr.to_socket_addrs()<span class="question-mark">? </span>{
-                            <span class="kw">match </span>TcpStream::connect_timeout(<span class="kw-2">&amp;</span>addr, timeout) {
+                            <span class="kw">match </span>connect_tcp_timeout(<span class="kw-2">&amp;</span>addr, timeout) {
                                 <span class="prelude-val">Ok</span>(l) =&gt; {
                                     tcp = <span class="prelude-val">Some</span>(l);
                                     <span class="kw">break</span>;
@@ -1960,7 +2050,7 @@
                 <span class="kw">let </span>addr = (host.as_str(), port);
                 <span class="kw">let </span>tls = <span class="kw">match </span>timeout {
                     <span class="prelude-val">None </span>=&gt; {
-                        <span class="kw">let </span>tcp = TcpStream::connect(addr)<span class="question-mark">?</span>;
+                        <span class="kw">let </span>tcp = connect_tcp(addr)<span class="question-mark">?</span>;
                         <span class="kw">match </span>tls_connector.connect(host, tcp) {
                             <span class="prelude-val">Ok</span>(res) =&gt; res,
                             <span class="prelude-val">Err</span>(e) =&gt; {
@@ -1972,7 +2062,7 @@
                         <span class="kw">let </span><span class="kw-2">mut </span>tcp = <span class="prelude-val">None</span>;
                         <span class="kw">let </span><span class="kw-2">mut </span>last_error = <span class="prelude-val">None</span>;
                         <span class="kw">for </span>addr <span class="kw">in </span>(host.as_str(), port).to_socket_addrs()<span class="question-mark">? </span>{
-                            <span class="kw">match </span>TcpStream::connect_timeout(<span class="kw-2">&amp;</span>addr, timeout) {
+                            <span class="kw">match </span>connect_tcp_timeout(<span class="kw-2">&amp;</span>addr, timeout) {
                                 <span class="prelude-val">Ok</span>(l) =&gt; {
                                     tcp = <span class="prelude-val">Some</span>(l);
                                     <span class="kw">break</span>;
@@ -2012,14 +2102,14 @@
                 <span class="kw">let </span>conn = rustls::ClientConnection::new(Arc::new(config), host.try_into()<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>reader = <span class="kw">match </span>timeout {
                     <span class="prelude-val">None </span>=&gt; {
-                        <span class="kw">let </span>tcp = TcpStream::connect((host, port))<span class="question-mark">?</span>;
+                        <span class="kw">let </span>tcp = connect_tcp((host, port))<span class="question-mark">?</span>;
                         StreamOwned::new(conn, tcp)
                     }
                     <span class="prelude-val">Some</span>(timeout) =&gt; {
                         <span class="kw">let </span><span class="kw-2">mut </span>tcp = <span class="prelude-val">None</span>;
                         <span class="kw">let </span><span class="kw-2">mut </span>last_error = <span class="prelude-val">None</span>;
                         <span class="kw">for </span>addr <span class="kw">in </span>(host, port).to_socket_addrs()<span class="question-mark">? </span>{
-                            <span class="kw">match </span>TcpStream::connect_timeout(<span class="kw-2">&amp;</span>addr, timeout) {
+                            <span class="kw">match </span>connect_tcp_timeout(<span class="kw-2">&amp;</span>addr, timeout) {
                                 <span class="prelude-val">Ok</span>(l) =&gt; {
                                     tcp = <span class="prelude-val">Some</span>(l);
                                     <span class="kw">break</span>;
@@ -2932,19 +3022,17 @@
             ),
         ];
         <span class="kw">for </span>(url, expected) <span class="kw">in </span>cases.into_iter() {
-            <span class="kw">let </span>res = url_to_tcp_connection_info(url);
+            <span class="kw">let </span>res = url_to_tcp_connection_info(url).unwrap_err();
             <span class="macro">assert_eq!</span>(
-                res.as_ref().unwrap_err().kind(),
+                res.kind(),
                 <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
                 <span class="string">&quot;{}&quot;</span>,
-                res.as_ref().unwrap_err(),
+                <span class="kw-2">&amp;</span>res,
             );
-            <span class="macro">assert_eq!</span>(
-                res.as_ref().unwrap_err().to_string(),
-                expected,
-                <span class="string">&quot;{}&quot;</span>,
-                res.as_ref().unwrap_err(),
-            );
+            <span class="attr">#[allow(deprecated)]
+            </span><span class="kw">let </span>desc = std::error::Error::description(<span class="kw-2">&amp;</span>res);
+            <span class="macro">assert_eq!</span>(desc, expected, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;</span>res);
+            <span class="macro">assert_eq!</span>(res.detail(), <span class="prelude-val">None</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;</span>res);
         }
     }
 

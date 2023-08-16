@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["authorization","csv_export","error","exercise_repositories","models_requests","rate_limit_middleware_builder","request_id","request_span_middleware"]};
+window.SIDEBAR_ITEMS = {"mod":["authorization","csv_export","error","exercise_repositories","exercises","langs","models_requests","rate_limit_middleware_builder","request_id","request_span_middleware"]};

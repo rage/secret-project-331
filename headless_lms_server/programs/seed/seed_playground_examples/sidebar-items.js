@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["seed_playground_examples"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["seed_playground_examples"]};

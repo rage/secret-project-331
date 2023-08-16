@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["configure"],"static":["CALLSITE","META"],"struct":["ServerConfig","ServerConfigBuilder"]};
+window.SIDEBAR_ITEMS = {"fn":["configure"],"struct":["ServerConfig","ServerConfigBuilder"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["query","query_with"],"struct":["Map","Query"]};
+window.SIDEBAR_ITEMS = {"fn":["query","query_statement","query_statement_with","query_with"],"struct":["Map","Query"]};

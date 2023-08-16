@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_exercise_service","delete_exercise_service","get_exercise_service_by_id","get_exercise_services","update_exercise_service"],"static":["CALLSITE","META"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_exercise_service","delete_exercise_service","get_exercise_service_by_id","get_exercise_services","update_exercise_service"]};

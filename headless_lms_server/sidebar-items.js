@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["setup_file_store","setup_tracing"],"macro":["doc","doc_path","generated_docs"],"mod":["config","controllers","domain","prelude","programs"],"static":["CALLSITE","META"],"type":["OAuthClient"]};
+window.SIDEBAR_ITEMS = {"fn":["setup_file_store","setup_tracing"],"macro":["doc","doc_path","generated_docs"],"mod":["config","controllers","domain","prelude","programs"],"type":["OAuthClient"]};

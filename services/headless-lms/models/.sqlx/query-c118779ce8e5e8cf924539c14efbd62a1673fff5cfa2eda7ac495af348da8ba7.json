@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM users\nWHERE upstream_id IN (\n    SELECT UNNEST($1::integer [])\n  )\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Int4Array"]
+    },
+    "nullable": [false]
+  },
+  "hash": "c118779ce8e5e8cf924539c14efbd62a1673fff5cfa2eda7ac495af348da8ba7"
+}

@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM exercise_slides\nWHERE deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "order_number",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [false, false, false, true, false, false]
+  },
+  "hash": "85d460d9a14e12b66d387b3cdf0caf930e42725cd706c38a85d02613ae14130e"
+}

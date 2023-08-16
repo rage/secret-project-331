@@ -29,7 +29,7 @@ RETURNING id
         pkey_policy.into_uuid(),
         email_domain
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let _res2 = sqlx::query!(
@@ -42,7 +42,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(res.id)
@@ -71,7 +71,7 @@ RETURNING *;
         upstream_id,
         email_domain
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let _res2 = sqlx::query!(
@@ -84,7 +84,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(user)

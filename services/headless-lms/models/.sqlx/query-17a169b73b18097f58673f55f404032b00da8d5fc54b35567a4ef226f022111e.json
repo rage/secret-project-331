@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  exercise_task_submission_id,\n  grading_before_regrading,\n  grading_after_regrading,\n  regrading_id\nFROM exercise_task_regrading_submissions\nWHERE id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_task_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "grading_before_regrading",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "grading_after_regrading",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "regrading_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false]
+  },
+  "hash": "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e"
+}

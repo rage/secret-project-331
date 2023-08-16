@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            c.id as chapter_id,\n            c.name as chapter_name,\n            c.front_page_id as chapter_front_page_id\n        FROM chapters c\n        WHERE c.id = $1\n        AND c.course_id = $2\n            AND c.deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "chapter_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "chapter_front_page_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false, false, true]
+  },
+  "hash": "aadc81fd1c59e2292dfdf9e8f80d435c894afe80817ac28da9c868f5337de1e4"
+}

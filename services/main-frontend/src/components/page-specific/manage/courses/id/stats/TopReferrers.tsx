@@ -36,10 +36,13 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
       })
       .sort((a, b) => a.visitors - b.visitors)
     const totalCountsByReferrerObject: { [referrer: string]: number } =
-      totalCountsByReferrer.reduce((acc, d) => {
-        acc[d.referrer ?? "null"] = d.visitors
-        return acc
-      }, {} as Record<string, number>)
+      totalCountsByReferrer.reduce(
+        (acc, d) => {
+          acc[d.referrer ?? "null"] = d.visitors
+          return acc
+        },
+        {} as Record<string, number>,
+      )
     return totalCountsByReferrerObject
   }, [query.data])
 

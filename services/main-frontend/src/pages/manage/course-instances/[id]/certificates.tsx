@@ -45,27 +45,30 @@ const CertificationsPage: React.FC<Props> = ({ query }) => {
   const courseInstanceId = query.id
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
-  const getCourseInstance = useQuery(["course-instance", courseInstanceId], () => {
-    return fetchCourseInstance(courseInstanceId)
+  const getCourseInstance = useQuery({
+    queryKey: ["course-instance", courseInstanceId],
+    queryFn: () => {
+      return fetchCourseInstance(courseInstanceId)
+    },
   })
   const courseId = getCourseInstance.data?.course_id
-  const getCourse = useQuery(
-    ["course", courseId],
-    () => {
+  const getCourse = useQuery({
+    queryKey: ["course", courseId],
+    queryFn: () => {
       if (courseId) {
         return fetchCourseStructure(courseId)
       } else {
         throw new Error("Invalid state")
       }
     },
-    { enabled: !!courseId },
-  )
-  const getCertificateConfigurations = useQuery(
-    ["certificate-configurations-for-instance", courseInstanceId],
-    () => {
+    enabled: !!courseId,
+  })
+  const getCertificateConfigurations = useQuery({
+    queryKey: ["certificate-configurations-for-instance", courseInstanceId],
+    queryFn: () => {
       return fetchCertificateConfigurations(courseInstanceId)
     },
-  )
+  })
   const updateConfigurationMutation = useToastMutation(
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)

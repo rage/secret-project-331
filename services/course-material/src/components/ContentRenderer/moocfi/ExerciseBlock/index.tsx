@@ -86,7 +86,9 @@ const ExerciseBlock: React.FC<
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = [`exercise`, id]
-  const getCourseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const getCourseMaterialExercise = useQuery({
+    queryKey: queryUniqueKey,
+    queryFn: () => fetchExerciseById(id),
     enabled: showExercise,
     onSuccess: (data) => {
       if (data.exercise_status?.score_given) {

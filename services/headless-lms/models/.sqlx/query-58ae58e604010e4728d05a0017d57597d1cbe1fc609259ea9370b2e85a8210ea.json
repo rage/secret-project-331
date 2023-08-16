@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM course_module_completion_certificates\nWHERE user_id = $1\n  AND course_module_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "name_on_certificate",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "verification_id",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false]
+  },
+  "hash": "58ae58e604010e4728d05a0017d57597d1cbe1fc609259ea9370b2e85a8210ea"
+}

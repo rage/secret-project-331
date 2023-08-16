@@ -32,7 +32,10 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery(["playground-examples"], () => fetchPlaygroundExamples())
+  const getPlaygroundExamples = useQuery({
+    queryKey: ["playground-examples"],
+    queryFn: () => fetchPlaygroundExamples(),
+  })
   const saveMutation = useToastMutation(
     savePlaygroundExample,
     {

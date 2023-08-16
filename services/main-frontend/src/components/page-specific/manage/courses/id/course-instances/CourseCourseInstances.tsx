@@ -29,9 +29,10 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
 }) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
-  const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
-    fetchCourseInstances(courseId),
-  )
+  const getCourseInstances = useQuery({
+    queryKey: [`course-${courseId}-course-instances`],
+    queryFn: () => fetchCourseInstances(courseId),
+  })
 
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)

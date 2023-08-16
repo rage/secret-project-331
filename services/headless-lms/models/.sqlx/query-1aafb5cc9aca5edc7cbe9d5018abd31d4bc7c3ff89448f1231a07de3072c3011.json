@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT status AS \"status: ProposalStatus\"\nFROM proposed_block_edits\nWHERE proposal_id = $1\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "status: ProposalStatus",
+        "type_info": {
+          "Custom": {
+            "name": "proposal_status",
+            "kind": {
+              "Enum": ["pending", "accepted", "rejected"]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "1aafb5cc9aca5edc7cbe9d5018abd31d4bc7c3ff89448f1231a07de3072c3011"
+}

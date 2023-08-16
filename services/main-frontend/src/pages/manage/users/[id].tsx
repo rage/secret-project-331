@@ -23,7 +23,10 @@ const Area = styled.div`
 
 const UserPage: React.FC<React.PropsWithChildren<UserPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const userDetailsQuery = useQuery(["user-details", query.id], () => getUserDetails(query.id))
+  const userDetailsQuery = useQuery({
+    queryKey: ["user-details", query.id],
+    queryFn: () => getUserDetails(query.id),
+  })
 
   if (userDetailsQuery.isError) {
     return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />

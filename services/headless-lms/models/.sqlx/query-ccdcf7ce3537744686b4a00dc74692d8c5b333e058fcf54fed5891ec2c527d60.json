@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "public_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "internal_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_reprocessing_submissions_at_once",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, true, false]
+  },
+  "hash": "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60"
+}

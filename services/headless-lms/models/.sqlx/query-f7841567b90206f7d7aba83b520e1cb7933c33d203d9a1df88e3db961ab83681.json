@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO email_templates (name, course_instance_id, subject)\nVALUES ($1, $2, $3)\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "content",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "subject",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_completions_threshold",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "points_threshold",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Varchar", "Uuid", "Varchar"]
+    },
+    "nullable": [false, false, false, true, true, false, true, true, true, false]
+  },
+  "hash": "f7841567b90206f7d7aba83b520e1cb7933c33d203d9a1df88e3db961ab83681"
+}

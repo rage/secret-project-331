@@ -20,9 +20,10 @@ export interface CourseVisitorsByCountryProps {
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
-  const query = useQuery([`course-page-visit-datum-summary-by-pages-${courseId}`], () =>
-    fetchCoursePageVisitDatumSummaryByPages(courseId),
-  )
+  const query = useQuery({
+    queryKey: [`course-page-visit-datum-summary-by-pages-${courseId}`],
+    queryFn: () => fetchCoursePageVisitDatumSummaryByPages(courseId),
+  })
 
   const courseStructure = useCourseStructure(courseId)
 

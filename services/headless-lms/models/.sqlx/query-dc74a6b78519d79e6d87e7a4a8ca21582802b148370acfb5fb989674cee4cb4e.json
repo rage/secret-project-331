@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT pr.id as id,\n  pr.course_id as course_id,\n  pr.exercise_id as exercise_id,\n  pr.peer_reviews_to_give as peer_reviews_to_give,\n  pr.peer_reviews_to_receive as peer_reviews_to_receive,\n  pr.accepting_threshold as accepting_threshold,\n  pr.accepting_strategy AS \"accepting_strategy: _\"\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_review_configs pr on e.id = pr.exercise_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "peer_reviews_to_give",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "peer_reviews_to_receive",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "accepting_threshold",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "accepting_strategy: _",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_accepting_strategy",
+            "kind": {
+              "Enum": [
+                "automatically_accept_or_reject_by_average",
+                "automatically_accept_or_manual_review_by_average",
+                "manual_review_everything"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, true, false, false, false, false]
+  },
+  "hash": "dc74a6b78519d79e6d87e7a4a8ca21582802b148370acfb5fb989674cee4cb4e"
+}

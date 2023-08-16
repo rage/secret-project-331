@@ -24,7 +24,10 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const [updatedTerm, setUpdatedTerm] = useState("")
   const [updatedDefinition, setUpdatedDefinition] = useState("")
   const [editingTerm, setEditingTerm] = useState<string | null>(null)
-  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
+  const glossary = useQuery({
+    queryKey: [`glossary-${courseId}`],
+    queryFn: () => fetchGlossary(courseId),
+  })
   const createMutation = useToastMutation(
     () => postNewTerm(courseId, newTerm, newDefinition),
     {

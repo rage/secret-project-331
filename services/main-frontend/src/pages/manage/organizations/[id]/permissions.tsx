@@ -21,7 +21,10 @@ interface Props {
 
 const OrganizationPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
+  const organization = useQuery({
+    queryKey: [`organization-${query.id}`],
+    queryFn: () => fetchOrganization(query.id),
+  })
 
   return (
     <div

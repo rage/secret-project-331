@@ -11,9 +11,6 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
 import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
-
-// Prevent rehydration mismatch by preloading english translations
-import "../shared-module/locales/en/example-exercise.json"
 import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 

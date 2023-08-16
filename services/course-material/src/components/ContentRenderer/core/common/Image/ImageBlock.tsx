@@ -30,6 +30,8 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
     title,
     url,
     width,
+    aspectRatio,
+    scale,
   } = data.attributes
 
   const { terms } = useContext(GlossaryContext)
@@ -90,6 +92,8 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
                   max-width: 100%;
                   height: auto;
                   margin: 1rem 0;
+                  ${scale && `transform: scale(${scale});`}
+                  ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
                   ${className === "is-style-rounded" && "border-radius: 9999px"}
                 `}
                 src={url}

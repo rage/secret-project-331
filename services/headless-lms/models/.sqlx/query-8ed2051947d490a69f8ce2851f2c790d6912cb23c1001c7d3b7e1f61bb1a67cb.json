@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO pages(\n    course_id,\n    exam_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    chapter_id,\n    content_search_language,\n    page_language_group_id\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from,\n  pages.hidden,\n  page_language_group_id\n          ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "url_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "content",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 10,
+        "name": "order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 12,
+        "name": "hidden",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "page_language_group_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Jsonb", "Varchar", "Varchar", "Int4", "Uuid", "Varchar", "Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "8ed2051947d490a69f8ce2851f2c790d6912cb23c1001c7d3b7e1f61bb1a67cb"
+}

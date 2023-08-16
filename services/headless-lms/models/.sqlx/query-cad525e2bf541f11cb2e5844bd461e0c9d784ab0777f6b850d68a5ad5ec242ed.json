@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_review_configs\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "peer_reviews_to_give",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "peer_reviews_to_receive",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "accepting_threshold",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 9,
+        "name": "accepting_strategy: _",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_accepting_strategy",
+            "kind": {
+              "Enum": [
+                "automatically_accept_or_reject_by_average",
+                "automatically_accept_or_manual_review_by_average",
+                "manual_review_everything"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, true, false, false, false, false]
+  },
+  "hash": "cad525e2bf541f11cb2e5844bd461e0c9d784ab0777f6b850d68a5ad5ec242ed"
+}

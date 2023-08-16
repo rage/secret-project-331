@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc"
+}

@@ -21,9 +21,10 @@ interface Props {
 
 const CourseInstancePermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const courseInstance = useQuery([`course-instance-${query.id}`], () =>
-    fetchCourseInstance(query.id),
-  )
+  const courseInstance = useQuery({
+    queryKey: [`course-instance-${query.id}`],
+    queryFn: () => fetchCourseInstance(query.id),
+  })
 
   return (
     <div

@@ -18,9 +18,10 @@ export interface CourseTranslationsListProps {
 const CourseLanguageVersionsList: React.FC<
   React.PropsWithChildren<CourseTranslationsListProps>
 > = ({ courseId }) => {
-  const getCourseLanguageVersions = useQuery([formatLanguageVersionsQueryKey(courseId)], () =>
-    fetchCourseLanguageVersions(courseId),
-  )
+  const getCourseLanguageVersions = useQuery({
+    queryKey: [formatLanguageVersionsQueryKey(courseId)],
+    queryFn: () => fetchCourseLanguageVersions(courseId),
+  })
   return (
     <>
       {getCourseLanguageVersions.isError && (

@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM user_course_settings\nWHERE current_course_id = ANY($1)\n  AND user_id = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_language_group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "current_course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "current_course_instance_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray", "Uuid"]
+    },
+    "nullable": [false, false, false, false, true, false, false]
+  },
+  "hash": "a0b48249b8e8eaabcb2549b040ac9c368170235edd5c605028ed2d16f72e1ce6"
+}

@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ed.id AS id,\n  u.id AS to,\n  et.subject AS subject,\n  et.content AS body\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  JOIN users u ON u.id = ed.user_id\nWHERE ed.deleted_at IS NULL\n  AND ed.sent = FALSE\n  AND ed.error IS NULL\nLIMIT 10000;\n  ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "to",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "subject",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "body",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [false, false, true, true]
+  },
+  "hash": "12678b433a9c84513a0c100571b2d82db27fbc569e2b9c79b23e31906be0f559"
+}

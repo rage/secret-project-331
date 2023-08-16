@@ -4,13 +4,13 @@ import { fetchCourseLanguageVersions } from "../services/backend"
 import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 
 const useCourseLanguageVersions = (courseId: string | undefined | null) => {
-  const query = useQuery(
-    [`course-language-versions-${courseId}`],
-    () => {
+  const query = useQuery({
+    queryKey: [`course-language-versions-${courseId}`],
+    queryFn: () => {
       return fetchCourseLanguageVersions(assertNotNullOrUndefined(courseId))
     },
-    { enabled: courseId !== undefined && courseId !== null },
-  )
+    enabled: courseId !== undefined && courseId !== null,
+  })
   return query
 }
 export default useCourseLanguageVersions

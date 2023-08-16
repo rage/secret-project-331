@@ -139,6 +139,7 @@ use headless_lms_models::{
     student_countries::StudentCountry,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
+    user_research_consents::UserResearchConsent,
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -1516,6 +1517,22 @@ fn models() {
         map.insert("key1".to_string(), "val1".to_string());
         map.insert("key2".to_string(), "val2".to_string());
         map
+    });
+
+    doc!(HashMap<String, u32>, {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), 1);
+        map.insert("key2".to_string(), 2);
+        map
+    });
+
+    doc!(UserResearchConsent {
+        id,
+        user_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        research_consent
     });
 
     doc!(

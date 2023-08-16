@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_task_regrading_submissions (\n    id,\n    regrading_id,\n    exercise_task_submission_id,\n    grading_before_regrading\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "2593886473365e89ef8dfa6c1d6be5457fa0ab17b15d57d11dae06f753433e32"
+}

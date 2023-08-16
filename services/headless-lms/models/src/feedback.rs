@@ -45,7 +45,7 @@ RETURNING id
         new_feedback.selected_text,
         new_feedback.page_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     for (n, block) in new_feedback.related_blocks.iter().enumerate() {
         sqlx::query!(
@@ -58,7 +58,7 @@ VALUES ($1, $2, $3, $4)
             block.text,
             n as i32
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     }
     tx.commit().await?;

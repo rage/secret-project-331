@@ -58,9 +58,10 @@ const CourseInstancePointsList: React.FC<
     }
   }
 
-  const getPointsList = useQuery([`point-list-${courseInstanceId}`], () =>
-    getPoints(courseInstanceId),
-  )
+  const getPointsList = useQuery({
+    queryKey: [`point-list-${courseInstanceId}`],
+    queryFn: () => getPoints(courseInstanceId),
+  })
 
   const instanceTotalPoints = getPointsList.isSuccess
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)
@@ -73,7 +74,9 @@ const CourseInstancePointsList: React.FC<
         flex-direction: column;
         color: #707070;
         font-weight: 600;
-        font-family: Josefin Sans, sans-serif;
+        font-family:
+          Josefin Sans,
+          sans-serif;
 
         margin-top: 40px;
         ${respondToOrLarger.sm} {

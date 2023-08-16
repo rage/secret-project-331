@@ -31,11 +31,11 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
 }) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
-  const getExamsInstructions = useQuery(
-    [`exam-${examsId}-instructions`],
-    () => fetchExamsInstructions(examsId),
-    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
-  )
+  const getExamsInstructions = useQuery({
+    queryKey: [`exam-${examsId}-instructions`],
+    queryFn: () => fetchExamsInstructions(examsId),
+    onSuccess: () => setNeedToRunMigrationsAndValidations(true),
+  })
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
     const res = await updateExamsInstructions(examsId, {

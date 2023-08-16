@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "private_spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 2,
+        "name": "public_spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "model_solution_spec",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray"]
+    },
+    "nullable": [false, true, true, true]
+  },
+  "hash": "010fcb1f8c7fe8dc1afaefce020b0ac85c2205024e87d1ec6acdaa3441c5dbee"
+}

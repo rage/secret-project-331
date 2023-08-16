@@ -50,15 +50,18 @@ interface Sorting {
 const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], async () => {
-    const completions = await getCompletions(courseInstanceId)
-    const sortedCourseModules = completions.course_modules.sort(
-      (a, b) => a.order_number - b.order_number,
-    )
-    return {
-      sortedCourseModules,
-      users: completions.users_with_course_module_completions.map(prepareUser),
-    }
+  const getCompletionsList = useQuery({
+    queryKey: [`completions-list-${courseInstanceId}`],
+    queryFn: async () => {
+      const completions = await getCompletions(courseInstanceId)
+      const sortedCourseModules = completions.course_modules.sort(
+        (a, b) => a.order_number - b.order_number,
+      )
+      return {
+        sortedCourseModules,
+        users: completions.users_with_course_module_completions.map(prepareUser),
+      }
+    },
   })
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })

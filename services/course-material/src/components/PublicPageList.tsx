@@ -18,9 +18,10 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
   organizationSlug,
 }) => {
   const { t } = useTranslation()
-  const getAllCoursePages = useQuery([`course-${courseId}-all-pages`], () =>
-    fetchAllCoursePages(courseId),
-  )
+  const getAllCoursePages = useQuery({
+    queryKey: [`course-${courseId}-all-pages`],
+    queryFn: () => fetchAllCoursePages(courseId),
+  })
 
   return (
     <>

@@ -21,7 +21,7 @@ interface Props {
 
 const ExamPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const exam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
+  const exam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
 
   return (
     <div

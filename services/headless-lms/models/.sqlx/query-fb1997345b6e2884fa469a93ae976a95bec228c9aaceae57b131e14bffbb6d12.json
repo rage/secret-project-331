@@ -1,0 +1,55 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n        e.id as exercise_id,\n        e.name as exercise_name,\n        e.score_maximum,\n        ues.score_given,\n        tgd.teacher_decision as \"teacher_decision: _\",\n        ess.id as submission_id,\n        ess.updated_at\n        FROM exercises e\n        LEFT JOIN user_exercise_states ues on e.id = ues.exercise_id\n        LEFT JOIN teacher_grading_decisions tgd on tgd.user_exercise_state_id = ues.id\n        LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id\n        WHERE e.course_id = (\n            SELECT course_id\n            FROM course_instances\n            WHERE id = $1\n          )\n          AND e.deleted_at IS NULL\n          AND ess.user_id = $2\n          AND ues.user_id = $2\n        ORDER BY e.order_number ASC;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "score_maximum",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "score_given",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 4,
+        "name": "teacher_decision: _",
+        "type_info": {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false]
+  },
+  "hash": "fb1997345b6e2884fa469a93ae976a95bec228c9aaceae57b131e14bffbb6d12"
+}

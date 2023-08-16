@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM exercise_service_info\nWHERE exercise_service_id = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_service_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "grade_endpoint_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "public_spec_endpoint_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "model_solution_spec_endpoint_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_interface_iframe_path",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false, false, false]
+  },
+  "hash": "744d6db0137323cc6398d3dacc9a6a59866b6e23798c33e118a0683f6a58cd36"
+}

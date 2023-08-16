@@ -1,0 +1,85 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT proposed_page_edits.id AS \"page_proposal_id!\",\n  proposed_block_edits.id AS \"block_proposal_id!\",\n  page_id as \"page_id!\",\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending as \"pending!\",\n  block_attribute,\n  proposed_block_edits.status as \"block_proposal_status: ProposalStatus\",\n  proposed_page_edits.created_at as \"created_at!\",\n  pages.title as \"page_title!\",\n  pages.url_path as \"page_url_path!\"\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND pending = $2\n      AND deleted_at IS NULL\n    ORDER BY created_at DESC,\n      id\n    LIMIT $3 OFFSET $4\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\n  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id\nWHERE proposed_block_edits.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "page_proposal_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "block_proposal_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "page_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "block_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "original_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "changed_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "pending!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "block_attribute",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "block_proposal_status: ProposalStatus",
+        "type_info": {
+          "Custom": {
+            "name": "proposal_status",
+            "kind": {
+              "Enum": ["pending", "accepted", "rejected"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at!",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "page_title!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "page_url_path!",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Bool", "Int8", "Int8"]
+    },
+    "nullable": [true, false, true, true, false, false, false, true, false, false, true, true, true]
+  },
+  "hash": "17bc8217e956a003b026fa4c2a13670229d5426c0d89bb9338dcecb5068621cc"
+}

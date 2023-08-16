@@ -40,7 +40,7 @@ pub async fn insert_reference(
             new_ref.citation_key,
             new_ref.reference
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     }
     tx.commit().await?;

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM offered_answers_to_peer_review_temporary\nWHERE exercise_id = $1 AND user_id = $2 AND course_instance_id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "3b666d5cb36b69f10b7f2320980e21445748ced300a2a4492c7ffb4630cf2721"
+}

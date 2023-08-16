@@ -41,7 +41,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
   const now = useTime(5000)
 
-  const exam = useQuery([`exam-page-${examId}`], () => fetchExam(examId))
+  const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
 
   useEffect(() => {
     if (exam.isError) {
@@ -105,7 +105,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       >
         <div
           className={css`
-            font-family: Josefin Sans, sans-serif;
+            font-family:
+              Josefin Sans,
+              sans-serif;
             font-size: 30px;
             font-style: normal;
             font-weight: 600;

@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_review_questions (\n    id,\n    peer_review_config_id,\n    order_number,\n    question,\n    question_type\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "peer_review_question_type",
+            "kind": {
+              "Enum": ["essay", "scale"]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [false]
+  },
+  "hash": "63d58cdbacf38184f86b054d840c4d9a5dead359588dd2c6f028003211e0184e"
+}

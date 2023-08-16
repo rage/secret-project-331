@@ -20,16 +20,16 @@ const CourseMaterialPageBreadcrumbs: React.FC<
 > = ({ page, currentPagePath }) => {
   const isCourseFrontPage = currentPagePath === "/"
   const { t } = useTranslation()
-  const data = useQuery(
-    [`page-chapter-and-course-${page?.id}`],
-    () => {
+  const data = useQuery({
+    queryKey: [`page-chapter-and-course-${page?.id}`, page, page?.id],
+    queryFn: () => {
       if (!page) {
         return null
       }
       return fetchPageChapterAndCourse(page.id)
     },
-    { enabled: !!page && !isCourseFrontPage },
-  )
+    enabled: !!page && !isCourseFrontPage,
+  })
 
   if (isCourseFrontPage) {
     return null

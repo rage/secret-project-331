@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT hashing_key FROM page_visit_datum_daily_visit_hashing_keys\nWHERE valid_for_date = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "hashing_key",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": ["Date"]
+    },
+    "nullable": [false]
+  },
+  "hash": "0cad1ed88151ce17ea1b859b43de22620aaf28c6a0149937d7f865da67c19797"
+}

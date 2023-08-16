@@ -23,10 +23,10 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
   const { t } = useTranslation()
   const { courseModuleId } = query
   const router = useRouter()
-  const userCompletionInformation = useQuery(
-    [`course-module-${courseModuleId}-completion-information`],
-    () => fetchUserCompletionInformation(courseModuleId),
-  )
+  const userCompletionInformation = useQuery({
+    queryKey: [`course-module-${courseModuleId}-completion-information`],
+    queryFn: () => fetchUserCompletionInformation(courseModuleId),
+  })
 
   if (
     userCompletionInformation.isSuccess &&

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT organizations.id\nFROM pages\n  LEFT OUTER JOIN courses ON courses.id = pages.course_id\n  LEFT OUTER JOIN exams ON exams.id = pages.exam_id\n  JOIN organizations ON organizations.id = courses.organization_id\n  OR organizations.id = exams.organization_id\nWHERE pages.id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456"
+}

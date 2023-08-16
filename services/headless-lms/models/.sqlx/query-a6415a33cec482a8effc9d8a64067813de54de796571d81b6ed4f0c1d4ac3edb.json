@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT exercises.name as exercise_name,\n  exercises.order_number as exercise_order_number,\n  pages.order_number as page_order_number,\n  chapters.chapter_number,\n  stat_data.*\nFROM (\n    SELECT exercise_id,\n      COUNT(DISTINCT user_id) FILTER (\n        WHERE ues.activity_progress = 'completed'\n      ) as n_users_attempted,\n      COUNT(DISTINCT user_id) FILTER (\n        WHERE ues.score_given IS NOT NULL\n          and ues.score_given > 0\n          AND ues.activity_progress = 'completed'\n      ) as n_users_with_some_points,\n      COUNT(DISTINCT user_id) FILTER (\n        WHERE ues.score_given IS NOT NULL\n          and ues.score_given >= exercises.score_maximum\n          and ues.activity_progress = 'completed'\n      ) as n_users_with_max_points\n    FROM exercises\n      JOIN user_exercise_states ues on exercises.id = ues.exercise_id\n    WHERE exercises.course_id = $1\n      AND exercises.deleted_at IS NULL\n      AND ues.deleted_at IS NULL\n    GROUP BY exercise_id\n  ) as stat_data\n  JOIN exercises ON stat_data.exercise_id = exercises.id\n  JOIN pages on exercises.page_id = pages.id\n  JOIN chapters on pages.chapter_id = chapters.id\nWHERE exercises.deleted_at IS NULL\n  AND pages.deleted_at IS NULL\n  AND chapters.deleted_at IS NULL\n          ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "page_order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "chapter_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "n_users_attempted",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "n_users_with_some_points",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "n_users_with_max_points",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false, null, null, null]
+  },
+  "hash": "a6415a33cec482a8effc9d8a64067813de54de796571d81b6ed4f0c1d4ac3edb"
+}

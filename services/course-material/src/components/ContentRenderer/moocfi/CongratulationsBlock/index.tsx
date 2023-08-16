@@ -13,12 +13,12 @@ import Congratulations from "./Congratulations"
 const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
-  const getModuleCompletions = useQuery(
-    [`course-instance-${courseInstanceId}-module-completions`],
-    () =>
+  const getModuleCompletions = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-module-completions`],
+    queryFn: () =>
       fetchUserModuleCompletionStatuses(courseInstanceId as NonNullable<typeof courseInstanceId>),
-    { enabled: !!courseInstanceId },
-  )
+    enabled: !!courseInstanceId,
+  })
 
   const loginStateContext = useContext(LoginStateContext)
   if (!loginStateContext.signedIn) {

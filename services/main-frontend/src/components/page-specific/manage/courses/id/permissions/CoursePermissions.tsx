@@ -15,7 +15,10 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
   courseId,
 }) => {
   const { t } = useTranslation()
-  const course = useQuery([`course-${courseId}-permissions`], () => getCourse(courseId))
+  const course = useQuery({
+    queryKey: [`course-${courseId}-permissions`],
+    queryFn: () => getCourse(courseId),
+  })
 
   return (
     <div>

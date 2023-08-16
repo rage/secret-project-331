@@ -17,8 +17,9 @@ export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
       allow="encrypted-media"
       className={css`
         display: block;
-        width: 768px;
-        height: 576px;
+        width: 100%;
+        max-width: 768px;
+        height: 352px;
         border-radius: 4px;
         margin: 1rem 0;
       `}

@@ -53,6 +53,7 @@ import {
   ImageDeprecated3Attributes,
   ImageDeprecated4Attributes,
   ImageDeprecated5Attributes,
+  ImageDeprecated6Attributes,
   ListAttributes,
   ListDeprecated1Attributes,
   ListDeprecated2Attributes,
@@ -320,6 +321,9 @@ export function isImageAttributes(obj: unknown): obj is ImageAttributes {
     (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
     (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
     (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["aspectRatio"] === "undefined" ||
+      typeof typedObj["aspectRatio"] === "string") &&
+    (typeof typedObj["scale"] === "undefined" || typeof typedObj["scale"] === "string") &&
     (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
     typeof typedObj["linkDestination"] === "string" &&
     (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
@@ -345,32 +349,11 @@ export function isImageDeprecated1Attributes(obj: unknown): obj is ImageDeprecat
   const typedObj = obj as ImageDeprecated1Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
-    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
-    typeof typedObj["alt"] === "string" &&
-    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
-    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
-    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
-    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
-    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
-    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
-    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
-    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
-    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
-    typeof typedObj["linkDestination"] === "string" &&
-    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
     typeof typedObj["blurDataUrl"] === "string"
   )
 }
@@ -431,6 +414,7 @@ export function isImageDeprecated3Attributes(obj: unknown): obj is ImageDeprecat
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
         Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
     typeof typedObj["blurDataUrl"] === "string"
   )
@@ -440,20 +424,15 @@ export function isImageDeprecated4Attributes(obj: unknown): obj is ImageDeprecat
   const typedObj = obj as ImageDeprecated4Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
     (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
     typeof typedObj["alt"] === "string" &&
-    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
-    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["caption"] === "undefined" || Array.isArray(typedObj["caption"])) &&
     (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
-    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
-    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
     (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
     (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
     (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
-    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
     typeof typedObj["linkDestination"] === "string" &&
-    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&
@@ -467,20 +446,35 @@ export function isImageDeprecated5Attributes(obj: unknown): obj is ImageDeprecat
   const typedObj = obj as ImageDeprecated5Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
     (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
     typeof typedObj["alt"] === "string" &&
-    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
-    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["caption"] === "undefined" || Array.isArray(typedObj["caption"])) &&
     (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
-    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
-    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
     (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
     (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
     (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
-    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
-    typeof typedObj["linkDestination"] === "string" &&
-    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+        typeof typedObj["lock"] === "function") &&
+        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    typeof typedObj["blurDataUrl"] === "string"
+  )
+}
+
+export function isImageDeprecated6Attributes(obj: unknown): obj is ImageDeprecated6Attributes {
+  const typedObj = obj as ImageDeprecated6Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || Array.isArray(typedObj["caption"])) &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
     (typeof typedObj["lock"] === "undefined" ||
       (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
         typeof typedObj["lock"] === "function") &&

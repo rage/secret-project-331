@@ -17,9 +17,10 @@ export interface DeviceTypesProps {
 }
 
 const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ courseId }) => {
-  const query = useQuery([`course-page-visit-datum-summary-by-device-type-${courseId}`], () =>
-    fetchCoursePageVisitDatumSummariesByDeviceTypes(courseId),
-  )
+  const query = useQuery({
+    queryKey: [`course-page-visit-datum-summary-by-device-type-${courseId}`],
+    queryFn: () => fetchCoursePageVisitDatumSummariesByDeviceTypes(courseId),
+  })
 
   const aggregatedDataDeviceType = useMemo(() => {
     if (!query.data || query.data.length === 0) {

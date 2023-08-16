@@ -1,0 +1,67 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO user_exercise_task_states (\n    exercise_task_id,\n    user_exercise_slide_state_id,\n    score_given,\n    grading_progress\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (exercise_task_id, user_exercise_slide_state_id) DO\nUPDATE\nSET deleted_at = NULL,\n  score_given = $3,\n  grading_progress = $4\nRETURNING exercise_task_id,\n  user_exercise_slide_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\"\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_task_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_exercise_slide_state_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "score_given",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "grading_progress: _",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Float4",
+        {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [false, false, false, false, true, true, false]
+  },
+  "hash": "886ce1402b7ffe6cffd8db5fb2e0e6486d9aa6ba52db7183f76d009069ade7be"
+}

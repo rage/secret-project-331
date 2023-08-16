@@ -21,7 +21,7 @@ interface OrganizationPageProps {
 
 const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getExam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
+  const getExam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
   const [newCourse, setNewCourse] = useState("")
   const setCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {

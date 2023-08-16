@@ -77,7 +77,7 @@ function fail_minikube_version() {
 
 function check_sqlx_cli_version() {
   # just to be sure
-  MINIMUM_ACCEPTABLE_VERSION="0.6.2"
+  MINIMUM_ACCEPTABLE_VERSION="0.7.1"
   ensure_program_in_path cargo
   ensure_program_in_path cargo-sqlx
   SQLX=$(cargo sqlx --version | cut -d ' ' -f 2)

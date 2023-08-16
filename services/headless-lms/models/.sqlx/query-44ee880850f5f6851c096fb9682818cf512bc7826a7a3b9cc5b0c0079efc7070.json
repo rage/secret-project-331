@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO regradings (user_points_update_strategy, user_id)\nVALUES ($1, $2)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "user_points_update_strategy",
+            "kind": {
+              "Enum": [
+                "can-add-points-but-cannot-remove-points",
+                "can-add-points-and-can-remove-points"
+              ]
+            }
+          }
+        },
+        "Uuid"
+      ]
+    },
+    "nullable": [false]
+  },
+  "hash": "44ee880850f5f6851c096fb9682818cf512bc7826a7a3b9cc5b0c0079efc7070"
+}

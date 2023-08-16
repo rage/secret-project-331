@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_review_configs (id, course_id, exercise_id)\nVALUES ($1, $2, $3)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "1ebf7b64a269e1abfec20a6e963258d18e4da50b08361e1e5f3f8b2282718fc3"
+}

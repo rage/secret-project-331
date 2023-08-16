@@ -15,13 +15,16 @@ const OnlyRenderIfPermissions: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<ComponentProps>>
 > = ({ action, resource, children, elseRender }) => {
   const loginState = useContext(LoginStateContext)
-  const data = useQuery(
-    [`action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`],
-    () => {
+  const data = useQuery({
+    queryKey: [
+      `action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`,
+    ],
+    queryFn: () => {
       return authorize({ action, resource })
-    }, // 15 minutes
-    { cacheTime: 15 * 60 * 1000, enabled: loginState.signedIn === true },
-  )
+    },
+    cacheTime: 15 * 60 * 1000,
+    enabled: loginState.signedIn === true,
+  })
 
   if (loginState.signedIn !== true || data.isLoading || data.isError || !data.data) {
     if (elseRender) {

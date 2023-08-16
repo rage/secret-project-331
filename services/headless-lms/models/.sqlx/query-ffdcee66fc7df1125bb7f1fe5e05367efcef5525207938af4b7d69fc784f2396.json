@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM exercise_tasks\nWHERE exercise_slide_id = ANY($1)\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "assignment",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "private_spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "public_spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "model_solution_spec",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "order_number",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray"]
+    },
+    "nullable": [false, false, false, false, false, true, true, true, true, true, false, false]
+  },
+  "hash": "ffdcee66fc7df1125bb7f1fe5e05367efcef5525207938af4b7d69fc784f2396"
+}

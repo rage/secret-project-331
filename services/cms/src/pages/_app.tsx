@@ -16,9 +16,6 @@ import initI18n from "../shared-module/utils/initI18n"
 import "../styles/Gutenberg/style.scss"
 import LocalStyles from "../styles/LocalStyles"
 
-// Prevent rehydration mismatch by preloading english translations
-import "../shared-module/locales/en/cms.json"
-
 import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 

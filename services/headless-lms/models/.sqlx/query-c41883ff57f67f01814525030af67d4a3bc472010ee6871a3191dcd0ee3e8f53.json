@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE proposed_block_edits\nSET status = 'accepted'\nWHERE id = $1\nRETURNING block_id,\n    block_attribute,\n    original_text,\n    changed_text\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "block_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "block_attribute",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "original_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "changed_text",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false]
+  },
+  "hash": "c41883ff57f67f01814525030af67d4a3bc472010ee6871a3191dcd0ee3e8f53"
+}

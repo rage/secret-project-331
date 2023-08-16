@@ -17,11 +17,12 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
-  const getUserCourseProgress = useQuery(
-    [`course-instance-${courseInstanceId}-progress`],
-    () => fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
-    { enabled: !!courseInstanceId },
-  )
+  const getUserCourseProgress = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-progress`],
+    queryFn: () =>
+      fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
+    enabled: !!courseInstanceId,
+  })
   const loginStateContext = useContext(LoginStateContext)
 
   if (pageContext.state !== "ready" || loginStateContext.isLoading) {

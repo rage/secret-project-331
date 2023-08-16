@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM page_visit_datum_summary_by_pages\nWHERE course_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "page_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "num_visitors",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "visit_date",
+        "type_info": "Date"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, true, true, false, false, false]
+  },
+  "hash": "eda078e5f32758b2d1ff20a1085af4b42739d3bff2761a612f3f54bd8eeced07"
+}

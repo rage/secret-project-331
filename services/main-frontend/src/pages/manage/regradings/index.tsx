@@ -36,10 +36,14 @@ const RegradingsPage: React.FC = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const paginationInfo = usePaginationInfo()
-  const regradingsQuery = useQuery(["all-regradings", JSON.stringify(paginationInfo)], () =>
-    fetchAllRegradings(paginationInfo),
-  )
-  const regradingsCountQuery = useQuery(["all-regradings-count"], () => fetchRegradingsCount())
+  const regradingsQuery = useQuery({
+    queryKey: ["all-regradings", JSON.stringify(paginationInfo)],
+    queryFn: () => fetchAllRegradings(paginationInfo),
+  })
+  const regradingsCountQuery = useQuery({
+    queryKey: ["all-regradings-count"],
+    queryFn: () => fetchRegradingsCount(),
+  })
   const [newRegradingDialogOpen, setNewRegradingDialogOpen] = useState(false)
   const {
     register,

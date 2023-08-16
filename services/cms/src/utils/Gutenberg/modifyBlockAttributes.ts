@@ -9,7 +9,9 @@ import { assign } from "lodash"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 export function modifyImageBlockAttributes(settings: any, name: string): any {
   if (name === "core/image") {
-    settings.attributes.linkDestination.default = "media"
+    if (settings.attributes.linkDestination) {
+      settings.attributes.linkDestination.default = "media"
+    }
     settings.attributes = assign(settings.attributes, {
       blurDataUrl: {
         type: "string",

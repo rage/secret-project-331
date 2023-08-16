@@ -32,23 +32,26 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
     if (!query.data) {
       return null
     }
-    const aggregated = query.data.reduce((acc, row) => {
-      const key = rowToGroupingKey(row)
-      if (!acc[key]) {
-        acc[key] = {
-          ...row,
-          num_visitors: 0,
-          // Excluded fields
-          utm_source: null,
-          utm_medium: null,
-          utm_campaign: null,
-          utm_term: null,
-          utm_content: null,
+    const aggregated = query.data.reduce(
+      (acc, row) => {
+        const key = rowToGroupingKey(row)
+        if (!acc[key]) {
+          acc[key] = {
+            ...row,
+            num_visitors: 0,
+            // Excluded fields
+            utm_source: null,
+            utm_medium: null,
+            utm_campaign: null,
+            utm_term: null,
+            utm_content: null,
+          }
         }
-      }
-      acc[key].num_visitors += row.num_visitors
-      return acc
-    }, {} as Record<string, PageVisitDatumSummaryByCourse>)
+        acc[key].num_visitors += row.num_visitors
+        return acc
+      },
+      {} as Record<string, PageVisitDatumSummaryByCourse>,
+    )
 
     const sorted = Object.values(aggregated).sort((a, b) => {
       if (a.visit_date < b.visit_date) {

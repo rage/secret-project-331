@@ -81,23 +81,23 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id
 
-  const getCountries = useQuery(
-    [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
-    () => {
+  const getCountries = useQuery({
+    queryKey: [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
+    queryFn: () => {
       return fetchStudentCountries(
         assertNotNullOrUndefined(courseId),
         assertNotNullOrUndefined(courseInstanceId),
       )
     },
-  )
+  })
 
-  const getCountry = useQuery(
-    [`course-${courseInstanceId}-country`],
-    () => {
+  const getCountry = useQuery({
+    queryKey: [`course-${courseInstanceId}-country`],
+    queryFn: () => {
       return fetchStudentCountry(assertNotNullOrUndefined(courseInstanceId))
     },
-    { enabled: !!courseInstanceId },
-  )
+    enabled: !!courseInstanceId,
+  })
 
   const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
     new Promise((resolve) => {
@@ -182,13 +182,11 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
 
       if (svgElement && findCountry) {
         const formattedSelectedCountryCode = selectedCountryCode?.toUpperCase()
-        const text = countryList.find(
-          (country) => country.value === formattedSelectedCountryCode,
-        )?.label
+        const text = countryList.find((country) => country.value === formattedSelectedCountryCode)
+          ?.label
 
-        const count = countryCodeCount.find(
-          (country) => country.code === `.${selectedCountryCode}`,
-        )?.count
+        const count = countryCodeCount.find((country) => country.code === `.${selectedCountryCode}`)
+          ?.count
 
         if (evt.type === "mouseover") {
           svgElement.innerHTML = `<title style=''>${text} - ${count} student</title>`
@@ -332,7 +330,7 @@ const Map: React.FC<React.PropsWithChildren<React.PropsWithChildren<MapProps>>> 
                   padding-left: 2px;
                 `}
               >
-                {t("use-of-info")}
+                {t("map-disclaimer")}
               </span>
             </CotentWrapper>
           </>

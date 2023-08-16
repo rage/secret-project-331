@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, is_test_mode FROM courses WHERE slug = $1 AND deleted_at IS NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "is_test_mode",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Text"]
+    },
+    "nullable": [false, false]
+  },
+  "hash": "abc0210de7968d0ccb49bd0a87e73d0cd22194379982298739789ada0a84bfe8"
+}

@@ -79,7 +79,7 @@ RETURNING id
         edits.page_id,
         user_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let mut block_ids = vec![];
@@ -102,7 +102,7 @@ RETURNING id
             block_edit.original_text,
             block_edit.changed_text
         )
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await?;
         block_ids.push(res.id);
     }
@@ -315,7 +315,7 @@ RETURNING block_id,
 ",
                     id
                 )
-                .fetch_one(&mut tx)
+                .fetch_one(&mut *tx)
                 .await?;
                 let block = blocks
                     .iter_mut()
@@ -360,7 +360,7 @@ WHERE id = $1
 ",
                     id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
             }
         }

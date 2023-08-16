@@ -61,14 +61,17 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const { t } = useTranslation()
 
-  const getPageAudioFiles = useQuery([`page-${pageId}-audio-files`], () =>
-    courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : [],
-  )
+  const getPageAudioFiles = useQuery({
+    queryKey: [`page-${pageId}-audio-files`, courseId, isMaterialPage],
+    queryFn: () => (courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : []),
+  })
 
   // Fetch glossary for each page seperately
-  const glossary = useQuery([`glossary-${courseId}`], () =>
-    courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
-  )
+  const glossary = useQuery({
+    queryKey: [`glossary-${courseId}`, pageContext.exam, isMaterialPage],
+    queryFn: () =>
+      courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
+  })
 
   if (glossary.isLoading) {
     return <Spinner variant={"small"} />

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT exams.id\nFROM exams\n  LEFT JOIN ended_processed_exams ON (ended_processed_exams.exam_id = exams.id)\nWHERE exams.ends_at <= $1\n  AND ended_processed_exams.created_at IS NULL\n  AND exams.deleted_at IS NULL\n  AND ended_processed_exams.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Timestamptz"]
+    },
+    "nullable": [false]
+  },
+  "hash": "b7336ab75d3bb0066457bdff2f9f3506324004fcc44a1754c2eea93ebcdac888"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_audio_files (\n  page_id,\n  path,\n  mime_type\n)\nVALUES($1, $2, $3)\n      ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Varchar", "Varchar"]
+    },
+    "nullable": []
+  },
+  "hash": "055e64672243c81e7679ea2829bf22812302e147b35cf40077a62ef746a62f7b"
+}

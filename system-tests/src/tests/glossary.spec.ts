@@ -59,7 +59,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "deleted-term",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Deleted").first()],
+    waitForTheseToBeGone: [page.getByText("Computer science is an essential")],
+    clearNotifications: true,
   })
 
   await page.fill('[placeholder="New term"]', "abcd")
@@ -104,7 +105,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "edited-term",
-    waitForTheseToBeVisibleAndStable: [page.locator(`div:text-is("Success")`)],
+    waitForTheseToBeVisibleAndStable: [page.locator(`text=EFGH`)],
+    clearNotifications: true,
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")

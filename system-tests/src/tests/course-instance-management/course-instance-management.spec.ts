@@ -147,8 +147,9 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "management-page-after-changes",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("newsupport@example.com").first()],
     screenshotTarget: page,
+    clearNotifications: true,
   })
 
   await page.locator("text=Delete").click()

@@ -19,6 +19,7 @@ import {
   NavItems,
 } from "../../shared-module/components/Navigation/NavBar"
 import ietfLanguageTagToHumanReadableName from "../../shared-module/utils/ietfLanguageTagToHumanReadableName"
+import withNoSsr from "../../shared-module/utils/withNoSsr"
 import SearchDialog from "../SearchDialog"
 import { useFigureOutNewUrl } from "../modals/ChooseCourseLanguage"
 import UserNavigationControls from "../navigation/UserNavigationControls"
@@ -171,4 +172,4 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   )
 }
 
-export default Layout
+export default withNoSsr(Layout)

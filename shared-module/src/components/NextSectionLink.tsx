@@ -24,6 +24,7 @@ export interface NextSectionLinkExtraProps {
 }
 
 const Wrapper = styled.div`
+  overflow: hidden;
   position: relative;
   left: 50%;
   right: 50%;

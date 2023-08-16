@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { ReactNode, useEffect, useState } from "react"
+import React, { ReactNode, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import LayoutContext from "../../contexts/LayoutContext"
@@ -87,6 +87,19 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
     }
   }, [currentLanguageCode, i18n])
 
+  const layoutContextValue = useMemo(() => {
+    return {
+      title,
+      setTitle,
+      organizationSlug,
+      setOrganizationSlug,
+      courseId,
+      setCourseId,
+      hideFromSearchEngines,
+      setHideFromSearchEngines,
+      setPageState,
+    }
+  }, [courseId, hideFromSearchEngines, organizationSlug, title])
   return (
     <>
       <Head>
@@ -142,21 +155,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
 
         <main>
           <Centered variant="narrow">
-            <LayoutContext.Provider
-              value={{
-                title,
-                setTitle,
-                organizationSlug,
-                setOrganizationSlug,
-                courseId,
-                setCourseId,
-                hideFromSearchEngines,
-                setHideFromSearchEngines,
-                setPageState,
-              }}
-            >
-              {children}
-            </LayoutContext.Provider>
+            <LayoutContext.Provider value={layoutContextValue}>{children}</LayoutContext.Provider>
           </Centered>
         </main>
       </div>

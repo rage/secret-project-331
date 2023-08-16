@@ -637,10 +637,11 @@ async fn glossary(
 async fn get_material_references_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, user.map(|u| u.id), *course_id).await?;
     let res =
         models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
 

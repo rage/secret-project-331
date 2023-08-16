@@ -17,9 +17,10 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
   userId,
 }) => {
   const { t } = useTranslation()
-  const courseInstanceEnrollmentsQuery = useQuery(["course-instance-enrollments", userId], () =>
-    getCourseInstanceEnrollmentsInfo(userId),
-  )
+  const courseInstanceEnrollmentsQuery = useQuery({
+    queryKey: ["course-instance-enrollments", userId],
+    queryFn: () => getCourseInstanceEnrollmentsInfo(userId),
+  })
   if (courseInstanceEnrollmentsQuery.isError) {
     return <ErrorBanner variant="readOnly" error={courseInstanceEnrollmentsQuery.error} />
   }

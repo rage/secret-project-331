@@ -27,9 +27,10 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
   onRestore,
 }) => {
   const { t } = useTranslation()
-  const getPageHistory = useQuery([`page-history-${pageId}-${page}-${limit}`], () =>
-    fetchHistoryForPage(pageId, page, limit),
-  )
+  const getPageHistory = useQuery({
+    queryKey: [`page-history-${pageId}-${page}-${limit}`],
+    queryFn: () => fetchHistoryForPage(pageId, page, limit),
+  })
 
   if (getPageHistory.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />

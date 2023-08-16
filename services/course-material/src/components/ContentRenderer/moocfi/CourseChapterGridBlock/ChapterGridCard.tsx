@@ -54,12 +54,15 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   backgroundImage,
 }) => {
   const { i18n } = useTranslation()
-  const getChapterPageUrl = useQuery([`chapter-grid-chapter-${chapter.id}`], () => {
-    if (chapter.front_page_id) {
-      return fetchPageUrl(chapter.front_page_id)
-    } else {
-      return `/chapter-${chapter.chapter_number}`
-    }
+  const getChapterPageUrl = useQuery({
+    queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id],
+    queryFn: () => {
+      if (chapter.front_page_id) {
+        return fetchPageUrl(chapter.front_page_id)
+      } else {
+        return `/chapter-${chapter.chapter_number}`
+      }
+    },
   })
 
   if (getChapterPageUrl.isError) {

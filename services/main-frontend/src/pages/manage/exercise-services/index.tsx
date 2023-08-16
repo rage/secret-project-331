@@ -88,7 +88,10 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
   }
 
-  const getExerciseServices = useQuery([`exercise-services`], () => fetchExerciseServices())
+  const getExerciseServices = useQuery({
+    queryKey: [`exercise-services`],
+    queryFn: () => fetchExerciseServices(),
+  })
   sortServices()
 
   const handleClose = () => {

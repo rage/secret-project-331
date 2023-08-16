@@ -32,19 +32,22 @@ const DailyVisitCountsGroupedByUtm: React.FC<
     if (!query.data) {
       return null
     }
-    const aggregated = query.data.reduce((acc, row) => {
-      const key = rowToGroupingKey(row)
-      if (!acc[key]) {
-        acc[key] = {
-          ...row,
-          num_visitors: 0,
-          // Excluded fields
-          referrer: null,
+    const aggregated = query.data.reduce(
+      (acc, row) => {
+        const key = rowToGroupingKey(row)
+        if (!acc[key]) {
+          acc[key] = {
+            ...row,
+            num_visitors: 0,
+            // Excluded fields
+            referrer: null,
+          }
         }
-      }
-      acc[key].num_visitors += row.num_visitors
-      return acc
-    }, {} as Record<string, PageVisitDatumSummaryByCourse>)
+        acc[key].num_visitors += row.num_visitors
+        return acc
+      },
+      {} as Record<string, PageVisitDatumSummaryByCourse>,
+    )
 
     const sorted = Object.values(aggregated).sort((a, b) => {
       if (a.visit_date < b.visit_date) {

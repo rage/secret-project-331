@@ -33,9 +33,9 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
 
   const pageId = id
 
-  const getPageAudioFiles = useQuery(
-    [`page-${pageId}-audio-files`],
-    () => {
+  const getPageAudioFiles = useQuery({
+    queryKey: [`page-${pageId}-audio-files`],
+    queryFn: () => {
       // fetchPageAudioFiles(pageId),
       if (pageId) {
         return fetchPageAudioFiles(pageId)
@@ -43,8 +43,8 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
         return Promise.reject(new Error("Page ID undefined"))
       }
     },
-    { enabled: !!pageId },
-  )
+    enabled: !!pageId,
+  })
 
   const deletePageAudioFile = useToastMutation(
     (fileId: string) => removePageAudioFile(fileId),

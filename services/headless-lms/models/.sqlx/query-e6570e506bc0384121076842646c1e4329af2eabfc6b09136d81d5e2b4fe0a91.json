@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO\n  users (id, upstream_id, email_domain)\nVALUES ($1, $2, $3)\nRETURNING *;\n          ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "upstream_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "email_domain",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Int4", "Varchar"]
+    },
+    "nullable": [false, false, false, true, true, true]
+  },
+  "hash": "e6570e506bc0384121076842646c1e4329af2eabfc6b09136d81d5e2b4fe0a91"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_repositories SET url = $1 WHERE id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "1d83ed68e73caf732fb229242e040adf81019899632218153511689914e90fab"
+}

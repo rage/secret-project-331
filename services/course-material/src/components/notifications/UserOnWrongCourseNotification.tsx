@@ -21,9 +21,10 @@ const UserOnWrongCourseNotification: React.FC<
   React.PropsWithChildren<UserOnWrongCourseNotificationProps>
 > = ({ correctCourseId, organizationSlug }) => {
   const { t } = useTranslation()
-  const getCourseById = useQuery([`correct-course-${correctCourseId}`], () =>
-    fetchCourseById(correctCourseId),
-  )
+  const getCourseById = useQuery({
+    queryKey: [`correct-course-${correctCourseId}`],
+    queryFn: () => fetchCourseById(correctCourseId),
+  })
 
   if (getCourseById.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />

@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE public.course_module_certificate_configurations\nSET course_module_id = $1,\n  course_instance_id = $2,\n  certificate_owner_name_y_pos = $3,\n  certificate_owner_name_x_pos = $4,\n  certificate_owner_name_font_size = $5,\n  certificate_owner_name_text_color = $6,\n  certificate_owner_name_text_anchor = $7,\n  certificate_validate_url_y_pos = $8,\n  certificate_validate_url_x_pos = $9,\n  certificate_validate_url_font_size = $10,\n  certificate_validate_url_text_color = $11,\n  certificate_validate_url_text_anchor = $12,\n  certificate_date_y_pos = $13,\n  certificate_date_x_pos = $14,\n  certificate_date_font_size = $15,\n  certificate_date_text_color = $16,\n  certificate_date_text_anchor = $17,\n  certificate_locale = $18,\n  paper_size = $19,\n  background_svg_path = $20,\n  background_svg_file_upload_id = $21,\n  overlay_svg_path = $22,\n  overlay_svg_file_upload_id = $23\nWHERE id = $24\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "certificate_text_anchor",
+            "kind": {
+              "Enum": ["start", "middle", "end"]
+            }
+          }
+        },
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "certificate_text_anchor",
+            "kind": {
+              "Enum": ["start", "middle", "end"]
+            }
+          }
+        },
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "certificate_text_anchor",
+            "kind": {
+              "Enum": ["start", "middle", "end"]
+            }
+          }
+        },
+        "Varchar",
+        {
+          "Custom": {
+            "name": "certificate_paper_size",
+            "kind": {
+              "Enum": ["horizontal-a4", "vertical-a4"]
+            }
+          }
+        },
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2055a6ff8b925cefcd040b388ae102f5a9b98ff4b91bf9c0cb086ab395df72a9"
+}

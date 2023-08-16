@@ -140,7 +140,9 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                           padding: 0;
                           font-size: 2.8vw;
                           font-size: 22px;
-                          font-family: Josefin Sans, sans-serif;
+                          font-family:
+                            Josefin Sans,
+                            sans-serif;
                         `}
                       >
                         <div

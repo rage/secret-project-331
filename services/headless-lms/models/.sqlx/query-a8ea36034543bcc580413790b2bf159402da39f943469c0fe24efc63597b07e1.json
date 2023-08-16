@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO user_research_consents (\n    id,\n    user_id,\n    research_consent\n)\nVALUES ($1, $2, $3) ON CONFLICT (user_id, deleted_at)\nDO UPDATE SET research_consent = $3\nRETURNING *;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "research_consent",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Bool"]
+    },
+    "nullable": [false, false, false, false, false, true]
+  },
+  "hash": "a8ea36034543bcc580413790b2bf159402da39f943469c0fe24efc63597b07e1"
+}

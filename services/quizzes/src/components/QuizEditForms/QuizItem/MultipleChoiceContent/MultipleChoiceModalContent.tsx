@@ -192,7 +192,9 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
           className={css`
             color: #414246;
             font-size: 17px;
-            font-family: Josefin Sans, sans-serif;
+            font-family:
+              Josefin Sans,
+              sans-serif;
             ${!storeItem.multi && "opacity: 0.5;"}
           `}
         >

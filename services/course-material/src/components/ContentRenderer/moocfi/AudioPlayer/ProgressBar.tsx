@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, RefObject } from "react"
+import React, { RefObject } from "react"
 
 import { headingFont } from "../../../../shared-module/styles"
 
@@ -55,4 +55,4 @@ const ProgressBar = ({ progressBarRef, audioRef, timeProgress, duration }: Progr
   )
 }
 
-export default forwardRef(ProgressBar)
+export default ProgressBar

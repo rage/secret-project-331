@@ -56,13 +56,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     getCourseInstances.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
   }
 
-  const getCourseInstances = useQuery(
-    ["course-instances"],
-    () => fetchCourseInstances(selectedLangCourseId as NonNullable<string>),
-    {
-      enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
-    },
-  )
+  const getCourseInstances = useQuery({
+    queryKey: ["course-instances", selectedLangCourseId],
+    queryFn: () => fetchCourseInstances(selectedLangCourseId as NonNullable<string>),
+    enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
+  })
   sortInstances()
 
   useEffect(() => {

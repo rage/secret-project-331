@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  url,\n  course_id,\n  exam_id,\n  status AS \"status: ExerciseRepositoryStatus\",\n  error_message\nFROM exercise_repositories\nWHERE id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "status: ExerciseRepositoryStatus",
+        "type_info": {
+          "Custom": {
+            "name": "exercise_repository_status",
+            "kind": {
+              "Enum": ["pending", "success", "failure"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "error_message",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, true, true, false, true]
+  },
+  "hash": "8359aee706ee7461e8bf4896f78a9bbde8cf436a8cd497797964868173c5df09"
+}

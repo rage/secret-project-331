@@ -34,9 +34,9 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getOrgCourses = useQuery(
-    [`organization-courses`, paginationInfo.page, paginationInfo.limit],
-    () => {
+  const getOrgCourses = useQuery({
+    queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
+    queryFn: () => {
       if (organizationId) {
         return fetchOrganizationCourses(organizationId, paginationInfo.page, paginationInfo.limit)
       } else {
@@ -44,12 +44,12 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
-    { enabled: !!organizationId },
-  )
+    enabled: !!organizationId,
+  })
 
-  const getOrgCourseCount = useQuery(
-    [`organization-courses-count`, organizationSlug],
-    () => {
+  const getOrgCourseCount = useQuery({
+    queryKey: [`organization-courses-count`, organizationSlug, organizationId],
+    queryFn: () => {
       if (organizationId) {
         return fetchOrganizationCourseCount(organizationId)
       } else {
@@ -57,8 +57,8 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
-    { enabled: !!organizationId },
-  )
+    enabled: !!organizationId,
+  })
 
   const canMangeCourse = useAuthorizeMultiple(
     getOrgCourses.data?.map((course) => {

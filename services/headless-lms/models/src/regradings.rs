@@ -74,7 +74,7 @@ RETURNING id
         new_regrading.user_points_update_strategy as UserPointsUpdateStrategy,
         user_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     info!(
         "Adding {:?} exercise task submissions to the regrading.",

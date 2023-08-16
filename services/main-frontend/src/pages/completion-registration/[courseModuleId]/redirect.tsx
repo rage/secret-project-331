@@ -19,13 +19,11 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
 }) => {
   const { courseModuleId } = query
   const { t } = useTranslation()
-  const userCompletionInformation = useQuery(
-    [`course-${courseModuleId}-completion-registration-link`],
-    () => fetchCompletionRegistrationLink(courseModuleId),
-    {
-      onSuccess: (data) => window.location.replace(data.url),
-    },
-  )
+  const userCompletionInformation = useQuery({
+    queryKey: [`course-${courseModuleId}-completion-registration-link`],
+    queryFn: () => fetchCompletionRegistrationLink(courseModuleId),
+    onSuccess: (data) => window.location.replace(data.url),
+  })
   return (
     <>
       {userCompletionInformation.isError && (

@@ -28,10 +28,10 @@ const CourseInstanceEmailTemplates: React.FC<
 > = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const getCourseInstanceEmailTemplates = useQuery(
-    [`course-instance-${courseInstanceId}-emails`],
-    () => fetchCourseInstanceEmailTemplates(courseInstanceId),
-  )
+  const getCourseInstanceEmailTemplates = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-emails`],
+    queryFn: () => fetchCourseInstanceEmailTemplates(courseInstanceId),
+  })
   const [showForm, setShowForm] = useState(false)
 
   const handleCreateEmailTemplate = async (newName: string) => {

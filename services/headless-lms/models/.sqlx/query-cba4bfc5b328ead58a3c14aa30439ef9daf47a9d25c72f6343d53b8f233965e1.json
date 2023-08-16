@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercises\nSET use_course_default_peer_review_config = $1,\n  needs_peer_review = $2\nWHERE id = $3\nRETURNING id;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Bool", "Bool", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "cba4bfc5b328ead58a3c14aa30439ef9daf47a9d25c72f6343d53b8f233965e1"
+}

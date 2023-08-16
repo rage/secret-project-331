@@ -37,11 +37,11 @@ const StyledSVG = styled.div`
     transform: rotate(0deg);
   }
 
-  svg circle:nth-child(2) {
+  svg circle:nth-of-type(2) {
     stroke: #b4cdcb;
   }
 
-  svg circle:nth-child(3) {
+  svg circle:nth-of-type(3) {
     stroke: #1f6964;
   }
 

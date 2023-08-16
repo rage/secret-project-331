@@ -1,0 +1,116 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_modules.*\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\nAND chapters.deleted_at IS NULL\nAND course_modules.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "uh_course_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "automatic_completion",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "automatic_completion_number_of_exercises_attempted_treshold",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "automatic_completion_number_of_points_treshold",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 12,
+        "name": "ects_credits",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "completion_registration_link_override",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 14,
+        "name": "automatic_completion_requires_exam",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "enable_registering_completion_to_uh_open_university",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "certification_enabled",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "5a540e7832d883d03e1aa9e24e816f3dd434cd1f754395d0e23b3a3b587ec75c"
+}

@@ -28,7 +28,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
 }
 
 function handlePost(req: NextApiRequest, res: NextApiResponse) {
-  if (isSpecRequest(req.body)) {
+  if (isSpecRequest(req.body.private_spec)) {
     throw new Error("Invalid request")
   }
   const specRequest = req.body

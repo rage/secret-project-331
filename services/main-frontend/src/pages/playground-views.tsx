@@ -815,7 +815,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   "private_spec",
                   JSON.stringify(
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    currentStateReceivedFromIframe?.data as any,
+                    (currentStateReceivedFromIframe?.data as any)?.private_spec,
                     undefined,
                     2,
                   ),

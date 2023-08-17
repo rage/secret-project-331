@@ -74,7 +74,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
     if (forgivingIsSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
         if (messageData.view_type === "answer-exercise") {
-          if (!isAnswerExerciseIframeState(messageData.data)) {
+          if (!isAnswerExerciseIframeState(messageData)) {
             throw new Error(
               "Set-state message data is invalid for the specified answer-exercise view type",
             )
@@ -83,7 +83,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           let quiz_answer = messageData.data.previous_submission
           if (isOldQuiz(messageData.data.previous_submission as QuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
-              messageData.data.previous_submission as QuizAnswer,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (messageData.data.previous_submission as any)?.private_spec as QuizAnswer,
               public_spec as PublicSpecQuiz,
             )
           }
@@ -97,12 +98,11 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             previousSubmission: quiz_answer as UserAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
-          if (!isExerciseEditorIframeState(messageData.data)) {
+          if (!isExerciseEditorIframeState(messageData)) {
             throw new Error(
               "Set-state message data is invalid for the specified exercise-editor view type",
             )
           }
-          console.log("Message data:", messageData)
           const privateSpec = messageData.data.private_spec
           if (privateSpec === null) {
             setState({
@@ -150,7 +150,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             })
           }
         } else if (messageData.view_type === "view-submission") {
-          if (!isViewSubmissionIframeState(messageData.data)) {
+          if (!isViewSubmissionIframeState(messageData)) {
             throw new Error(
               "Set-state message data is invalid for the specified view-submission view type",
             )
@@ -168,7 +168,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           }
           if (isOldQuiz(messageData.data.user_answer as QuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
-              messageData.data.user_answer as QuizAnswer,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (messageData.data.user_answer as any)?.private_spec as QuizAnswer,
               public_spec as PublicSpecQuiz,
             )
           }

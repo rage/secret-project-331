@@ -14,6 +14,7 @@ interface UseExerciseServiceOutputStateReturn<SelectorReturnType> {
 const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
   context: ExerciseServiceContextType<OutputType>,
   selector: (arg: OutputType | null) => SelectorReturnType | null,
+  wrapper?: string,
 ): UseExerciseServiceOutputStateReturn<SelectorReturnType> => {
   const { outputState, port, _rawSetOutputState, validate } = useContext(context)
 
@@ -31,12 +32,21 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
       // Selected is a draft too because it is a subset of the draft variable
       func(selected)
     })
-
-    const message: CurrentStateMessage = {
-      data: nextState,
-      // eslint-disable-next-line i18next/no-literal-string
-      message: "current-state",
-      valid: validate(nextState),
+    let message: CurrentStateMessage | null = null
+    if (wrapper) {
+      message = {
+        data: { [wrapper]: nextState },
+        // eslint-disable-next-line i18next/no-literal-string
+        message: "current-state",
+        valid: validate(nextState),
+      }
+    } else {
+      message = {
+        data: nextState,
+        // eslint-disable-next-line i18next/no-literal-string
+        message: "current-state",
+        valid: validate(nextState),
+      }
     }
     port.postMessage(message)
     _rawSetOutputState(nextState)

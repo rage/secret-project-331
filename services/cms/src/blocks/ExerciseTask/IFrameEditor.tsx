@@ -70,7 +70,7 @@ const ExerciseTaskIFrameEditor: React.FC<
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onPrivateSpecChange(JSON.stringify(messageContainer.data as any))
+            onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
           }
         } else {
           console.error(UNEXPECTED_MESSAGE_ERROR)

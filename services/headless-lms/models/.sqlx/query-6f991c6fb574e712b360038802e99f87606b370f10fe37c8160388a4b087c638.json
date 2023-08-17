@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Int4"]
+    },
+    "nullable": []
+  },
+  "hash": "6f991c6fb574e712b360038802e99f87606b370f10fe37c8160388a4b087c638"
+}

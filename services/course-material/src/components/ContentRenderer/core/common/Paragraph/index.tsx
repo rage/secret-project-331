@@ -80,6 +80,7 @@ const ParagraphBlock: React.FC<
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;
             border-style: dotted;
+            overflow-x: hidden;
           `}
           contentEditable
           onInput={(ev) => {
@@ -119,6 +120,7 @@ const ParagraphBlock: React.FC<
             background-color: ${backgroundColor};
             font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
+            overflow-x: hidden;
           `}
         >
           <DiffFormatter changes={diffChanges} />
@@ -141,6 +143,7 @@ const ParagraphBlock: React.FC<
         line-height: 160%;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
+        overflow-x: hidden;
 
         ${respondToOrLarger.md} {
           font-size: ${fontSizeMapper(fontSize)};

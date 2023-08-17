@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_visit_datum_summary_by_courses (\n    course_id,\n    exam_id,\n    referrer,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    num_visitors,\n    visit_date\n  )\nSELECT\n  course_id,\n  exam_id,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    referrer,\n    visit_date,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "referrer",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "utm_source",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "utm_medium",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "utm_campaign",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "utm_term",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "utm_content",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "num_visitors",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "visit_date",
+        "type_info": "Date"
+      }
+    ],
+    "parameters": {
+      "Left": ["Date"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "78193a38be835dbfb19c07ba153ea3e661127f7e718e1d3db9a717e01312b7a7"
+}

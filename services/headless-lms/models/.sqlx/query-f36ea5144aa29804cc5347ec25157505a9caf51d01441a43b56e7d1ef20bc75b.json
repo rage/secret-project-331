@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE repository_exercises\nSET part = $1,\n  name = $2\nWHERE id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Varchar", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "f36ea5144aa29804cc5347ec25157505a9caf51d01441a43b56e7d1ef20bc75b"
+}

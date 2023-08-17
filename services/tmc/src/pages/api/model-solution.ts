@@ -87,6 +87,7 @@ const processModelSolution = async (
     }
     return ok(res, modelSolutionSpec)
   } catch (err) {
+    error(requestId, "Error while processing the model solution spec", err)
     return internalServerError(
       requestId,
       res,
@@ -129,8 +130,12 @@ const prepareEditorModelSolution = async (
   const form = new FormData()
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
   form.append(archiveName, fs.createReadStream(solutionArchive))
+  const headers: Record<string, string> = {}
+  if (uploadClaim) {
+    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
+  }
   const res = await axios.post(uploadUrl, form, {
-    headers: uploadClaim ? { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: uploadClaim } : {},
+    headers,
   })
   if (isObjectMap<string>(res.data)) {
     const solutionDownloadUrl = res.data[archiveName]
@@ -156,7 +161,7 @@ const badRequest = (
   requestId: string,
   res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
-  ...err: unknown[]
+  err?: unknown,
 ): void => {
   errorResponse(requestId, res, 400, contextMessage, err)
 }
@@ -165,7 +170,7 @@ const internalServerError = (
   requestId: string,
   res: NextApiResponse<ClientErrorResponse>,
   contextMessage: string,
-  ...err: unknown[]
+  err?: unknown,
 ): void => {
   errorResponse(requestId, res, 500, contextMessage, err)
 }

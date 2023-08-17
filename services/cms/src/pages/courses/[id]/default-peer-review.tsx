@@ -39,19 +39,17 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
   const { id } = query
 
-  const getCmsPeerReviewConfiguration = useQuery(
-    [`course-${id}-cms-peer-review-configuration`],
-    () => getCoursesDefaultCmsPeerReviewConfiguration(id),
-    {
-      onSuccess: (data) =>
-        setAttributes({
-          peer_review_config: JSON.stringify(data.peer_review_config),
-          peer_review_questions_config: JSON.stringify(data.peer_review_questions),
-          needs_peer_review: true,
-          use_course_default_peer_review: false,
-        }),
-    },
-  )
+  const getCmsPeerReviewConfiguration = useQuery({
+    queryKey: [`course-${id}-cms-peer-review-configuration`],
+    queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(id),
+    onSuccess: (data) =>
+      setAttributes({
+        peer_review_config: JSON.stringify(data.peer_review_config),
+        peer_review_questions_config: JSON.stringify(data.peer_review_questions),
+        needs_peer_review: true,
+        use_course_default_peer_review: false,
+      }),
+  })
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
       {

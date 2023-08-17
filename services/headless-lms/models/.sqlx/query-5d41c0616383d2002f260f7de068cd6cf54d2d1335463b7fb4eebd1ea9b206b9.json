@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO proposed_page_edits (id, course_id, page_id, user_id)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [false]
+  },
+  "hash": "5d41c0616383d2002f260f7de068cd6cf54d2d1335463b7fb4eebd1ea9b206b9"
+}

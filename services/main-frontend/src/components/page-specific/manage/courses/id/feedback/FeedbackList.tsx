@@ -19,9 +19,10 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getFeedbackCount = useQuery([`feedback-count-${courseId}`], () =>
-    fetchFeedbackCount(courseId),
-  )
+  const getFeedbackCount = useQuery({
+    queryKey: [`feedback-count-${courseId}`],
+    queryFn: () => fetchFeedbackCount(courseId),
+  })
 
   if (getFeedbackCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />

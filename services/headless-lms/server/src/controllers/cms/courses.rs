@@ -58,7 +58,13 @@ async fn get_course_default_peer_review_configuration(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let peer_review_config =
         models::peer_review_configs::get_course_default_cms_peer_review(&mut conn, *course_id)
@@ -86,7 +92,13 @@ async fn put_course_default_peer_review_configuration(
     payload: web::Json<CmsPeerReviewConfiguration>,
 ) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let cms_peer_review_configuration =
         peer_review_configs::upsert_course_default_cms_peer_review_and_questions(

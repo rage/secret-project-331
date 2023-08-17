@@ -304,7 +304,7 @@ RETURNING id
         new_course_page.hidden,
         page_language_group_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
@@ -353,7 +353,7 @@ RETURNING id
         page.title,
         0
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let history_id = crate::page_history::insert(
@@ -421,7 +421,7 @@ impl PageVisibility {
     /// Hacky way to implement a nullable boolean filter. Based on the idea that
     /// `null IS DISTINCT FROM anything` in PostgreSQL.
     ///
-    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    /// More information at: <https://www.postgresql.org/docs/current/functions-comparison.html>
     ///
     /// # Examples
     ///
@@ -1099,7 +1099,7 @@ RETURNING id,
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     // Exercises
@@ -1190,7 +1190,7 @@ RETURNING id,
         ",
         &existing_exercise_slide_ids,
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
     let final_tasks = upsert_exercise_tasks(
         &mut tx,
@@ -1236,7 +1236,7 @@ RETURNING id,
         new_content,
         page.id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let x = remapped_exercises.into_values().collect::<Vec<_>>();
@@ -2038,7 +2038,7 @@ RETURNING id,
         content_search_language as _,
         page_language_group_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let cms_page = update_page(
@@ -2077,7 +2077,7 @@ RETURNING *;
             front_page_of_chapter_id
         )
         // this should fail if no rows returned
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await?;
     }
 
@@ -2128,7 +2128,7 @@ RETURNING id,
           "#,
         page_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -2140,7 +2140,7 @@ RETURNING id,
           "#,
         page_id,
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -2156,7 +2156,7 @@ WHERE exercise_id IN (
         ",
         page.id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -2173,7 +2173,7 @@ WHERE exercise_slide_id IN (
             "#,
         page.id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     tx.commit().await?;
@@ -2965,14 +2965,14 @@ WHERE pages.order_number = $1
                     page.order_number,
                     page.chapter_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
                 sqlx::query!(
                     "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
                     page.id,
                     page.order_number
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
             } else {
                 // Chapter changes
@@ -2997,7 +2997,7 @@ WHERE pages.order_number = $1
                                     new_chapter.id,
                                     page.order_number
                                 )
-                                .execute(&mut tx)
+                                .execute(&mut *tx)
                                 .await?;
                                 sqlx::query!(
                                     "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
@@ -3005,7 +3005,7 @@ WHERE pages.order_number = $1
                                     old_path,
                                     course_id
                                 )
-                                .execute(&mut tx)
+                                .execute(&mut *tx)
                                 .await?;
                             } else {
                                 return Err(ModelError::new(
@@ -3076,7 +3076,7 @@ pub async fn reorder_chapters(
                     matching_db_chapter.id,
                     course_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
 
                 // get newly modified chapter
@@ -3100,7 +3100,7 @@ pub async fn reorder_chapters(
                         page.id,
                         new_path
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
@@ -3122,7 +3122,7 @@ pub async fn reorder_chapters(
                     chapter.id,
                     new_chapter_number
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
 
                 // update all pages url in the modified chapter
@@ -3146,7 +3146,7 @@ pub async fn reorder_chapters(
                         page.id,
                         new_path
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
                     crate::url_redirections::upsert(
@@ -3212,7 +3212,7 @@ WHERE id = $1
         page_details_update.title,
         page_details_update.url_path,
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     if let Some(course_id) = page_before_update.course_id {

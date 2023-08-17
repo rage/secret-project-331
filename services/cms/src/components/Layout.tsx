@@ -18,6 +18,7 @@ import {
 import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
@@ -97,4 +98,4 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   )
 }
 
-export default Layout
+export default withNoSsr(Layout)

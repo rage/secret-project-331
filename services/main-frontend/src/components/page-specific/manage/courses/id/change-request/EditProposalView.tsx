@@ -48,11 +48,14 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
-  const pageInfo = useQuery([`page-info-id-${proposal.page_id}`], () => {
-    if (!proposal.page_id) {
-      return null
-    }
-    return fetchPageInfo(proposal.page_id)
+  const pageInfo = useQuery({
+    queryKey: [`page-info-id-${proposal.page_id}`],
+    queryFn: () => {
+      if (!proposal.page_id) {
+        return null
+      }
+      return fetchPageInfo(proposal.page_id)
+    },
   })
 
   const sendMutation = useToastMutation(

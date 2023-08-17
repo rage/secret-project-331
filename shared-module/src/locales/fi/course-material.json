@@ -158,12 +158,17 @@
   "tries-remaining-n": "Yrityksiä jäljellä: {{n}}",
   "try-again": "Yritä uudestaan",
   "unsupported-question-type": "Ei tuettu kysymystyyppi",
-  "waiting-for-peer-reviews-explanation": "Kurssin muut oppilaat ovat vertaisarvioimassa vastaustasi. Tule takaisin myöhemmin nähdäksesi tulokset.",
+  "waiting-for-peer-reviews-explanation": "Kurssin muut opiskelijat ovat vertaisarvioimassa vastaustasi. Tule takaisin myöhemmin nähdäksesi tulokset.",
   "write-your-feedback-here": "Kirjoita palaute tähän",
   "written-feedback": "Kirjallinen palaute",
   "you-are-not-eligible-for-taking-this-exam": "Et ole täyttänyt esivaatimuksia tämän kokeen suorittamiseen.",
   "you-have-completed-the-course-to-receive-certificate-use-following-links": "Olet suorittanut kurssin onnistuneesti! Voit käyttää oheisia linkkejä sertifikaatin luomiseen.",
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "Olet suorittanut kurssin onnistuneesti! Voit käyttää oheisia linkkejä opintopisteiden saamiseksi tai sertifikaatin luomiseen.",
   "youve-made-changes": "Olet tehnyt muutoksia",
-  "youve-selected-material-for-editing": "Olet valinnut materiaalia muokkaukseen"
+  "youve-selected-material-for-editing": "Olet valinnut materiaalia muokkaukseen",
+  "map-instruction": "Valitse asuinmaasi aloittaaksesi. Kun olet tehnyt valintasi kartta näyttää maat, joissa muut opiskelijat asuvat.",
+  "add-country-to-map": "Kerro, mistä opiskelet!",
+  "map-disclaimer": "*Kartalla näet opiskelijamäärät maakohtaisesti. Muut opiskelijat näkevät vain kuinka paljon maastasi on opiskelijoita yhteensä.",
+  "audio-notification-description": "Kuuntele tämän sivun sisältö ääneen luettuna",
+  "audio-player": "Kuuntele"
 }

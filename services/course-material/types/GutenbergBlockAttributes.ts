@@ -171,6 +171,8 @@ export interface ImageAttributes {
   id?: number
   width?: number
   height?: number
+  aspectRatio?: string
+  scale?: string
   sizeSlug?: string
   linkDestination: string
   linkTarget?: string
@@ -191,28 +193,10 @@ export interface ImageAttributes {
  */
 
 export interface ImageDeprecated1Attributes {
-  align?: string
-  url?: string
-  alt: string
-  caption?: string
-  title?: string
-  href?: string
-  rel?: string
-  linkClass?: string
-  id?: number
-  width?: number
-  height?: number
-  sizeSlug?: string
-  linkDestination: string
-  linkTarget?: string
   lock?: {
     [k: string]: unknown
   }
-  anchor?: string
   className?: string
-  style?: {
-    [k: string]: unknown
-  }
   blurDataUrl: string
 }
 
@@ -268,6 +252,7 @@ export interface ImageDeprecated3Attributes {
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
   blurDataUrl: string
 }
@@ -277,20 +262,15 @@ export interface ImageDeprecated3Attributes {
  */
 
 export interface ImageDeprecated4Attributes {
-  align?: string
   url?: string
   alt: string
-  caption?: string
-  title?: string
+  caption?: unknown[]
   href?: string
-  rel?: string
-  linkClass?: string
   id?: number
+  align?: string
   width?: number
   height?: number
-  sizeSlug?: string
   linkDestination: string
-  linkTarget?: string
   lock?: {
     [k: string]: unknown
   }
@@ -303,20 +283,34 @@ export interface ImageDeprecated4Attributes {
  */
 
 export interface ImageDeprecated5Attributes {
-  align?: string
   url?: string
   alt: string
-  caption?: string
-  title?: string
+  caption?: unknown[]
   href?: string
-  rel?: string
-  linkClass?: string
   id?: number
+  align?: string
   width?: number
   height?: number
-  sizeSlug?: string
-  linkDestination: string
-  linkTarget?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  blurDataUrl: string
+}
+
+/**
+ * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface ImageDeprecated6Attributes {
+  url?: string
+  alt: string
+  caption?: unknown[]
+  href?: string
+  id?: number
+  align?: string
+  width?: number
+  height?: number
   lock?: {
     [k: string]: unknown
   }

@@ -109,5 +109,12 @@ pub async fn seed_user_research_consents(db_pool: &Pool<Postgres>) -> anyhow::Re
         true,
     )
     .await?;
+    user_research_consents::upsert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        Uuid::parse_str("c60ca874-bab9-452a-895f-02597cf60886")?,
+        true,
+    )
+    .await?;
     Ok(())
 }

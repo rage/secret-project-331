@@ -4,13 +4,13 @@ import { isPageChapterFrontPage } from "../services/backend"
 import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 
 const useIsPageChapterFrontPage = (pageId: string | undefined) => {
-  const isChapterFrontPageQuery = useQuery(
-    [`is-page-${pageId}-chapter-front-page`],
-    () => {
+  const isChapterFrontPageQuery = useQuery({
+    queryKey: [`is-page-${pageId}-chapter-front-page`],
+    queryFn: () => {
       return isPageChapterFrontPage(assertNotNullOrUndefined(pageId))
     },
-    { enabled: pageId !== undefined },
-  )
+    enabled: pageId !== undefined,
+  })
   return isChapterFrontPageQuery
 }
 

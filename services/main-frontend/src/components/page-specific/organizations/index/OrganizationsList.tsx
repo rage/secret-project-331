@@ -14,7 +14,9 @@ import { organizationCoursesPageHref } from "../../../../shared-module/utils/cro
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
-  const getOrganizations = useQuery([`organizations`], () => fetchOrganizations(), {
+  const getOrganizations = useQuery({
+    queryKey: [`organizations`],
+    queryFn: () => fetchOrganizations(),
     cacheTime: 60000,
   })
 

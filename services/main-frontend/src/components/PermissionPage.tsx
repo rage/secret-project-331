@@ -105,8 +105,14 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
-  const roleQuery = useQuery([`roles`, domain], () => fetchRoles(query))
-  const pendingRolesQuery = useQuery([`pending-roles`, domain], () => fetchPendingRoles(query))
+  const roleQuery = useQuery({
+    queryKey: [`roles`, domain, query],
+    queryFn: () => fetchRoles(query),
+  })
+  const pendingRolesQuery = useQuery({
+    queryKey: [`pending-roles`, domain, query],
+    queryFn: () => fetchPendingRoles(query),
+  })
   const addMutation = useToastMutation(
     () => {
       return giveRole(newEmail, newRole, domain)

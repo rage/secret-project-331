@@ -40,20 +40,20 @@ const CourseInstanceExerciseStatusList: React.FC<
 > = ({ query }) => {
   const { t } = useTranslation()
 
-  const exerciseStatusSummariesQuery = useQuery(
-    [`${query.id}-status-for-all-exercises-${query.user_id}`],
-    () => getAllExerciseStatusSummariesForUserAndCourseInstance(query.id, query.user_id),
-  )
-  const courseModuleCompletionsQuery = useQuery(
-    [`${query.id}-course-module-completions-${query.user_id}`],
-    () => getAllCourseModuleCompletionsForUserAndCourseInstance(query.id, query.user_id),
-  )
+  const exerciseStatusSummariesQuery = useQuery({
+    queryKey: [`${query.id}-status-for-all-exercises-${query.user_id}`],
+    queryFn: () => getAllExerciseStatusSummariesForUserAndCourseInstance(query.id, query.user_id),
+  })
+  const courseModuleCompletionsQuery = useQuery({
+    queryKey: [`${query.id}-course-module-completions-${query.user_id}`],
+    queryFn: () => getAllCourseModuleCompletionsForUserAndCourseInstance(query.id, query.user_id),
+  })
   const courseId = getCourseId(exerciseStatusSummariesQuery.data)
   const courseStructure = useCourseStructure(courseId)
-  const courseInstanceProgresses = useQuery(
-    [`course-instance-${query.id}-progress-${query.user_id}`],
-    () => getUserProgressForCourseInstance(query.id, query.user_id),
-  )
+  const courseInstanceProgresses = useQuery({
+    queryKey: [`course-instance-${query.id}-progress-${query.user_id}`],
+    queryFn: () => getUserProgressForCourseInstance(query.id, query.user_id),
+  })
 
   if (
     exerciseStatusSummariesQuery.isError ||

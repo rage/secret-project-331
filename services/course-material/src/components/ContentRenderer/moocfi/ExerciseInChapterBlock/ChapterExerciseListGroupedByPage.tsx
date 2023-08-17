@@ -23,20 +23,21 @@ const ChapterExerciseListGroupedByPage: React.FC<
   React.PropsWithChildren<ChapterExerciseListGroupedByPageProps>
 > = ({ chapterId, courseInstanceId, courseSlug, organizationSlug, page }) => {
   const loginStateContext = useContext(LoginStateContext)
-  const getUserCourseInstanceChapterExercisesProgress = useQuery(
-    [`user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`],
-    () =>
+  const getUserCourseInstanceChapterExercisesProgress = useQuery({
+    queryKey: [
+      `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
+      chapterId,
+    ],
+    queryFn: () =>
       fetchUserCourseInstanceChapterExercisesProgress(
         assertNotNullOrUndefined(courseInstanceId),
         chapterId,
       ),
-    {
-      select: (data) => {
-        return new Map(data.map((x) => [x.exercise_id, x.score_given]))
-      },
-      enabled: courseInstanceId !== undefined,
+    select: (data) => {
+      return new Map(data.map((x) => [x.exercise_id, x.score_given]))
     },
-  )
+    enabled: courseInstanceId !== undefined,
+  })
 
   if (getUserCourseInstanceChapterExercisesProgress.isError) {
     return (

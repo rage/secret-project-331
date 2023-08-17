@@ -49,6 +49,9 @@ jobs:
         run: npm ci
 
       - name: Build
+        run: bin/download-tmc-langs
+
+      - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output
 
       - name: Store skaffold output json

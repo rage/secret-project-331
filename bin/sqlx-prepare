@@ -23,4 +23,4 @@ run_command cd "$RELATIVE_PATH" || exit
 run_command cargo sqlx prepare --database-url postgres://headless-lms@localhost:54328/headless_lms_dev -- "$@" --lib
 
 # Formatting the result file so that diffs are pretty
-run_command npx prettier --write sqlx-data.json
+run_command npx prettier --write .sqlx

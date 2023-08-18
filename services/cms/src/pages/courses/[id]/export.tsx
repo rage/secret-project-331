@@ -28,7 +28,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
         const pages = await getAllPagesForACourse(query.id)
         setTotalSteps(pages.length)
         const tarBuilder = new TarBuilder()
-        tarBuilder.set_gzip(true)
+        tarBuilder.set_gzip(false)
         const textEncoder = new TextEncoder()
         const alreadyAddedFiles = new Set<string>()
         for (const page of pages) {
@@ -91,7 +91,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           `Page export ${pageInfo.course_slug} ${dateToString(new Date()).replaceAll(
             ":",
             ".",
-          )}.tar.gz`,
+          )}.tar`,
           tarBuilder.finish(),
         )
       } finally {

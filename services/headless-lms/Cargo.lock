@@ -2594,6 +2594,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "ts-rs",
  "uuid",
 ]
 

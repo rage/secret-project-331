@@ -5,12 +5,16 @@ use chrono::{DateTime, Utc};
 pub use error::ErrorResponse;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+#[cfg(feature = "ts_rs")]
+use ts_rs::TS;
 use uuid::Uuid;
 
 pub type Token =
     oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInstance {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -22,6 +26,7 @@ pub struct CourseInstance {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlide {
     pub slide_id: Uuid,
     pub exercise_id: Uuid,
@@ -32,6 +37,7 @@ pub struct ExerciseSlide {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTask {
     pub task_id: Uuid,
     pub order_number: i32,
@@ -42,6 +48,7 @@ pub struct ExerciseTask {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
@@ -49,22 +56,26 @@ pub struct ExerciseSlideSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskSubmissionResult {
     pub submission_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UploadMetadata {
     pub slide_id: Uuid,
     pub task_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UploadResult {
     pub download_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {
@@ -78,6 +89,7 @@ pub enum ExerciseTaskSubmissionStatus {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum GradingProgress {
     /// The grading could not complete.
     Failed,

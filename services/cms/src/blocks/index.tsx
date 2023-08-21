@@ -3,6 +3,7 @@ import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
 import Author from "./Author"
+import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
 import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -55,6 +56,7 @@ export const blockTypeMapForPages = [
   ["moocfi/iframe", Iframe],
   ["moocfi/map", Map],
   ["moocfi/author", Author],
+  ["moocfi/author-inner-block", AuthorInnerBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

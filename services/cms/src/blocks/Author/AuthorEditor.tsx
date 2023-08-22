@@ -7,35 +7,8 @@ import { useTranslation } from "react-i18next"
 import { baseTheme, headingFont } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "moocfi/author-inner-block"]
-const AUTHOR_BLOCK_TEMPLATE: Template[] = [
-  [
-    "core/columns",
-    { isStackedOnMobile: true },
-    [
-      [
-        "core/column",
-        {},
-        [
-          [
-            "core/image",
-            {
-              level: 2,
-              textAlign: "left",
-              anchor: "author-photo",
-            },
-          ],
-        ],
-      ],
-      [
-        "core/column",
-        {},
-        [["core/paragraph", { placeholder: "Insert author's bio text...", align: "left" }]],
-      ],
-    ],
-  ],
-]
-
+const ALLOWED_NESTED_BLOCKS = ["moocfi/author-inner-block"]
+const AUTHOR_BLOCK_TEMPLATE: Template[] = [["moocfi/author-inner-block"]]
 const AuthorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
   clientId,
 }) => {

@@ -15,6 +15,7 @@ interface InfoBoxBlockAttributes {
 const Wrapper = styled.div`
   background: #f7f8f9;
   padding: 2rem 2rem 1rem 2rem;
+  margin-bottom: 1rem;
 
   h3 {
     color: ${baseTheme.colors.gray[700]};

@@ -209,6 +209,23 @@ const Timeline: React.FunctionComponent<
                     })}
                     onChange={(event) => {
                       if (!quizItemAnswerState) {
+                        const choices = [
+                          {
+                            timelineItemId: timelineItem.itemId,
+                            chosenEventId: event.target.value,
+                          },
+                        ]
+                        setQuizItemAnswerState({
+                          quizItemId: quizItem.id,
+                          type: "timeline",
+                          timelineChoices: [
+                            {
+                              timelineItemId: timelineItem.itemId,
+                              chosenEventId: event.target.value,
+                            },
+                          ],
+                          valid: validate(choices, quizItem.timelineItems),
+                        })
                         return
                       }
                       const timelineChoicesWithoutThisOne =
@@ -219,15 +236,7 @@ const Timeline: React.FunctionComponent<
                         ...timelineChoicesWithoutThisOne,
                         { timelineItemId: timelineItem.itemId, chosenEventId: event.target.value },
                       ]
-                      if (!quizItemAnswerState) {
-                        setQuizItemAnswerState({
-                          quizItemId: quizItem.id,
-                          type: "timeline",
-                          timelineChoices: newTimelineChoices,
-                          valid: validate(newTimelineChoices, quizItem.timelineItems),
-                        })
-                        return
-                      }
+
                       setQuizItemAnswerState({
                         ...quizItemAnswerState,
                         timelineChoices: newTimelineChoices,

@@ -44,7 +44,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
   >
 > = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback, quiz_item_model_solution }) => {
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
-  const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
+  const correct = (quiz_item_feedback as ItemAnswerFeedback).correctnessCoefficient == 1
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]

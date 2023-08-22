@@ -63,11 +63,16 @@ test("Limited tries work", async ({ page }) => {
 
   await page.frameLocator("iframe").locator("text=AC").click()
 
+  await page.frameLocator("iframe").locator("text=Jupiter").click()
+
   await page.locator("text=Submit").click()
 
   await page.locator("text=Tries remaining: 1").click()
 
   await page.locator("text=try again").click()
+
+  await page.frameLocator("iframe").locator("text=AC").click()
+  await page.frameLocator("iframe").locator("text=Jupiter").click()
 
   await page.frameLocator("iframe").locator("text=Erlang").click()
 

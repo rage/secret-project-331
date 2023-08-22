@@ -8,20 +8,17 @@ const assessTimeline = (
   if (!quizItem.timelineItems) {
     throw new Error("No timeline items for timeline assignment")
   }
-  let nCorrect = 0
-  quizItem.timelineItems.forEach((ti) => {
-    const answer = quizItemAnswer.timelineChoices.find((tc) => tc.timelineItemId === ti.id)
-    if (answer) {
-      nCorrect++
-    }
+
+  const result = quizItemAnswer.timelineChoices.map((choice) => {
+    const item = quizItem.timelineItems?.find((qItem) => qItem.id == choice.timelineItemId)
+    return item?.correctEventId == choice.chosenEventId
   })
 
-  const timeLineItemsCount = quizItem.timelineItems.length
-  const correctnessCoefficient = nCorrect / quizItem.timelineItems.length
+  const correctnessCoefficient =
+    result.filter((item) => item == true).length / quizItem.timelineItems.length
 
   return {
     quizItemId: quizItem.id,
-    correct: nCorrect === timeLineItemsCount,
     correctnessCoefficient,
   }
 }

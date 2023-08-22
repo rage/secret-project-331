@@ -25,10 +25,19 @@ export interface TimelineItemFeedback {
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null
-  quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
   timeline_item_feedbacks: TimelineItemFeedback[] | null
-  score: number
+  /** The points for this quiz item will be multiplied with the correctness coefficient.
+   *
+   * For example, if this quiz item is worth 2 points and the correctness coefficient 0.75, the
+   * user would get `2*0.75=1.5` points for this quiz item.
+   *
+   * * 0 will be regarded as an incorrect answer
+   * * 0 < x < 1 will be regarded as a partially correct answer
+   * * 1 will be regarded as a correct answer
+   *
+   */
+  correctnessCoefficient: number
 }
 
 const submissionFeedback = (
@@ -45,9 +54,8 @@ const submissionFeedback = (
         quiz_item_id: null,
         quiz_item_feedback: null,
         quiz_item_option_feedbacks: null,
-        quiz_item_correct: null,
         timeline_item_feedbacks: null,
-        score: 1,
+        correctnessCoefficient: 1,
       }
     }
 
@@ -60,27 +68,26 @@ const submissionFeedback = (
       const multipleChoiceQuizItem = item as PrivateSpecQuizItemMultiplechoice
       const multipleChoiceUserAnswer = itemAnswer as UserItemAnswerMultiplechoice
 
-      const quizItemFeedback = itemGrading.correct
-        ? multipleChoiceQuizItem.successMessage
-        : multipleChoiceQuizItem.failureMessage
+      const quizItemFeedback =
+        itemGrading.correctnessCoefficient === 1
+          ? multipleChoiceQuizItem.successMessage
+          : multipleChoiceQuizItem.failureMessage
 
       if (!multipleChoiceUserAnswer.selectedOptionIds) {
         return {
           quiz_item_id: null,
           quiz_item_feedback: null,
           quiz_item_option_feedbacks: null,
-          quiz_item_correct: null,
           timeline_item_feedbacks: null,
-          score: 1,
+          correctnessCoefficient: 1,
         }
       }
 
       return {
         timeline_item_feedbacks: null,
         quiz_item_id: multipleChoiceQuizItem.id,
-        quiz_item_correct: itemGrading.correct,
         quiz_item_feedback: quizItemFeedback,
-        score: itemGrading.correctnessCoefficient,
+        correctnessCoefficient: itemGrading.correctnessCoefficient,
         quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
           (optionId): OptionAnswerFeedback => {
             const option =
@@ -109,16 +116,16 @@ const submissionFeedback = (
     if (item.type == "timeline") {
       const timelineQuizItem = item as PrivateSpecQuizItemTimeline
       const timelineItemAnswer = itemAnswer as UserItemAnswerTimeline
-      const quizItemFeedback = itemGrading.correct
-        ? timelineQuizItem.successMessage
-        : timelineQuizItem.failureMessage
+      const quizItemFeedback =
+        itemGrading.correctnessCoefficient === 1
+          ? timelineQuizItem.successMessage
+          : timelineQuizItem.failureMessage
 
       return {
         quiz_item_id: timelineQuizItem.id,
         quiz_item_feedback: quizItemFeedback,
-        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
-        score: itemGrading.correctnessCoefficient,
+        correctnessCoefficient: itemGrading.correctnessCoefficient,
         timeline_item_feedbacks: timelineItemAnswer.timelineChoices.map<TimelineItemFeedback>(
           (timelineChoice) => {
             const timelineItem = timelineQuizItem.timelineItems?.find(
@@ -131,7 +138,7 @@ const submissionFeedback = (
               }
             }
             return {
-              timeline_item_id: timelineQuizItem.id,
+              timeline_item_id: timelineChoice.timelineItemId,
               what_was_chosen_was_correct:
                 timelineItem.correctEventId === timelineChoice.chosenEventId,
             }
@@ -142,11 +149,11 @@ const submissionFeedback = (
 
     return {
       quiz_item_id: item.id,
-      quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
-      quiz_item_correct: itemGrading.correct,
+      quiz_item_feedback:
+        itemGrading.correctnessCoefficient === 1 ? item.successMessage : item.failureMessage,
       quiz_item_option_feedbacks: null,
       timeline_item_feedbacks: null,
-      score: itemGrading.correctnessCoefficient,
+      correctnessCoefficient: itemGrading.correctnessCoefficient,
     }
   })
 }

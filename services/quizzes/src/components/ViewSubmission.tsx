@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -37,11 +37,11 @@ import { FlexDirection, sanitizeFlexDirection } from "../util/css-sanitization"
 
 import FlexWrapper from "./FlexWrapper"
 import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
+import ChooseN from "./SubmissionComponents/ChooseN"
 import ClosedEndedQuestionFeedback from "./SubmissionComponents/Closed-ended-question"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
-import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import ScaleSubmissionViewComponent from "./SubmissionComponents/Scale"
 import Timeline from "./SubmissionComponents/Timeline"
@@ -64,7 +64,7 @@ interface QuizItemSubmissionComponentDescriptor {
     | typeof ClosedEndedQuestionFeedback
     | typeof Unsupported
     | typeof MultipleChoiceDropdownFeedback
-    | typeof MultipleChoiceClickableFeedback
+    | typeof ChooseN
     | typeof MatrixSubmission
     | typeof Timeline
   shouldDisplayCorrectnessMessageAfterAnswer: boolean
@@ -97,7 +97,7 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
   "choose-n": {
-    component: MultipleChoiceClickableFeedback,
+    component: ChooseN,
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
   matrix: { component: MatrixSubmission, shouldDisplayCorrectnessMessageAfterAnswer: true },
@@ -114,6 +114,55 @@ const FlexItem = styled.div`
   flex: 1;
 `
 
+const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ itemFeedback }) => {
+  const { t } = useTranslation()
+
+  let backgroundColor = "#fffaf1"
+  let borderColor = "#f3e5cb"
+  let textColor = "#C25100"
+
+  if (itemFeedback.correctnessCoefficient == 1) {
+    backgroundColor = "#f1fff2"
+    borderColor = "#cbf3cd"
+    textColor = "#1c850d"
+  } else if (itemFeedback.correctnessCoefficient == 0) {
+    backgroundColor = "#fff4f5"
+    borderColor = "#f3cbcf"
+    textColor = "#d52a3c"
+  }
+
+  const mapScoreToFeedback = useCallback(
+    (score: number) => {
+      if (score <= 0) {
+        return t("your-answer-was-not-correct")
+      } else if (score < 1) {
+        return t("your-answer-was-partially-correct")
+      } else {
+        return t("your-answer-was-correct")
+      }
+    },
+    [t],
+  )
+
+  return (
+    <div
+      className={css`
+        background: ${backgroundColor};
+        border: 1px solid ${borderColor};
+        box-sizing: border-box;
+        border-radius: 4px;
+        color: ${textColor};
+        margin: 1.5rem auto;
+        margin-bottom: 0;
+        padding: 0.25rem 1.5rem;
+        width: fit-content;
+      `}
+    >
+      {mapScoreToFeedback(itemFeedback.correctnessCoefficient)}
+    </div>
+  )
+}
+
 const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   publicAlternatives,
   modelSolutions,
@@ -122,16 +171,6 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   user_information,
 }) => {
   const { t } = useTranslation()
-
-  const mapScoreToFeedback = (score: number) => {
-    if (score <= 0) {
-      return t("your-answer-was-not-correct")
-    } else if (score < 1) {
-      return t("your-answer-was-partially-correct")
-    } else {
-      return t("your-answer-was-correct")
-    }
-  }
 
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items
@@ -165,21 +204,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
           )[0]
           const feedback = itemFeedback &&
             componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
-              <div
-                className={css`
-                  background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
-                  border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
-                  box-sizing: border-box;
-                  border-radius: 4px;
-                  color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
-                  margin: 1.5rem auto;
-                  margin-bottom: 0;
-                  padding: 0.25rem 1.5rem;
-                  width: fit-content;
-                `}
-              >
-                {mapScoreToFeedback(itemFeedback.score)}
-              </div>
+              <SubmissionFeedback itemFeedback={itemFeedback} />
             )
           const missingQuizItemAnswer = !quizItemAnswer && (
             <div
@@ -214,7 +239,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
               return (
                 quizItemAnswer && (
                   <FlexItem key={item.id}>
-                    <MultipleChoiceClickableFeedback
+                    <ChooseN
                       key={item.id}
                       public_quiz_item={item as PublicSpecQuizItemChooseN}
                       quiz_direction={direction}

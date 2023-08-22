@@ -23,7 +23,6 @@ const assessEssay = (
 
   return {
     quizItemId: quizItem.id,
-    correct,
     correctnessCoefficient: correct ? 1 : 0,
   }
 }

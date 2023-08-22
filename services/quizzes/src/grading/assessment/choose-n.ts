@@ -1,10 +1,11 @@
 import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemChooseN } from "../../../types/quizTypes/privateSpec"
+import { QuizItemAnswerGrading } from "../types"
 
 const assessChooseN = (
   quizItemAnswer: UserItemAnswerChooseN,
   quizItem: PrivateSpecQuizItemChooseN,
-) => {
+): QuizItemAnswerGrading => {
   if (!quizItemAnswer.selectedOptionIds) {
     throw new Error("No options selected")
   }
@@ -16,12 +17,10 @@ const assessChooseN = (
       correctOptions++
     }
   })
-  const correct = quizItemAnswer.selectedOptionIds.length == quizItem.n
 
   return {
     quizItemId: quizItem.id,
-    correct,
-    correctnessCoefficient: correctOptions / totalCorrectOptions,
+    correctnessCoefficient: correctOptions / Math.min(quizItem.n, totalCorrectOptions),
   }
 }
 

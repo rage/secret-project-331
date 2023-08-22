@@ -738,7 +738,7 @@ pub async fn seed_sample_course(
           "awardPointsEvenIfWrong": false,
           "grantPointsPolicy": "grant_whenever_possible",
           "quizItemDisplayDirection": "vertical",
-          "submitMessage": null,
+          "submitMessage": "This is an extra submit message from the teacher.",
           "items": [
             {
               "type": "choose-n",
@@ -880,7 +880,7 @@ pub async fn seed_sample_course(
           "part": 0,
           "points": 0,
           "section": 0,
-          "submitMessage": "",
+          "submitMessage": "This is an extra submit message from the teacher.",
           "title": "",
           "tries": 1,
           "triesLimited": true,
@@ -3423,7 +3423,7 @@ pub async fn seed_course_without_submissions(
           "awardPointsEvenIfWrong": false,
           "grantPointsPolicy": "grant_whenever_possible",
           "quizItemDisplayDirection": "vertical",
-          "submitMessage": null,
+          "submitMessage": "This is an extra submit message from the teacher.",
           "items": [
             {
               "type": "choose-n",
@@ -3565,7 +3565,7 @@ pub async fn seed_course_without_submissions(
           "part": 0,
           "points": 0,
           "section": 0,
-          "submitMessage": "",
+          "submitMessage": "This is an extra submit message from the teacher.",
           "title": "",
           "tries": 1,
           "triesLimited": true,

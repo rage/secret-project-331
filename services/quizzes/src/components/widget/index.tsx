@@ -26,7 +26,7 @@ import {
 } from "../../../types/quizTypes/publicSpec"
 import useQuizzesUserAnswerOutputState from "../../hooks/useQuizzesUserAnswerServiceOutputState"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
-import { COLUMN } from "../../util/constants"
+import { COLUMN, QUIZ_ITEM_CLASS } from "../../util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "../../util/css-sanitization"
 import FlexWrapper from "../FlexWrapper"
 
@@ -67,17 +67,10 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   publicSpec,
   user_information,
 }) => {
-  // set wide screen direction to row if there is multiple-choice item
-  // in quiz items
-  let direction: FlexDirection = COLUMN
-  if (publicSpec != null) {
-    publicSpec.items.every((item) => {
-      if (item.type == "multiple-choice") {
-        direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
-        return
-      }
-    })
-  }
+  const direction: FlexDirection = sanitizeFlexDirection(
+    publicSpec.quizItemDisplayDirection,
+    COLUMN,
+  )
 
   const { selected, updateState } = useQuizzesUserAnswerOutputState<UserAnswer>((uAnswer) => {
     return uAnswer
@@ -106,6 +99,171 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
     })
   }
 
+  const GetComponent: React.FC<{
+    quizItem: PublicSpecQuizItem
+    quizItemAnswerState: UserItemAnswer | null
+    idx: number
+  }> = ({ quizItem, quizItemAnswerState, idx }) => {
+    switch (quizItem.type) {
+      case "checkbox":
+        quizItem = quizItem as PublicSpecQuizItemCheckbox
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerCheckbox
+
+        return (
+          <Checkbox
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerCheckbox>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "choose-n":
+        quizItem = quizItem as PublicSpecQuizItemChooseN
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerChooseN
+        return (
+          <ChooseN
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerChooseN>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "closed-ended-question":
+        quizItem = quizItem as PublicSpecQuizItemClosedEndedQuestion
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerClosedEndedQuestion
+        return (
+          <ClosedEndedQuestion
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerClosedEndedQuestion>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "essay":
+        quizItem = quizItem as PublicSpecQuizItemEssay
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerEssay
+        return (
+          <Essay
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerEssay>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "matrix":
+        quizItem = quizItem as PublicSpecQuizItemMatrix
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerMatrix
+        return (
+          <Matrix
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMatrix>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "multiple-choice":
+        quizItem = quizItem as PublicSpecQuizItemMultiplechoice
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerMultiplechoice
+        return (
+          <MultipleChoice
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(quizItem.optionDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoice>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "multiple-choice-dropdown":
+        quizItem = quizItem as PublicSpecQuizItemMultiplechoiceDropdown
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerMultiplechoiceDropdown
+        return (
+          <MultipleChoiceDropdown
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoiceDropdown>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "scale":
+        quizItem = quizItem as PublicSpecQuizItemScale
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerScale
+        return (
+          <Scale
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerScale>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      case "timeline":
+        quizItem = quizItem as PublicSpecQuizItemTimeline
+        quizItemAnswerState = quizItemAnswerState as UserItemAnswerTimeline
+        return (
+          <Timeline
+            key={quizItem.id}
+            quizDirection={sanitizeFlexDirection(publicSpec.quizItemDisplayDirection, COLUMN)}
+            quizItem={quizItem}
+            quizItemAnswerState={quizItemAnswerState}
+            user_information={user_information}
+            setQuizItemAnswerState={(
+              newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerTimeline>,
+            ) => {
+              updateUserItemAnswer(newQuizItemAnswer)
+            }}
+          />
+        )
+      default:
+        return <Unsupported key={idx} />
+    }
+  }
+
   return (
     <FlexWrapper wideScreenDirection={direction}>
       {publicSpec.items
@@ -120,166 +278,15 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
               quizItemAnswerState = found
             }
           }
-
-          switch (quizItem.type) {
-            case "checkbox":
-              quizItem = quizItem as PublicSpecQuizItemCheckbox
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerCheckbox
-
-              return (
-                <Checkbox
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerCheckbox>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "choose-n":
-              quizItem = quizItem as PublicSpecQuizItemChooseN
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerChooseN
-              return (
-                <ChooseN
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerChooseN>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "closed-ended-question":
-              quizItem = quizItem as PublicSpecQuizItemClosedEndedQuestion
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerClosedEndedQuestion
-              return (
-                <ClosedEndedQuestion
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerClosedEndedQuestion>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "essay":
-              quizItem = quizItem as PublicSpecQuizItemEssay
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerEssay
-              return (
-                <Essay
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerEssay>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "matrix":
-              quizItem = quizItem as PublicSpecQuizItemMatrix
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerMatrix
-              return (
-                <Matrix
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMatrix>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "multiple-choice":
-              quizItem = quizItem as PublicSpecQuizItemMultiplechoice
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerMultiplechoice
-              return (
-                <MultipleChoice
-                  key={quizItem.id}
-                  quizDirection={sanitizeFlexDirection(quizItem.optionDisplayDirection, COLUMN)}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoice>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "multiple-choice-dropdown":
-              quizItem = quizItem as PublicSpecQuizItemMultiplechoiceDropdown
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerMultiplechoiceDropdown
-              return (
-                <MultipleChoiceDropdown
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerMultiplechoiceDropdown>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "scale":
-              quizItem = quizItem as PublicSpecQuizItemScale
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerScale
-              return (
-                <Scale
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerScale>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            case "timeline":
-              quizItem = quizItem as PublicSpecQuizItemTimeline
-              quizItemAnswerState = quizItemAnswerState as UserItemAnswerTimeline
-              return (
-                <Timeline
-                  key={quizItem.id}
-                  quizDirection={COLUMN}
-                  quizItem={quizItem}
-                  quizItemAnswerState={quizItemAnswerState}
-                  user_information={user_information}
-                  setQuizItemAnswerState={(
-                    newQuizItemAnswer: QuizItemAnswerWithoutId<UserItemAnswerTimeline>,
-                  ) => {
-                    updateUserItemAnswer(newQuizItemAnswer)
-                  }}
-                />
-              )
-            default:
-              break
-          }
-          return <Unsupported key={idx} />
+          return (
+            <div className={QUIZ_ITEM_CLASS} key={quizItem.id}>
+              <GetComponent
+                idx={idx}
+                quizItem={quizItem}
+                quizItemAnswerState={quizItemAnswerState}
+              />
+            </div>
+          )
         })}
     </FlexWrapper>
   )

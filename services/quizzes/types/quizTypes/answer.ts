@@ -62,11 +62,13 @@ export interface UserItemAnswerMatrix {
   quizItemId: string
   matrix: string[][]
 }
-
+/**
+ * @see {@link PrivateSpecQuizItemTimelineItem}
+ */
 export interface TimelineChoice {
-  /** We use timelineItem id to match for answers so that this is resilient to typo fixes in the year */
+  /** We use timelineItem id to match for answers so that this is resilient to typo fixes in the year. This is matched to PrivateSpecQuizItemTimelineItem.id. */
   timelineItemId: string
-  /** We use a generated id to match the choices to options to make this resilient to typo fixes event name. */
+  /** We use a generated id to match the choices to options to make this resilient to typo fixes event name. This is matched to PrivateSpecQuizItemTimelineItem.correctEventId */
   chosenEventId: string
 }
 

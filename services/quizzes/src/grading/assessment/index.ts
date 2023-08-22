@@ -56,9 +56,8 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
       case "scale":
         return {
           quizItemId: itemAnswer.quizItemId,
-          correct: true,
           correctnessCoefficient: 1,
-        }
+        } satisfies QuizItemAnswerGrading
     }
   })
 }

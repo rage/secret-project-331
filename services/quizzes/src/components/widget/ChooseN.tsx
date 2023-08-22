@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import _ from "lodash"
-import React, { useState } from "react"
+import React from "react"
 
 import { UserItemAnswerChooseN } from "../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../types/quizTypes/publicSpec"
@@ -13,13 +13,6 @@ import { QuizItemComponentProps } from "."
 const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
-  const [optionsFull, setOptionsFull] = useState(
-    quizItemAnswerState
-      ? 0 < quizItemAnswerState.selectedOptionIds.length &&
-          quizItemAnswerState.selectedOptionIds.length <= quizItem.n
-      : false,
-  )
-
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
@@ -41,7 +34,6 @@ const ChooseN: React.FunctionComponent<
     const selectedIds = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
     const validAnswer = selectedIds.length == quizItem.n
 
-    setOptionsFull(validAnswer)
     const newItemAnswer: UserItemAnswerChooseN = {
       ...quizItemAnswerState,
       selectedOptionIds: selectedIds,
@@ -53,7 +45,6 @@ const ChooseN: React.FunctionComponent<
 
   const selectedBackgroundColor = quizTheme.selectedItemBackground
   const selectedForegroundColor = quizTheme.selectedItemColor
-
   return (
     <div
       className={css`
@@ -91,7 +82,10 @@ const ChooseN: React.FunctionComponent<
               ${quizItemAnswerState?.selectedOptionIds?.includes(o.id) &&
               `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
             `}
-            disabled={optionsFull && !quizItemAnswerState?.selectedOptionIds?.includes(o.id)}
+            disabled={
+              quizItemAnswerState?.selectedOptionIds.length == quizItem.n &&
+              !quizItemAnswerState?.selectedOptionIds?.includes(o.id)
+            }
           >
             {o.title || o.body}
           </button>

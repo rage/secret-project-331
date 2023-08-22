@@ -1,10 +1,11 @@
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/privateSpec"
+import { QuizItemAnswerGrading } from "../types"
 
 const assessMultipleChoiceDropdown = (
   quizItemAnswer: UserItemAnswerMultiplechoiceDropdown,
   quizItem: PrivateSpecQuizItemMultiplechoiceDropdown,
-) => {
+): QuizItemAnswerGrading => {
   if (!quizItemAnswer.selectedOptionIds) {
     throw new Error(
       "No options selected for multiple choice dropdown: '" + JSON.stringify(quizItemAnswer) + "'",
@@ -15,7 +16,6 @@ const assessMultipleChoiceDropdown = (
   if (quizItemAnswer.selectedOptionIds.length == 0) {
     return {
       quizItemId: quizItem.id,
-      correct: false,
       correctnessCoefficient: 0,
     }
   }
@@ -27,14 +27,12 @@ const assessMultipleChoiceDropdown = (
   if (!answer) {
     return {
       quizItemId: quizItem.id,
-      correct: false,
       correctnessCoefficient: 0,
     }
   }
 
   return {
     quizItemId: quizItem.id,
-    correct: answer.correct,
     correctnessCoefficient: answer.correct ? 1 : 0,
   }
 }

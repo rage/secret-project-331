@@ -1,11 +1,12 @@
 import { UserItemAnswerClosedEndedQuestion } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
+import { QuizItemAnswerGrading } from "../types"
 
 const assessClosedEndedQuestion = (
   quizItemAnswer: UserItemAnswerClosedEndedQuestion,
   quizItem: PrivateSpecQuizItemClosedEndedQuestion,
-) => {
+): QuizItemAnswerGrading => {
   if (!quizItemAnswer) {
     throw new Error("No answer provided")
   }
@@ -19,7 +20,6 @@ const assessClosedEndedQuestion = (
 
   return {
     quizItemId: quizItem.id,
-    correct,
     correctnessCoefficient: correct ? 1 : 0,
   }
 }

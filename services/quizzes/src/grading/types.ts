@@ -11,5 +11,4 @@ export interface QuizItemAnswerGrading {
    */
   correctnessCoefficient: number
   quizItemId: string
-  correct: boolean
 }

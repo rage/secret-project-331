@@ -67,7 +67,6 @@ const assessMultipleChoice = (
 
   return {
     quizItemId: quizItem.id,
-    correct: correctnessCoefficient == 1,
     correctnessCoefficient,
   }
 }

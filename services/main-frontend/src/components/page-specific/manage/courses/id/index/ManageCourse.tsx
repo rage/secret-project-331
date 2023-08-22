@@ -228,6 +228,16 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </ul>
         </>
       </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <a
+          href={`/cms/courses/${course.id}/research-form-edit`}
+          aria-label={t("button-text-create-or-edit-research-form")}
+        >
+          <Button variant="secondary" size="medium">
+            {t("button-text-create-or-edit-research-form")}
+          </Button>
+        </a>
+      </OnlyRenderIfPermissions>
     </>
   )
 }

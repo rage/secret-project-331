@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT courses.id as course_id,\n  courses.name as course_name,\n  courses.slug as course_slug,\n  organizations.slug as organization_slug,\n  organizations.name as organization_name\nFROM courses\n  JOIN organizations ON (courses.organization_id = organizations.id)\nWHERE courses.id = $1;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "course_slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "organization_slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "organization_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false]
+  },
+  "hash": "7a7a56fe873db6427ef31e355cd69c6cd2353e6e8644bba0fa9ff3264e78f1af"
+}

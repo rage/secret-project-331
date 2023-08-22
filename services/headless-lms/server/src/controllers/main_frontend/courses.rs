@@ -68,7 +68,8 @@ async fn get_course_breadcrumb_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseBreadcrumbInfo>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let user_id = Some(user.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
 }

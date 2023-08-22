@@ -136,6 +136,9 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   NewRegrading,
+  NewResearchForm,
+  NewResearchFormQuestion,
+  NewResearchFormQuestionAnswer,
   NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
@@ -179,6 +182,9 @@ import {
   RegradingInfo,
   RegradingSubmissionInfo,
   RepositoryExercise,
+  ResearchForm,
+  ResearchFormQuestion,
+  ResearchFormQuestionAnswer,
   Resource,
   ReviewingStage,
   RoleDomain,
@@ -938,6 +944,7 @@ export function isCourseBreadcrumbInfo(obj: unknown): obj is CourseBreadcrumbInf
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["course_slug"] === "string" &&
     typeof typedObj["organization_slug"] === "string" &&
     typeof typedObj["organization_name"] === "string"
   )
@@ -2606,6 +2613,78 @@ export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {
     Array.isArray(typedObj["checksum"]) &&
     typedObj["checksum"].every((e: any) => typeof e === "number") &&
     typeof typedObj["download_url"] === "string"
+  )
+}
+
+export function isNewResearchForm(obj: unknown): obj is NewResearchForm {
+  const typedObj = obj as NewResearchForm
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isNewResearchFormQuestion(obj: unknown): obj is NewResearchFormQuestion {
+  const typedObj = obj as NewResearchFormQuestion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["question_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["research_consent_form_id"] === "string" &&
+    typeof typedObj["question"] === "string"
+  )
+}
+
+export function isResearchFormQuestion(obj: unknown): obj is ResearchFormQuestion {
+  const typedObj = obj as ResearchFormQuestion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["research_consent_form_id"] === "string" &&
+    typeof typedObj["question"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
+export function isResearchForm(obj: unknown): obj is ResearchForm {
+  const typedObj = obj as ResearchForm
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
+export function isNewResearchFormQuestionAnswer(
+  obj: unknown,
+): obj is NewResearchFormQuestionAnswer {
+  const typedObj = obj as NewResearchFormQuestionAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["research_form_question_id"] === "string" &&
+    typeof typedObj["research_consent"] === "boolean"
+  )
+}
+
+export function isResearchFormQuestionAnswer(obj: unknown): obj is ResearchFormQuestionAnswer {
+  const typedObj = obj as ResearchFormQuestionAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["research_form_question_id"] === "string" &&
+    typeof typedObj["research_consent"] === "boolean" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 

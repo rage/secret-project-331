@@ -1,9 +1,14 @@
-import { CourseInstanceEnrollmentsInfo, UserResearchConsent } from "../../shared-module/bindings"
+import {
+  CourseInstanceEnrollmentsInfo,
+  ResearchFormQuestionAnswer,
+  UserResearchConsent,
+} from "../../shared-module/bindings"
 import {
   isCourseInstanceEnrollmentsInfo,
+  isResearchFormQuestionAnswer,
   isUserResearchConsent,
 } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export async function getCourseInstanceEnrollmentsInfo(
@@ -27,4 +32,11 @@ export const postUserResearchConsent = async (consent: boolean): Promise<UserRes
 export const getResearchConsentByUserId = async (): Promise<UserResearchConsent> => {
   const res = await mainFrontendClient.get(`/users/get-user-research-consent`)
   return validateResponse(res, isUserResearchConsent)
+}
+
+export const getAllResearchConsentAnswersByUserId = async (): Promise<
+  Array<ResearchFormQuestionAnswer>
+> => {
+  const res = await mainFrontendClient.get(`/users/user-research-form-question-answers`)
+  return validateResponse(res, isArray(isResearchFormQuestionAnswer))
 }

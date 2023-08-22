@@ -64,6 +64,7 @@ pub mod proposed_block_edits;
 pub mod proposed_page_edits;
 pub mod regradings;
 pub mod repository_exercises;
+pub mod research_forms;
 pub mod roles;
 pub mod student_countries;
 pub mod study_registry_registrars;

@@ -23,10 +23,10 @@ const Wrapper = styled.div`
     border-bottom: 2px solid #edf0f2;
     font-weight: 600;
     font-size: 22px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.4rem;
   }
 
-  /*Overwrite InnerBlock styles*/
+  /*Overwrite InnerBlock Component styles*/
 
   figure {
     margin: 0;
@@ -34,6 +34,7 @@ const Wrapper = styled.div`
       margin: 0;
       width: 250px;
       height: 223px;
+      object-fit: cover;
     }
   }
 
@@ -43,6 +44,10 @@ const Wrapper = styled.div`
 
   div .css-159pl2 :first-of-type {
     max-width: 250px !important;
+  }
+
+  div .css-159pl2 :last-of-type {
+    margin-bottom: 1.4rem !important;
   }
 
   p {

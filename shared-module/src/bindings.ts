@@ -441,6 +441,7 @@ export interface NewCourse {
 export interface CourseBreadcrumbInfo {
   course_id: string
   course_name: string
+  course_slug: string
   organization_slug: string
   organization_name: string
 }
@@ -1447,6 +1448,54 @@ export interface RepositoryExercise {
   repository_url: string
   checksum: Array<number>
   download_url: string
+}
+
+export interface NewResearchForm {
+  course_id: string
+  content: unknown
+}
+
+export interface NewResearchFormQuestion {
+  question_id: string
+  course_id: string
+  research_consent_form_id: string
+  question: string
+}
+
+export interface ResearchFormQuestion {
+  id: string
+  course_id: string
+  research_consent_form_id: string
+  question: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+export interface ResearchForm {
+  id: string
+  course_id: string
+  content: unknown
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+export interface NewResearchFormQuestionAnswer {
+  user_id: string
+  research_form_question_id: string
+  research_consent: boolean
+}
+
+export interface ResearchFormQuestionAnswer {
+  id: string
+  user_id: string
+  course_id: string
+  research_form_question_id: string
+  research_consent: boolean
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
 }
 
 export type RoleDomain =

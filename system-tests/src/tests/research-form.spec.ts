@@ -45,7 +45,7 @@ test("Research form is shown on a coursepage if not answered", async ({
   headless,
 }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/advanced-course-instance-management")
-  await selectCourseInstanceIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page, "Non-default instance")
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -61,7 +61,7 @@ test("Research form is shown on a coursepage if not answered", async ({
 
 test("User can change answer of the research form", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/org/uh-cs/courses/advanced-course-instance-management")
-
+  await selectCourseInstanceIfPrompted(page, "Non-default instance")
   await page.getByRole("button", { name: "Open menu" }).click()
   await page.getByRole("button", { name: "User settings" }).click()
   await expectScreenshotsToMatchSnapshots({

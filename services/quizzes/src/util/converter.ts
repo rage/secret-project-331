@@ -152,7 +152,7 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
               ({
                 eventId: item.correctEventId,
                 name: item.correctEventName,
-              } as PublicTimelineEvent),
+              }) as PublicTimelineEvent,
           )
           .sort((i1, i2) => i1.name.localeCompare(i2.name)) ?? [],
       order: timeLineItem.order,
@@ -163,7 +163,7 @@ export const convertPublicSpecItemFromPrivateSpecItem = (
               ({
                 itemId: item.id,
                 year: item.year,
-              } as PublicSpecQuizItemTimelineItem),
+              }) as PublicSpecQuizItemTimelineItem,
           )
           .sort((i1, i2) => i1.year.localeCompare(i2.year)) ?? [],
     } satisfies PublicSpecQuizItemTimeline

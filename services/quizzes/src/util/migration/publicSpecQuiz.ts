@@ -48,7 +48,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
               id: option.id,
               order: option.order,
               title: option.title ?? "",
-            } satisfies PublicQuizItemOption),
+            }) satisfies PublicQuizItemOption,
         ),
         order: quizItem.order,
         shuffleOptions: quizItem.shuffleOptions,

@@ -1,4 +1,4 @@
-import { expect, Locator, Page, test } from "@playwright/test"
+import { Locator, Page, test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"

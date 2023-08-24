@@ -28,7 +28,16 @@ const AUTHOR_BLOCK_TEMPLATE: Template[] = [
       [
         "core/column",
         {},
-        [["core/paragraph", { placeholder: "Insert author's bio text...", align: "left" }]],
+        [
+          [
+            "core/paragraph",
+            {
+              content: "Insert author's bio text...",
+              placeholder: "Insert author's bio text...",
+              align: "center",
+            },
+          ],
+        ],
       ],
     ],
   ],

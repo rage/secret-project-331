@@ -30,6 +30,8 @@ const AuthorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<strin
               color: ${baseTheme.colors.gray[600]};
               text-align: center;
               font-weight: 500;
+              display: inline-block;
+              margin-bottom: 1.4rem;
               font-family: ${headingFont};
             `}
           >

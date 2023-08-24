@@ -37,14 +37,14 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     new Map(),
   )
 
-  const query = useQuery(
-    [`exercise-${exerciseId}-peer-review`],
-    () => {
+  const query = useQuery({
+    queryKey: [`exercise-${exerciseId}-peer-review`],
+    queryFn: () => {
       return fetchPeerReviewDataByExerciseId(exerciseId)
     },
     // 23 hours in ms. Need to refetch at this time because the given peer review candidate expires in 24 hours, and someone might leave the peer review view open for longer than that
-    { refetchInterval: 82800000 },
-  )
+    refetchInterval: 82800000,
+  })
 
   const peerReviewData = query.data?.course_material_peer_review_data
 

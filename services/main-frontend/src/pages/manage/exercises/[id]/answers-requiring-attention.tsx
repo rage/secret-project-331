@@ -24,14 +24,15 @@ interface SubmissionPageProps {
 const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
-  const getAnswersRequiringAttention = useQuery(
-    [
+  const getAnswersRequiringAttention = useQuery({
+    queryKey: [
       `exercises-${query.id}-answers-requiring-attention`,
       paginationInfo.page,
       paginationInfo.limit,
     ],
-    () => fetchAnswersRequiringAttention(query.id, paginationInfo.page, paginationInfo.limit),
-  )
+    queryFn: () =>
+      fetchAnswersRequiringAttention(query.id, paginationInfo.page, paginationInfo.limit),
+  })
   return (
     <div>
       <h4

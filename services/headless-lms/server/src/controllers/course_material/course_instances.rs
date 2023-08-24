@@ -5,7 +5,7 @@ use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_background_question_answers::NewCourseBackgroundQuestionAnswer,
     course_background_questions::CourseBackgroundQuestionsAndAnswers,
-    course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+    course_instance_enrollments::CourseInstanceEnrollment,
     library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
@@ -140,30 +140,14 @@ async fn save_course_settings(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
-    let mut tx = conn.begin().await?;
 
-    let instance =
-        models::course_instances::get_course_instance(&mut tx, *course_instance_id).await?;
-    let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
-        &mut tx,
-        NewCourseInstanceEnrollment {
-            course_id: instance.course_id,
-            course_instance_id: instance.id,
-            user_id: user.id,
-        },
+    let enrollment = models::library::course_instances::enroll(
+        &mut conn,
+        user.id,
+        *course_instance_id,
+        payload.background_question_answers.as_slice(),
     )
     .await?;
-
-    let background_question_answers = &payload.background_question_answers;
-    if !background_question_answers.is_empty() {
-        models::course_background_question_answers::upsert_backround_question_answers(
-            &mut tx,
-            user.id,
-            background_question_answers,
-        )
-        .await?;
-    }
-    tx.commit().await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(enrollment))
 }

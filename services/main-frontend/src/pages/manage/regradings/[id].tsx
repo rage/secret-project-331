@@ -17,7 +17,9 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const id = useQueryParameter("id")
 
-  const query = useQuery([`regrading`, id], () => fetchRegradingInfo(id), {
+  const query = useQuery({
+    queryKey: [`regrading`, id],
+    queryFn: () => fetchRegradingInfo(id),
     refetchInterval: (data, _query) => {
       if (!data || data.regrading.total_grading_progress === "FullyGraded") {
         return false

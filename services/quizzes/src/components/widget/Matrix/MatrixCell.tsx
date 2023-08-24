@@ -70,7 +70,9 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
         padding: 0;
         font-size: 2.8vw;
         font-size: 22px;
-        font-family: Josefin Sans, sans-serif;
+        font-family:
+          Josefin Sans,
+          sans-serif;
       `}
     >
       <div

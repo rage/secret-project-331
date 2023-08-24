@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT prs.*\nFROM exercise_slide_submissions ess\nINNER JOIN peer_review_submissions prs ON (ess.id = prs.exercise_slide_submission_id)\nWHERE ess.user_id = $1\n  AND ess.course_instance_id = $2\n  AND ess.deleted_at IS NULL\n  AND prs.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "peer_review_config_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false]
+  },
+  "hash": "d99d37a38c18d917538b9192859efaf22ed8604e94447cc20040a265330428fb"
+}

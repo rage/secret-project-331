@@ -35,9 +35,10 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
   const [showNewReferenceModal, setShowNewReferenceModal] = useState(false)
   const [showEditReferenceModal, setShowEditReferenceModal] = useState(false)
   const [reference, setReference] = useState<MaterialReference | null>(null)
-  const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
-    fetchCourseReferences(courseId),
-  )
+  const getCourseReferences = useQuery({
+    queryKey: [`course-${courseId}-references`],
+    queryFn: () => fetchCourseReferences(courseId),
+  })
 
   return (
     <div>

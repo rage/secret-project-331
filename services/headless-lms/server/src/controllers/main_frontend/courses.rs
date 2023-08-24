@@ -52,7 +52,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
 }
@@ -68,7 +68,8 @@ async fn get_course_breadcrumb_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseBreadcrumbInfo>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let user_id = Some(user.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
 }
@@ -90,12 +91,13 @@ Content-Type: application/json
 ```
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn post_new_course(
     request_id: RequestId,
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
@@ -121,7 +123,11 @@ async fn post_new_course(
         PKeyPolicy::Generate,
         new_course,
         user.id,
-        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            Arc::clone(&jwt_key),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -880,7 +886,13 @@ async fn get_course_default_peer_review(
     user: AuthUser,
 ) -> ControllerResult<web::Json<(PeerReviewConfig, Vec<PeerReviewQuestion>)>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let peer_review =
         models::peer_review_configs::get_default_for_course_by_course_id(&mut conn, *course_id)

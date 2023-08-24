@@ -64,6 +64,7 @@ pub mod proposed_block_edits;
 pub mod proposed_page_edits;
 pub mod regradings;
 pub mod repository_exercises;
+pub mod research_forms;
 pub mod roles;
 pub mod student_countries;
 pub mod study_registry_registrars;
@@ -75,6 +76,7 @@ pub mod user_details;
 pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
+pub mod user_research_consents;
 pub mod users;
 
 pub mod error;

@@ -32,7 +32,9 @@ const EssayFeedback: React.FC<
         <pre
           className={css`
             display: flex;
-            font-family: josefin sans, sans-serif;
+            font-family:
+              josefin sans,
+              sans-serif;
             white-space: pre-wrap;
           `}
         >
@@ -43,7 +45,9 @@ const EssayFeedback: React.FC<
         className={css`
           display: flex;
           white-space: pre-wrap;
-          font-family: josefin sans, sans-serif;
+          font-family:
+            josefin sans,
+            sans-serif;
           margin: 1rem 0;
         `}
       >

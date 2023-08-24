@@ -212,11 +212,16 @@ fn models(target: &mut File) {
         regradings::RegradingInfo,
         regradings::RegradingSubmissionInfo,
         repository_exercises::RepositoryExercise,
+        research_forms::NewResearchForm,
+        research_forms::NewResearchFormQuestion,
+        research_forms::ResearchFormQuestion,
+        research_forms::ResearchForm,
+        research_forms::NewResearchFormQuestionAnswer,
+        research_forms::ResearchFormQuestionAnswer,
         roles::RoleDomain,
         roles::RoleInfo,
         roles::RoleUser,
         roles::UserRole,
-
         student_countries::StudentCountry,
 
         teacher_grading_decisions::NewTeacherGradingDecision,
@@ -231,6 +236,7 @@ fn models(target: &mut File) {
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
+        user_research_consents::UserResearchConsent,
         users::User,
 
         page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,

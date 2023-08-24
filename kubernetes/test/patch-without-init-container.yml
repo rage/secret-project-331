@@ -6,3 +6,9 @@
   path: "/spec/template/spec/containers/0/resources/limits/cpu"
 - op: remove
   path: "/spec/template/spec/containers/0/resources/limits/memory"
+- op: add
+  path: "/spec/template/spec/hostAliases"
+  value:
+    - ip: "10.96.3.99"
+      hostnames:
+        - "project-331.local"

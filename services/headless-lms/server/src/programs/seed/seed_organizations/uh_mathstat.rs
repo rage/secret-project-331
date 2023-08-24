@@ -24,6 +24,7 @@ use super::super::seed_users::SeedUsersResult;
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
@@ -37,6 +38,7 @@ pub async fn seed_organization_uh_mathstat(
         student_user_id,
         example_normal_user_ids,
         teaching_and_learning_services_user_id: _,
+        student_without_research_consent: _,
     } = seed_users_result;
 
     let mut conn = db_pool.acquire().await?;
@@ -74,7 +76,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         new_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -114,7 +116,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         draft_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -126,6 +128,7 @@ pub async fn seed_organization_uh_mathstat(
         student_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
+        base_url,
     };
     let introduction_to_citations = seed_sample_course(
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,

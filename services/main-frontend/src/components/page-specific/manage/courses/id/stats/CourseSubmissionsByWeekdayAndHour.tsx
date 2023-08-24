@@ -52,17 +52,15 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
   React.PropsWithChildren<CourseSubmissionsByWeekdayAndHourProps>
 > = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseWeekdayHourSubmissionCount = useQuery(
-    [`course-submissions-by-weekday-and-hour-${courseId}`],
-    () => fetchCourseWeekdayHourSubmissionCounts(courseId),
-    {
-      select: (data) => {
-        const dataByWeekDay = makeSureAllDaysHaveEntries(groupBy(data, (o) => o.isodow))
-        const maxValue = max(data.map((o) => o.count)) || 10000
-        return { apiData: data, dataByWeekDay, maxValue }
-      },
+  const getCourseWeekdayHourSubmissionCount = useQuery({
+    queryKey: [`course-submissions-by-weekday-and-hour-${courseId}`],
+    queryFn: () => fetchCourseWeekdayHourSubmissionCounts(courseId),
+    select: (data) => {
+      const dataByWeekDay = makeSureAllDaysHaveEntries(groupBy(data, (o) => o.isodow))
+      const maxValue = max(data.map((o) => o.count)) || 10000
+      return { apiData: data, dataByWeekDay, maxValue }
     },
-  )
+  })
 
   const isodowToWeekdayName = {
     1: t("weekday-monday"),

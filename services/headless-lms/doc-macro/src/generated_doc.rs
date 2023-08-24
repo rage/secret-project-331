@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::ToTokens;
 use syn::{
-    AngleBracketedGenericArguments, Attribute, GenericArgument, ItemFn, Path, PathArguments,
+    AngleBracketedGenericArguments, Attribute, Expr, GenericArgument, ItemFn, Path, PathArguments,
     ReturnType, Type, TypePath,
 };
 
@@ -26,9 +26,19 @@ pub fn generated_doc_inner_impl(attr: TokenStream, item: TokenStream) -> TokenSt
         storage = syn::parse_macro_input!(attr as Type);
         (&storage, GenerateDocsFor::JsonAndTs)
     };
+    let windows_safe_name = arg
+        .to_token_stream()
+        .to_string()
+        .replace('<', "(")
+        .replace('>', ")");
+    let expr: Expr = syn::parse_str(&windows_safe_name).unwrap_or_else(|err| {
+        panic!("Failed to parse windows safe name {windows_safe_name}: {err}")
+    });
     let attr: Attribute = match generate_docs_for {
-        GenerateDocsFor::Ts => syn::parse_quote!(#[doc = generated_docs!(#arg, ts)]),
-        GenerateDocsFor::JsonAndTs => syn::parse_quote!(#[doc = generated_docs!(#arg)]),
+        GenerateDocsFor::Ts => syn::parse_quote!(#[doc = generated_docs!(#expr, ts)]),
+        GenerateDocsFor::JsonAndTs => {
+            syn::parse_quote!(#[doc = generated_docs!(#expr)])
+        }
     };
 
     item.attrs.push(attr);

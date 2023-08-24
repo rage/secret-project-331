@@ -11,6 +11,9 @@ use headless_lms_utils::file_store::{FileStore, GenericPayload};
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
+use models::exercise_slides::ExerciseSlide;
+use models::exercise_tasks::ExerciseTask;
+use models::exercises::Exercise;
 use models::organizations::DatabaseOrganization;
 use rand::distributions::Alphanumeric;
 use rand::distributions::DistString;
@@ -162,7 +165,13 @@ async fn upload_field_to_storage(
 
     let contents = Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string())));
     upload_file_to_storage(
-        conn, path, &name, &mime_type, contents, file_store, uploader,
+        conn,
+        path,
+        &name,
+        &mime_type,
+        contents,
+        file_store,
+        uploader.map(|u| u.id),
     )
     .await?;
     Ok(())
@@ -185,6 +194,49 @@ pub async fn upload_certificate_svg(
         "image/svg+xml",
         file,
         file_store,
+        Some(uploader.id),
+    )
+    .await?;
+    Ok((id, safe_path))
+}
+
+pub struct ExerciseTaskInfo<'a> {
+    pub course_id: Uuid,
+    pub exercise: &'a Exercise,
+    pub exercise_slide: &'a ExerciseSlide,
+    pub exercise_task: &'a ExerciseTask,
+}
+
+pub async fn upload_exercise_archive(
+    conn: &mut PgConnection,
+    file: GenericPayload,
+    file_store: &dyn FileStore,
+    exercise: ExerciseTaskInfo<'_>,
+    uploader: Uuid,
+) -> Result<(Uuid, PathBuf), ControllerError> {
+    let file_name = &exercise.exercise.name;
+    let path = nested_path(
+        &[
+            "user-exercise-uploads",
+            "exercise",
+            &exercise.exercise.id.to_string(),
+            "slide",
+            &exercise.exercise_slide.id.to_string(),
+            "task",
+            &exercise.exercise_task.id.to_string(),
+            file_name,
+        ],
+        FileType::Image,
+        StoreKind::Course(exercise.course_id),
+    );
+    let safe_path = make_filename_safe(&path);
+    let id = upload_file_to_storage(
+        conn,
+        &safe_path,
+        file_name,
+        "image/svg+xml",
+        file,
+        file_store,
         Some(uploader),
     )
     .await?;
@@ -198,18 +250,12 @@ async fn upload_file_to_storage(
     mime_type: &str,
     file: GenericPayload,
     file_store: &dyn FileStore,
-    uploader: Option<AuthUser>,
+    uploader: Option<Uuid>,
 ) -> Result<Uuid, ControllerError> {
     let mut tx = conn.begin().await?;
     let path_string = path.to_str().context("invalid path")?.to_string();
-    let id = models::file_uploads::insert(
-        &mut tx,
-        file_name,
-        &path_string,
-        mime_type,
-        uploader.map(|u| u.id),
-    )
-    .await?;
+    let id =
+        models::file_uploads::insert(&mut tx, file_name, &path_string, mime_type, uploader).await?;
     file_store.upload_stream(path, file, mime_type).await?;
     tx.commit().await?;
     Ok(id)
@@ -387,6 +433,10 @@ enum FileType {
 }
 
 fn path(file_name: &str, file_type: FileType, store_kind: StoreKind) -> PathBuf {
+    nested_path(&[file_name], file_type, store_kind)
+}
+
+fn nested_path(components: &[&str], file_type: FileType, store_kind: StoreKind) -> PathBuf {
     let (base_dir, base_id) = match store_kind {
         StoreKind::Organization(id) => ("organization", id),
         StoreKind::Course(id) => ("course", id),
@@ -397,7 +447,8 @@ fn path(file_name: &str, file_type: FileType, store_kind: StoreKind) -> PathBuf 
         FileType::Audio => "audios",
         FileType::File => "files",
     };
-    [base_dir, &base_id.to_string(), file_type_subdir, file_name]
+    [base_dir, &base_id.to_string(), file_type_subdir]
         .iter()
+        .chain(components)
         .collect()
 }

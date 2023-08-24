@@ -28,7 +28,7 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   children,
 }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
-  const isLoggedIn = useQuery([`logged-in`], loggedIn)
+  const isLoggedIn = useQuery({ queryKey: [`logged-in`], queryFn: loggedIn })
 
   useEffect(() => {
     setLoginState((prev) => ({

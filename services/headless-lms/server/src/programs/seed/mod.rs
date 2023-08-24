@@ -6,12 +6,14 @@ pub mod seed_helpers;
 pub mod seed_organizations;
 pub mod seed_playground_examples;
 pub mod seed_roles;
+mod seed_user_research_consents;
 pub mod seed_users;
 
 use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{domain::models_requests::JwtKey, setup_tracing};
 
+use anyhow::Context;
 use futures::try_join;
 
 use headless_lms_utils::futures::run_parallelly;
@@ -19,6 +21,7 @@ use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions, Pool, Postgres};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
+    let base_url = std::env::var("BASE_URL").context("BASE_URL must be defined")?;
     let db_pool = setup_seed_environment().await?;
     let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
 
@@ -33,24 +36,27 @@ pub async fn main() -> anyhow::Result<()> {
         )),
     )?;
 
+    seed_file_storage::seed_file_storage().await?;
+
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
             seed_users_result.clone(),
+            base_url.clone(),
             Arc::clone(&jwt_key),
         )),
         run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
                 seed_users_result.clone(),
+                base_url.clone(),
                 Arc::clone(&jwt_key),
             )
         )
     )?;
 
     seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
-
-    seed_file_storage::seed_file_storage().await?;
+    seed_user_research_consents::seed_user_research_consents(&db_pool).await?;
 
     seed_certificate_fonts::seed_certificate_fonts(&db_pool).await?;
 

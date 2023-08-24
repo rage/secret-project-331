@@ -19,7 +19,10 @@ interface Props {
 
 const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
+  const organization = useQuery({
+    queryKey: [`organization-${query.id}`],
+    queryFn: () => fetchOrganization(query.id),
+  })
 
   let contents
   if (organization.isLoading) {

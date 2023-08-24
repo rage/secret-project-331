@@ -41,17 +41,17 @@ const Wrapper = styled.div`
     margin-left: 0;
   }
 
-  div .css-159pl2 :first-of-type {
-    max-width: 250px !important;
+  div.course-material-block > div > div:nth-child(2) {
+    margin-bottom: 1.4rem !important;
   }
 
-  div .css-159pl2 :last-of-type {
-    margin-bottom: 1.4rem !important;
+  div.course-material-block > div > div > div > div:nth-child(1) {
+    max-width: 250px !important;
   }
 
   p {
     margin: 0;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 400;
     color: ${baseTheme.colors.gray[600]};
   }

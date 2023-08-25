@@ -1090,13 +1090,35 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_5],
             exercise_slides: vec![quizzes_exercise_slide_5],
             exercise_tasks: vec![quizzes_exercise_task_5],
-            content: serde_json::json!([
-                paragraph(
-                    "Best page",
-                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
-                ),
-                quizzes_exercise_block_5,
-            ]),
+            content: serde_json::json!([paragraph(
+                "Best page",
+                Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
+            ),]),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-authorBlock".to_string(),
+            title: "The Author Block".to_string(),
+            chapter_id: Some(chapter_2.id),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/author".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![]
+            }]),
         },
         base_url.clone(),
         Arc::clone(&jwt_key),

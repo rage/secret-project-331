@@ -1090,10 +1090,13 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_5],
             exercise_slides: vec![quizzes_exercise_slide_5],
             exercise_tasks: vec![quizzes_exercise_task_5],
-            content: serde_json::json!([paragraph(
-                "Best page",
-                Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
-            ),]),
+            content: serde_json::json!([
+                paragraph(
+                    "Best page",
+                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
+                ),
+                quizzes_exercise_block_5
+            ]),
         },
         base_url.clone(),
         Arc::clone(&jwt_key),
@@ -1106,9 +1109,9 @@ pub async fn seed_sample_course(
         admin,
         Some(chapter_1.id),
         CmsPageUpdate {
-            url_path: "/chapter-1/the-authorBlock".to_string(),
+            url_path: "/chapter-1/the-authors".to_string(),
             title: "The Author Block".to_string(),
-            chapter_id: Some(chapter_2.id),
+            chapter_id: Some(chapter_1.id),
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],

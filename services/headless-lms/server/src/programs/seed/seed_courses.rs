@@ -1095,7 +1095,7 @@ pub async fn seed_sample_course(
                     "Best page",
                     Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
                 ),
-                quizzes_exercise_block_5
+                quizzes_exercise_block_5,
             ]),
         },
         base_url.clone(),

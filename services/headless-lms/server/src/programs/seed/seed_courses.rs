@@ -1109,31 +1109,6 @@ pub async fn seed_sample_course(
         admin,
         Some(chapter_1.id),
         CmsPageUpdate {
-            url_path: "/chapter-1/the-authors".to_string(),
-            title: "The Author Block".to_string(),
-            chapter_id: Some(chapter_1.id),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            content: serde_json::json!([GutenbergBlock {
-                name: "moocfi/author".to_string(),
-                is_valid: true,
-                client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
-                attributes: attributes! {},
-                inner_blocks: vec![]
-            }]),
-        },
-        base_url.clone(),
-        Arc::clone(&jwt_key),
-    )
-    .await?;
-
-    create_page(
-        &mut conn,
-        course.id,
-        admin,
-        Some(chapter_1.id),
-        CmsPageUpdate {
             url_path: "/chapter-1/scale".to_string(),
             title: "scale".to_string(),
             chapter_id: Some(chapter_1.id),
@@ -1612,6 +1587,31 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_2
             ]),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-authors".to_string(),
+            title: "The Author Block".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/author".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![]
+            }]),
         },
         base_url.clone(),
         Arc::clone(&jwt_key),

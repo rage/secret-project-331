@@ -5,6 +5,7 @@ const REPOSITORY_EXERCISE_1: &[u8] = include_bytes!("./data/repository-exercise-
 const REPOSITORY_EXERCISE_2: &[u8] = include_bytes!("./data/repository-exercise-2.tar.zst");
 const FONT_LATO_REGULAR: &[u8] = include_bytes!("./data/Lato-Regular.ttf");
 const CERTIFICATE_BACKGROUND: &[u8] = include_bytes!("./data/certificate-background.svg");
+const AUTHOR_IMAGE: &[u8] = include_bytes!("./data/lilo-and-stitch.jpg");
 
 pub async fn seed_file_storage() -> anyhow::Result<()> {
     info!("seeding file storage");
@@ -40,6 +41,13 @@ pub async fn seed_file_storage() -> anyhow::Result<()> {
         .upload(
             Path::new("svgs/certificate-background.svg"),
             CERTIFICATE_BACKGROUND.to_vec(),
+            "application/octet-stream",
+        )
+        .await?;
+    file_storage
+        .upload(
+            Path::new("svgs/lilo-and-stitch.jpg"),
+            AUTHOR_IMAGE.to_vec(),
             "application/octet-stream",
         )
         .await?;

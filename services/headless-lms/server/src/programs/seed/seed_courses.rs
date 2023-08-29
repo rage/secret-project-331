@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::domain::models_requests::{self, JwtKey};
+use crate::programs::seed::seed_file_storage;
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
     paragraph, quizzes_exercise, submit_and_grade, tmc_exercise,
@@ -1593,6 +1594,8 @@ pub async fn seed_sample_course(
     )
     .await?;
 
+    let image = seed_file_storage::seed_file_storage().await?;
+
     create_page(
         &mut conn,
         course.id,
@@ -1610,7 +1613,61 @@ pub async fn seed_sample_course(
                 is_valid: true,
                 client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
                 attributes: attributes! {},
-                inner_blocks: vec![]
+                inner_blocks: [
+                    {
+                      "attributes": {
+                        "isStackedOnMobile": true
+                      },
+                      "clientId": "13c1bbf2-34dc-404c-aae7-42a633b6a449",
+                      "innerBlocks": [
+                        {
+                          "attributes": {},
+                          "clientId": "b923918b-fc35-427f-800a-13a7da084c0b",
+                          "innerBlocks": [
+                            {
+                              "attributes": {
+                                "alt": "Add alt",
+                                "anchor": "author-photo",
+                                "blurDataUrl": "",
+                                "href": image,
+                                "linkDestination": "media",
+                                "sizeSlug": "full",
+                                "url": "http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/u77ds2P3bvZbrHXsh5OGLmShQ4kM3g.jpg"
+                              },
+                              "clientId": "4a242b38-b86b-43db-a1c2-92bd992d689c",
+                              "innerBlocks": [],
+                              "isValid": true,
+                              "name": "core/image"
+                            }
+                          ],
+                          "isValid": true,
+                          "name": "core/column"
+                        },
+                        {
+                          "attributes": {},
+                          "clientId": "45c65224-bdf1-4150-b99a-2bd501697cfb",
+                          "innerBlocks": [
+                            {
+                              "attributes": {
+                                "align": "left",
+                                "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur",
+                                "dropCap": false,
+                                "placeholder": "Insert author's bio text..."
+                              },
+                              "clientId": "5098958c-5c10-458e-9b0d-ad11d7711b7a",
+                              "innerBlocks": [],
+                              "isValid": true,
+                              "name": "core/paragraph"
+                            }
+                          ],
+                          "isValid": true,
+                          "name": "core/column"
+                        }
+                      ],
+                      "isValid": true,
+                      "name": "core/columns"
+                    }
+                  ],
             }]),
         },
         base_url.clone(),

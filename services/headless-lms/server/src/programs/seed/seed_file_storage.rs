@@ -46,7 +46,7 @@ pub async fn seed_file_storage() -> anyhow::Result<()> {
         .await?;
     file_storage
         .upload(
-            Path::new("svgs/lilo-and-stitch.jpg"),
+            Path::new("jpgs/lilo-and-stitch.jpg"),
             AUTHOR_IMAGE.to_vec(),
             "application/octet-stream",
         )

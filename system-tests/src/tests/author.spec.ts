@@ -20,6 +20,5 @@ test("author-block", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "author-block",
     waitForTheseToBeVisibleAndStable: [page.locator("text=Authors")],
-    beforeScreenshot: async () => page.locator("text=Authors").scrollIntoViewIfNeeded(),
   })
 })

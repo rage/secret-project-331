@@ -1616,17 +1616,17 @@ pub async fn seed_sample_course(
                     client_id: Uuid::parse_str("b5565362-e8e3-4837-9546-014dc98af686").unwrap(),
                     attributes: attributes! {},
                     inner_blocks: vec![GutenbergBlock {
-                        name: "moocfi/columns".to_string(),
+                        name: "core/columns".to_string(),
                         is_valid: true,
                         client_id: Uuid::parse_str("d8df9ead-9be3-4d25-96ec-c6e591db261b").unwrap(),
                         attributes: attributes! { "isStackedOnMobile": true },
                         inner_blocks: vec![GutenbergBlock {
-                            name: "moocfi/column".to_string(),
+                            name: "core/column".to_string(),
                             is_valid: true,
                             client_id: Uuid::parse_str("6435c2f7-ccc0-4cec-9c38-19bd688b057c").unwrap(),
                             attributes: attributes! {},
                                 inner_blocks: vec![GutenbergBlock {
-                                name: "moocfi/image".to_string(),
+                                name: "core/image".to_string(),
                                 is_valid: true,
                                 client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
                                 attributes: attributes! {
@@ -1642,12 +1642,12 @@ pub async fn seed_sample_course(
                             }],
                         },
                         GutenbergBlock {
-                            name: "moocfi/column".to_string(),
+                            name: "core/column".to_string(),
                             is_valid: true,
                             client_id: Uuid::parse_str("fe8b2efc-e5da-407e-9293-f156847cc571").unwrap(),
                             attributes: attributes! {},
                             inner_blocks: vec![GutenbergBlock {
-                                name: "moocfi/paragraph".to_string(),
+                                name: "core/paragraph".to_string(),
                                 is_valid: true,
                                 client_id: Uuid::parse_str("6d0e2979-9a57-492a-af6f-9f62381f1ede").unwrap(),
                                 attributes: attributes! {

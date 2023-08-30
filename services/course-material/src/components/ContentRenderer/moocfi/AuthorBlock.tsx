@@ -51,7 +51,7 @@ const Wrapper = styled.div`
 
   p {
     margin: 0;
-    font-size: 17px;
+    font-size: 1px;
     font-weight: 400;
     color: ${baseTheme.colors.gray[600]};
   }
@@ -60,6 +60,7 @@ const Wrapper = styled.div`
 const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
   props,
 ) => {
+  console.log("props", props)
   return (
     <Wrapper>
       <h3>{t("author")}</h3>

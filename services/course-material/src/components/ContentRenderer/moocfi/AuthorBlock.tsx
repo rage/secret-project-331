@@ -60,7 +60,6 @@ const Wrapper = styled.div`
 const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
   props,
 ) => {
-  console.log("props", props)
   return (
     <Wrapper>
       <h3>{t("author")}</h3>

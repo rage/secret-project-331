@@ -1,5 +1,4 @@
 import { config } from "@fortawesome/fontawesome-svg-core"
-import { ThemeProvider } from "@mui/material"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -10,7 +9,6 @@ import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateC
 import useLanguage from "../shared-module/hooks/useLanguage"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
-import muiTheme from "../shared-module/styles/muiTheme"
 import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
 import "../styles/Gutenberg/style.scss"
@@ -52,16 +50,14 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         </Head>
       )}
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={muiTheme}>
-          <GlobalStyles />
-          <LocalStyles />
-          <LoginStateContextProvider>
-            {/* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */}
-            <Layout hideBreadcrumbs={Component.hideBreadcrumbs}>
-              <Component {...pageProps} />
-            </Layout>
-          </LoginStateContextProvider>
-        </ThemeProvider>
+        <GlobalStyles />
+        <LocalStyles />
+        <LoginStateContextProvider>
+          {/* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */}
+          <Layout hideBreadcrumbs={Component.hideBreadcrumbs}>
+            <Component {...pageProps} />
+          </Layout>
+        </LoginStateContextProvider>
       </QueryClientProvider>
     </>
   )

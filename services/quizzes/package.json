@@ -30,6 +30,7 @@
     "@popperjs/core": "^2.11.8",
     "@tanstack/react-query": "^4.32.1",
     "@types/commonmark": "^0.27.6",
+    "@vectopus/atlas-icons-react": "^0.0.10",
     "axios": "^1.4.0",
     "commonmark": "^0.30.0",
     "date-fns": "^2.30.0",

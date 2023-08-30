@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,6 +10,7 @@ import {
 } from "../../../../services/backend/organizations"
 import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
+import Dialog from "../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import Pagination from "../../../../shared-module/components/Pagination"
@@ -138,10 +138,11 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
           margin-bottom: 1rem;
         `}
       >
-        <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
+        <Dialog open={newCourseFormOpen} noPadding>
           <div
             className={css`
               margin: 1rem;
+              padding: 1rem;
             `}
           >
             <Button

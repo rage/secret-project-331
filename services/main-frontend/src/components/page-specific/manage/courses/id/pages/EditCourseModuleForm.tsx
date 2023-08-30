@@ -1,13 +1,10 @@
 import { css } from "@emotion/css"
-import CancelIcon from "@mui/icons-material/Cancel"
-import CheckIcon from "@mui/icons-material/Check"
-import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
-import { IconButton } from "@mui/material"
+import { CheckCircle, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import Button from "../../../../../../shared-module/components/Button"
 import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
@@ -380,23 +377,29 @@ const EditCourseModuleForm: React.FC<Props> = ({
           />
           {active ? (
             <>
-              <IconButton
+              <Button
                 aria-label={t("button-text-save")}
                 className={css`
-                  background-color: ${baseTheme.colors.green[400]};
                   border-radius: 0;
                   height: 3.5rem;
                   width: 3.5rem;
                 `}
                 disabled={!isValid || isSubmitting}
                 type={"submit"}
+                variant={"icon"}
+                size={"small"}
               >
-                <CheckIcon />
-              </IconButton>
-              <IconButton
+                <CheckCircle
+                  size={22}
+                  key={t("button-text-save")}
+                  className={css`
+                    color: black;
+                  `}
+                />
+              </Button>
+              <Button
                 aria-label={t("button-text-cancel")}
                 className={css`
-                  background-color: ${baseTheme.colors.green[400]};
                   border-radius: 0;
                   height: 3.5rem;
                   width: 3.5rem;
@@ -406,38 +409,42 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   reset()
                 }}
                 disabled={isSubmitting}
+                variant={"icon"}
+                size={"small"}
               >
-                <CancelIcon />
-              </IconButton>
+                <XmarkCircle size={22} key={t("button-text-cancel")} />
+              </Button>
             </>
           ) : (
-            <IconButton
+            <Button
               aria-label={t("edit")}
               className={css`
-                background-color: ${baseTheme.colors.green[400]};
                 border-radius: 0;
                 height: 3.5rem;
                 width: 3.5rem;
               `}
               onClick={() => setActive(true)}
+              variant={"icon"}
+              size={"small"}
             >
-              <EditIcon />
-            </IconButton>
+              <Pencil size={22} key={t("edit")} />
+            </Button>
           )}
           {module.name !== null && (
-            <IconButton
+            <Button
               aria-label={t("button-text-delete")}
               className={css`
-                background-color: ${baseTheme.colors.green[300]};
                 border-radius: 0;
                 height: 3.5rem;
                 width: 3.5rem;
               `}
               onClick={() => onDeleteModule(module.id)}
               disabled={isSubmitting}
+              variant={"icon"}
+              size={"small"}
             >
-              <DeleteIcon />
-            </IconButton>
+              <Trash size={22} key={t("button-text-delete")} />
+            </Button>
           )}
         </div>
       </div>

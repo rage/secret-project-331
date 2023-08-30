@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText } from "@mui/material"
 import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
 import { NewExam, OrgExam } from "../../../../../../shared-module/bindings"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewExamForm from "../../../../../forms/NewExamForm"
@@ -72,6 +72,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
         role="dialog"
         aria-labelledby="label"
         title={t("new-exam-dialog")}
+        noPadding={true}
       >
         <div
           className={css`
@@ -82,29 +83,27 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
             <h1
               id="label"
               className={css`
-                font-size: 32px;
+                font-size: 32px !important;
               `}
             >
               {t("new-exam")}
             </h1>
-            <DialogContentText role="main" id="alert-dialog-description">
-              {createExamMutation.isError && (
-                <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
-              )}
-              {duplicateExamMutation.isError && (
-                <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
-              )}
-              <NewExamForm
-                exams={getOrgExams.data}
-                initialData={null}
-                organizationId={organizationId}
-                onCancel={close}
-                onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
-                onDuplicateExam={(parentId: string, newExam: NewExam) =>
-                  duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
-                }
-              />
-            </DialogContentText>
+            {createExamMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+            )}
+            {duplicateExamMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
+            )}
+            <NewExamForm
+              exams={getOrgExams.data}
+              initialData={null}
+              organizationId={organizationId}
+              onCancel={close}
+              onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
+              onDuplicateExam={(parentId: string, newExam: NewExam) =>
+                duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
+              }
+            />
           </div>
         </div>
       </Dialog>

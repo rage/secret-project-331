@@ -36,6 +36,8 @@ import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
 import AudioPlayer from "./moocfi/AudioPlayer/index"
+import AuthorBlock from "./moocfi/AuthorBlock"
+import AuthorInnerBlock from "./moocfi/AuthorInnerBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
@@ -144,6 +146,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/iframe": IframeBlock,
   "moocfi/audio-upload": AudioPlayer,
   "moocfi/map": Map,
+  "moocfi/author": AuthorBlock,
+  "moocfi/author-inner-block": AuthorInnerBlock,
   "moocfi/research-consent-checkbox": ResearchFormCheckBoxBlock,
 }
 

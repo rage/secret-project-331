@@ -1597,6 +1597,84 @@ pub async fn seed_sample_course(
         &mut conn,
         course.id,
         admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-authors".to_string(),
+            title: "The Author Block".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/author".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("eb27eddd-6fc7-46f8-b7aa-968b16f86f1f").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![GutenbergBlock {
+                    name: "moocfi/author-inner-block".to_string(),
+                    is_valid: true,
+                    client_id: Uuid::parse_str("b5565362-e8e3-4837-9546-014dc98af686").unwrap(),
+                    attributes: attributes! {},
+                    inner_blocks: vec![GutenbergBlock {
+                        name: "core/columns".to_string(),
+                        is_valid: true,
+                        client_id: Uuid::parse_str("d8df9ead-9be3-4d25-96ec-c6e591db261b").unwrap(),
+                        attributes: attributes! { "isStackedOnMobile": true },
+                        inner_blocks: vec![GutenbergBlock {
+                            name: "core/column".to_string(),
+                            is_valid: true,
+                            client_id: Uuid::parse_str("6435c2f7-ccc0-4cec-9c38-19bd688b057c").unwrap(),
+                            attributes: attributes! {},
+                                inner_blocks: vec![GutenbergBlock {
+                                name: "core/image".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
+                                attributes: attributes! {
+                                    "alt": "Add alt",
+                                    "anchor": "author-photo",
+                                    "blurDataUrl": "",
+                                    "href": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
+                                    "linkDestination": "media",
+                                    "sizeSlug": "full",
+                                    "url": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
+                                },
+                                inner_blocks: vec![],
+                            }],
+                        },
+                        GutenbergBlock {
+                            name: "core/column".to_string(),
+                            is_valid: true,
+                            client_id: Uuid::parse_str("fe8b2efc-e5da-407e-9293-f156847cc571").unwrap(),
+                            attributes: attributes! {},
+                            inner_blocks: vec![GutenbergBlock {
+                                name: "core/paragraph".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::parse_str("6d0e2979-9a57-492a-af6f-9f62381f1ede").unwrap(),
+                                attributes: attributes! {
+                                    "align": "left",
+                                    "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur",
+                                    "dropCap": false,
+                                    "placeholder": "Insert author's bio text..."
+                                },
+                                inner_blocks: vec![],
+                            }],
+                        },
+                        ],
+
+                        },
+                    ],
+                }]
+            }])
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
         None,
         CmsPageUpdate {
             url_path: "/glossary".to_string(),

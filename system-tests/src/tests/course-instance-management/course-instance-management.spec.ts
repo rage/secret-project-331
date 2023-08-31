@@ -15,7 +15,7 @@ test("test", async ({ page, headless }, testInfo) => {
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await await page
+  await page
     .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
     .click()
   await expect(page).toHaveURL(

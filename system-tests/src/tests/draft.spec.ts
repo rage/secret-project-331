@@ -132,6 +132,7 @@ test.describe("Teacher", () => {
     await page2.goto("http://project-331.local/org/uh-mathstat/courses/best-draft-course")
     await selectCourseInstanceIfPrompted(page2)
     await page2.getByRole("heading", { name: "In this course you'll..." }).click()
+    await context2.close()
   })
 
   test("teacher gets permissions to new course when copying a course", async ({ page }) => {

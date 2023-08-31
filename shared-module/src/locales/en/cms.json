@@ -66,6 +66,8 @@
   "partially-transparent-background": "Make background image partially transparent",
   "partners-block": "Partners Block",
   "partners-block-description": "Partners block is use to display all partner's logo in the landing page",
+  "authors-block": "Author's Block",
+  "authors-block-description": "Authors block is use to display brief bio and photo of author(s) of a specific page",
   "peer-review-accepting-strategy": "Peer review accepting strategy",
   "peer-review-accepting-threshold": "Peer review accepting threshold",
   "peer-review-question": "Peer review question",

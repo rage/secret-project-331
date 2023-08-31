@@ -42,6 +42,7 @@
     }
   ],
   "settings": {
+    "editor.wordWrap": "on",
     "editor.tabSize": 2,
     "files.eol": "\n",
     "editor.formatOnSave": true,

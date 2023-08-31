@@ -33,7 +33,7 @@ test("test", async ({ page }) => {
 
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  await await page
+  await page
     .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
     .click()
 
@@ -160,7 +160,7 @@ test("test", async ({ page }) => {
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1",
   )
 
-  await await page.locator("text=System Testing").first().click()
+  await page.locator("text=System Testing").first().click()
   await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing",

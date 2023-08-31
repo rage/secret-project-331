@@ -121,11 +121,12 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
   let borderColor = "#f3e5cb"
   let textColor = "#C25100"
 
-  if (itemFeedback.correctnessCoefficient == 1) {
+  const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
+  if (userScore == 1) {
     backgroundColor = "#f1fff2"
     borderColor = "#cbf3cd"
     textColor = "#1c850d"
-  } else if (itemFeedback.correctnessCoefficient == 0) {
+  } else if (userScore == 0) {
     backgroundColor = "#fff4f5"
     borderColor = "#f3cbcf"
     textColor = "#d52a3c"
@@ -158,7 +159,7 @@ const SubmissionFeedback: React.FC<{ itemFeedback: ItemAnswerFeedback }> = ({ it
         width: fit-content;
       `}
     >
-      {mapScoreToFeedback(itemFeedback.correctnessCoefficient)}
+      {mapScoreToFeedback(userScore)}
     </div>
   )
 }

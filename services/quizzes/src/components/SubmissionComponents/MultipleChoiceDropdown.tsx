@@ -4,7 +4,6 @@ import React from "react"
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
 import { ModelSolutionQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/publicSpec"
-import { ItemAnswerFeedback } from "../../grading/feedback"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -44,7 +43,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
   >
 > = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback, quiz_item_model_solution }) => {
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
-  const correct = (quiz_item_feedback as ItemAnswerFeedback).correctnessCoefficient == 1
+  const correct = quiz_item_feedback
+    ? quiz_item_feedback?.score === 1 ?? quiz_item_feedback.correctnessCoefficient == 1
+    : false
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
@@ -74,9 +75,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
         className={css`
           display: flex;
           flex-direction: column;
-          align-items: baseline;
+
           ${respondToOrLarger.sm} {
-            flex-direction: row;
+            flex-direction: column;
           }
         `}
       >

@@ -38,6 +38,7 @@ export interface ItemAnswerFeedback {
    *
    */
   correctnessCoefficient: number
+  score?: number
 }
 
 const submissionFeedback = (

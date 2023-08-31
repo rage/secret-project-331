@@ -169,7 +169,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           if (isOldQuiz(messageData.data.user_answer as QuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (messageData.data.user_answer as any)?.private_spec as QuizAnswer,
+              messageData.data.user_answer as any as QuizAnswer,
               public_spec as PublicSpecQuiz,
             )
           }

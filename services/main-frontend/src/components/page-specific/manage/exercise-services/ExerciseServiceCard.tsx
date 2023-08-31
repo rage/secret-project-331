@@ -2,10 +2,13 @@ import { css } from "@emotion/css"
 import DoneIcon from "@mui/icons-material/Done"
 import ErrorIcon from "@mui/icons-material/Error"
 import { QueryObserverResult } from "@tanstack/react-query"
-import { FloppyDiskSave, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import FloppyDiskSave from "../../../../imgs/floppydisk-save.svg"
+import Pencil from "../../../../imgs/pencil-edit.svg"
+import Trash from "../../../../imgs/trash.svg"
+import XmarkCircle from "../../../../imgs/xmarkcircle-close.svg"
 import {
   deleteExerciseService,
   updateExerciseService,
@@ -170,7 +173,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 size={"small"}
               >
                 {status == UpdateStatus.none ? (
-                  <FloppyDiskSave size={18} />
+                  <FloppyDiskSave id={`${id}${t("button-text-save")}`} />
                 ) : status == UpdateStatus.saved ? (
                   <DoneIcon />
                 ) : (
@@ -183,7 +186,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 variant={"icon"}
                 size={"small"}
               >
-                <XmarkCircle size={20} />
+                <XmarkCircle id={`${id}${t("button-text-cancel")}`} />
               </Button>
             </div>
           ) : (
@@ -199,10 +202,16 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 variant={"icon"}
                 size={"small"}
               >
-                <Trash size={20} />
+                <Trash
+                  id={`${id}${t("button-text-delete")}`}
+                  className={css`
+                    width: 20px;
+                    height: 20px;
+                  `}
+                />
               </Button>
               <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
-                <Pencil size={20} />
+                <Pencil id={`${id}${t("edit")}`} />
               </Button>
             </div>
           )}
@@ -280,7 +289,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
         noPadding
-        id="alert-dialog-title"
+        id={`${id}"alert-dialog-title"`}
       >
         <div
           className={css`

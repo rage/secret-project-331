@@ -1,12 +1,9 @@
 import { css } from "@emotion/css"
+import { CheckCircle, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import CheckCircle from "../../../../../../imgs/checkcircle.svg"
-import Pencil from "../../../../../../imgs/pencil-edit.svg"
-import Trash from "../../../../../../imgs/trash.svg"
-import XmarkCircle from "../../../../../../imgs/xmarkcircle-close.svg"
 import Button from "../../../../../../shared-module/components/Button"
 import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
@@ -393,7 +390,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 size={"small"}
               >
                 <CheckCircle
-                  id={`${module.name}${t("button-text-save")}`}
+                  size={20}
                   className={css`
                     color: black;
                   `}
@@ -414,7 +411,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 variant={"icon"}
                 size={"small"}
               >
-                <XmarkCircle id={`${module.name}${t("button-text-cancel")}`} />
+                <XmarkCircle size={20} />
               </Button>
             </>
           ) : (
@@ -429,7 +426,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               variant={"icon"}
               size={"small"}
             >
-              <Pencil id={`${module.name}${t("edit")}`} />
+              <Pencil size={20} />
             </Button>
           )}
           {module.name !== null && (
@@ -445,7 +442,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               variant={"icon"}
               size={"small"}
             >
-              <Trash id={`${module.name}${t("button-text-delete")}`} />
+              <Trash size={20} />
             </Button>
           )}
         </div>

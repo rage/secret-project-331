@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useLayoutEffect, useRef, useState } from "react"
 
-import InfoCircle from "../img/info-circle.svg"
 import { dateToString } from "../utils/time"
 
 import Button from "./Button"
@@ -100,7 +100,7 @@ const TimeComponent: React.FC<
         `}
         variant={"icon"}
       >
-        <InfoCircle id={`${dateToString(date, true)}${label}`} />
+        <InfoCircle size={18} />
       </Button>
     </span>
   )

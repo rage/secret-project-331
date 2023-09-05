@@ -31,8 +31,8 @@ impl Cache {
         match self.client.get_async_connection().await {
             Ok(mut conn) => {
                 let Ok(value) = serde_json::to_vec(value) else {
-                  return false;
-              };
+                    return false;
+                };
                 match conn
                     .set_ex::<_, _, ()>(key, value, expires_in.as_secs() as usize)
                     .await

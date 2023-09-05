@@ -23,7 +23,7 @@ use crate::{
 use std::default::Default;
 
 /// Visible only in the current module (and submodules) to prevent misuse.
-pub(self) struct UserExerciseStateUpdateRequiredData {
+pub struct UserExerciseStateUpdateRequiredData {
     pub exercise: Exercise,
     pub current_user_exercise_state: UserExerciseState,
     /// None if peer review is not enabled for the exercise
@@ -35,7 +35,7 @@ pub(self) struct UserExerciseStateUpdateRequiredData {
 }
 
 /// Visible only in the current module (and submodules) to prevent misuse.
-pub(self) struct UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+pub struct UserExerciseStateUpdateRequiredDataPeerReviewInformation {
     pub given_peer_review_submissions: Vec<PeerReviewSubmission>,
     pub latest_exercise_slide_submission_received_peer_review_question_submissions:
         Vec<PeerReviewQuestionSubmission>,

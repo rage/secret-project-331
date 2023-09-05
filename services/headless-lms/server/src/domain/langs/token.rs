@@ -51,32 +51,40 @@ impl FromRequest for AuthToken {
             .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string));
         async move {
             let Some(token) = auth_header else {
-                return Err(ControllerError::new(ControllerErrorType::Unauthorized, "Missing bearer token".to_string(), None));
+                return Err(ControllerError::new(
+                    ControllerErrorType::Unauthorized,
+                    "Missing bearer token".to_string(),
+                    None,
+                ));
             };
             let mut conn = pool.acquire().await?;
 
-
-        let user = if app_conf.test_mode {
-            warn!("Using test credentials. Normal accounts won't work.");
-            authorization::authenticate_test_token(&mut conn, &token, &app_conf)
-                .await.map_err(|err|
-                    ControllerError::new(ControllerErrorType::Unauthorized, "Could not find user".to_string(), Some(err)))?
-        } else {
-            match load_user(&cache, &token).await {
-                Some(user) => user,
-                None => {
-                    let token = LoginToken::new(
-                        oauth2::AccessToken::new(token),
-                        oauth2::basic::BasicTokenType::Bearer,
-                        oauth2::EmptyExtraTokenFields {},
-                    );
-                    let user = authorization::get_user_from_moocfi(&token, &mut conn).await?;
-                    cache_user(&cache, &token, &user)
-                        .await;
-                    user
+            let user = if app_conf.test_mode {
+                warn!("Using test credentials. Normal accounts won't work.");
+                authorization::authenticate_test_token(&mut conn, &token, &app_conf)
+                    .await
+                    .map_err(|err| {
+                        ControllerError::new(
+                            ControllerErrorType::Unauthorized,
+                            "Could not find user".to_string(),
+                            Some(err),
+                        )
+                    })?
+            } else {
+                match load_user(&cache, &token).await {
+                    Some(user) => user,
+                    None => {
+                        let token = LoginToken::new(
+                            oauth2::AccessToken::new(token),
+                            oauth2::basic::BasicTokenType::Bearer,
+                            oauth2::EmptyExtraTokenFields {},
+                        );
+                        let user = authorization::get_user_from_moocfi(&token, &mut conn).await?;
+                        cache_user(&cache, &token, &user).await;
+                        user
+                    }
                 }
-            }
-        };
+            };
 
             Ok(Self(user))
         }

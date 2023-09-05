@@ -51,8 +51,6 @@ const NewCourseInstanceDialog: React.FC<
       <div
         className={css`
           padding: 1rem;
-          width: 80vw;
-          max-width: 500px;
         `}
       >
         <h1

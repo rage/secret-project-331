@@ -469,7 +469,6 @@ async fn try_to_select_peer_review_candidate_from_queue(
             if let Some(ess) = ess {
                 if ess.deleted_at.is_none() {
                     return Ok(Some(ess));
-                } else {
                 }
             }
             // We found a submission from the peer reveiw queue but the submission was deleted. This is unfortunate since if

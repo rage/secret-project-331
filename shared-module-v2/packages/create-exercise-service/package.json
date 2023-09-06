@@ -1,0 +1,18 @@
+{
+  "name": "@moocfi/create-exercise-service",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "tsx": "^3.12.8",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^3.0.4"
+  }
+}

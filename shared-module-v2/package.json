@@ -1,0 +1,17 @@
+{
+  "name": "secret-project-shared-module",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "sync": "tsx sync.ts"
+  },
+  "keywords": [],
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "devDependencies": {
+    "tsx": "^3.12.8"
+  },
+  "dependencies": {
+    "@parcel/watcher": "^2.3.0"
+  }
+}

@@ -25,6 +25,7 @@
     "@mui/material": "^5.14.2",
     "@popperjs/core": "^2.11.8",
     "@tanstack/react-query": "^4.32.1",
+    "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^2.30.0",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",

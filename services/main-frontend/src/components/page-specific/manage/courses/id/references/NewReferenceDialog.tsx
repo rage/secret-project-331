@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContent, DialogTitle } from "@mui/material"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { postNewReferences } from "../../../../../../services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "../../../../../../shared-module/bindings"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewReferenceForm from "../../../../../forms/NewReferenceForm"
 
@@ -44,24 +44,28 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
       role="dialog"
       aria-labelledby="label"
       title={t("new-reference")}
-      fullWidth
+      noPadding
     >
-      <DialogTitle>
-        <h3
-          id="dialog-label"
-          className={css`
-            font-size: 32px;
-          `}
-        >
-          {t("new-reference")}
-        </h3>
-      </DialogTitle>
-      <DialogContent role="main" id="alert-dialog-description">
+      <h3
+        id="dialog-label"
+        className={css`
+          font-size: 32px !important;
+          padding: 16px 24px;
+        `}
+      >
+        {t("new-reference")}
+      </h3>
+      <div
+        id="alert-dialog-description"
+        className={css`
+          padding: 0px 24px 20px;
+        `}
+      >
         <NewReferenceForm
           onCancel={onClose}
           onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}
         />
-      </DialogContent>
+      </div>
     </Dialog>
   )
 }

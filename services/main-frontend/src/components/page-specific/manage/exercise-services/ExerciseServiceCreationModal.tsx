@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
-import { Card, CardContent, CardHeader, Modal } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseServiceNewOrUpdate } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
+import Dialog from "../../../../shared-module/components/Dialog"
 import { validURL } from "../../../../shared-module/utils/validation"
 
 import ContentArea from "./ContentArea"
@@ -27,7 +27,7 @@ const ExerciseServiceCreationModal: React.FC<
 > = ({ open, handleClose, exercise_service, onChange, onChangeName, handleSubmit }) => {
   const { t } = useTranslation()
   return (
-    <Modal
+    <Dialog
       className={css`
         display: flex;
         align-items: center;
@@ -37,14 +37,19 @@ const ExerciseServiceCreationModal: React.FC<
       onClose={handleClose}
       aria-labelledby="simple-modal-title"
       aria-describedby="simple-modal-description"
+      noPadding
     >
-      <Card
+      <div
         className={css`
-          width: 60%;
+          padding: 16px;
         `}
       >
-        <CardHeader title={t("button-text-create")} />
-        <CardContent>
+        <h1>{t("button-text-create")}</h1>
+        <div
+          className={css`
+            padding: 16px 0px 16px;
+          `}
+        >
           <ContentArea
             title={t("text-field-label-name")}
             text={exercise_service.name}
@@ -86,17 +91,16 @@ const ExerciseServiceCreationModal: React.FC<
                 : undefined
             }
           />
-        </CardContent>
-        <CardContent>
-          <Button variant="primary" size="medium" onClick={handleSubmit}>
-            {t("button-text-create")}
-          </Button>
-          <Button variant="secondary" size="medium" onClick={handleClose}>
-            {t("button-text-cancel")}
-          </Button>
-        </CardContent>
-      </Card>
-    </Modal>
+        </div>
+
+        <Button variant="primary" size="medium" onClick={handleSubmit}>
+          {t("button-text-create")}
+        </Button>
+        <Button variant="secondary" size="medium" onClick={handleClose}>
+          {t("button-text-cancel")}
+        </Button>
+      </div>
+    </Dialog>
   )
 }
 

@@ -1,10 +1,9 @@
-import { css } from "@emotion/css"
-import { Dialog, Paper } from "@mui/material"
 import { BlockInstance, serialize } from "@wordpress/blocks"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
+import Dialog from "../shared-module/components/Dialog"
 import MonacoEditor from "../shared-module/components/monaco/MonacoEditor"
 
 export interface SerializeGutenbergModalProps {
@@ -23,19 +22,13 @@ const SerializeGutenbergModal: React.FC<React.PropsWithChildren<SerializeGutenbe
         {t("serialize-to-html")}
       </Button>
       {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Dialog maxWidth="xl" open={serialized !== null} onClose={() => setSerialized(null)}>
-        <Paper
-          className={css`
-            overflow: hidden;
-          `}
-        >
-          <MonacoEditor
-            height="90vh"
-            width="80vw"
-            defaultLanguage="html"
-            defaultValue={serialized ?? undefined}
-          />
-        </Paper>
+      <Dialog open={serialized !== null} onClose={() => setSerialized(null)}>
+        <MonacoEditor
+          height="90vh"
+          width="80vw"
+          defaultLanguage="html"
+          defaultValue={serialized ?? undefined}
+        />
       </Dialog>
     </div>
   )

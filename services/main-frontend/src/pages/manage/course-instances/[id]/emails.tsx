@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,6 +10,7 @@ import {
 } from "../../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
 import Button from "../../../../shared-module/components/Button"
+import Dialog from "../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -60,7 +60,7 @@ const CourseInstanceEmailTemplates: React.FC<
         {t("button-text-create")}
       </Button>
 
-      <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+      <Dialog open={showForm}>
         <div
           className={css`
             margin: 1rem;

@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import { diffChars } from "diff"
 import React, { useState } from "react"
@@ -16,6 +15,7 @@ import {
 import { isEditedBlockStillExistsData } from "../../../../../../shared-module/bindings.guard"
 import Button from "../../../../../../shared-module/components/Button"
 import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
+import RadioButton from "../../../../../../shared-module/components/InputFields/RadioButton"
 import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
 import HideTextInSystemTests from "../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
@@ -132,71 +132,73 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             }
           />
         )}
-        {/* eslint-disable-next-line i18next/no-literal-string */}
-        <FormControl component="fieldset">
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <RadioGroup row aria-label={t("accept-or-reject-proposal")} name="radio-buttons-group">
-            {isEditedBlockStillExistsData(block) && (
-              <FormControlLabel
-                // eslint-disable-next-line i18next/no-literal-string
-                value="accept"
-                control={<Radio />}
-                label={t("button-text-accept")}
-                onChange={() => {
-                  setEditingBlocks((eb) => {
-                    eb.delete(block.id)
-                    return new Set(eb)
-                  })
-                  setBlockActions((ba) => {
-                    if (block.accept_preview !== null) {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      ba.set(block.id, { tag: "Accept", data: block.accept_preview })
-                    }
-                    return new Map(ba)
-                  })
-                }}
-              />
-            )}
-            {isEditedBlockStillExistsData(block) && (
-              <FormControlLabel
-                // eslint-disable-next-line i18next/no-literal-string
-                value="edit"
-                control={<Radio />}
-                label={t("edit-and-accept")}
-                onChange={() => {
-                  setEditingBlocks((eb) => {
-                    eb.add(block.id)
-                    return new Set(eb)
-                  })
-                  setBlockActions((ba) => {
-                    if (block.accept_preview !== null) {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      ba.set(block.id, { tag: "Accept", data: block.accept_preview })
-                    }
-                    return new Map(ba)
-                  })
-                }}
-              />
-            )}
-            <FormControlLabel
+        <div
+          className={css`
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+          `}
+        >
+          {isEditedBlockStillExistsData(block) && (
+            <RadioButton
               // eslint-disable-next-line i18next/no-literal-string
-              value="reject"
-              control={<Radio />}
-              label={t("button-text-reject")}
+              value="accept"
+              label={t("button-text-accept")}
+              name={"accept-or-reject-proposal"}
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.delete(block.id)
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  ba.set(block.id, { tag: "Reject" })
+                  if (block.accept_preview !== null) {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    ba.set(block.id, { tag: "Accept", data: block.accept_preview })
+                  }
                   return new Map(ba)
                 })
               }}
             />
-          </RadioGroup>
-        </FormControl>
+          )}
+          {isEditedBlockStillExistsData(block) && (
+            <RadioButton
+              // eslint-disable-next-line i18next/no-literal-string
+              value="edit"
+              label={t("edit-and-accept")}
+              name={"accept-or-reject-proposal"}
+              onChange={() => {
+                setEditingBlocks((eb) => {
+                  eb.add(block.id)
+                  return new Set(eb)
+                })
+                setBlockActions((ba) => {
+                  if (block.accept_preview !== null) {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    ba.set(block.id, { tag: "Accept", data: block.accept_preview })
+                  }
+                  return new Map(ba)
+                })
+              }}
+            />
+          )}
+          <RadioButton
+            // eslint-disable-next-line i18next/no-literal-string
+            value="reject"
+            label={t("button-text-reject")}
+            name={"accept-or-reject-proposal"}
+            onChange={() => {
+              setEditingBlocks((eb) => {
+                eb.delete(block.id)
+                return new Set(eb)
+              })
+              setBlockActions((ba) => {
+                // eslint-disable-next-line i18next/no-literal-string
+                ba.set(block.id, { tag: "Reject" })
+                return new Map(ba)
+              })
+            }}
+          />
+        </div>
       </div>
     )
   }

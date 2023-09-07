@@ -71,7 +71,7 @@ test.describe("admin", () => {
 
     await page.check(`label:has-text("English")`)
 
-    await page.click('div[role="dialog"] >> text=Create')
+    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
 
     await page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click()
 
@@ -87,8 +87,8 @@ test.describe("admin", () => {
     // Uncheck input[type="checkbox"]
     await page.uncheck('input[type="checkbox"]')
 
-    await page.click(`button:text-is("Update")`)
-    await page.locator(`button:text-is("Update")`).waitFor({ state: "hidden" })
+    await page.getByRole("dialog").getByRole("button", { name: "Update" }).click()
+    await page.getByRole("button", { name: "Update", exact: true }).waitFor({ state: "hidden" })
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -116,7 +116,7 @@ test.describe("Teacher", () => {
     await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
     await page.getByLabel("Description").fill("draft")
     await page.locator("label").filter({ hasText: "English" }).click()
-    await page.getByRole("button", { name: "Create" }).click()
+    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
     await page.getByText("Operation successful!").waitFor()
     await page.getByRole("link", { name: "Manage course 'Best draft course'" }).click()
     await page.getByRole("tab", { name: "Permissions" }).click()
@@ -132,6 +132,7 @@ test.describe("Teacher", () => {
     await page2.goto("http://project-331.local/org/uh-mathstat/courses/best-draft-course")
     await selectCourseInstanceIfPrompted(page2)
     await page2.getByRole("heading", { name: "In this course you'll..." }).click()
+    await context2.close()
   })
 
   test("teacher gets permissions to new course when copying a course", async ({ page }) => {
@@ -149,7 +150,7 @@ test.describe("Teacher", () => {
     await page.getByLabel("Name  *", { exact: true }).click()
     await page.getByLabel("Name  *", { exact: true }).fill("Introduction to localizing copy")
     await page.getByLabel("English").check()
-    await page.getByRole("button", { name: "Create" }).click()
+    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
     await page.getByText("Operation successful!").waitFor()
 
     await page
@@ -181,7 +182,7 @@ test.describe("Teacher", () => {
       .getByLabel("Name  *", { exact: true })
       .fill("Introduction to localizing copy with permissions")
     await page.getByLabel("English").check()
-    await page.getByRole("button", { name: "Create" }).click()
+    await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
     await page.getByText("Operation successful!").waitFor()
 
     await page

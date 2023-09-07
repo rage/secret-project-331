@@ -1,11 +1,11 @@
 /* eslint-disable i18next/no-literal-string */
 
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "../../shared-module/components/Button"
+import Dialog from "../../shared-module/components/Dialog"
 
 export interface ExamTimeOverModalProps {
   disabled: boolean

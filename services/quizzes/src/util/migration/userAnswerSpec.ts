@@ -15,6 +15,19 @@ import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/p
 import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 import { QuizAnswer, QuizItemAnswer } from "../../../types/types"
 
+const convertIntDataForScale = (quizItemAnswer: QuizItemAnswer) => {
+  if (!quizItemAnswer.intData) {
+    if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
+      try {
+        return Number.parseInt(quizItemAnswer.optionAnswers[0])
+      } catch (e) {
+        console.error("Scale does not have int data: ", quizItemAnswer)
+      }
+    }
+  }
+  return quizItemAnswer.intData
+}
+
 const migrateQuizItemAnswer = (
   quizItemAnswer: QuizItemAnswer,
   quizItem: PrivateSpecQuizItem | PublicSpecQuizItem,
@@ -39,7 +52,7 @@ const migrateQuizItemAnswer = (
     case "scale":
       return {
         id: quizItemAnswer.id,
-        intData: quizItemAnswer.intData,
+        intData: convertIntDataForScale(quizItemAnswer),
         quizItemId: quizItemAnswer.quizItemId,
         type: "scale",
         valid: quizItemAnswer.valid,

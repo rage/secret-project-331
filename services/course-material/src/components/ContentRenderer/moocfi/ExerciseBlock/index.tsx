@@ -101,7 +101,9 @@ const ExerciseBlock: React.FC<
       })
       const a = new Map()
       data.current_exercise_slide.exercise_tasks.map((et) => {
-        a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+        if (et.previous_submission) {
+          a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+        }
       })
       setAnswers(a)
     },
@@ -149,7 +151,9 @@ const ExerciseBlock: React.FC<
         await getCourseMaterialExercise.refetch()
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((et) => {
-          a.set(et.id, { valid: true, data: et.previous_submission?.data_json ?? null })
+          if (et.previous_submission) {
+            a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+          }
         })
         setAnswers(a)
       }

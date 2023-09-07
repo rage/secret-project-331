@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
+import { UserItemAnswerScale } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemScale } from "../../../types/quizTypes/publicSpec"
 import { primaryFont } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
@@ -8,7 +10,7 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Scale: React.FC<QuizItemComponentProps> = ({
+const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>> = ({
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,
@@ -18,12 +20,18 @@ const Scale: React.FC<QuizItemComponentProps> = ({
   const radioIdentifier = useId()
   const radioLabelId = useId()
 
-  const handleOptionSelect = (option: string) => {
+  const handleOptionSelect = (selectedOption: string) => {
     if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        intData: Number(selectedOption),
+        valid: true,
+        type: "scale",
+      })
       return
     }
 
-    setQuizItemAnswerState({ ...quizItemAnswerState, optionAnswers: [option], valid: true })
+    setQuizItemAnswerState({ ...quizItemAnswerState, intData: Number(selectedOption), valid: true })
   }
 
   return (
@@ -89,7 +97,9 @@ const Scale: React.FC<QuizItemComponentProps> = ({
                   type="radio"
                   key={value}
                   value={value}
-                  checked={quizItemAnswerState?.optionAnswers?.includes(value)}
+                  checked={
+                    quizItemAnswerState !== null && quizItemAnswerState.intData === Number(value)
+                  }
                   onClick={(e) => handleOptionSelect(e.currentTarget.value)}
                 />
               </label>

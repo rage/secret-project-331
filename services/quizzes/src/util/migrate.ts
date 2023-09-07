@@ -4,6 +4,7 @@
 import { Quiz, QuizItem, QuizItemOption } from "../../types/types"
 
 export function migrateQuiz(oldQuiz: unknown): Quiz {
+  console.log("Old quiz:", oldQuiz)
   return {
     ...(oldQuiz as Quiz),
     items: (oldQuiz as Quiz).items.map((x) => migrateQuizItem(x)),

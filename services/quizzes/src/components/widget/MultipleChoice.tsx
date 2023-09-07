@@ -3,13 +3,14 @@ import _ from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemAnswer } from "../../../types/types"
+import { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemMultiplechoice } from "../../../types/quizTypes/publicSpec"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 import { COLUMN, ROW } from "../../util/constants"
+import { sanitizeFlexDirection } from "../../util/css-sanitization"
 import { orderArrayWithId } from "../../util/randomizer"
 import ParsedText from "../ParsedText"
 
@@ -45,36 +46,39 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItemAnswerState,
-  quizItem,
-  user_information,
-  setQuizItemAnswerState,
-}) => {
+const MultipleChoice: React.FunctionComponent<
+  QuizItemComponentProps<PublicSpecQuizItemMultiplechoice, UserItemAnswerMultiplechoice>
+> = ({ quizItemAnswerState, quizItem, user_information, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width.
-  const direction = sanitizeFlexDirection(quizItem.direction, ROW)
+  const direction = sanitizeFlexDirection(quizItem.optionDisplayDirection, ROW)
 
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        selectedOptionIds: [selectedOptionId],
+        type: "multiple-choice",
+        valid: true,
+      })
       return
     }
 
-    const selectedOptionId = event.currentTarget.value
-    let newItemAnswer: QuizItemAnswer
+    let newItemAnswer: UserItemAnswerMultiplechoice
     // multi is set to true then student can select multiple options for an answer
-    if (quizItem.multi) {
-      const optionAnswers = _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId])
+    if (quizItem.allowSelectingMultipleOptions) {
+      const optionAnswers = _.xor(quizItemAnswerState.selectedOptionIds, [selectedOptionId])
       newItemAnswer = {
         ...quizItemAnswerState,
-        optionAnswers,
+        selectedOptionIds: optionAnswers,
         valid: optionAnswers.length > 0,
       }
     } else {
       newItemAnswer = {
         ...quizItemAnswerState,
-        optionAnswers: [selectedOptionId],
+        selectedOptionIds: [selectedOptionId],
         valid: true,
       }
     }
@@ -123,7 +127,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
         `}
       >
         {quiz_options.map((qo) => {
-          const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)
+          const selected = quizItemAnswerState?.selectedOptionIds?.includes(qo.id)
 
           return (
             <button
@@ -142,7 +146,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
           )
         })}
       </div>
-      {quizItem.multi && (
+      {quizItem.allowSelectingMultipleOptions && (
         <div
           className={css`
             font-size: 13px;

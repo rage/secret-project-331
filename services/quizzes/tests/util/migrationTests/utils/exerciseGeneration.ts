@@ -254,7 +254,6 @@ const generateMultipleChoicePrivateSpecQuiz = (
 }
 
 const generateMultipleChoicePublicSpecQuiz = (
-  correctOptions: number,
   numberOfOptions: number,
   order: number,
 ): PublicQuizItem => {
@@ -263,7 +262,6 @@ const generateMultipleChoicePublicSpecQuiz = (
     quizOptions.push(
       generatePublicQuizItemOption({
         quizItemId: "multiple-choice-exercise",
-        correct: i < correctOptions,
         title: `option-${i + 1}`,
         id: `option-${i + 1}`,
         order: i + 1,

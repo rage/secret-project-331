@@ -25,6 +25,15 @@
 			"const { t } = useTranslation()"
 		],
 	},
+	"useCallback": {
+		"scope": "typescriptreact",
+		"prefix": [
+			"uc"
+		],
+		"body": [
+			"useCallback(\n$TM_SELECTED_TEXT\n,[]);",
+		]
+	},
 	"t function in jsx": {
 		"scope": "typescriptreact",
 		"prefix": [

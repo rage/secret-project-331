@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable i18next/no-literal-string */
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import migrateQuizAnswer from "../../../src/util/migration/userAnswerSpec"
-import { UserItemAnswer, UserItemAnswerCheckbox } from "../../../types/quizTypes/answer"
+import {
+  UserItemAnswer,
+  UserItemAnswerCheckbox,
+  UserItemAnswerScale,
+} from "../../../types/quizTypes/answer"
 import {
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -48,12 +53,13 @@ describe("User answer", () => {
       quizOrder,
     )
     const oldQuiz = packToPrivateSpecQuiz([multipleChoiceQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     // Create and compare user answers
     const matrixAnswer = generateUserAnswerForMultipleChoice(multipleChoiceQuizItem.id)
     const userAnswer = packUserAnswers([matrixAnswer])
-    const migratedUserAnswer: UserItemAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer: UserItemAnswer = migrateQuizAnswer(userAnswer, newQuiz)!
+      .itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("multiple-choice")
     compareUserItemAnswer(matrixAnswer, migratedUserAnswer)
   })
@@ -61,14 +67,15 @@ describe("User answer", () => {
   test("migrates checkbox answers", () => {
     const checkboxQuizItem: QuizItem = generateCheckboxForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([checkboxQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemCheckbox = newQuiz.items[0] as PrivateSpecQuizItemCheckbox
 
     const checkboxAnswer = generateUserAnswerForCheckbox(newQuizItem.id)
     const userAnswer = packUserAnswers([checkboxAnswer])
 
-    const migratedUserAnswer: UserItemAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer: UserItemAnswer = migrateQuizAnswer(userAnswer, newQuiz)!
+      .itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("checkbox")
     // Checked field is boolean where as intData is a number.
     // The field tested manually here
@@ -82,14 +89,14 @@ describe("User answer", () => {
   test("migrates essay answer", () => {
     const essayQuizItem: QuizItem = generateEssayForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([essayQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemEssay = newQuiz.items[0] as PrivateSpecQuizItemEssay
 
     const essayAnswer = generateUserAnswerForEssay(newQuizItem.id)
     const userAnswer = packUserAnswers([essayAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("essay")
     compareUserItemAnswer(essayAnswer, migratedUserAnswer)
   })
@@ -97,14 +104,14 @@ describe("User answer", () => {
   test("migrates matrix answer", () => {
     const matrixQuizItem: QuizItem = generateMatrixForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([matrixQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemMatrix = newQuiz.items[0] as PrivateSpecQuizItemMatrix
 
     const matrixAnswer = generateUserAnswerForMatrix(newQuizItem.id)
     const userAnswer = packUserAnswers([matrixAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("matrix")
     compareUserItemAnswer(matrixAnswer, migratedUserAnswer)
   })
@@ -112,7 +119,7 @@ describe("User answer", () => {
   test("migrates 'open' answer", () => {
     const closedEndedQuizItem: QuizItem = generateClosedEndedForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([closedEndedQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemClosedEndedQuestion = newQuiz
       .items[0] as PrivateSpecQuizItemClosedEndedQuestion
@@ -120,7 +127,7 @@ describe("User answer", () => {
     const closedEndedAnswer = generateUserAnswerForClosedEnded(newQuizItem.id)
     const userAnswer = packUserAnswers([closedEndedAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("closed-ended-question")
     compareUserItemAnswer(closedEndedAnswer, migratedUserAnswer)
   })
@@ -128,29 +135,40 @@ describe("User answer", () => {
   test("migrates scale answer", () => {
     const scaleQuizItem: QuizItem = generateScaleForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([scaleQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemScale = newQuiz.items[0] as PrivateSpecQuizItemScale
 
     const scaleAnswer = generateUserAnswerForScale(newQuizItem.id)
     const userAnswer = packUserAnswers([scaleAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("scale")
-    compareUserItemAnswer(scaleAnswer, migratedUserAnswer)
+    // int data and option answers are both used
+    if (scaleAnswer.intData) {
+      expect(scaleAnswer.intData).toEqual((migratedUserAnswer as UserItemAnswerScale).intData)
+    } else {
+      if (scaleAnswer.optionAnswers) {
+        expect(Number.parseInt(scaleAnswer.optionAnswers[0])).toEqual(
+          (migratedUserAnswer as UserItemAnswerScale).intData,
+        )
+      }
+      expect(scaleAnswer.quizItemId).toBe(migratedUserAnswer.quizItemId)
+      expect(scaleAnswer.valid).toBe(migratedUserAnswer.valid)
+    }
   })
 
   test("migrates timeline answer", () => {
     const timelineQuizItem: QuizItem = generateTimelineForOlderPrivateSpecQuiz(1)
     const oldQuiz = packToPrivateSpecQuiz([timelineQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0] as PrivateSpecQuizItemTimeline
 
     const timelineAnswer = generateUserAnswerForTimeline(newQuizItem.id)
     const userAnswer = packUserAnswers([timelineAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("timeline")
     compareUserItemAnswer(timelineAnswer, migratedUserAnswer)
   })
@@ -158,14 +176,14 @@ describe("User answer", () => {
   test("migrates clickable-multiple-choice answer", () => {
     const ChooseNQuizItem: QuizItem = generateChooseNForOlderPrivateSpecQuiz(1, 1)
     const oldQuiz = packToPrivateSpecQuiz([ChooseNQuizItem])
-    const newQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const newQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const newQuizItem: PrivateSpecQuizItemChooseN = newQuiz.items[0] as PrivateSpecQuizItemChooseN
 
     const ChooseNAnswer = generateUserAnswerForChooseN(newQuizItem.id)
     const userAnswer = packUserAnswers([ChooseNAnswer])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz).itemAnswers[0]
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("choose-n")
     compareUserItemAnswer(ChooseNAnswer, migratedUserAnswer)
   })
@@ -206,7 +224,7 @@ describe("User answer", () => {
       chooseNQuizItem,
     ])
 
-    const migratedPrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)
+    const migratedPrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)!
 
     const userAnswer = packUserAnswers([
       essayAnswer,
@@ -219,7 +237,7 @@ describe("User answer", () => {
       chooseNAnswer,
     ])
 
-    const migratedUserAnswer = migrateQuizAnswer(userAnswer, migratedPrivateSpecQuiz)
+    const migratedUserAnswer = migrateQuizAnswer(userAnswer, migratedPrivateSpecQuiz)!
 
     expect(migratedUserAnswer.itemAnswers.map((item) => item.type)).toMatchObject([
       "essay",

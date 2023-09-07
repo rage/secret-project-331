@@ -1,21 +1,29 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { UserItemAnswerCheckbox } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemCheckbox } from "../../../types/quizTypes/publicSpec"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Checkbox: React.FC<QuizItemComponentProps> = ({
-  quizItem,
-  quizItemAnswerState,
-  setQuizItemAnswerState,
-}) => {
+const Checkbox: React.FC<
+  QuizItemComponentProps<PublicSpecQuizItemCheckbox, UserItemAnswerCheckbox>
+> = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const handleOptionToggle = (enabled: boolean) => {
     if (!quizItemAnswerState) {
+      // Not answered before, create a new answer
+      setQuizItemAnswerState({
+        checked: enabled,
+        valid: true,
+        type: "checkbox",
+        quizItemId: quizItem.id,
+      })
       return
     }
-    setQuizItemAnswerState({ ...quizItemAnswerState, intData: enabled ? 1 : 0, valid: true })
+    // Answered before, update the answer
+    setQuizItemAnswerState({ ...quizItemAnswerState, checked: enabled, valid: true })
   }
 
   return (
@@ -41,7 +49,7 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
       >
         <input
           type="checkbox"
-          checked={quizItemAnswerState?.intData === 1}
+          checked={quizItemAnswerState?.checked}
           onChange={(e) => handleOptionToggle(e.target.checked)}
           aria-label={quizItem.title}
         />

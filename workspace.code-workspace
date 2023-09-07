@@ -97,6 +97,22 @@
       "SQLX_OFFLINE": "true"
     },
     "window.commandCenter": true,
+    "sqltools.connections": [
+      {
+        "previewLimit": 50,
+        "server": "localhost",
+        "driver": "PostgreSQL",
+        "name": "Project 331 - Development",
+        "connectString": "postgres://headless-lms@localhost:54328/headless_lms_dev"
+      },
+      {
+        "previewLimit": 50,
+        "server": "localhost",
+        "driver": "PostgreSQL",
+        "name": "Project 331 - Test",
+        "connectString": "postgres://headless-lms@localhost:54328/headless_lms_test"
+      }
+    ],
   },
   "launch": {
     "configurations": [],

@@ -12,11 +12,25 @@ import {
   UserItemAnswerTimeline,
 } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
+import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
 import { QuizAnswer, QuizItemAnswer } from "../../../types/types"
+
+const convertIntDataForScale = (quizItemAnswer: QuizItemAnswer) => {
+  if (!quizItemAnswer.intData) {
+    if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
+      try {
+        return Number.parseInt(quizItemAnswer.optionAnswers[0])
+      } catch (e) {
+        console.error("Scale does not have int data: ", quizItemAnswer)
+      }
+    }
+  }
+  return quizItemAnswer.intData
+}
 
 const migrateQuizItemAnswer = (
   quizItemAnswer: QuizItemAnswer,
-  quizItem: PrivateSpecQuizItem,
+  quizItem: PrivateSpecQuizItem | PublicSpecQuizItem,
 ): UserItemAnswer => {
   switch (quizItem.type) {
     case "essay":
@@ -38,7 +52,7 @@ const migrateQuizItemAnswer = (
     case "scale":
       return {
         id: quizItemAnswer.id,
-        intData: quizItemAnswer.intData,
+        intData: convertIntDataForScale(quizItemAnswer),
         quizItemId: quizItemAnswer.quizItemId,
         type: "scale",
         valid: quizItemAnswer.valid,
@@ -95,17 +109,20 @@ const migrateQuizItemAnswer = (
 }
 
 const migrateQuizAnswer = (
-  quizAnswer: QuizAnswer,
-  privateSpecQuiz: PrivateSpecQuiz,
-): UserAnswer => {
+  quizAnswer: QuizAnswer | null,
+  privateSpecQuiz: PrivateSpecQuiz | PublicSpecQuiz | null,
+): UserAnswer | null => {
+  if (quizAnswer === null || privateSpecQuiz === null) {
+    return null
+  }
   const userAnswer: UserAnswer = {
-    id: quizAnswer.id,
     itemAnswers: [],
+    version: "2",
   }
 
-  const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem } = {}
+  const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem | PublicSpecQuizItem } = {}
   privateSpecQuiz.items.forEach((item) => {
-    privateSpecQuizItems[item.id] = item
+    privateSpecQuizItems[item.id] = item as unknown as PublicSpecQuizItem
   })
 
   quizAnswer.itemAnswers.forEach((answer) => {

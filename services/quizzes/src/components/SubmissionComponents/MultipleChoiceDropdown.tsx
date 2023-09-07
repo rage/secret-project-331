@@ -1,6 +1,9 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
+import { UserItemAnswerMultiplechoiceDropdown } from "../../../types/quizTypes/answer"
+import { ModelSolutionQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuizItemMultiplechoiceDropdown } from "../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -32,13 +35,21 @@ const incorrectAnswer = css`
 `
 
 const MultipleChoiceDropdownFeedback: React.FC<
-  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+  React.PropsWithChildren<
+    QuizItemSubmissionComponentProps<
+      PublicSpecQuizItemMultiplechoiceDropdown,
+      UserItemAnswerMultiplechoiceDropdown
+    >
+  >
 > = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback, quiz_item_model_solution }) => {
-  const correct = quiz_item_feedback?.quiz_item_correct
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
+  const correct = quiz_item_feedback
+    ? quiz_item_feedback?.score === 1 ?? quiz_item_feedback.correctnessCoefficient == 1
+    : false
   const selectedOption = public_quiz_item.options.filter(
-    (o) => o.id === (user_quiz_item_answer.optionAnswers as string[])[0],
+    (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
-  const correctOption = quiz_item_model_solution?.options.find((o) => o.correct)
+  const correctOption = modelSolution?.options.find((o) => o.correct)
   const correctBody = correctOption?.title || correctOption?.body
 
   return (
@@ -64,9 +75,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
         className={css`
           display: flex;
           flex-direction: column;
-          align-items: baseline;
+
           ${respondToOrLarger.sm} {
-            flex-direction: row;
+            flex-direction: column;
           }
         `}
       >

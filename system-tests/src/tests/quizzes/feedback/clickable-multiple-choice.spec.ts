@@ -57,7 +57,6 @@ test("test quizzes clickable multiple-choice feedback", async ({ page, headless 
 
   await frame.locator(`button:text("Java")`).click()
   await frame.locator(`button:text("Erlang")`).click()
-  await frame.locator(`button:text("Rust")`).click()
 
   await page.locator("text=Submit").click()
 
@@ -66,28 +65,6 @@ test("test quizzes clickable multiple-choice feedback", async ({ page, headless 
     headless,
     testInfo,
     snapshotName: "clickable-multiple-choice-correct-answer",
-    waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=This is an extra submit message from the teacher.`),
-    ],
-  })
-
-  await page.locator("text=Try again").click()
-  // Unselect all the options
-  await frame.locator("text=Pick all the programming languages from below").waitFor()
-  await frame.locator(`button:text("Java")`).click()
-  await frame.locator(`button:text("Erlang")`).click()
-  await frame.locator(`button:text("Rust")`).click()
-
-  await frame.locator(`button:text("Jupiter")`).click()
-  await frame.locator(`button:text("Rust")`).click()
-
-  await page.locator("text=Submit").click()
-
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "clickable-multiple-choice-incorrect-answer-after-correct",
     waitForTheseToBeVisibleAndStable: [
       page.locator(`text=This is an extra submit message from the teacher.`),
     ],

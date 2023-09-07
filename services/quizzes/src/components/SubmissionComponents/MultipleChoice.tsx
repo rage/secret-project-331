@@ -2,17 +2,18 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerMultiplechoice } from "../../../types/quizTypes/answer"
+import { ModelSolutionQuizItemMultiplechoice } from "../../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuizItemMultiplechoice } from "../../../types/quizTypes/publicSpec"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
+import { FlexDirection, sanitizeFlexDirection } from "../../util/css-sanitization"
 import { orderArrayWithId } from "../../util/randomizer"
 import MarkdownText from "../MarkdownText"
 import ParsedText from "../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
-
-const DIRECTION_COLUMN = "column"
-const DIRECTION_ROW = "row"
 
 const gradingOption = css`
   align-items: center;
@@ -45,7 +46,9 @@ const gradingOptionCorrectAndSelected = css`
 `
 
 const MultipleChoiceSubmission: React.FC<
-  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+  React.PropsWithChildren<
+    QuizItemSubmissionComponentProps<PublicSpecQuizItemMultiplechoice, UserItemAnswerMultiplechoice>
+  >
 > = ({
   public_quiz_item,
   quiz_item_model_solution,
@@ -55,10 +58,13 @@ const MultipleChoiceSubmission: React.FC<
 }) => {
   const { t } = useTranslation()
 
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoice
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width. Sanitized since the value is used in CSS.
-  const direction: "row" | "column" =
-    public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
+  const direction: FlexDirection = sanitizeFlexDirection(
+    public_quiz_item.optionDisplayDirection,
+    "row",
+  )
 
   let quiz_options = public_quiz_item.options
   if (public_quiz_item.shuffleOptions) {
@@ -100,9 +106,9 @@ const MultipleChoiceSubmission: React.FC<
         `}
       >
         {quiz_options.map((qo) => {
-          const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
+          const selectedAnswer = user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
           const modelSolutionForThisOption =
-            quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
+            modelSolution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
           let correctAnswer = modelSolutionForThisOption?.correct ?? null
           const feedbackForThisOption = quiz_item_feedback?.quiz_item_option_feedbacks?.find(
@@ -139,9 +145,10 @@ const MultipleChoiceSubmission: React.FC<
                     <div
                       className={css`
                         display: flex;
-                        flex-direction: ${public_quiz_item.direction === "column"
-                          ? "row"
-                          : "column"};
+                        flex-direction: ${sanitizeFlexDirection(
+                          public_quiz_item.optionDisplayDirection,
+                          "row",
+                        )};
                       `}
                     >
                       <div>{correctAnswer == true && t("correct-option")}</div>

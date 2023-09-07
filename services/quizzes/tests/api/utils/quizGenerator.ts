@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { NonGenericGradingRequest } from "../../../src/shared-module/exercise-service-protocol-types";
 import { COLUMN } from "../../../src/util/constants";
 import { multipleChoiceMultipleOptionsGradingPolicy, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption } from "../../../types/types";
 
@@ -133,7 +134,7 @@ export const generateMultipleChoiceRequest = (
     options: string[],
     multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy,
     multi=true
-) => {
+): NonGenericGradingRequest => {
   // Create quiz with multiple choice
   const quizItemId = 'multiple-choice-test-id'
 
@@ -172,6 +173,7 @@ export const generateMultipleChoiceRequest = (
   })
 
   return {
+    grading_update_url: "example",
     exercise_spec: publicQuiz,
     submission_data: quizAnswer
   }

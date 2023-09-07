@@ -347,10 +347,15 @@ pub fn make_grading_request_sender(
                     ?response_body,
                     "Grading request returned an unsuccesful status code"
                 );
+                let source_error = ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("{:?}", response_body),
+                    None,
+                );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
                     "Grading failed".to_string(),
-                    None,
+                    Some(source_error.into()),
                 ));
             }
             let obj = res

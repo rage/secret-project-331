@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { respondToOrLarger } from "../shared-module/styles/respond"
-import { FlexDirection } from "../shared-module/utils/css-sanitization"
+import { FlexDirection } from "../util/css-sanitization"
 
 export interface FlexWrapperProps {
   wideScreenDirection: FlexDirection

@@ -2,8 +2,8 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { FlexDirection } from "../../shared-module/utils/css-sanitization"
 import { ROW } from "../../util/constants"
+import { FlexDirection } from "../../util/css-sanitization"
 
 const wrapperRowExtraStyles = css`
   ${respondToOrLarger.sm} {

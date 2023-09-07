@@ -274,11 +274,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                       return
                     }
                     // eslint-disable-next-line i18next/no-literal-string
-                    draft.direction = "row"
+                    draft.optionDisplayDirection = "vertical"
                   })
                 }}
-                checked={selected.direction == "row"}
-                label={t("row")}
+                checked={selected.optionDisplayDirection == "vertical"}
+                label={t("vertical")}
               />
               <RadioButton
                 onChange={() => {
@@ -287,11 +287,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                       return
                     }
                     // eslint-disable-next-line i18next/no-literal-string
-                    draft.direction = "column"
+                    draft.optionDisplayDirection = "horizontal"
                   })
                 }}
-                checked={selected.direction == "column"}
-                label={t("column")}
+                checked={selected.optionDisplayDirection == "horizontal"}
+                label={t("horizontal")}
               />
             </MultipleChoiceLayoutChoiceContainer>
             <OptionTitle> {t("answer-settings")}</OptionTitle>

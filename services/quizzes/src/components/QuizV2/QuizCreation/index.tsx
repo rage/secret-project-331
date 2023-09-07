@@ -240,14 +240,17 @@ const QuizItemContainer = styled.div`
   gap: 16px;
 `
 
-interface QuizItemProps {
-  quiz: PrivateSpecQuiz | null
-}
-
-const QuizItems: React.FC<QuizItemProps> = ({ quiz }) => {
+const QuizItems: React.FC = () => {
   const { t } = useTranslation()
 
-  if (!quiz) {
+  const { selected } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>((quiz) => {
+    if (!quiz) {
+      return null
+    }
+    return quiz
+  })
+
+  if (!selected) {
     return null
   }
 
@@ -259,14 +262,14 @@ const QuizItems: React.FC<QuizItemProps> = ({ quiz }) => {
         </SubsectionTitleWrapper>
       </ItemsTitleContainer>
       <QuizItemContainer>
-        {quiz.items.map((quizItem) => {
+        {selected.items.map((quizItem) => {
           return (
             <div key={quizItem.id}>
               <QuizEditor quizItem={quizItem} />
             </div>
           )
         })}
-        <AddQuizItem quiz={quiz} />
+        <AddQuizItem quiz={selected} />
       </QuizItemContainer>
     </>
   )

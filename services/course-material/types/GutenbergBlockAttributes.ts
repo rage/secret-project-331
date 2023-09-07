@@ -33,6 +33,9 @@ export interface ParagraphAttributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ParagraphDeprecated1Attributes {
   align?: string
   content: string
@@ -55,6 +58,9 @@ export interface ParagraphDeprecated1Attributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ParagraphDeprecated2Attributes {
   align?: string
   content: string
@@ -77,6 +83,9 @@ export interface ParagraphDeprecated2Attributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ParagraphDeprecated3Attributes {
   align?: string
   content: string
@@ -99,6 +108,9 @@ export interface ParagraphDeprecated3Attributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ParagraphDeprecated4Attributes {
   align?: string
   content: string
@@ -122,6 +134,9 @@ export interface ParagraphDeprecated4Attributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ParagraphDeprecated5Attributes {
   align?: string
   content: string
@@ -141,6 +156,9 @@ export interface ParagraphDeprecated5Attributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ParagraphDeprecated6Attributes {
   align?: string
   content: string
@@ -160,6 +178,42 @@ export interface ParagraphDeprecated6Attributes {
 }
 
 export interface ImageAttributes {
+  align?: string
+  url?: string
+  alt: string
+  caption?: string
+  title?: string
+  href?: string
+  rel?: string
+  linkClass?: string
+  id?: number
+  width?: string
+  height?: string
+  aspectRatio?: string
+  scale?: string
+  sizeSlug?: string
+  linkDestination: string
+  linkTarget?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+  borderColor?: string
+  style?: {
+    [k: string]: unknown
+  }
+  blurDataUrl: string
+}
+
+/**
+ * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated1Attributes {
   align?: string
   url?: string
   alt: string
@@ -192,11 +246,35 @@ export interface ImageAttributes {
  * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ImageDeprecated1Attributes {
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated2Attributes {
+  align?: string
+  url?: string
+  alt: string
+  caption?: string
+  title?: string
+  href?: string
+  rel?: string
+  linkClass?: string
+  id?: number
+  width?: number
+  height?: number
+  aspectRatio?: string
+  scale?: string
+  sizeSlug?: string
+  linkDestination: string
+  linkTarget?: string
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
+  borderColor?: string
+  style?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -204,7 +282,10 @@ export interface ImageDeprecated1Attributes {
  * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ImageDeprecated2Attributes {
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated3Attributes {
   align?: string
   url?: string
   alt: string
@@ -234,7 +315,10 @@ export interface ImageDeprecated2Attributes {
  * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ImageDeprecated3Attributes {
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated4Attributes {
   align?: string
   url?: string
   alt: string
@@ -261,7 +345,10 @@ export interface ImageDeprecated3Attributes {
  * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ImageDeprecated4Attributes {
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated5Attributes {
   url?: string
   alt: string
   caption?: unknown[]
@@ -282,7 +369,10 @@ export interface ImageDeprecated4Attributes {
  * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ImageDeprecated5Attributes {
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated6Attributes {
   url?: string
   alt: string
   caption?: unknown[]
@@ -302,7 +392,10 @@ export interface ImageDeprecated5Attributes {
  * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ImageDeprecated6Attributes {
+/**
+ * @deprecated
+ */
+export interface ImageDeprecated7Attributes {
   url?: string
   alt: string
   caption?: unknown[]
@@ -343,6 +436,9 @@ export interface HeadingAttributes {
  * @deprecated This is an older version of HeadingAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface HeadingDeprecated1Attributes {
   textAlign?: string
   content: string
@@ -368,6 +464,9 @@ export interface HeadingDeprecated1Attributes {
  * @deprecated This is an older version of HeadingAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface HeadingDeprecated2Attributes {
   align?: string
   content: string
@@ -389,6 +488,9 @@ export interface HeadingDeprecated2Attributes {
  * @deprecated This is an older version of HeadingAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface HeadingDeprecated3Attributes {
   align?: string
   content: string
@@ -407,6 +509,9 @@ export interface HeadingDeprecated3Attributes {
  * @deprecated This is an older version of HeadingAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface HeadingDeprecated4Attributes {
   align?: string
   content: string
@@ -425,6 +530,9 @@ export interface HeadingDeprecated4Attributes {
  * @deprecated This is an older version of HeadingAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface HeadingDeprecated5Attributes {
   align?: string
   content: string
@@ -465,6 +573,9 @@ export interface ListAttributes {
  * @deprecated This is an older version of ListAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ListDeprecated1Attributes {
   ordered: boolean
   values: string
@@ -491,6 +602,9 @@ export interface ListDeprecated1Attributes {
  * @deprecated This is an older version of ListAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ListDeprecated2Attributes {
   ordered: boolean
   values: string
@@ -550,6 +664,9 @@ export interface QuoteAttributes {
  * @deprecated This is an older version of QuoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface QuoteDeprecated1Attributes {
   value: string
   citation: string
@@ -569,6 +686,9 @@ export interface QuoteDeprecated1Attributes {
  * @deprecated This is an older version of QuoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface QuoteDeprecated2Attributes {
   value: string
   citation: string
@@ -583,6 +703,9 @@ export interface QuoteDeprecated2Attributes {
  * @deprecated This is an older version of QuoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface QuoteDeprecated3Attributes {
   value: string
   citation: string
@@ -598,6 +721,9 @@ export interface QuoteDeprecated3Attributes {
  * @deprecated This is an older version of QuoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface QuoteDeprecated4Attributes {
   value: string
   citation: string
@@ -631,6 +757,9 @@ export interface AudioAttributes {
  * @deprecated This is an older version of AudioAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface AudioDeprecated1Attributes {
   src?: string
   caption?: string
@@ -674,6 +803,9 @@ export interface ButtonAttributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated1Attributes {
   url?: string
   title?: string
@@ -702,6 +834,9 @@ export interface ButtonDeprecated1Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated2Attributes {
   url?: string
   title?: string
@@ -730,6 +865,9 @@ export interface ButtonDeprecated2Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated3Attributes {
   url?: string
   title?: string
@@ -758,6 +896,9 @@ export interface ButtonDeprecated3Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated4Attributes {
   url?: string
   title?: string
@@ -785,6 +926,9 @@ export interface ButtonDeprecated4Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated5Attributes {
   url?: string
   title?: string
@@ -812,6 +956,9 @@ export interface ButtonDeprecated5Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated6Attributes {
   url?: string
   title?: string
@@ -837,6 +984,9 @@ export interface ButtonDeprecated6Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated7Attributes {
   url?: string
   title?: string
@@ -862,6 +1012,9 @@ export interface ButtonDeprecated7Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated8Attributes {
   url?: string
   title?: string
@@ -884,6 +1037,9 @@ export interface ButtonDeprecated8Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated9Attributes {
   url?: string
   title?: string
@@ -903,6 +1059,9 @@ export interface ButtonDeprecated9Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated10Attributes {
   url?: string
   title?: string
@@ -920,6 +1079,9 @@ export interface ButtonDeprecated10Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonDeprecated11Attributes {
   url?: string
   title?: string
@@ -954,6 +1116,9 @@ export interface ButtonsAttributes {
  * @deprecated This is an older version of ButtonsAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonsDeprecated1Attributes {
   contentJustification?: string
   orientation: string
@@ -972,6 +1137,9 @@ export interface ButtonsDeprecated1Attributes {
  * @deprecated This is an older version of ButtonsAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ButtonsDeprecated2Attributes {
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
@@ -1028,6 +1196,9 @@ export interface ColumnAttributes {
  * @deprecated This is an older version of ColumnAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ColumnDeprecated1Attributes {
   verticalAlignment?: string
   width?: number
@@ -1065,6 +1236,9 @@ export interface ColumnsAttributes {
  * @deprecated This is an older version of ColumnsAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ColumnsDeprecated1Attributes {
   verticalAlignment?: string
   backgroundColor?: string
@@ -1081,6 +1255,9 @@ export interface ColumnsDeprecated1Attributes {
  * @deprecated This is an older version of ColumnsAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ColumnsDeprecated2Attributes {
   columns: number
   lock?: {
@@ -1093,6 +1270,9 @@ export interface ColumnsDeprecated2Attributes {
  * @deprecated This is an older version of ColumnsAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface ColumnsDeprecated3Attributes {
   columns: number
   lock?: {
@@ -1125,6 +1305,9 @@ export interface EmbedAttributes {
  * @deprecated This is an older version of EmbedAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface EmbedDeprecated1Attributes {
   url?: string
   caption?: string
@@ -1145,6 +1328,9 @@ export interface EmbedDeprecated1Attributes {
  * @deprecated This is an older version of EmbedAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface EmbedDeprecated2Attributes {
   url?: string
   caption?: string
@@ -1190,6 +1376,9 @@ export interface FileAttributes {
  * @deprecated This is an older version of FileAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface FileDeprecated1Attributes {
   id?: number
   href?: string
@@ -1213,6 +1402,9 @@ export interface FileDeprecated1Attributes {
  * @deprecated This is an older version of FileAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface FileDeprecated2Attributes {
   id?: number
   href?: string
@@ -1236,6 +1428,9 @@ export interface FileDeprecated2Attributes {
  * @deprecated This is an older version of FileAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface FileDeprecated3Attributes {
   id?: number
   href?: string
@@ -1303,6 +1498,9 @@ export interface PullquoteAttributes {
  * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface PullquoteDeprecated1Attributes {
   value?: string
   citation: string
@@ -1317,6 +1515,9 @@ export interface PullquoteDeprecated1Attributes {
  * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface PullquoteDeprecated2Attributes {
   value?: string
   citation: string
@@ -1334,6 +1535,9 @@ export interface PullquoteDeprecated2Attributes {
  * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface PullquoteDeprecated3Attributes {
   value?: string
   citation: string
@@ -1354,6 +1558,9 @@ export interface PullquoteDeprecated3Attributes {
  * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface PullquoteDeprecated4Attributes {
   value?: string
   citation: string
@@ -1371,6 +1578,9 @@ export interface PullquoteDeprecated4Attributes {
  * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface PullquoteDeprecated5Attributes {
   value?: string
   citation: string
@@ -1388,6 +1598,9 @@ export interface PullquoteDeprecated5Attributes {
  * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface PullquoteDeprecated6Attributes {
   value?: string
   citation?: string
@@ -1429,6 +1642,9 @@ export interface SeparatorAttributes {
  * @deprecated This is an older version of SeparatorAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface SeparatorDeprecated1Attributes {
   color?: string
   customColor?: string
@@ -1455,6 +1671,9 @@ export interface SpacerAttributes {
  * @deprecated This is an older version of SpacerAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface SpacerDeprecated1Attributes {
   height: number
   width?: number
@@ -1521,6 +1740,9 @@ export interface VerseAttributes {
  * @deprecated This is an older version of VerseAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface VerseDeprecated1Attributes {
   content: string
   textAlign?: string
@@ -1543,6 +1765,9 @@ export interface VerseDeprecated1Attributes {
  * @deprecated This is an older version of VerseAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
+/**
+ * @deprecated
+ */
 export interface VerseDeprecated2Attributes {
   content: string
   textAlign?: string

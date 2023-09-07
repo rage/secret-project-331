@@ -2,7 +2,11 @@
 /* eslint-disable i18next/no-literal-string */
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
 import migrateQuizAnswer from "../../../src/util/migration/userAnswerSpec"
-import { UserItemAnswer, UserItemAnswerCheckbox } from "../../../types/quizTypes/answer"
+import {
+  UserItemAnswer,
+  UserItemAnswerCheckbox,
+  UserItemAnswerScale,
+} from "../../../types/quizTypes/answer"
 import {
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -140,7 +144,18 @@ describe("User answer", () => {
 
     const migratedUserAnswer = migrateQuizAnswer(userAnswer, newQuiz)!.itemAnswers[0]
     expect(migratedUserAnswer.type).toBe("scale")
-    compareUserItemAnswer(scaleAnswer, migratedUserAnswer)
+    // int data and option answers are both used
+    if (scaleAnswer.intData) {
+      expect(scaleAnswer.intData).toEqual((migratedUserAnswer as UserItemAnswerScale).intData)
+    } else {
+      if (scaleAnswer.optionAnswers) {
+        expect(Number.parseInt(scaleAnswer.optionAnswers[0])).toEqual(
+          (migratedUserAnswer as UserItemAnswerScale).intData,
+        )
+      }
+      expect(scaleAnswer.quizItemId).toBe(migratedUserAnswer.quizItemId)
+      expect(scaleAnswer.valid).toBe(migratedUserAnswer.valid)
+    }
   })
 
   test("migrates timeline answer", () => {

@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 
-import { sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
+import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
 import { UserItemAnswer } from "../../../../types/quizTypes/answer"
 import {
   ModelSolutionQuiz,
@@ -103,7 +103,7 @@ const compareFields = <T extends object, S extends object>(
       return
     } else if (key === "optionDisplayDirection") {
       // direction is changed to optionDisplayDirection with different values.
-      const direction = sanitizeQuizDirection(oldQuizItem[fields[key] as keyof S])
+      const direction = sanitizeQuizDirection(oldQuizItem[fields[key] as keyof S] as FlexDirection)
       expect(direction).toEqual(newQuizItem[key as keyof T])
     } else {
       expect(newQuizItem[key as keyof T]).toEqual(oldQuizItem[fields[key] as keyof S])

@@ -1,9 +1,18 @@
-name: Build and deploy headless-lms docs
+name: headless-lms docs
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  # New commits cancel previous builds only on pull requests. This is because `github.head_ref`` is only set on pull requests and `github.sha`` is unique for each commit.
+  group: headless-lms-doc-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 
 jobs:
   build-and-deploy:
@@ -35,3 +44,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
           FOLDER: services/headless-lms/target/doc
+        if: ${{ github.ref == 'refs/heads/master' }}

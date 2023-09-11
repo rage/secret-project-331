@@ -136,6 +136,7 @@ use headless_lms_models::{
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
     proposed_block_edits::EditedBlockStillExistsData,
+    research_forms::{ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer},
     student_countries::StudentCountry,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
@@ -1705,6 +1706,62 @@ fn models() {
             course_instance_id,
             country_code: "fi".to_string(),
             created_at,
+            deleted_at,
+        }
+    );
+
+    doc!(ResearchForm {
+        id,
+        course_id,
+        content: serde_json::json!([
+          {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
+            "attributes": {
+              "content": "Please answer this"
+            },
+            "innerBlocks": []
+          },
+          {
+            "name": "moocfi/research-consent-checkbox",
+            "isValid": true,
+            "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
+            "attributes": {
+                "content": "I agree to everything"
+            },
+            "innerBlocks": []
+          }
+        ]),
+        created_at,
+        updated_at,
+        deleted_at,
+    });
+
+    doc!(
+        T,
+        Vec,
+        ResearchFormQuestion {
+            id,
+            course_id,
+            research_consent_form_id,
+            question: "I agree to everything".to_string(),
+            created_at,
+            updated_at,
+            deleted_at,
+        }
+    );
+
+    doc!(
+        Vec,
+        ResearchFormQuestionAnswer {
+            id,
+            user_id,
+            course_id,
+            research_form_question_id,
+            research_consent: true,
+            created_at,
+            updated_at,
             deleted_at,
         }
     );

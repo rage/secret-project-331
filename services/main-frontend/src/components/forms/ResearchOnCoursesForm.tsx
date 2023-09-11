@@ -135,14 +135,14 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
               label={t("research-consent-i-want-to-participate-in-educational-research")}
               name="researchConsent"
               onClick={() => handleConsentSelection(true)}
-              checked={consent}
+              checked={consent === true}
             />
             <RadioButton
               id="noResearchConsent"
               label={t("research-consent-i-do-not-want-participate-in-educational-research")}
               name="researchConsent"
               onClick={() => handleConsentSelection(false)}
-              checked={!consent}
+              checked={consent === false}
             />
           </div>
         </div>

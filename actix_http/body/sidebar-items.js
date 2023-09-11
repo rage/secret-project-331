@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BodySize","EitherBody"],"fn":["to_bytes"],"struct":["BodyStream","BoxBody","None","SizedStream"],"trait":["MessageBody"]};
+window.SIDEBAR_ITEMS = {"enum":["BodySize","EitherBody"],"fn":["to_bytes","to_bytes_limited"],"struct":["BodyLimitExceeded","BodyStream","BoxBody","None","SizedStream"],"trait":["MessageBody"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.3.1/src/ws/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-http-3.4.0/src/ws/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="actix_http" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https://actix.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -349,7 +349,6 @@
 <a href="#349" id="349">349</a>
 <a href="#350" id="350">350</a>
 <a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! WebSocket protocol implementation.
 //!
 //! To setup a WebSocket, first perform the WebSocket handshake then on success convert `Payload` into a
@@ -360,8 +359,7 @@
 <span class="kw">use </span>derive_more::{Display, Error, From};
 <span class="kw">use </span>http::{header, Method, StatusCode};
 
-<span class="kw">use </span><span class="kw">crate</span>::body::BoxBody;
-<span class="kw">use crate</span>::{header::HeaderValue, RequestHead, Response, ResponseBuilder};
+<span class="kw">use crate</span>::{body::BoxBody, header::HeaderValue, RequestHead, Response, ResponseBuilder};
 
 <span class="kw">mod </span>codec;
 <span class="kw">mod </span>dispatcher;
@@ -369,48 +367,50 @@
 <span class="kw">mod </span>mask;
 <span class="kw">mod </span>proto;
 
-<span class="kw">pub use </span><span class="self">self</span>::codec::{Codec, Frame, Item, Message};
-<span class="kw">pub use </span><span class="self">self</span>::dispatcher::Dispatcher;
-<span class="kw">pub use </span><span class="self">self</span>::frame::Parser;
-<span class="kw">pub use </span><span class="self">self</span>::proto::{hash_key, CloseCode, CloseReason, OpCode};
+<span class="kw">pub use </span><span class="self">self</span>::{
+    codec::{Codec, Frame, Item, Message},
+    dispatcher::Dispatcher,
+    frame::Parser,
+    proto::{hash_key, CloseCode, CloseReason, OpCode},
+};
 
 <span class="doccomment">/// WebSocket protocol errors.
 </span><span class="attr">#[derive(Debug, Display, Error, From)]
 </span><span class="kw">pub enum </span>ProtocolError {
     <span class="doccomment">/// Received an unmasked frame from client.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Received an unmasked frame from client.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;received an unmasked frame from client&quot;</span>)]
     </span>UnmaskedFrame,
 
     <span class="doccomment">/// Received a masked frame from server.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Received a masked frame from server.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;received a masked frame from server&quot;</span>)]
     </span>MaskedFrame,
 
     <span class="doccomment">/// Encountered invalid opcode.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Invalid opcode: {}.&quot;</span>, _0)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;invalid opcode ({})&quot;</span>, _0)]
     </span>InvalidOpcode(<span class="attr">#[error(not(source))] </span>u8),
 
     <span class="doccomment">/// Invalid control frame length
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Invalid control frame length: {}.&quot;</span>, _0)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;invalid control frame length ({})&quot;</span>, _0)]
     </span>InvalidLength(<span class="attr">#[error(not(source))] </span>usize),
 
     <span class="doccomment">/// Bad opcode.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Bad opcode.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;bad opcode&quot;</span>)]
     </span>BadOpCode,
 
     <span class="doccomment">/// A payload reached size limit.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;A payload reached size limit.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;payload reached size limit&quot;</span>)]
     </span>Overflow,
 
-    <span class="doccomment">/// Continuation is not started.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Continuation is not started.&quot;</span>)]
+    <span class="doccomment">/// Continuation has not started.
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;continuation has not started&quot;</span>)]
     </span>ContinuationNotStarted,
 
     <span class="doccomment">/// Received new continuation but it is already started.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Received new continuation but it is already started.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;received new continuation but it has already started&quot;</span>)]
     </span>ContinuationStarted,
 
     <span class="doccomment">/// Unknown continuation fragment.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Unknown continuation fragment: {}.&quot;</span>, _0)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;unknown continuation fragment: {}&quot;</span>, _0)]
     </span>ContinuationFragment(<span class="attr">#[error(not(source))] </span>OpCode),
 
     <span class="doccomment">/// I/O error.
@@ -422,27 +422,27 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, Error)]
 </span><span class="kw">pub enum </span>HandshakeError {
     <span class="doccomment">/// Only get method is allowed.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Method not allowed.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;method not allowed&quot;</span>)]
     </span>GetMethodRequired,
 
     <span class="doccomment">/// Upgrade header if not set to WebSocket.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;WebSocket upgrade is expected.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;WebSocket upgrade is expected&quot;</span>)]
     </span>NoWebsocketUpgrade,
 
     <span class="doccomment">/// Connection header is not set to upgrade.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Connection upgrade is expected.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;connection upgrade is expected&quot;</span>)]
     </span>NoConnectionUpgrade,
 
     <span class="doccomment">/// WebSocket version header is not set.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;WebSocket version header is required.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;WebSocket version header is required&quot;</span>)]
     </span>NoVersionHeader,
 
     <span class="doccomment">/// Unsupported WebSocket version.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Unsupported WebSocket version.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;unsupported WebSocket version&quot;</span>)]
     </span>UnsupportedVersion,
 
     <span class="doccomment">/// WebSocket key is not set or wrong.
-    </span><span class="attr">#[display(fmt = <span class="string">&quot;Unknown websocket key.&quot;</span>)]
+    </span><span class="attr">#[display(fmt = <span class="string">&quot;unknown WebSocket key&quot;</span>)]
     </span>BadWebsocketKey,
 }
 
@@ -571,10 +571,8 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use crate</span>::{header, Method};
-
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
+    <span class="kw">use crate</span>::{header, test::TestRequest, Method};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_handshake() {

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Server","ServerBuilder","ServerHandle","TestServer"]};
+window.SIDEBAR_ITEMS = {"enum":["MpTcp"],"struct":["Server","ServerBuilder","ServerHandle","TestServer"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_media","get_course_default_peer_review_configuration","put_course_default_peer_review_configuration"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_media","get_course_default_peer_review_configuration","get_research_form_with_course_id","put_course_default_peer_review_configuration","upsert_course_research_form","upsert_course_research_form_question"]};

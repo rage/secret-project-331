@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.3.1/src/resource.rs`."><title>resource.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-web-4.4.0/src/resource.rs`."><title>resource.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -836,6 +836,40 @@
 <a href="#836" id="836">836</a>
 <a href="#837" id="837">837</a>
 <a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, fmt, future::Future, rc::Rc};
 
 <span class="kw">use </span>actix_http::Extensions;
@@ -859,7 +893,7 @@
         BoxedHttpService, BoxedHttpServiceFactory, HttpServiceFactory, ServiceRequest,
         ServiceResponse,
     },
-    Error, FromRequest, HttpResponse, Responder,
+    web, Error, FromRequest, HttpResponse, Responder,
 };
 
 <span class="doccomment">/// A collection of [`Route`]s that respond to the same path pattern.
@@ -876,11 +910,13 @@
 ///
 /// let app = App::new().service(
 ///     web::resource(&quot;/&quot;)
-///         .route(web::get().to(|| HttpResponse::Ok())));
+///         .get(|| HttpResponse::Ok())
+///         .post(|| async { &quot;Hello World!&quot; })
+/// );
 /// ```
 ///
-/// If no matching route is found, [a 405 response is returned with an appropriate Allow header][RFC
-/// 9110 §15.5.6]. This default behavior can be overridden using
+/// If no matching route is found, an empty 405 response is returned which includes an
+/// [appropriate Allow header][RFC 9110 §15.5.6]. This default behavior can be overridden using
 /// [`default_service()`](Self::default_service).
 ///
 /// [RFC 9110 §15.5.6]: https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.6
@@ -896,7 +932,8 @@
 }
 
 <span class="kw">impl </span>Resource {
-    <span class="kw">pub fn </span>new&lt;T: IntoPatterns&gt;(path: T) -&gt; Resource {
+    <span class="doccomment">/// Constructs new resource that matches a `path` pattern.
+    </span><span class="kw">pub fn </span>new&lt;T: IntoPatterns&gt;(path: T) -&gt; Resource {
         <span class="kw">let </span>fref = Rc::new(RefCell::new(<span class="prelude-val">None</span>));
 
         Resource {
@@ -1188,12 +1225,8 @@
     </span><span class="kw">pub fn </span>default_service&lt;F, U&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>F: IntoServiceFactory&lt;U, ServiceRequest&gt;,
-        U: ServiceFactory&lt;
-                ServiceRequest,
-                Config = (),
-                Response = ServiceResponse,
-                Error = Error,
-            &gt; + <span class="lifetime">&#39;static</span>,
+        U: ServiceFactory&lt;ServiceRequest, Config = (), Response = ServiceResponse, Error = Error&gt;
+            + <span class="lifetime">&#39;static</span>,
         U::InitError: fmt::Debug,
     {
         <span class="comment">// create and configure default resource
@@ -1204,6 +1237,45 @@
 
         <span class="self">self
     </span>}
+}
+
+<span class="macro">macro_rules! </span>route_shortcut {
+    (<span class="macro-nonterminal">$method_fn</span>:ident, <span class="macro-nonterminal">$method_upper</span>:literal) =&gt; {
+        <span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot; Adds a &quot;</span>, <span class="macro-nonterminal">$method_upper</span>, <span class="string">&quot; route.&quot;</span>)]
+        </span><span class="doccomment">///
+        /// Use [`route`](Self::route) if you need to add additional guards.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// # use actix_web::web;
+        /// web::resource(&quot;/&quot;)
+        </span><span class="attr">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;    .&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_fn</span>), <span class="string">&quot;(|| async { \&quot;Hello World!\&quot; })&quot;</span>)]
+        </span><span class="doccomment">/// # ;
+        /// ```
+        </span><span class="kw">pub fn </span><span class="macro-nonterminal">$method_fn</span>&lt;F, Args&gt;(<span class="self">self</span>, handler: F) -&gt; <span class="self">Self
+        </span><span class="kw">where
+            </span>F: Handler&lt;Args&gt;,
+            Args: FromRequest + <span class="lifetime">&#39;static</span>,
+            F::Output: Responder + <span class="lifetime">&#39;static</span>,
+        {
+            <span class="self">self</span>.route(web::<span class="macro-nonterminal">$method_fn</span>().to(handler))
+        }
+    };
+}
+
+<span class="doccomment">/// Concise routes for well-known HTTP methods.
+</span><span class="kw">impl</span>&lt;T&gt; Resource&lt;T&gt;
+<span class="kw">where
+    </span>T: ServiceFactory&lt;ServiceRequest, Config = (), Error = Error, InitError = ()&gt;,
+{
+    <span class="macro">route_shortcut!</span>(get, <span class="string">&quot;GET&quot;</span>);
+    <span class="macro">route_shortcut!</span>(post, <span class="string">&quot;POST&quot;</span>);
+    <span class="macro">route_shortcut!</span>(put, <span class="string">&quot;PUT&quot;</span>);
+    <span class="macro">route_shortcut!</span>(patch, <span class="string">&quot;PATCH&quot;</span>);
+    <span class="macro">route_shortcut!</span>(delete, <span class="string">&quot;DELETE&quot;</span>);
+    <span class="macro">route_shortcut!</span>(head, <span class="string">&quot;HEAD&quot;</span>);
+    <span class="macro">route_shortcut!</span>(trace, <span class="string">&quot;TRACE&quot;</span>);
 }
 
 <span class="kw">impl</span>&lt;T, B&gt; HttpServiceFactory <span class="kw">for </span>Resource&lt;T&gt;
@@ -1421,10 +1493,8 @@
                         <span class="kw">let </span>fut = srv.call(req);
                         <span class="kw">async </span>{
                             fut.<span class="kw">await</span>.map(|<span class="kw-2">mut </span>res| {
-                                res.headers_mut().insert(
-                                    header::CONTENT_TYPE,
-                                    HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>),
-                                );
+                                res.headers_mut()
+                                    .insert(header::CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;0001&quot;</span>));
                                 res
                             })
                         }
@@ -1456,12 +1526,9 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_pattern() {
-        <span class="kw">let </span>srv = init_service(
-            App::new().service(
-                web::resource([<span class="string">&quot;/test&quot;</span>, <span class="string">&quot;/test2&quot;</span>])
-                    .to(|| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, Error&gt;(HttpResponse::Ok()) }),
-            ),
-        )
+        <span class="kw">let </span>srv = init_service(App::new().service(
+            web::resource([<span class="string">&quot;/test&quot;</span>, <span class="string">&quot;/test2&quot;</span>]).to(|| <span class="kw">async </span>{ <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, Error&gt;(HttpResponse::Ok()) }),
+        ))
         .<span class="kw">await</span>;
         <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>).to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
@@ -1600,17 +1667,18 @@
     </span><span class="attr">#[allow(deprecated)]
     #[actix_rt::test]
     </span><span class="kw">async fn </span>test_data_default_service() {
-        <span class="kw">let </span>srv = init_service(
-            App::new().data(<span class="number">1usize</span>).service(
-                web::resource(<span class="string">&quot;/test&quot;</span>)
-                    .data(<span class="number">10usize</span>)
-                    .default_service(web::to(|data: web::Data&lt;usize&gt;| {
-                        <span class="macro">assert_eq!</span>(<span class="kw-2">**</span>data, <span class="number">10</span>);
-                        HttpResponse::Ok()
-                    })),
-            ),
-        )
-        .<span class="kw">await</span>;
+        <span class="kw">let </span>srv =
+            init_service(
+                App::new().data(<span class="number">1usize</span>).service(
+                    web::resource(<span class="string">&quot;/test&quot;</span>)
+                        .data(<span class="number">10usize</span>)
+                        .default_service(web::to(|data: web::Data&lt;usize&gt;| {
+                            <span class="macro">assert_eq!</span>(<span class="kw-2">**</span>data, <span class="number">10</span>);
+                            HttpResponse::Ok()
+                        })),
+                ),
+            )
+            .<span class="kw">await</span>;
 
         <span class="kw">let </span>req = TestRequest::get().uri(<span class="string">&quot;/test&quot;</span>).to_request();
         <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;

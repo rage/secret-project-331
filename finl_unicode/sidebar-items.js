@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["categories","grapheme_clusters"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.29.1/src/runtime/io/scheduled_io.rs`."><title>scheduled_io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.32.0/src/runtime/io/scheduled_io.rs`."><title>scheduled_io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -556,47 +556,168 @@
 <a href="#556" id="556">556</a>
 <a href="#557" id="557">557</a>
 <a href="#558" id="558">558</a>
-</pre></div><pre class="rust"><code><span class="kw">use super</span>::{ReadyEvent, Tick};
-<span class="kw">use </span><span class="kw">crate</span>::io::interest::Interest;
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::io::interest::Interest;
 <span class="kw">use </span><span class="kw">crate</span>::io::ready::Ready;
 <span class="kw">use </span><span class="kw">crate</span>::loom::sync::atomic::AtomicUsize;
 <span class="kw">use </span><span class="kw">crate</span>::loom::sync::Mutex;
+<span class="kw">use </span><span class="kw">crate</span>::runtime::io::{Direction, ReadyEvent, Tick};
 <span class="kw">use </span><span class="kw">crate</span>::util::bit;
-<span class="kw">use </span><span class="kw">crate</span>::util::slab::Entry;
+<span class="kw">use </span><span class="kw">crate</span>::util::linked_list::{<span class="self">self</span>, LinkedList};
 <span class="kw">use </span><span class="kw">crate</span>::util::WakeList;
 
-<span class="kw">use </span>std::sync::atomic::Ordering::{AcqRel, Acquire, Release};
+<span class="kw">use </span>std::cell::UnsafeCell;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::marker::PhantomPinned;
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::ptr::NonNull;
+<span class="kw">use </span>std::sync::atomic::Ordering::{AcqRel, Acquire};
 <span class="kw">use </span>std::task::{Context, Poll, Waker};
-
-<span class="kw">use </span><span class="kw">super</span>::Direction;
-
-<span class="macro">cfg_io_readiness! </span>{
-    <span class="kw">use </span><span class="kw">crate</span>::util::linked_list::{<span class="self">self</span>, LinkedList};
-
-    <span class="kw">use </span>std::cell::UnsafeCell;
-    <span class="kw">use </span>std::future::Future;
-    <span class="kw">use </span>std::marker::PhantomPinned;
-    <span class="kw">use </span>std::pin::Pin;
-    <span class="kw">use </span>std::ptr::NonNull;
-}
 
 <span class="doccomment">/// Stored in the I/O driver resource slab.
 </span><span class="attr">#[derive(Debug)]
+</span><span class="comment">// # This struct should be cache padded to avoid false sharing. The cache padding rules are copied
+// from crossbeam-utils/src/cache_padded.rs
+//
+// Starting from Intel&#39;s Sandy Bridge, spatial prefetcher is now pulling pairs of 64-byte cache
+// lines at a time, so we have to align to 128 bytes rather than 64.
+//
+// Sources:
+// - https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-optimization-manual.pdf
+// - https://github.com/facebook/folly/blob/1b5288e6eea6df074758f877c849b6e73bbb9fbb/folly/lang/Align.h#L107
+//
+// ARM&#39;s big.LITTLE architecture has asymmetric cores and &quot;big&quot; cores have 128-byte cache line size.
+//
+// Sources:
+// - https://www.mono-project.com/news/2016/09/12/arm64-icache/
+//
+// powerpc64 has 128-byte cache line size.
+//
+// Sources:
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_ppc64x.go#L9
+</span><span class="attr">#[cfg_attr(
+    any(
+        target_arch = <span class="string">&quot;x86_64&quot;</span>,
+        target_arch = <span class="string">&quot;aarch64&quot;</span>,
+        target_arch = <span class="string">&quot;powerpc64&quot;</span>,
+    ),
+    repr(align(<span class="number">128</span>))
+)]
+</span><span class="comment">// arm, mips, mips64, riscv64, sparc, and hexagon have 32-byte cache line size.
+//
+// Sources:
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_arm.go#L7
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_mips.go#L7
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_mipsle.go#L7
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_mips64x.go#L9
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_riscv64.go#L7
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/sparc/include/asm/cache.h#L17
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/hexagon/include/asm/cache.h#L12
+//
+// riscv32 is assumed not to exceed the cache line size of riscv64.
+</span><span class="attr">#[cfg_attr(
+    any(
+        target_arch = <span class="string">&quot;arm&quot;</span>,
+        target_arch = <span class="string">&quot;mips&quot;</span>,
+        target_arch = <span class="string">&quot;mips64&quot;</span>,
+        target_arch = <span class="string">&quot;riscv32&quot;</span>,
+        target_arch = <span class="string">&quot;riscv64&quot;</span>,
+        target_arch = <span class="string">&quot;sparc&quot;</span>,
+        target_arch = <span class="string">&quot;hexagon&quot;</span>,
+    ),
+    repr(align(<span class="number">32</span>))
+)]
+</span><span class="comment">// m68k has 16-byte cache line size.
+//
+// Sources:
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/m68k/include/asm/cache.h#L9
+</span><span class="attr">#[cfg_attr(target_arch = <span class="string">&quot;m68k&quot;</span>, repr(align(<span class="number">16</span>)))]
+</span><span class="comment">// s390x has 256-byte cache line size.
+//
+// Sources:
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_s390x.go#L7
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/s390/include/asm/cache.h#L13
+</span><span class="attr">#[cfg_attr(target_arch = <span class="string">&quot;s390x&quot;</span>, repr(align(<span class="number">256</span>)))]
+</span><span class="comment">// x86, wasm, and sparc64 have 64-byte cache line size.
+//
+// Sources:
+// - https://github.com/golang/go/blob/dda2991c2ea0c5914714469c4defc2562a907230/src/internal/cpu/cpu_x86.go#L9
+// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_wasm.go#L7
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/sparc/include/asm/cache.h#L19
+//
+// All others are assumed to have 64-byte cache line size.
+</span><span class="attr">#[cfg_attr(
+    not(any(
+        target_arch = <span class="string">&quot;x86_64&quot;</span>,
+        target_arch = <span class="string">&quot;aarch64&quot;</span>,
+        target_arch = <span class="string">&quot;powerpc64&quot;</span>,
+        target_arch = <span class="string">&quot;arm&quot;</span>,
+        target_arch = <span class="string">&quot;mips&quot;</span>,
+        target_arch = <span class="string">&quot;mips64&quot;</span>,
+        target_arch = <span class="string">&quot;riscv32&quot;</span>,
+        target_arch = <span class="string">&quot;riscv64&quot;</span>,
+        target_arch = <span class="string">&quot;sparc&quot;</span>,
+        target_arch = <span class="string">&quot;hexagon&quot;</span>,
+        target_arch = <span class="string">&quot;m68k&quot;</span>,
+        target_arch = <span class="string">&quot;s390x&quot;</span>,
+    )),
+    repr(align(<span class="number">64</span>))
+)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ScheduledIo {
-    <span class="doccomment">/// Packs the resource&#39;s readiness with the resource&#39;s generation.
+    <span class="kw">pub</span>(<span class="kw">super</span>) linked_list_pointers: UnsafeCell&lt;linked_list::Pointers&lt;<span class="self">Self</span>&gt;&gt;,
+
+    <span class="doccomment">/// Packs the resource&#39;s readiness and I/O driver latest tick.
     </span>readiness: AtomicUsize,
 
     waiters: Mutex&lt;Waiters&gt;,
 }
 
-<span class="macro">cfg_io_readiness! </span>{
-    <span class="kw">type </span>WaitList = LinkedList&lt;Waiter, &lt;Waiter <span class="kw">as </span>linked_list::Link&gt;::Target&gt;;
-}
+<span class="kw">type </span>WaitList = LinkedList&lt;Waiter, &lt;Waiter <span class="kw">as </span>linked_list::Link&gt;::Target&gt;;
 
 <span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">struct </span>Waiters {
-    <span class="attr">#[cfg(feature = <span class="string">&quot;net&quot;</span>)]
-    </span><span class="doccomment">/// List of all current waiters.
+    <span class="doccomment">/// List of all current waiters.
     </span>list: WaitList,
 
     <span class="doccomment">/// Waker used for AsyncRead.
@@ -606,83 +727,64 @@
     </span>writer: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
 }
 
-<span class="macro">cfg_io_readiness! </span>{
-    <span class="attr">#[derive(Debug)]
-    </span><span class="kw">struct </span>Waiter {
-        pointers: linked_list::Pointers&lt;Waiter&gt;,
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">struct </span>Waiter {
+    pointers: linked_list::Pointers&lt;Waiter&gt;,
 
-        <span class="doccomment">/// The waker for this task.
-        </span>waker: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    <span class="doccomment">/// The waker for this task.
+    </span>waker: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
 
-        <span class="doccomment">/// The interest this waiter is waiting on.
-        </span>interest: Interest,
+    <span class="doccomment">/// The interest this waiter is waiting on.
+    </span>interest: Interest,
 
-        is_ready: bool,
+    is_ready: bool,
 
-        <span class="doccomment">/// Should never be `!Unpin`.
-        </span>_p: PhantomPinned,
-    }
+    <span class="doccomment">/// Should never be `!Unpin`.
+    </span>_p: PhantomPinned,
+}
 
-    <span class="macro">generate_addr_of_methods! </span>{
-        <span class="kw">impl</span>&lt;&gt; Waiter {
-            <span class="kw">unsafe fn </span>addr_of_pointers(<span class="self">self</span>: NonNull&lt;<span class="self">Self</span>&gt;) -&gt; NonNull&lt;linked_list::Pointers&lt;Waiter&gt;&gt; {
-                <span class="kw-2">&amp;</span><span class="self">self</span>.pointers
-            }
+<span class="macro">generate_addr_of_methods! </span>{
+    <span class="kw">impl</span>&lt;&gt; Waiter {
+        <span class="kw">unsafe fn </span>addr_of_pointers(<span class="self">self</span>: NonNull&lt;<span class="self">Self</span>&gt;) -&gt; NonNull&lt;linked_list::Pointers&lt;Waiter&gt;&gt; {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.pointers
         }
     }
+}
 
-    <span class="doccomment">/// Future returned by `readiness()`.
-    </span><span class="kw">struct </span>Readiness&lt;<span class="lifetime">&#39;a</span>&gt; {
-        scheduled_io: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ScheduledIo,
+<span class="doccomment">/// Future returned by `readiness()`.
+</span><span class="kw">struct </span>Readiness&lt;<span class="lifetime">&#39;a</span>&gt; {
+    scheduled_io: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ScheduledIo,
 
-        state: State,
+    state: State,
 
-        <span class="doccomment">/// Entry in the waiter `LinkedList`.
-        </span>waiter: UnsafeCell&lt;Waiter&gt;,
-    }
+    <span class="doccomment">/// Entry in the waiter `LinkedList`.
+    </span>waiter: UnsafeCell&lt;Waiter&gt;,
+}
 
-    <span class="kw">enum </span>State {
-        Init,
-        Waiting,
-        Done,
-    }
+<span class="kw">enum </span>State {
+    Init,
+    Waiting,
+    Done,
 }
 
 <span class="comment">// The `ScheduledIo::readiness` (`AtomicUsize`) is packed full of goodness.
 //
-// | shutdown | generation |  driver tick | readiness |
-// |----------+------------+--------------+-----------|
-// |   1 bit  |   7 bits   +    8 bits    +   16 bits |
+// | shutdown | driver tick | readiness |
+// |----------+-------------+-----------|
+// |   1 bit  |   8 bits    +   16 bits |
 
 </span><span class="kw">const </span>READINESS: bit::Pack = bit::Pack::least_significant(<span class="number">16</span>);
 
 <span class="kw">const </span>TICK: bit::Pack = READINESS.then(<span class="number">8</span>);
 
-<span class="kw">const </span>GENERATION: bit::Pack = TICK.then(<span class="number">7</span>);
-
-<span class="kw">const </span>SHUTDOWN: bit::Pack = GENERATION.then(<span class="number">1</span>);
-
-<span class="attr">#[test]
-</span><span class="kw">fn </span>test_generations_assert_same() {
-    <span class="macro">assert_eq!</span>(<span class="kw">super</span>::GENERATION, GENERATION);
-}
+<span class="kw">const </span>SHUTDOWN: bit::Pack = TICK.then(<span class="number">1</span>);
 
 <span class="comment">// ===== impl ScheduledIo =====
 
-</span><span class="kw">impl </span>Entry <span class="kw">for </span>ScheduledIo {
-    <span class="kw">fn </span>reset(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">let </span>state = <span class="self">self</span>.readiness.load(Acquire);
-
-        <span class="kw">let </span>generation = GENERATION.unpack(state);
-        <span class="kw">let </span>next = GENERATION.pack_lossy(generation + <span class="number">1</span>, <span class="number">0</span>);
-
-        <span class="self">self</span>.readiness.store(next, Release);
-    }
-}
-
-<span class="kw">impl </span>Default <span class="kw">for </span>ScheduledIo {
+</span><span class="kw">impl </span>Default <span class="kw">for </span>ScheduledIo {
     <span class="kw">fn </span>default() -&gt; ScheduledIo {
         ScheduledIo {
+            linked_list_pointers: UnsafeCell::new(linked_list::Pointers::new()),
             readiness: AtomicUsize::new(<span class="number">0</span>),
             waiters: Mutex::new(Default::default()),
         }
@@ -690,8 +792,9 @@
 }
 
 <span class="kw">impl </span>ScheduledIo {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>generation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        GENERATION.unpack(<span class="self">self</span>.readiness.load(Acquire))
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>token(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; mio::Token {
+        <span class="comment">// use `expose_addr` when stable
+        </span>mio::Token(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span>usize)
     }
 
     <span class="doccomment">/// Invoked when the IO driver is shut down; forces this ScheduledIo into a
@@ -706,61 +809,39 @@
     /// the current value, returning the previous readiness value.
     ///
     /// # Arguments
-    /// - `token`: the token for this `ScheduledIo`.
     /// - `tick`: whether setting the tick or trying to clear readiness for a
     ///    specific tick.
     /// - `f`: a closure returning a new readiness value given the previous
     ///   readiness.
-    ///
-    /// # Returns
-    ///
-    /// If the given token&#39;s generation no longer matches the `ScheduledIo`&#39;s
-    /// generation, then the corresponding IO resource has been removed and
-    /// replaced with a new resource. In that case, this method returns `Err`.
-    /// Otherwise, this returns the previous readiness.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>set_readiness(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        token: <span class="prelude-ty">Option</span>&lt;usize&gt;,
-        tick: Tick,
-        f: <span class="kw">impl </span>Fn(Ready) -&gt; Ready,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>set_readiness(<span class="kw-2">&amp;</span><span class="self">self</span>, tick: Tick, f: <span class="kw">impl </span>Fn(Ready) -&gt; Ready) {
         <span class="kw">let </span><span class="kw-2">mut </span>current = <span class="self">self</span>.readiness.load(Acquire);
 
+        <span class="comment">// The shutdown bit should not be set
+        </span><span class="macro">debug_assert_eq!</span>(<span class="number">0</span>, SHUTDOWN.unpack(current));
+
         <span class="kw">loop </span>{
-            <span class="kw">let </span>current_generation = GENERATION.unpack(current);
-
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(token) = token {
-                <span class="comment">// Check that the generation for this access is still the
-                // current one.
-                </span><span class="kw">if </span>GENERATION.unpack(token) != current_generation {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(());
-                }
-            }
-
-            <span class="comment">// Mask out the tick/generation bits so that the modifying
-            // function doesn&#39;t see them.
+            <span class="comment">// Mask out the tick bits so that the modifying function doesn&#39;t see
+            // them.
             </span><span class="kw">let </span>current_readiness = Ready::from_usize(current);
             <span class="kw">let </span>new = f(current_readiness);
 
-            <span class="kw">let </span>packed = <span class="kw">match </span>tick {
+            <span class="kw">let </span>next = <span class="kw">match </span>tick {
                 Tick::Set(t) =&gt; TICK.pack(t <span class="kw">as </span>usize, new.as_usize()),
                 Tick::Clear(t) =&gt; {
                     <span class="kw">if </span>TICK.unpack(current) <span class="kw">as </span>u8 != t {
                         <span class="comment">// Trying to clear readiness with an old event!
-                        </span><span class="kw">return </span><span class="prelude-val">Err</span>(());
+                        </span><span class="kw">return</span>;
                     }
 
                     TICK.pack(t <span class="kw">as </span>usize, new.as_usize())
                 }
             };
 
-            <span class="kw">let </span>next = GENERATION.pack(current_generation, packed);
-
             <span class="kw">match </span><span class="self">self
                 </span>.readiness
                 .compare_exchange(current, next, AcqRel, Acquire)
             {
-                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
                 <span class="comment">// we lost the race, retry!
                 </span><span class="prelude-val">Err</span>(actual) =&gt; current = actual,
             }
@@ -796,8 +877,7 @@
             }
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;net&quot;</span>)]
-        </span><span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+        <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>iter = waiters.list.drain_filter(|w| ready.satisfies(w.interest));
 
             <span class="kw">while </span>wakers.can_push() {
@@ -909,9 +989,7 @@
         <span class="comment">// This consumes the current readiness state **except** for closed
         // states. Closed states are excluded because they are final states.
         </span><span class="kw">let </span>mask_no_closed = event.ready - Ready::READ_CLOSED - Ready::WRITE_CLOSED;
-
-        <span class="comment">// result isn&#39;t important
-        </span><span class="kw">let _ </span>= <span class="self">self</span>.set_readiness(<span class="prelude-val">None</span>, Tick::Clear(event.tick), |curr| curr - mask_no_closed);
+        <span class="self">self</span>.set_readiness(Tick::Clear(event.tick), |curr| curr - mask_no_closed);
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_wakers(<span class="kw-2">&amp;</span><span class="self">self</span>) {
@@ -930,188 +1008,194 @@
 <span class="kw">unsafe impl </span>Send <span class="kw">for </span>ScheduledIo {}
 <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ScheduledIo {}
 
-<span class="macro">cfg_io_readiness! </span>{
-    <span class="kw">impl </span>ScheduledIo {
-        <span class="doccomment">/// An async version of `poll_readiness` which uses a linked list of wakers.
-        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>readiness(<span class="kw-2">&amp;</span><span class="self">self</span>, interest: Interest) -&gt; ReadyEvent {
-            <span class="self">self</span>.readiness_fut(interest).<span class="kw">await
-        </span>}
+<span class="kw">impl </span>ScheduledIo {
+    <span class="doccomment">/// An async version of `poll_readiness` which uses a linked list of wakers.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>readiness(<span class="kw-2">&amp;</span><span class="self">self</span>, interest: Interest) -&gt; ReadyEvent {
+        <span class="self">self</span>.readiness_fut(interest).<span class="kw">await
+    </span>}
 
-        <span class="comment">// This is in a separate function so that the borrow checker doesn&#39;t think
-        // we are borrowing the `UnsafeCell` possibly over await boundaries.
-        //
-        // Go figure.
-        </span><span class="kw">fn </span>readiness_fut(<span class="kw-2">&amp;</span><span class="self">self</span>, interest: Interest) -&gt; Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {
-            Readiness {
-                scheduled_io: <span class="self">self</span>,
-                state: State::Init,
-                waiter: UnsafeCell::new(Waiter {
-                    pointers: linked_list::Pointers::new(),
-                    waker: <span class="prelude-val">None</span>,
-                    is_ready: <span class="bool-val">false</span>,
-                    interest,
-                    _p: PhantomPinned,
-                }),
-            }
+    <span class="comment">// This is in a separate function so that the borrow checker doesn&#39;t think
+    // we are borrowing the `UnsafeCell` possibly over await boundaries.
+    //
+    // Go figure.
+    </span><span class="kw">fn </span>readiness_fut(<span class="kw-2">&amp;</span><span class="self">self</span>, interest: Interest) -&gt; Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {
+        Readiness {
+            scheduled_io: <span class="self">self</span>,
+            state: State::Init,
+            waiter: UnsafeCell::new(Waiter {
+                pointers: linked_list::Pointers::new(),
+                waker: <span class="prelude-val">None</span>,
+                is_ready: <span class="bool-val">false</span>,
+                interest,
+                _p: PhantomPinned,
+            }),
         }
     }
+}
 
-    <span class="kw">unsafe impl </span>linked_list::Link <span class="kw">for </span>Waiter {
-        <span class="kw">type </span>Handle = NonNull&lt;Waiter&gt;;
-        <span class="kw">type </span>Target = Waiter;
+<span class="kw">unsafe impl </span>linked_list::Link <span class="kw">for </span>Waiter {
+    <span class="kw">type </span>Handle = NonNull&lt;Waiter&gt;;
+    <span class="kw">type </span>Target = Waiter;
 
-        <span class="kw">fn </span>as_raw(handle: <span class="kw-2">&amp;</span>NonNull&lt;Waiter&gt;) -&gt; NonNull&lt;Waiter&gt; {
-            <span class="kw-2">*</span>handle
-        }
-
-        <span class="kw">unsafe fn </span>from_raw(ptr: NonNull&lt;Waiter&gt;) -&gt; NonNull&lt;Waiter&gt; {
-            ptr
-        }
-
-        <span class="kw">unsafe fn </span>pointers(target: NonNull&lt;Waiter&gt;) -&gt; NonNull&lt;linked_list::Pointers&lt;Waiter&gt;&gt; {
-            Waiter::addr_of_pointers(target)
-        }
+    <span class="kw">fn </span>as_raw(handle: <span class="kw-2">&amp;</span>NonNull&lt;Waiter&gt;) -&gt; NonNull&lt;Waiter&gt; {
+        <span class="kw-2">*</span>handle
     }
 
-    <span class="comment">// ===== impl Readiness =====
+    <span class="kw">unsafe fn </span>from_raw(ptr: NonNull&lt;Waiter&gt;) -&gt; NonNull&lt;Waiter&gt; {
+        ptr
+    }
 
-    </span><span class="kw">impl </span>Future <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {
-        <span class="kw">type </span>Output = ReadyEvent;
+    <span class="kw">unsafe fn </span>pointers(target: NonNull&lt;Waiter&gt;) -&gt; NonNull&lt;linked_list::Pointers&lt;Waiter&gt;&gt; {
+        Waiter::addr_of_pointers(target)
+    }
+}
 
-        <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
-            <span class="kw">use </span>std::sync::atomic::Ordering::SeqCst;
+<span class="comment">// ===== impl Readiness =====
 
-            <span class="kw">let </span>(scheduled_io, state, waiter) = <span class="kw">unsafe </span>{
-                <span class="kw">let </span>me = <span class="self">self</span>.get_unchecked_mut();
-                (<span class="kw-2">&amp;</span>me.scheduled_io, <span class="kw-2">&amp;mut </span>me.state, <span class="kw-2">&amp;</span>me.waiter)
-            };
+</span><span class="kw">impl </span>Future <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">type </span>Output = ReadyEvent;
 
-            <span class="kw">loop </span>{
-                <span class="kw">match </span><span class="kw-2">*</span>state {
-                    State::Init =&gt; {
-                        <span class="comment">// Optimistically check existing readiness
-                        </span><span class="kw">let </span>curr = scheduled_io.readiness.load(SeqCst);
-                        <span class="kw">let </span>ready = Ready::from_usize(READINESS.unpack(curr));
-                        <span class="kw">let </span>is_shutdown = SHUTDOWN.unpack(curr) != <span class="number">0</span>;
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">use </span>std::sync::atomic::Ordering::SeqCst;
 
-                        <span class="comment">// Safety: `waiter.interest` never changes
-                        </span><span class="kw">let </span>interest = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>waiter.get()).interest };
-                        <span class="kw">let </span>ready = ready.intersection(interest);
+        <span class="kw">let </span>(scheduled_io, state, waiter) = <span class="kw">unsafe </span>{
+            <span class="kw">let </span>me = <span class="self">self</span>.get_unchecked_mut();
+            (<span class="kw-2">&amp;</span>me.scheduled_io, <span class="kw-2">&amp;mut </span>me.state, <span class="kw-2">&amp;</span>me.waiter)
+        };
 
-                        <span class="kw">if </span>!ready.is_empty() || is_shutdown {
-                            <span class="comment">// Currently ready!
-                            </span><span class="kw">let </span>tick = TICK.unpack(curr) <span class="kw">as </span>u8;
-                            <span class="kw-2">*</span>state = State::Done;
-                            <span class="kw">return </span>Poll::Ready(ReadyEvent { tick, ready, is_shutdown });
-                        }
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="kw-2">*</span>state {
+                State::Init =&gt; {
+                    <span class="comment">// Optimistically check existing readiness
+                    </span><span class="kw">let </span>curr = scheduled_io.readiness.load(SeqCst);
+                    <span class="kw">let </span>ready = Ready::from_usize(READINESS.unpack(curr));
+                    <span class="kw">let </span>is_shutdown = SHUTDOWN.unpack(curr) != <span class="number">0</span>;
 
-                        <span class="comment">// Wasn&#39;t ready, take the lock (and check again while locked).
-                        </span><span class="kw">let </span><span class="kw-2">mut </span>waiters = scheduled_io.waiters.lock();
+                    <span class="comment">// Safety: `waiter.interest` never changes
+                    </span><span class="kw">let </span>interest = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>waiter.get()).interest };
+                    <span class="kw">let </span>ready = ready.intersection(interest);
 
-                        <span class="kw">let </span>curr = scheduled_io.readiness.load(SeqCst);
-                        <span class="kw">let </span><span class="kw-2">mut </span>ready = Ready::from_usize(READINESS.unpack(curr));
-                        <span class="kw">let </span>is_shutdown = SHUTDOWN.unpack(curr) != <span class="number">0</span>;
-
-                        <span class="kw">if </span>is_shutdown {
-                            ready = Ready::ALL;
-                        }
-
-                        <span class="kw">let </span>ready = ready.intersection(interest);
-
-                        <span class="kw">if </span>!ready.is_empty() || is_shutdown {
-                            <span class="comment">// Currently ready!
-                            </span><span class="kw">let </span>tick = TICK.unpack(curr) <span class="kw">as </span>u8;
-                            <span class="kw-2">*</span>state = State::Done;
-                            <span class="kw">return </span>Poll::Ready(ReadyEvent { tick, ready, is_shutdown });
-                        }
-
-                        <span class="comment">// Not ready even after locked, insert into list...
-
-                        // Safety: called while locked
-                        </span><span class="kw">unsafe </span>{
-                            (<span class="kw-2">*</span>waiter.get()).waker = <span class="prelude-val">Some</span>(cx.waker().clone());
-                        }
-
-                        <span class="comment">// Insert the waiter into the linked list
-                        //
-                        // safety: pointers from `UnsafeCell` are never null.
-                        </span>waiters
-                            .list
-                            .push_front(<span class="kw">unsafe </span>{ NonNull::new_unchecked(waiter.get()) });
-                        <span class="kw-2">*</span>state = State::Waiting;
-                    }
-                    State::Waiting =&gt; {
-                        <span class="comment">// Currently in the &quot;Waiting&quot; state, implying the caller has
-                        // a waiter stored in the waiter list (guarded by
-                        // `notify.waiters`). In order to access the waker fields,
-                        // we must hold the lock.
-
-                        </span><span class="kw">let </span>waiters = scheduled_io.waiters.lock();
-
-                        <span class="comment">// Safety: called while locked
-                        </span><span class="kw">let </span>w = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>waiter.get() };
-
-                        <span class="kw">if </span>w.is_ready {
-                            <span class="comment">// Our waker has been notified.
-                            </span><span class="kw-2">*</span>state = State::Done;
-                        } <span class="kw">else </span>{
-                            <span class="comment">// Update the waker, if necessary.
-                            </span><span class="kw">if </span>!w.waker.as_ref().unwrap().will_wake(cx.waker()) {
-                                w.waker = <span class="prelude-val">Some</span>(cx.waker().clone());
-                            }
-
-                            <span class="kw">return </span>Poll::Pending;
-                        }
-
-                        <span class="comment">// Explicit drop of the lock to indicate the scope that the
-                        // lock is held. Because holding the lock is required to
-                        // ensure safe access to fields not held within the lock, it
-                        // is helpful to visualize the scope of the critical
-                        // section.
-                        </span>drop(waiters);
-                    }
-                    State::Done =&gt; {
-                        <span class="comment">// Safety: State::Done means it is no longer shared
-                        </span><span class="kw">let </span>w = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>waiter.get() };
-
-                        <span class="kw">let </span>curr = scheduled_io.readiness.load(Acquire);
-                        <span class="kw">let </span>is_shutdown = SHUTDOWN.unpack(curr) != <span class="number">0</span>;
-
-                        <span class="comment">// The returned tick might be newer than the event
-                        // which notified our waker. This is ok because the future
-                        // still didn&#39;t return `Poll::Ready`.
+                    <span class="kw">if </span>!ready.is_empty() || is_shutdown {
+                        <span class="comment">// Currently ready!
                         </span><span class="kw">let </span>tick = TICK.unpack(curr) <span class="kw">as </span>u8;
-
-                        <span class="comment">// The readiness state could have been cleared in the meantime,
-                        // but we allow the returned ready set to be empty.
-                        </span><span class="kw">let </span>curr_ready = Ready::from_usize(READINESS.unpack(curr));
-                        <span class="kw">let </span>ready = curr_ready.intersection(w.interest);
-
+                        <span class="kw-2">*</span>state = State::Done;
                         <span class="kw">return </span>Poll::Ready(ReadyEvent {
                             tick,
                             ready,
                             is_shutdown,
                         });
                     }
+
+                    <span class="comment">// Wasn&#39;t ready, take the lock (and check again while locked).
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>waiters = scheduled_io.waiters.lock();
+
+                    <span class="kw">let </span>curr = scheduled_io.readiness.load(SeqCst);
+                    <span class="kw">let </span><span class="kw-2">mut </span>ready = Ready::from_usize(READINESS.unpack(curr));
+                    <span class="kw">let </span>is_shutdown = SHUTDOWN.unpack(curr) != <span class="number">0</span>;
+
+                    <span class="kw">if </span>is_shutdown {
+                        ready = Ready::ALL;
+                    }
+
+                    <span class="kw">let </span>ready = ready.intersection(interest);
+
+                    <span class="kw">if </span>!ready.is_empty() || is_shutdown {
+                        <span class="comment">// Currently ready!
+                        </span><span class="kw">let </span>tick = TICK.unpack(curr) <span class="kw">as </span>u8;
+                        <span class="kw-2">*</span>state = State::Done;
+                        <span class="kw">return </span>Poll::Ready(ReadyEvent {
+                            tick,
+                            ready,
+                            is_shutdown,
+                        });
+                    }
+
+                    <span class="comment">// Not ready even after locked, insert into list...
+
+                    // Safety: called while locked
+                    </span><span class="kw">unsafe </span>{
+                        (<span class="kw-2">*</span>waiter.get()).waker = <span class="prelude-val">Some</span>(cx.waker().clone());
+                    }
+
+                    <span class="comment">// Insert the waiter into the linked list
+                    //
+                    // safety: pointers from `UnsafeCell` are never null.
+                    </span>waiters
+                        .list
+                        .push_front(<span class="kw">unsafe </span>{ NonNull::new_unchecked(waiter.get()) });
+                    <span class="kw-2">*</span>state = State::Waiting;
+                }
+                State::Waiting =&gt; {
+                    <span class="comment">// Currently in the &quot;Waiting&quot; state, implying the caller has
+                    // a waiter stored in the waiter list (guarded by
+                    // `notify.waiters`). In order to access the waker fields,
+                    // we must hold the lock.
+
+                    </span><span class="kw">let </span>waiters = scheduled_io.waiters.lock();
+
+                    <span class="comment">// Safety: called while locked
+                    </span><span class="kw">let </span>w = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>waiter.get() };
+
+                    <span class="kw">if </span>w.is_ready {
+                        <span class="comment">// Our waker has been notified.
+                        </span><span class="kw-2">*</span>state = State::Done;
+                    } <span class="kw">else </span>{
+                        <span class="comment">// Update the waker, if necessary.
+                        </span><span class="kw">if </span>!w.waker.as_ref().unwrap().will_wake(cx.waker()) {
+                            w.waker = <span class="prelude-val">Some</span>(cx.waker().clone());
+                        }
+
+                        <span class="kw">return </span>Poll::Pending;
+                    }
+
+                    <span class="comment">// Explicit drop of the lock to indicate the scope that the
+                    // lock is held. Because holding the lock is required to
+                    // ensure safe access to fields not held within the lock, it
+                    // is helpful to visualize the scope of the critical
+                    // section.
+                    </span>drop(waiters);
+                }
+                State::Done =&gt; {
+                    <span class="comment">// Safety: State::Done means it is no longer shared
+                    </span><span class="kw">let </span>w = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>waiter.get() };
+
+                    <span class="kw">let </span>curr = scheduled_io.readiness.load(Acquire);
+                    <span class="kw">let </span>is_shutdown = SHUTDOWN.unpack(curr) != <span class="number">0</span>;
+
+                    <span class="comment">// The returned tick might be newer than the event
+                    // which notified our waker. This is ok because the future
+                    // still didn&#39;t return `Poll::Ready`.
+                    </span><span class="kw">let </span>tick = TICK.unpack(curr) <span class="kw">as </span>u8;
+
+                    <span class="comment">// The readiness state could have been cleared in the meantime,
+                    // but we allow the returned ready set to be empty.
+                    </span><span class="kw">let </span>curr_ready = Ready::from_usize(READINESS.unpack(curr));
+                    <span class="kw">let </span>ready = curr_ready.intersection(w.interest);
+
+                    <span class="kw">return </span>Poll::Ready(ReadyEvent {
+                        tick,
+                        ready,
+                        is_shutdown,
+                    });
                 }
             }
         }
     }
-
-    <span class="kw">impl </span>Drop <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {
-        <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-            <span class="kw">let </span><span class="kw-2">mut </span>waiters = <span class="self">self</span>.scheduled_io.waiters.lock();
-
-            <span class="comment">// Safety: `waiter` is only ever stored in `waiters`
-            </span><span class="kw">unsafe </span>{
-                waiters
-                    .list
-                    .remove(NonNull::new_unchecked(<span class="self">self</span>.waiter.get()))
-            };
-        }
-    }
-
-    <span class="kw">unsafe impl </span>Send <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {}
-    <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {}
 }
+
+<span class="kw">impl </span>Drop <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>waiters = <span class="self">self</span>.scheduled_io.waiters.lock();
+
+        <span class="comment">// Safety: `waiter` is only ever stored in `waiters`
+        </span><span class="kw">unsafe </span>{
+            waiters
+                .list
+                .remove(NonNull::new_unchecked(<span class="self">self</span>.waiter.get()))
+        };
+    }
+}
+
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {}
+<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Readiness&lt;<span class="lifetime">&#39;_</span>&gt; {}
 </code></pre></div></section></main></body></html>

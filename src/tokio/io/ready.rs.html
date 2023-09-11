@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.29.1/src/io/ready.rs`."><title>ready.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.32.0/src/io/ready.rs`."><title>ready.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -295,9 +295,36 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;net&quot;</span>), allow(unreachable_pub))]
 
-</span><span class="kw">use </span>std::fmt;
+</span><span class="kw">use </span><span class="kw">crate</span>::io::interest::Interest;
+
+<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::ops;
 
 <span class="kw">const </span>READABLE: usize = <span class="number">0b0_01</span>;
@@ -306,6 +333,7 @@
 <span class="kw">const </span>WRITE_CLOSED: usize = <span class="number">0b0_1000</span>;
 <span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))]
 </span><span class="kw">const </span>PRIORITY: usize = <span class="number">0b1_0000</span>;
+<span class="kw">const </span>ERROR: usize = <span class="number">0b10_0000</span>;
 
 <span class="doccomment">/// Describes the readiness state of an I/O resources.
 ///
@@ -335,13 +363,17 @@
     #[cfg_attr(docsrs, doc(cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))))]
     </span><span class="kw">pub const </span>PRIORITY: Ready = Ready(PRIORITY);
 
+    <span class="doccomment">/// Returns a `Ready` representing error readiness.
+    </span><span class="kw">pub const </span>ERROR: Ready = Ready(ERROR);
+
     <span class="doccomment">/// Returns a `Ready` representing readiness for all operations.
     </span><span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))]
-    </span><span class="kw">pub const </span>ALL: Ready = Ready(READABLE | WRITABLE | READ_CLOSED | WRITE_CLOSED | PRIORITY);
+    </span><span class="kw">pub const </span>ALL: Ready =
+        Ready(READABLE | WRITABLE | READ_CLOSED | WRITE_CLOSED | ERROR | PRIORITY);
 
     <span class="doccomment">/// Returns a `Ready` representing readiness for all operations.
     </span><span class="attr">#[cfg(not(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>)))]
-    </span><span class="kw">pub const </span>ALL: Ready = Ready(READABLE | WRITABLE | READ_CLOSED | WRITE_CLOSED);
+    </span><span class="kw">pub const </span>ALL: Ready = Ready(READABLE | WRITABLE | READ_CLOSED | WRITE_CLOSED | ERROR);
 
     <span class="comment">// Must remain crate-private to avoid adding a public dependency on Mio.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_mio(event: <span class="kw-2">&amp;</span>mio::event::Event) -&gt; Ready {
@@ -372,6 +404,10 @@
 
         <span class="kw">if </span>event.is_write_closed() {
             ready |= Ready::WRITE_CLOSED;
+        }
+
+        <span class="kw">if </span>event.is_error() {
+            ready |= Ready::ERROR;
         }
 
         <span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))]
@@ -477,6 +513,21 @@
         <span class="self">self</span>.contains(Ready::PRIORITY)
     }
 
+    <span class="doccomment">/// Returns `true` if the value includes error `readiness`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tokio::io::Ready;
+    ///
+    /// assert!(!Ready::EMPTY.is_error());
+    /// assert!(!Ready::WRITABLE.is_error());
+    /// assert!(Ready::ERROR.is_error());
+    /// ```
+    </span><span class="kw">pub fn </span>is_error(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.contains(Ready::ERROR)
+    }
+
     <span class="doccomment">/// Returns true if `self` is a superset of `other`.
     ///
     /// `other` may represent more than one readiness operations, in which case
@@ -505,42 +556,40 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_usize(<span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.<span class="number">0
     </span>}
-}
 
-<span class="macro">cfg_io_readiness! </span>{
-    <span class="kw">use </span><span class="kw">crate</span>::io::Interest;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_interest(interest: Interest) -&gt; Ready {
+        <span class="kw">let </span><span class="kw-2">mut </span>ready = Ready::EMPTY;
 
-    <span class="kw">impl </span>Ready {
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_interest(interest: Interest) -&gt; Ready {
-            <span class="kw">let </span><span class="kw-2">mut </span>ready = Ready::EMPTY;
-
-            <span class="kw">if </span>interest.is_readable() {
-                ready |= Ready::READABLE;
-                ready |= Ready::READ_CLOSED;
-            }
-
-            <span class="kw">if </span>interest.is_writable() {
-                ready |= Ready::WRITABLE;
-                ready |= Ready::WRITE_CLOSED;
-            }
-
-            <span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))]
-            </span><span class="kw">if </span>interest.is_priority() {
-                ready |= Ready::PRIORITY;
-                ready |= Ready::READ_CLOSED;
-            }
-
-            ready
+        <span class="kw">if </span>interest.is_readable() {
+            ready |= Ready::READABLE;
+            ready |= Ready::READ_CLOSED;
         }
 
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>intersection(<span class="self">self</span>, interest: Interest) -&gt; Ready {
-            Ready(<span class="self">self</span>.<span class="number">0 </span>&amp; Ready::from_interest(interest).<span class="number">0</span>)
+        <span class="kw">if </span>interest.is_writable() {
+            ready |= Ready::WRITABLE;
+            ready |= Ready::WRITE_CLOSED;
         }
 
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>satisfies(<span class="self">self</span>, interest: Interest) -&gt; bool {
-            <span class="self">self</span>.<span class="number">0 </span>&amp; Ready::from_interest(interest).<span class="number">0 </span>!= <span class="number">0
-        </span>}
+        <span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))]
+        </span><span class="kw">if </span>interest.is_priority() {
+            ready |= Ready::PRIORITY;
+            ready |= Ready::READ_CLOSED;
+        }
+
+        <span class="kw">if </span>interest.is_error() {
+            ready |= Ready::ERROR;
+        }
+
+        ready
     }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>intersection(<span class="self">self</span>, interest: Interest) -&gt; Ready {
+        Ready(<span class="self">self</span>.<span class="number">0 </span>&amp; Ready::from_interest(interest).<span class="number">0</span>)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>satisfies(<span class="self">self</span>, interest: Interest) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0 </span>&amp; Ready::from_interest(interest).<span class="number">0 </span>!= <span class="number">0
+    </span>}
 }
 
 <span class="kw">impl </span>ops::BitOr&lt;Ready&gt; <span class="kw">for </span>Ready {
@@ -584,7 +633,8 @@
         fmt.field(<span class="string">&quot;is_readable&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_readable())
             .field(<span class="string">&quot;is_writable&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_writable())
             .field(<span class="string">&quot;is_read_closed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_read_closed())
-            .field(<span class="string">&quot;is_write_closed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_write_closed());
+            .field(<span class="string">&quot;is_write_closed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_write_closed())
+            .field(<span class="string">&quot;is_error&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_error());
 
         <span class="attr">#[cfg(any(target_os = <span class="string">&quot;linux&quot;</span>, target_os = <span class="string">&quot;android&quot;</span>))]
         </span>fmt.field(<span class="string">&quot;is_priority&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_priority());

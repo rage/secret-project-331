@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/darling_core-0.14.4/src/from_meta.rs`."><title>from_meta.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="darling_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../darling_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/darling_core-0.20.3/src/from_meta.rs`."><title>from_meta.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="darling_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../darling_core/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -851,6 +851,165 @@
 <a href="#851" id="851">851</a>
 <a href="#852" id="852">852</a>
 <a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::collections::hash_map::HashMap;
@@ -860,9 +1019,11 @@
 <span class="kw">use </span>std::sync::atomic::AtomicBool;
 <span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use </span>syn::{Expr, Lit, Meta, NestedMeta};
+<span class="kw">use </span>syn::{Expr, Lit, Meta};
 
-<span class="kw">use crate</span>::{util::path_to_string, Error, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::ast::NestedMeta;
+<span class="kw">use </span><span class="kw">crate</span>::util::path_to_string;
+<span class="kw">use crate</span>::{Error, <span class="prelude-ty">Result</span>};
 
 <span class="doccomment">/// Create an instance from an item in an attribute declaration.
 ///
@@ -919,14 +1080,10 @@
     </span><span class="kw">fn </span>from_meta(item: <span class="kw-2">&amp;</span>Meta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         (<span class="kw">match </span><span class="kw-2">*</span>item {
             Meta::Path(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::from_word(),
-            Meta::List(<span class="kw-2">ref </span>value) =&gt; <span class="self">Self</span>::from_list(
-                <span class="kw-2">&amp;</span>value
-                    .nested
-                    .iter()
-                    .cloned()
-                    .collect::&lt;Vec&lt;syn::NestedMeta&gt;&gt;()[..],
-            ),
-            Meta::NameValue(<span class="kw-2">ref </span>value) =&gt; <span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>value.lit),
+            Meta::List(<span class="kw-2">ref </span>value) =&gt; {
+                <span class="self">Self</span>::from_list(<span class="kw-2">&amp;</span>NestedMeta::parse_meta_list(value.tokens.clone())<span class="question-mark">?</span>[..])
+            }
+            Meta::NameValue(<span class="kw-2">ref </span>value) =&gt; <span class="self">Self</span>::from_expr(<span class="kw-2">&amp;</span>value.value),
         })
         .map_err(|e| e.with_span(item))
     }
@@ -972,6 +1129,15 @@
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::unexpected_lit_type(value)),
         })
         .map_err(|e| e.with_span(value))
+    }
+
+    <span class="kw">fn </span>from_expr(expr: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span>expr {
+            Expr::Lit(<span class="kw-2">ref </span>lit) =&gt; <span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>lit.lit),
+            Expr::Group(<span class="kw-2">ref </span>group) =&gt; <span class="self">Self</span>::from_expr(<span class="kw-2">&amp;</span>group.expr),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::unexpected_expr_type(expr)),
+        }
+        .map_err(|e| e.with_span(expr))
     }
 
     <span class="doccomment">/// Create an instance from a char literal in a value position.
@@ -1074,11 +1240,13 @@
 <span class="macro">from_meta_num!</span>(u16);
 <span class="macro">from_meta_num!</span>(u32);
 <span class="macro">from_meta_num!</span>(u64);
+<span class="macro">from_meta_num!</span>(u128);
 <span class="macro">from_meta_num!</span>(usize);
 <span class="macro">from_meta_num!</span>(i8);
 <span class="macro">from_meta_num!</span>(i16);
 <span class="macro">from_meta_num!</span>(i32);
 <span class="macro">from_meta_num!</span>(i64);
+<span class="macro">from_meta_num!</span>(i128);
 <span class="macro">from_meta_num!</span>(isize);
 
 <span class="doccomment">/// Generate an impl of `FromMeta` that will accept strings which parse to floats or
@@ -1120,7 +1288,130 @@
     }
 }
 
-<span class="doccomment">/// Adapter from `syn::parse::Parse` to `FromMeta`.
+<span class="doccomment">/// Support for arbitrary expressions as values in a meta item.
+///
+/// For backwards-compatibility to versions of `darling` based on `syn` 1,
+/// string literals will be &quot;unwrapped&quot; and their contents will be parsed
+/// as an expression.
+///
+/// See [`util::parse_expr`](crate::util::parse_expr) for functions to provide
+/// alternate parsing modes for this type.
+</span><span class="kw">impl </span>FromMeta <span class="kw">for </span>syn::Expr {
+    <span class="kw">fn </span>from_expr(expr: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if let </span>syn::Expr::Lit(expr_lit) = expr {
+            <span class="kw">if let </span>syn::Lit::Str(<span class="kw">_</span>) = <span class="kw-2">&amp;</span>expr_lit.lit {
+                <span class="kw">return </span><span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>expr_lit.lit);
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(expr.clone())
+    }
+
+    <span class="kw">fn </span>from_string(value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        syn::parse_str(value).map_err(|<span class="kw">_</span>| Error::unknown_value(value))
+    }
+
+    <span class="kw">fn </span>from_value(value: <span class="kw-2">&amp;</span>::syn::Lit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if let </span>::syn::Lit::Str(<span class="kw-2">ref </span>v) = <span class="kw-2">*</span>value {
+            v.parse::&lt;syn::Expr&gt;()
+                .map_err(|<span class="kw">_</span>| Error::unknown_lit_str_value(v))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::unexpected_lit_type(value))
+        }
+    }
+}
+
+<span class="doccomment">/// Parser for paths that supports both quote-wrapped and bare values.
+</span><span class="kw">impl </span>FromMeta <span class="kw">for </span>syn::Path {
+    <span class="kw">fn </span>from_string(value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        syn::parse_str(value).map_err(|<span class="kw">_</span>| Error::unknown_value(value))
+    }
+
+    <span class="kw">fn </span>from_value(value: <span class="kw-2">&amp;</span>::syn::Lit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if let </span>::syn::Lit::Str(<span class="kw-2">ref </span>v) = <span class="kw-2">*</span>value {
+            v.parse().map_err(|<span class="kw">_</span>| Error::unknown_lit_str_value(v))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::unexpected_lit_type(value))
+        }
+    }
+
+    <span class="kw">fn </span>from_expr(expr: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>expr {
+            Expr::Lit(lit) =&gt; <span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>lit.lit),
+            Expr::Path(path) =&gt; <span class="prelude-val">Ok</span>(path.path.clone()),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::unexpected_expr_type(expr)),
+        }
+    }
+}
+
+<span class="kw">impl </span>FromMeta <span class="kw">for </span>syn::Ident {
+    <span class="kw">fn </span>from_string(value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        syn::parse_str(value).map_err(|<span class="kw">_</span>| Error::unknown_value(value))
+    }
+
+    <span class="kw">fn </span>from_value(value: <span class="kw-2">&amp;</span>syn::Lit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if let </span>syn::Lit::Str(<span class="kw-2">ref </span>v) = <span class="kw-2">*</span>value {
+            v.parse().map_err(|<span class="kw">_</span>| Error::unknown_lit_str_value(v))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::unexpected_lit_type(value))
+        }
+    }
+
+    <span class="kw">fn </span>from_expr(expr: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>expr {
+            Expr::Lit(lit) =&gt; <span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>lit.lit),
+            <span class="comment">// All idents are paths, but not all paths are idents -
+            // the get_ident() method does additional validation to
+            // make sure the path is actually an ident.
+            </span>Expr::Path(path) =&gt; <span class="kw">match </span>path.path.get_ident() {
+                <span class="prelude-val">Some</span>(ident) =&gt; <span class="prelude-val">Ok</span>(ident.clone()),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(Error::unexpected_expr_type(expr)),
+            },
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::unexpected_expr_type(expr)),
+        }
+    }
+}
+
+<span class="doccomment">/// Adapter for various expression types.
+///
+/// Prior to syn 2.0, darling supported arbitrary expressions as long as they
+/// were wrapped in quotation marks. This was helpful for people writing
+/// libraries that needed expressions, but it now creates an ambiguity when
+/// parsing a meta item.
+///
+/// To address this, the macro supports both formats; if it cannot parse the
+/// item as an expression of the right type and the passed-in expression is
+/// a string literal, it will fall back to parsing the string contents.
+</span><span class="macro">macro_rules! </span>from_syn_expr_type {
+    (<span class="macro-nonterminal">$ty</span>:path, <span class="macro-nonterminal">$variant</span>:ident) =&gt; {
+        <span class="kw">impl </span>FromMeta <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
+            <span class="kw">fn </span>from_expr(expr: <span class="kw-2">&amp;</span>syn::Expr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+                <span class="kw">if let </span>syn::Expr::<span class="macro-nonterminal">$variant</span>(body) = expr {
+                    <span class="prelude-val">Ok</span>(body.clone())
+                } <span class="kw">else if let </span>syn::Expr::Lit(expr_lit) = expr {
+                    <span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>expr_lit.lit)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(Error::unexpected_expr_type(expr))
+                }
+            }
+
+            <span class="kw">fn </span>from_value(value: <span class="kw-2">&amp;</span>::syn::Lit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+                <span class="kw">if let </span>syn::Lit::Str(body) = <span class="kw-2">&amp;</span>value {
+                    body.parse::&lt;<span class="macro-nonterminal">$ty</span>&gt;()
+                        .map_err(|<span class="kw">_</span>| Error::unknown_lit_str_value(body))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(Error::unexpected_lit_type(value))
+                }
+            }
+        }
+    };
+}
+
+<span class="macro">from_syn_expr_type!</span>(syn::ExprArray, Array);
+<span class="macro">from_syn_expr_type!</span>(syn::ExprPath, Path);
+
+<span class="doccomment">/// Adapter from `syn::parse::Parse` to `FromMeta` for items that cannot
+/// be expressed in a [`syn::MetaNameValue`].
 ///
 /// This cannot be a blanket impl, due to the `syn::Lit` family&#39;s need to handle non-string values.
 /// Therefore, we use a macro and a lot of impls.
@@ -1143,11 +1434,6 @@
     };
 }
 
-<span class="macro">from_syn_parse!</span>(syn::Ident);
-<span class="macro">from_syn_parse!</span>(syn::Expr);
-<span class="macro">from_syn_parse!</span>(syn::ExprArray);
-<span class="macro">from_syn_parse!</span>(syn::ExprPath);
-<span class="macro">from_syn_parse!</span>(syn::Path);
 <span class="macro">from_syn_parse!</span>(syn::Type);
 <span class="macro">from_syn_parse!</span>(syn::TypeArray);
 <span class="macro">from_syn_parse!</span>(syn::TypeBareFn);
@@ -1171,11 +1457,9 @@
     (<span class="macro-nonterminal">$ty</span>:ident) =&gt; {
         <span class="doccomment">/// Parsing an unsigned integer array, i.e. `example = &quot;[1, 2, 3, 4]&quot;`.
         </span><span class="kw">impl </span>FromMeta <span class="kw">for </span>Vec&lt;<span class="macro-nonterminal">$ty</span>&gt; {
-            <span class="kw">fn </span>from_value(value: <span class="kw-2">&amp;</span>Lit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-                <span class="kw">let </span>expr_array = syn::ExprArray::from_value(value)<span class="question-mark">?</span>;
-                <span class="comment">// To meet rust &lt;1.36 borrow checker rules on expr_array.elems
-                </span><span class="kw">let </span>v =
-                    expr_array
+            <span class="kw">fn </span>from_expr(expr: <span class="kw-2">&amp;</span>syn::Expr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+                <span class="kw">if let </span>syn::Expr::Array(expr_array) = expr {
+                    <span class="kw">let </span>v = expr_array
                         .elems
                         .iter()
                         .map(|expr| <span class="kw">match </span>expr {
@@ -1184,7 +1468,17 @@
                                 .with_span(expr)),
                         })
                         .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="macro-nonterminal">$ty</span>&gt;&gt;&gt;();
-                v
+                    v
+                } <span class="kw">else if let </span>syn::Expr::Lit(expr_lit) = expr {
+                    <span class="self">Self</span>::from_value(<span class="kw-2">&amp;</span>expr_lit.lit)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(Error::unexpected_expr_type(expr))
+                }
+            }
+
+            <span class="kw">fn </span>from_value(value: <span class="kw-2">&amp;</span>Lit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+                <span class="kw">let </span>expr_array = syn::ExprArray::from_value(value)<span class="question-mark">?</span>;
+                <span class="self">Self</span>::from_expr(<span class="kw-2">&amp;</span>syn::Expr::Array(expr_array))
             }
         }
     };
@@ -1372,7 +1666,7 @@
 <span class="macro">macro_rules! </span>hash_map {
     (<span class="macro-nonterminal">$key</span>:ty) =&gt; {
         <span class="kw">impl</span>&lt;V: FromMeta, S: BuildHasher + Default&gt; FromMeta <span class="kw">for </span>HashMap&lt;<span class="macro-nonterminal">$key</span>, V, S&gt; {
-            <span class="kw">fn </span>from_list(nested: <span class="kw-2">&amp;</span>[syn::NestedMeta]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">fn </span>from_list(nested: <span class="kw-2">&amp;</span>[NestedMeta]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
                 <span class="comment">// Convert the nested meta items into a sequence of (path, value result) result tuples.
                 // An outer Err means no (key, value) structured could be found, while an Err in the
                 // second position of the tuple means that value was rejected by FromMeta.
@@ -1383,14 +1677,14 @@
                     .iter()
                     .map(|item| -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="kw-2">&amp;</span>syn::Path, <span class="prelude-ty">Result</span>&lt;V&gt;)&gt; {
                         <span class="kw">match </span><span class="kw-2">*</span>item {
-                            syn::NestedMeta::Meta(<span class="kw-2">ref </span>inner) =&gt; {
+                            NestedMeta::Meta(<span class="kw-2">ref </span>inner) =&gt; {
                                 <span class="kw">let </span>path = inner.path();
                                 <span class="prelude-val">Ok</span>((
                                     path,
                                     FromMeta::from_meta(inner).map_err(|e| e.at_path(<span class="kw-2">&amp;</span>path)),
                                 ))
                             }
-                            syn::NestedMeta::Lit(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::unsupported_format(<span class="string">&quot;literal&quot;</span>)),
+                            NestedMeta::Lit(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::unsupported_format(<span class="string">&quot;expression&quot;</span>)),
                         }
                     });
 
@@ -1466,10 +1760,11 @@
     <span class="doccomment">/// parse a string as a syn::Meta instance.
     </span><span class="kw">fn </span>pm(tokens: TokenStream) -&gt; ::std::result::Result&lt;syn::Meta, String&gt; {
         <span class="kw">let </span>attribute: syn::Attribute = <span class="macro">parse_quote!</span>(<span class="attr">#[#tokens]</span>);
-        attribute.parse_meta().map_err(|<span class="kw">_</span>| <span class="string">&quot;Unable to parse&quot;</span>.into())
+        <span class="prelude-val">Ok</span>(attribute.meta)
     }
 
-    <span class="kw">fn </span>fm&lt;T: FromMeta&gt;(tokens: TokenStream) -&gt; T {
+    <span class="attr">#[track_caller]
+    </span><span class="kw">fn </span>fm&lt;T: FromMeta&gt;(tokens: TokenStream) -&gt; T {
         FromMeta::from_meta(<span class="kw-2">&amp;</span>pm(tokens).expect(<span class="string">&quot;Tests should pass well-formed input&quot;</span>))
             .expect(<span class="string">&quot;Tests should pass valid input&quot;</span>)
     }
@@ -1674,6 +1969,18 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_expr_without_quotes() {
+        fm::&lt;syn::Expr&gt;(<span class="macro">quote!</span>(ignore = x + y));
+        fm::&lt;syn::Expr&gt;(<span class="macro">quote!</span>(ignore = an_object.method_call()));
+        fm::&lt;syn::Expr&gt;(<span class="macro">quote!</span>(
+            ignore = {
+                a_statement();
+                in_a_block
+            }
+        ));
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_expr_path() {
         fm::&lt;syn::ExprPath&gt;(<span class="macro">quote!</span>(ignore = <span class="string">&quot;std::mem::replace&quot;</span>));
         fm::&lt;syn::ExprPath&gt;(<span class="macro">quote!</span>(ignore = <span class="string">&quot;x&quot;</span>));
@@ -1681,11 +1988,22 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_expr_path_without_quotes() {
+        fm::&lt;syn::ExprPath&gt;(<span class="macro">quote!</span>(ignore = std::mem::replace));
+        fm::&lt;syn::ExprPath&gt;(<span class="macro">quote!</span>(ignore = x));
+        fm::&lt;syn::ExprPath&gt;(<span class="macro">quote!</span>(ignore = example::&lt;Test&gt;));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_path_without_quotes() {
+        fm::&lt;syn::Path&gt;(<span class="macro">quote!</span>(ignore = std::mem::replace));
+        fm::&lt;syn::Path&gt;(<span class="macro">quote!</span>(ignore = x));
+        fm::&lt;syn::Path&gt;(<span class="macro">quote!</span>(ignore = example::&lt;Test&gt;));
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_number_array() {
-        <span class="macro">assert_eq!</span>(
-            fm::&lt;Vec&lt;u8&gt;&gt;(<span class="macro">quote!</span>(ignore = <span class="string">&quot;[16, 0xff]&quot;</span>)),
-            <span class="macro">vec!</span>[<span class="number">0x10</span>, <span class="number">0xff</span>]
-        );
+        <span class="macro">assert_eq!</span>(fm::&lt;Vec&lt;u8&gt;&gt;(<span class="macro">quote!</span>(ignore = [<span class="number">16</span>, <span class="number">0xff</span>])), <span class="macro">vec!</span>[<span class="number">0x10</span>, <span class="number">0xff</span>]);
         <span class="macro">assert_eq!</span>(
             fm::&lt;Vec&lt;u16&gt;&gt;(<span class="macro">quote!</span>(ignore = <span class="string">&quot;[32, 0xffff]&quot;</span>)),
             <span class="macro">vec!</span>[<span class="number">0x20</span>, <span class="number">0xffff</span>]

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.18/src/proxy.rs`."><title>proxy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../reqwest/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.20/src/proxy.rs`."><title>proxy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../reqwest/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1855,6 +1855,19 @@
 <a href="#1855" id="1855">1855</a>
 <a href="#1856" id="1856">1856</a>
 <a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
+<a href="#1868" id="1868">1868</a>
+<a href="#1869" id="1869">1869</a>
+<a href="#1870" id="1870">1870</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="attr">#[cfg(feature = <span class="string">&quot;socks&quot;</span>)]
 </span><span class="kw">use </span>std::net::SocketAddr;
@@ -1998,17 +2011,16 @@
                     }
                     source = err.source();
                 }
-                <span class="kw">if </span>!presumed_to_have_scheme {
-                    <span class="comment">// the issue could have been caused by a missing scheme, so we try adding http://
-                    </span><span class="kw">let </span>try_this = <span class="macro">format!</span>(<span class="string">&quot;http://{}&quot;</span>, <span class="self">self</span>.as_str());
-                    try_this.into_url().map_err(|<span class="kw">_</span>| {
-                        <span class="comment">// return the original error
-                        </span><span class="kw">crate</span>::error::builder(e)
-                    })<span class="question-mark">?
-                </span>} <span class="kw">else </span>{
+                <span class="kw">if </span>presumed_to_have_scheme {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::builder(e));
                 }
-            }
+                <span class="comment">// the issue could have been caused by a missing scheme, so we try adding http://
+                </span><span class="kw">let </span>try_this = <span class="macro">format!</span>(<span class="string">&quot;http://{}&quot;</span>, <span class="self">self</span>.as_str());
+                try_this.into_url().map_err(|<span class="kw">_</span>| {
+                    <span class="comment">// return the original error
+                    </span><span class="kw">crate</span>::error::builder(e)
+                })<span class="question-mark">?
+            </span>}
         };
         ProxyScheme::parse(url)
     }
@@ -2187,7 +2199,7 @@
                 .get(<span class="string">&quot;http&quot;</span>)
                 .and_then(|s| s.maybe_http_auth())
                 .is_some(),
-            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+            Intercept::Https(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
         }
     }
 
@@ -2200,7 +2212,7 @@
             Intercept::Custom(custom) =&gt; {
                 custom.call(uri).and_then(|s| s.maybe_http_auth().cloned())
             }
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+            Intercept::Https(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -2279,7 +2291,7 @@
         <span class="self">Self</span>::from_string(<span class="kw-2">&amp;</span>raw)
     }
 
-    <span class="doccomment">/// Returns a new no-proxy configuration based on a no_proxy string (or `None` if no variables
+    <span class="doccomment">/// Returns a new no-proxy configuration based on a `no_proxy` string (or `None` if no variables
     /// are set)
     /// The rules are as follows:
     /// * The environment variable `NO_PROXY` is checked, if it is not set, `no_proxy` is checked
@@ -2340,7 +2352,7 @@
 
 <span class="kw">impl </span>IpMatcher {
     <span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, addr: IpAddr) -&gt; bool {
-        <span class="kw">for </span>ip <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.iter() {
+        <span class="kw">for </span>ip <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
             <span class="kw">match </span>ip {
                 Ip::Address(address) =&gt; {
                     <span class="kw">if </span><span class="kw-2">&amp;</span>addr == address {
@@ -2364,7 +2376,7 @@
     // * https://github.com/curl/curl/issues/1208
     </span><span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, domain: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">let </span>domain_len = domain.len();
-        <span class="kw">for </span>d <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.iter() {
+        <span class="kw">for </span>d <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
             <span class="kw">if </span>d == domain || d.strip_prefix(<span class="string">&#39;.&#39;</span>) == <span class="prelude-val">Some</span>(domain) {
                 <span class="kw">return </span><span class="bool-val">true</span>;
             } <span class="kw">else if </span>domain.ends_with(d) {
@@ -2600,8 +2612,8 @@
             <span class="string">&quot;{}://{}{}{}&quot;</span>,
             uri.scheme(),
             uri.host(),
-            uri.port().map(|<span class="kw">_</span>| <span class="string">&quot;:&quot;</span>).unwrap_or(<span class="string">&quot;&quot;</span>),
-            uri.port().map(|p| p.to_string()).unwrap_or_default()
+            uri.port().map_or(<span class="string">&quot;&quot;</span>, |<span class="kw">_</span>| <span class="string">&quot;:&quot;</span>),
+            uri.port().map_or(String::new(), |p| p.to_string())
         )
         .parse()
         .expect(<span class="string">&quot;should be valid Url&quot;</span>);
@@ -2702,6 +2714,13 @@
 
     <span class="kw">if </span>!insert_from_env(<span class="kw-2">&amp;mut </span>proxies, <span class="string">&quot;https&quot;</span>, <span class="string">&quot;HTTPS_PROXY&quot;</span>) {
         insert_from_env(<span class="kw-2">&amp;mut </span>proxies, <span class="string">&quot;https&quot;</span>, <span class="string">&quot;https_proxy&quot;</span>);
+    }
+
+    <span class="kw">if </span>!(insert_from_env(<span class="kw-2">&amp;mut </span>proxies, <span class="string">&quot;http&quot;</span>, <span class="string">&quot;ALL_PROXY&quot;</span>)
+        &amp;&amp; insert_from_env(<span class="kw-2">&amp;mut </span>proxies, <span class="string">&quot;https&quot;</span>, <span class="string">&quot;ALL_PROXY&quot;</span>))
+    {
+        insert_from_env(<span class="kw-2">&amp;mut </span>proxies, <span class="string">&quot;http&quot;</span>, <span class="string">&quot;all_proxy&quot;</span>);
+        insert_from_env(<span class="kw-2">&amp;mut </span>proxies, <span class="string">&quot;https&quot;</span>, <span class="string">&quot;all_proxy&quot;</span>);
     }
 
     proxies
@@ -2992,6 +3011,7 @@
         <span class="comment">// save system setting first.
         </span><span class="kw">let </span>_g1 = env_guard(<span class="string">&quot;HTTP_PROXY&quot;</span>);
         <span class="kw">let </span>_g2 = env_guard(<span class="string">&quot;http_proxy&quot;</span>);
+        <span class="kw">let </span>_g3 = env_guard(<span class="string">&quot;ALL_PROXY&quot;</span>);
 
         <span class="comment">// Mock ENV, get the results, before doing assertions
         // to avoid assert! -&gt; panic! -&gt; Mutex Poisoned.
@@ -3002,6 +3022,9 @@
         <span class="comment">// set valid proxy
         </span>env::set_var(<span class="string">&quot;http_proxy&quot;</span>, <span class="string">&quot;127.0.0.1/&quot;</span>);
         <span class="kw">let </span>valid_proxies = get_sys_proxies(<span class="prelude-val">None</span>);
+        <span class="comment">// set valid ALL_PROXY
+        </span>env::set_var(<span class="string">&quot;ALL_PROXY&quot;</span>, <span class="string">&quot;127.0.0.2/&quot;</span>);
+        <span class="kw">let </span>all_proxies = get_sys_proxies(<span class="prelude-val">None</span>);
 
         <span class="comment">// reset user setting when guards drop
         </span>drop(_g1);
@@ -3015,6 +3038,9 @@
         <span class="kw">let </span>p = <span class="kw-2">&amp;</span>valid_proxies[<span class="string">&quot;http&quot;</span>];
         <span class="macro">assert_eq!</span>(p.scheme(), <span class="string">&quot;http&quot;</span>);
         <span class="macro">assert_eq!</span>(p.host(), <span class="string">&quot;127.0.0.1&quot;</span>);
+
+        <span class="macro">assert_eq!</span>(all_proxies.len(), <span class="number">2</span>);
+        <span class="macro">assert!</span>(all_proxies.values().all(|p| p.host() == <span class="string">&quot;127.0.0.2&quot;</span>));
     }
 
     <span class="attr">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]

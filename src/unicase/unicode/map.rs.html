@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicase-2.6.0/src/unicode/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="unicase" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../unicase/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicase-2.7.0/src/unicode/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="unicase" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../unicase/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1963,38 +1963,8 @@
 <a href="#1963" id="1963">1963</a>
 <a href="#1964" id="1964">1964</a>
 <a href="#1965" id="1965">1965</a>
-<a href="#1966" id="1966">1966</a>
-<a href="#1967" id="1967">1967</a>
-<a href="#1968" id="1968">1968</a>
-<a href="#1969" id="1969">1969</a>
-<a href="#1970" id="1970">1970</a>
-<a href="#1971" id="1971">1971</a>
-<a href="#1972" id="1972">1972</a>
-<a href="#1973" id="1973">1973</a>
-<a href="#1974" id="1974">1974</a>
-<a href="#1975" id="1975">1975</a>
-<a href="#1976" id="1976">1976</a>
-<a href="#1977" id="1977">1977</a>
-<a href="#1978" id="1978">1978</a>
-<a href="#1979" id="1979">1979</a>
-<a href="#1980" id="1980">1980</a>
-<a href="#1981" id="1981">1981</a>
-<a href="#1982" id="1982">1982</a>
-<a href="#1983" id="1983">1983</a>
-<a href="#1984" id="1984">1984</a>
-<a href="#1985" id="1985">1985</a>
-<a href="#1986" id="1986">1986</a>
-<a href="#1987" id="1987">1987</a>
-<a href="#1988" id="1988">1988</a>
-<a href="#1989" id="1989">1989</a>
-<a href="#1990" id="1990">1990</a>
-<a href="#1991" id="1991">1991</a>
-<a href="#1992" id="1992">1992</a>
-<a href="#1993" id="1993">1993</a>
-<a href="#1994" id="1994">1994</a>
-<a href="#1995" id="1995">1995</a>
 </pre></div><pre class="rust"><code><span class="comment">// Generated by scripts/mapgen.py
-// 2019-08-31
+// 2023-08-14
 
 </span><span class="kw">use </span><span class="kw">super</span>::fold::Fold;
 
@@ -2014,434 +1984,350 @@
         <span class="kw">let </span>high_byte = (from &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8;
         <span class="kw">let </span>low_byte = (from &amp; <span class="number">0xff</span>) <span class="kw">as </span>u8;
         <span class="kw">let </span>single_char: u16 = <span class="kw">match </span>high_byte {
-            <span class="number">0x00 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span><span class="number">0x41 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x5a  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-                    <span class="number">0xb5 </span>=&gt; <span class="number">0x03bc</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xc0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xd6  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xd8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xde  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-                    <span class="number">0xdf </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>,),
-                    <span class="kw">_ </span>=&gt; from
+            <span class="number">0x00 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span><span class="number">0x41 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x5a </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+                <span class="number">0xb5 </span>=&gt; <span class="number">0x03bc</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xc0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xd6 </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xd8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xde </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+                <span class="number">0xdf </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x01 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x2e </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x30 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0069}&#39;</span>, <span class="string">&#39;\u{0307}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x32 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x36 </span>=&gt; from | <span class="number">1</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x39 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x47 </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                <span class="number">0x49 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{02bc}&#39;</span>, <span class="string">&#39;\u{006e}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x4a </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x76 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x78 </span>=&gt; <span class="number">0x00ff</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x79 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x7d </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                <span class="number">0x7f </span>=&gt; <span class="number">0x0073</span>,
+                <span class="number">0x81 </span>=&gt; <span class="number">0x0253</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x82 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x84 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x86 </span>=&gt; <span class="number">0x0254</span>,
+                <span class="number">0x87 </span>=&gt; <span class="number">0x0188</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x89 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x8a </span>=&gt; from.wrapping_add(<span class="number">0x00cd</span>),
+                <span class="number">0x8b </span>=&gt; <span class="number">0x018c</span>,
+                <span class="number">0x8e </span>=&gt; <span class="number">0x01dd</span>,
+                <span class="number">0x8f </span>=&gt; <span class="number">0x0259</span>,
+                <span class="number">0x90 </span>=&gt; <span class="number">0x025b</span>,
+                <span class="number">0x91 </span>=&gt; <span class="number">0x0192</span>,
+                <span class="number">0x93 </span>=&gt; <span class="number">0x0260</span>,
+                <span class="number">0x94 </span>=&gt; <span class="number">0x0263</span>,
+                <span class="number">0x96 </span>=&gt; <span class="number">0x0269</span>,
+                <span class="number">0x97 </span>=&gt; <span class="number">0x0268</span>,
+                <span class="number">0x98 </span>=&gt; <span class="number">0x0199</span>,
+                <span class="number">0x9c </span>=&gt; <span class="number">0x026f</span>,
+                <span class="number">0x9d </span>=&gt; <span class="number">0x0272</span>,
+                <span class="number">0x9f </span>=&gt; <span class="number">0x0275</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xa0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa4 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0xa6 </span>=&gt; <span class="number">0x0280</span>,
+                <span class="number">0xa7 </span>=&gt; <span class="number">0x01a8</span>,
+                <span class="number">0xa9 </span>=&gt; <span class="number">0x0283</span>,
+                <span class="number">0xac </span>=&gt; <span class="number">0x01ad</span>,
+                <span class="number">0xae </span>=&gt; <span class="number">0x0288</span>,
+                <span class="number">0xaf </span>=&gt; <span class="number">0x01b0</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xb1 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xb2 </span>=&gt; from.wrapping_add(<span class="number">0x00d9</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xb3 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xb5 </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                <span class="number">0xb7 </span>=&gt; <span class="number">0x0292</span>,
+                <span class="number">0xb8 </span>=&gt; <span class="number">0x01b9</span>,
+                <span class="number">0xbc </span>=&gt; <span class="number">0x01bd</span>,
+                <span class="number">0xc4 </span>=&gt; <span class="number">0x01c6</span>,
+                <span class="number">0xc5 </span>=&gt; <span class="number">0x01c6</span>,
+                <span class="number">0xc7 </span>=&gt; <span class="number">0x01c9</span>,
+                <span class="number">0xc8 </span>=&gt; <span class="number">0x01c9</span>,
+                <span class="number">0xca </span>=&gt; <span class="number">0x01cc</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xcb </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xdb </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xde </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xee </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0xf0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{006a}&#39;</span>, <span class="string">&#39;\u{030c}&#39;</span>),
+                <span class="number">0xf1 </span>=&gt; <span class="number">0x01f3</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xf2 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xf4 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0xf6 </span>=&gt; <span class="number">0x0195</span>,
+                <span class="number">0xf7 </span>=&gt; <span class="number">0x01bf</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xf8 </span>&lt;= x =&gt; from | <span class="number">1</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x02 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x1e </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x20 </span>=&gt; <span class="number">0x019e</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x22 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x32 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x3a </span>=&gt; <span class="number">0x2c65</span>,
+                <span class="number">0x3b </span>=&gt; <span class="number">0x023c</span>,
+                <span class="number">0x3d </span>=&gt; <span class="number">0x019a</span>,
+                <span class="number">0x3e </span>=&gt; <span class="number">0x2c66</span>,
+                <span class="number">0x41 </span>=&gt; <span class="number">0x0242</span>,
+                <span class="number">0x43 </span>=&gt; <span class="number">0x0180</span>,
+                <span class="number">0x44 </span>=&gt; <span class="number">0x0289</span>,
+                <span class="number">0x45 </span>=&gt; <span class="number">0x028c</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x46 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x4e </span>=&gt; from | <span class="number">1</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x03 </span>=&gt; <span class="kw">match </span>low_byte {
+                <span class="number">0x45 </span>=&gt; <span class="number">0x03b9</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x70 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x72 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x76 </span>=&gt; <span class="number">0x0377</span>,
+                <span class="number">0x7f </span>=&gt; <span class="number">0x03f3</span>,
+                <span class="number">0x86 </span>=&gt; <span class="number">0x03ac</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x88 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x8a </span>=&gt; from.wrapping_add(<span class="number">0x0025</span>),
+                <span class="number">0x8c </span>=&gt; <span class="number">0x03cc</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x8e </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x8f </span>=&gt; from.wrapping_add(<span class="number">0x003f</span>),
+                <span class="number">0x90 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x91 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa1 </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xa3 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xab </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+                <span class="number">0xb0 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+                <span class="number">0xc2 </span>=&gt; <span class="number">0x03c3</span>,
+                <span class="number">0xcf </span>=&gt; <span class="number">0x03d7</span>,
+                <span class="number">0xd0 </span>=&gt; <span class="number">0x03b2</span>,
+                <span class="number">0xd1 </span>=&gt; <span class="number">0x03b8</span>,
+                <span class="number">0xd5 </span>=&gt; <span class="number">0x03c6</span>,
+                <span class="number">0xd6 </span>=&gt; <span class="number">0x03c0</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xd8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xee </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0xf0 </span>=&gt; <span class="number">0x03ba</span>,
+                <span class="number">0xf1 </span>=&gt; <span class="number">0x03c1</span>,
+                <span class="number">0xf4 </span>=&gt; <span class="number">0x03b8</span>,
+                <span class="number">0xf5 </span>=&gt; <span class="number">0x03b5</span>,
+                <span class="number">0xf7 </span>=&gt; <span class="number">0x03f8</span>,
+                <span class="number">0xf9 </span>=&gt; <span class="number">0x03f2</span>,
+                <span class="number">0xfa </span>=&gt; <span class="number">0x03fb</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xfd </span>&lt;= x =&gt; from.wrapping_sub(<span class="number">0x0082</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x04 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x0f </span>=&gt; from.wrapping_add(<span class="number">0x0050</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x10 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x2f </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x60 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x80 </span>=&gt; from | <span class="number">1</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x8a </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xbe </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0xc0 </span>=&gt; <span class="number">0x04cf</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xc1 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xcd </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xd0 </span>&lt;= x =&gt; from | <span class="number">1</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x05 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x2e </span>=&gt; from | <span class="number">1</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x31 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x56 </span>=&gt; from.wrapping_add(<span class="number">0x0030</span>),
+                <span class="number">0x87 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0565}&#39;</span>, <span class="string">&#39;\u{0582}&#39;</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x06 </span>=&gt; from,
+            <span class="number">0x07 </span>=&gt; from,
+            <span class="number">0x08 </span>=&gt; from,
+            <span class="number">0x09 </span>=&gt; from,
+            <span class="number">0x0a </span>=&gt; from,
+            <span class="number">0x0b </span>=&gt; from,
+            <span class="number">0x0c </span>=&gt; from,
+            <span class="number">0x0d </span>=&gt; from,
+            <span class="number">0x0e </span>=&gt; from,
+            <span class="number">0x0f </span>=&gt; from,
+            <span class="number">0x10 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span><span class="number">0xa0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xc5 </span>=&gt; from.wrapping_add(<span class="number">0x1c60</span>),
+                <span class="number">0xc7 </span>=&gt; <span class="number">0x2d27</span>,
+                <span class="number">0xcd </span>=&gt; <span class="number">0x2d2d</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x11 </span>=&gt; from,
+            <span class="number">0x12 </span>=&gt; from,
+            <span class="number">0x13 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span><span class="number">0xf8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xfd </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x14 </span>=&gt; from,
+            <span class="number">0x15 </span>=&gt; from,
+            <span class="number">0x16 </span>=&gt; from,
+            <span class="number">0x17 </span>=&gt; from,
+            <span class="number">0x18 </span>=&gt; from,
+            <span class="number">0x19 </span>=&gt; from,
+            <span class="number">0x1a </span>=&gt; from,
+            <span class="number">0x1b </span>=&gt; from,
+            <span class="number">0x1c </span>=&gt; <span class="kw">match </span>low_byte {
+                <span class="number">0x80 </span>=&gt; <span class="number">0x0432</span>,
+                <span class="number">0x81 </span>=&gt; <span class="number">0x0434</span>,
+                <span class="number">0x82 </span>=&gt; <span class="number">0x043e</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x83 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x84 </span>=&gt; from.wrapping_sub(<span class="number">0x1842</span>),
+                <span class="number">0x85 </span>=&gt; <span class="number">0x0442</span>,
+                <span class="number">0x86 </span>=&gt; <span class="number">0x044a</span>,
+                <span class="number">0x87 </span>=&gt; <span class="number">0x0463</span>,
+                <span class="number">0x88 </span>=&gt; <span class="number">0xa64b</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x90 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xba </span>=&gt; from.wrapping_sub(<span class="number">0x0bc0</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xbd </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xbf </span>=&gt; from.wrapping_sub(<span class="number">0x0bc0</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x1d </span>=&gt; from,
+            <span class="number">0x1e </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x94 </span>=&gt; from | <span class="number">1</span>,
+                <span class="number">0x96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0068}&#39;</span>, <span class="string">&#39;\u{0331}&#39;</span>),
+                <span class="number">0x97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0074}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>),
+                <span class="number">0x98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0077}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>),
+                <span class="number">0x99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0079}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>),
+                <span class="number">0x9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0061}&#39;</span>, <span class="string">&#39;\u{02be}&#39;</span>),
+                <span class="number">0x9b </span>=&gt; <span class="number">0x1e61</span>,
+                <span class="number">0x9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xa0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xfe </span>=&gt; from | <span class="number">1</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x1f </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span><span class="number">0x08 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x0f </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x18 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x1d </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x28 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x2f </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x38 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x3f </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x48 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x4d </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                <span class="number">0x50 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>),
+                <span class="number">0x52 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>),
+                <span class="number">0x54 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+                <span class="number">0x56 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x59 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x5f </span>=&gt; {
+                    <span class="kw">if </span>(from &amp; <span class="number">1</span>) == <span class="number">1 </span>{
+                        from.wrapping_sub(<span class="number">0x0008</span>)
+                    } <span class="kw">else </span>{
+                        from
+                    }
                 }
-            }
-            <span class="number">0x01 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x2e  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x30 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0069}&#39;</span>, <span class="string">&#39;\u{0307}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0x32 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x36  </span>=&gt; (from | <span class="number">1</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x39 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x47  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    <span class="number">0x49 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{02bc}&#39;</span>, <span class="string">&#39;\u{006e}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0x4a </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x76  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x78 </span>=&gt; <span class="number">0x00ff</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x79 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x7d  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    <span class="number">0x7f </span>=&gt; <span class="number">0x0073</span>,
-                    <span class="number">0x81 </span>=&gt; <span class="number">0x0253</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x82 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x84  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x86 </span>=&gt; <span class="number">0x0254</span>,
-                    <span class="number">0x87 </span>=&gt; <span class="number">0x0188</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x89 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x8a  </span>=&gt; from.wrapping_add(<span class="number">0x00cd</span>),
-                    <span class="number">0x8b </span>=&gt; <span class="number">0x018c</span>,
-                    <span class="number">0x8e </span>=&gt; <span class="number">0x01dd</span>,
-                    <span class="number">0x8f </span>=&gt; <span class="number">0x0259</span>,
-                    <span class="number">0x90 </span>=&gt; <span class="number">0x025b</span>,
-                    <span class="number">0x91 </span>=&gt; <span class="number">0x0192</span>,
-                    <span class="number">0x93 </span>=&gt; <span class="number">0x0260</span>,
-                    <span class="number">0x94 </span>=&gt; <span class="number">0x0263</span>,
-                    <span class="number">0x96 </span>=&gt; <span class="number">0x0269</span>,
-                    <span class="number">0x97 </span>=&gt; <span class="number">0x0268</span>,
-                    <span class="number">0x98 </span>=&gt; <span class="number">0x0199</span>,
-                    <span class="number">0x9c </span>=&gt; <span class="number">0x026f</span>,
-                    <span class="number">0x9d </span>=&gt; <span class="number">0x0272</span>,
-                    <span class="number">0x9f </span>=&gt; <span class="number">0x0275</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xa0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa4  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0xa6 </span>=&gt; <span class="number">0x0280</span>,
-                    <span class="number">0xa7 </span>=&gt; <span class="number">0x01a8</span>,
-                    <span class="number">0xa9 </span>=&gt; <span class="number">0x0283</span>,
-                    <span class="number">0xac </span>=&gt; <span class="number">0x01ad</span>,
-                    <span class="number">0xae </span>=&gt; <span class="number">0x0288</span>,
-                    <span class="number">0xaf </span>=&gt; <span class="number">0x01b0</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xb1 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xb2  </span>=&gt; from.wrapping_add(<span class="number">0x00d9</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xb3 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xb5  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    <span class="number">0xb7 </span>=&gt; <span class="number">0x0292</span>,
-                    <span class="number">0xb8 </span>=&gt; <span class="number">0x01b9</span>,
-                    <span class="number">0xbc </span>=&gt; <span class="number">0x01bd</span>,
-                    <span class="number">0xc4 </span>=&gt; <span class="number">0x01c6</span>,
-                    <span class="number">0xc5 </span>=&gt; <span class="number">0x01c6</span>,
-                    <span class="number">0xc7 </span>=&gt; <span class="number">0x01c9</span>,
-                    <span class="number">0xc8 </span>=&gt; <span class="number">0x01c9</span>,
-                    <span class="number">0xca </span>=&gt; <span class="number">0x01cc</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xcb </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xdb  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xde </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xee  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0xf0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{006a}&#39;</span>, <span class="string">&#39;\u{030c}&#39;</span>,),
-                    <span class="number">0xf1 </span>=&gt; <span class="number">0x01f3</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xf2 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xf4  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0xf6 </span>=&gt; <span class="number">0x0195</span>,
-                    <span class="number">0xf7 </span>=&gt; <span class="number">0x01bf</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xf8 </span>&lt;= x  =&gt; (from | <span class="number">1</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x02 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x1e  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x20 </span>=&gt; <span class="number">0x019e</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x22 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x32  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x3a </span>=&gt; <span class="number">0x2c65</span>,
-                    <span class="number">0x3b </span>=&gt; <span class="number">0x023c</span>,
-                    <span class="number">0x3d </span>=&gt; <span class="number">0x019a</span>,
-                    <span class="number">0x3e </span>=&gt; <span class="number">0x2c66</span>,
-                    <span class="number">0x41 </span>=&gt; <span class="number">0x0242</span>,
-                    <span class="number">0x43 </span>=&gt; <span class="number">0x0180</span>,
-                    <span class="number">0x44 </span>=&gt; <span class="number">0x0289</span>,
-                    <span class="number">0x45 </span>=&gt; <span class="number">0x028c</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x46 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x4e  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x03 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    <span class="number">0x45 </span>=&gt; <span class="number">0x03b9</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x70 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x72  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x76 </span>=&gt; <span class="number">0x0377</span>,
-                    <span class="number">0x7f </span>=&gt; <span class="number">0x03f3</span>,
-                    <span class="number">0x86 </span>=&gt; <span class="number">0x03ac</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x88 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x8a  </span>=&gt; from.wrapping_add(<span class="number">0x0025</span>),
-                    <span class="number">0x8c </span>=&gt; <span class="number">0x03cc</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x8e </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x8f  </span>=&gt; from.wrapping_add(<span class="number">0x003f</span>),
-                    <span class="number">0x90 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0x91 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa1  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xa3 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xab  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-                    <span class="number">0xb0 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-                    <span class="number">0xc2 </span>=&gt; <span class="number">0x03c3</span>,
-                    <span class="number">0xcf </span>=&gt; <span class="number">0x03d7</span>,
-                    <span class="number">0xd0 </span>=&gt; <span class="number">0x03b2</span>,
-                    <span class="number">0xd1 </span>=&gt; <span class="number">0x03b8</span>,
-                    <span class="number">0xd5 </span>=&gt; <span class="number">0x03c6</span>,
-                    <span class="number">0xd6 </span>=&gt; <span class="number">0x03c0</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xd8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xee  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0xf0 </span>=&gt; <span class="number">0x03ba</span>,
-                    <span class="number">0xf1 </span>=&gt; <span class="number">0x03c1</span>,
-                    <span class="number">0xf4 </span>=&gt; <span class="number">0x03b8</span>,
-                    <span class="number">0xf5 </span>=&gt; <span class="number">0x03b5</span>,
-                    <span class="number">0xf7 </span>=&gt; <span class="number">0x03f8</span>,
-                    <span class="number">0xf9 </span>=&gt; <span class="number">0x03f2</span>,
-                    <span class="number">0xfa </span>=&gt; <span class="number">0x03fb</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xfd </span>&lt;= x  =&gt; from.wrapping_sub(<span class="number">0x0082</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x04 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x0f  </span>=&gt; from.wrapping_add(<span class="number">0x0050</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x10 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x2f  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x60 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x80  </span>=&gt; (from | <span class="number">1</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x8a </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xbe  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0xc0 </span>=&gt; <span class="number">0x04cf</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0xc1 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xcd  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xd0 </span>&lt;= x  =&gt; (from | <span class="number">1</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x05 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x2e  </span>=&gt; (from | <span class="number">1</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x31 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x56  </span>=&gt; from.wrapping_add(<span class="number">0x0030</span>),
-                    <span class="number">0x87 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0565}&#39;</span>, <span class="string">&#39;\u{0582}&#39;</span>,),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x06 </span>=&gt; {
-                from
-            }
-            <span class="number">0x07 </span>=&gt; {
-                from
-            }
-            <span class="number">0x08 </span>=&gt; {
-                from
-            }
-            <span class="number">0x09 </span>=&gt; {
-                from
-            }
-            <span class="number">0x0a </span>=&gt; {
-                from
-            }
-            <span class="number">0x0b </span>=&gt; {
-                from
-            }
-            <span class="number">0x0c </span>=&gt; {
-                from
-            }
-            <span class="number">0x0d </span>=&gt; {
-                from
-            }
-            <span class="number">0x0e </span>=&gt; {
-                from
-            }
-            <span class="number">0x0f </span>=&gt; {
-                from
-            }
-            <span class="number">0x10 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span><span class="number">0xa0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xc5  </span>=&gt; from.wrapping_add(<span class="number">0x1c60</span>),
-                    <span class="number">0xc7 </span>=&gt; <span class="number">0x2d27</span>,
-                    <span class="number">0xcd </span>=&gt; <span class="number">0x2d2d</span>,
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x11 </span>=&gt; {
-                from
-            }
-            <span class="number">0x12 </span>=&gt; {
-                from
-            }
-            <span class="number">0x13 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span><span class="number">0xf8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xfd  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x14 </span>=&gt; {
-                from
-            }
-            <span class="number">0x15 </span>=&gt; {
-                from
-            }
-            <span class="number">0x16 </span>=&gt; {
-                from
-            }
-            <span class="number">0x17 </span>=&gt; {
-                from
-            }
-            <span class="number">0x18 </span>=&gt; {
-                from
-            }
-            <span class="number">0x19 </span>=&gt; {
-                from
-            }
-            <span class="number">0x1a </span>=&gt; {
-                from
-            }
-            <span class="number">0x1b </span>=&gt; {
-                from
-            }
-            <span class="number">0x1c </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    <span class="number">0x80 </span>=&gt; <span class="number">0x0432</span>,
-                    <span class="number">0x81 </span>=&gt; <span class="number">0x0434</span>,
-                    <span class="number">0x82 </span>=&gt; <span class="number">0x043e</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x83 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x84  </span>=&gt; from.wrapping_sub(<span class="number">0x1842</span>),
-                    <span class="number">0x85 </span>=&gt; <span class="number">0x0442</span>,
-                    <span class="number">0x86 </span>=&gt; <span class="number">0x044a</span>,
-                    <span class="number">0x87 </span>=&gt; <span class="number">0x0463</span>,
-                    <span class="number">0x88 </span>=&gt; <span class="number">0xa64b</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x90 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xba  </span>=&gt; from.wrapping_sub(<span class="number">0x0bc0</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xbd </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xbf  </span>=&gt; from.wrapping_sub(<span class="number">0x0bc0</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x1d </span>=&gt; {
-                from
-            }
-            <span class="number">0x1e </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x94  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="number">0x96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0068}&#39;</span>, <span class="string">&#39;\u{0331}&#39;</span>,),
-                    <span class="number">0x97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0074}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>,),
-                    <span class="number">0x98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0077}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>,),
-                    <span class="number">0x99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0079}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>,),
-                    <span class="number">0x9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0061}&#39;</span>, <span class="string">&#39;\u{02be}&#39;</span>,),
-                    <span class="number">0x9b </span>=&gt; <span class="number">0x1e61</span>,
-                    <span class="number">0x9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0xa0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xfe  </span>=&gt; (from | <span class="number">1</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x1f </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span><span class="number">0x08 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x0f  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x18 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x1d  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x28 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x2f  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x38 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x3f  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x48 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x4d  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    <span class="number">0x50 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>,),
-                    <span class="number">0x52 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>,),
-                    <span class="number">0x54 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-                    <span class="number">0x56 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0x59 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x5f  </span>=&gt; <span class="kw">if </span>(from &amp; <span class="number">1</span>) == <span class="number">1 </span>{ from.wrapping_sub(<span class="number">0x0008</span>) } <span class="kw">else </span>{ from },
-                    x @ <span class="kw">_ if </span><span class="number">0x68 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x6f  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    <span class="number">0x80 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x81 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x82 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x83 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x84 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x85 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x86 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x87 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x88 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x89 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x8a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x8b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x8c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x8d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x8e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x8f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x90 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x91 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x92 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x93 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x94 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x95 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x9b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x9c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x9d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0x9f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa1 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa5 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa7 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa8 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xa9 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xaa </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xab </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xac </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xad </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xae </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xaf </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xb2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f70}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xb3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xb4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ac}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xb6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    <span class="number">0xb7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0xb8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xb9  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xba </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xbb  </span>=&gt; from.wrapping_sub(<span class="number">0x004a</span>),
-                    <span class="number">0xbc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xbe </span>=&gt; <span class="number">0x03b9</span>,
-                    <span class="number">0xc2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f74}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xc3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xc4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ae}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xc6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    <span class="number">0xc7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0xc8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xcb  </span>=&gt; from.wrapping_sub(<span class="number">0x0056</span>),
-                    <span class="number">0xcc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xd2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>,),
-                    <span class="number">0xd3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-                    <span class="number">0xd6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    <span class="number">0xd7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0xd8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xd9  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xda </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xdb  </span>=&gt; from.wrapping_sub(<span class="number">0x0064</span>),
-                    <span class="number">0xe2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>,),
-                    <span class="number">0xe3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-                    <span class="number">0xe4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c1}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>,),
-                    <span class="number">0xe6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    <span class="number">0xe7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0xe8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xe9  </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xea </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xeb  </span>=&gt; from.wrapping_sub(<span class="number">0x0070</span>),
-                    <span class="number">0xec </span>=&gt; <span class="number">0x1fe5</span>,
-                    <span class="number">0xf2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f7c}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xf3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xf4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ce}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="number">0xf6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-                    <span class="number">0xf7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    x @ <span class="kw">_ if </span><span class="number">0xf8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xf9  </span>=&gt; from.wrapping_sub(<span class="number">0x0080</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xfa </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xfb  </span>=&gt; from.wrapping_sub(<span class="number">0x007e</span>),
-                    <span class="number">0xfc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x20 </span>=&gt; {
-                from
-            }
-            <span class="number">0x21 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    <span class="number">0x26 </span>=&gt; <span class="number">0x03c9</span>,
-                    <span class="number">0x2a </span>=&gt; <span class="number">0x006b</span>,
-                    <span class="number">0x2b </span>=&gt; <span class="number">0x00e5</span>,
-                    <span class="number">0x32 </span>=&gt; <span class="number">0x214e</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x60 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x6f  </span>=&gt; from.wrapping_add(<span class="number">0x0010</span>),
-                    <span class="number">0x83 </span>=&gt; <span class="number">0x2184</span>,
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x22 </span>=&gt; {
-                from
-            }
-            <span class="number">0x23 </span>=&gt; {
-                from
-            }
-            <span class="number">0x24 </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span><span class="number">0xb6 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xcf  </span>=&gt; from.wrapping_add(<span class="number">0x001a</span>),
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="number">0x25 </span>=&gt; {
-                from
-            }
-            <span class="number">0x26 </span>=&gt; {
-                from
-            }
-            <span class="number">0x27 </span>=&gt; {
-                from
-            }
-            <span class="number">0x28 </span>=&gt; {
-                from
-            }
-            <span class="number">0x29 </span>=&gt; {
-                from
-            }
-            <span class="number">0x2a </span>=&gt; {
-                from
-            }
-            <span class="number">0x2b </span>=&gt; {
-                from
-            }
-            <span class="number">0x2c </span>=&gt; {
-                <span class="kw">match </span>low_byte {
-                    x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x2e  </span>=&gt; from.wrapping_add(<span class="number">0x0030</span>),
-                    <span class="number">0x60 </span>=&gt; <span class="number">0x2c61</span>,
-                    <span class="number">0x62 </span>=&gt; <span class="number">0x026b</span>,
-                    <span class="number">0x63 </span>=&gt; <span class="number">0x1d7d</span>,
-                    <span class="number">0x64 </span>=&gt; <span class="number">0x027d</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x67 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x6b  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    <span class="number">0x6d </span>=&gt; <span class="number">0x0251</span>,
-                    <span class="number">0x6e </span>=&gt; <span class="number">0x0271</span>,
-                    <span class="number">0x6f </span>=&gt; <span class="number">0x0250</span>,
-                    <span class="number">0x70 </span>=&gt; <span class="number">0x0252</span>,
-                    <span class="number">0x72 </span>=&gt; <span class="number">0x2c73</span>,
-                    <span class="number">0x75 </span>=&gt; <span class="number">0x2c76</span>,
-                    x @ <span class="kw">_ if </span><span class="number">0x7e </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x7f  </span>=&gt; from.wrapping_sub(<span class="number">0x2a3f</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0x80 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xe2  </span>=&gt; (from | <span class="number">1</span>),
-                    x @ <span class="kw">_ if </span><span class="number">0xeb </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xed  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
-                    <span class="number">0xf2 </span>=&gt; <span class="number">0x2cf3</span>,
-                    <span class="kw">_ </span>=&gt; from
-                }
-            }
-            <span class="kw">_ </span>=&gt; from 
+                x @ <span class="kw">_ if </span><span class="number">0x68 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x6f </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                <span class="number">0x80 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x81 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x82 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x83 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x84 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x85 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x86 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x87 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x88 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x89 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x8a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x8b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x8c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x8d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x8e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x8f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x90 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x91 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x92 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x93 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x94 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x95 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x9b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x9c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x9d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0x9f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa1 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa5 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa7 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa8 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xa9 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xaa </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xab </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xac </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xad </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xae </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xaf </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xb2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f70}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xb3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xb4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ac}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xb6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                <span class="number">0xb7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xb8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xb9 </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xba </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xbb </span>=&gt; from.wrapping_sub(<span class="number">0x004a</span>),
+                <span class="number">0xbc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xbe </span>=&gt; <span class="number">0x03b9</span>,
+                <span class="number">0xc2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f74}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xc3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xc4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ae}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xc6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                <span class="number">0xc7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xc8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xcb </span>=&gt; from.wrapping_sub(<span class="number">0x0056</span>),
+                <span class="number">0xcc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xd2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>),
+                <span class="number">0xd3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+                <span class="number">0xd6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                <span class="number">0xd7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xd8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xd9 </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xda </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xdb </span>=&gt; from.wrapping_sub(<span class="number">0x0064</span>),
+                <span class="number">0xe2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>),
+                <span class="number">0xe3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+                <span class="number">0xe4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c1}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>),
+                <span class="number">0xe6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                <span class="number">0xe7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xe8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xe9 </span>=&gt; from.wrapping_sub(<span class="number">0x0008</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xea </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xeb </span>=&gt; from.wrapping_sub(<span class="number">0x0070</span>),
+                <span class="number">0xec </span>=&gt; <span class="number">0x1fe5</span>,
+                <span class="number">0xf2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f7c}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xf3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xf4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ce}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="number">0xf6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+                <span class="number">0xf7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xf8 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xf9 </span>=&gt; from.wrapping_sub(<span class="number">0x0080</span>),
+                x @ <span class="kw">_ if </span><span class="number">0xfa </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xfb </span>=&gt; from.wrapping_sub(<span class="number">0x007e</span>),
+                <span class="number">0xfc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x20 </span>=&gt; from,
+            <span class="number">0x21 </span>=&gt; <span class="kw">match </span>low_byte {
+                <span class="number">0x26 </span>=&gt; <span class="number">0x03c9</span>,
+                <span class="number">0x2a </span>=&gt; <span class="number">0x006b</span>,
+                <span class="number">0x2b </span>=&gt; <span class="number">0x00e5</span>,
+                <span class="number">0x32 </span>=&gt; <span class="number">0x214e</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x60 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x6f </span>=&gt; from.wrapping_add(<span class="number">0x0010</span>),
+                <span class="number">0x83 </span>=&gt; <span class="number">0x2184</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x22 </span>=&gt; from,
+            <span class="number">0x23 </span>=&gt; from,
+            <span class="number">0x24 </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span><span class="number">0xb6 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xcf </span>=&gt; from.wrapping_add(<span class="number">0x001a</span>),
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="number">0x25 </span>=&gt; from,
+            <span class="number">0x26 </span>=&gt; from,
+            <span class="number">0x27 </span>=&gt; from,
+            <span class="number">0x28 </span>=&gt; from,
+            <span class="number">0x29 </span>=&gt; from,
+            <span class="number">0x2a </span>=&gt; from,
+            <span class="number">0x2b </span>=&gt; from,
+            <span class="number">0x2c </span>=&gt; <span class="kw">match </span>low_byte {
+                x @ <span class="kw">_ if </span>x &lt;= <span class="number">0x2f </span>=&gt; from.wrapping_add(<span class="number">0x0030</span>),
+                <span class="number">0x60 </span>=&gt; <span class="number">0x2c61</span>,
+                <span class="number">0x62 </span>=&gt; <span class="number">0x026b</span>,
+                <span class="number">0x63 </span>=&gt; <span class="number">0x1d7d</span>,
+                <span class="number">0x64 </span>=&gt; <span class="number">0x027d</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x67 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x6b </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                <span class="number">0x6d </span>=&gt; <span class="number">0x0251</span>,
+                <span class="number">0x6e </span>=&gt; <span class="number">0x0271</span>,
+                <span class="number">0x6f </span>=&gt; <span class="number">0x0250</span>,
+                <span class="number">0x70 </span>=&gt; <span class="number">0x0252</span>,
+                <span class="number">0x72 </span>=&gt; <span class="number">0x2c73</span>,
+                <span class="number">0x75 </span>=&gt; <span class="number">0x2c76</span>,
+                x @ <span class="kw">_ if </span><span class="number">0x7e </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x7f </span>=&gt; from.wrapping_sub(<span class="number">0x2a3f</span>),
+                x @ <span class="kw">_ if </span><span class="number">0x80 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xe2 </span>=&gt; from | <span class="number">1</span>,
+                x @ <span class="kw">_ if </span><span class="number">0xeb </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xed </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+                <span class="number">0xf2 </span>=&gt; <span class="number">0x2cf3</span>,
+                <span class="kw">_ </span>=&gt; from,
+            },
+            <span class="kw">_ </span>=&gt; from,
         };
-        Fold::One( char::from_u32(single_char <span class="kw">as </span>u32).unwrap_or(orig) )
+        Fold::One(char::from_u32(single_char <span class="kw">as </span>u32).unwrap_or(orig))
     } <span class="kw">else </span>{
         <span class="kw">let </span>single_char: u32 = <span class="kw">match </span>from {
-            x @ <span class="kw">_ if </span><span class="number">0xa640 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa66c  </span>=&gt; (from | <span class="number">1</span>),
-            x @ <span class="kw">_ if </span><span class="number">0xa680 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa69a  </span>=&gt; (from | <span class="number">1</span>),
-            x @ <span class="kw">_ if </span><span class="number">0xa722 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa72e  </span>=&gt; (from | <span class="number">1</span>),
-            x @ <span class="kw">_ if </span><span class="number">0xa732 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa76e  </span>=&gt; (from | <span class="number">1</span>),
-            x @ <span class="kw">_ if </span><span class="number">0xa779 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa77b  </span>=&gt; ((from+<span class="number">1</span>) &amp; !<span class="number">1</span>),
+            x @ <span class="kw">_ if </span><span class="number">0xa640 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa66c </span>=&gt; from | <span class="number">1</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa680 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa69a </span>=&gt; from | <span class="number">1</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa722 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa72e </span>=&gt; from | <span class="number">1</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa732 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa76e </span>=&gt; from | <span class="number">1</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa779 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa77b </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
             <span class="number">0xa77d </span>=&gt; <span class="number">0x1d79</span>,
-            x @ <span class="kw">_ if </span><span class="number">0xa77e </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa786  </span>=&gt; (from | <span class="number">1</span>),
+            x @ <span class="kw">_ if </span><span class="number">0xa77e </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa786 </span>=&gt; from | <span class="number">1</span>,
             <span class="number">0xa78b </span>=&gt; <span class="number">0xa78c</span>,
             <span class="number">0xa78d </span>=&gt; <span class="number">0x0265</span>,
-            x @ <span class="kw">_ if </span><span class="number">0xa790 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa792  </span>=&gt; (from | <span class="number">1</span>),
-            x @ <span class="kw">_ if </span><span class="number">0xa796 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa7a8  </span>=&gt; (from | <span class="number">1</span>),
+            x @ <span class="kw">_ if </span><span class="number">0xa790 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa792 </span>=&gt; from | <span class="number">1</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa796 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa7a8 </span>=&gt; from | <span class="number">1</span>,
             <span class="number">0xa7aa </span>=&gt; <span class="number">0x0266</span>,
             <span class="number">0xa7ab </span>=&gt; <span class="number">0x025c</span>,
             <span class="number">0xa7ac </span>=&gt; <span class="number">0x0261</span>,
@@ -2451,34 +2337,41 @@
             <span class="number">0xa7b1 </span>=&gt; <span class="number">0x0287</span>,
             <span class="number">0xa7b2 </span>=&gt; <span class="number">0x029d</span>,
             <span class="number">0xa7b3 </span>=&gt; <span class="number">0xab53</span>,
-            x @ <span class="kw">_ if </span><span class="number">0xa7b4 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa7be  </span>=&gt; (from | <span class="number">1</span>),
-            <span class="number">0xa7c2 </span>=&gt; <span class="number">0xa7c3</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa7b4 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa7c2 </span>=&gt; from | <span class="number">1</span>,
             <span class="number">0xa7c4 </span>=&gt; <span class="number">0xa794</span>,
             <span class="number">0xa7c5 </span>=&gt; <span class="number">0x0282</span>,
             <span class="number">0xa7c6 </span>=&gt; <span class="number">0x1d8e</span>,
-            x @ <span class="kw">_ if </span><span class="number">0xab70 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xabbf  </span>=&gt; from.wrapping_sub(<span class="number">0x97d0</span>),
-            <span class="number">0xfb00 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>,),
-            <span class="number">0xfb01 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>,),
-            <span class="number">0xfb02 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>,),
-            <span class="number">0xfb03 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>,),
-            <span class="number">0xfb04 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>,),
-            <span class="number">0xfb05 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>,),
-            <span class="number">0xfb06 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>,),
-            <span class="number">0xfb13 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>,),
-            <span class="number">0xfb14 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0565}&#39;</span>,),
-            <span class="number">0xfb15 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056b}&#39;</span>,),
-            <span class="number">0xfb16 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{057e}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>,),
-            <span class="number">0xfb17 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056d}&#39;</span>,),
-            x @ <span class="kw">_ if </span><span class="number">0xff21 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xff3a  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-            x @ <span class="kw">_ if </span><span class="number">0x10400 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x10427  </span>=&gt; from.wrapping_add(<span class="number">0x0028</span>),
-            x @ <span class="kw">_ if </span><span class="number">0x104b0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x104d3  </span>=&gt; from.wrapping_add(<span class="number">0x0028</span>),
-            x @ <span class="kw">_ if </span><span class="number">0x10c80 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x10cb2  </span>=&gt; from.wrapping_add(<span class="number">0x0040</span>),
-            x @ <span class="kw">_ if </span><span class="number">0x118a0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x118bf  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-            x @ <span class="kw">_ if </span><span class="number">0x16e40 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x16e5f  </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
-            x @ <span class="kw">_ if </span><span class="number">0x1e900 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x1e921  </span>=&gt; from.wrapping_add(<span class="number">0x0022</span>),
-            <span class="kw">_ </span>=&gt; from
+            x @ <span class="kw">_ if </span><span class="number">0xa7c7 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa7c9 </span>=&gt; (from + <span class="number">1</span>) &amp; !<span class="number">1</span>,
+            <span class="number">0xa7d0 </span>=&gt; <span class="number">0xa7d1</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xa7d6 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xa7d8 </span>=&gt; from | <span class="number">1</span>,
+            <span class="number">0xa7f5 </span>=&gt; <span class="number">0xa7f6</span>,
+            x @ <span class="kw">_ if </span><span class="number">0xab70 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xabbf </span>=&gt; from.wrapping_sub(<span class="number">0x97d0</span>),
+            <span class="number">0xfb00 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>),
+            <span class="number">0xfb01 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>),
+            <span class="number">0xfb02 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>),
+            <span class="number">0xfb03 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>),
+            <span class="number">0xfb04 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>),
+            <span class="number">0xfb05 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>),
+            <span class="number">0xfb06 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>),
+            <span class="number">0xfb13 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>),
+            <span class="number">0xfb14 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0565}&#39;</span>),
+            <span class="number">0xfb15 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056b}&#39;</span>),
+            <span class="number">0xfb16 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{057e}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>),
+            <span class="number">0xfb17 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056d}&#39;</span>),
+            x @ <span class="kw">_ if </span><span class="number">0xff21 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0xff3a </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x10400 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x10427 </span>=&gt; from.wrapping_add(<span class="number">0x0028</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x104b0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x104d3 </span>=&gt; from.wrapping_add(<span class="number">0x0028</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x10570 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x1057a </span>=&gt; from.wrapping_add(<span class="number">0x0027</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x1057c </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x1058a </span>=&gt; from.wrapping_add(<span class="number">0x0027</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x1058c </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x10592 </span>=&gt; from.wrapping_add(<span class="number">0x0027</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x10594 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x10595 </span>=&gt; from.wrapping_add(<span class="number">0x0027</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x10c80 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x10cb2 </span>=&gt; from.wrapping_add(<span class="number">0x0040</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x118a0 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x118bf </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x16e40 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x16e5f </span>=&gt; from.wrapping_add(<span class="number">0x0020</span>),
+            x @ <span class="kw">_ if </span><span class="number">0x1e900 </span>&lt;= x &amp;&amp; x &lt;= <span class="number">0x1e921 </span>=&gt; from.wrapping_add(<span class="number">0x0022</span>),
+            <span class="kw">_ </span>=&gt; from,
         };
-        Fold::One( char::from_u32(single_char).unwrap_or(orig) )
+        Fold::One(char::from_u32(single_char).unwrap_or(orig))
     }
 }
 
@@ -2543,7 +2436,7 @@
             <span class="number">0x00dc </span>=&gt; <span class="number">0x00fc</span>,
             <span class="number">0x00dd </span>=&gt; <span class="number">0x00fd</span>,
             <span class="number">0x00de </span>=&gt; <span class="number">0x00fe</span>,
-            <span class="number">0x00df </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>,),
+            <span class="number">0x00df </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>),
             <span class="number">0x0100 </span>=&gt; <span class="number">0x0101</span>,
             <span class="number">0x0102 </span>=&gt; <span class="number">0x0103</span>,
             <span class="number">0x0104 </span>=&gt; <span class="number">0x0105</span>,
@@ -2568,7 +2461,7 @@
             <span class="number">0x012a </span>=&gt; <span class="number">0x012b</span>,
             <span class="number">0x012c </span>=&gt; <span class="number">0x012d</span>,
             <span class="number">0x012e </span>=&gt; <span class="number">0x012f</span>,
-            <span class="number">0x0130 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0069}&#39;</span>, <span class="string">&#39;\u{0307}&#39;</span>,),
+            <span class="number">0x0130 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0069}&#39;</span>, <span class="string">&#39;\u{0307}&#39;</span>),
             <span class="number">0x0132 </span>=&gt; <span class="number">0x0133</span>,
             <span class="number">0x0134 </span>=&gt; <span class="number">0x0135</span>,
             <span class="number">0x0136 </span>=&gt; <span class="number">0x0137</span>,
@@ -2580,7 +2473,7 @@
             <span class="number">0x0143 </span>=&gt; <span class="number">0x0144</span>,
             <span class="number">0x0145 </span>=&gt; <span class="number">0x0146</span>,
             <span class="number">0x0147 </span>=&gt; <span class="number">0x0148</span>,
-            <span class="number">0x0149 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{02bc}&#39;</span>, <span class="string">&#39;\u{006e}&#39;</span>,),
+            <span class="number">0x0149 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{02bc}&#39;</span>, <span class="string">&#39;\u{006e}&#39;</span>),
             <span class="number">0x014a </span>=&gt; <span class="number">0x014b</span>,
             <span class="number">0x014c </span>=&gt; <span class="number">0x014d</span>,
             <span class="number">0x014e </span>=&gt; <span class="number">0x014f</span>,
@@ -2668,7 +2561,7 @@
             <span class="number">0x01ea </span>=&gt; <span class="number">0x01eb</span>,
             <span class="number">0x01ec </span>=&gt; <span class="number">0x01ed</span>,
             <span class="number">0x01ee </span>=&gt; <span class="number">0x01ef</span>,
-            <span class="number">0x01f0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{006a}&#39;</span>, <span class="string">&#39;\u{030c}&#39;</span>,),
+            <span class="number">0x01f0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{006a}&#39;</span>, <span class="string">&#39;\u{030c}&#39;</span>),
             <span class="number">0x01f1 </span>=&gt; <span class="number">0x01f3</span>,
             <span class="number">0x01f2 </span>=&gt; <span class="number">0x01f3</span>,
             <span class="number">0x01f4 </span>=&gt; <span class="number">0x01f5</span>,
@@ -2729,7 +2622,7 @@
             <span class="number">0x038c </span>=&gt; <span class="number">0x03cc</span>,
             <span class="number">0x038e </span>=&gt; <span class="number">0x03cd</span>,
             <span class="number">0x038f </span>=&gt; <span class="number">0x03ce</span>,
-            <span class="number">0x0390 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
+            <span class="number">0x0390 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
             <span class="number">0x0391 </span>=&gt; <span class="number">0x03b1</span>,
             <span class="number">0x0392 </span>=&gt; <span class="number">0x03b2</span>,
             <span class="number">0x0393 </span>=&gt; <span class="number">0x03b3</span>,
@@ -2756,7 +2649,7 @@
             <span class="number">0x03a9 </span>=&gt; <span class="number">0x03c9</span>,
             <span class="number">0x03aa </span>=&gt; <span class="number">0x03ca</span>,
             <span class="number">0x03ab </span>=&gt; <span class="number">0x03cb</span>,
-            <span class="number">0x03b0 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
+            <span class="number">0x03b0 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
             <span class="number">0x03c2 </span>=&gt; <span class="number">0x03c3</span>,
             <span class="number">0x03cf </span>=&gt; <span class="number">0x03d7</span>,
             <span class="number">0x03d0 </span>=&gt; <span class="number">0x03b2</span>,
@@ -2971,7 +2864,7 @@
             <span class="number">0x0554 </span>=&gt; <span class="number">0x0584</span>,
             <span class="number">0x0555 </span>=&gt; <span class="number">0x0585</span>,
             <span class="number">0x0556 </span>=&gt; <span class="number">0x0586</span>,
-            <span class="number">0x0587 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0565}&#39;</span>, <span class="string">&#39;\u{0582}&#39;</span>,),
+            <span class="number">0x0587 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0565}&#39;</span>, <span class="string">&#39;\u{0582}&#39;</span>),
             <span class="number">0x10a0 </span>=&gt; <span class="number">0x2d00</span>,
             <span class="number">0x10a1 </span>=&gt; <span class="number">0x2d01</span>,
             <span class="number">0x10a2 </span>=&gt; <span class="number">0x2d02</span>,
@@ -3148,13 +3041,13 @@
             <span class="number">0x1e90 </span>=&gt; <span class="number">0x1e91</span>,
             <span class="number">0x1e92 </span>=&gt; <span class="number">0x1e93</span>,
             <span class="number">0x1e94 </span>=&gt; <span class="number">0x1e95</span>,
-            <span class="number">0x1e96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0068}&#39;</span>, <span class="string">&#39;\u{0331}&#39;</span>,),
-            <span class="number">0x1e97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0074}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>,),
-            <span class="number">0x1e98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0077}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>,),
-            <span class="number">0x1e99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0079}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>,),
-            <span class="number">0x1e9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0061}&#39;</span>, <span class="string">&#39;\u{02be}&#39;</span>,),
+            <span class="number">0x1e96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0068}&#39;</span>, <span class="string">&#39;\u{0331}&#39;</span>),
+            <span class="number">0x1e97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0074}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>),
+            <span class="number">0x1e98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0077}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>),
+            <span class="number">0x1e99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0079}&#39;</span>, <span class="string">&#39;\u{030a}&#39;</span>),
+            <span class="number">0x1e9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0061}&#39;</span>, <span class="string">&#39;\u{02be}&#39;</span>),
             <span class="number">0x1e9b </span>=&gt; <span class="number">0x1e61</span>,
-            <span class="number">0x1e9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>,),
+            <span class="number">0x1e9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0073}&#39;</span>),
             <span class="number">0x1ea0 </span>=&gt; <span class="number">0x1ea1</span>,
             <span class="number">0x1ea2 </span>=&gt; <span class="number">0x1ea3</span>,
             <span class="number">0x1ea4 </span>=&gt; <span class="number">0x1ea5</span>,
@@ -3239,10 +3132,10 @@
             <span class="number">0x1f4b </span>=&gt; <span class="number">0x1f43</span>,
             <span class="number">0x1f4c </span>=&gt; <span class="number">0x1f44</span>,
             <span class="number">0x1f4d </span>=&gt; <span class="number">0x1f45</span>,
-            <span class="number">0x1f50 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>,),
-            <span class="number">0x1f52 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>,),
-            <span class="number">0x1f54 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-            <span class="number">0x1f56 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
+            <span class="number">0x1f50 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>),
+            <span class="number">0x1f52 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>),
+            <span class="number">0x1f54 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+            <span class="number">0x1f56 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
             <span class="number">0x1f59 </span>=&gt; <span class="number">0x1f51</span>,
             <span class="number">0x1f5b </span>=&gt; <span class="number">0x1f53</span>,
             <span class="number">0x1f5d </span>=&gt; <span class="number">0x1f55</span>,
@@ -3255,103 +3148,103 @@
             <span class="number">0x1f6d </span>=&gt; <span class="number">0x1f65</span>,
             <span class="number">0x1f6e </span>=&gt; <span class="number">0x1f66</span>,
             <span class="number">0x1f6f </span>=&gt; <span class="number">0x1f67</span>,
-            <span class="number">0x1f80 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f81 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f82 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f83 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f84 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f85 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f86 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f87 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f88 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f89 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f8a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f8b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f8c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f8d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f8e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f8f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f90 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f91 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f92 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f93 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f94 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f95 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f9b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f9c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f9d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1f9f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa1 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa5 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa7 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa8 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fa9 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1faa </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fab </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fac </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fad </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fae </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1faf </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fb2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f70}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fb3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fb4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ac}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fb6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-            <span class="number">0x1fb7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
+            <span class="number">0x1f80 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f81 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f82 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f83 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f84 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f85 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f86 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f87 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f88 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f00}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f89 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f01}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f8a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f02}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f8b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f03}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f8c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f04}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f8d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f05}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f8e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f06}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f8f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f07}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f90 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f91 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f92 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f93 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f94 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f95 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f96 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f97 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f98 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f20}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f99 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f21}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f9a </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f22}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f9b </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f23}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f9c </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f24}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f9d </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f25}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f9e </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f26}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1f9f </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f27}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa0 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa1 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa5 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa7 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa8 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f60}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fa9 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f61}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1faa </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f62}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fab </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f63}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fac </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f64}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fad </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f65}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fae </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f66}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1faf </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f67}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fb2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f70}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fb3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fb4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ac}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fb6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+            <span class="number">0x1fb7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
             <span class="number">0x1fb8 </span>=&gt; <span class="number">0x1fb0</span>,
             <span class="number">0x1fb9 </span>=&gt; <span class="number">0x1fb1</span>,
             <span class="number">0x1fba </span>=&gt; <span class="number">0x1f70</span>,
             <span class="number">0x1fbb </span>=&gt; <span class="number">0x1f71</span>,
-            <span class="number">0x1fbc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
+            <span class="number">0x1fbc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b1}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
             <span class="number">0x1fbe </span>=&gt; <span class="number">0x03b9</span>,
-            <span class="number">0x1fc2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f74}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fc3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fc4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ae}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fc6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-            <span class="number">0x1fc7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
+            <span class="number">0x1fc2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f74}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fc3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fc4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ae}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fc6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+            <span class="number">0x1fc7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
             <span class="number">0x1fc8 </span>=&gt; <span class="number">0x1f72</span>,
             <span class="number">0x1fc9 </span>=&gt; <span class="number">0x1f73</span>,
             <span class="number">0x1fca </span>=&gt; <span class="number">0x1f74</span>,
             <span class="number">0x1fcb </span>=&gt; <span class="number">0x1f75</span>,
-            <span class="number">0x1fcc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1fd2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>,),
-            <span class="number">0x1fd3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-            <span class="number">0x1fd6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-            <span class="number">0x1fd7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
+            <span class="number">0x1fcc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b7}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1fd2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>),
+            <span class="number">0x1fd3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+            <span class="number">0x1fd6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+            <span class="number">0x1fd7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03b9}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
             <span class="number">0x1fd8 </span>=&gt; <span class="number">0x1fd0</span>,
             <span class="number">0x1fd9 </span>=&gt; <span class="number">0x1fd1</span>,
             <span class="number">0x1fda </span>=&gt; <span class="number">0x1f76</span>,
             <span class="number">0x1fdb </span>=&gt; <span class="number">0x1f77</span>,
-            <span class="number">0x1fe2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>,),
-            <span class="number">0x1fe3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>,),
-            <span class="number">0x1fe4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c1}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>,),
-            <span class="number">0x1fe6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-            <span class="number">0x1fe7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
+            <span class="number">0x1fe2 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0300}&#39;</span>),
+            <span class="number">0x1fe3 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0301}&#39;</span>),
+            <span class="number">0x1fe4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c1}&#39;</span>, <span class="string">&#39;\u{0313}&#39;</span>),
+            <span class="number">0x1fe6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+            <span class="number">0x1fe7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c5}&#39;</span>, <span class="string">&#39;\u{0308}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
             <span class="number">0x1fe8 </span>=&gt; <span class="number">0x1fe0</span>,
             <span class="number">0x1fe9 </span>=&gt; <span class="number">0x1fe1</span>,
             <span class="number">0x1fea </span>=&gt; <span class="number">0x1f7a</span>,
             <span class="number">0x1feb </span>=&gt; <span class="number">0x1f7b</span>,
             <span class="number">0x1fec </span>=&gt; <span class="number">0x1fe5</span>,
-            <span class="number">0x1ff2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f7c}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1ff3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1ff4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ce}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
-            <span class="number">0x1ff6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>,),
-            <span class="number">0x1ff7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
+            <span class="number">0x1ff2 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{1f7c}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1ff3 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1ff4 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03ce}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
+            <span class="number">0x1ff6 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>),
+            <span class="number">0x1ff7 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{0342}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
             <span class="number">0x1ff8 </span>=&gt; <span class="number">0x1f78</span>,
             <span class="number">0x1ff9 </span>=&gt; <span class="number">0x1f79</span>,
             <span class="number">0x1ffa </span>=&gt; <span class="number">0x1f7c</span>,
             <span class="number">0x1ffb </span>=&gt; <span class="number">0x1f7d</span>,
-            <span class="number">0x1ffc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>,),
+            <span class="number">0x1ffc </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{03c9}&#39;</span>, <span class="string">&#39;\u{03b9}&#39;</span>),
             <span class="number">0x2126 </span>=&gt; <span class="number">0x03c9</span>,
             <span class="number">0x212a </span>=&gt; <span class="number">0x006b</span>,
             <span class="number">0x212b </span>=&gt; <span class="number">0x00e5</span>,
@@ -3446,6 +3339,7 @@
             <span class="number">0x2c2c </span>=&gt; <span class="number">0x2c5c</span>,
             <span class="number">0x2c2d </span>=&gt; <span class="number">0x2c5d</span>,
             <span class="number">0x2c2e </span>=&gt; <span class="number">0x2c5e</span>,
+            <span class="number">0x2c2f </span>=&gt; <span class="number">0x2c5f</span>,
             <span class="number">0x2c60 </span>=&gt; <span class="number">0x2c61</span>,
             <span class="number">0x2c62 </span>=&gt; <span class="number">0x026b</span>,
             <span class="number">0x2c63 </span>=&gt; <span class="number">0x1d7d</span>,
@@ -3626,10 +3520,17 @@
             <span class="number">0xa7ba </span>=&gt; <span class="number">0xa7bb</span>,
             <span class="number">0xa7bc </span>=&gt; <span class="number">0xa7bd</span>,
             <span class="number">0xa7be </span>=&gt; <span class="number">0xa7bf</span>,
+            <span class="number">0xa7c0 </span>=&gt; <span class="number">0xa7c1</span>,
             <span class="number">0xa7c2 </span>=&gt; <span class="number">0xa7c3</span>,
             <span class="number">0xa7c4 </span>=&gt; <span class="number">0xa794</span>,
             <span class="number">0xa7c5 </span>=&gt; <span class="number">0x0282</span>,
             <span class="number">0xa7c6 </span>=&gt; <span class="number">0x1d8e</span>,
+            <span class="number">0xa7c7 </span>=&gt; <span class="number">0xa7c8</span>,
+            <span class="number">0xa7c9 </span>=&gt; <span class="number">0xa7ca</span>,
+            <span class="number">0xa7d0 </span>=&gt; <span class="number">0xa7d1</span>,
+            <span class="number">0xa7d6 </span>=&gt; <span class="number">0xa7d7</span>,
+            <span class="number">0xa7d8 </span>=&gt; <span class="number">0xa7d9</span>,
+            <span class="number">0xa7f5 </span>=&gt; <span class="number">0xa7f6</span>,
             <span class="number">0xab70 </span>=&gt; <span class="number">0x13a0</span>,
             <span class="number">0xab71 </span>=&gt; <span class="number">0x13a1</span>,
             <span class="number">0xab72 </span>=&gt; <span class="number">0x13a2</span>,
@@ -3710,18 +3611,18 @@
             <span class="number">0xabbd </span>=&gt; <span class="number">0x13ed</span>,
             <span class="number">0xabbe </span>=&gt; <span class="number">0x13ee</span>,
             <span class="number">0xabbf </span>=&gt; <span class="number">0x13ef</span>,
-            <span class="number">0xfb00 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>,),
-            <span class="number">0xfb01 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>,),
-            <span class="number">0xfb02 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>,),
-            <span class="number">0xfb03 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>,),
-            <span class="number">0xfb04 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>,),
-            <span class="number">0xfb05 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>,),
-            <span class="number">0xfb06 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>,),
-            <span class="number">0xfb13 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>,),
-            <span class="number">0xfb14 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0565}&#39;</span>,),
-            <span class="number">0xfb15 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056b}&#39;</span>,),
-            <span class="number">0xfb16 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{057e}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>,),
-            <span class="number">0xfb17 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056d}&#39;</span>,),
+            <span class="number">0xfb00 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>),
+            <span class="number">0xfb01 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>),
+            <span class="number">0xfb02 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>),
+            <span class="number">0xfb03 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0069}&#39;</span>),
+            <span class="number">0xfb04 </span>=&gt; <span class="kw">return </span>Fold::Three(<span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{0066}&#39;</span>, <span class="string">&#39;\u{006c}&#39;</span>),
+            <span class="number">0xfb05 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>),
+            <span class="number">0xfb06 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0073}&#39;</span>, <span class="string">&#39;\u{0074}&#39;</span>),
+            <span class="number">0xfb13 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>),
+            <span class="number">0xfb14 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{0565}&#39;</span>),
+            <span class="number">0xfb15 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056b}&#39;</span>),
+            <span class="number">0xfb16 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{057e}&#39;</span>, <span class="string">&#39;\u{0576}&#39;</span>),
+            <span class="number">0xfb17 </span>=&gt; <span class="kw">return </span>Fold::Two(<span class="string">&#39;\u{0574}&#39;</span>, <span class="string">&#39;\u{056d}&#39;</span>),
             <span class="number">0xff21 </span>=&gt; <span class="number">0xff41</span>,
             <span class="number">0xff22 </span>=&gt; <span class="number">0xff42</span>,
             <span class="number">0xff23 </span>=&gt; <span class="number">0xff43</span>,
@@ -3824,6 +3725,41 @@
             <span class="number">0x104d1 </span>=&gt; <span class="number">0x104f9</span>,
             <span class="number">0x104d2 </span>=&gt; <span class="number">0x104fa</span>,
             <span class="number">0x104d3 </span>=&gt; <span class="number">0x104fb</span>,
+            <span class="number">0x10570 </span>=&gt; <span class="number">0x10597</span>,
+            <span class="number">0x10571 </span>=&gt; <span class="number">0x10598</span>,
+            <span class="number">0x10572 </span>=&gt; <span class="number">0x10599</span>,
+            <span class="number">0x10573 </span>=&gt; <span class="number">0x1059a</span>,
+            <span class="number">0x10574 </span>=&gt; <span class="number">0x1059b</span>,
+            <span class="number">0x10575 </span>=&gt; <span class="number">0x1059c</span>,
+            <span class="number">0x10576 </span>=&gt; <span class="number">0x1059d</span>,
+            <span class="number">0x10577 </span>=&gt; <span class="number">0x1059e</span>,
+            <span class="number">0x10578 </span>=&gt; <span class="number">0x1059f</span>,
+            <span class="number">0x10579 </span>=&gt; <span class="number">0x105a0</span>,
+            <span class="number">0x1057a </span>=&gt; <span class="number">0x105a1</span>,
+            <span class="number">0x1057c </span>=&gt; <span class="number">0x105a3</span>,
+            <span class="number">0x1057d </span>=&gt; <span class="number">0x105a4</span>,
+            <span class="number">0x1057e </span>=&gt; <span class="number">0x105a5</span>,
+            <span class="number">0x1057f </span>=&gt; <span class="number">0x105a6</span>,
+            <span class="number">0x10580 </span>=&gt; <span class="number">0x105a7</span>,
+            <span class="number">0x10581 </span>=&gt; <span class="number">0x105a8</span>,
+            <span class="number">0x10582 </span>=&gt; <span class="number">0x105a9</span>,
+            <span class="number">0x10583 </span>=&gt; <span class="number">0x105aa</span>,
+            <span class="number">0x10584 </span>=&gt; <span class="number">0x105ab</span>,
+            <span class="number">0x10585 </span>=&gt; <span class="number">0x105ac</span>,
+            <span class="number">0x10586 </span>=&gt; <span class="number">0x105ad</span>,
+            <span class="number">0x10587 </span>=&gt; <span class="number">0x105ae</span>,
+            <span class="number">0x10588 </span>=&gt; <span class="number">0x105af</span>,
+            <span class="number">0x10589 </span>=&gt; <span class="number">0x105b0</span>,
+            <span class="number">0x1058a </span>=&gt; <span class="number">0x105b1</span>,
+            <span class="number">0x1058c </span>=&gt; <span class="number">0x105b3</span>,
+            <span class="number">0x1058d </span>=&gt; <span class="number">0x105b4</span>,
+            <span class="number">0x1058e </span>=&gt; <span class="number">0x105b5</span>,
+            <span class="number">0x1058f </span>=&gt; <span class="number">0x105b6</span>,
+            <span class="number">0x10590 </span>=&gt; <span class="number">0x105b7</span>,
+            <span class="number">0x10591 </span>=&gt; <span class="number">0x105b8</span>,
+            <span class="number">0x10592 </span>=&gt; <span class="number">0x105b9</span>,
+            <span class="number">0x10594 </span>=&gt; <span class="number">0x105bb</span>,
+            <span class="number">0x10595 </span>=&gt; <span class="number">0x105bc</span>,
             <span class="number">0x10c80 </span>=&gt; <span class="number">0x10cc0</span>,
             <span class="number">0x10c81 </span>=&gt; <span class="number">0x10cc1</span>,
             <span class="number">0x10c82 </span>=&gt; <span class="number">0x10cc2</span>,
@@ -3973,17 +3909,21 @@
             <span class="number">0x1e91f </span>=&gt; <span class="number">0x1e941</span>,
             <span class="number">0x1e920 </span>=&gt; <span class="number">0x1e942</span>,
             <span class="number">0x1e921 </span>=&gt; <span class="number">0x1e943</span>,
-            <span class="kw">_ </span>=&gt; orig <span class="kw">as </span>u32
+            <span class="kw">_ </span>=&gt; orig <span class="kw">as </span>u32,
         };
-        Fold::One( char::from_u32(single_char).unwrap() )
+        Fold::One(char::from_u32(single_char).unwrap())
     }
-    
+
     <span class="kw">for </span>c_index <span class="kw">in </span><span class="number">0</span>..<span class="number">126217 </span>{
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = char::from_u32(c_index) {
             <span class="kw">let </span>reference: Vec&lt;char&gt; = lookup_naive(c).collect();
             <span class="kw">let </span>actual: Vec&lt;char&gt; = lookup(c).collect();
             <span class="kw">if </span>actual != reference {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;case-folding {:?} (#0x{:04x}) failed: Expected {:?}, got {:?}&quot;</span>, c, c_index, reference, actual);
+                <span class="macro">assert!</span>(
+                    <span class="bool-val">false</span>,
+                    <span class="string">&quot;case-folding {:?} (#0x{:04x}) failed: Expected {:?}, got {:?}&quot;</span>,
+                    c, c_index, reference, actual
+                );
             }
         }
     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.27.3/src/read/cfi.rs`."><title>cfi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../gimli/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.0/src/read/cfi.rs`."><title>cfi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../gimli/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -7572,6 +7572,144 @@
 <a href="#7572" id="7572">7572</a>
 <a href="#7573" id="7573">7573</a>
 <a href="#7574" id="7574">7574</a>
+<a href="#7575" id="7575">7575</a>
+<a href="#7576" id="7576">7576</a>
+<a href="#7577" id="7577">7577</a>
+<a href="#7578" id="7578">7578</a>
+<a href="#7579" id="7579">7579</a>
+<a href="#7580" id="7580">7580</a>
+<a href="#7581" id="7581">7581</a>
+<a href="#7582" id="7582">7582</a>
+<a href="#7583" id="7583">7583</a>
+<a href="#7584" id="7584">7584</a>
+<a href="#7585" id="7585">7585</a>
+<a href="#7586" id="7586">7586</a>
+<a href="#7587" id="7587">7587</a>
+<a href="#7588" id="7588">7588</a>
+<a href="#7589" id="7589">7589</a>
+<a href="#7590" id="7590">7590</a>
+<a href="#7591" id="7591">7591</a>
+<a href="#7592" id="7592">7592</a>
+<a href="#7593" id="7593">7593</a>
+<a href="#7594" id="7594">7594</a>
+<a href="#7595" id="7595">7595</a>
+<a href="#7596" id="7596">7596</a>
+<a href="#7597" id="7597">7597</a>
+<a href="#7598" id="7598">7598</a>
+<a href="#7599" id="7599">7599</a>
+<a href="#7600" id="7600">7600</a>
+<a href="#7601" id="7601">7601</a>
+<a href="#7602" id="7602">7602</a>
+<a href="#7603" id="7603">7603</a>
+<a href="#7604" id="7604">7604</a>
+<a href="#7605" id="7605">7605</a>
+<a href="#7606" id="7606">7606</a>
+<a href="#7607" id="7607">7607</a>
+<a href="#7608" id="7608">7608</a>
+<a href="#7609" id="7609">7609</a>
+<a href="#7610" id="7610">7610</a>
+<a href="#7611" id="7611">7611</a>
+<a href="#7612" id="7612">7612</a>
+<a href="#7613" id="7613">7613</a>
+<a href="#7614" id="7614">7614</a>
+<a href="#7615" id="7615">7615</a>
+<a href="#7616" id="7616">7616</a>
+<a href="#7617" id="7617">7617</a>
+<a href="#7618" id="7618">7618</a>
+<a href="#7619" id="7619">7619</a>
+<a href="#7620" id="7620">7620</a>
+<a href="#7621" id="7621">7621</a>
+<a href="#7622" id="7622">7622</a>
+<a href="#7623" id="7623">7623</a>
+<a href="#7624" id="7624">7624</a>
+<a href="#7625" id="7625">7625</a>
+<a href="#7626" id="7626">7626</a>
+<a href="#7627" id="7627">7627</a>
+<a href="#7628" id="7628">7628</a>
+<a href="#7629" id="7629">7629</a>
+<a href="#7630" id="7630">7630</a>
+<a href="#7631" id="7631">7631</a>
+<a href="#7632" id="7632">7632</a>
+<a href="#7633" id="7633">7633</a>
+<a href="#7634" id="7634">7634</a>
+<a href="#7635" id="7635">7635</a>
+<a href="#7636" id="7636">7636</a>
+<a href="#7637" id="7637">7637</a>
+<a href="#7638" id="7638">7638</a>
+<a href="#7639" id="7639">7639</a>
+<a href="#7640" id="7640">7640</a>
+<a href="#7641" id="7641">7641</a>
+<a href="#7642" id="7642">7642</a>
+<a href="#7643" id="7643">7643</a>
+<a href="#7644" id="7644">7644</a>
+<a href="#7645" id="7645">7645</a>
+<a href="#7646" id="7646">7646</a>
+<a href="#7647" id="7647">7647</a>
+<a href="#7648" id="7648">7648</a>
+<a href="#7649" id="7649">7649</a>
+<a href="#7650" id="7650">7650</a>
+<a href="#7651" id="7651">7651</a>
+<a href="#7652" id="7652">7652</a>
+<a href="#7653" id="7653">7653</a>
+<a href="#7654" id="7654">7654</a>
+<a href="#7655" id="7655">7655</a>
+<a href="#7656" id="7656">7656</a>
+<a href="#7657" id="7657">7657</a>
+<a href="#7658" id="7658">7658</a>
+<a href="#7659" id="7659">7659</a>
+<a href="#7660" id="7660">7660</a>
+<a href="#7661" id="7661">7661</a>
+<a href="#7662" id="7662">7662</a>
+<a href="#7663" id="7663">7663</a>
+<a href="#7664" id="7664">7664</a>
+<a href="#7665" id="7665">7665</a>
+<a href="#7666" id="7666">7666</a>
+<a href="#7667" id="7667">7667</a>
+<a href="#7668" id="7668">7668</a>
+<a href="#7669" id="7669">7669</a>
+<a href="#7670" id="7670">7670</a>
+<a href="#7671" id="7671">7671</a>
+<a href="#7672" id="7672">7672</a>
+<a href="#7673" id="7673">7673</a>
+<a href="#7674" id="7674">7674</a>
+<a href="#7675" id="7675">7675</a>
+<a href="#7676" id="7676">7676</a>
+<a href="#7677" id="7677">7677</a>
+<a href="#7678" id="7678">7678</a>
+<a href="#7679" id="7679">7679</a>
+<a href="#7680" id="7680">7680</a>
+<a href="#7681" id="7681">7681</a>
+<a href="#7682" id="7682">7682</a>
+<a href="#7683" id="7683">7683</a>
+<a href="#7684" id="7684">7684</a>
+<a href="#7685" id="7685">7685</a>
+<a href="#7686" id="7686">7686</a>
+<a href="#7687" id="7687">7687</a>
+<a href="#7688" id="7688">7688</a>
+<a href="#7689" id="7689">7689</a>
+<a href="#7690" id="7690">7690</a>
+<a href="#7691" id="7691">7691</a>
+<a href="#7692" id="7692">7692</a>
+<a href="#7693" id="7693">7693</a>
+<a href="#7694" id="7694">7694</a>
+<a href="#7695" id="7695">7695</a>
+<a href="#7696" id="7696">7696</a>
+<a href="#7697" id="7697">7697</a>
+<a href="#7698" id="7698">7698</a>
+<a href="#7699" id="7699">7699</a>
+<a href="#7700" id="7700">7700</a>
+<a href="#7701" id="7701">7701</a>
+<a href="#7702" id="7702">7702</a>
+<a href="#7703" id="7703">7703</a>
+<a href="#7704" id="7704">7704</a>
+<a href="#7705" id="7705">7705</a>
+<a href="#7706" id="7706">7706</a>
+<a href="#7707" id="7707">7707</a>
+<a href="#7708" id="7708">7708</a>
+<a href="#7709" id="7709">7709</a>
+<a href="#7710" id="7710">7710</a>
+<a href="#7711" id="7711">7711</a>
+<a href="#7712" id="7712">7712</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;read&quot;</span>)]
 </span><span class="kw">use </span>alloc::vec::Vec;
 
@@ -7582,7 +7720,9 @@
 <span class="kw">use </span>core::num::Wrapping;
 
 <span class="kw">use </span><span class="kw">super</span>::util::{ArrayLike, ArrayVec};
-<span class="kw">use </span><span class="kw">crate</span>::common::{DebugFrameOffset, EhFrameOffset, Encoding, Format, Register, SectionId};
+<span class="kw">use </span><span class="kw">crate</span>::common::{
+    DebugFrameOffset, EhFrameOffset, Encoding, Format, Register, SectionId, Vendor,
+};
 <span class="kw">use </span><span class="kw">crate</span>::constants::{<span class="self">self</span>, DwEhPe};
 <span class="kw">use </span><span class="kw">crate</span>::endianity::Endianity;
 <span class="kw">use </span><span class="kw">crate</span>::read::{
@@ -7608,6 +7748,7 @@
     section: R,
     address_size: u8,
     segment_size: u8,
+    vendor: Vendor,
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; DebugFrame&lt;R&gt; {
@@ -7625,6 +7766,13 @@
     /// This is only used if the CIE version is less than 4.
     </span><span class="kw">pub fn </span>set_segment_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, segment_size: u8) {
         <span class="self">self</span>.segment_size = segment_size
+    }
+
+    <span class="doccomment">/// Set the vendor extensions to use.
+    ///
+    /// This defaults to `Vendor::Default`.
+    </span><span class="kw">pub fn </span>set_vendor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, vendor: Vendor) {
+        <span class="self">self</span>.vendor = vendor;
     }
 }
 
@@ -7669,6 +7817,7 @@
             section,
             address_size: mem::size_of::&lt;usize&gt;() <span class="kw">as </span>u8,
             segment_size: <span class="number">0</span>,
+            vendor: Vendor::Default,
         }
     }
 }
@@ -7732,11 +7881,7 @@
         <span class="kw">if </span>fde_count_enc == constants::DW_EH_PE_omit || table_enc == constants::DW_EH_PE_omit {
             fde_count = <span class="number">0
         </span>} <span class="kw">else </span>{
-            <span class="kw">let </span>ptr = parse_encoded_pointer(fde_count_enc, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>;
-            fde_count = <span class="kw">match </span>ptr {
-                Pointer::Direct(c) =&gt; c,
-                Pointer::Indirect(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding),
-            }
+            fde_count = parse_encoded_pointer(fde_count_enc, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>.direct()<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(ParsedEhFrameHdr {
@@ -7922,11 +8067,8 @@
             <span class="kw">let </span>head = reader.split(R::Offset::from_u64((len / <span class="number">2</span>) * row_size)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>tail = reader.clone();
 
-            <span class="kw">let </span>pivot = parse_encoded_pointer(<span class="self">self</span>.hdr.table_enc, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>;
-            <span class="kw">let </span>pivot = <span class="kw">match </span>pivot {
-                Pointer::Direct(x) =&gt; x,
-                Pointer::Indirect(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding),
-            };
+            <span class="kw">let </span>pivot =
+                parse_encoded_pointer(<span class="self">self</span>.hdr.table_enc, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>.direct()<span class="question-mark">?</span>;
 
             <span class="kw">match </span>pivot.cmp(<span class="kw-2">&amp;</span>address) {
                 Ordering::Equal =&gt; {
@@ -7953,15 +8095,8 @@
     ///
     /// This does not support indirect pointers.
     </span><span class="kw">pub fn </span>pointer_to_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, ptr: Pointer) -&gt; <span class="prelude-ty">Result</span>&lt;EhFrameOffset&lt;R::Offset&gt;&gt; {
-        <span class="kw">let </span>ptr = <span class="kw">match </span>ptr {
-            Pointer::Direct(x) =&gt; x,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding),
-        };
-
-        <span class="kw">let </span>eh_frame_ptr = <span class="kw">match </span><span class="self">self</span>.hdr.eh_frame_ptr() {
-            Pointer::Direct(x) =&gt; x,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding),
-        };
+        <span class="kw">let </span>ptr = ptr.direct()<span class="question-mark">?</span>;
+        <span class="kw">let </span>eh_frame_ptr = <span class="self">self</span>.hdr.eh_frame_ptr().direct()<span class="question-mark">?</span>;
 
         <span class="comment">// Calculate the offset in the EhFrame section
         </span>R::Offset::from_u64(ptr - eh_frame_ptr).map(EhFrameOffset)
@@ -8070,6 +8205,7 @@
 </span><span class="kw">pub struct </span>EhFrame&lt;R: Reader&gt; {
     section: R,
     address_size: u8,
+    vendor: Vendor,
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; EhFrame&lt;R&gt; {
@@ -8078,6 +8214,13 @@
     /// This defaults to the native word size.
     </span><span class="kw">pub fn </span>set_address_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, address_size: u8) {
         <span class="self">self</span>.address_size = address_size
+    }
+
+    <span class="doccomment">/// Set the vendor extensions to use.
+    ///
+    /// This defaults to `Vendor::Default`.
+    </span><span class="kw">pub fn </span>set_vendor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, vendor: Vendor) {
+        <span class="self">self</span>.vendor = vendor;
     }
 }
 
@@ -8121,6 +8264,7 @@
         </span>EhFrame {
             section,
             address_size: mem::size_of::&lt;usize&gt;() <span class="kw">as </span>u8,
+            vendor: Vendor::Default,
         }
     }
 }
@@ -8201,6 +8345,9 @@
 
     <span class="doccomment">/// The segment size to use if `has_address_and_segment_sizes` returns false.
     </span><span class="kw">fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8;
+
+    <span class="doccomment">/// The vendor extensions to use.
+    </span><span class="kw">fn </span>vendor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vendor;
 }
 
 <span class="doccomment">/// A section holding unwind information: either `.debug_frame` or
@@ -8396,6 +8543,10 @@
     <span class="kw">fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.segment_size
     }
+
+    <span class="kw">fn </span>vendor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vendor {
+        <span class="self">self</span>.vendor
+    }
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; UnwindSection&lt;R&gt; <span class="kw">for </span>DebugFrame&lt;R&gt; {
@@ -8436,6 +8587,10 @@
     <span class="kw">fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="number">0
     </span>}
+
+    <span class="kw">fn </span>vendor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vendor {
+        <span class="self">self</span>.vendor
+    }
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; UnwindSection&lt;R&gt; <span class="kw">for </span>EhFrame&lt;R&gt; {
@@ -9009,6 +9164,7 @@
                 address_size: <span class="self">self</span>.address_size,
                 section: section.section(),
             },
+            vendor: section.vendor(),
         }
     }
 
@@ -9257,12 +9413,12 @@
             <span class="kw">let </span>initial_address = parse_encoded_pointer(encoding, parameters, input)<span class="question-mark">?</span>;
 
             <span class="comment">// Ignore indirection.
-            </span><span class="kw">let </span>initial_address = initial_address.into();
+            </span><span class="kw">let </span>initial_address = initial_address.pointer();
 
             <span class="comment">// Address ranges cannot be relative to anything, so just grab the
             // data format bits from the encoding.
             </span><span class="kw">let </span>address_range = parse_encoded_pointer(encoding.format(), parameters, input)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>((initial_address, address_range.into()))
+            <span class="prelude-val">Ok</span>((initial_address, address_range.pointer()))
         } <span class="kw">else </span>{
             <span class="kw">let </span>initial_address = input.read_address(cie.address_size)<span class="question-mark">?</span>;
             <span class="kw">let </span>address_range = input.read_address(cie.address_size)<span class="question-mark">?</span>;
@@ -9352,6 +9508,7 @@
                 address_size: <span class="self">self</span>.cie.address_size,
                 section: section.section(),
             },
+            vendor: section.vendor(),
         }
     }
 
@@ -9988,6 +10145,18 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                 <span class="self">self</span>.ctx.row_mut().saved_args_size = size;
             }
 
+            <span class="comment">// AArch64 extension.
+            </span>NegateRaState =&gt; {
+                <span class="kw">let </span>register = <span class="kw">crate</span>::AArch64::RA_SIGN_STATE;
+                <span class="kw">let </span>value = <span class="kw">match </span><span class="self">self</span>.ctx.row().register(register) {
+                    RegisterRule::Undefined =&gt; <span class="number">0</span>,
+                    RegisterRule::Constant(value) =&gt; value,
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CfiInstructionInInvalidContext),
+                };
+                <span class="self">self</span>.ctx
+                    .set_register_rule(register, RegisterRule::Constant(value ^ <span class="number">1</span>))<span class="question-mark">?</span>;
+            }
+
             <span class="comment">// No operation.
             </span>Nop =&gt; {}
         };
@@ -10357,6 +10526,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// has been saved and the rule to find the value for the register in the
 /// previous frame.&quot;
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 </span><span class="kw">pub enum </span>RegisterRule&lt;R: Reader&gt; {
     <span class="doccomment">/// &gt; A register that has this rule has no recoverable value in the previous
     /// &gt; frame. (By convention, it is not preserved by a callee.)
@@ -10389,6 +10559,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="doccomment">/// &quot;The rule is defined externally to this specification by the augmenter.&quot;
     </span>Architectural,
+
+    <span class="doccomment">/// This is a pseudo-register with a constant value.
+    </span>Constant(u64),
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; RegisterRule&lt;R&gt; {
@@ -10399,6 +10572,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
 <span class="doccomment">/// A parsed call frame instruction.
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 </span><span class="kw">pub enum </span>CallFrameInstruction&lt;R: Reader&gt; {
     <span class="comment">// 6.4.2.1 Row Creation Methods
     </span><span class="doccomment">/// &gt; 1. DW_CFA_set_loc
@@ -10676,6 +10850,17 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         </span>size: u64,
     },
 
+    <span class="doccomment">/// &gt; DW_CFA_AARCH64_negate_ra_state
+    /// &gt;
+    /// &gt; AArch64 Extension
+    /// &gt;
+    /// &gt; The DW_CFA_AARCH64_negate_ra_state operation negates bit[0] of the
+    /// &gt; RA_SIGN_STATE pseudo-register. It does not take any operands. The
+    /// &gt; DW_CFA_AARCH64_negate_ra_state must not be mixed with other DWARF Register
+    /// &gt; Rule Instructions on the RA_SIGN_STATE pseudo-register in one Common
+    /// &gt; Information Entry (CIE) and Frame Descriptor Entry (FDE) program sequence.
+    </span>NegateRaState,
+
     <span class="comment">// 6.4.2.5 Padding Instruction
     </span><span class="doccomment">/// &gt; 1. DW_CFA_nop
     /// &gt;
@@ -10692,6 +10877,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         input: <span class="kw-2">&amp;mut </span>R,
         address_encoding: <span class="prelude-ty">Option</span>&lt;DwEhPe&gt;,
         parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;R&gt;,
+        vendor: Vendor,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallFrameInstruction&lt;R&gt;&gt; {
         <span class="kw">let </span>instruction = input.read_u8()<span class="question-mark">?</span>;
         <span class="kw">let </span>high_bits = instruction &amp; CFI_INSTRUCTION_HIGH_BITS_MASK;
@@ -10725,11 +10911,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
             constants::DW_CFA_set_loc =&gt; {
                 <span class="kw">let </span>address = <span class="kw">if let </span><span class="prelude-val">Some</span>(encoding) = address_encoding {
-                    <span class="kw">match </span>parse_encoded_pointer(encoding, parameters, input)<span class="question-mark">? </span>{
-                        Pointer::Direct(x) =&gt; x,
-                        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding),
-                    }
-                } <span class="kw">else </span>{
+                    parse_encoded_pointer(encoding, parameters, input)<span class="question-mark">?</span>.direct()<span class="question-mark">?
+                </span>} <span class="kw">else </span>{
                     input.read_address(parameters.address_size)<span class="question-mark">?
                 </span>};
                 <span class="prelude-val">Ok</span>(CallFrameInstruction::SetLoc { address })
@@ -10883,6 +11066,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                 <span class="prelude-val">Ok</span>(CallFrameInstruction::ArgsSize { size })
             }
 
+            constants::DW_CFA_AARCH64_negate_ra_state <span class="kw">if </span>vendor == Vendor::AArch64 =&gt; {
+                <span class="prelude-val">Ok</span>(CallFrameInstruction::NegateRaState)
+            }
+
             otherwise =&gt; <span class="prelude-val">Err</span>(Error::UnknownCallFrameInstruction(otherwise)),
         }
     }
@@ -10897,6 +11084,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     input: R,
     address_encoding: <span class="prelude-ty">Option</span>&lt;constants::DwEhPe&gt;,
     parameters: PointerEncodingParameters&lt;<span class="lifetime">&#39;a</span>, R&gt;,
+    vendor: Vendor,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, R: Reader&gt; CallFrameInstructionIter&lt;<span class="lifetime">&#39;a</span>, R&gt; {
@@ -10906,8 +11094,12 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">match </span>CallFrameInstruction::parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>.input, <span class="self">self</span>.address_encoding, <span class="kw-2">&amp;</span><span class="self">self</span>.parameters)
-        {
+        <span class="kw">match </span>CallFrameInstruction::parse(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.input,
+            <span class="self">self</span>.address_encoding,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.parameters,
+            <span class="self">self</span>.vendor,
+        ) {
             <span class="prelude-val">Ok</span>(instruction) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(instruction)),
             <span class="prelude-val">Err</span>(e) =&gt; {
                 <span class="self">self</span>.input.empty();
@@ -10963,15 +11155,6 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl </span>From&lt;Pointer&gt; <span class="kw">for </span>u64 {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(p: Pointer) -&gt; u64 {
-        <span class="kw">match </span>p {
-            Pointer::Direct(p) | Pointer::Indirect(p) =&gt; p,
-        }
-    }
-}
-
 <span class="kw">impl </span>Pointer {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>new(encoding: constants::DwEhPe, address: u64) -&gt; Pointer {
@@ -10979,6 +11162,23 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             Pointer::Indirect(address)
         } <span class="kw">else </span>{
             Pointer::Direct(address)
+        }
+    }
+
+    <span class="doccomment">/// Return the direct pointer value.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>direct(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Pointer::Direct(p) =&gt; <span class="prelude-val">Ok</span>(p),
+            Pointer::Indirect(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding),
+        }
+    }
+
+    <span class="doccomment">/// Return the pointer value, discarding indirectness information.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>pointer(<span class="self">self</span>) -&gt; u64 {
+        <span class="kw">match </span><span class="self">self </span>{
+            Pointer::Direct(p) | Pointer::Indirect(p) =&gt; p,
         }
     }
 }
@@ -11211,7 +11411,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                 .uleb(cie.code_alignment_factor)
                 .sleb(cie.data_alignment_factor)
                 .uleb(cie.return_address_register.<span class="number">0</span>.into())
-                .append_bytes(cie.initial_instructions.into())
+                .append_bytes(cie.initial_instructions.slice())
                 .mark(<span class="kw-2">&amp;</span>end);
 
             cie.length = (<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>usize;
@@ -11288,11 +11488,11 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                     </span><span class="kw">let </span>section = section.uleb(u64::from(fde.cie.address_size));
                     <span class="kw">match </span>fde.cie.address_size {
                         <span class="number">4 </span>=&gt; section.D32({
-                            <span class="kw">let </span>x: u64 = lsda.into();
+                            <span class="kw">let </span>x: u64 = lsda.pointer();
                             x <span class="kw">as </span>u32
                         }),
                         <span class="number">8 </span>=&gt; section.D64({
-                            <span class="kw">let </span>x: u64 = lsda.into();
+                            <span class="kw">let </span>x: u64 = lsda.pointer();
                             x
                         }),
                         x =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported address size: {}&quot;</span>, x),
@@ -11306,7 +11506,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                 section
             };
 
-            <span class="kw">let </span>section = section.append_bytes(fde.instructions.into()).mark(<span class="kw-2">&amp;</span>end);
+            <span class="kw">let </span>section = section.append_bytes(fde.instructions.slice()).mark(<span class="kw-2">&amp;</span>end);
 
             fde.length = (<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>usize;
             length.set_const(fde.length <span class="kw">as </span>u64);
@@ -12019,7 +12219,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             address_size,
             section: <span class="kw-2">&amp;</span>R::default(),
         };
-        CallFrameInstruction::parse(input, <span class="prelude-val">None</span>, parameters)
+        CallFrameInstruction::parse(input, <span class="prelude-val">None</span>, parameters, Vendor::Default)
     }
 
     <span class="attr">#[test]
@@ -12132,7 +12332,12 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             section: <span class="kw-2">&amp;</span>EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian),
         };
         <span class="macro">assert_eq!</span>(
-            CallFrameInstruction::parse(input, <span class="prelude-val">Some</span>(constants::DW_EH_PE_textrel), parameters),
+            CallFrameInstruction::parse(
+                input,
+                <span class="prelude-val">Some</span>(constants::DW_EH_PE_textrel),
+                parameters,
+                Vendor::Default
+            ),
             <span class="prelude-val">Ok</span>(CallFrameInstruction::SetLoc {
                 address: expected_addr,
             })
@@ -12592,6 +12797,27 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_parse_cfi_instruction_negate_ra_state() {
+        <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+        <span class="kw">let </span>section = Section::with_endian(Endian::Little)
+            .D8(constants::DW_CFA_AARCH64_negate_ra_state.<span class="number">0</span>)
+            .append_bytes(<span class="kw-2">&amp;</span>expected_rest);
+        <span class="kw">let </span>contents = section.get_contents().unwrap();
+        <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>contents, LittleEndian);
+        <span class="kw">let </span>parameters = <span class="kw-2">&amp;</span>PointerEncodingParameters {
+            bases: <span class="kw-2">&amp;</span>SectionBaseAddresses::default(),
+            func_base: <span class="prelude-val">None</span>,
+            address_size: <span class="number">8</span>,
+            section: <span class="kw-2">&amp;</span>EndianSlice::default(),
+        };
+        <span class="macro">assert_eq!</span>(
+            CallFrameInstruction::parse(input, <span class="prelude-val">None</span>, parameters, Vendor::AArch64),
+            <span class="prelude-val">Ok</span>(CallFrameInstruction::NegateRaState)
+        );
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>input, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_cfi_instruction_unknown_instruction() {
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
         <span class="kw">let </span>unknown_instr = constants::DwCfa(<span class="number">0b0011_1111</span>);
@@ -12639,6 +12865,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             input,
             address_encoding: <span class="prelude-val">None</span>,
             parameters,
+            vendor: Vendor::Default,
         };
 
         <span class="macro">assert_eq!</span>(
@@ -12676,6 +12903,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             input,
             address_encoding: <span class="prelude-val">None</span>,
             parameters,
+            vendor: Vendor::Default,
         };
 
         <span class="macro">assert_eq!</span>(
@@ -13150,6 +13378,55 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             ),
         ];
 
+        assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_eval_negate_ra_state() {
+        <span class="kw">let </span>cie = make_test_cie();
+        <span class="kw">let </span>ctx = UnwindContext::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
+        expected
+            .set_register_rule(<span class="kw">crate</span>::AArch64::RA_SIGN_STATE, RegisterRule::Constant(<span class="number">1</span>))
+            .unwrap();
+        <span class="kw">let </span>instructions = [(<span class="prelude-val">Ok</span>(<span class="bool-val">false</span>), CallFrameInstruction::NegateRaState)];
+        assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
+
+        <span class="kw">let </span>cie = make_test_cie();
+        <span class="kw">let </span>ctx = UnwindContext::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
+        expected
+            .set_register_rule(<span class="kw">crate</span>::AArch64::RA_SIGN_STATE, RegisterRule::Constant(<span class="number">0</span>))
+            .unwrap();
+        <span class="kw">let </span>instructions = [
+            (<span class="prelude-val">Ok</span>(<span class="bool-val">false</span>), CallFrameInstruction::NegateRaState),
+            (<span class="prelude-val">Ok</span>(<span class="bool-val">false</span>), CallFrameInstruction::NegateRaState),
+        ];
+        assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
+
+        <span class="comment">// NegateRaState can&#39;t be used with other instructions.
+        </span><span class="kw">let </span>cie = make_test_cie();
+        <span class="kw">let </span>ctx = UnwindContext::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
+        expected
+            .set_register_rule(
+                <span class="kw">crate</span>::AArch64::RA_SIGN_STATE,
+                RegisterRule::Offset(cie.data_alignment_factor <span class="kw">as </span>i64),
+            )
+            .unwrap();
+        <span class="kw">let </span>instructions = [
+            (
+                <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
+                CallFrameInstruction::Offset {
+                    register: <span class="kw">crate</span>::AArch64::RA_SIGN_STATE,
+                    factored_offset: <span class="number">1</span>,
+                },
+            ),
+            (
+                <span class="prelude-val">Err</span>(Error::CfiInstructionInInvalidContext),
+                CallFrameInstruction::NegateRaState,
+            ),
+        ];
         assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
     }
 
@@ -13836,7 +14113,6 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
         section.start().set_const(<span class="number">0</span>);
         <span class="kw">let </span>section = section.get_contents().unwrap();
-        <span class="kw">let </span>section = EndianSlice::new(<span class="kw-2">&amp;</span>section, LittleEndian);
         <span class="kw">let </span>eh_frame = kind.section(<span class="kw-2">&amp;</span>section);
 
         <span class="comment">// Setup eh_frame_hdr

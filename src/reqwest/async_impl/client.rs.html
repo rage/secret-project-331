@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.18/src/async_impl/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-f3501f0f5ae15dfb.css" id="mainThemeStyle"><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.71.1 (eb26296b5 2023-08-03)" data-search-js="search-4926e5fc22a5646a.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ></div><script src="../../../static.files/storage-62ce34ea385b278a.js"></script><script defer src="../../../static.files/source-script-11255107d0a65077.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-f0540c1d82cde29b.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.20/src/async_impl/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.0 (5680fa18f 2023-08-23)" data-channel="1.72.0" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/source-script-106908c7a7964ba4.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2350,6 +2350,115 @@
 <a href="#2350" id="2350">2350</a>
 <a href="#2351" id="2351">2351</a>
 <a href="#2352" id="2352">2352</a>
+<a href="#2353" id="2353">2353</a>
+<a href="#2354" id="2354">2354</a>
+<a href="#2355" id="2355">2355</a>
+<a href="#2356" id="2356">2356</a>
+<a href="#2357" id="2357">2357</a>
+<a href="#2358" id="2358">2358</a>
+<a href="#2359" id="2359">2359</a>
+<a href="#2360" id="2360">2360</a>
+<a href="#2361" id="2361">2361</a>
+<a href="#2362" id="2362">2362</a>
+<a href="#2363" id="2363">2363</a>
+<a href="#2364" id="2364">2364</a>
+<a href="#2365" id="2365">2365</a>
+<a href="#2366" id="2366">2366</a>
+<a href="#2367" id="2367">2367</a>
+<a href="#2368" id="2368">2368</a>
+<a href="#2369" id="2369">2369</a>
+<a href="#2370" id="2370">2370</a>
+<a href="#2371" id="2371">2371</a>
+<a href="#2372" id="2372">2372</a>
+<a href="#2373" id="2373">2373</a>
+<a href="#2374" id="2374">2374</a>
+<a href="#2375" id="2375">2375</a>
+<a href="#2376" id="2376">2376</a>
+<a href="#2377" id="2377">2377</a>
+<a href="#2378" id="2378">2378</a>
+<a href="#2379" id="2379">2379</a>
+<a href="#2380" id="2380">2380</a>
+<a href="#2381" id="2381">2381</a>
+<a href="#2382" id="2382">2382</a>
+<a href="#2383" id="2383">2383</a>
+<a href="#2384" id="2384">2384</a>
+<a href="#2385" id="2385">2385</a>
+<a href="#2386" id="2386">2386</a>
+<a href="#2387" id="2387">2387</a>
+<a href="#2388" id="2388">2388</a>
+<a href="#2389" id="2389">2389</a>
+<a href="#2390" id="2390">2390</a>
+<a href="#2391" id="2391">2391</a>
+<a href="#2392" id="2392">2392</a>
+<a href="#2393" id="2393">2393</a>
+<a href="#2394" id="2394">2394</a>
+<a href="#2395" id="2395">2395</a>
+<a href="#2396" id="2396">2396</a>
+<a href="#2397" id="2397">2397</a>
+<a href="#2398" id="2398">2398</a>
+<a href="#2399" id="2399">2399</a>
+<a href="#2400" id="2400">2400</a>
+<a href="#2401" id="2401">2401</a>
+<a href="#2402" id="2402">2402</a>
+<a href="#2403" id="2403">2403</a>
+<a href="#2404" id="2404">2404</a>
+<a href="#2405" id="2405">2405</a>
+<a href="#2406" id="2406">2406</a>
+<a href="#2407" id="2407">2407</a>
+<a href="#2408" id="2408">2408</a>
+<a href="#2409" id="2409">2409</a>
+<a href="#2410" id="2410">2410</a>
+<a href="#2411" id="2411">2411</a>
+<a href="#2412" id="2412">2412</a>
+<a href="#2413" id="2413">2413</a>
+<a href="#2414" id="2414">2414</a>
+<a href="#2415" id="2415">2415</a>
+<a href="#2416" id="2416">2416</a>
+<a href="#2417" id="2417">2417</a>
+<a href="#2418" id="2418">2418</a>
+<a href="#2419" id="2419">2419</a>
+<a href="#2420" id="2420">2420</a>
+<a href="#2421" id="2421">2421</a>
+<a href="#2422" id="2422">2422</a>
+<a href="#2423" id="2423">2423</a>
+<a href="#2424" id="2424">2424</a>
+<a href="#2425" id="2425">2425</a>
+<a href="#2426" id="2426">2426</a>
+<a href="#2427" id="2427">2427</a>
+<a href="#2428" id="2428">2428</a>
+<a href="#2429" id="2429">2429</a>
+<a href="#2430" id="2430">2430</a>
+<a href="#2431" id="2431">2431</a>
+<a href="#2432" id="2432">2432</a>
+<a href="#2433" id="2433">2433</a>
+<a href="#2434" id="2434">2434</a>
+<a href="#2435" id="2435">2435</a>
+<a href="#2436" id="2436">2436</a>
+<a href="#2437" id="2437">2437</a>
+<a href="#2438" id="2438">2438</a>
+<a href="#2439" id="2439">2439</a>
+<a href="#2440" id="2440">2440</a>
+<a href="#2441" id="2441">2441</a>
+<a href="#2442" id="2442">2442</a>
+<a href="#2443" id="2443">2443</a>
+<a href="#2444" id="2444">2444</a>
+<a href="#2445" id="2445">2445</a>
+<a href="#2446" id="2446">2446</a>
+<a href="#2447" id="2447">2447</a>
+<a href="#2448" id="2448">2448</a>
+<a href="#2449" id="2449">2449</a>
+<a href="#2450" id="2450">2450</a>
+<a href="#2451" id="2451">2451</a>
+<a href="#2452" id="2452">2452</a>
+<a href="#2453" id="2453">2453</a>
+<a href="#2454" id="2454">2454</a>
+<a href="#2455" id="2455">2455</a>
+<a href="#2456" id="2456">2456</a>
+<a href="#2457" id="2457">2457</a>
+<a href="#2458" id="2458">2458</a>
+<a href="#2459" id="2459">2459</a>
+<a href="#2460" id="2460">2460</a>
+<a href="#2461" id="2461">2461</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;__rustls&quot;</span>,))]
 </span><span class="kw">use </span>std::any::Any;
 <span class="kw">use </span>std::net::IpAddr;
@@ -2472,6 +2581,8 @@
     http09_responses: bool,
     http1_title_case_headers: bool,
     http1_allow_obsolete_multiline_headers_in_responses: bool,
+    http1_ignore_invalid_headers_in_responses: bool,
+    http1_allow_spaces_after_header_name_in_responses: bool,
     http2_initial_stream_window_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     http2_initial_connection_window_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
     http2_adaptive_window: bool,
@@ -2553,6 +2664,8 @@
                 http09_responses: <span class="bool-val">false</span>,
                 http1_title_case_headers: <span class="bool-val">false</span>,
                 http1_allow_obsolete_multiline_headers_in_responses: <span class="bool-val">false</span>,
+                http1_ignore_invalid_headers_in_responses: <span class="bool-val">false</span>,
+                http1_allow_spaces_after_header_name_in_responses: <span class="bool-val">false</span>,
                 http2_initial_stream_window_size: <span class="prelude-val">None</span>,
                 http2_initial_connection_window_size: <span class="prelude-val">None</span>,
                 http2_adaptive_window: <span class="bool-val">false</span>,
@@ -2629,6 +2742,55 @@
             }
             <span class="kw">let </span>http = HttpConnector::new_with_resolver(DynResolver::new(resolver.clone()));
 
+            <span class="attr">#[cfg(all(feature = <span class="string">&quot;http3&quot;</span>, feature = <span class="string">&quot;__rustls&quot;</span>))]
+            </span><span class="kw">let </span>build_h3_connector =
+                |resolver,
+                 tls,
+                 quic_max_idle_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+                 quic_stream_receive_window,
+                 quic_receive_window,
+                 quic_send_window,
+                 local_address,
+                 http_version_pref: <span class="kw-2">&amp;</span>HttpVersionPref| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>transport_config = TransportConfig::default();
+
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(max_idle_timeout) = quic_max_idle_timeout {
+                        transport_config.max_idle_timeout(<span class="prelude-val">Some</span>(
+                            max_idle_timeout.try_into().map_err(error::builder)<span class="question-mark">?</span>,
+                        ));
+                    }
+
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(stream_receive_window) = quic_stream_receive_window {
+                        transport_config.stream_receive_window(stream_receive_window);
+                    }
+
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(receive_window) = quic_receive_window {
+                        transport_config.receive_window(receive_window);
+                    }
+
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(send_window) = quic_send_window {
+                        transport_config.send_window(send_window);
+                    }
+
+                    <span class="kw">let </span>res = H3Connector::new(
+                        DynResolver::new(resolver),
+                        tls,
+                        local_address,
+                        transport_config,
+                    );
+
+                    <span class="kw">match </span>res {
+                        <span class="prelude-val">Ok</span>(connector) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(connector)),
+                        <span class="prelude-val">Err</span>(err) =&gt; {
+                            <span class="kw">if let </span>HttpVersionPref::Http3 = http_version_pref {
+                                <span class="prelude-val">Err</span>(error::builder(err))
+                            } <span class="kw">else </span>{
+                                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+                            }
+                        }
+                    }
+                };
+
             <span class="attr">#[cfg(feature = <span class="string">&quot;__tls&quot;</span>)]
             </span><span class="kw">match </span>config.tls {
                 <span class="attr">#[cfg(feature = <span class="string">&quot;default-tls&quot;</span>)]
@@ -2669,6 +2831,13 @@
                     </span>{
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = config.identity {
                             id.add_to_native_tls(<span class="kw-2">&amp;mut </span>tls)<span class="question-mark">?</span>;
+                        }
+                    }
+                    <span class="attr">#[cfg(all(feature = <span class="string">&quot;__rustls&quot;</span>, not(feature = <span class="string">&quot;native-tls&quot;</span>)))]
+                    </span>{
+                        <span class="comment">// Default backend + rustls Identity doesn&#39;t work.
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(_id) = config.identity {
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::builder(<span class="string">&quot;incompatible TLS identity type&quot;</span>));
                         }
                     }
 
@@ -2712,14 +2881,30 @@
                     config.nodelay,
                 ),
                 <span class="attr">#[cfg(feature = <span class="string">&quot;__rustls&quot;</span>)]
-                </span>TlsBackend::BuiltRustls(conn) =&gt; Connector::new_rustls_tls(
-                    http,
-                    conn,
-                    proxies.clone(),
-                    user_agent(<span class="kw-2">&amp;</span>config.headers),
-                    config.local_address,
-                    config.nodelay,
-                ),
+                </span>TlsBackend::BuiltRustls(conn) =&gt; {
+                    <span class="attr">#[cfg(feature = <span class="string">&quot;http3&quot;</span>)]
+                    </span>{
+                        h3_connector = build_h3_connector(
+                            resolver,
+                            conn.clone(),
+                            config.quic_max_idle_timeout,
+                            config.quic_stream_receive_window,
+                            config.quic_receive_window,
+                            config.quic_send_window,
+                            config.local_address,
+                            <span class="kw-2">&amp;</span>config.http_version_pref,
+                        )<span class="question-mark">?</span>;
+                    }
+
+                    Connector::new_rustls_tls(
+                        http,
+                        conn,
+                        proxies.clone(),
+                        user_agent(<span class="kw-2">&amp;</span>config.headers),
+                        config.local_address,
+                        config.nodelay,
+                    )
+                }
                 <span class="attr">#[cfg(feature = <span class="string">&quot;__rustls&quot;</span>)]
                 </span>TlsBackend::Rustls =&gt; {
                     <span class="kw">use </span><span class="kw">crate</span>::tls::NoVerifier;
@@ -2735,7 +2920,7 @@
                         <span class="kw">use </span>rustls::OwnedTrustAnchor;
 
                         <span class="kw">let </span>trust_anchors =
-                            webpki_roots::TLS_SERVER_ROOTS.<span class="number">0</span>.iter().map(|trust_anchor| {
+                            webpki_roots::TLS_SERVER_ROOTS.iter().map(|trust_anchor| {
                                 OwnedTrustAnchor::from_subject_spki_name_constraints(
                                     trust_anchor.subject,
                                     trust_anchor.spki,
@@ -2743,7 +2928,7 @@
                                 )
                             });
 
-                        root_cert_store.add_server_trust_anchors(trust_anchors);
+                        root_cert_store.add_trust_anchors(trust_anchors);
                     }
 
                     <span class="attr">#[cfg(feature = <span class="string">&quot;rustls-tls-native-roots&quot;</span>)]
@@ -2843,32 +3028,16 @@
                     </span>{
                         tls.enable_early_data = config.tls_enable_early_data;
 
-                        <span class="kw">let </span><span class="kw-2">mut </span>transport_config = TransportConfig::default();
-
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(max_idle_timeout) = config.quic_max_idle_timeout {
-                            transport_config.max_idle_timeout(<span class="prelude-val">Some</span>(
-                                max_idle_timeout.try_into().map_err(error::builder)<span class="question-mark">?</span>,
-                            ));
-                        }
-
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(stream_receive_window) = config.quic_stream_receive_window {
-                            transport_config.stream_receive_window(stream_receive_window);
-                        }
-
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(receive_window) = config.quic_receive_window {
-                            transport_config.receive_window(receive_window);
-                        }
-
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(send_window) = config.quic_send_window {
-                            transport_config.send_window(send_window);
-                        }
-
-                        h3_connector = <span class="prelude-val">Some</span>(H3Connector::new(
-                            DynResolver::new(resolver),
+                        h3_connector = build_h3_connector(
+                            resolver,
                             tls.clone(),
+                            config.quic_max_idle_timeout,
+                            config.quic_stream_receive_window,
+                            config.quic_receive_window,
+                            config.quic_send_window,
                             config.local_address,
-                            transport_config,
-                        ));
+                            <span class="kw-2">&amp;</span>config.http_version_pref,
+                        )<span class="question-mark">?</span>;
                     }
 
                     Connector::new_rustls_tls(
@@ -2940,6 +3109,14 @@
             builder.http1_allow_obsolete_multiline_headers_in_responses(<span class="bool-val">true</span>);
         }
 
+        <span class="kw">if </span>config.http1_ignore_invalid_headers_in_responses {
+            builder.http1_ignore_invalid_headers_in_responses(<span class="bool-val">true</span>);
+        }
+
+        <span class="kw">if </span>config.http1_allow_spaces_after_header_name_in_responses {
+            builder.http1_allow_spaces_after_header_name_in_responses(<span class="bool-val">true</span>);
+        }
+
         <span class="kw">let </span>proxies_maybe_http_auth = proxies.iter().any(|p| p.maybe_has_http_auth());
 
         <span class="prelude-val">Ok</span>(Client {
@@ -2947,11 +3124,15 @@
                 accepts: config.accepts,
                 <span class="attr">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
                 </span>cookie_store: config.cookie_store,
-                <span class="attr">#[cfg(feature = <span class="string">&quot;http3&quot;</span>)]
-                </span>h3_client: H3Client::new(
-                    h3_connector.expect(<span class="string">&quot;missing HTTP/3 connector&quot;</span>),
-                    config.pool_idle_timeout,
-                ),
+                <span class="comment">// Use match instead of map since config is partially moved
+                // and it cannot be used in closure
+                </span><span class="attr">#[cfg(feature = <span class="string">&quot;http3&quot;</span>)]
+                </span>h3_client: <span class="kw">match </span>h3_connector {
+                    <span class="prelude-val">Some</span>(h3_connector) =&gt; {
+                        <span class="prelude-val">Some</span>(H3Client::new(h3_connector, config.pool_idle_timeout))
+                    }
+                    <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+                },
                 hyper: builder.build(connector),
                 headers: config.headers,
                 redirect_policy: config.redirect_policy,
@@ -3332,6 +3513,26 @@
     ) -&gt; ClientBuilder {
         <span class="self">self</span>.config
             .http1_allow_obsolete_multiline_headers_in_responses = value;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets whether invalid header lines should be silently ignored in HTTP/1 responses.
+    </span><span class="kw">pub fn </span>http1_ignore_invalid_headers_in_responses(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.http1_ignore_invalid_headers_in_responses = value;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set whether HTTP/1 connections will accept spaces between header
+    /// names and the colon that follow them in responses.
+    ///
+    /// Newline codepoints (`\r` and `\n`) will be transformed to spaces when
+    /// parsing.
+    </span><span class="kw">pub fn </span>http1_allow_spaces_after_header_name_in_responses(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        value: bool,
+    ) -&gt; ClientBuilder {
+        <span class="self">self</span>.config
+            .http1_allow_spaces_after_header_name_in_responses = value;
         <span class="self">self
     </span>}
 
@@ -4047,10 +4248,10 @@
 
         <span class="kw">let </span>in_flight = <span class="kw">match </span>version {
             <span class="attr">#[cfg(feature = <span class="string">&quot;http3&quot;</span>)]
-            </span>http::Version::HTTP_3 =&gt; {
+            </span>http::Version::HTTP_3 <span class="kw">if </span><span class="self">self</span>.inner.h3_client.is_some() =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>req = builder.body(body).expect(<span class="string">&quot;valid request parts&quot;</span>);
                 <span class="kw-2">*</span>req.headers_mut() = headers.clone();
-                ResponseFuture::H3(<span class="self">self</span>.inner.h3_client.request(req))
+                ResponseFuture::H3(<span class="self">self</span>.inner.h3_client.as_ref().unwrap().request(req))
             }
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>req = builder
@@ -4193,6 +4394,14 @@
             f.field(<span class="string">&quot;http1_allow_obsolete_multiline_headers_in_responses&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
         }
 
+        <span class="kw">if </span><span class="self">self</span>.http1_ignore_invalid_headers_in_responses {
+            f.field(<span class="string">&quot;http1_ignore_invalid_headers_in_responses&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
+        }
+
+        <span class="kw">if </span><span class="self">self</span>.http1_allow_spaces_after_header_name_in_responses {
+            f.field(<span class="string">&quot;http1_allow_spaces_after_header_name_in_responses&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
+        }
+
         <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.http_version_pref, HttpVersionPref::Http1) {
             f.field(<span class="string">&quot;http1_only&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
         }
@@ -4266,7 +4475,7 @@
     headers: HeaderMap,
     hyper: HyperClient,
     <span class="attr">#[cfg(feature = <span class="string">&quot;http3&quot;</span>)]
-    </span>h3_client: H3Client,
+    </span>h3_client: <span class="prelude-ty">Option</span>&lt;H3Client&gt;,
     redirect_policy: redirect::Policy,
     referer: bool,
     request_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
@@ -4397,7 +4606,13 @@
                     .body(body)
                     .expect(<span class="string">&quot;valid request parts&quot;</span>);
                 <span class="kw-2">*</span>req.headers_mut() = <span class="self">self</span>.headers.clone();
-                ResponseFuture::H3(<span class="self">self</span>.client.h3_client.request(req))
+                ResponseFuture::H3(
+                    <span class="self">self</span>.client
+                        .h3_client
+                        .as_ref()
+                        .expect(<span class="string">&quot;H3 client must exists, otherwise we can&#39;t have a h3 request here&quot;</span>)
+                        .request(req),
+                )
             }
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>req = hyper::Request::builder()
@@ -4619,7 +4834,10 @@
                                             .expect(<span class="string">&quot;valid request parts&quot;</span>);
                                         <span class="kw-2">*</span>req.headers_mut() = headers.clone();
                                         std::mem::swap(<span class="self">self</span>.as_mut().headers(), <span class="kw-2">&amp;mut </span>headers);
-                                        ResponseFuture::H3(<span class="self">self</span>.client.h3_client.request(req))
+                                        ResponseFuture::H3(<span class="self">self</span>.client.h3_client
+                        .as_ref()
+                        .expect(<span class="string">&quot;H3 client must exists, otherwise we can&#39;t have a h3 request here&quot;</span>)
+                                            .request(req))
                                     }
                                     <span class="kw">_ </span>=&gt; {
                                         <span class="kw">let </span><span class="kw-2">mut </span>req = hyper::Request::builder()

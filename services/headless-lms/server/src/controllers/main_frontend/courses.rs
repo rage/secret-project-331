@@ -1209,7 +1209,7 @@ pub async fn teacher_reset_course_progress_for_everyone(
             None,
         ));
     }
-    // To prevent teachers from deleting courses that real students have been checking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We'll counteract this by checking the number of course module completions to the course.
+    // To prevent teachers from deleting courses that real students have been taking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We'll counteract this by checking the number of course module completions to the course.
     let n_course_module_completions =
         models::course_module_completions::get_count_of_distinct_completors_by_course_id(
             &mut conn, course_id,

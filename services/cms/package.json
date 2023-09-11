@@ -7,7 +7,6 @@
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3000 node server.js",
-    "extract-gutenberg-types": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/extractGutenbergAttributeTypes.ts && npx eslint --fix ../course-material/types/GutenbergBlockAttributes.ts",
     "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts",
     "test": "jest"
   },

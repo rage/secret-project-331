@@ -75,8 +75,8 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
           <NewOrEditPageForm
             courseId={page.course_id ?? ""}
             onSubmitForm={() => {
-              reload()
               setShowEditDetailsPageForm(false)
+              reload()
             }}
             isUpdate={true}
             savedPage={page}

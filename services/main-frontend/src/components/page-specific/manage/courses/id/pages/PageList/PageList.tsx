@@ -46,7 +46,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
     { onSuccess: () => refetch() },
   )
   const handleCreateTopLevelPage = () => {
-    setShowNewOrEditPageForm(!showNewOrEditPageForm)
+    setShowNewOrEditPageForm(false)
     refetch()
   }
 
@@ -111,17 +111,13 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
           )
         })}
       </TableWrapper>
-      <Button
-        size="medium"
-        variant="primary"
-        onClick={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
-      >
+      <Button size="medium" variant="primary" onClick={() => setShowNewOrEditPageForm(true)}>
         {t("button-text-new-page")}
       </Button>
 
       <Dialog
         open={showNewOrEditPageForm}
-        onClose={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
+        onClose={() => setShowNewOrEditPageForm(false)}
         noPadding
       >
         <div
@@ -129,11 +125,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
             margin: 1rem;
           `}
         >
-          <Button
-            size="medium"
-            variant="secondary"
-            onClick={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
-          >
+          <Button size="medium" variant="secondary" onClick={() => setShowNewOrEditPageForm(false)}>
             {t("button-text-close")}
           </Button>
           <NewOrEditPageForm

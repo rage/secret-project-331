@@ -557,6 +557,25 @@
 <a href="#557" id="557">557</a>
 <a href="#558" id="558">558</a>
 <a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::Stream;
@@ -887,6 +906,25 @@ LIMIT 1
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res)
+}
+
+<span class="doccomment">/// Get the number of students that have completed the course
+</span><span class="kw">pub async fn </span>get_count_of_distinct_completors_by_course_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;i64&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT COUNT(DISTINCT user_id) as count
+FROM course_module_completions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+&quot;</span>,
+        course_id,
+    )
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res.count.unwrap_or(<span class="number">0</span>))
 }
 
 <span class="doccomment">/// Gets automatically granted course module completion for the given user on the specified course

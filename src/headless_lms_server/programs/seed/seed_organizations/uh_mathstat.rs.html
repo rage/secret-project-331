@@ -192,6 +192,22 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -381,6 +397,22 @@
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(reset_progress),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>change_path = seed_sample_course(
+        Uuid::parse_str(<span class="string">&quot;c783777b-426e-4cfd-9a5f-4a36b2da503a&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Change path&quot;</span>,
+        <span class="string">&quot;change-path&quot;</span>,
+        uh_data.clone(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(change_path),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

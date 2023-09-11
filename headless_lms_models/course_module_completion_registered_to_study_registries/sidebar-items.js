@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["delete","get_id","insert","insert_completions"],"struct":["CourseModuleCompletionRegisteredToStudyRegistry","NewCourseModuleCompletionRegisteredToStudyRegistry","RegisteredCompletion"]};
+window.SIDEBAR_ITEMS = {"fn":["delete","get_count_of_distinct_users_with_registrations_by_course_id","get_id","insert","insert_completions"],"struct":["CourseModuleCompletionRegisteredToStudyRegistry","NewCourseModuleCompletionRegisteredToStudyRegistry","RegisteredCompletion"]};

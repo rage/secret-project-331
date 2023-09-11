@@ -1333,6 +1333,79 @@
 <a href="#1333" id="1333">1333</a>
 <a href="#1334" id="1334">1334</a>
 <a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
+<a href="#1387" id="1387">1387</a>
+<a href="#1388" id="1388">1388</a>
+<a href="#1389" id="1389">1389</a>
+<a href="#1390" id="1390">1390</a>
+<a href="#1391" id="1391">1391</a>
+<a href="#1392" id="1392">1392</a>
+<a href="#1393" id="1393">1393</a>
+<a href="#1394" id="1394">1394</a>
+<a href="#1395" id="1395">1395</a>
+<a href="#1396" id="1396">1396</a>
+<a href="#1397" id="1397">1397</a>
+<a href="#1398" id="1398">1398</a>
+<a href="#1399" id="1399">1399</a>
+<a href="#1400" id="1400">1400</a>
+<a href="#1401" id="1401">1401</a>
+<a href="#1402" id="1402">1402</a>
+<a href="#1403" id="1403">1403</a>
+<a href="#1404" id="1404">1404</a>
+<a href="#1405" id="1405">1405</a>
+<a href="#1406" id="1406">1406</a>
+<a href="#1407" id="1407">1407</a>
+<a href="#1408" id="1408">1408</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>chrono::Utc;
@@ -2523,6 +2596,75 @@ Deletes submissions, user exercise states, and peer reviews etc. for all the cou
 }
 
 <span class="doccomment">/**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-everyone` - Can be used by teachers to reset the course progress for all students. Only works when the course is a draft and not published to students. Cannot be used to delete a course that some students have taken.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+</span><span class="attr">#[generated_doc]
+</span><span class="kw">pub async fn </span>teacher_reset_course_progress_for_everyone(
+    course_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_id = course_id.into_inner();
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>!course.is_draft {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Can only reset progress for a draft course.&quot;</span>.to_string(),
+            <span class="prelude-val">None</span>,
+        ));
+    }
+    <span class="comment">// To prevent teachers from deleting courses that real students have been taking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We&#39;ll counteract this by checking the number of course module completions to the course.
+    </span><span class="kw">let </span>n_course_module_completions =
+        models::course_module_completions::get_count_of_distinct_completors_by_course_id(
+            <span class="kw-2">&amp;mut </span>conn, course_id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>n_completions_registered_to_study_registry = models::course_module_completion_registered_to_study_registries::get_count_of_distinct_users_with_registrations_by_course_id(
+        <span class="kw-2">&amp;mut </span>conn, course_id,
+    ).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>n_course_module_completions &gt; <span class="number">200 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Too many students have completed the course.&quot;</span>.to_string(),
+            <span class="prelude-val">None</span>,
+        ));
+    }
+    <span class="kw">if </span>n_completions_registered_to_study_registry &gt; <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Too many students have registered their completion to a study registry&quot;</span>.to_string(),
+            <span class="prelude-val">None</span>,
+        ));
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_instances =
+        models::course_instances::get_course_instances_for_course(<span class="kw-2">&amp;mut </span>tx, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Looping though the data since this is only for draft courses and the amount of data is not expected to be large.
+    </span><span class="kw">for </span>course_instance <span class="kw">in </span>course_instances {
+        <span class="kw">let </span>users_in_course_instance =
+            models::users::get_users_by_course_instance_enrollment(<span class="kw-2">&amp;mut </span>tx, course_instance.id)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">for </span>user_in_course_instance <span class="kw">in </span>users_in_course_instance {
+            models::course_instances::reset_progress_on_course_instance_for_user(
+                <span class="kw-2">&amp;mut </span>tx,
+                user_in_course_instance.id,
+                course_instance.id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        }
+    }
+
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -2666,6 +2808,10 @@ We add the routes by calling the route method instead of using the route annotat
         .route(
             <span class="string">&quot;/{course_id}/teacher-reset-course-progress-for-themselves&quot;</span>,
             web::delete().to(teacher_reset_course_progress_for_themselves),
+        )
+        .route(
+            <span class="string">&quot;/{course_id}/teacher-reset-course-progress-for-everyone&quot;</span>,
+            web::delete().to(teacher_reset_course_progress_for_everyone),
         );
 }
 </code></pre></div></section></main></body></html>

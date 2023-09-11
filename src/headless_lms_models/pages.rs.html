@@ -3411,6 +3411,53 @@
 <a href="#3411" id="3411">3411</a>
 <a href="#3412" id="3412">3412</a>
 <a href="#3413" id="3413">3413</a>
+<a href="#3414" id="3414">3414</a>
+<a href="#3415" id="3415">3415</a>
+<a href="#3416" id="3416">3416</a>
+<a href="#3417" id="3417">3417</a>
+<a href="#3418" id="3418">3418</a>
+<a href="#3419" id="3419">3419</a>
+<a href="#3420" id="3420">3420</a>
+<a href="#3421" id="3421">3421</a>
+<a href="#3422" id="3422">3422</a>
+<a href="#3423" id="3423">3423</a>
+<a href="#3424" id="3424">3424</a>
+<a href="#3425" id="3425">3425</a>
+<a href="#3426" id="3426">3426</a>
+<a href="#3427" id="3427">3427</a>
+<a href="#3428" id="3428">3428</a>
+<a href="#3429" id="3429">3429</a>
+<a href="#3430" id="3430">3430</a>
+<a href="#3431" id="3431">3431</a>
+<a href="#3432" id="3432">3432</a>
+<a href="#3433" id="3433">3433</a>
+<a href="#3434" id="3434">3434</a>
+<a href="#3435" id="3435">3435</a>
+<a href="#3436" id="3436">3436</a>
+<a href="#3437" id="3437">3437</a>
+<a href="#3438" id="3438">3438</a>
+<a href="#3439" id="3439">3439</a>
+<a href="#3440" id="3440">3440</a>
+<a href="#3441" id="3441">3441</a>
+<a href="#3442" id="3442">3442</a>
+<a href="#3443" id="3443">3443</a>
+<a href="#3444" id="3444">3444</a>
+<a href="#3445" id="3445">3445</a>
+<a href="#3446" id="3446">3446</a>
+<a href="#3447" id="3447">3447</a>
+<a href="#3448" id="3448">3448</a>
+<a href="#3449" id="3449">3449</a>
+<a href="#3450" id="3450">3450</a>
+<a href="#3451" id="3451">3451</a>
+<a href="#3452" id="3452">3452</a>
+<a href="#3453" id="3453">3453</a>
+<a href="#3454" id="3454">3454</a>
+<a href="#3455" id="3455">3455</a>
+<a href="#3456" id="3456">3456</a>
+<a href="#3457" id="3457">3457</a>
+<a href="#3458" id="3458">3458</a>
+<a href="#3459" id="3459">3459</a>
+<a href="#3460" id="3460">3460</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -3507,7 +3554,7 @@
     <span class="kw">pub </span>exercises: Vec&lt;Exercise&gt;,
 }
 
-<span class="comment">// Represents the subset of page fields that are required to create a new page.
+<span class="doccomment">/// Represents the subset of page fields that are required to create a new page.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
 </span><span class="kw">pub struct </span>NewPage {
@@ -3525,6 +3572,14 @@
     </span><span class="kw">pub </span>front_page_of_chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     <span class="doccomment">/// Read from the course&#39;s settings if None. If course_id is None as well, defaults to &quot;simple&quot;
     </span><span class="kw">pub </span>content_search_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
+}
+
+<span class="doccomment">/// Represents the subset of page fields that can be updated from the main frontend dialog &quot;Edit page details&quot;.
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PageDetailsUpdate {
+    <span class="kw">pub </span>title: String,
+    <span class="kw">pub </span>url_path: String,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -6597,6 +6652,45 @@ WHERE pages.order_number = $1
             is_chapter_front_page: id == page_id,
         },
     ))
+}
+
+<span class="kw">pub async fn </span>update_page_details(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+    page_details_update: <span class="kw-2">&amp;</span>PageDetailsUpdate,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page_before_update = get_page(<span class="kw-2">&amp;mut </span>tx, page_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+UPDATE pages
+SET title = $2,
+  url_path = $3
+WHERE id = $1
+&quot;</span>,
+        page_id,
+        page_details_update.title,
+        page_details_update.url_path,
+    )
+    .execute(<span class="kw-2">&amp;mut *</span>tx)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = page_before_update.course_id {
+        <span class="kw">if </span>page_before_update.url_path != page_details_update.url_path {
+            <span class="comment">// Some students might be trying to reach the page with the old url path, so let&#39;s redirect them to the new one
+            </span><span class="kw">crate</span>::url_redirections::upsert(
+                <span class="kw-2">&amp;mut </span>tx,
+                PKeyPolicy::Generate,
+                page_id,
+                <span class="kw-2">&amp;</span>page_before_update.url_path,
+                course_id,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        }
+    }
+
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="attr">#[cfg(test)]

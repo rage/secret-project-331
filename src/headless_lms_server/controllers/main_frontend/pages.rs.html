@@ -204,13 +204,36 @@
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
 <a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
 </span><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>models::{
     page_history::PageHistory,
-    pages::{HistoryRestoreData, NewPage, Page, PageInfo},
+    pages::{HistoryRestoreData, NewPage, Page, PageDetailsUpdate, PageInfo},
 };
 
 <span class="kw">use crate</span>::{
@@ -396,6 +419,25 @@ Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 }
 
 <span class="doccomment">/**
+POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
+*/
+</span><span class="attr">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>update_page_details(
+    page_id: web::Path&lt;Uuid&gt;,
+    payload: web::Json&lt;PageDetailsUpdate&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Page(<span class="kw-2">*</span>page_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    models::pages::update_page_details(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id, <span class="kw-2">&amp;</span>payload).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -406,6 +448,10 @@ We add the routes by calling the route method instead of using the route annotat
     cfg.route(<span class="string">&quot;&quot;</span>, web::post().to(post_new_page))
         .route(<span class="string">&quot;/{page_id}&quot;</span>, web::delete().to(delete_page))
         .route(<span class="string">&quot;/{page_id}/info&quot;</span>, web::get().to(get_page_info))
+        .route(
+            <span class="string">&quot;/{page_id}/page-details&quot;</span>,
+            web::put().to(update_page_details),
+        )
         .route(<span class="string">&quot;/{page_id}/history&quot;</span>, web::get().to(history))
         .route(<span class="string">&quot;/{page_id}/history_count&quot;</span>, web::get().to(history_count))
         .route(<span class="string">&quot;/{history_id}/restore&quot;</span>, web::post().to(restore));

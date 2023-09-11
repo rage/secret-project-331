@@ -134,7 +134,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   })
 
   let parsedPeerReviewConfig: CmsPeerReviewConfig | null = JSON.parse(
-    exerciseAttributes.peer_review_config ?? "{}",
+    exerciseAttributes.peer_review_config ?? "null",
   )
 
   if (parsedPeerReviewConfig === null) {
@@ -245,7 +245,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_config: checked ? JSON.stringify(prc) : "{}",
+      peer_review_config: checked ? JSON.stringify(prc) : "null",
       peer_review_questions_config: "[]",
       use_course_default_peer_review: true,
       needs_peer_review: checked,

@@ -146,6 +146,7 @@ import {
   Page,
   PageAudioFile,
   PageChapterAndCourseInformation,
+  PageDetailsUpdate,
   PageHistory,
   PageInfo,
   PageNavigationInformation,
@@ -2192,6 +2193,15 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
       typeof typedObj["page_language_group_id"] === "string") &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
+  )
+}
+
+export function isPageDetailsUpdate(obj: unknown): obj is PageDetailsUpdate {
+  const typedObj = obj as PageDetailsUpdate
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url_path"] === "string"
   )
 }
 

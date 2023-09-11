@@ -2,15 +2,17 @@ import {
   CmsPeerReviewConfiguration,
   NewResearchForm,
   NewResearchFormQuestion,
+  Page,
   ResearchForm,
   ResearchFormQuestion,
 } from "../../shared-module/bindings"
 import {
   isCmsPeerReviewConfiguration,
+  isPage,
   isResearchForm,
   isResearchFormQuestion,
 } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 
@@ -27,6 +29,11 @@ export const putCoursesDefaultCmsPeerReviewConfiguration = async (
 ): Promise<CmsPeerReviewConfiguration> => {
   const response = await cmsClient.put(`/courses/${courseId}/default-peer-review`, data)
   return validateResponse(response, isCmsPeerReviewConfiguration)
+}
+
+export const getAllPagesForACourse = async (courseId: string): Promise<Page[]> => {
+  const response = await cmsClient.get(`/courses/${courseId}/pages`)
+  return validateResponse(response, isArray(isPage))
 }
 
 export const fetchResearchFormWithCourseId = async (courseId: string): Promise<ResearchForm> => {

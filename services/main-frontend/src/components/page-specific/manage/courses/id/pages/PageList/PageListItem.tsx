@@ -4,9 +4,11 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
-import { Page } from "../../../../../../../shared-module/bindings"
+import { Chapter, Page } from "../../../../../../../shared-module/bindings"
+import Dialog from "../../../../../../../shared-module/components/Dialog"
 import DropdownMenu from "../../../../../../../shared-module/components/DropdownMenu"
 import { baseTheme } from "../../../../../../../shared-module/styles"
+import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageAudioWidget from "./PageAudioWidget"
 
@@ -22,6 +24,8 @@ interface PageListItemProps {
   pageOrderDispatch: React.Dispatch<ManagePageOrderAction>
   onDeletePage: (() => void) | null
   moving: MovePolicy
+  chapter: Chapter | undefined
+  reload: () => void
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -44,17 +48,41 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
   pageOrderDispatch,
   moving,
   onDeletePage,
+  chapter,
+  reload,
 }) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState<boolean>(false)
+  const [showEditPageDetailsForm, setShowEditDetailsPageForm] = useState(false)
 
   const canMoveUp = moving === "allowed" || moving === "only-up"
   const canMoveDown = moving === "allowed" || moving === "only-down"
+  // Editing the path of front pages or chapter front pages is not allowed
+  const canEditPageDetails = canMoveUp || canMoveDown
 
   return (
     <>
       {showDialog && (
         <PageAudioWidget id={page.id} open={showDialog} onClose={() => setShowDialog(false)} />
+      )}
+      {showEditPageDetailsForm && (
+        <Dialog
+          open={showEditPageDetailsForm}
+          onClose={() => {
+            setShowEditDetailsPageForm(false)
+          }}
+        >
+          <NewOrEditPageForm
+            courseId={page.course_id ?? ""}
+            onSubmitForm={() => {
+              setShowEditDetailsPageForm(false)
+              reload()
+            }}
+            isUpdate={true}
+            savedPage={page}
+            prefix={chapter && `/chapter-${chapter.chapter_number}/`}
+          />
+        </Dialog>
       )}
       <tr
         className={css`
@@ -94,6 +122,14 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
             </a>
             <DropdownMenu
               items={[
+                canEditPageDetails
+                  ? {
+                      label: t("button-text-edit-page-details"),
+                      onClick: () => {
+                        setShowEditDetailsPageForm(true)
+                      },
+                    }
+                  : null,
                 {
                   label: t("link-history"),
                   // eslint-disable-next-line i18next/no-literal-string

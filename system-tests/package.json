@@ -30,6 +30,7 @@
   "keywords": [],
   "devDependencies": {
     "@playwright/test": "^1.37.1",
+    "@types/tar-fs": "^2.0.1",
     "@types/node": "^20.5.9",
     "playwright": "^1.37.1",
     "typescript": "^5.2.2"
@@ -39,6 +40,7 @@
     "@types/which": "^3.0.0",
     "axe-core": "^4.8.0",
     "png-metadata": "^1.0.2",
+    "tar-fs": "^3.0.4",
     "which": "^4.0.0"
   }
 }

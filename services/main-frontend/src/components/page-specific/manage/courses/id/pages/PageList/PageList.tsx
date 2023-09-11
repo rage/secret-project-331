@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +6,7 @@ import { ManagePageOrderAction } from "../../../../../../../reducers/managePageO
 import { deletePage } from "../../../../../../../services/backend/pages"
 import { Chapter, Page } from "../../../../../../../shared-module/bindings"
 import Button from "../../../../../../../shared-module/components/Button"
+import Dialog from "../../../../../../../shared-module/components/Dialog"
 import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, typography } from "../../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
@@ -122,6 +122,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
       <Dialog
         open={showNewOrEditPageForm}
         onClose={() => setShowNewOrEditPageForm(!showNewOrEditPageForm)}
+        noPadding
       >
         <div
           className={css`

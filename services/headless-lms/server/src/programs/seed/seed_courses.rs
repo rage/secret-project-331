@@ -613,7 +613,7 @@ pub async fn seed_sample_course(
                 "direction": "row",
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
-                "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
+                "validityRegex": r"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$".to_string(),
                 "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
                 "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
@@ -738,91 +738,73 @@ pub async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
         false,
         serde_json::json!({
-            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-            "body": "very hard",
-            "open": "2021-12-17T07:15:33.479Z",
-            "part": 0,
-            "items": [{
-                "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
-                "body": null,
-                "type": "clickable-multiple-choice",
-                "multi": true,
-                "multipleChoiceMultipleOptionsGradingPolicy": "default",
-                "order": 0,
-                "title": "Pick all the programming languages from below",
-                "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-                "options": [
-                    {
-                        "id": "55a63887-a896-425c-91ae-2f85032c3d58",
-                        "body": "Java",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Java is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
-                        "body": "Erlang",
-                        "order": 2,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null,
-                    },
-                    {
-                        "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
-                        "body": "Jupiter",
-                        "order": 3,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
-                        "body": "Rust",
-                        "order": 4,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Rust is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
-                        "body": "AC",
-                        "order": 5,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "AC is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                ],
-                "allAnswersCorrect": false,
-                "sharedOptionFeedbackMessage": null,
-                "usesSharedOptionFeedbackMessage": false
-            }],
-            "title": "Pretty good exercise",
-            "tries": 1,
-            "points": 2,
-            "section": 0,
-            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
-            "deadline": "2021-12-17T07:15:33.479Z",
-            "createdAt": "2021-12-17T07:15:33.479Z",
-            "updatedAt": "2021-12-17T07:15:33.479Z",
-            "autoReject": false,
-            "autoConfirm": true,
-            "randomizeOptions": false,
-            "triesLimited": true,
-            "submitMessage": "This is an extra submit message from the teacher.",
-            "excludedFromScore": true,
-            "grantPointsPolicy": "grant_whenever_possible",
-            "awardPointsEvenIfWrong": false}),
+          "version": "2",
+          "title": "",
+          "body": "very hard",
+          "awardPointsEvenIfWrong": false,
+          "grantPointsPolicy": "grant_whenever_possible",
+          "quizItemDisplayDirection": "vertical",
+          "submitMessage": "This is an extra submit message from the teacher.",
+          "items": [
+            {
+              "type": "choose-n",
+              "id": "663c52bd-f649-4ba2-9c39-2387c386cbf1",
+              "failureMessage": "",
+              "options": [
+                {
+                  "order": 1,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "9339c966-cc48-4a6c-9512-b38c82240dd0",
+                  "messageAfterSubmissionWhenSelected": "Java is a programming language",
+                  "title": "Java"
+                },
+                {
+                  "order": 2,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "2e6de165-ea76-4f03-a216-2f15179c9e6e",
+                  "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
+                  "title": "Erlang"
+                },
+                {
+                  "order": 3,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "2d452914-8cf7-426c-b130-51d556a33566",
+                  "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
+                  "title": "Jupiter"
+                },
+                {
+                  "order": 4,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "d503894c-3eaf-4ebe-a7d5-95f04b641479",
+                  "messageAfterSubmissionWhenSelected": "Rust is a programming language",
+                  "title": "Rust"
+                },
+                {
+                  "order": 5,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "a5a6cef2-df55-4926-9ecc-95da3e049ea7",
+                  "messageAfterSubmissionWhenSelected": "AC is not a programming language",
+                  "title": "AC"
+                }
+              ],
+              "order": 0,
+              "successMessage": "",
+              "title": "Pick all the programming languages from below",
+              "body": "",
+              "n": 2
+            }
+          ]
+        }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
         CommonExerciseData {
             exercise_id: Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
@@ -904,7 +886,7 @@ pub async fn seed_sample_course(
           "part": 0,
           "points": 0,
           "section": 0,
-          "submitMessage": "",
+          "submitMessage": "This is an extra submit message from the teacher.",
           "title": "",
           "tries": 1,
           "triesLimited": true,
@@ -1587,6 +1569,84 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_2
             ]),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-authors".to_string(),
+            title: "The Author Block".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/author".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("eb27eddd-6fc7-46f8-b7aa-968b16f86f1f").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![GutenbergBlock {
+                    name: "moocfi/author-inner-block".to_string(),
+                    is_valid: true,
+                    client_id: Uuid::parse_str("b5565362-e8e3-4837-9546-014dc98af686").unwrap(),
+                    attributes: attributes! {},
+                    inner_blocks: vec![GutenbergBlock {
+                        name: "core/columns".to_string(),
+                        is_valid: true,
+                        client_id: Uuid::parse_str("d8df9ead-9be3-4d25-96ec-c6e591db261b").unwrap(),
+                        attributes: attributes! { "isStackedOnMobile": true },
+                        inner_blocks: vec![GutenbergBlock {
+                            name: "core/column".to_string(),
+                            is_valid: true,
+                            client_id: Uuid::parse_str("6435c2f7-ccc0-4cec-9c38-19bd688b057c").unwrap(),
+                            attributes: attributes! {},
+                                inner_blocks: vec![GutenbergBlock {
+                                name: "core/image".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
+                                attributes: attributes! {
+                                    "alt": "Add alt",
+                                    "anchor": "author-photo",
+                                    "blurDataUrl": "",
+                                    "href": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
+                                    "linkDestination": "media",
+                                    "sizeSlug": "full",
+                                    "url": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
+                                },
+                                inner_blocks: vec![],
+                            }],
+                        },
+                        GutenbergBlock {
+                            name: "core/column".to_string(),
+                            is_valid: true,
+                            client_id: Uuid::parse_str("fe8b2efc-e5da-407e-9293-f156847cc571").unwrap(),
+                            attributes: attributes! {},
+                            inner_blocks: vec![GutenbergBlock {
+                                name: "core/paragraph".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::parse_str("6d0e2979-9a57-492a-af6f-9f62381f1ede").unwrap(),
+                                attributes: attributes! {
+                                    "align": "left",
+                                    "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur",
+                                    "dropCap": false,
+                                    "placeholder": "Insert author's bio text..."
+                                },
+                                inner_blocks: vec![],
+                            }],
+                        },
+                        ],
+
+                        },
+                    ],
+                }]
+            }])
         },
         base_url.clone(),
         Arc::clone(&jwt_key),
@@ -3466,7 +3526,7 @@ pub async fn seed_course_without_submissions(
                 "direction": "row",
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
-                "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
+                "validityRegex": r"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$".to_string(),
                 "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
                 "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
@@ -3591,91 +3651,73 @@ pub async fn seed_course_without_submissions(
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
         false,
         serde_json::json!({
-            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-            "body": "very hard",
-            "open": "2021-12-17T07:15:33.479Z",
-            "part": 0,
-            "items": [{
-                "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
-                "body": null,
-                "type": "clickable-multiple-choice",
-                "multi": true,
-                "multipleChoiceMultipleOptionsGradingPolicy": "default",
-                "order": 0,
-                "title": "Pick all the programming languages from below",
-                "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-                "options": [
-                    {
-                        "id": "55a63887-a896-425c-91ae-2f85032c3d58",
-                        "body": "Java",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Java is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
-                        "body": "Erlang",
-                        "order": 2,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null,
-                    },
-                    {
-                        "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
-                        "body": "Jupiter",
-                        "order": 3,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
-                        "body": "Rust",
-                        "order": 4,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Rust is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
-                        "body": "AC",
-                        "order": 5,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "AC is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                ],
-                "allAnswersCorrect": false,
-                "sharedOptionFeedbackMessage": null,
-                "usesSharedOptionFeedbackMessage": false
-            }],
-            "title": "Pretty good exercise",
-            "tries": 1,
-            "points": 2,
-            "section": 0,
-            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
-            "deadline": "2021-12-17T07:15:33.479Z",
-            "createdAt": "2021-12-17T07:15:33.479Z",
-            "updatedAt": "2021-12-17T07:15:33.479Z",
-            "autoReject": false,
-            "autoConfirm": true,
-            "randomizeOptions": false,
-            "triesLimited": true,
-            "submitMessage": "This is an extra submit message from the teacher.",
-            "excludedFromScore": true,
-            "grantPointsPolicy": "grant_whenever_possible",
-            "awardPointsEvenIfWrong": false}),
+          "version": "2",
+          "title": "",
+          "body": "very hard",
+          "awardPointsEvenIfWrong": false,
+          "grantPointsPolicy": "grant_whenever_possible",
+          "quizItemDisplayDirection": "vertical",
+          "submitMessage": "This is an extra submit message from the teacher.",
+          "items": [
+            {
+              "type": "choose-n",
+              "id": "663c52bd-f649-4ba2-9c39-2387c386cbf1",
+              "failureMessage": "",
+              "options": [
+                {
+                  "order": 1,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "9339c966-cc48-4a6c-9512-b38c82240dd0",
+                  "messageAfterSubmissionWhenSelected": "Java is a programming language",
+                  "title": "Java"
+                },
+                {
+                  "order": 2,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "2e6de165-ea76-4f03-a216-2f15179c9e6e",
+                  "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
+                  "title": "Erlang"
+                },
+                {
+                  "order": 3,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "2d452914-8cf7-426c-b130-51d556a33566",
+                  "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
+                  "title": "Jupiter"
+                },
+                {
+                  "order": 4,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "d503894c-3eaf-4ebe-a7d5-95f04b641479",
+                  "messageAfterSubmissionWhenSelected": "Rust is a programming language",
+                  "title": "Rust"
+                },
+                {
+                  "order": 5,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "a5a6cef2-df55-4926-9ecc-95da3e049ea7",
+                  "messageAfterSubmissionWhenSelected": "AC is not a programming language",
+                  "title": "AC"
+                }
+              ],
+              "order": 0,
+              "successMessage": "",
+              "title": "Pick all the programming languages from below",
+              "body": "",
+              "n": 2
+            }
+          ]
+        }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
         CommonExerciseData {
             exercise_id: Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
@@ -3757,7 +3799,7 @@ pub async fn seed_course_without_submissions(
           "part": 0,
           "points": 0,
           "section": 0,
-          "submitMessage": "",
+          "submitMessage": "This is an extra submit message from the teacher.",
           "title": "",
           "tries": 1,
           "triesLimited": true,

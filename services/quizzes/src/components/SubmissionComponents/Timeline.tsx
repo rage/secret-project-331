@@ -5,6 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerTimeline } from "../../../types/quizTypes/answer"
+import { ModelSolutionQuizItemTimeline } from "../../../types/quizTypes/modelSolutionSpec"
+import { PublicSpecQuizItemTimeline } from "../../../types/quizTypes/publicSpec"
 import { baseTheme, headingFont } from "../../shared-module/styles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -126,32 +129,37 @@ export interface Time {
 }
 
 const Timeline: React.FunctionComponent<
-  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+  React.PropsWithChildren<
+    QuizItemSubmissionComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
+  >
 > = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
   const { t } = useTranslation()
+
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemTimeline
+
   return (
     <TimelineWrapper>
       {public_quiz_item.timelineItems
         .sort((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = user_quiz_item_answer?.timelineChoices?.find(
-            (tc) => tc.timelineItemId === timelineItem.id,
+            (tc) => tc.timelineItemId === timelineItem.itemId,
           )
 
-          const selectedTimelineEventDetails = public_quiz_item.timelineItemEvents.find(
-            (te) => te.id === selectedTimelineItem?.chosenEventId,
+          const selectedTimelineEventDetails = public_quiz_item.events.find(
+            (te) => te.eventId === selectedTimelineItem?.chosenEventId,
           )
 
           const timelinemItemFeedback = quiz_item_feedback?.timeline_item_feedbacks?.find(
-            (tif) => tif.timeline_item_id === timelineItem.id,
+            (tif) => tif.timeline_item_id === timelineItem.itemId,
           )
 
           const whatWasChosenWasCorrect = timelinemItemFeedback?.what_was_chosen_was_correct
-          const modelSolutionCorrectEventId = quiz_item_model_solution?.timelineItems?.find(
-            (ti) => ti.id === timelineItem.id,
+          const modelSolutionCorrectEventId = modelSolution?.timelineItems?.find(
+            (ti) => ti.id === timelineItem.itemId,
           )?.correctEventId
-          const modelSolutionCorrectEventName = public_quiz_item.timelineItemEvents.find(
-            (te) => te.id === modelSolutionCorrectEventId,
+          const modelSolutionCorrectEventName = public_quiz_item.events.find(
+            (te) => te.eventId === modelSolutionCorrectEventId,
           )?.name
 
           const align = n % 2 === 0 ? right : left
@@ -173,7 +181,7 @@ const Timeline: React.FunctionComponent<
                   z-index: 1;
                 }
               `}`}
-              key={timelineItem.id}
+              key={timelineItem.itemId}
             >
               <div className="date">{timelineItem.year}</div>
               <div className="content">
@@ -191,7 +199,7 @@ const Timeline: React.FunctionComponent<
                         display: flex;
                         align-items: center;
                       `}
-                      id={timelineItem.id}
+                      id={timelineItem.itemId}
                     >
                       <p
                         className={css`

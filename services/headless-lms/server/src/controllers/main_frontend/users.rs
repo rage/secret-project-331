@@ -1,7 +1,8 @@
 use crate::prelude::*;
 use models::{
     course_instance_enrollments::CourseInstanceEnrollmentsInfo,
-    user_research_consents::UserResearchConsent, users::User,
+    research_forms::ResearchFormQuestionAnswer, user_research_consents::UserResearchConsent,
+    users::User,
 };
 
 /**
@@ -97,8 +98,31 @@ pub async fn get_research_consent_by_user_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_research_form_answers_with_user_id(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestionAnswer>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res =
+        models::research_forms::get_all_research_form_answers_with_user_id(&mut conn, user.id)
+            .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
+        "/user-research-form-question-answers",
+        web::get().to(get_all_research_form_answers_with_user_id),
+    )
+    .route(
         "/get-user-research-consent",
         web::get().to(get_research_consent_by_user_id),
     )

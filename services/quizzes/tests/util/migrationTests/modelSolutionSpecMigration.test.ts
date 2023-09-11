@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable i18next/no-literal-string */
 import migrateModelSolutionSpecQuiz from "../../../src/util/migration/modelSolutionSpecQuiz"
 import {
@@ -31,7 +32,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates multiple-choice exercises", () => {
     const multipleChoiceItem = generateMultipleChoiceModelSolutionSpecQuiz(10, 5, 0)
     const oldModelSolutionQuiz = packToModelSolutionSpecQuiz([multipleChoiceItem])
-    const migratedModelSolutionQuiz = migrateModelSolutionSpecQuiz(oldModelSolutionQuiz)
+    const migratedModelSolutionQuiz = migrateModelSolutionSpecQuiz(oldModelSolutionQuiz)!
     const migratedMultipleChoiceItem = migratedModelSolutionQuiz.items[0]
 
     expectModelSolutionSpecMetadataToMatch(oldModelSolutionQuiz, migratedModelSolutionQuiz)
@@ -41,7 +42,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates checkbox exercise", () => {
     const checkboxQuizItem: ModelSolutionQuizItem = generateCheckboxForOlderModelSolutionSpecQuiz(1)
     const oldQuiz = packToModelSolutionSpecQuiz([checkboxQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemCheckbox = newQuiz
@@ -55,7 +56,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates essay exercise", () => {
     const essayQuizItem: ModelSolutionQuizItem = generateEssayForOlderModelSolutionSpecQuiz(1)
     const oldQuiz = packToModelSolutionSpecQuiz([essayQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemEssay = newQuiz.items[0] as ModelSolutionQuizItemEssay
@@ -69,7 +70,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates matrix exercise", () => {
     const matrixQuizItem: ModelSolutionQuizItem = generateMatrixForOlderModelSolutionSpecQuiz(1)
     const oldQuiz = packToModelSolutionSpecQuiz([matrixQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemMatrix = newQuiz.items[0] as ModelSolutionQuizItemMatrix
@@ -82,7 +83,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates 'open' exercise", () => {
     const openQuizItem: ModelSolutionQuizItem = generateClosedEndedForOlderModelSolutionSpecQuiz(1)
     const oldQuiz = packToModelSolutionSpecQuiz([openQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemClosedEndedQuestion = newQuiz
@@ -96,7 +97,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates scale exercise", () => {
     const scaleQuizItem: ModelSolutionQuizItem = generateScaleForOlderModelSolutionSpecQuiz(1)
     const oldQuiz = packToModelSolutionSpecQuiz([scaleQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemScale = newQuiz.items[0] as ModelSolutionQuizItemScale
@@ -109,7 +110,7 @@ describe("model solution spec migration of quizzes", () => {
   test("migrates timeline exercise", () => {
     const timelineQuizItem: ModelSolutionQuizItem = generateTimelineForOlderModelSolutionSpecQuiz(1)
     const oldQuiz = packToModelSolutionSpecQuiz([timelineQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemTimeline = newQuiz
@@ -132,7 +133,7 @@ describe("model solution spec migration of quizzes", () => {
       quizOrder,
     )
     const oldQuiz = packToModelSolutionSpecQuiz([chooseNQuizItem])
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
 
     const oldQuizItem: ModelSolutionQuizItem = oldQuiz.items[0]
     const newQuizItem: ModelSolutionQuizItemChooseN = newQuiz
@@ -172,7 +173,7 @@ describe("model solution spec migration of quizzes", () => {
       chooseNQuizItem,
     ])
 
-    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)
+    const newQuiz = migrateModelSolutionSpecQuiz(oldQuiz)!
     expectModelSolutionSpecMetadataToMatch(oldQuiz, newQuiz)
     expect(newQuiz.items.length).toEqual(8)
     expect(newQuiz.items.map((item) => item.type)).toMatchObject([

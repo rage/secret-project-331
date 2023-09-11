@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,6 +11,7 @@ import {
 } from "../../../../../../services/backend/courses"
 import { Course } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
@@ -130,15 +130,20 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
         {t("edit")}
       </Button>
-      <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+      <Dialog open={showForm} noPadding={true}>
         <div
           className={css`
             margin: 1rem;
+            display: flex;
+            flex-direction: column;
           `}
         >
-          <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-            {t("button-text-close")}
-          </Button>
+          <div>
+            <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+              {t("button-text-close")}
+            </Button>
+          </div>
+
           <UpdateCourseForm
             courseId={course.id}
             courseName={course.name}
@@ -267,6 +272,16 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </li>
           </ul>
         </>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <a
+          href={`/cms/courses/${course.id}/research-form-edit`}
+          aria-label={t("button-text-create-or-edit-research-form")}
+        >
+          <Button variant="secondary" size="medium">
+            {t("button-text-create-or-edit-research-form")}
+          </Button>
+        </a>
       </OnlyRenderIfPermissions>
     </>
   )

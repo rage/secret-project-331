@@ -3,7 +3,11 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PublicTimelineItem, TimelineChoice } from "../../../types/types"
+import { TimelineChoice, UserItemAnswerTimeline } from "../../../types/quizTypes/answer"
+import {
+  PublicSpecQuizItemTimeline,
+  PublicSpecQuizItemTimelineItem,
+} from "../../../types/quizTypes/publicSpec"
 import SelectMenu from "../../shared-module/components/SelectMenu"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -155,11 +159,9 @@ export interface Time {
   text: string
 }
 
-const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItemAnswerState,
-  quizItem,
-  setQuizItemAnswerState,
-}) => {
+const Timeline: React.FunctionComponent<
+  QuizItemComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
+> = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   return (
     <TimelineWrapper>
@@ -167,11 +169,11 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
         .sort((a, b) => Number(a.year) - Number(b.year))
         .map((timelineItem, n) => {
           const selectedTimelineItem = quizItemAnswerState?.timelineChoices?.find(
-            (tc) => tc.timelineItemId === timelineItem.id,
+            (tc) => tc.timelineItemId === timelineItem.itemId,
           )
 
-          const selectedTimelineEventDetails = quizItem.timelineItemEvents.find(
-            (te) => te.id === selectedTimelineItem?.chosenEventId,
+          const selectedTimelineEventDetails = quizItem.events.find(
+            (te) => te.eventId === selectedTimelineItem?.chosenEventId,
           )
 
           const align = n % 2 === 0 ? right : left
@@ -193,31 +195,48 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
                   z-index: 1;
                 }
               `}`}
-              key={timelineItem.id}
+              key={timelineItem.itemId}
             >
-              <label htmlFor={`select-${timelineItem.id}`} className="date">
+              <label htmlFor={`select-${timelineItem.itemId}`} className="date">
                 {timelineItem.year}
               </label>
               <div className="content">
                 {!selectedTimelineItem && (
                   <SelectMenu
-                    id={`select-${timelineItem.id}`}
-                    options={quizItem.timelineItemEvents.map((tie) => {
-                      return { label: tie.name, value: tie.id }
+                    id={`select-${timelineItem.itemId}`}
+                    options={quizItem.events.map((tie) => {
+                      return { label: tie.name, value: tie.eventId }
                     })}
                     onChange={(event) => {
                       if (!quizItemAnswerState) {
+                        const choices = [
+                          {
+                            timelineItemId: timelineItem.itemId,
+                            chosenEventId: event.target.value,
+                          },
+                        ]
+                        setQuizItemAnswerState({
+                          quizItemId: quizItem.id,
+                          type: "timeline",
+                          timelineChoices: [
+                            {
+                              timelineItemId: timelineItem.itemId,
+                              chosenEventId: event.target.value,
+                            },
+                          ],
+                          valid: validate(choices, quizItem.timelineItems),
+                        })
                         return
                       }
                       const timelineChoicesWithoutThisOne =
                         quizItemAnswerState.timelineChoices?.filter(
-                          (tc) => tc.timelineItemId !== timelineItem.id,
+                          (tc) => tc.timelineItemId !== timelineItem.itemId,
                         ) || []
                       const newTimelineChoices: TimelineChoice[] = [
                         ...timelineChoicesWithoutThisOne,
-                        { timelineItemId: timelineItem.id, chosenEventId: event.target.value },
+                        { timelineItemId: timelineItem.itemId, chosenEventId: event.target.value },
                       ]
-                      console.log(JSON.stringify(newTimelineChoices, undefined, 2))
+
                       setQuizItemAnswerState({
                         ...quizItemAnswerState,
                         timelineChoices: newTimelineChoices,
@@ -227,7 +246,7 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
                   />
                 )}
                 {selectedTimelineItem && (
-                  <StyledTime id={timelineItem.id}>
+                  <StyledTime id={timelineItem.itemId}>
                     <p
                       className={css`
                         padding: 8px 2px 8px 8px;
@@ -244,7 +263,7 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
                         }
                         const timelineChoicesWithoutThisOne =
                           quizItemAnswerState.timelineChoices?.filter(
-                            (tc) => tc.timelineItemId !== timelineItem.id,
+                            (tc) => tc.timelineItemId !== timelineItem.itemId,
                           ) || []
                         setQuizItemAnswerState({
                           ...quizItemAnswerState,
@@ -263,9 +282,12 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
   )
 }
 
-function validate(timelineChoices: TimelineChoice[], timelineItems: PublicTimelineItem[]): boolean {
+function validate(
+  timelineChoices: TimelineChoice[],
+  timelineItems: PublicSpecQuizItemTimelineItem[],
+): boolean {
   const allAnswered = timelineItems.every((ti) => {
-    return timelineChoices.some((tc) => tc.timelineItemId === ti.id)
+    return timelineChoices.some((tc) => tc.timelineItemId === ti.itemId)
   })
   const noDuplicateAnswers =
     timelineChoices.length === new Set(timelineChoices.map((ch) => ch.chosenEventId)).size

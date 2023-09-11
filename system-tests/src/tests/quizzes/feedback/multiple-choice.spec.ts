@@ -20,7 +20,7 @@ test("test quizzes multiple-choice feedback", async ({ page, headless }, testInf
 
   await selectCourseInstanceIfPrompted(page)
 
-  await await page.locator("text=The Basics").click()
+  await page.locator("text=The Basics").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )

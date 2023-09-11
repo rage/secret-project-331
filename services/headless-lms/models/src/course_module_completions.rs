@@ -330,6 +330,25 @@ LIMIT 1
     Ok(res)
 }
 
+/// Get the number of students that have completed the course
+pub async fn get_count_of_distinct_completors_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(DISTINCT user_id) as count
+FROM course_module_completions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0))
+}
+
 /// Gets automatically granted course module completion for the given user on the specified course
 /// instance. This entry is quaranteed to be unique in database by the index
 /// `course_module_automatic_completion_uniqueness`.

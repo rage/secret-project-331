@@ -115,7 +115,6 @@ const ExerciseBlock: React.FC<
       notify: false,
     },
     {
-      retry: 3,
       onSuccess: async (data) => {
         if (data.exercise_status) {
           setPoints(data.exercise_status.score_given)

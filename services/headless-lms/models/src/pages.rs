@@ -94,7 +94,7 @@ pub struct PageWithExercises {
     pub exercises: Vec<Exercise>,
 }
 
-// Represents the subset of page fields that are required to create a new page.
+/// Represents the subset of page fields that are required to create a new page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewPage {
@@ -112,6 +112,14 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
+}
+
+/// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageDetailsUpdate {
+    pub title: String,
+    pub url_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -3184,6 +3192,45 @@ pub async fn is_chapter_front_page(
             is_chapter_front_page: id == page_id,
         },
     ))
+}
+
+pub async fn update_page_details(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_details_update: &PageDetailsUpdate,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let page_before_update = get_page(&mut tx, page_id).await?;
+    sqlx::query!(
+        "
+UPDATE pages
+SET title = $2,
+  url_path = $3
+WHERE id = $1
+",
+        page_id,
+        page_details_update.title,
+        page_details_update.url_path,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    if let Some(course_id) = page_before_update.course_id {
+        if page_before_update.url_path != page_details_update.url_path {
+            // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
+            crate::url_redirections::upsert(
+                &mut tx,
+                PKeyPolicy::Generate,
+                page_id,
+                &page_before_update.url_path,
+                course_id,
+            )
+            .await?;
+        }
+    }
+
+    tx.commit().await?;
+    Ok(())
 }
 
 #[cfg(test)]

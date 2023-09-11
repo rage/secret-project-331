@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(DISTINCT user_id) as count\nFROM course_module_completions\nWHERE course_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [null]
+  },
+  "hash": "ccbedf277d43e488d084aca7c96f0a403bccc6e19493b95b9ae1449a7c0cec68"
+}

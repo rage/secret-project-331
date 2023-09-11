@@ -62,6 +62,10 @@ const FrontPage: React.FC<React.PropsWithChildren<Props>> = ({
           // Don't allow deleting front pages because the user cannot add them back at the moment
           onDeletePage={null}
           moving={MOVING_NOT_ALLOWED}
+          reload={() => {
+            // NOP
+          }}
+          chapter={chapter}
         />
       </TableWrapper>
     </div>

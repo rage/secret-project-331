@@ -1,7 +1,12 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
 use crate::prelude::*;
-use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
+
+use models::{
+    pages::{Page, PageVisibility},
+    peer_review_configs::{self, CmsPeerReviewConfiguration},
+};
+
 use models::research_forms::{
     NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
 };
@@ -108,6 +113,29 @@ async fn put_course_default_peer_review_configuration(
 }
 
 /**
+GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    let res = models::pages::get_all_by_course_id_and_visibility(
+        &mut conn,
+        *course_id,
+        PageVisibility::Any,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
 */
 #[generated_doc]
@@ -189,6 +217,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/default-peer-review",
             web::put().to(put_course_default_peer_review_configuration),
         )
+        .route("/{course_id}/pages", web::get().to(get_all_pages))
         .route(
             "/{courseId}/research-consent-form-question",
             web::put().to(upsert_course_research_form_question),

@@ -37,6 +37,8 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
         testCourseModuleId,
         testCourseInstanceId,
       ),
+    // This is expensive, so it doesn't make sense to retry
+    retry: false,
   })
   return (
     <>

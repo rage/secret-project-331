@@ -190,5 +190,21 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let change_path = seed_sample_course(
+        Uuid::parse_str("c783777b-426e-4cfd-9a5f-4a36b2da503a")?,
+        "Change path",
+        "change-path",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(change_path),
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

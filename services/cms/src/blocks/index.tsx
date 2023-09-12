@@ -37,7 +37,7 @@ import UnsupportedBlock from "./UnsupportedBlock"
 export const blockTypeMapForPages = [
   ["moocfi/aside", Aside],
   ["moocfi/chapter-progress", ChapterProgress],
-  ["moocfi/congratulations", HeroSection],
+  ["moocfi/congratulations", Congratulations],
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/exercise-slide", ExerciseSlide],

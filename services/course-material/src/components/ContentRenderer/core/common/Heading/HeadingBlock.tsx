@@ -67,4 +67,8 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
   }
 }
 
-export default withErrorBoundary(HeadingBlock)
+const exported = withErrorBoundary(HeadingBlock)
+// @ts-expect-error: Custom property
+exported.dontUseDefaultBlockMargin = true
+
+export default exported

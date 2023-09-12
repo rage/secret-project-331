@@ -33,6 +33,7 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
         alignCenter={props.data.attributes.alignCenter ?? DEFAULT}
         backgroundColor={props.data.attributes.backgroundColor}
         backgroundRepeatX={props.data.attributes.backgroundRepeatX}
+        alignBottom={props.data.attributes.alignBottom}
       />
     </BreakFromCentered>
   )

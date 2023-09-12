@@ -1,11 +1,14 @@
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
+import { PanelBody } from "@wordpress/components"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../shared-module/components/Centering/Centered"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
@@ -16,6 +19,7 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
   attributes,
   setAttributes,
 }) => {
+  const { t } = useTranslation()
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -25,11 +29,24 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
           // eslint-disable-next-line i18next/no-literal-string
           defaultBackgroundColor="#faf5f3"
         />
+
+        <div
+          className={css`
+            margin: 1rem;
+            margin-bottom: 1.5rem;
+          `}
+        >
+          <CheckBox
+            checked={attributes.noPadding}
+            onChange={(event) => setAttributes({ noPadding: event.target.checked })}
+            label={t("label-no-padding")}
+          />
+        </div>
       </InspectorControls>
       <BreakFromCentered {...breakFromCenteredProps}>
         <div
           className={css`
-            padding: 3rem;
+            ${!attributes.noPadding && `padding: 3rem;`}
             background-color: ${attributes.backgroundColor};
           `}
         >

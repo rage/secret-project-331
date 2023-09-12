@@ -134,7 +134,6 @@ const ParagraphBlock: React.FC<
   return (
     <P
       className={css`
-        ${dropCap ? hasDropCap : null}
         margin: 1.25rem 0;
         min-width: 1px;
         color: ${colorMapper(textColor)};
@@ -148,6 +147,8 @@ const ParagraphBlock: React.FC<
         ${respondToOrLarger.md} {
           font-size: ${fontSizeMapper(fontSize)};
         }
+
+        ${dropCap ? hasDropCap : null}
       `}
       dangerouslySetInnerHTML={{
         __html: parsedText,
@@ -157,4 +158,8 @@ const ParagraphBlock: React.FC<
   )
 }
 
-export default withErrorBoundary(ParagraphBlock)
+const exported = withErrorBoundary(ParagraphBlock)
+// @ts-expect-error: Custom property
+exported.dontUseDefaultBlockMargin = true
+
+export default exported

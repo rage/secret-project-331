@@ -21,6 +21,7 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
   WrappedComponent: React.ComponentType<
     React.PropsWithChildren<React.PropsWithChildren<T & ProvidedExtraProps<P>>>
   >,
+  allowNoQueryParameters = false,
 ) {
   // Name to display in React Dev tools
   // eslint-disable-next-line i18next/no-literal-string
@@ -31,12 +32,12 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
     const router = useRouter()
     // We're a bit defensive with the null checks because the type definitions
     // around query seem to be unreliable.
-    if (!router || !router.isReady || !router.query) {
+    if (!router || !router.isReady || (!allowNoQueryParameters && !router.query)) {
       return null
     }
 
     // No query parameters, don't render anything
-    if (Object.keys(router.query).length === 0) {
+    if (!allowNoQueryParameters && Object.keys(router.query).length === 0) {
       return null
     }
 

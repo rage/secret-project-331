@@ -51,6 +51,7 @@ pub struct Course {
 pub struct CourseBreadcrumbInfo {
     pub course_id: Uuid,
     pub course_name: String,
+    pub course_slug: String,
     pub organization_slug: String,
     pub organization_name: String,
 }
@@ -194,7 +195,7 @@ AND deleted_at IS NULL
 pub async fn get_active_courses_for_organization(
     conn: &mut PgConnection,
     organization_id: Uuid,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Course>> {
     let course_instances = sqlx::query_as!(
         Course,
@@ -294,6 +295,7 @@ pub async fn get_course_breadcrumb_info(
         r#"
 SELECT courses.id as course_id,
   courses.name as course_name,
+  courses.slug as course_slug,
   organizations.slug as organization_slug,
   organizations.name as organization_name
 FROM courses

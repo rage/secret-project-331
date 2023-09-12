@@ -2,13 +2,17 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { UserItemAnswerEssay } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemEssay } from "../../../types/quizTypes/publicSpec"
 import { baseTheme } from "../../shared-module/styles"
 import { wordCount } from "../../shared-module/utils/strings"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
-const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_item_answer }) => {
+const EssayFeedback: React.FC<
+  QuizItemSubmissionComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
+> = ({ user_quiz_item_answer }) => {
   const { t } = useTranslation()
   const text = user_quiz_item_answer.textData
   return (
@@ -28,7 +32,9 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_i
         <pre
           className={css`
             display: flex;
-            font-family: josefin sans, sans-serif;
+            font-family:
+              josefin sans,
+              sans-serif;
             white-space: pre-wrap;
           `}
         >
@@ -39,7 +45,9 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_i
         className={css`
           display: flex;
           white-space: pre-wrap;
-          font-family: josefin sans, sans-serif;
+          font-family:
+            josefin sans,
+            sans-serif;
           margin: 1rem 0;
         `}
       >

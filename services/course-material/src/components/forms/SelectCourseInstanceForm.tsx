@@ -51,34 +51,32 @@ const SelectCourseInstanceForm: React.FC<
   const [additionalQuestionAnswers, setAdditionalQuestionAnswers] = useState<
     NewCourseBackgroundQuestionAnswer[]
   >([])
-  const additionalQuestionsQuery = useQuery(
-    ["additional-questions", instance],
-    () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(instance)),
-    {
-      enabled: instance !== undefined,
-      onSuccess(data) {
-        // Populates initial answers for all questions
-        setAdditionalQuestionAnswers((prev) => {
-          const newState: NewCourseBackgroundQuestionAnswer[] = []
-          data.background_questions.forEach((question) => {
-            const prevAnswer = prev.find((a) => a.course_background_question_id === question.id)
-            const savedAnswer = data.answers.find(
-              (a) => a.course_background_question_id === question.id,
-            )
-            let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
-            if (question.question_type === "Checkbox" && initialValue === null) {
-              initialValue = "f"
-            }
-            newState.push({
-              answer_value: initialValue,
-              course_background_question_id: question.id,
-            })
+  const additionalQuestionsQuery = useQuery({
+    queryKey: ["additional-questions", instance],
+    queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(instance)),
+    enabled: instance !== undefined,
+    onSuccess(data) {
+      // Populates initial answers for all questions
+      setAdditionalQuestionAnswers((prev) => {
+        const newState: NewCourseBackgroundQuestionAnswer[] = []
+        data.background_questions.forEach((question) => {
+          const prevAnswer = prev.find((a) => a.course_background_question_id === question.id)
+          const savedAnswer = data.answers.find(
+            (a) => a.course_background_question_id === question.id,
+          )
+          let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
+          if (question.question_type === "Checkbox" && initialValue === null) {
+            initialValue = "f"
+          }
+          newState.push({
+            answer_value: initialValue,
+            course_background_question_id: question.id,
           })
-          return newState
         })
-      },
+        return newState
+      })
     },
-  )
+  })
 
   useEffect(() => {
     if (languageChanged) {

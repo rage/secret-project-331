@@ -1,8 +1,15 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
-
 use crate::prelude::*;
+
+use models::{
+    pages::{Page, PageVisibility},
+    peer_review_configs::{self, CmsPeerReviewConfiguration},
+};
+
+use models::research_forms::{
+    NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
+};
 
 /**
 POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
@@ -55,7 +62,13 @@ async fn get_course_default_peer_review_configuration(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let peer_review_config =
         models::peer_review_configs::get_course_default_cms_peer_review(&mut conn, *course_id)
@@ -83,7 +96,13 @@ async fn put_course_default_peer_review_configuration(
     payload: web::Json<CmsPeerReviewConfiguration>,
 ) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let cms_peer_review_configuration =
         peer_review_configs::upsert_course_default_cms_peer_review_and_questions(
@@ -91,6 +110,94 @@ async fn put_course_default_peer_review_configuration(
         )
         .await?;
     token.authorized_ok(web::Json(cms_peer_review_configuration))
+}
+
+/**
+GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    let res = models::pages::get_all_by_course_id_and_visibility(
+        &mut conn,
+        *course_id,
+        PageVisibility::Any,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
+*/
+#[generated_doc]
+#[instrument(skip(pool, payload))]
+async fn upsert_course_research_form(
+    payload: web::Json<NewResearchForm>,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ResearchForm>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    let new_research_form = payload;
+    let res = models::research_forms::upsert_research_form(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_research_form,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_research_form_with_course_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<ResearchForm>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    let res =
+        models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts questions for the courses research form from Gutenberg research form edit.
+*/
+
+#[generated_doc]
+#[instrument(skip(pool, payload))]
+async fn upsert_course_research_form_question(
+    payload: web::Json<NewResearchFormQuestion>,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ResearchFormQuestion>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    let question = payload;
+    let res = models::research_forms::upsert_research_form_questions(&mut conn, &question).await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -109,5 +216,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/default-peer-review",
             web::put().to(put_course_default_peer_review_configuration),
+        )
+        .route("/{course_id}/pages", web::get().to(get_all_pages))
+        .route(
+            "/{courseId}/research-consent-form-question",
+            web::put().to(upsert_course_research_form_question),
+        )
+        .route(
+            "/{course_id}/research-consent-form",
+            web::get().to(get_research_form_with_course_id),
+        )
+        .route(
+            "/{course_id}/research-consent-form",
+            web::put().to(upsert_course_research_form),
         );
 }

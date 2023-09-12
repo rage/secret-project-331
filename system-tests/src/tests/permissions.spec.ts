@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { showNextToastsInfinitely, showToastsNormally } from "../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -101,6 +102,7 @@ test("test", async ({ page, headless }, testInfo) => {
     clearNotifications: false,
   })
 
+  await showNextToastsInfinitely(page)
   await page.click('[aria-label="Remove role"]')
 
   await expectScreenshotsToMatchSnapshots({
@@ -110,4 +112,5 @@ test("test", async ({ page, headless }, testInfo) => {
     snapshotName: "removed-permission",
     waitForTheseToBeVisibleAndStable: [page.locator('text="Success"')],
   })
+  await showToastsNormally(page)
 })

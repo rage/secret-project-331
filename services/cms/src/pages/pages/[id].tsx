@@ -30,7 +30,9 @@ const Pages = ({ query }: PagesProps) => {
   const { id } = query
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
-  const getPage = useQuery([`page-${id}`], () => fetchPageWithId(id), {
+  const getPage = useQuery({
+    queryKey: [`page-${id}`],
+    queryFn: () => fetchPageWithId(id),
     select: (data) => {
       const page: Page = {
         ...data.page,
@@ -65,7 +67,6 @@ const Pages = ({ query }: PagesProps) => {
         // eslint-disable-next-line i18next/no-literal-string
         queryClient.setQueryData([`page-${id}`], newData)
       },
-      retry: 3,
     },
   )
   return (

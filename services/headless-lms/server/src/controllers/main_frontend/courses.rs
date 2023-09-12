@@ -52,7 +52,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
 }
@@ -68,7 +68,8 @@ async fn get_course_breadcrumb_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseBreadcrumbInfo>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let user_id = Some(user.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
 }
@@ -90,12 +91,13 @@ Content-Type: application/json
 ```
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn post_new_course(
     request_id: RequestId,
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
@@ -121,7 +123,11 @@ async fn post_new_course(
         PKeyPolicy::Generate,
         new_course,
         user.id,
-        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            Arc::clone(&jwt_key),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -749,7 +755,9 @@ pub async fn get_course_users_counts_by_exercise(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.#
+POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.
+
+Note that the page objects posted here might have the content omitted because it is not needed here and the content makes the request body to be very large.
 
 Creates redirects if url_path changes.
 */
@@ -878,7 +886,13 @@ async fn get_course_default_peer_review(
     user: AuthUser,
 ) -> ControllerResult<web::Json<(PeerReviewConfig, Vec<PeerReviewQuestion>)>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let peer_review =
         models::peer_review_configs::get_default_for_course_by_course_id(&mut conn, *course_id)
@@ -1143,6 +1157,106 @@ pub async fn get_page_visit_datum_summary_by_countries(
 }
 
 /**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-themselves` - Allows a teacher to reset the course progress for themselves. Cannot be used to reset the course for others.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+#[generated_doc]
+pub async fn teacher_reset_course_progress_for_themselves(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let mut tx = conn.begin().await?;
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+    for course_instance in course_instances {
+        models::course_instances::reset_progress_on_course_instance_for_user(
+            &mut tx,
+            user.id,
+            course_instance.id,
+        )
+        .await?;
+    }
+
+    tx.commit().await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-everyone` - Can be used by teachers to reset the course progress for all students. Only works when the course is a draft and not published to students. Cannot be used to delete a course that some students have taken.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+#[generated_doc]
+pub async fn teacher_reset_course_progress_for_everyone(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+    if !course.is_draft {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Can only reset progress for a draft course.".to_string(),
+            None,
+        ));
+    }
+    // To prevent teachers from deleting courses that real students have been taking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We'll counteract this by checking the number of course module completions to the course.
+    let n_course_module_completions =
+        models::course_module_completions::get_count_of_distinct_completors_by_course_id(
+            &mut conn, course_id,
+        )
+        .await?;
+    let n_completions_registered_to_study_registry = models::course_module_completion_registered_to_study_registries::get_count_of_distinct_users_with_registrations_by_course_id(
+        &mut conn, course_id,
+    ).await?;
+    if n_course_module_completions > 200 {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Too many students have completed the course.".to_string(),
+            None,
+        ));
+    }
+    if n_completions_registered_to_study_registry > 2 {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Too many students have registered their completion to a study registry".to_string(),
+            None,
+        ));
+    }
+
+    let mut tx = conn.begin().await?;
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+
+    // Looping though the data since this is only for draft courses and the amount of data is not expected to be large.
+    for course_instance in course_instances {
+        let users_in_course_instance =
+            models::users::get_users_by_course_instance_enrollment(&mut tx, course_instance.id)
+                .await?;
+        for user_in_course_instance in users_in_course_instance {
+            models::course_instances::reset_progress_on_course_instance_for_user(
+                &mut tx,
+                user_in_course_instance.id,
+                course_instance.id,
+            )
+            .await?;
+        }
+    }
+
+    tx.commit().await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1282,5 +1396,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/page-visit-datum-summary-by-countries",
             web::get().to(get_page_visit_datum_summary_by_countries),
+        )
+        .route(
+            "/{course_id}/teacher-reset-course-progress-for-themselves",
+            web::delete().to(teacher_reset_course_progress_for_themselves),
+        )
+        .route(
+            "/{course_id}/teacher-reset-course-progress-for-everyone",
+            web::delete().to(teacher_reset_course_progress_for_everyone),
         );
 }

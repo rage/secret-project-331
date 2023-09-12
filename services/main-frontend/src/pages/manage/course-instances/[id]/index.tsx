@@ -33,9 +33,10 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
   const courseInstanceId = query.id
   const router = useRouter()
 
-  const getCourseInstances = useQuery([`course-instance-${courseInstanceId}`], () =>
-    fetchCourseInstance(courseInstanceId),
-  )
+  const getCourseInstances = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}`],
+    queryFn: () => fetchCourseInstance(courseInstanceId),
+  })
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {

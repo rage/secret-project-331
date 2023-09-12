@@ -24,17 +24,17 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
 
-  const getOrgExams = useQuery(
-    ["organization-exams"],
-    () => {
+  const getOrgExams = useQuery({
+    queryKey: ["organization-exams", organizationId],
+    queryFn: () => {
       if (organizationId) {
         return fetchOrganizationExams(organizationId)
       } else {
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
-    { enabled: !!organizationId },
-  )
+    enabled: !!organizationId,
+  })
 
   const loginStateContext = useContext(LoginStateContext)
 

@@ -15,6 +15,7 @@ import {
   NavItems,
 } from "../shared-module/components/Navigation/NavBar"
 import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
@@ -73,4 +74,4 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   )
 }
 
-export default Layout
+export default withNoSsr(Layout)

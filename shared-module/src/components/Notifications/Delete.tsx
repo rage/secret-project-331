@@ -75,7 +75,7 @@ const DeleteHeader = styled.div`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
-  color: ${baseTheme.colors.red[700]};
+  color: ${baseTheme.colors.green[600]};
   line-height: 18px;
 `
 
@@ -96,7 +96,7 @@ const DeleteNotification = (props: DeleteNotificationProps) => {
         <IconWrapper>
           <FontAwesomeIcon
             className={css`
-              color: ${baseTheme.colors.red[700]};
+              color: ${baseTheme.colors.green[600]};
             `}
             icon={faTimesCircle}
           />

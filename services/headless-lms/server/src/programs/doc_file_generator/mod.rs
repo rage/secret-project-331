@@ -136,9 +136,11 @@ use headless_lms_models::{
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
     proposed_block_edits::EditedBlockStillExistsData,
+    research_forms::{ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer},
     student_countries::StudentCountry,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_details::UserDetail,
+    user_research_consents::UserResearchConsent,
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -156,14 +158,16 @@ fn ex<T: Example>() -> T {
 
 #[macro_export]
 macro_rules! doc_path {
-    ($filename:expr, $extension:expr) => {
-        concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/generated-docs/",
-            $filename,
-            $extension,
-        )
-    };
+    ($filename:expr, $extension:expr) => {{
+        let windows_safe_filename = $filename.replace('<', "(").replace('>', ")");
+
+        let mut s = String::new();
+        s.push_str(env!("CARGO_MANIFEST_DIR"));
+        s.push_str("/generated-docs/");
+        s.push_str(windows_safe_filename.as_str());
+        s.push_str($extension);
+        s
+    }};
 }
 
 // Writes doc files. See the module documentation for more info.
@@ -231,7 +235,7 @@ macro_rules! doc {
             stringify!($t),
             ".json"
         );
-        $crate::programs::doc_file_generator::write_json(json_path, expr);
+        $crate::programs::doc_file_generator::write_json(&json_path, expr);
 
         #[cfg(feature = "ts_rs")]
         {
@@ -240,7 +244,7 @@ macro_rules! doc {
                 ".ts"
             );
 
-            $crate::programs::doc_file_generator::write_ts::<$t>(ts_path, stringify!($t));
+            $crate::programs::doc_file_generator::write_ts::<$t>(&ts_path, stringify!($t));
         }
     }};
     // shortcut for doc!(T, ...)
@@ -346,6 +350,12 @@ fn controllers() {
     doc!(CourseMaterialPeerReviewDataWithToken {
         course_material_peer_review_data,
         token: Some("eyJhbGciOiJIUzI1NiJ9.eyJleGVyY2lzZV9zbGlkZV9zdWJtaXNzaW9uX2lkIjoiMzgyNzA0YzMtOTc3Mi00M2NjLTgwMTktMTViMmFjM2QxODI0IiwicGVlcl9yZXZpZXdfY29uZmlnX2lkIjoiYjViZjM1YTctZDdhYS00NGJhLWExODYtYzMwMGFjMTU3MjdhIiwiZXhwaXJhdGlvbl90aW1lIjoiMjAyMy0wMy0yOFQxODo1ODozMC40MTA4NTM3MTdaIn0.jCEgFggGGMaqdzH3p9NMLkZPTG2q-oE7d64glblacfs".to_string())
+    });
+    doc!(HashMap<String, u32>, {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), 1);
+        map.insert("key2".to_string(), 2);
+        map
     });
 }
 
@@ -834,6 +844,7 @@ fn models() {
     doc!(CourseBreadcrumbInfo {
         course_id,
         course_name: "Introduction to everything".to_string(),
+        course_slug: "introduction-to-everything".to_string(),
         organization_slug: "uh-cs".to_string(),
         organization_name: "University of Helsinkin, Deparment of Computer Science".to_string()
     });
@@ -1510,6 +1521,22 @@ fn models() {
         map
     });
 
+    doc!(HashMap<String, u32>, {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), 1);
+        map.insert("key2".to_string(), 2);
+        map
+    });
+
+    doc!(UserResearchConsent {
+        id,
+        user_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        research_consent
+    });
+
     doc!(
         Vec,
         PageAudioFile {
@@ -1670,6 +1697,7 @@ fn models() {
         }
     );
     doc!(
+        T,
         Vec,
         StudentCountry {
             id,
@@ -1678,6 +1706,62 @@ fn models() {
             course_instance_id,
             country_code: "fi".to_string(),
             created_at,
+            deleted_at,
+        }
+    );
+
+    doc!(ResearchForm {
+        id,
+        course_id,
+        content: serde_json::json!([
+          {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
+            "attributes": {
+              "content": "Please answer this"
+            },
+            "innerBlocks": []
+          },
+          {
+            "name": "moocfi/research-consent-checkbox",
+            "isValid": true,
+            "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
+            "attributes": {
+                "content": "I agree to everything"
+            },
+            "innerBlocks": []
+          }
+        ]),
+        created_at,
+        updated_at,
+        deleted_at,
+    });
+
+    doc!(
+        T,
+        Vec,
+        ResearchFormQuestion {
+            id,
+            course_id,
+            research_consent_form_id,
+            question: "I agree to everything".to_string(),
+            created_at,
+            updated_at,
+            deleted_at,
+        }
+    );
+
+    doc!(
+        Vec,
+        ResearchFormQuestionAnswer {
+            id,
+            user_id,
+            course_id,
+            research_form_question_id,
+            research_consent: true,
+            created_at,
+            updated_at,
             deleted_at,
         }
     );

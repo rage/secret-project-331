@@ -25,7 +25,8 @@ use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
 
-const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update";
+// keep in sync with the shared-module constants
+const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 
 #[derive(Clone, Debug)]
@@ -232,14 +233,15 @@ pub struct SpecRequest<'a> {
 /// Fetches a public/model spec based on the private spec from the given url.
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
-pub fn make_spec_fetcher(request_id: Uuid, jwt_key: Arc<JwtKey>) -> impl SpecFetcher {
+pub fn make_spec_fetcher(
+    base_url: String,
+    request_id: Uuid,
+    jwt_key: Arc<JwtKey>,
+) -> impl SpecFetcher {
     move |url, exercise_service_slug, private_spec| {
         let client = reqwest::Client::new();
         let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
-        // TODO: use real url
-        let upload_url = Some(format!(
-            "http://project-331.local/api/v0/files/{exercise_service_slug}"
-        ));
+        let upload_url = Some(format!("{base_url}/api/v0/files/{exercise_service_slug}"));
         let req = client
             .post(url.clone())
             .header(
@@ -320,7 +322,7 @@ pub fn make_grading_request_sender(
         let client = reqwest::Client::new();
         // TODO: use real url
         let grading_update_url = format!(
-            "http://project-331.local/api/v0/exercise-services/grading/update-grading/{}",
+            "http://project-331.local/api/v0/exercise-services/grading/grading-update/{}",
             submission.id
         );
         let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
@@ -345,10 +347,15 @@ pub fn make_grading_request_sender(
                     ?response_body,
                     "Grading request returned an unsuccesful status code"
                 );
+                let source_error = ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("{:?}", response_body),
+                    None,
+                );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
                     "Grading failed".to_string(),
-                    None,
+                    Some(source_error.into()),
                 ));
             }
             let obj = res

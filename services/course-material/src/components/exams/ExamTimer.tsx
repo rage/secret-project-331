@@ -64,13 +64,11 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
 
   return (
     <div
-      className={cx(
-        css`
-          display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
-        `,
-      )}
+      className={cx(css`
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      `)}
     >
       {maxScore && (
         <InfoBoxLightGreenMedium>

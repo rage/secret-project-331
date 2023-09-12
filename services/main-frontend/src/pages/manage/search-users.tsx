@@ -27,27 +27,21 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [typedSearchQuery, setTypedSearchQuery] = useState(searchQueryParameter ?? "")
   const [searchQuery, setSearchQuery] = useState<string>(typedSearchQuery)
   const trimmedSearchQuery = searchQuery.trim()
-  const searchByEmailQuery = useQuery(
-    ["searchUsersByEmail", searchQuery],
-    () => searchForUserDetailsByEmail(assertNotNullOrUndefined(searchQuery)),
-    {
-      enabled: trimmedSearchQuery !== "",
-    },
-  )
-  const searchByOtherDetailsQuery = useQuery(
-    ["searchUsersByOtherDetails", searchQuery],
-    () => searchForUserDetailsByOtherDetails(assertNotNullOrUndefined(searchQuery)),
-    {
-      enabled: trimmedSearchQuery !== "",
-    },
-  )
-  const searchFuzzyMatchQuery = useQuery(
-    ["searchUsersFuzzyMatch", searchQuery],
-    () => searchForUserDetailsFuzzyMatch(assertNotNullOrUndefined(searchQuery)),
-    {
-      enabled: trimmedSearchQuery !== "",
-    },
-  )
+  const searchByEmailQuery = useQuery({
+    queryKey: ["searchUsersByEmail", searchQuery],
+    queryFn: () => searchForUserDetailsByEmail(assertNotNullOrUndefined(searchQuery)),
+    enabled: trimmedSearchQuery !== "",
+  })
+  const searchByOtherDetailsQuery = useQuery({
+    queryKey: ["searchUsersByOtherDetails", searchQuery],
+    queryFn: () => searchForUserDetailsByOtherDetails(assertNotNullOrUndefined(searchQuery)),
+    enabled: trimmedSearchQuery !== "",
+  })
+  const searchFuzzyMatchQuery = useQuery({
+    queryKey: ["searchUsersFuzzyMatch", searchQuery],
+    queryFn: () => searchForUserDetailsFuzzyMatch(assertNotNullOrUndefined(searchQuery)),
+    enabled: trimmedSearchQuery !== "",
+  })
   const onSearch = () => {
     const value = typedSearchQuery.trim()
     if (value === "") {

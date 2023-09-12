@@ -136,6 +136,9 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   NewRegrading,
+  NewResearchForm,
+  NewResearchFormQuestion,
+  NewResearchFormQuestionAnswer,
   NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
@@ -143,6 +146,7 @@ import {
   Page,
   PageAudioFile,
   PageChapterAndCourseInformation,
+  PageDetailsUpdate,
   PageHistory,
   PageInfo,
   PageNavigationInformation,
@@ -179,6 +183,9 @@ import {
   RegradingInfo,
   RegradingSubmissionInfo,
   RepositoryExercise,
+  ResearchForm,
+  ResearchFormQuestion,
+  ResearchFormQuestionAnswer,
   Resource,
   ReviewingStage,
   RoleDomain,
@@ -213,6 +220,7 @@ import {
   UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
+  UserResearchConsent,
   UserRole,
   UserWithModuleCompletions,
 } from "./bindings"
@@ -937,6 +945,7 @@ export function isCourseBreadcrumbInfo(obj: unknown): obj is CourseBreadcrumbInf
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["course_slug"] === "string" &&
     typeof typedObj["organization_slug"] === "string" &&
     typeof typedObj["organization_name"] === "string"
   )
@@ -2187,6 +2196,15 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
   )
 }
 
+export function isPageDetailsUpdate(obj: unknown): obj is PageDetailsUpdate {
+  const typedObj = obj as PageDetailsUpdate
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url_path"] === "string"
+  )
+}
+
 export function isCmsPeerReviewConfig(obj: unknown): obj is CmsPeerReviewConfig {
   const typedObj = obj as CmsPeerReviewConfig
   return (
@@ -2608,6 +2626,78 @@ export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {
   )
 }
 
+export function isNewResearchForm(obj: unknown): obj is NewResearchForm {
+  const typedObj = obj as NewResearchForm
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isNewResearchFormQuestion(obj: unknown): obj is NewResearchFormQuestion {
+  const typedObj = obj as NewResearchFormQuestion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["question_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["research_consent_form_id"] === "string" &&
+    typeof typedObj["question"] === "string"
+  )
+}
+
+export function isResearchFormQuestion(obj: unknown): obj is ResearchFormQuestion {
+  const typedObj = obj as ResearchFormQuestion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["research_consent_form_id"] === "string" &&
+    typeof typedObj["question"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
+export function isResearchForm(obj: unknown): obj is ResearchForm {
+  const typedObj = obj as ResearchForm
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
+export function isNewResearchFormQuestionAnswer(
+  obj: unknown,
+): obj is NewResearchFormQuestionAnswer {
+  const typedObj = obj as NewResearchFormQuestionAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["research_form_question_id"] === "string" &&
+    typeof typedObj["research_consent"] === "boolean"
+  )
+}
+
+export function isResearchFormQuestionAnswer(obj: unknown): obj is ResearchFormQuestionAnswer {
+  const typedObj = obj as ResearchFormQuestionAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["research_form_question_id"] === "string" &&
+    typeof typedObj["research_consent"] === "boolean" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
+  )
+}
+
 export function isRoleDomain(obj: unknown): obj is RoleDomain {
   const typedObj = obj as RoleDomain
   return (
@@ -2834,6 +2924,19 @@ export function isUserExerciseState(obj: unknown): obj is UserExerciseState {
     (isReviewingStage(typedObj["reviewing_stage"]) as boolean) &&
     (typedObj["selected_exercise_slide_id"] === null ||
       typeof typedObj["selected_exercise_slide_id"] === "string")
+  )
+}
+
+export function isUserResearchConsent(obj: unknown): obj is UserResearchConsent {
+  const typedObj = obj as UserResearchConsent
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["research_consent"] === "boolean" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 

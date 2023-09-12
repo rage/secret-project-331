@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM course_instances\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "starts_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "ends_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "description",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "support_email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "teacher_in_charge_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "teacher_in_charge_email",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray"]
+    },
+    "nullable": [false, false, false, true, false, true, true, true, true, true, false, false]
+  },
+  "hash": "dd8c271c3a0901cc8c2fdecfbae5b052cb4c4c3b82e27817ae5a059685fa088b"
+}

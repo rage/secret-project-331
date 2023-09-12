@@ -29,11 +29,11 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
   onChange,
 }) => {
   const { t } = useTranslation()
-  const getEditProposalList = useQuery(
-    [`edit-proposal-list-${courseId}-${pending}-${page}-${limit}`],
-    () => fetchEditProposals(courseId, pending, page, limit),
-    { select: (data) => data.filter((p) => p.pending === pending) },
-  )
+  const getEditProposalList = useQuery({
+    queryKey: [`edit-proposal-list-${courseId}-${pending}-${page}-${limit}`],
+    queryFn: () => fetchEditProposals(courseId, pending, page, limit),
+    select: (data) => data.filter((p) => p.pending === pending),
+  })
   console.log("All proposals: ", getEditProposalList)
 
   const proposalsForDeletedBlocks = getEditProposalList.data?.filter(

@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n        exercises.id,         (SELECT COUNT(us_state.id)::integer as count\n                FROM exercises AS exercises2\n                LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id\n                LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id\n                LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id\n                WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id\n                AND us_state.user_id = s_submission.user_id\n                AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n                AND us_state.deleted_at IS NULL\n                AND exercises2.course_id = $1\n                AND exercises.id = exercises2.id\n                GROUP BY exercises2.id),\n                exercises.order_number,\n                exercises.name,\n                exercises.page_id,\n                exercises.chapter_id\n            FROM exercises\n            WHERE exercises.course_id = $1\n            AND exercises.deleted_at IS NULL\n            GROUP BY exercises.id;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "page_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, null, false, false, false, true]
+  },
+  "hash": "3123a2e534bef1a86ba82fa20c6ea60e15beab091e459493618e21ab0cc573b4"
+}

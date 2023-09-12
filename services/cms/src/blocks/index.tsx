@@ -2,6 +2,8 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
+import Author from "./Author"
+import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
 import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -24,6 +26,7 @@ import LearningObjectives from "./LearningObjectives"
 import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
+import ResearchConsentCheckBox from "./ResearchConsentCheckbox"
 import TableBox from "./TableBox"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
@@ -53,6 +56,8 @@ export const blockTypeMapForPages = [
   ["moocfi/tablebox", TableBox],
   ["moocfi/iframe", Iframe],
   ["moocfi/map", Map],
+  ["moocfi/author", Author],
+  ["moocfi/author-inner-block", AuthorInnerBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -78,3 +83,10 @@ export const blockTypeMapForTopLevelPages = [
   ["moocfi/hero-section", HeroSection],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
+
+export const blockTypeMapForResearchConsentForm = [
+  ["moocfi/research-consent-checkbox", ResearchConsentCheckBox],
+] as Array<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [string, BlockConfiguration<Record<string, any>>]
+>

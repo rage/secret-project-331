@@ -4,6 +4,8 @@ import { faCheckCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 
+import { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
+import { PublicSpecQuizItemMatrix } from "../../../types/quizTypes/publicSpec"
 import { baseTheme } from "../../shared-module/styles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
@@ -36,20 +38,19 @@ interface isCellCorrectObject {
   correct: boolean | null
 }
 
-const MatrixSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
-  quiz_item_model_solution,
-  user_quiz_item_answer,
-  quiz_item_feedback,
-}) => {
-  const correctAnswers = quiz_item_model_solution?.optionCells
-  const studentAnswers = user_quiz_item_answer.optionCells
+const MatrixSubmission: React.FC<
+  QuizItemSubmissionComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
+> = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
+  const modelSolution = quiz_item_model_solution as UserItemAnswerMatrix | null
+  const correctAnswers = modelSolution?.matrix
+  const studentAnswers = user_quiz_item_answer.matrix
 
   if (!studentAnswers) {
     // eslint-disable-next-line i18next/no-literal-string
     throw new Error("No student answers")
   }
 
-  const isIncorrect = !quiz_item_feedback?.quiz_item_correct
+  const isIncorrect = quiz_item_feedback?.correctnessCoefficient != 1
 
   const findOptionText = (
     column: number,
@@ -140,7 +141,9 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                           padding: 0;
                           font-size: 2.8vw;
                           font-size: 22px;
-                          font-family: Josefin Sans, sans-serif;
+                          font-family:
+                            Josefin Sans,
+                            sans-serif;
                         `}
                       >
                         <div

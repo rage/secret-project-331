@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -128,13 +128,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }
   })
 
-  const defaultCmsPeerReviewConfig = useQuery(
-    [`course-default-peer-review-config-${courseId}`],
-    () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
-  )
+  const defaultCmsPeerReviewConfig = useQuery({
+    queryKey: [`course-default-peer-review-config-${courseId}`],
+    queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
+  })
 
   let parsedPeerReviewConfig: CmsPeerReviewConfig | null = JSON.parse(
-    exerciseAttributes.peer_review_config ?? "{}",
+    exerciseAttributes.peer_review_config ?? "null",
   )
 
   if (parsedPeerReviewConfig === null) {
@@ -146,9 +146,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  const parsedPeerReviewQuestionConfig: CmsPeerReviewQuestion[] = JSON.parse(
-    exerciseAttributes.peer_review_questions_config ?? "[]",
-  )
+  const parsedPeerReviewQuestionConfig: CmsPeerReviewQuestion[] = useMemo(() => {
+    const res = JSON.parse(exerciseAttributes.peer_review_questions_config ?? "[]")
+    if (res === null || res === undefined) {
+      return []
+    }
+    return res
+  }, [exerciseAttributes.peer_review_questions_config])
 
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
     { label: t("essay"), value: "Essay" },
@@ -200,25 +204,28 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const handlePeerReviewQuestionValueChange = (
     id: string,
-    value: unknown,
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>,
     field: keyof CmsPeerReviewQuestion,
   ) => {
-    const peerReviewQuestions = parsedPeerReviewQuestionConfig.map((prq) => {
-      if (prq.id === id) {
-        switch (field) {
-          case "question":
-            return { ...prq, question: value }
-          case "question_type":
-            return { ...prq, question_type: value }
-          case "answer_required":
-            return { ...prq, answer_required: value }
-          default:
-            break
+    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig.map(
+      (prq) => {
+        if (prq.id === id) {
+          switch (field) {
+            case "question":
+              return { ...prq, question: event.target.value }
+            case "question_type":
+              return { ...prq, question_type: event.target.value as PeerReviewQuestionType }
+            case "answer_required":
+              // @ts-expect-error: in this case the event is from a checkbox
+              return { ...prq, answer_required: Boolean(event.target.checked) }
+            default:
+              return prq
+          }
+        } else {
+          return prq
         }
-      } else {
-        return prq
-      }
-    })
+      },
+    )
     setExerciseAttributes({
       ...exerciseAttributes,
       peer_review_config: JSON.stringify(parsedPeerReviewConfig),
@@ -238,7 +245,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_config: checked ? JSON.stringify(prc) : "{}",
+      peer_review_config: checked ? JSON.stringify(prc) : "null",
       peer_review_questions_config: "[]",
       use_course_default_peer_review: true,
       needs_peer_review: checked,
@@ -420,8 +427,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         <StyledQuestionType>
                           <TextAreaField
                             label={t("peer-review-question")}
-                            onChangeByValue={(value) => {
-                              handlePeerReviewQuestionValueChange(id, value, "question")
+                            onChange={(event) => {
+                              handlePeerReviewQuestionValueChange(id, event, "question")
                             }}
                             defaultValue={question}
                             autoResize={true}

@@ -30,7 +30,6 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (messageContainer, _responsePort) => {
-        console.log(messageContainer)
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
             const { data, valid } = messageContainer

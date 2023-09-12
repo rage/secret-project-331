@@ -4,6 +4,7 @@
     "font-family-no-missing-generic-family-keyword": null,
     "no-duplicate-selectors": null,
     "function-no-unknown": null,
+    "media-query-no-invalid": null,
     "selector-type-no-unknown": [
       true,
       {

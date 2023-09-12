@@ -22,10 +22,10 @@ export interface ExerciseListProps {
 
 const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseExercises = useQuery(
-    [`courses-${courseId}-exercises-and-count-of-answers-requiring-attention`],
-    () => fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
-  )
+  const getCourseExercises = useQuery({
+    queryKey: [`courses-${courseId}-exercises-and-count-of-answers-requiring-attention`],
+    queryFn: () => fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
+  })
   const courseStructure = useCourseStructure(courseId)
   if (getCourseExercises.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseExercises.error} />

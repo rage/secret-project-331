@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use models::{
     page_history::PageHistory,
-    pages::{HistoryRestoreData, NewPage, Page, PageInfo},
+    pages::{HistoryRestoreData, NewPage, Page, PageDetailsUpdate, PageInfo},
 };
 
 use crate::{
@@ -44,11 +44,12 @@ Content-Type: application/json
 ```
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn post_new_page(
     request_id: RequestId,
     payload: web::Json<NewPage>,
     pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Page>> {
@@ -67,7 +68,11 @@ async fn post_new_page(
         &mut conn,
         new_page,
         user.id,
-        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            Arc::clone(&jwt_key),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -136,12 +141,13 @@ async fn history_count(
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn restore(
     request_id: RequestId,
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
     restore_data: web::Json<HistoryRestoreData>,
+    app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Uuid>> {
@@ -152,7 +158,11 @@ async fn restore(
         *page_id,
         restore_data.history_id,
         user.id,
-        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            Arc::clone(&jwt_key),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -180,6 +190,25 @@ async fn get_page_info(
 }
 
 /**
+POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn update_page_details(
+    page_id: web::Path<Uuid>,
+    payload: web::Json<PageDetailsUpdate>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+    models::pages::update_page_details(&mut conn, *page_id, &payload).await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -190,6 +219,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_new_page))
         .route("/{page_id}", web::delete().to(delete_page))
         .route("/{page_id}/info", web::get().to(get_page_info))
+        .route(
+            "/{page_id}/page-details",
+            web::put().to(update_page_details),
+        )
         .route("/{page_id}/history", web::get().to(history))
         .route("/{page_id}/history_count", web::get().to(history_count))
         .route("/{history_id}/restore", web::post().to(restore));

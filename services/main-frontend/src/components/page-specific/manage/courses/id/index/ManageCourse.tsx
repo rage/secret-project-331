@@ -1,13 +1,17 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import useCourseBreadcrumbInfoQuery from "../../../../../../hooks/useCourseBreadcrumbInfoQuery"
-import { deleteCourse } from "../../../../../../services/backend/courses"
+import {
+  deleteCourse,
+  teacherResetCourseProgressForEveryone,
+  teacherResetCourseProgressForThemselves,
+} from "../../../../../../services/backend/courses"
 import { Course } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
@@ -42,6 +46,28 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       onSuccess: async () => {
         await refetch()
       },
+    },
+  )
+
+  const teacherResetCourseProgressForThemselvesMutation = useToastMutation(
+    async () => {
+      await teacherResetCourseProgressForThemselves(course.id)
+    },
+    {
+      notify: true,
+      // eslint-disable-next-line i18next/no-literal-string
+      method: "DELETE",
+    },
+  )
+
+  const teacherResetCourseProgressForEveryoneMutation = useToastMutation(
+    async () => {
+      await teacherResetCourseProgressForEveryone(course.id)
+    },
+    {
+      notify: true,
+      // eslint-disable-next-line i18next/no-literal-string
+      method: "DELETE",
     },
   )
 
@@ -104,15 +130,20 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
         {t("edit")}
       </Button>
-      <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+      <Dialog open={showForm} noPadding={true}>
         <div
           className={css`
             margin: 1rem;
+            display: flex;
+            flex-direction: column;
           `}
         >
-          <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-            {t("button-text-close")}
-          </Button>
+          <div>
+            <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+              {t("button-text-close")}
+            </Button>
+          </div>
+
           <UpdateCourseForm
             courseId={course.id}
             courseName={course.name}
@@ -147,7 +178,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       >
         <p>{t("placeholder-text-reserved-for-course-overview")}</p>
       </div>
-      <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+
       <OnlyRenderIfPermissions
         action={{
           type: "teach",
@@ -157,45 +188,100 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           id: course.id,
         }}
       >
-        <ul
-          className={css`
-            list-style-type: none;
-            padding-left: 0;
-          `}
+        <>
+          <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+          <div
+            className={css`
+              margin: 1rem 0;
+            `}
+          >
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={() => {
+                const sure = confirm(
+                  t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
+                )
+                if (sure) {
+                  teacherResetCourseProgressForThemselvesMutation.mutate()
+                }
+              }}
+            >
+              {t("reset-my-own-progress-on-the-course")}
+            </Button>
+          </div>
+          {course.is_draft && (
+            <div
+              className={css`
+                margin: 1rem 0;
+              `}
+            >
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() => {
+                  const sure = confirm(
+                    t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
+                  )
+                  if (sure) {
+                    teacherResetCourseProgressForEveryoneMutation.mutate()
+                  }
+                }}
+              >
+                {t("reset-progress-for-all-students-on-the-course-draft")}
+              </Button>
+            </div>
+          )}
+          <ul
+            className={css`
+              list-style-type: none;
+              padding-left: 0;
+            `}
+          >
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
+                aria-label={t("link-export-submissions")}
+              >
+                {t("link-export-submissions")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
+                aria-label={t("link-export-user-details")}
+              >
+                {t("link-export-user-details")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
+                aria-label={t("link-export-exercise-tasks")}
+              >
+                {t("link-export-exercise-tasks")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
+                aria-label={t("link-export-course-instances")}
+              >
+                {t("link-export-course-instances")}
+              </a>
+            </li>
+          </ul>
+        </>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <a
+          href={`/cms/courses/${course.id}/research-form-edit`}
+          aria-label={t("button-text-create-or-edit-research-form")}
         >
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
-              aria-label={t("link-export-submissions")}
-            >
-              {t("link-export-submissions")}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
-              aria-label={t("link-export-user-details")}
-            >
-              {t("link-export-user-details")}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
-              aria-label={t("link-export-exercise-tasks")}
-            >
-              {t("link-export-exercise-tasks")}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
-              aria-label={t("link-export-course-instances")}
-            >
-              {t("link-export-course-instances")}
-            </a>
-          </li>
-        </ul>
+          <Button variant="secondary" size="medium">
+            {t("button-text-create-or-edit-research-form")}
+          </Button>
+        </a>
       </OnlyRenderIfPermissions>
     </>
   )

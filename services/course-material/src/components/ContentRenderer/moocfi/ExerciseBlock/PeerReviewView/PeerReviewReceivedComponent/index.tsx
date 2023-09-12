@@ -113,10 +113,10 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
   let result: PeerReviewQuestionSubmission[] = []
   let questions: PeerReviewQuestion[] = []
 
-  const getPeerReviewReceived = useQuery(
-    [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
-    () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
-  )
+  const getPeerReviewReceived = useQuery({
+    queryKey: [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
+    queryFn: () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
+  })
 
   if (getPeerReviewReceived.isLoading) {
     return <Spinner variant={"medium"} />

@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import TextField from "../shared-module/components/InputFields/TextField"
@@ -211,6 +212,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
         >
           {t("button-text-done")}
         </Button>
+        {<ResearchOnCoursesForm />}
       </Wrapper>
     )
   }

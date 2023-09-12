@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT MIN(created_at) AS oldest_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "oldest_date",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [null]
+  },
+  "hash": "d29e71c211fd314405046b47e12599eba1b0c6245c572b7606c378d0f6e090b1"
+}

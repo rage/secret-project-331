@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
-import React, { useCallback, useContext, useEffect, useReducer } from "react"
+import React, { useCallback, useContext, useEffect, useMemo, useReducer } from "react"
 
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
@@ -20,34 +20,44 @@ import { PageMarginOffset } from "../../../../shared-module/components/layout/Pa
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import basePath from "../../../../shared-module/utils/base-path"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/utils/constants"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-interface PagePageProps {
-  // "organizationSlug" | "courseSlug" | "path"
-  query: SimplifiedUrlQuery<string>
-}
-
-const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) => {
+const PagePage: React.FC = () => {
   const layoutContext = useContext(LayoutContext)
   const router = useRouter()
-  const courseSlug = query.courseSlug
-  const path = `/${useQueryParameter("path")}`
-  const getCoursePageByPath = useQuery([`course-page-${courseSlug}-${path}`], () =>
-    fetchCoursePageByPath(courseSlug, path),
+  const courseSlug = useQueryParameter("courseSlug")
+  const pathQueryParameter = useQueryParameter("path")
+  const organizationSlug = useQueryParameter("organizationSlug")
+  const path = useMemo(() => `/${pathQueryParameter}`, [pathQueryParameter])
+  const getCoursePageByPath = useQuery({
+    queryKey: [`course-page-${courseSlug}-${path}`],
+    queryFn: () => fetchCoursePageByPath(courseSlug, path),
+  })
+
+  const pageStateReducerIntializer = useMemo(
+    () =>
+      getDefaultPageState(async () => {
+        await getCoursePageByPath.refetch()
+      }),
+    [getCoursePageByPath],
   )
-  const [pageState, pageStateDispatch] = useReducer(
-    pageStateReducer,
-    getDefaultPageState(async () => {
-      await getCoursePageByPath.refetch()
-    }),
-  )
+  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, pageStateReducerIntializer)
 
   useEffect(() => {
+    if (getCoursePageByPath.data) {
+      if (layoutContext.title !== getCoursePageByPath.data.page.title) {
+        layoutContext.setTitle(getCoursePageByPath.data.page.title)
+      }
+      if (layoutContext.courseId !== getCoursePageByPath.data.page.course_id) {
+        layoutContext.setCourseId(getCoursePageByPath.data.page.course_id)
+      }
+    }
+    if (layoutContext.organizationSlug !== organizationSlug) {
+      layoutContext.setOrganizationSlug(organizationSlug)
+    }
     layoutContext.setPageState(pageState)
-  }, [layoutContext, pageState])
+  }, [getCoursePageByPath.data, layoutContext, organizationSlug, pageState])
 
   useEffect(() => {
     if (getCoursePageByPath.isError) {
@@ -100,14 +110,6 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 
-  useEffect(() => {
-    if (getCoursePageByPath.data) {
-      layoutContext.setTitle(getCoursePageByPath.data.page.title)
-      layoutContext.setCourseId(getCoursePageByPath.data.page.course_id)
-    }
-    layoutContext.setOrganizationSlug(query.organizationSlug)
-  }, [getCoursePageByPath.data, layoutContext, query.organizationSlug])
-
   // Handle scrolling to selector if window has anchor
   useScrollToSelector(path)
 
@@ -118,9 +120,7 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
   if (getCoursePageByPath.isError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((getCoursePageByPath.error as any)?.response?.status === 404) {
-      return (
-        <PageNotFound path={path} courseId={courseSlug} organizationSlug={query.organizationSlug} />
-      )
+      return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
@@ -140,7 +140,7 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
           <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
           {<CourseTestModeNotification isTestMode={pageState.isTest} />}
         </PageMarginOffset>
-        <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
+        <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

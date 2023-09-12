@@ -19,9 +19,10 @@ export interface CourseVisitorsByCountryProps {
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
-  const query = useQuery([`course-page-visit-datum-summary-by-country${courseId}`], () =>
-    fetchCoursePageVisitDatumSummariesByCountry(courseId),
-  )
+  const query = useQuery({
+    queryKey: [`course-page-visit-datum-summary-by-country${courseId}`],
+    queryFn: () => fetchCoursePageVisitDatumSummariesByCountry(courseId),
+  })
 
   const aggregatedData = useMemo(() => {
     if (!query.data || query.data.length === 0) {
@@ -40,10 +41,13 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     if (totalCountsByCountry.length > 15) {
       totalCountsByCountry = totalCountsByCountry.filter((d) => d.num_visitors >= 10)
     }
-    const totalCountsByCountryObject = totalCountsByCountry.reduce((acc, d) => {
-      acc[d.country ?? "null"] = d.num_visitors
-      return acc
-    }, {} as Record<string, number>)
+    const totalCountsByCountryObject = totalCountsByCountry.reduce(
+      (acc, d) => {
+        acc[d.country ?? "null"] = d.num_visitors
+        return acc
+      },
+      {} as Record<string, number>,
+    )
     return totalCountsByCountryObject
   }, [query.data])
 

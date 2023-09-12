@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE repository_id = $1\nAND re.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "repository_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "part",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "repository_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "checksum",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 6,
+        "name": "download_url",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false, false, false]
+  },
+  "hash": "a5d0f35186ad5815e4c1ea3255e64db3c93922a4ca016cb1333c77462fd68661"
+}

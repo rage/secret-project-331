@@ -22,14 +22,24 @@ const ModuleCertificateVerification: React.FC<React.PropsWithChildren<Props>> = 
   const testCourseModuleId = query.test_course_module_id
   const testCourseInstanceId = query.test_course_instance_id
 
-  const certificate = useQuery(["certificate-image", certificateVerificationId, debug], async () =>
-    fetchCertificateImage(
+  const certificate = useQuery({
+    queryKey: [
+      "certificate-image",
       certificateVerificationId,
-      !!debug,
+      debug,
       testCourseModuleId,
       testCourseInstanceId,
-    ),
-  )
+    ],
+    queryFn: async () =>
+      fetchCertificateImage(
+        certificateVerificationId,
+        !!debug,
+        testCourseModuleId,
+        testCourseInstanceId,
+      ),
+    // This is expensive, so it doesn't make sense to retry
+    retry: false,
+  })
   return (
     <>
       {certificate.isError && <ErrorBanner error={certificate.error} variant={"readOnly"} />}

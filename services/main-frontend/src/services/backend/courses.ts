@@ -259,7 +259,26 @@ export const postNewTerm = async (
 }
 
 export const postNewPageOrdering = async (courseId: string, pages: Page[]): Promise<void> => {
-  await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pages)
+  // To avoid too large payload errors, remove the content from the pages as it's not needed for this endpoint
+  const pagesWithoutContent: Page[] = pages.map((page) => {
+    return {
+      ...page,
+      content: null,
+    }
+  })
+  await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pagesWithoutContent)
+}
+
+/** Teacher can use this to delete their own submissions, points, etc but they cannot use it to delete those things for other users */
+export const teacherResetCourseProgressForThemselves = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.delete(
+    `/courses/${courseId}/teacher-reset-course-progress-for-themselves`,
+  )
+}
+
+/** Teacher can use this to delete submissions, points, etc for everyone. Can only be used for draft courses. */
+export const teacherResetCourseProgressForEveryone = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/courses/${courseId}/teacher-reset-course-progress-for-everyone`)
 }
 
 export const postNewChapterOrdering = async (

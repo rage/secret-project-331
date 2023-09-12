@@ -9,6 +9,7 @@ import systemTestsPackageLockJson from "../../package-lock.json"
 async function globalSetup(config: FullConfig): Promise<void> {
   await makeSureNecessaryProgramsAreInstalled(config)
   await makeSureNpmCiHasBeenRan()
+  await downloadTmcLangsCli()
   await setupSystemTestDb()
   // After this global.setup.spec.ts is ran
 }
@@ -35,6 +36,27 @@ async function makeSureNpmCiHasBeenRan() {
   }
 }
 
+// Download the langs CLI binary for the TMC exercise service to work.
+async function downloadTmcLangsCli() {
+  try {
+    console.time("download-tmc-langs")
+    const downloadTmcLangsPath = path.join(__dirname, "../../../bin/download-tmc-langs")
+    console.log("Downloading langs CLI.")
+    const res = spawnSync(downloadTmcLangsPath, { stdio: "inherit" })
+    if (res.status != 0) {
+      console.error("Error: Could not download langs CLI.")
+      if (res.error) {
+        throw res.error
+      } else {
+        throw new Error(`Downloading langs CLI returned non-zero status code ${res.status}`)
+      }
+    }
+    console.log("Successfully downloaded langs CLI.")
+  } finally {
+    console.timeEnd("download-tmc-langs")
+  }
+}
+
 // The setup system test db called by playwright to make the playwright vscode extension to work.
 async function setupSystemTestDb() {
   try {
@@ -44,9 +66,13 @@ async function setupSystemTestDb() {
     // spawnSync is the easiest way to wait for the script to finish while inheriting stdio.
     // Using a sync method hare shoud not be a problem since this is a setup script
     const res = spawnSync(setupSystemTestDbScriptPath, { stdio: "inherit" })
-    if (res.error) {
+    if (res.status != 0) {
       console.error("Error: Could not setup system test db.")
-      throw res.error
+      if (res.error) {
+        throw res.error
+      } else {
+        throw new Error(`System test db setup script returned non-zero status code ${res.status}`)
+      }
     }
     console.log("System test db setup complete.")
   } finally {

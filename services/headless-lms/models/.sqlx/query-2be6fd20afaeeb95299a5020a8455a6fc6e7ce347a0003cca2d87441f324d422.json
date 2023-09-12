@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_instances\nSET name = $1,\n  description = $2,\n  teacher_in_charge_name = $3,\n  teacher_in_charge_email = $4,\n  support_email = $5,\n  starts_at = $6,\n  ends_at = $7\nWHERE id = $8\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422"
+}

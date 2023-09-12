@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_visit_datum_summary_by_courses_countries (\n    course_id,\n    exam_id,\n    country,\n    num_visitors,\n    visit_date\n  )\nSELECT course_id,\n  exam_id,\n  country,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  country ON CONFLICT (\n    course_id,\n    exam_id,\n    visit_date,\n    country,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "country",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "num_visitors",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "visit_date",
+        "type_info": "Date"
+      }
+    ],
+    "parameters": {
+      "Left": ["Date"]
+    },
+    "nullable": [false, false, false, true, true, true, true, false, false]
+  },
+  "hash": "d2ed8d3cbd332bddd8c4cf768ec8c063f53b9603d928bf715448e68eb265f464"
+}

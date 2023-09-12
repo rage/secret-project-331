@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
 
+import { baseTheme } from "../../shared-module/styles"
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import HeroSectionEditor from "./HeroSectionEditor"
@@ -15,6 +16,7 @@ export interface HeroSectionAttributes {
   backgroundImage: string | undefined
   backgroundRepeatX: boolean | undefined
   alignCenter?: boolean | undefined
+  alignBottom?: boolean | undefined
   useDefaultTextForLabel?: boolean | undefined
   partiallyTransparent?: boolean | undefined
 }
@@ -44,11 +46,11 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
     },
     backgroundColor: {
       type: "string",
-      default: "#f9f9f9",
+      default: baseTheme.colors.green[200],
     },
     fontColor: {
       type: "string",
-      default: "#f9f9f9",
+      default: baseTheme.colors.gray[700],
     },
     backgroundImage: {
       type: "string",
@@ -69,6 +71,10 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
     partiallyTransparent: {
       type: "boolean",
       default: true,
+    },
+    alignBottom: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: HeroSectionEditor,

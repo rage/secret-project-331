@@ -8,6 +8,7 @@ import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndC
 import PageContext from "../../contexts/PageContext"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
@@ -26,6 +27,11 @@ const HeroSectionEditor: React.FC<
   const path = useContext(PageContext)?.page?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
 
+  const { backgroundColor, backgroundImage, backgroundRepeatX, partiallyTransparent, alignBottom } =
+    attributes
+
+  const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
+
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
@@ -39,16 +45,40 @@ const HeroSectionEditor: React.FC<
       >
         <div
           className={css`
-            background: ${baseTheme.colors.green[200]};
-            background-color: ${attributes.backgroundColor};
-            ${attributes.backgroundImage &&
-            `background-image: url("${attributes.backgroundImage}");
-            background-repeat: no-repeat;
-            background-position: ${direction} center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             padding: 7.5em 1em;
+            margin-bottom: 3rem;
+
+            background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
+            position: relative;
+
+            &::after {
+              background-size: 26rem;
+              width: 100%;
+              height: 100%;
+              content: "";
+              opacity: 0.3;
+              background-image: url(${backgroundImage});
+              background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
+              background-position: center ${backgroundVerticalAlignment};
+              position: absolute;
+              top: 0px;
+              left: 0px;
+              ${respondToOrLarger.md} {
+                opacity: ${partiallyTransparent ? "1" : "0.4"};
+                background-position: ${direction} ${backgroundVerticalAlignment};
+                background-size: ${direction == "center" ? "contain" : "22rem"};
+                left: ${direction == "center" ? "0" : "30px"};
+              }
+              ${respondToOrLarger.lg} {
+                opacity: ${partiallyTransparent ? "1" : "0.4"};
+                background-position: ${direction} ${backgroundVerticalAlignment};
+                background-size: ${direction == "center" ? "contain" : "26rem"};
+                left: ${direction == "center" ? "0" : "40px"};
+              }
+            }
           `}
         >
           <div

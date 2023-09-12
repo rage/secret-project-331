@@ -9,6 +9,7 @@ import InnerBlocks from "../util/InnerBlocks"
 
 interface InfoBoxBlockAttributes {
   backgroundColor: string
+  noPadding: boolean
 }
 
 const InfoBoxBlock: React.FC<
@@ -18,9 +19,8 @@ const InfoBoxBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          padding: 3rem;
+          ${!props.data.attributes.noPadding && `padding: 3rem;`}
           background-color: ${props.data.attributes.backgroundColor};
-          margin: 3rem 0;
         `}
       >
         <Centered variant="narrow">

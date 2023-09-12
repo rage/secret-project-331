@@ -31,7 +31,11 @@ const LandingPageHeroSectionEditor: React.FC<
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
-        <BackgroundAndColorCustomizer attributes={attributes} setAttributes={setAttributes} />
+        <BackgroundAndColorCustomizer
+          attributes={attributes}
+          setAttributes={setAttributes}
+          noAlign
+        />
       </InspectorControls>
       <BreakFromCentered
         sidebar

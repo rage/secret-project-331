@@ -6,6 +6,7 @@ import { GlossaryContext } from "../contexts/GlossaryContext"
 import { respondToOrLarger } from "../shared-module//styles/respond"
 import { baseTheme, headingFont } from "../shared-module/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../shared-module/utils/constants"
+import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
 
@@ -72,11 +73,13 @@ export interface HeroSectionProps {
   backgroundImage?: string
   fontColor?: string
   alignCenter: boolean
+  alignBottom?: boolean | undefined
   backgroundColor?: string
   label?: string
   useDefaultTextForLabel?: boolean
   partiallyTransparent?: boolean
   backgroundRepeatX?: boolean
+  backgroundSizeRem?: number
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -89,13 +92,16 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   alignCenter,
   backgroundColor,
   label,
-  partiallyTransparent: isNotPartiallyTransparent,
+  partiallyTransparent,
   backgroundRepeatX,
+  backgroundSizeRem,
+  alignBottom,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
   const { terms } = useContext(GlossaryContext)
+  const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   return (
     <div
       id="hero-section"
@@ -105,30 +111,32 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
         margin-bottom: 3rem;
+        /** There should not be empty space before the hero section, so we'll undo the default block margin **/
+        margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         background-color: ${backgroundColor ? backgroundColor : baseTheme.colors.green["200"]};
         position: relative;
 
         &::after {
-          background-size: 26rem;
+          background-size: ${backgroundSizeRem ?? 26}rem;
           width: 100%;
           height: 100%;
           content: "";
           opacity: 0.3;
           background-image: url(${backgroundImage});
           background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
-          background-position: center center;
+          background-position: center ${backgroundVerticalAlignment};
           position: absolute;
           top: 0px;
           left: 0px;
           ${respondToOrLarger.md} {
-            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
-            background-position: ${direction} center;
+            opacity: ${partiallyTransparent ? "1" : "0.4"};
+            background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
-            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
-            background-position: ${direction} center;
+            opacity: ${partiallyTransparent ? "1" : "0.4"};
+            background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};
           }

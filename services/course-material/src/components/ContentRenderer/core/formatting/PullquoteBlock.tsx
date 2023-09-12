@@ -55,7 +55,6 @@ const PullquoteBlock: React.FC<
           border-top: 0.25rem solid #d5dbdf;
           border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;
-          margin: 3rem 0;
           ${align && `float: ${align};`}
           ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
         `}

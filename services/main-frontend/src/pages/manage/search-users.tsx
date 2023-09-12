@@ -110,4 +110,6 @@ const SearchUsersPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(SearchUsersPage)))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(SearchUsersPage, true)),
+)

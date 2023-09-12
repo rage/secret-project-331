@@ -73,11 +73,13 @@ export interface HeroSectionProps {
   backgroundImage?: string
   fontColor?: string
   alignCenter: boolean
+  alignBottom?: boolean | undefined
   backgroundColor?: string
   label?: string
   useDefaultTextForLabel?: boolean
   partiallyTransparent?: boolean
   backgroundRepeatX?: boolean
+  backgroundSizeRem?: number
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -90,13 +92,16 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   alignCenter,
   backgroundColor,
   label,
-  partiallyTransparent: isNotPartiallyTransparent,
+  partiallyTransparent,
   backgroundRepeatX,
+  backgroundSizeRem,
+  alignBottom,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
   const { terms } = useContext(GlossaryContext)
+  const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   return (
     <div
       id="hero-section"
@@ -112,26 +117,26 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         position: relative;
 
         &::after {
-          background-size: 26rem;
+          background-size: ${backgroundSizeRem ?? 26}rem;
           width: 100%;
           height: 100%;
           content: "";
           opacity: 0.3;
           background-image: url(${backgroundImage});
           background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
-          background-position: center center;
+          background-position: center ${backgroundVerticalAlignment};
           position: absolute;
           top: 0px;
           left: 0px;
           ${respondToOrLarger.md} {
-            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
-            background-position: ${direction} center;
+            opacity: ${partiallyTransparent ? "1" : "0.4"};
+            background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "22rem"};
             left: ${direction == "center" ? "0" : "30px"};
           }
           ${respondToOrLarger.lg} {
-            opacity: ${isNotPartiallyTransparent ? "1" : "0.4"};
-            background-position: ${direction} center;
+            opacity: ${partiallyTransparent ? "1" : "0.4"};
+            background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction == "center" ? "contain" : "26rem"};
             left: ${direction == "center" ? "0" : "40px"};
           }

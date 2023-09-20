@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
-import { faCircleInfo as infoIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -90,7 +89,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             }
           `}
         >
-          <FontAwesomeIcon icon={infoIcon} />
+          <InfoCircle size={20} />
           {feedbackText}
         </div>
       )}

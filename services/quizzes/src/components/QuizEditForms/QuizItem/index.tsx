@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faAngleDown, faAngleUp, faPen } from "@fortawesome/free-solid-svg-icons"
+import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "@mui/material"
+import { Pencil } from "@vectopus/atlas-icons-react"
 import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -81,7 +82,7 @@ const QuizItem: React.FC<React.PropsWithChildren<QuizItemProps>> = ({ item }) =>
           }
           title={t("edit-item")}
         >
-          <ControlIcon icon={faPen} />
+          <Pencil size={19} />
         </ControlButton>
       </TypeWrapper>
       <QuizItemContainer>{contentBasedOnType(item.type, item, t)}</QuizItemContainer>

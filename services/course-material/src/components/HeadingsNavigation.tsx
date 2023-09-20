@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ArrowLeft, ArrowRight } from "@vectopus/atlas-icons-react"
 import { maxBy, minBy } from "lodash"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -341,7 +340,11 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
           }
         `}
       >
-        <FontAwesomeIcon icon={realCollapsed ? faArrowLeft : faArrowRight} />
+        {realCollapsed ? (
+          <ArrowLeft size={16} weight="bold" />
+        ) : (
+          <ArrowRight size={16} weight="bold" />
+        )}
       </button>
     </>
   )

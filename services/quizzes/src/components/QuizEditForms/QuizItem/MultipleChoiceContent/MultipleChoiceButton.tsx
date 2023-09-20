@@ -1,8 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@mui/material"
+import { Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -132,7 +131,7 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
               aria-label={t("close")}
               onClick={() => dispatch(setOptionEditing(storeOption.id, false))}
             >
-              <FontAwesomeIcon icon={faWindowClose} size="2x" />
+              <XmarkCircle size={28} />
             </CloseButton>
             <OptionModalContent option={storeOption} />
             <DeleteOptionButton
@@ -141,7 +140,7 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
                 dispatch(deletedOption(storeOption.id, storeOption.quizItemId))
               }}
             >
-              <FontAwesomeIcon icon={faTrash} size="2x" color="red" />
+              <Trash size={28} color="red" />{" "}
             </DeleteOptionButton>
           </StyledBox>
         </Fade>

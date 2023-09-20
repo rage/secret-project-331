@@ -1,5 +1,5 @@
-import SaveIcon from "@mui/icons-material/Save"
 import LoadingButton from "@mui/lab/LoadingButton"
+import { FloppyDiskSave } from "@vectopus/atlas-icons-react"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useContext, useState } from "react"
@@ -79,7 +79,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
           <LoadingButton
             // eslint-disable-next-line i18next/no-literal-string
             loadingPosition="start"
-            startIcon={<SaveIcon />}
+            startIcon={<FloppyDiskSave size={15} />}
             loading={saving}
             onClick={handleOnSave}
           >

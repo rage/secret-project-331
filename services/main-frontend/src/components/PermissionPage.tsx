@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
-import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
+import { ExpandMore } from "@mui/icons-material"
 import { useQuery } from "@tanstack/react-query"
+import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { t as globalT, TFunction } from "i18next"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
@@ -296,7 +297,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
                       >
-                        <Create />
+                        <Pencil />
                       </button>
                       <button
                         aria-label={t("remove-role")}
@@ -308,7 +309,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
                       >
-                        <Clear />
+                        <XmarkCircle />
                       </button>
                     </td>
                   </>
@@ -344,7 +345,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                           setEditingRole(null)
                         }}
                       >
-                        <Check />
+                        <CheckCircle />
                       </button>{" "}
                       <button
                         aria-label={t("cancel-editing-role")}
@@ -356,7 +357,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => setEditingRole(null)}
                       >
-                        <Clear />
+                        <XmarkCircle />
                       </button>
                     </td>
                   </>

@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faEnvelope as emailIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Envelope } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -186,8 +185,8 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
             align-items: center;
           `}
         >
-          <FontAwesomeIcon
-            icon={emailIcon}
+          <Envelope
+            size={32}
             className={css`
               font-size: 2rem;
               margin-right: 1rem;

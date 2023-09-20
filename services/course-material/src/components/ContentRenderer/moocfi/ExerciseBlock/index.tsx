@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import CheckIcon from "humbleicons/icons/check.svg"
+import { CheckCircle } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useContext, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -471,8 +471,8 @@ const ExerciseBlock: React.FC<
                         padding: 0.7rem 1rem;
                         margin: 1rem 0;
                         border: 1px solid ${baseTheme.colors.green[300]};
-
                         display: flex;
+                        align-items: center;
 
                         svg {
                           width: 80px;
@@ -480,7 +480,8 @@ const ExerciseBlock: React.FC<
                         }
                       `}
                     >
-                      <CheckIcon />
+                      <CheckCircle size={30} />
+
                       <div>{t("exam-submission-has-been-saved-help-text")}</div>
                     </div>
                   )}

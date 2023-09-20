@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
-import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Fade } from "@mui/material"
+import { Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -67,7 +66,7 @@ const MatrixContent: React.FC<React.PropsWithChildren<MatrixContentProps>> = ({ 
                   dispatch(setAdvancedEditing({ itemId: storeItem.id, editing: false }))
                 }
               >
-                <FontAwesomeIcon icon={faWindowClose} size="2x" />
+                <XmarkCircle size={28} />
               </CloseButton>
             </ModalButtonWrapper>
             <MatrixModalContent item={storeItem} />
@@ -77,7 +76,7 @@ const MatrixContent: React.FC<React.PropsWithChildren<MatrixContentProps>> = ({ 
                   dispatch(deletedItem(storeItem.id, quizId))
                 }}
               >
-                <FontAwesomeIcon icon={faTrash} size="2x" color="red" />
+                <Trash size={28} color="red" />
               </DeleteButton>
             </ModalButtonWrapper>
           </AdvancedBox>

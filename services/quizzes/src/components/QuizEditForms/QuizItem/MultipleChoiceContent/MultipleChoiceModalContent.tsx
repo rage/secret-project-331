@@ -1,7 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   Button,
   Checkbox,
@@ -14,6 +12,7 @@ import {
   RadioGroup,
   Switch,
 } from "@mui/material"
+import { PlusCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -232,7 +231,7 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
       </ModalContent>
       <ModalContent>
         <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
-          <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
+          <PlusCircle size={28} />
         </Button>
       </ModalContent>
       <ModalContentOptionWrapper>

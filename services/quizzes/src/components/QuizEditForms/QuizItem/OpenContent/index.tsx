@@ -1,8 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Fade } from "@mui/material"
+import { Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -99,7 +98,7 @@ const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item
                   dispatch(setAdvancedEditing({ itemId: storeItem.id, editing: false }))
                 }
               >
-                <FontAwesomeIcon icon={faWindowClose} size="2x" />
+                <XmarkCircle size={28} />
               </CloseButton>
             </ModalButtonWrapper>
             <OpenModalContent item={storeItem} />
@@ -109,7 +108,7 @@ const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item
                 variant="outlined"
                 onClick={() => dispatch(deletedItem(storeItem.id, quizId))}
               >
-                <FontAwesomeIcon icon={faTrash} color="red" size="2x" />
+                <Trash size={28} color="red" />
               </DeleteButton>
             </ModalButtonWrapper>
           </AdvancedBox>
@@ -127,7 +126,7 @@ const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item
               size="medium"
               variant="outlined"
             >
-              <FontAwesomeIcon icon={faWindowClose} size="2x" />
+              <XmarkCircle size={28} />
             </CloseButton>
           </ModalButtonWrapper>
           <ValidityRegexTesterModalContent item={item} />
@@ -145,7 +144,7 @@ const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item
               size="medium"
               variant="outlined"
             >
-              <FontAwesomeIcon icon={faWindowClose} size="2x" />
+              <XmarkCircle size={28} />
             </CloseButton>
           </ModalButtonWrapper>
           <FormatRegexTesterModalContent item={item} />

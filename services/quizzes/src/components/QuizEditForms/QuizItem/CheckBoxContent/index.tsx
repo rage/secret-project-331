@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
-import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Fade } from "@mui/material"
+import { Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -54,7 +53,7 @@ const CheckBoxContent: React.FC<React.PropsWithChildren<ContentBoxProps>> = ({ i
                   dispatch(setAdvancedEditing({ itemId: storeItem.id, editing: false }))
                 }
               >
-                <FontAwesomeIcon icon={faWindowClose} size="2x" />
+                <XmarkCircle size={28} />
               </CloseButton>
             </ModalButtonWrapper>
             <CheckBoxModalContent itemId={storeItem.id} />
@@ -64,8 +63,7 @@ const CheckBoxContent: React.FC<React.PropsWithChildren<ContentBoxProps>> = ({ i
                   dispatch(deletedItem(storeItem.id, quizId))
                 }}
               >
-                {/* eslint-disable-next-line i18next/no-literal-string */}
-                <FontAwesomeIcon icon={faTrash} size="2x" color="red" />
+                <Trash size={28} color="red" />
               </DeleteButton>
             </ModalButtonWrapper>
           </AdvancedBox>

@@ -1,8 +1,13 @@
 import { css } from "@emotion/css"
-import DoneIcon from "@mui/icons-material/Done"
-import ErrorIcon from "@mui/icons-material/Error"
 import { QueryObserverResult } from "@tanstack/react-query"
-import { FloppyDiskSave, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
+import {
+  BellXmark,
+  CheckCircle,
+  FloppyDiskSave,
+  Pencil,
+  Trash,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -172,9 +177,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 {status == UpdateStatus.none ? (
                   <FloppyDiskSave size={20} />
                 ) : status == UpdateStatus.saved ? (
-                  <DoneIcon />
+                  <CheckCircle size={20} />
                 ) : (
-                  <ErrorIcon />
+                  <BellXmark size={20} />
                 )}
               </Button>
               <Button

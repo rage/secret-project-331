@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
-import { faInfoCircle as icon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { InfoCircle } from "@vectopus/atlas-icons-react"
 
 import { baseTheme } from "../styles"
 
@@ -17,8 +16,7 @@ const GenericInfobox: React.FC<React.PropsWithChildren<React.PropsWithChildren<u
         align-items: center;
       `}
     >
-      <FontAwesomeIcon
-        icon={icon}
+      <InfoCircle
         className={css`
           color: ${baseTheme.colors.blue[500]};
           margin-right: 0.5rem;

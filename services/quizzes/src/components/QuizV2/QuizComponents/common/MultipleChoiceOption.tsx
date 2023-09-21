@@ -129,7 +129,7 @@ const MultipleChoiceMessageDialogContainer = styled.div`
 
 interface MultipleChoiceOption {
   option: QuizItemOption
-  onSuccessMessageChange: (value: string) => void
+  onMessageAfterSubmissionWhenSelectedChange: (value: string) => void
   onTitleChange: (value: string) => void
   onUpdateValues: (title: string, message: string, correct: boolean) => void
   onDelete: () => void
@@ -144,7 +144,9 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
   const [editMode, setEditMode] = useState(false)
 
   const [title, setTitle] = useState(option.title)
-  const [message, setMessage] = useState(option.messageAfterSubmissionWhenSelected ?? "")
+  const [messageAfterSubmissionWhenSelected, setMessageAfterSubmissionWhenSelected] = useState(
+    option.messageAfterSubmissionWhenSelected ?? "",
+  )
   const [correct, setCorrect] = useState(option.correct)
 
   const { t } = useTranslation()
@@ -158,14 +160,14 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
   }
 
   const startEditMode = () => {
-    setMessage(option.messageAfterSubmissionWhenSelected ?? "")
+    setMessageAfterSubmissionWhenSelected(option.messageAfterSubmissionWhenSelected ?? "")
     setTitle(option.title)
     setCorrect(option.correct)
     toggleEditMode()
   }
 
   const saveChanges = () => {
-    onUpdateValues(title, message, correct)
+    onUpdateValues(title, messageAfterSubmissionWhenSelected, correct)
     toggleEditMode()
   }
 
@@ -204,7 +206,9 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
           {!editMode ? (
             <MultipleChoiceMessageDialogContainer>
               <MessageDialogContainer>
-                <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
+                <MessageDialogTitle>
+                  {t("message-after-submission-when-selected")}
+                </MessageDialogTitle>
                 <MessageDialogDescription>
                   {option.messageAfterSubmissionWhenSelected}
                 </MessageDialogDescription>
@@ -213,9 +217,14 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({
           ) : (
             <MultipleChoiceMessageDialogContainer>
               <MessageDialogContainer>
-                <MessageDialogTitle>{t("success-message")}</MessageDialogTitle>
+                <MessageDialogTitle>
+                  {t("message-after-submission-when-selected")}
+                </MessageDialogTitle>
                 <MessageDialogTextFieldContainer>
-                  <TextField onChangeByValue={(value) => setMessage(value)} value={message} />
+                  <TextField
+                    onChangeByValue={(value) => setMessageAfterSubmissionWhenSelected(value)}
+                    value={messageAfterSubmissionWhenSelected}
+                  />
                 </MessageDialogTextFieldContainer>
               </MessageDialogContainer>
             </MultipleChoiceMessageDialogContainer>

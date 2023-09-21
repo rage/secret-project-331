@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE exercise_slides\nSET deleted_at = now()\nWHERE exercise_id = ANY($1)\nRETURNING id;\n        ",
+  "query": "\nUPDATE exercise_slides\nSET deleted_at = now()\nWHERE exercise_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id;\n        ",
   "describe": {
     "columns": [
       {
@@ -14,5 +14,5 @@
     },
     "nullable": [false]
   },
-  "hash": "7a76df8c10629d8afcfc6863e2ada85d9108c74ccae8ffe4f5e2fd7c6a36432a"
+  "hash": "6fd7463116b3ce704c191994d627f613e05525549779022e24a57e84dfe2c5d0"
 }

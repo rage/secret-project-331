@@ -52,6 +52,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         flex: 1;
         flex-direction: column;
         justify-content: space-between;
+        align-items: center;
         ${respondToOrLarger.sm} {
           flex-direction: row;
         }
@@ -59,15 +60,14 @@ const MultipleChoiceDropdown: React.FunctionComponent<
     >
       <div
         className={css`
-          display: flex;
           flex-direction: column;
           width: 70%;
         `}
       >
         <div
           className={css`
-            display: flex;
             margin: 0.5rem 0;
+            margin-bottom: 0;
           `}
         >
           {quizItem.title ? (
@@ -84,24 +84,25 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             </>
           ) : null}
         </div>
-        <div
-          className={css`
-            display: flex;
-            margin: 0.5rem;
-          `}
-        >
-          {quizItem.body ? (
-            <>
-              <h3
-                className={css`
-                  font-size: clamp(18px, 2vw, 20px) !important;
-                `}
-              >
-                {quizItem.body}
-              </h3>
-            </>
-          ) : null}
-        </div>
+        {quizItem.body && (
+          <div
+            className={css`
+              margin: 0.5rem;
+            `}
+          >
+            {quizItem.body ? (
+              <>
+                <h3
+                  className={css`
+                    font-size: clamp(18px, 2vw, 20px) !important;
+                  `}
+                >
+                  {quizItem.body}
+                </h3>
+              </>
+            ) : null}
+          </div>
+        )}
       </div>
       <div
         className={css`

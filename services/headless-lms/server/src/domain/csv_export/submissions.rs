@@ -119,6 +119,7 @@ where
     W: Write + Send + 'static,
 {
     let headers = IntoIterator::into_iter([
+        "exercise_slide_submission_id".to_string(),
         "id".to_string(),
         "user_id".to_string(),
         "created_at".to_string(),
@@ -134,6 +135,7 @@ where
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {
         let csv_row = vec![
+            next.exercise_slide_submission_id.to_string(),
             next.id.to_string(),
             next.user_id.to_string(),
             next.created_at.to_string(),

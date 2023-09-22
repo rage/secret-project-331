@@ -67,7 +67,9 @@ const parseText = (content: string, terms: Term[]) => {
   const parsedCitation = parseCitation(parsedLatex)
   const parsedGlossary = parseGlossary(parsedCitation, terms ?? [])
 
-  return { count, parsedText: parsedGlossary }
+  const hasCitationsOrGlossary = parsedLatex !== parsedGlossary
+
+  return { count, parsedText: parsedGlossary, hasCitationsOrGlossary }
 }
 
 export { parseText }

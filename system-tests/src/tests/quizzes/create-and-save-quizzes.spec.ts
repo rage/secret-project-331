@@ -104,8 +104,10 @@ const createMultipleChoice = async (frame: Locator) => {
   await frame.getByLabel("Title", { exact: true }).fill("multiple-choice-exercise")
   await frame.getByLabel("Option title", { exact: true }).click()
   await frame.getByLabel("Option title", { exact: true }).fill("option 1")
-  await frame.getByRole("textbox", { name: "Success messagefalse" }).click()
-  await frame.getByRole("textbox", { name: "Success messagefalse" }).fill("success message")
+  await frame.getByRole("textbox", { name: "Message after submission when selected" }).click()
+  await frame
+    .getByRole("textbox", { name: "Message after submission when selected" })
+    .fill("success message")
   await frame.getByLabel("Correct").check()
   await frame.getByRole("button", { name: "Add option" }).click()
   await frame.getByLabel("Option title", { exact: true }).click()
@@ -160,8 +162,10 @@ const createMultipleChoiceDropdown = async (frame: Locator) => {
   await frame.getByLabel("Option title", { exact: true }).click()
   await frame.getByLabel("Option title", { exact: true }).fill("option 1")
   await frame.getByLabel("Correct").check()
-  await frame.getByRole("textbox", { name: "Success messagefalse" }).click()
-  await frame.getByRole("textbox", { name: "Success messagefalse" }).fill("success message")
+  await frame.getByRole("textbox", { name: "Message after submission when selected" }).click()
+  await frame
+    .getByRole("textbox", { name: "Message after submission when selected" })
+    .fill("success message")
   await frame.getByRole("button", { name: "Add option" }).click()
   await frame.getByLabel("Option title", { exact: true }).click()
   await frame.getByLabel("Option title", { exact: true }).fill("option 2")
@@ -379,7 +383,7 @@ const createTimeline = async (frame: Locator) => {
   await frame.getByPlaceholder("Some notable event").click()
   await frame.getByPlaceholder("Some notable event").fill("event 3")
   await frame.getByRole("button", { name: "Add" }).click()
-  await frame.locator(".css-ryx5i-DeleteBtn").nth(1).click()
+  await frame.getByLabel("Delete").nth(1).click()
 }
 
 test("Create quizzes in page", async ({ page }) => {

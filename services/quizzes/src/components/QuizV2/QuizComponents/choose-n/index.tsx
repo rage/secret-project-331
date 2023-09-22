@@ -79,7 +79,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
   const { t } = useTranslation()
 
   const [optionTitle, setOptionTitle] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
+  const [messageAfterSubmissionWhenSelected, setMessageAfterSubmissionWhenSelected] = useState("")
   const [correct, setCorrect] = useState(false)
 
   const { selected, updateState } =
@@ -164,7 +164,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 })
               })
             }}
-            onSuccessMessageChange={(value) => {
+            onMessageAfterSubmissionWhenSelectedChange={(value) => {
               updateState((draft) => {
                 if (!draft) {
                   return
@@ -207,11 +207,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         </OptionCreationWrapper>
 
         <ParsedTextField
-          value={successMessage}
+          value={messageAfterSubmissionWhenSelected}
           onChange={(value) => {
-            setSuccessMessage(value)
+            setMessageAfterSubmissionWhenSelected(value)
           }}
-          label={t("success-message")}
+          label={t("message-after-submission-when-selected")}
         />
         <Button
           onClick={() => {
@@ -229,14 +229,14 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   body: "",
                   correct: correct,
                   id: v4(),
-                  messageAfterSubmissionWhenSelected: successMessage,
+                  messageAfterSubmissionWhenSelected,
                   title: optionTitle,
                 },
               ]
             })
             setCorrect(false)
             setOptionTitle("")
-            setSuccessMessage("")
+            setMessageAfterSubmissionWhenSelected("")
           }}
           variant="primary"
           size={"medium"}

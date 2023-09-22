@@ -34,6 +34,7 @@ const Wrapper = styled.div`
       width: 250px;
       height: 223px;
       object-fit: cover;
+      overflow-clip-margin: unset;
     }
   }
 

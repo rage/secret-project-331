@@ -38,6 +38,7 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.fill('textarea:below(:text("Description"))', "Course description")
 
   await page.click(`button:text("Create")`)
+  await page.getByText("Operation successful!").waitFor()
 
   await Promise.all([page.getByRole("link", { name: "Home" }).click()])
 

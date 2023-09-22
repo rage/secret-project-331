@@ -65,6 +65,7 @@ pub struct ExportedSubmission {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExportedCourseSubmission {
+    pub exercise_slide_submission_id: Uuid,
     pub id: Uuid,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -337,7 +338,8 @@ pub fn stream_course_submissions(
     sqlx::query_as!(
         ExportedCourseSubmission,
         "
-SELECT exercise_task_submissions.id,
+SELECT exercise_task_submissions.exercise_slide_submission_id,
+  exercise_task_submissions.id,
   user_id,
   exercise_task_submissions.created_at,
   exercise_slide_submissions.course_instance_id,

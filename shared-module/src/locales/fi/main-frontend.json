@@ -329,7 +329,7 @@
   "link-export-course-instances": "Lataa kurssiversiot CSV-muodossa",
   "link-export-exercise-tasks": "Lataa tehtävät CSV-muodossa",
   "link-export-points": "Vie pisteet tiedostoon",
-  "link-export-submissions": "Lataa palautukset CSV-muodossa",
+  "link-export-submissions": "Lataa palautukset (exercise tasks) CSV-muodossa",
   "link-export-user-details": "Lataa käyttäjien tiedot CSV-muodossa",
   "link-feedback": "Palautteet",
   "link-glossary": "Sanasto",

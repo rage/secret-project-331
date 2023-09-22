@@ -950,7 +950,7 @@ pub async fn submission_export(
     general_export(
         pool,
         &format!(
-            "attachment; filename=\"Course: {} - Submissions {}.csv\"",
+            "attachment; filename=\"Course: {} - Submissions (exercise tasks) {}.csv\"",
             course.name,
             Utc::now().format("%Y-%m-%d")
         ),

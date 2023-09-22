@@ -30,16 +30,16 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await page.locator("text=Export submissions as CSV").scrollIntoViewIfNeeded()
+  await page.locator("text=Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
 
   const [submissionsDownload] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Export submissions as CSV" }).click(),
+    page.getByRole("link", { name: "Export submissions (exercise tasks) as CSV" }).click(),
   ])
 
   const submissionsCsvContents = await downloadToString(submissionsDownload)
   expect(submissionsCsvContents).toContain(
-    "id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
+    "exercise_slide_submission_id,id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
   )
   expect(submissionsCsvContents).toContain("e10557bd-9835-51b4-b0d9-f1d9689ebc8d")
   expect(submissionsCsvContents).toContain(

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -249,6 +249,13 @@ const QuizItems: React.FC = () => {
     }
     return quiz
   })
+  const sortedItems = useMemo(() => {
+    if (!selected) {
+      return []
+    }
+    // Copy the array before sorting because sort mutates the array and the array currently may be immutable after updating it
+    return [...selected.items].sort((o1, o2) => o1.order - o2.order)
+  }, [selected])
 
   if (!selected) {
     return null
@@ -262,13 +269,15 @@ const QuizItems: React.FC = () => {
         </SubsectionTitleWrapper>
       </ItemsTitleContainer>
       <QuizItemContainer>
-        {selected.items.map((quizItem) => {
-          return (
-            <div key={quizItem.id}>
-              <QuizEditor quizItem={quizItem} />
-            </div>
-          )
-        })}
+        {sortedItems
+          .sort((o1, o2) => o1.order - o2.order)
+          .map((quizItem) => {
+            return (
+              <div key={quizItem.id}>
+                <QuizEditor quizItem={quizItem} />
+              </div>
+            )
+          })}
         <AddQuizItem quiz={selected} />
       </QuizItemContainer>
     </>

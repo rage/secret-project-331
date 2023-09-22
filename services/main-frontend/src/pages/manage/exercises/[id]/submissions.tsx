@@ -25,7 +25,7 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getExerciseSubmissions = useQuery({
+  const exerciseSubmissionsQuery = useQuery({
     queryKey: [`exercise-submissions`, query.id, paginationInfo.page, paginationInfo.limit],
     queryFn: () => fetchExerciseSubmissions(query.id, paginationInfo.page, paginationInfo.limit),
   })
@@ -39,15 +39,15 @@ const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = 
       >
         {t("header-submissions")}
       </h3>
-      {getExerciseSubmissions.isError && (
-        <ErrorBanner variant={"readOnly"} error={getExerciseSubmissions.error} />
+      {exerciseSubmissionsQuery.isError && (
+        <ErrorBanner variant={"readOnly"} error={exerciseSubmissionsQuery.error} />
       )}
-      {getExerciseSubmissions.isLoading && <Spinner variant={"medium"} />}
-      {getExerciseSubmissions.isSuccess && (
+      {exerciseSubmissionsQuery.isLoading && <Spinner variant={"medium"} />}
+      {exerciseSubmissionsQuery.isSuccess && (
         <>
-          <ExerciseSubmissionList exerciseSubmissions={getExerciseSubmissions.data.data} />
+          <ExerciseSubmissionList exerciseSubmissions={exerciseSubmissionsQuery.data.data} />
           <Pagination
-            totalPages={getExerciseSubmissions.data.total_pages}
+            totalPages={exerciseSubmissionsQuery.data.total_pages}
             paginationInfo={paginationInfo}
           />
         </>

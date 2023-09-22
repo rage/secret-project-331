@@ -383,7 +383,7 @@ const createTimeline = async (frame: Locator) => {
   await frame.getByPlaceholder("Some notable event").click()
   await frame.getByPlaceholder("Some notable event").fill("event 3")
   await frame.getByRole("button", { name: "Add" }).click()
-  await frame.locator(".css-ryx5i-DeleteBtn").nth(1).click()
+  await frame.getByLabel("Delete").nth(1).click()
 }
 
 test("Create quizzes in page", async ({ page }) => {

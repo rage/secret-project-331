@@ -229,6 +229,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
               />
               <ButtonWrapper>
                 <DeleteBtn
+                  aria-label={t("delete")}
                   onClick={() => {
                     updateState((draft) => {
                       if (!draft || !draft.timelineItems) {

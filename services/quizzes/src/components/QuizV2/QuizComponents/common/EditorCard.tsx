@@ -3,7 +3,7 @@ import { faArrowDown, faArrowUp, faTrash } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 
-import { PrivateSpecQuiz } from "../../../../../types/quizTypes/privateSpec"
+import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import Button from "../../../../shared-module/components/Button"
 
@@ -86,10 +86,13 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
               if (!draft) {
                 return
               }
+
               const currentItem = draft.items.find((item) => item.id === quizItemId)
               if (!currentItem) {
                 return
               }
+              removeDuplicateOrderNumbers(draft.items)
+              console.info(`Moving ${currentItem.id} (order ${currentItem.order}) up`)
               const orders = draft.items.map((item) => item.order).sort()
               const minOrder = Math.min(...orders)
 
@@ -120,6 +123,10 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   return item
                 })
                 draft.items = draft.items.sort((a, b) => a.order - b.order)
+                console.info("New orders")
+                for (const item of draft.items) {
+                  console.info(item.id, item.order)
+                }
               }
             })
           }}
@@ -135,6 +142,8 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
               if (!currentItem) {
                 return
               }
+              removeDuplicateOrderNumbers(draft.items)
+              console.info(`Moving ${currentItem.id} (order ${currentItem.order}) down`)
               const orders = draft.items.map((item) => item.order).sort()
               const maxOrder = Math.max(...orders)
 
@@ -164,6 +173,10 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
                   return item
                 })
                 draft.items = draft.items.sort((a, b) => a.order - b.order)
+                console.info("New orders")
+                for (const item of draft.items) {
+                  console.info(item.id, item.order)
+                }
               }
             })
           }}
@@ -189,6 +202,13 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
       </DeleteButtonContainer>
     </EditorWrapper>
   )
+}
+/** Modifies the order numbers in the given items so that there will be no duplicate order numbers */
+function removeDuplicateOrderNumbers(items: PrivateSpecQuizItem[]) {
+  const sorted = items.sort((a, b) => a.order - b.order)
+  for (let i = 0; i < sorted.length; i++) {
+    sorted[i].order = i
+  }
 }
 
 export default EditorCard

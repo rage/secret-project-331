@@ -128,7 +128,7 @@ const ParagraphBlock: React.FC<
       )
     }
   }
-  const { count, parsedText } = parseText(content, terms)
+  const { count, parsedText, hasCitationsOrGlossary } = parseText(content, terms)
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
@@ -142,7 +142,7 @@ const ParagraphBlock: React.FC<
         line-height: 160%;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
-        overflow-x: hidden;
+        ${!hasCitationsOrGlossary && `overflow-x: hidden;`}
 
         ${respondToOrLarger.md} {
           font-size: ${fontSizeMapper(fontSize)};

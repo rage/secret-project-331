@@ -107,12 +107,6 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     setOpen(true)
   }
 
-  // const openModalOnEnter = (event: React.KeyboardEvent<SVGSVGElement>) => {
-  //   if (event.key == "Enter") {
-  //     setOpen(true)
-  //   }
-  // }
-
   return (
     <>
       <Button
@@ -124,8 +118,6 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         size="small"
         variant="icon"
         onClick={openModal}
-
-        //   onKeyPress={openModalOnEnter}
       >
         <MagnifyingGlass size={16} weight="bold" />
       </Button>

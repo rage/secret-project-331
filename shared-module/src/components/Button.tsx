@@ -93,10 +93,14 @@ export const IconButtonStyles = (props: ButtonProps) => {
   const ICON_BUTTON_STYLES = `
     text-transform: ${props.transform};
     padding: ${theme.buttonSizes[props.size].padding};
-
-    color: #000000;
+    color: black;
     background: none;
     border: 0px;
+
+    &:hover, &:active, &:disabled {
+      background: none;
+    }
+
   `
   return ICON_BUTTON_STYLES
 }

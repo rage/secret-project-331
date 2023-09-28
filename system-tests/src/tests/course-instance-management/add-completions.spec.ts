@@ -38,7 +38,7 @@ test("test", async ({ page, headless }, testInfo) => {
   fbeb9286-3dd8-4896-a6b8-3faffa3fabd6,4
   3524d694-7fa8-4e73-aa1a-de9a20fd514b,3`)
 
-  await page.locator("text=Check").click()
+  await page.getByRole("button", { name: "Check" }).click()
 
   await page
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
@@ -71,7 +71,7 @@ test("test", async ({ page, headless }, testInfo) => {
   00e249d8-345f-4eff-aedb-7bdc4c44c1d5
   fbeb9286-3dd8-4896-a6b8-3faffa3fabd6`)
 
-  await page.locator("text=Check").click()
+  await page.getByRole("button", { name: "Check" }).click()
 
   await page
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (2)")')

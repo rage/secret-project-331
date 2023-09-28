@@ -78,9 +78,10 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
 
   await page.click('button:text-is("Save")')
 
-  await page.click(
-    'text=Chapter 2: The intermediariesChapter front pageTitleURL pathHiddenThe intermediaries/c >> [aria-label="Dropdown\\ menu"]',
-  )
+  await page
+    .getByRole("heading", { name: "Chapter 2: The intermediaries Dropdown menu" })
+    .getByRole("button", { name: "Dropdown menu" })
+    .click()
 
   await page.locator(`button:text-is("Edit")`).click()
 

@@ -1,10 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { isServer, useQuery } from "@tanstack/react-query"
+import { BellXmark, CheckCircle, MoveUpDownArrows } from "@vectopus/atlas-icons-react"
 import axios from "axios"
-import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
 import _ from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -390,14 +388,12 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   padding-left: 1rem;
                 `}
               >
-                <FontAwesomeIcon
-                  icon={isValidServiceInfo ? faCheck : faXmark}
-                  className={css`
-                    color: ${isValidServiceInfo
-                      ? baseTheme.colors.green[400]
-                      : baseTheme.colors.red[500]};
-                  `}
-                />
+                {isValidServiceInfo ? (
+                  <CheckCircle color={baseTheme.colors.green[400]} size={16} />
+                ) : (
+                  <BellXmark color={baseTheme.colors.red[500]} size={16} />
+                )}
+
                 <span
                   className={css`
                     margin: 0 0.5rem;
@@ -887,7 +883,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               align-items: center;
             `}
           >
-            <ArrowsVertical />
+            <MoveUpDownArrows />
             <select
               name="pets"
               id="pet-select"

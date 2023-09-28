@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -240,7 +241,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     })
                   }}
                 >
-                  <FontAwesomeIcon icon={faXmark} />
+                  <XmarkCircle />{" "}
                 </DeleteBtn>
               </ButtonWrapper>
             </List>

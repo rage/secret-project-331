@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
-import { faEllipsisV } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { DotsVertical } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -98,7 +97,7 @@ const DropdownMenu: React.FC<
         `}
         aria-label={expanded ? t("close") : t("dropdown-menu")}
       >
-        <FontAwesomeIcon icon={faEllipsisV} />
+        <DotsVertical size={16} weight="bold" />
       </button>
       {expanded && (
         <div

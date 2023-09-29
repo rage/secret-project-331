@@ -1,8 +1,5 @@
 use anyhow::Result;
 use bytes::Bytes;
-/*
-use futures::TryStreamExt;
-use headless_lms_models::exercise_task_submissions; */
 use headless_lms_models::course_instances;
 
 use async_trait::async_trait;
@@ -47,7 +44,7 @@ impl CsvExportDataLoader for CompletionsExportOperation {
     }
 }
 
-/// Writes the submissions as csv into the writer
+/// Writes the completions as csv into the writer
 pub async fn export_completions<W>(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -161,8 +158,8 @@ where
     for next in course_instances.into_iter() {
         let csv_row = vec![
             next.id.to_string(),
-            next.created_at.to_string(),
-            next.updated_at.to_string(),
+            next.created_at.to_rfc3339(),
+            next.updated_at.to_rfc3339(),
             next.name.unwrap_or_default(),
         ];
         writer.write_record(csv_row);

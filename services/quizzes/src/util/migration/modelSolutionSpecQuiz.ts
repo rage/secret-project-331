@@ -14,8 +14,8 @@ import {
   ModelSolutionQuizItemMultiplechoiceDropdown,
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
-  OldQuizItemType,
 } from "../../../types/quizTypes/modelSolutionSpec"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"

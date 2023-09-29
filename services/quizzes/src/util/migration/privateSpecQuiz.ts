@@ -6,8 +6,8 @@ import {
   OldQuizItemOption,
   QuizItem,
 } from "../../../types/oldQuizTypes"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import {
-  OldQuizItemType,
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,

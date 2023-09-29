@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
+import { OldQuiz } from "../../../types/oldQuizTypes"
 import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
-import { Quiz } from "../../../types/types"
 import { isSpecRequest } from "../../shared-module/bindings.guard"
 import { convertPublicSpecFromPrivateSpec } from "../../util/converter"
 import { isOldQuiz } from "../../util/migration/migrationSettings"
@@ -32,13 +32,13 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
     throw new Error("Invalid request")
   }
   const specRequest = req.body
-  const quiz = specRequest.private_spec as Quiz | PrivateSpecQuiz | null
+  const quiz = specRequest.private_spec as OldQuiz | PrivateSpecQuiz | null
   if (quiz === null) {
     throw "Quiz cannot be null"
   }
   let converted: PrivateSpecQuiz | null = null
   if (isOldQuiz(quiz)) {
-    converted = migratePrivateSpecQuiz(quiz as Quiz)
+    converted = migratePrivateSpecQuiz(quiz as OldQuiz)
   } else {
     converted = quiz as PrivateSpecQuiz
   }

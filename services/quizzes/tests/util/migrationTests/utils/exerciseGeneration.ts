@@ -1,12 +1,12 @@
 /* eslint-disable */
-import { ModelSolutionQuiz, ModelSolutionQuizItem, PublicQuiz, PublicQuizItem, PublicQuizItemOption, Quiz, QuizItem, QuizItemOption, QuizItemTimelineItem } from "../../../../types/types"
+import { OldModelSolutionQuiz, OldModelSolutionQuizItem, OldPublicQuiz, OldPublicQuizItem, OldPublicQuizItemOption, OldQuiz, QuizItem, OldQuizItemOption, OldQuizItemTimelineItem } from "../../../../types/oldQuizTypes"
 
 
 
 // Content for private quiz item
 
 // Private spec quiz
-const emptyPrivateQuizItemOption = (): QuizItemOption => ({
+const emptyPrivateQuizItemOption = (): OldQuizItemOption => ({
   id: 'v4()',
   title: '',
   body: '',
@@ -50,7 +50,7 @@ const emptyPrivateQuizItem = (): QuizItem => ({
   usesSharedOptionFeedbackMessage: false
 })
 
-const emptyPrivateQuiz = (): Quiz => ({
+const emptyPrivateQuiz = (): OldQuiz => ({
   id: '',
   updatedAt: new Date(),
   createdAt: new Date(),
@@ -75,7 +75,7 @@ const emptyPrivateQuiz = (): Quiz => ({
 })
 
 // Public spec quiz
-const emptyPublicQuiz = (): PublicQuiz => ({
+const emptyPublicQuiz = (): OldPublicQuiz => ({
   body: "",
   courseId: "",
   deadline: new Date(),
@@ -90,7 +90,7 @@ const emptyPublicQuiz = (): PublicQuiz => ({
   triesLimited: false
 })
 
-const emptyPublicQuizItem = (): PublicQuizItem => ({
+const emptyPublicQuizItem = (): OldPublicQuizItem => ({
   body: "",
   direction: "column",
   formatRegex: "",
@@ -113,7 +113,7 @@ const emptyPublicQuizItem = (): PublicQuizItem => ({
   type: ""
 })
 
-const emptyPublicQuizItemOption = (): PublicQuizItemOption => ({
+const emptyPublicQuizItemOption = (): OldPublicQuizItemOption => ({
   body: "",
   id: "",
   order: 0,
@@ -122,7 +122,7 @@ const emptyPublicQuizItemOption = (): PublicQuizItemOption => ({
 })
 
 // Model solution spec
-const emptyModelSolutionQuiz = (): ModelSolutionQuiz => ({
+const emptyModelSolutionQuiz = (): OldModelSolutionQuiz => ({
   autoConfirm: false,
   autoReject: false,
   awardPointsEvenIfWrong: false,
@@ -145,7 +145,7 @@ const emptyModelSolutionQuiz = (): ModelSolutionQuiz => ({
   updatedAt: new Date(),
 })
 
-const emptyModelSolutionQuizItem = (): ModelSolutionQuizItem => ({
+const emptyModelSolutionQuizItem = (): OldModelSolutionQuizItem => ({
   allAnswersCorrect: false,
   body: "",
   createdAt: new Date(),
@@ -177,7 +177,7 @@ const emptyModelSolutionQuizItem = (): ModelSolutionQuizItem => ({
 
 // Generate from templates above
 // Generate private spec quiz and quiz items
-export const generatePrivateQuiz = <T extends Partial<Quiz>>(initialValues: T): Quiz & T => {
+export const generatePrivateQuiz = <T extends Partial<OldQuiz>>(initialValues: T): OldQuiz & T => {
   return Object.assign(emptyPrivateQuiz(), initialValues);
 }
 
@@ -185,30 +185,30 @@ export const generatePrivateQuizItem = <T extends Partial<QuizItem>>(initialValu
   return Object.assign(emptyPrivateQuizItem(), initialValues);
 }
 
-export const generatePrivateQuizItemOption = <T extends Partial<QuizItemOption>>(initialValues: T): QuizItemOption & T => {
+export const generatePrivateQuizItemOption = <T extends Partial<OldQuizItemOption>>(initialValues: T): OldQuizItemOption & T => {
   return Object.assign(emptyPrivateQuizItemOption(), initialValues);
 }
 
 
 // Generate public spec quiz and quiz items
-export const generatePublicQuiz = <T extends Partial<PublicQuiz>>(initialValues: T): PublicQuiz & T => {
+export const generatePublicQuiz = <T extends Partial<OldPublicQuiz>>(initialValues: T): OldPublicQuiz & T => {
   return Object.assign(emptyPublicQuiz(), initialValues);
 }
 
-export const generatePublicQuizItem = <T extends Partial<PublicQuizItem>>(initialValues: T): PublicQuizItem & T => {
+export const generatePublicQuizItem = <T extends Partial<OldPublicQuizItem>>(initialValues: T): OldPublicQuizItem & T => {
   return Object.assign(emptyPublicQuizItem(), initialValues);
 }
 
-export const generatePublicQuizItemOption = <T extends Partial<PublicQuizItemOption>>(initialValues: T): PublicQuizItemOption & T => {
+export const generatePublicQuizItemOption = <T extends Partial<OldPublicQuizItemOption>>(initialValues: T): OldPublicQuizItemOption & T => {
   return Object.assign(emptyPublicQuizItemOption(), initialValues);
 }
 
 // Generate model solution spec quiz and quiz item
-export const generateModelSolutionQuiz = <T extends Partial<ModelSolutionQuiz>>(initialValues: T): ModelSolutionQuiz & T => {
+export const generateModelSolutionQuiz = <T extends Partial<OldModelSolutionQuiz>>(initialValues: T): OldModelSolutionQuiz & T => {
   return Object.assign(emptyModelSolutionQuiz(), initialValues);
 }
 
-export const generateModelSolutionQuizItem = <T extends Partial<ModelSolutionQuizItem>>(initialValues: T): ModelSolutionQuizItem & T => {
+export const generateModelSolutionQuizItem = <T extends Partial<OldModelSolutionQuizItem>>(initialValues: T): OldModelSolutionQuizItem & T => {
   return Object.assign(emptyModelSolutionQuizItem(), initialValues);
 }
 
@@ -229,7 +229,7 @@ const generateMultipleChoicePrivateSpecQuiz = (
   numberOfOptions: number,
   order: number,
 ): QuizItem => {
-  const quizOptions: QuizItemOption[] = []
+  const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
       generatePrivateQuizItemOption({
@@ -256,8 +256,8 @@ const generateMultipleChoicePrivateSpecQuiz = (
 const generateMultipleChoicePublicSpecQuiz = (
   numberOfOptions: number,
   order: number,
-): PublicQuizItem => {
-  const quizOptions: PublicQuizItemOption[] = []
+): OldPublicQuizItem => {
+  const quizOptions: OldPublicQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
       generatePublicQuizItemOption({
@@ -284,8 +284,8 @@ const generateMultipleChoiceModelSolutionSpecQuiz = (
   correctOptions: number,
   numberOfOptions: number,
   order: number,
-): ModelSolutionQuizItem => {
-  const quizOptions: QuizItemOption[] = []
+): OldModelSolutionQuizItem => {
+  const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
       generatePrivateQuizItemOption({
@@ -310,7 +310,7 @@ const generateMultipleChoiceModelSolutionSpecQuiz = (
 }
 // CHOOSE N -EXERCISE GENERATION
 const generateChooseNForOlderPrivateSpecQuiz = (numberOfOptions: number, order: number): QuizItem => {
-  const quizOptions: QuizItemOption[] = []
+  const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
       generatePrivateQuizItemOption({
@@ -335,8 +335,8 @@ const generateChooseNForOlderPrivateSpecQuiz = (numberOfOptions: number, order: 
   })
 }
 
-const generateChooseNForOlderPublicSpecQuiz = (numberOfOptions: number, order: number): PublicQuizItem => {
-  const quizOptions: QuizItemOption[] = []
+const generateChooseNForOlderPublicSpecQuiz = (numberOfOptions: number, order: number): OldPublicQuizItem => {
+  const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
       generatePrivateQuizItemOption({
@@ -361,8 +361,8 @@ const generateChooseNForOlderPublicSpecQuiz = (numberOfOptions: number, order: n
   })
 }
 
-const generateChooseNForOlderModelSolutionSpecQuiz = (numberOfOptions: number, order: number): ModelSolutionQuizItem => {
-  const quizOptions: QuizItemOption[] = []
+const generateChooseNForOlderModelSolutionSpecQuiz = (numberOfOptions: number, order: number): OldModelSolutionQuizItem => {
+  const quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(
       generatePrivateQuizItemOption({
@@ -400,7 +400,7 @@ const generateCheckboxForOlderPrivateSpecQuiz = (order: number): QuizItem => {
   })
 }
 
-const generateCheckboxForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+const generateCheckboxForOlderPublicSpecQuiz = (order: number): OldPublicQuizItem => {
   return generatePublicQuizItem({
     id: "checkbox-exercise",
     type: "checkbox",
@@ -412,7 +412,7 @@ const generateCheckboxForOlderPublicSpecQuiz = (order: number): PublicQuizItem =
   })
 }
 
-const generateCheckboxForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+const generateCheckboxForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "checkbox-exercise",
     type: "checkbox",
@@ -438,7 +438,7 @@ const generateEssayForOlderPrivateSpecQuiz = (order: number): QuizItem => {
   })
 }
 
-const generateEssayForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+const generateEssayForOlderPublicSpecQuiz = (order: number): OldPublicQuizItem => {
   return generatePublicQuizItem({
     id: "essay-exercise",
     type: "essay",
@@ -452,7 +452,7 @@ const generateEssayForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
   })
 }
 
-const generateEssayForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+const generateEssayForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "essay-exercise",
     type: "essay",
@@ -482,7 +482,7 @@ const generateMatrixForOlderPrivateSpecQuiz = (order: number): QuizItem => {
   })
 }
 
-const generateMatrixForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+const generateMatrixForOlderPublicSpecQuiz = (order: number): OldPublicQuizItem => {
   return generatePublicQuizItem({
     id: "matrix-exercise",
     type: "matrix",
@@ -497,7 +497,7 @@ const generateMatrixForOlderPublicSpecQuiz = (order: number): PublicQuizItem => 
   })
 }
 
-const generateMatrixForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+const generateMatrixForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "matrix-exercise",
     type: "matrix",
@@ -526,7 +526,7 @@ const generateClosedEndedForOlderPrivateSpecQuiz = (order: number): QuizItem => 
   })
 }
 
-const generateClosedEndedForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+const generateClosedEndedForOlderPublicSpecQuiz = (order: number): OldPublicQuizItem => {
   return generatePublicQuizItem({
     id: "closed-ended-exercise",
     type: "open",
@@ -540,7 +540,7 @@ const generateClosedEndedForOlderPublicSpecQuiz = (order: number): PublicQuizIte
   })
 }
 
-const generateClosedEndedForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+const generateClosedEndedForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "closed-ended-exercise",
     type: "open",
@@ -571,7 +571,7 @@ const generateScaleForOlderPrivateSpecQuiz = (order: number): QuizItem => {
   })
 }
 
-const generateScaleForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+const generateScaleForOlderPublicSpecQuiz = (order: number): OldPublicQuizItem => {
   return generatePublicQuizItem({
     id: "scale-exercise",
     type: "scale",
@@ -587,7 +587,7 @@ const generateScaleForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
   })
 }
 
-const generateScaleForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+const generateScaleForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "scale-exercise",
     type: "scale",
@@ -617,12 +617,12 @@ const generateTimelineForOlderPrivateSpecQuiz = (order: number): QuizItem => {
         year: "2000",
         correctEventName: "event-name-2000",
         correctEventId: "0001",
-      } as QuizItemTimelineItem,
+      } as OldQuizItemTimelineItem,
     ],
   })
 }
 
-const generateTimelineForOlderPublicSpecQuiz = (order: number): PublicQuizItem => {
+const generateTimelineForOlderPublicSpecQuiz = (order: number): OldPublicQuizItem => {
   return generatePublicQuizItem({
     id: "timeline-exercise",
     type: "timeline",
@@ -635,12 +635,12 @@ const generateTimelineForOlderPublicSpecQuiz = (order: number): PublicQuizItem =
         year: "2000",
         correctEventName: "event-name-2000",
         correctEventId: "0001",
-      } as QuizItemTimelineItem,
+      } as OldQuizItemTimelineItem,
     ],
   })
 }
 
-const generateTimelineForOlderModelSolutionSpecQuiz = (order: number): ModelSolutionQuizItem => {
+const generateTimelineForOlderModelSolutionSpecQuiz = (order: number): OldModelSolutionQuizItem => {
   return generateModelSolutionQuizItem({
     id: "timeline-exercise",
     type: "timeline",
@@ -653,7 +653,7 @@ const generateTimelineForOlderModelSolutionSpecQuiz = (order: number): ModelSolu
         year: "2000",
         correctEventName: "event-name-2000",
         correctEventId: "0001",
-      } as QuizItemTimelineItem,
+      } as OldQuizItemTimelineItem,
     ],
   })
 }
@@ -665,11 +665,11 @@ const packToPrivateSpecQuiz = (
 ) => (generatePrivateQuiz({ items: quizItems}))
 
 const packToPublicSpecQuiz = (
-  quizItems: PublicQuizItem[]
+  quizItems: OldPublicQuizItem[]
 ) => generatePublicQuiz({ items: quizItems })
 
 const packToModelSolutionSpecQuiz = (
-  quizItems: ModelSolutionQuizItem[]
+  quizItems: OldModelSolutionQuizItem[]
 ) => generateModelSolutionQuiz({ items: quizItems })
 
 export {

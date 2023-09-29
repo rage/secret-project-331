@@ -1,4 +1,8 @@
 import {
+  OldModelSolutionQuiz as OldModelSolutionQuiz,
+  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+} from "../../../types/oldQuizTypes"
+import {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
   ModelSolutionQuizItemCheckbox,
@@ -12,10 +16,6 @@ import {
   ModelSolutionQuizItemTimeline,
   OldQuizItemType,
 } from "../../../types/quizTypes/modelSolutionSpec"
-import {
-  ModelSolutionQuiz as OldModelSolutionQuiz,
-  ModelSolutionQuizItem as OldModelSolutionQuizItem,
-} from "../../../types/types"
 import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"

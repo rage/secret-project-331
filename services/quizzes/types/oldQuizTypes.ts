@@ -1,5 +1,5 @@
 /** @deprecated */
-export interface Quiz {
+export interface OldQuiz {
   id: string
   courseId: string
   part: number
@@ -24,7 +24,7 @@ export interface Quiz {
 }
 
 /** @deprecated */
-export interface NormalizedQuiz {
+export interface OldNormalizedQuiz {
   id: string
   courseId: string
   part: number
@@ -50,8 +50,8 @@ export interface NormalizedQuiz {
 }
 
 /** @deprecated */
-export interface QuizVariables {
-  initialState: Quiz
+export interface OldQuizVariables {
+  initialState: OldQuiz
   addingNewItem: boolean
   newItemType: string
   newItems: string[]
@@ -62,7 +62,7 @@ export interface QuizVariables {
 }
 
 /** @deprecated */
-export interface PublicQuiz {
+export interface OldPublicQuiz {
   id: string
   courseId: string
   part: number
@@ -72,13 +72,13 @@ export interface PublicQuiz {
   open: Date | null
   tries: number
   triesLimited: boolean
-  items: PublicQuizItem[]
+  items: OldPublicQuizItem[]
   title: string
   body: string
 }
 
 /** @deprecated */
-export interface ModelSolutionQuiz {
+export interface OldModelSolutionQuiz {
   id: string
   courseId: string
   part: number
@@ -95,14 +95,14 @@ export interface ModelSolutionQuiz {
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
   autoReject: boolean
-  items: ModelSolutionQuizItem[]
+  items: OldModelSolutionQuizItem[]
   title: string
   body: string
   submitMessage: string | null
 }
 
 /** @deprecated */
-type multipleChoiceMultipleOptionsGradingPolicy =
+export type oldMultipleChoiceMultipleOptionsGradingPolicy =
   | "default"
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
@@ -125,7 +125,7 @@ export interface QuizItem {
   maxLabel: string | null
   minLabel: string | null
   usesSharedOptionFeedbackMessage: boolean
-  options: QuizItemOption[]
+  options: OldQuizItemOption[]
   optionCells: string[][] | null
   title: string
   body: string
@@ -134,20 +134,20 @@ export interface QuizItem {
   sharedOptionFeedbackMessage: null
   allAnswersCorrect: boolean
   direction: "row" | "column"
-  timelineItems: QuizItemTimelineItem[] | null
-  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
+  timelineItems: OldQuizItemTimelineItem[] | null
+  multipleChoiceMultipleOptionsGradingPolicy: oldMultipleChoiceMultipleOptionsGradingPolicy
 }
 
 /** @deprecated */
-export interface QuizItemModelSolution {
+export interface OldQuizItemModelSolution {
   quizItemId: string
-  options?: OptionsFeedback[]
+  options?: OldOptionsFeedback[]
   successMessage?: string
   failureMessage?: string
 }
 
 /** @deprecated */
-export interface OptionsFeedback {
+export interface OldOptionsFeedback {
   optionId: string
   successMessage?: string
   failureMessage?: string
@@ -159,9 +159,9 @@ export interface OptionsFeedback {
  * See this for an introduction to normalization in Redux: https://redux.js.org/tutorials/essentials/part-6-performance-normalization#normalizing-data
  */
 /** @deprecated */
-export interface NormalizedQuizItem {
+export interface OldNormalizedQuizItem {
   shuffleOptions: boolean
-  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
+  multipleChoiceMultipleOptionsGradingPolicy: oldMultipleChoiceMultipleOptionsGradingPolicy
   id: string
   quizId: string
   type: string
@@ -190,7 +190,7 @@ export interface NormalizedQuizItem {
 }
 
 /** @deprecated */
-export interface QuizItemVariables {
+export interface OldQuizItemVariables {
   scaleMin: number
   scaleMax: number
   array: number[]
@@ -208,7 +208,7 @@ export interface QuizItemVariables {
 }
 
 /** @deprecated */
-export interface PublicQuizItem {
+export interface OldPublicQuizItem {
   id: string
   quizId: string
   type: string
@@ -216,17 +216,17 @@ export interface PublicQuizItem {
   formatRegex: string | null
   multi: boolean
   shuffleOptions: boolean
-  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
+  multipleChoiceMultipleOptionsGradingPolicy: oldMultipleChoiceMultipleOptionsGradingPolicy
   minWords: number | null
   maxWords: number | null
   maxValue: number | null
   minValue: number | null
   maxLabel: string | null
   minLabel: string | null
-  options: PublicQuizItemOption[]
-  timelineItems: PublicTimelineItem[]
+  options: OldPublicQuizItemOption[]
+  timelineItems: OldPublicTimelineItem[]
   /** A list of events to choose from when matching years to events. */
-  timelineItemEvents: PublicTimelineEvent[]
+  timelineItemEvents: OldPublicTimelineEvent[]
   title: string
   body: string
   direction: "row" | "column"
@@ -238,23 +238,23 @@ export interface PublicQuizItem {
  *
  * The correctEvent is omitted from here because it's the correct answer and we don't want to show that to the students before they have solved the exercise. All available options can be found in `PublicQuizItem.timelineItemEvents`.
  * */
-export interface PublicTimelineItem {
+export interface OldPublicTimelineItem {
   id: string
   /** The year the student is supposed to match to an event. */
   year: string
 }
 
 /** @deprecated */
-export interface PublicTimelineEvent {
+export interface OldPublicTimelineEvent {
   id: string
   name: string
 }
 
 /** @deprecated */
-export type ModelSolutionQuizItem = Omit<QuizItem, "validityRegex">
+export type OldModelSolutionQuizItem = Omit<QuizItem, "validityRegex">
 
 /** @deprecated */
-export interface QuizItemOption {
+export interface OldQuizItemOption {
   id: string
   quizItemId?: string
   order: number
@@ -268,7 +268,7 @@ export interface QuizItemOption {
 }
 
 /** @deprecated */
-export interface NormalizedQuizItemOption {
+export interface OldNormalizedQuizItemOption {
   id: string
   quizItemId: string
   order: number
@@ -295,7 +295,7 @@ export interface NormalizedQuizItemOption {
 
 /** @deprecated
  *  Only defined for the timeline exercise type */
-export interface NormalizedQuizItemTimelineItem {
+export interface OldNormalizedQuizItemTimelineItem {
   id: string
   /** The year the student is supposed to match to an event. */
   year: string
@@ -306,15 +306,15 @@ export interface NormalizedQuizItemTimelineItem {
 }
 
 /** @deprecated */
-export type QuizItemTimelineItem = NormalizedQuizItemTimelineItem
+export type OldQuizItemTimelineItem = OldNormalizedQuizItemTimelineItem
 
 /** @deprecated */
-export interface QuizItemOptionVariables {
+export interface OldQuizItemOptionVariables {
   optionEditing: boolean
 }
 
 /** @deprecated */
-export interface PublicQuizItemOption {
+export interface OldPublicQuizItemOption {
   id: string
   quizItemId?: string
   order: number
@@ -323,17 +323,17 @@ export interface PublicQuizItemOption {
 }
 
 /** @deprecated */
-export interface QuizAnswer {
+export interface OldQuizAnswer {
   id: string
   createdAt: string
   updatedAt: string
   quizId: string
   status: "confirmed" | "open" | "locked"
-  itemAnswers: QuizItemAnswer[]
+  itemAnswers: OldQuizItemAnswer[]
 }
 
 /** @deprecated */
-export interface QuizItemAnswer {
+export interface OldQuizItemAnswer {
   id: string
   quizAnswerId: string
   quizItemId: string
@@ -348,11 +348,11 @@ export interface QuizItemAnswer {
   optionAnswers: string[] | null
   optionCells: string[][] | null
   /** Only used for timeline answers. */
-  timelineChoices: TimelineChoice[] | null
+  timelineChoices: OldTimelineChoice[] | null
 }
 
 /** @deprecated */
-export interface TimelineChoice {
+export interface OldTimelineChoice {
   /** We use timelineItem id to match for answers so that this is resilient to typo fixes in the year */
   timelineItemId: string
   /** We use a generated id to match the choices to options to make this resilient to typo fixes event name. */
@@ -360,7 +360,7 @@ export interface TimelineChoice {
 }
 
 /** @deprecated */
-export interface UserQuizState {
+export interface OldUserQuizState {
   userId: number
   quizId: string
   peerReviewsGiven: number
@@ -374,16 +374,16 @@ export interface UserQuizState {
 }
 
 /** @deprecated */
-export interface Entities {
-  quizzes: { [quizId: string]: NormalizedQuiz }
-  items: { [itemId: string]: NormalizedQuizItem }
-  options?: { [optionId: string]: NormalizedQuizItemOption }
-  timelineItems?: { [timelineItemId: string]: NormalizedQuizItemTimelineItem }
+export interface OldEntities {
+  quizzes: { [quizId: string]: OldNormalizedQuiz }
+  items: { [itemId: string]: OldNormalizedQuizItem }
+  options?: { [optionId: string]: OldNormalizedQuizItemOption }
+  timelineItems?: { [timelineItemId: string]: OldNormalizedQuizItemTimelineItem }
   result: string
 }
 
 /** @deprecated */
-export interface action {
+export interface OldAction {
   type: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any

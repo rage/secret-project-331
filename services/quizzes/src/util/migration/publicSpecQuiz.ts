@@ -1,3 +1,4 @@
+import { OldPublicQuiz, OldPublicQuizItem } from "../../../types/oldQuizTypes"
 import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
 import {
   PublicQuizItemOption,
@@ -13,14 +14,13 @@ import {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../types/quizTypes/publicSpec"
-import { PublicQuiz, PublicQuizItem } from "../../../types/types"
 import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 
-const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem => {
+const migratePublicSpecQuizItem = (quizItem: OldPublicQuizItem): PublicSpecQuizItem => {
   switch (quizItem.type as OldQuizItemType) {
     case "essay":
       return {
@@ -136,7 +136,7 @@ const migratePublicSpecQuizItem = (quizItem: PublicQuizItem): PublicSpecQuizItem
   }
 }
 
-const migratePublicSpecQuiz = (oldPublicSpecQuiz: PublicQuiz): PublicSpecQuiz => {
+const migratePublicSpecQuiz = (oldPublicSpecQuiz: OldPublicQuiz): PublicSpecQuiz => {
   const PublicSpecQuiz: PublicSpecQuiz = {
     version: "2",
     body: oldPublicSpecQuiz.body,

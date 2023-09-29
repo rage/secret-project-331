@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
+import { OldQuiz } from "../../../types/oldQuizTypes"
 import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
-import { Quiz } from "../../../types/types"
 import { isSpecRequest } from "../../shared-module/bindings.guard"
 import { isOldQuiz } from "../../util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "../../util/migration/modelSolutionSpecQuiz"
@@ -30,7 +30,7 @@ function handleModelSolutionGeneration(
     throw new Error("Request was not valid.")
   }
   const specRequest = req.body
-  const quiz = specRequest.private_spec as Quiz | null
+  const quiz = specRequest.private_spec as OldQuiz | null
   if (quiz === null) {
     throw "Private spec cannot be null"
   }
@@ -39,10 +39,10 @@ function handleModelSolutionGeneration(
   return res.status(200).json(modelSolution)
 }
 
-function createModelSolution(quiz: Quiz | ModelSolutionQuiz): ModelSolutionQuiz {
+function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {
   let modelSolution: ModelSolutionQuiz | null = null
   if (isOldQuiz(quiz)) {
-    modelSolution = migrateModelSolutionSpecQuiz(quiz as Quiz)
+    modelSolution = migrateModelSolutionSpecQuiz(quiz as OldQuiz)
   } else {
     modelSolution = quiz as ModelSolutionQuiz
   }

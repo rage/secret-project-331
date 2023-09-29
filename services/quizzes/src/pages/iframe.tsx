@@ -4,16 +4,16 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
+import {
+  OldModelSolutionQuiz as oldModelSolutionQuiz,
+  OldPublicQuiz,
+  OldQuiz,
+  OldQuizAnswer,
+} from "../../types/oldQuizTypes"
 import { UserAnswer } from "../../types/quizTypes/answer"
 import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
-import {
-  ModelSolutionQuiz as oldModelSolutionQuiz,
-  PublicQuiz,
-  Quiz,
-  QuizAnswer,
-} from "../../types/types"
 import Renderer from "../components/Renderer"
 import { ItemAnswerFeedback } from "../grading/feedback"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
@@ -39,7 +39,7 @@ import migrateQuizAnswer from "../util/migration/userAnswerSpec"
 
 export interface SubmissionData {
   submission_result: StudentExerciseTaskSubmissionResult
-  user_answer: QuizAnswer
+  user_answer: OldQuizAnswer
   public_spec: unknown
 }
 
@@ -81,15 +81,15 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           }
           let public_spec = messageData.data.public_spec
           let quiz_answer = messageData.data.previous_submission
-          if (isOldQuiz(messageData.data.previous_submission as QuizAnswer)) {
+          if (isOldQuiz(messageData.data.previous_submission as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (messageData.data.previous_submission as any)?.private_spec as QuizAnswer,
+              (messageData.data.previous_submission as any)?.private_spec as OldQuizAnswer,
               public_spec as PublicSpecQuiz,
             )
           }
-          if (isOldQuiz(public_spec as PublicQuiz)) {
-            public_spec = migratePublicSpecQuiz(public_spec as PublicQuiz)
+          if (isOldQuiz(public_spec as OldPublicQuiz)) {
+            public_spec = migratePublicSpecQuiz(public_spec as OldPublicQuiz)
           }
           setState({
             viewType: messageData.view_type,
@@ -126,7 +126,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (isOldQuiz(converted as any)) {
               converted = migrateQuiz(converted)
-              converted = migratePrivateSpecQuiz(converted as Quiz)
+              converted = migratePrivateSpecQuiz(converted as OldQuiz)
             }
 
             if (converted === null || converted === undefined) {
@@ -158,18 +158,18 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           let public_spec = messageData.data.public_spec
           let model_solution_spec = messageData.data.model_solution_spec
           let quiz_answer = messageData.data.user_answer
-          if (isOldQuiz(public_spec as PublicQuiz)) {
-            public_spec = migratePublicSpecQuiz(public_spec as PublicQuiz)
+          if (isOldQuiz(public_spec as OldPublicQuiz)) {
+            public_spec = migratePublicSpecQuiz(public_spec as OldPublicQuiz)
           }
-          if (isOldQuiz(model_solution_spec as PublicQuiz)) {
+          if (isOldQuiz(model_solution_spec as OldPublicQuiz)) {
             model_solution_spec = migrateModelSolutionSpecQuiz(
               model_solution_spec as oldModelSolutionQuiz,
             )
           }
-          if (isOldQuiz(messageData.data.user_answer as QuizAnswer)) {
+          if (isOldQuiz(messageData.data.user_answer as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              messageData.data.user_answer as any as QuizAnswer,
+              messageData.data.user_answer as any as OldQuizAnswer,
               public_spec as PublicSpecQuiz,
             )
           }

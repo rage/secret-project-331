@@ -1,3 +1,4 @@
+import { OldQuizAnswer, OldQuizItemAnswer } from "../../../types/oldQuizTypes"
 import {
   UserAnswer,
   UserItemAnswer,
@@ -13,9 +14,8 @@ import {
 } from "../../../types/quizTypes/answer"
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
-import { QuizAnswer, QuizItemAnswer } from "../../../types/types"
 
-const convertIntDataForScale = (quizItemAnswer: QuizItemAnswer) => {
+const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
   if (!quizItemAnswer.intData) {
     if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
       try {
@@ -29,7 +29,7 @@ const convertIntDataForScale = (quizItemAnswer: QuizItemAnswer) => {
 }
 
 const migrateQuizItemAnswer = (
-  quizItemAnswer: QuizItemAnswer,
+  quizItemAnswer: OldQuizItemAnswer,
   quizItem: PrivateSpecQuizItem | PublicSpecQuizItem,
 ): UserItemAnswer => {
   switch (quizItem.type) {
@@ -109,7 +109,7 @@ const migrateQuizItemAnswer = (
 }
 
 const migrateQuizAnswer = (
-  quizAnswer: QuizAnswer | null,
+  quizAnswer: OldQuizAnswer | null,
   privateSpecQuiz: PrivateSpecQuiz | PublicSpecQuiz | null,
 ): UserAnswer | null => {
   if (quizAnswer === null || privateSpecQuiz === null) {

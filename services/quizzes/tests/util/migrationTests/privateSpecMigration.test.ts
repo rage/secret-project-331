@@ -3,6 +3,7 @@
 
 import { isOldQuiz } from "../../../src/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../../../src/util/migration/privateSpecQuiz"
+import { OldQuiz, OldQuizItemTimelineItem, QuizItem } from "../../../types/oldQuizTypes"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
@@ -14,7 +15,6 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { Quiz, QuizItem, QuizItemTimelineItem } from "../../../types/types"
 import { generateQuiz } from "../../api/utils/quizGenerator"
 
 import { comparePrivateSpecQuizItem, expectPrivateSpecMetadataToMatch } from "./utils/comparison"
@@ -32,7 +32,7 @@ import {
 
 describe("private spec", () => {
   test("distinguishes between old and new quiz", () => {
-    const oldQuiz: Quiz = generateQuiz({
+    const oldQuiz: OldQuiz = generateQuiz({
       id: "example-quiz",
     })
     const newQuiz: PrivateSpecQuiz = migratePrivateSpecQuiz(oldQuiz)!
@@ -142,7 +142,7 @@ describe("private spec", () => {
     const newQuizItem: PrivateSpecQuizItemTimeline = newQuiz.items[0] as PrivateSpecQuizItemTimeline
 
     // This will always be defined
-    const timelineItems: QuizItemTimelineItem[] = oldQuizItem.timelineItems ?? []
+    const timelineItems: OldQuizItemTimelineItem[] = oldQuizItem.timelineItems ?? []
 
     expect(newQuizItem.type).toEqual("timeline")
     expectPrivateSpecMetadataToMatch(oldQuiz, newQuiz)

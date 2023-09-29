@@ -8,8 +8,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { OldNormalizedQuizItemTimelineItem } from "../../../../../types/oldQuizTypes"
 import { PrivateSpecQuizItemTimeline } from "../../../../../types/quizTypes/privateSpec"
-import { NormalizedQuizItemTimelineItem } from "../../../../../types/types"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { baseTheme } from "../../../../shared-module/styles"
@@ -196,7 +196,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                         return {
                           ...item,
                           year: isNaN(parsedYear) ? "0" : value,
-                        } as NormalizedQuizItemTimelineItem
+                        } as OldNormalizedQuizItemTimelineItem
                       }
                       return item
                     })
@@ -267,7 +267,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
               correctEventId: v4(),
               year: data.year,
               correctEventName: data.event,
-            } as NormalizedQuizItemTimelineItem)
+            } as OldNormalizedQuizItemTimelineItem)
           })
           reset()
         })}

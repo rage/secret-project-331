@@ -227,7 +227,7 @@
         <span class="kw">let </span>csv_row = <span class="macro">vec!</span>[
             next.id.to_string(),
             next.user_id.to_string(),
-            next.created_at.to_string(),
+            next.created_at.to_rfc3339(),
             next.exercise_id.to_string(),
             next.exercise_task_id.to_string(),
             next.score_given.unwrap_or(<span class="number">0.0</span>).to_string(),
@@ -253,7 +253,7 @@
         conn: <span class="kw-2">&amp;mut </span>PgConnection,
         token: AuthorizationToken,
     ) -&gt; anyhow::Result&lt;CSVExportAdapter&gt; {
-        export_course_submissions(
+        export_course_exercise_task_submissions(
             <span class="kw-2">&amp;mut *</span>conn,
             <span class="self">self</span>.course_id,
             CSVExportAdapter {
@@ -266,7 +266,7 @@
 }
 
 <span class="doccomment">/// Writes the course submissions as csv into the writer
-</span><span class="kw">pub async fn </span>export_course_submissions&lt;W&gt;(
+</span><span class="kw">pub async fn </span>export_course_exercise_task_submissions&lt;W&gt;(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
     writer: W,
@@ -276,7 +276,7 @@
 {
     <span class="kw">let </span>headers = IntoIterator::into_iter([
         <span class="string">&quot;exercise_slide_submission_id&quot;</span>.to_string(),
-        <span class="string">&quot;id&quot;</span>.to_string(),
+        <span class="string">&quot;exercise_task_submission_id&quot;</span>.to_string(),
         <span class="string">&quot;user_id&quot;</span>.to_string(),
         <span class="string">&quot;created_at&quot;</span>.to_string(),
         <span class="string">&quot;course_instance_id&quot;</span>.to_string(),
@@ -294,7 +294,7 @@
             next.exercise_slide_submission_id.to_string(),
             next.id.to_string(),
             next.user_id.to_string(),
-            next.created_at.to_string(),
+            next.created_at.to_rfc3339(),
             next.course_instance_id
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string()),

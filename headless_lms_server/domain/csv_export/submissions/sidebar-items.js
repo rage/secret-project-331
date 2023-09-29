@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["export_course_submissions","export_exam_submissions"],"struct":["CourseSubmissionExportOperation","ExamSubmissionExportOperation"]};
+window.SIDEBAR_ITEMS = {"fn":["export_course_exercise_task_submissions","export_exam_submissions"],"struct":["CourseSubmissionExportOperation","ExamSubmissionExportOperation"]};

@@ -150,8 +150,8 @@
     <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
         <span class="kw">let </span>csv_row = <span class="macro">vec!</span>[
             next.id.to_string(),
-            next.created_at.to_string(),
-            next.updated_at.to_string(),
+            next.created_at.to_rfc3339(),
+            next.updated_at.to_rfc3339(),
             next.exercise_type.to_string(),
             next.private_spec
                 .map(|o| o.to_string())

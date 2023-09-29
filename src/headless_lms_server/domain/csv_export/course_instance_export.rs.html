@@ -167,15 +167,9 @@
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>bytes::Bytes;
-<span class="comment">/*
-use futures::TryStreamExt;
-use headless_lms_models::exercise_task_submissions; */
-</span><span class="kw">use </span>headless_lms_models::course_instances;
+<span class="kw">use </span>headless_lms_models::course_instances;
 
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>models::library::progressing;
@@ -219,7 +213,7 @@ use headless_lms_models::exercise_task_submissions; */
     </span>}
 }
 
-<span class="doccomment">/// Writes the submissions as csv into the writer
+<span class="doccomment">/// Writes the completions as csv into the writer
 </span><span class="kw">pub async fn </span>export_completions&lt;W&gt;(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_instance_id: Uuid,
@@ -333,8 +327,8 @@ use headless_lms_models::exercise_task_submissions; */
     <span class="kw">for </span>next <span class="kw">in </span>course_instances.into_iter() {
         <span class="kw">let </span>csv_row = <span class="macro">vec!</span>[
             next.id.to_string(),
-            next.created_at.to_string(),
-            next.updated_at.to_string(),
+            next.created_at.to_rfc3339(),
+            next.updated_at.to_rfc3339(),
             next.name.unwrap_or_default(),
         ];
         writer.write_record(csv_row);

@@ -3,18 +3,15 @@ import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { groupBy } from "lodash"
 import * as React from "react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseId } from "../../../../../../services/backend"
-import {
-  PeerReviewQuestion,
-  PeerReviewQuestionSubmission,
-} from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
-import PeerReviewQuestionAnswer from "./PeerReviewQuestionAnswer"
+import ReceivedPeerReview from "./ReceivedPeerReview"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }
@@ -108,15 +105,36 @@ interface PeerReviewProps {
   submissionId: string
 }
 
-const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId }) => {
+const PeerReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId }) => {
   const { t } = useTranslation()
-  let result: PeerReviewQuestionSubmission[] = []
-  let questions: PeerReviewQuestion[] = []
 
   const getPeerReviewReceived = useQuery({
     queryKey: [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
     queryFn: () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
   })
+
+  const data = useMemo(() => {
+    const ordered = getPeerReviewReceived.data?.peer_review_question_submissions.sort(
+      (a, b) => b.created_at.getTime() - a.created_at.getTime(),
+    )
+
+    const groupByPeerReviewSubmissionId = groupBy(
+      ordered,
+      (review) => review.peer_review_submission_id,
+    )
+
+    let res = Object.values(groupByPeerReviewSubmissionId)
+    res = res.sort((a, b) => {
+      if (a.length === 0) {
+        return 1
+      }
+      if (b.length === 0) {
+        return -1
+      }
+      return b[0].created_at.getTime() - a[0].created_at.getTime()
+    })
+    return res
+  }, [getPeerReviewReceived.data?.peer_review_question_submissions])
 
   if (getPeerReviewReceived.isLoading) {
     return <Spinner variant={"medium"} />
@@ -126,35 +144,19 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
     return <ErrorBanner variant={"readOnly"} error={getPeerReviewReceived.error} />
   }
 
-  if (
-    getPeerReviewReceived.isSuccess &&
-    getPeerReviewReceived.data.peer_review_question_submissions.length > 0
-  ) {
-    const { peer_review_questions, peer_review_question_submissions } = getPeerReviewReceived.data
-    result = peer_review_question_submissions
-    questions = peer_review_questions
-  }
-
-  const ordered = result.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
-
-  const groupByPeerReviewSubmissionId = groupBy(
-    ordered,
-    (review) => review.peer_review_submission_id,
-  )
-
   return (
     <Wrapper>
       <details>
         <summary>
           {t("peer-reviews-received-from-other-student")}
-          <Notification>{Object.keys(groupByPeerReviewSubmissionId).length ?? "0"}</Notification>
+          <Notification>{data.length ?? "0"}</Notification>
         </summary>
-        {Object.values(groupByPeerReviewSubmissionId).map((item, index) => (
-          <PeerReviewQuestionAnswer
+        {data.map((item, index) => (
+          <ReceivedPeerReview
             orderNumber={index}
             key={index}
             review={item}
-            questions={questions}
+            questions={getPeerReviewReceived.data.peer_review_questions}
           />
         ))}
       </details>
@@ -162,4 +164,4 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
   )
 }
 
-export default PeerReview
+export default PeerReviewsReceived

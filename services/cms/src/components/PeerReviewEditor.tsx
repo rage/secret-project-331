@@ -95,8 +95,6 @@ const StyledQuestionType = styled.div`
   }
 `
 
-const HEADING_TEXT = "Configure review answers option"
-
 export interface PeerReviewEditorExtraProps {
   attributes: Readonly<Partial<ExerciseAttributes>>
   setAttributes: (attr: Partial<ExerciseAttributes>) => void
@@ -407,10 +405,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(value, "accepting_threshold")
                   }}
                 />
-                <h2>{HEADING_TEXT}</h2>
+                <h2>{t("configure-review-answers-option")}</h2>
                 {parsedPeerReviewQuestionConfig &&
-                  parsedPeerReviewQuestionConfig.map(
-                    ({ id, question, question_type, answer_required }) => (
+                  parsedPeerReviewQuestionConfig
+                    .sort((o1, o2) => o1.order_number - o2.order_number)
+                    .map(({ id, question, question_type, answer_required }) => (
                       <List key={id} id={id}>
                         <StyledQuestion>
                           <StyledSelectField
@@ -450,8 +449,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           <FontAwesomeIcon icon={faXmark} />
                         </DeleteBtn>
                       </List>
-                    ),
-                  )}
+                    ))}
                 <Button
                   variant="primary"
                   size="medium"

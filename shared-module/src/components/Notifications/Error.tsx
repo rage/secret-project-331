@@ -1,7 +1,5 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faTimesCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { BellXmark } from "@vectopus/atlas-icons-react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
@@ -96,12 +94,7 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
     <NotificationWrapper className="toast-notification">
       <Content>
         <IconWrapper>
-          <FontAwesomeIcon
-            className={css`
-              color: ${baseTheme.colors.red[700]};
-            `}
-            icon={faTimesCircle}
-          />
+          <BellXmark color={baseTheme.colors.red[700]} />
         </IconWrapper>
         {/* eslint-disable-next-line i18next/no-literal-string */}
         <TextWrapper role="alert" aria-live="assertive">

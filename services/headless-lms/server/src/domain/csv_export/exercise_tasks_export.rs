@@ -68,8 +68,8 @@ where
     while let Some(next) = stream.try_next().await? {
         let csv_row = vec![
             next.id.to_string(),
-            next.created_at.to_string(),
-            next.updated_at.to_string(),
+            next.created_at.to_rfc3339(),
+            next.updated_at.to_rfc3339(),
             next.exercise_type.to_string(),
             next.private_spec
                 .map(|o| o.to_string())

@@ -71,7 +71,7 @@ where
         let csv_row = vec![
             next.id.to_string(),
             next.user_id.to_string(),
-            next.created_at.to_string(),
+            next.created_at.to_rfc3339(),
             next.exercise_id.to_string(),
             next.exercise_task_id.to_string(),
             next.score_given.unwrap_or(0.0).to_string(),
@@ -97,7 +97,7 @@ impl CsvExportDataLoader for CourseSubmissionExportOperation {
         conn: &mut PgConnection,
         token: AuthorizationToken,
     ) -> anyhow::Result<CSVExportAdapter> {
-        export_course_submissions(
+        export_course_exercise_task_submissions(
             &mut *conn,
             self.course_id,
             CSVExportAdapter {
@@ -110,7 +110,7 @@ impl CsvExportDataLoader for CourseSubmissionExportOperation {
 }
 
 /// Writes the course submissions as csv into the writer
-pub async fn export_course_submissions<W>(
+pub async fn export_course_exercise_task_submissions<W>(
     conn: &mut PgConnection,
     course_id: Uuid,
     writer: W,
@@ -120,7 +120,7 @@ where
 {
     let headers = IntoIterator::into_iter([
         "exercise_slide_submission_id".to_string(),
-        "id".to_string(),
+        "exercise_task_submission_id".to_string(),
         "user_id".to_string(),
         "created_at".to_string(),
         "course_instance_id".to_string(),
@@ -138,7 +138,7 @@ where
             next.exercise_slide_submission_id.to_string(),
             next.id.to_string(),
             next.user_id.to_string(),
-            next.created_at.to_string(),
+            next.created_at.to_rfc3339(),
             next.course_instance_id
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| "".to_string()),

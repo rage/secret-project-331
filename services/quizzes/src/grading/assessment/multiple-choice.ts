@@ -40,8 +40,9 @@ const getMultipleChoicePointsByGradingPolicy = (
         countOfCorrectAnswers * 2 - totalCorrectAnswers - countOfIncorrectAnswers,
       )
       break
-    case "full-points-no-incorrect-options":
-      totalScore = countOfCorrectAnswers !== 0 ? totalCorrectAnswers : 0
+    case "some-correct-none-incorrect":
+      totalScore =
+        countOfCorrectAnswers !== 0 && countOfIncorrectAnswers == 0 ? totalCorrectAnswers : 0
       break
     default:
       totalScore =

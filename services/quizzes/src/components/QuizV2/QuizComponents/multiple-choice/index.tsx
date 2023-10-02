@@ -111,8 +111,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
       label: t("multiple-choice-grading-points-off-unselected-options"),
     },
     {
-      value: "full-points-no-incorrect-options",
-      label: t("multiple-choice-grading-full-points-no-incorrect-options"),
+      value: "some-correct-none-incorrect",
+      label: t("multiple-choice-grading-some-correct-none-incorrect"),
     },
   ]
 
@@ -352,10 +352,10 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                         // eslint-disable-next-line i18next/no-literal-string
                         "points-off-unselected-options"
                       break
-                    case "full-points-no-incorrect-options":
+                    case "some-correct-none-incorrect":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
                         // eslint-disable-next-line i18next/no-literal-string
-                        "full-points-no-incorrect-options"
+                        "some-correct-none-incorrect"
                       break
                   }
                 })
@@ -385,8 +385,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 "points-off-unselected-options" &&
                 t("multiple-choice-grading-points-off-unselected-options-description")}
               {selected.multipleChoiceMultipleOptionsGradingPolicy ==
-                "full-points-no-incorrect-options" &&
-                t("multiple-choice-grading-full-points-no-incorrect-options-description")}
+                "some-correct-none-incorrect" &&
+                t("multiple-choice-grading-some-correct-none-incorrect-description")}
             </span>
             <OptionTitle> {t("feedback-message")} </OptionTitle>
             <ParsedTextField

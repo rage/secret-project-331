@@ -48,7 +48,7 @@ export type multipleChoiceMultipleOptionsGradingPolicy =
   | "default"
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
-  | "full-points-no-incorrect-options"
+  | "some-correct-none-incorrect"
 
 export type ModelSolutionQuizItem =
   | ModelSolutionQuizItemMultiplechoice

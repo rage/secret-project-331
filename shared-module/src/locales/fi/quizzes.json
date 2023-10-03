@@ -74,6 +74,8 @@
   "multiple-choice-grading-points-off-incorrect-options-description": "Vääristä valinnoista vähennetään piste",
   "multiple-choice-grading-points-off-unselected-options": "Pisteiden vähennys vääristä- ja oikeista valitsemattomista valinnoista",
   "multiple-choice-grading-points-off-unselected-options-description": "Vääristä ja jätetyistä oikeista valinnoista vähennetään piste",
+  "multiple-choice-grading-some-correct-none-incorrect": "Osa oikein, ei yhtään väärin",
+  "multiple-choice-grading-some-correct-none-incorrect-description": "Täydet pisteet jos osa tai kaikki valinnoista on oikein ja yhtään väärää ei ole valittu",
   "multiple-choice-header": "Monivalinnat:",
   "not-answered": "Ei vastattu",
   "number-of-tries-allowed": "Sallittujen yritysten määrä",

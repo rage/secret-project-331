@@ -175,4 +175,44 @@ describe('grade', () => {
     expect(gradingResult.score_given).toBe(0.25)
   })
 
+  //Some correct, none incorrect
+  it('returns full points for all correct answers in multiple-choice-options', async () => {
+    const data = generateMultipleChoiceRequest(3, 3, ['option-1', 'option-2', 'option-3'], "some-correct-none-incorrect")
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(1)
+  })
+
+  it('returns full points for some correct answers in multiple-choice-options', async () => {
+    const data = generateMultipleChoiceRequest(6, 6, ['option-1', 'option-2', 'option-3'], "some-correct-none-incorrect")
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(1)
+  })
+
+  it('returns zero points if correct answer and wrong answer is selected in multiple-choice-options', async () => {
+    const data = generateMultipleChoiceRequest(6, 3, ['option-1', 'option-6'], "some-correct-none-incorrect")
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it('returns zero points for wrong answer in multiple-choice-options', async () => {
+    const data = generateMultipleChoiceRequest(6, 3, ['option-6'], "some-correct-none-incorrect")
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
 })

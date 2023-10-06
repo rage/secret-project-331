@@ -1,6 +1,7 @@
 import { config } from "@fortawesome/fontawesome-svg-core"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
+import Script from "next/script"
 import React, { useEffect } from "react"
 
 import Layout from "../components/layout/Layout"
@@ -8,6 +9,7 @@ import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateC
 import useLanguage from "../shared-module/hooks/useLanguage"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
+import { OUTDATED_BROWSER_WARNING_SCRIPT } from "../shared-module/utils/constants"
 import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
 
@@ -42,14 +44,19 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
   }, [language])
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GlobalStyles />
-      <LoginStateContextProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </LoginStateContextProvider>
-    </QueryClientProvider>
+    <>
+      <Script noModule id="outdated-browser-warning">
+        {OUTDATED_BROWSER_WARNING_SCRIPT}
+      </Script>
+      <QueryClientProvider client={queryClient}>
+        <GlobalStyles />
+        <LoginStateContextProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </LoginStateContextProvider>
+      </QueryClientProvider>
+    </>
   )
 }
 

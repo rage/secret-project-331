@@ -1,3 +1,4 @@
+/** @deprecated */
 export type OldQuizItemType =
   | "essay"
   | "multiple-choice"

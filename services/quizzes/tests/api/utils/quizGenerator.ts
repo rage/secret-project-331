@@ -1,10 +1,10 @@
 /* eslint-disable */
 import { NonGenericGradingRequest } from "../../../src/shared-module/exercise-service-protocol-types";
 import { COLUMN } from "../../../src/util/constants";
-import { multipleChoiceMultipleOptionsGradingPolicy, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption } from "../../../types/types";
+import { oldMultipleChoiceMultipleOptionsGradingPolicy, OldQuiz, OldQuizAnswer, QuizItem, OldQuizItemAnswer, OldQuizItemOption } from "../../../types/oldQuizTypes";
 
 
-const emptyQuizAnswer = (): QuizAnswer => ({
+const emptyQuizAnswer = (): OldQuizAnswer => ({
   createdAt: '',
   updatedAt: '',
   id: '',
@@ -12,7 +12,7 @@ const emptyQuizAnswer = (): QuizAnswer => ({
   quizId: '',
   status: "open",
 })
-const emptyQuizItemAnswer = (): QuizItemAnswer => ({
+const emptyQuizItemAnswer = (): OldQuizItemAnswer => ({
   id: "v4()",
   quizAnswerId: "v4()",
   quizItemId: "v4()",
@@ -30,7 +30,7 @@ const emptyQuizItemAnswer = (): QuizItemAnswer => ({
   timelineChoices: null
 })
 
-const emptyQuizItemOption = (): QuizItemOption => ({
+const emptyQuizItemOption = (): OldQuizItemOption => ({
   id: 'v4()',
   title: '',
   body: '',
@@ -74,7 +74,7 @@ const emptyQuizItem = (): QuizItem => ({
   usesSharedOptionFeedbackMessage: false
 })
 
-const emptyQuiz = (): Quiz => ({
+const emptyQuiz = (): OldQuiz => ({
   id: '',
   updatedAt: new Date(),
   createdAt: new Date(),
@@ -98,7 +98,7 @@ const emptyQuiz = (): Quiz => ({
   submitMessage: '',
 })
 
-export const generateQuiz = <T extends Partial<Quiz>>(initialValues: T): Quiz & T => {
+export const generateQuiz = <T extends Partial<OldQuiz>>(initialValues: T): OldQuiz & T => {
   return Object.assign(emptyQuiz(), initialValues);
 }
 
@@ -106,15 +106,15 @@ export const generateQuizItem = <T extends Partial<QuizItem>>(initialValues: T):
   return Object.assign(emptyQuizItem(), initialValues);
 }
 
-export const generateQuizItemOption = <T extends Partial<QuizItemOption>>(initialValues: T): QuizItemOption & T => {
+export const generateQuizItemOption = <T extends Partial<OldQuizItemOption>>(initialValues: T): OldQuizItemOption & T => {
   return Object.assign(emptyQuizItemOption(), initialValues);
 }
 
-export const generateQuizAnswer = <T extends Partial<QuizAnswer>>(initialValues: T): QuizAnswer & T => {
+export const generateQuizAnswer = <T extends Partial<OldQuizAnswer>>(initialValues: T): OldQuizAnswer & T => {
   return Object.assign(emptyQuizAnswer(), initialValues);
 }
 
-export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(initialValues: T): QuizItemAnswer & T => {
+export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(initialValues: T): OldQuizItemAnswer & T => {
   return Object.assign(emptyQuizItemAnswer(), initialValues);
 }
 
@@ -132,13 +132,13 @@ export const generateMultipleChoiceRequest = (
     numberOfOptions: number,
     numberOfCorrectOptions: number,
     options: string[],
-    multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy,
+    multipleChoiceMultipleOptionsGradingPolicy: oldMultipleChoiceMultipleOptionsGradingPolicy,
     multi=true
 ): NonGenericGradingRequest => {
   // Create quiz with multiple choice
   const quizItemId = 'multiple-choice-test-id'
 
-  let quizOptions: QuizItemOption[] = []
+  let quizOptions: OldQuizItemOption[] = []
   for (let i = 0; i < numberOfOptions; i++) {
     quizOptions.push(generateQuizItemOption({
       quizItemId,

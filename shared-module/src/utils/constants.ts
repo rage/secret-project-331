@@ -10,3 +10,4 @@ export const SHOW_TOAST_DURATION_IN_SYSTEM_TESTS_EVENT = "show-toas-duration-in-
 export const EXERCISE_SERVICE_CONTENT_ID = "exercise-service-content-id"
 export const LANGUAGE_COOKIE_KEY = "selected-language"
 export const SPINNER_CLASS = "loading-spinner-component"
+export const OUTDATED_BROWSER_WARNING_SCRIPT = `alert("Your browser is so old that it won't work with this page. We recommend switching to Firefox.");`

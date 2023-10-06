@@ -1,10 +1,15 @@
 // Default value for choose-n exercise
 
+import {
+  OldPublicQuiz,
+  OldQuiz,
+  OldQuizAnswer,
+  OldQuizItemAnswer,
+} from "../../../types/oldQuizTypes"
 import { UserAnswer } from "../../../types/quizTypes/answer"
 import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz } from "../../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
-import { PublicQuiz, Quiz, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 
 // Not set in the previous version
 const DEFAULT_N = 10
@@ -13,7 +18,7 @@ const DEFAULT_N = 10
  * Check if the quiz version is old.
  *
  * @param quiz Quiz
- * @see Quiz
+ * @see OldQuiz
  * @see PrivateSpecQuiz
  * @see PublicSpecQuiz
  * @see ModelSolutionQuiz
@@ -21,14 +26,14 @@ const DEFAULT_N = 10
  */
 const isOldQuiz = (
   quiz:
-    | Quiz
-    | PublicQuiz
+    | OldQuiz
+    | OldPublicQuiz
     | ModelSolutionQuiz
     | PrivateSpecQuiz
     | PublicSpecQuiz
     | ModelSolutionQuiz
-    | QuizItemAnswer
-    | QuizAnswer
+    | OldQuizItemAnswer
+    | OldQuizAnswer
     | null
     | undefined,
 ): boolean => {
@@ -39,7 +44,7 @@ const isOldQuiz = (
   return !Object.prototype.hasOwnProperty.call(quiz, "version")
 }
 
-const isOldUserAnswer = (userAnswer: UserAnswer | QuizAnswer): boolean => {
+const isOldUserAnswer = (userAnswer: UserAnswer | OldQuizAnswer): boolean => {
   if (!userAnswer) {
     return false
   }

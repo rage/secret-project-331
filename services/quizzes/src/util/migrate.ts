@@ -1,13 +1,13 @@
 // Allow any for this file, because we are checking for properties that no longer exist in interfaces.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Quiz, QuizItem, QuizItemOption } from "../../types/types"
+import { OldQuiz, OldQuizItemOption, QuizItem } from "../../types/oldQuizTypes"
 
-export function migrateQuiz(oldQuiz: unknown): Quiz {
+export function migrateQuiz(oldQuiz: unknown): OldQuiz {
   console.log("Old quiz:", oldQuiz)
   return {
-    ...(oldQuiz as Quiz),
-    items: (oldQuiz as Quiz).items.map((x) => migrateQuizItem(x)),
+    ...(oldQuiz as OldQuiz),
+    items: (oldQuiz as OldQuiz).items.map((x) => migrateQuizItem(x)),
   }
 }
 
@@ -18,30 +18,31 @@ function migrateQuizItem(oldQuizItem: unknown): QuizItem {
   }
 }
 
-function migrateQuizItemOption(oldQuizItemOption: unknown): QuizItemOption {
+function migrateQuizItemOption(oldQuizItemOption: unknown): OldQuizItemOption {
   const successMessage: string | null = (oldQuizItemOption as any).successMessage
   const failureMessage: string | null = (oldQuizItemOption as any).failureMessage
   if (successMessage === null && failureMessage === null) {
     // Nothing to migrate, avoid overriding existing feedback message.
-    return oldQuizItemOption as QuizItemOption
+    return oldQuizItemOption as OldQuizItemOption
   }
   let feedback
-  if ((oldQuizItemOption as QuizItemOption).messageAfterSubmissionWhenSelected) {
-    feedback = (oldQuizItemOption as QuizItemOption).messageAfterSubmissionWhenSelected
+  if ((oldQuizItemOption as OldQuizItemOption).messageAfterSubmissionWhenSelected) {
+    feedback = (oldQuizItemOption as OldQuizItemOption).messageAfterSubmissionWhenSelected
   } else {
-    feedback = (oldQuizItemOption as QuizItemOption).correct ? successMessage : failureMessage
+    feedback = (oldQuizItemOption as OldQuizItemOption).correct ? successMessage : failureMessage
   }
   return {
-    id: (oldQuizItemOption as QuizItemOption).id,
-    body: (oldQuizItemOption as QuizItemOption).body,
-    correct: (oldQuizItemOption as QuizItemOption).correct,
-    createdAt: (oldQuizItemOption as QuizItemOption).createdAt,
+    id: (oldQuizItemOption as OldQuizItemOption).id,
+    body: (oldQuizItemOption as OldQuizItemOption).body,
+    correct: (oldQuizItemOption as OldQuizItemOption).correct,
+    createdAt: (oldQuizItemOption as OldQuizItemOption).createdAt,
     messageAfterSubmissionWhenSelected: feedback,
     additionalCorrectnessExplanationOnModelSolution:
-      (oldQuizItemOption as QuizItemOption).additionalCorrectnessExplanationOnModelSolution ?? null,
-    order: (oldQuizItemOption as QuizItemOption).order,
-    title: (oldQuizItemOption as QuizItemOption).title,
-    updatedAt: (oldQuizItemOption as QuizItemOption).updatedAt,
-    quizItemId: (oldQuizItemOption as QuizItemOption).quizItemId,
+      (oldQuizItemOption as OldQuizItemOption).additionalCorrectnessExplanationOnModelSolution ??
+      null,
+    order: (oldQuizItemOption as OldQuizItemOption).order,
+    title: (oldQuizItemOption as OldQuizItemOption).title,
+    updatedAt: (oldQuizItemOption as OldQuizItemOption).updatedAt,
+    quizItemId: (oldQuizItemOption as OldQuizItemOption).quizItemId,
   }
 }

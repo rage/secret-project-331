@@ -1,24 +1,24 @@
+import { OldQuiz, OldQuizAnswer } from "../../types/oldQuizTypes"
 import { UserAnswer } from "../../types/quizTypes/answer"
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-import { Quiz, QuizAnswer } from "../../types/types"
 import { isOldQuiz, isOldUserAnswer } from "../util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "../util/migration/privateSpecQuiz"
 import migrateQuizAnswer from "../util/migration/userAnswerSpec"
 
-const handlePrivateSpecMigration = (quiz: PrivateSpecQuiz | Quiz): PrivateSpecQuiz => {
+const handlePrivateSpecMigration = (quiz: PrivateSpecQuiz | OldQuiz): PrivateSpecQuiz => {
   if (isOldQuiz(quiz)) {
-    return migratePrivateSpecQuiz(quiz as Quiz)
+    return migratePrivateSpecQuiz(quiz as OldQuiz)
   }
   return quiz as PrivateSpecQuiz
 }
 
 const handleUserAnswerMigration = (
   privateSpecQuiz: PrivateSpecQuiz,
-  quizAnswer: UserAnswer | QuizAnswer,
+  quizAnswer: UserAnswer | OldQuizAnswer,
 ): UserAnswer => {
   if (isOldUserAnswer(quizAnswer)) {
     return (
-      migrateQuizAnswer(quizAnswer as QuizAnswer, privateSpecQuiz) ?? (quizAnswer as UserAnswer)
+      migrateQuizAnswer(quizAnswer as OldQuizAnswer, privateSpecQuiz) ?? (quizAnswer as UserAnswer)
     )
   }
   return quizAnswer as UserAnswer

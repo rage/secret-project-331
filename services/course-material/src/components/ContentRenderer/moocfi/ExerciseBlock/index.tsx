@@ -35,7 +35,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
 import PeerReviewView from "./PeerReviewView"
-import PeerReviewReceived from "./PeerReviewView/PeerReviewReceivedComponent/index"
+import PeerReviewReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {

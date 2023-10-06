@@ -1,6 +1,15 @@
 /* eslint-disable i18next/no-literal-string */
 
 import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
+import {
+  OldModelSolutionQuiz as OldModelSolutionQuiz,
+  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+  OldPublicQuiz,
+  OldPublicQuizItem,
+  OldQuiz,
+  OldQuizItemAnswer,
+  QuizItem,
+} from "../../../../types/oldQuizTypes"
 import { UserItemAnswer } from "../../../../types/quizTypes/answer"
 import {
   ModelSolutionQuiz,
@@ -8,15 +17,6 @@ import {
 } from "../../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
-import {
-  ModelSolutionQuiz as OldModelSolutionQuiz,
-  ModelSolutionQuizItem as OldModelSolutionQuizItem,
-  PublicQuiz,
-  PublicQuizItem,
-  Quiz,
-  QuizItem,
-  QuizItemAnswer,
-} from "../../../../types/types"
 
 const QUIZ_VERSION = "2"
 
@@ -27,7 +27,7 @@ const QUIZ_VERSION = "2"
  * @param version Version of the private spec quiz
  */
 const expectPrivateSpecMetadataToMatch = (
-  oldQuiz: Quiz,
+  oldQuiz: OldQuiz,
   privateSpecQuiz: PrivateSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
@@ -46,7 +46,7 @@ const expectPrivateSpecMetadataToMatch = (
  * @param version Version of the public spec quiz
  */
 const expectPublicSpecMetadataToMatch = (
-  oldQuiz: PublicQuiz,
+  oldQuiz: OldPublicQuiz,
   publicSpecQuiz: PublicSpecQuiz,
   version = QUIZ_VERSION,
 ) => {
@@ -229,7 +229,7 @@ const comparePrivateSpecQuizItem = (
 
 const comparePublicSpecQuizItem = (
   publicSpecQuizItem: PublicSpecQuizItem,
-  oldQuizItem: PublicQuizItem,
+  oldQuizItem: OldPublicQuizItem,
 ) => {
   let fields = {}
   switch (publicSpecQuizItem.type) {
@@ -314,7 +314,7 @@ const comparePublicSpecQuizItem = (
       }
       break
   }
-  compareFields<PublicSpecQuizItem, PublicQuizItem>(fields, publicSpecQuizItem, oldQuizItem)
+  compareFields<PublicSpecQuizItem, OldPublicQuizItem>(fields, publicSpecQuizItem, oldQuizItem)
 }
 
 const compareModelSolutionSpecQuizItem = (
@@ -429,7 +429,10 @@ const compareModelSolutionSpecQuizItem = (
   )
 }
 
-const compareUserItemAnswer = (quizItemAnswer: QuizItemAnswer, userItemAnswer: UserItemAnswer) => {
+const compareUserItemAnswer = (
+  quizItemAnswer: OldQuizItemAnswer,
+  userItemAnswer: UserItemAnswer,
+) => {
   let fields = {}
 
   switch (userItemAnswer.type) {
@@ -507,7 +510,7 @@ const compareUserItemAnswer = (quizItemAnswer: QuizItemAnswer, userItemAnswer: U
       break
   }
 
-  compareFields<QuizItemAnswer, UserItemAnswer>(fields, quizItemAnswer, userItemAnswer)
+  compareFields<OldQuizItemAnswer, UserItemAnswer>(fields, quizItemAnswer, userItemAnswer)
 }
 
 export {

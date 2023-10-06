@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
-import { QuizAnswer, QuizItemAnswer } from "../../../../types/types"
+import { OldQuizAnswer, OldQuizItemAnswer } from "../../../../types/oldQuizTypes"
 
 // Quiz answers
-const emptyQuizAnswer = (): QuizAnswer => ({
+const emptyQuizAnswer = (): OldQuizAnswer => ({
   createdAt: "",
   updatedAt: "",
   id: "",
@@ -11,7 +11,7 @@ const emptyQuizAnswer = (): QuizAnswer => ({
   status: "open",
 })
 
-const emptyQuizItemAnswer = (): QuizItemAnswer => ({
+const emptyQuizItemAnswer = (): OldQuizItemAnswer => ({
   id: "v4()",
   quizAnswerId: "v4()",
   quizItemId: "v4()",
@@ -30,40 +30,40 @@ const emptyQuizItemAnswer = (): QuizItemAnswer => ({
 })
 
 // Quiz answer generation
-export const generateQuizAnswer = <T extends Partial<QuizAnswer>>(
+export const generateQuizAnswer = <T extends Partial<OldQuizAnswer>>(
   initialValues: T,
-): QuizAnswer & T => {
+): OldQuizAnswer & T => {
   return Object.assign(emptyQuizAnswer(), initialValues)
 }
 
-export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(
+export const generateQuizItemAnswer = <T extends Partial<OldQuizItemAnswer>>(
   initialValues: T,
-): QuizItemAnswer & T => {
+): OldQuizItemAnswer & T => {
   return Object.assign(emptyQuizItemAnswer(), initialValues)
 }
 
-const generateUserAnswerForCheckbox = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForCheckbox = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     intData: 1,
   })
 }
 
-const generateUserAnswerForClosedEnded = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForClosedEnded = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     textData: "answer for closed ended question.",
   })
 }
 
-const generateUserAnswerForEssay = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForEssay = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     textData: "essay answer for the exercise.",
   })
 }
 
-const generateUserAnswerForMatrix = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForMatrix = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     optionCells: [
@@ -74,35 +74,35 @@ const generateUserAnswerForMatrix = (quizItemId: string): QuizItemAnswer => {
   })
 }
 
-const generateUserAnswerForScale = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForScale = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     optionAnswers: ["0", "1", "2"],
   })
 }
 
-const generateUserAnswerForTimeline = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForTimeline = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     timelineChoices: [],
   })
 }
 
-const generateUserAnswerForMultipleChoice = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForMultipleChoice = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     optionAnswers: ["0", "1"],
   })
 }
 
-const generateUserAnswerForChooseN = (quizItemId: string): QuizItemAnswer => {
+const generateUserAnswerForChooseN = (quizItemId: string): OldQuizItemAnswer => {
   return generateQuizItemAnswer({
     quizItemId,
     optionAnswers: ["0", "1"],
   })
 }
 
-const packUserAnswers = (quizAnswers: QuizItemAnswer[]) =>
+const packUserAnswers = (quizAnswers: OldQuizItemAnswer[]) =>
   generateQuizAnswer({ itemAnswers: quizAnswers })
 
 export {

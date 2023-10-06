@@ -106,6 +106,7 @@ export type oldMultipleChoiceMultipleOptionsGradingPolicy =
   | "default"
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
+  | "some-correct-none-incorrect"
 /** @deprecated */
 export interface QuizItem {
   shuffleOptions: boolean

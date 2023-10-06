@@ -74,6 +74,8 @@
   "multiple-choice-grading-points-off-incorrect-options-description": "Wrong options will reduce the points",
   "multiple-choice-grading-points-off-unselected-options": "Reduce points from incorrect and unselected options",
   "multiple-choice-grading-points-off-unselected-options-description": "Wrong options and unselected correct options will reduce the points",
+  "multiple-choice-grading-some-correct-none-incorrect": "Some correct, none incorrect",
+  "multiple-choice-grading-some-correct-none-incorrect-description": "Give full points if some of the correct options were chosen and none of the incorrect ones were selected",
   "multiple-choice-header": "Multiple choice:",
   "not-answered": "Not answered",
   "number-of-tries-allowed": "Number of tries allowed",

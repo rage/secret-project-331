@@ -1,11 +1,12 @@
 /*!
 Syncs tmc users
 */
-use std::env;
+use std::{cmp::Ordering, env};
 
 use crate::setup_tracing;
 use anyhow::Context;
 
+use chrono::DateTime;
 use dotenv::dotenv;
 use headless_lms_models as models;
 use models::users::get_users_ids_in_db_from_upstream_ids;
@@ -40,6 +41,32 @@ pub async fn main() -> anyhow::Result<()> {
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
     delete_users(&mut conn, &recent_changes).await?;
+    update_users(&mut conn, &recent_changes).await?;
+    Ok(())
+}
+
+pub async fn update_users(
+    conn: &mut PgConnection,
+    recent_changes: &TMCRecentChanges,
+) -> anyhow::Result<()> {
+    let email_update_list = recent_changes
+        .changes
+        .iter()
+        .filter(|c| c.change_type == "email_changed")
+        .collect::<Vec<_>>();
+
+    info!("Updating emails for {} users", email_update_list.len());
+    email_update_list.sort_by(|a, b| {
+        DateTime::parse_from_rfc3339(a.created_at.as_str())
+            .partial_cmp(DateTime::parse_from_rfc3339(b.created_at.as_str()))
+            .unwrap_or(Ordering::Equal)
+    });
+
+    for user in email_update_list {
+        update_email_for_user(&mut *conn, user.id, user.new_value);
+    }
+
+    info!("Update done");
     Ok(())
 }
 

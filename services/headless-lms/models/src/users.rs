@@ -214,6 +214,24 @@ AND deleted_at IS NULL
     Ok(res.iter().map(|x| x.id).collect::<Vec<_>>())
 }
 
+pub async fn update_email_for_user(
+    conn: &mut PgConnection,
+    id: Uuid,
+    new_email: String,
+) -> ModelResult<()> {
+    info!("Updating user {id}");
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        "UPDATE users SET email_address = $1 WHERE id = $2",
+        new_email,
+        id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    info!("Email change succeeded");
+    Ok(())
+}
+
 pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     info!("Deleting user {id}");
     let mut tx = conn.begin().await?;

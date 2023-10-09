@@ -222,7 +222,7 @@ pub async fn update_email_for_user(
     info!("Updating user {id}");
     let mut tx = conn.begin().await?;
     sqlx::query!(
-        "UPDATE users SET email_address = $1 WHERE id = $2",
+        "UPDATE user_details SET email = $1 WHERE id = $2",
         new_email,
         id,
     )

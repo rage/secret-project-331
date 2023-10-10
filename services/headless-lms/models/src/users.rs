@@ -216,17 +216,18 @@ AND deleted_at IS NULL
 
 pub async fn update_email_for_user(
     conn: &mut PgConnection,
-    upstream_id: Uuid,
+    upstream_id: &i32,
     new_email: String,
 ) -> ModelResult<()> {
     info!("Updating user (Upstream id: {upstream_id})");
     let mut tx = conn.begin().await?;
 
-    let user = sqlx::query!(
-        "SELECT * FROM users_details WHERE upstream_id = $1",
+    let user = sqlx::query_as!(
+        User,
+        "SELECT * FROM users WHERE upstream_id = $1",
         upstream_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     sqlx::query!(

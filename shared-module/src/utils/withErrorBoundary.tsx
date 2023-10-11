@@ -34,7 +34,7 @@ export default function withErrorBoundary<T>(
         console.warn(`ErrorBoundary caught multiple errors. Showing only the first one.`)
         return
       }
-      this.setState({ error: error.message, trace: info.componentStack })
+      this.setState({ error: error.message, trace: info.componentStack ?? undefined })
     }
 
     render() {

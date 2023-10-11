@@ -1,7 +1,7 @@
 /*!
 Syncs tmc users
 */
-use std::{cmp::Ordering, env};
+use std::env;
 
 use crate::setup_tracing;
 use anyhow::Context;
@@ -9,7 +9,7 @@ use anyhow::Context;
 use chrono::DateTime;
 use dotenv::dotenv;
 use headless_lms_models as models;
-use models::users::get_users_ids_in_db_from_upstream_ids;
+use models::users::{get_users_ids_in_db_from_upstream_ids, update_email_for_user};
 
 use serde::{Deserialize, Serialize};
 use sqlx::{PgConnection, PgPool};
@@ -49,7 +49,7 @@ pub async fn update_users(
     conn: &mut PgConnection,
     recent_changes: &TMCRecentChanges,
 ) -> anyhow::Result<()> {
-    let email_update_list = recent_changes
+    let mut email_update_list = recent_changes
         .changes
         .iter()
         .filter(|c| c.change_type == "email_changed")
@@ -58,12 +58,17 @@ pub async fn update_users(
     info!("Updating emails for {} users", email_update_list.len());
     email_update_list.sort_by(|a, b| {
         DateTime::parse_from_rfc3339(a.created_at.as_str())
-            .partial_cmp(DateTime::parse_from_rfc3339(b.created_at.as_str()))
-            .unwrap_or(Ordering::Equal)
+            .unwrap()
+            .cmp(&DateTime::parse_from_rfc3339(b.created_at.as_str()).unwrap())
     });
 
     for user in email_update_list {
-        update_email_for_user(&mut *conn, user.id, user.new_value);
+        update_email_for_user(
+            &mut *conn,
+            &user.id,
+            user.new_value.as_deref().unwrap_or("unknown").to_string(),
+        )
+        .await?;
     }
 
     info!("Update done");

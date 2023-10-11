@@ -238,7 +238,7 @@ pub async fn update_email_for_user(
     .execute(&mut *tx)
     .await?;
 
-    let email_domain = new_email.split("@").nth(1);
+    let email_domain = new_email.trim().split('@').last();
     sqlx::query!(
         "UPDATE users SET email_domain = $1 WHERE id = $2",
         email_domain,

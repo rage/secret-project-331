@@ -57,18 +57,41 @@ pub async fn update_users(
 
     info!("Updating emails for {} users", email_update_list.len());
     email_update_list.sort_by(|a, b| {
-        DateTime::parse_from_rfc3339(a.created_at.as_str())
-            .unwrap()
-            .cmp(&DateTime::parse_from_rfc3339(b.created_at.as_str()).unwrap())
+        let date_a = match DateTime::parse_from_rfc3339(a.created_at.as_str()) {
+            Ok(val) => val,
+            Err(e) => {
+                error!("Error converting date: '{}'", a.created_at);
+                error!("Error: {}", e);
+                DateTime::parse_from_str("01.01.1450", "%d.%m.%Y").unwrap()
+            }
+        };
+
+        let date_b = match DateTime::parse_from_rfc3339(b.created_at.as_str()) {
+            Ok(val) => val,
+            Err(e) => {
+                error!("Error converting date: '{}'", b.created_at);
+                error!("Error: {}", e);
+                DateTime::parse_from_str("01.01.1450", "%d.%m.%Y").unwrap()
+            }
+        };
+
+        date_a.cmp(&date_b)
     });
 
     for user in email_update_list {
-        update_email_for_user(
+        match update_email_for_user(
             &mut *conn,
             &user.id,
             user.new_value.as_deref().unwrap_or("unknown").to_string(),
         )
-        .await?;
+        .await
+        {
+            Ok(email) => email,
+            Err(e) => {
+                error!("Error updating user with id {}", user.id);
+                error!("Error: {}", e);
+            }
+        };
     }
 
     info!("Update done");

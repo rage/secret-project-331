@@ -96,6 +96,63 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Syncs tmc users
 */
@@ -104,9 +161,10 @@ Syncs tmc users
 <span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
 <span class="kw">use </span>anyhow::Context;
 
+<span class="kw">use </span>chrono::DateTime;
 <span class="kw">use </span>dotenv::dotenv;
 <span class="kw">use </span>headless_lms_models <span class="kw">as </span>models;
-<span class="kw">use </span>models::users::get_users_ids_in_db_from_upstream_ids;
+<span class="kw">use </span>models::users::{get_users_ids_in_db_from_upstream_ids, update_email_for_user};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>sqlx::{PgConnection, PgPool};
@@ -138,6 +196,62 @@ Syncs tmc users
     <span class="kw">let </span>db_pool = PgPool::connect(<span class="kw-2">&amp;</span>database_url).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     delete_users(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>recent_changes).<span class="kw">await</span><span class="question-mark">?</span>;
+    update_users(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>recent_changes).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub async fn </span>update_users(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    recent_changes: <span class="kw-2">&amp;</span>TMCRecentChanges,
+) -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>email_update_list = recent_changes
+        .changes
+        .iter()
+        .filter(|c| c.change_type == <span class="string">&quot;email_changed&quot;</span>)
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
+    <span class="macro">info!</span>(<span class="string">&quot;Updating emails for {} users&quot;</span>, email_update_list.len());
+    email_update_list.sort_by(|a, b| {
+        <span class="kw">let </span>date_a = <span class="kw">match </span>DateTime::parse_from_rfc3339(a.created_at.as_str()) {
+            <span class="prelude-val">Ok</span>(val) =&gt; val,
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="macro">error!</span>(<span class="string">&quot;Error converting date: &#39;{}&#39;&quot;</span>, a.created_at);
+                <span class="macro">error!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
+                DateTime::parse_from_str(<span class="string">&quot;01.01.1450&quot;</span>, <span class="string">&quot;%d.%m.%Y&quot;</span>).unwrap()
+            }
+        };
+
+        <span class="kw">let </span>date_b = <span class="kw">match </span>DateTime::parse_from_rfc3339(b.created_at.as_str()) {
+            <span class="prelude-val">Ok</span>(val) =&gt; val,
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="macro">error!</span>(<span class="string">&quot;Error converting date: &#39;{}&#39;&quot;</span>, b.created_at);
+                <span class="macro">error!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
+                DateTime::parse_from_str(<span class="string">&quot;01.01.1450&quot;</span>, <span class="string">&quot;%d.%m.%Y&quot;</span>).unwrap()
+            }
+        };
+
+        date_a.cmp(<span class="kw-2">&amp;</span>date_b)
+    });
+
+    <span class="kw">for </span>change <span class="kw">in </span>email_update_list {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(user_id) = change.user_id {
+            <span class="kw">match </span>update_email_for_user(
+                <span class="kw-2">&amp;mut *</span>conn,
+                <span class="kw-2">&amp;</span>user_id,
+                change.new_value.as_deref().unwrap_or(<span class="string">&quot;unknown&quot;</span>).to_string(),
+            )
+            .<span class="kw">await
+            </span>{
+                <span class="prelude-val">Ok</span>(email) =&gt; email,
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="macro">error!</span>(<span class="string">&quot;Error updating user with id {}&quot;</span>, user_id);
+                    <span class="macro">error!</span>(<span class="string">&quot;Error: {}&quot;</span>, e);
+                }
+            };
+        };
+    }
+
+    <span class="macro">info!</span>(<span class="string">&quot;Update done&quot;</span>);
     <span class="prelude-val">Ok</span>(())
 }
 

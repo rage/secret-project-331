@@ -78,17 +78,17 @@ pub async fn update_users(
         date_a.cmp(&date_b)
     });
 
-    for user in email_update_list {
+    for change in email_update_list {
         match update_email_for_user(
             &mut *conn,
-            &user.id,
-            user.new_value.as_deref().unwrap_or("unknown").to_string(),
+            &change.user_id.unwrap(),
+            change.new_value.as_deref().unwrap_or("unknown").to_string(),
         )
         .await
         {
             Ok(email) => email,
             Err(e) => {
-                error!("Error updating user with id {}", user.id);
+                error!("Error updating user with id {}", change.user_id.unwrap());
                 error!("Error: {}", e);
             }
         };

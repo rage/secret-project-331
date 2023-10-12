@@ -79,18 +79,20 @@ pub async fn update_users(
     });
 
     for change in email_update_list {
-        match update_email_for_user(
-            &mut *conn,
-            &change.user_id.unwrap(),
-            change.new_value.as_deref().unwrap_or("unknown").to_string(),
-        )
-        .await
-        {
-            Ok(email) => email,
-            Err(e) => {
-                error!("Error updating user with id {}", change.user_id.unwrap());
-                error!("Error: {}", e);
-            }
+        if let Some(user_id) = change.user_id {
+            match update_email_for_user(
+                &mut *conn,
+                &user_id,
+                change.new_value.as_deref().unwrap_or("unknown").to_string(),
+            )
+            .await
+            {
+                Ok(email) => email,
+                Err(e) => {
+                    error!("Error updating user with id {}", user_id);
+                    error!("Error: {}", e);
+                }
+            };
         };
     }
 

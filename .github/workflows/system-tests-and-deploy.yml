@@ -47,27 +47,15 @@ jobs:
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
       - name: Install skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        uses: yokawasa/action-setup-kube-tools@v0.9.3
         with:
-          skaffold: "2.0.1"
+          skaffold: "2.8.0"
 
       - name: Run npm ci so that shared module gets copied
         run: npm ci
 
       - name: Download tmc-langs
         run: bin/download-tmc-langs
-
-
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: false
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
 
       - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output
@@ -148,11 +136,11 @@ jobs:
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
 
       - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        uses: yokawasa/action-setup-kube-tools@v0.9.3
         with:
-          kubectl: "1.25.4"
-          kustomize: "4.5.7"
-          skaffold: "2.0.1"
+          kubectl: "1.28.2"
+          kustomize: "5.1.1"
+          skaffold: "2.8.0"
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
         run: |
           # Workarounds this issue when starting up kube-system/kube-proxy:

@@ -55,6 +55,8 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.locator("text=1Page One").click()
 
+  await page.getByText(`Like this.`).first().waitFor()
+
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-localizing/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({

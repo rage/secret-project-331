@@ -50,10 +50,10 @@ jobs:
         with:
           tool-cache: true
           android: true
-          dotnet: true
+          dotnet: false
           haskell: true
-          large-packages: true
-          docker-images: true
+          large-packages: false
+          docker-images: false
           swap-storage: false
 
       - name: Build

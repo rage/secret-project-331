@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
+import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
@@ -77,6 +78,8 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.fill("#supportEmail", "support@example.com")
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2099-01-01T23:59")
+
+  await showNextToastsInfinitely(page)
   await page.locator("text=Submit").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
@@ -89,6 +92,7 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
   })
+  await showToastsNormally(page)
 
   await page.click("text=Default Manage >> a")
   await expect(page).toHaveURL(

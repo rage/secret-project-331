@@ -53,8 +53,9 @@ test("Spacers should not break text editing under them, block inserter should no
     })
     .fill("/spa")
   await page.getByRole("option", { name: "Spacer" }).click()
-  await page.getByRole("document", { name: "Paragraph block" }).click()
+  await page.getByLabel("Block: Paragraph").first().click()
   await page
-    .getByRole("document", { name: "Paragraph block" })
+    .getByLabel("Block: Paragraph")
+    .first()
     .fill("This text should remain editable. Yes, I can edit!")
 })

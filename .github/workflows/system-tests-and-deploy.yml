@@ -29,13 +29,6 @@ jobs:
         run: |
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
 
-      - name: Free up disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
@@ -50,6 +43,18 @@ jobs:
 
       - name: Download tmc-langs
         run: bin/download-tmc-langs
+
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
 
       - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output

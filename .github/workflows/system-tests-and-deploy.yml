@@ -48,7 +48,7 @@ jobs:
       - name: Run npm ci so that shared module gets copied
         run: npm ci
 
-      - name: Build
+      - name: Download tmc-langs
         run: bin/download-tmc-langs
 
       - name: Build

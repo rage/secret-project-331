@@ -29,6 +29,19 @@ jobs:
         run: |
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
 
+
+      - name: Free up disk space
+        run: |
+          echo "Space before:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Space after:"
+          df -h
+
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
@@ -117,10 +130,15 @@ jobs:
     steps:
       - name: Free up disk space
         run: |
+          echo "Space before:"
+          df -h
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /usr/local/lib/android
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Space after:"
+          df -h
       - name: Check out repository code
         uses: actions/checkout@v2
 

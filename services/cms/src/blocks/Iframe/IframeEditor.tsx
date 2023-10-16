@@ -46,7 +46,7 @@ const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttrib
           <PanelBody title={"Dimensions"} initialOpen>
             <TextField
               value={attributes.heightPx?.toString() ?? IFRAME_BLOCK_DEFAULT_HEIGHT_PX}
-              onChange={(newValue) => setAttributes({ heightPx: Number(newValue) })}
+              onChangeByValue={(newValue) => setAttributes({ heightPx: Number(newValue) })}
               label="Height"
             />
           </PanelBody>

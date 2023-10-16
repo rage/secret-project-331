@@ -25,7 +25,7 @@ test("Can convert blocks", async ({ page }) => {
       name: "Empty block; start writing or type forward slash to choose a block",
     })
     .fill("Test paragraph 1")
-  await page.getByRole("document", { name: "Paragraph block" }).press("Enter")
+  await page.getByLabel("Block: Paragraph").press("Enter")
   await page
     .getByRole("document", {
       name: "Empty block; start writing or type forward slash to choose a block",
@@ -40,5 +40,5 @@ test("Can convert blocks", async ({ page }) => {
   // There once was a regression where the page crashed here if we waited for a moment
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  await page.getByRole("document", { name: "Paragraph block" }).waitFor()
+  await page.getByLabel("Block: Paragraph").first().waitFor()
 })
